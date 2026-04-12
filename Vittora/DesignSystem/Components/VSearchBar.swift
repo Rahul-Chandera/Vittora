@@ -27,7 +27,9 @@ struct VSearchBar: View {
 
             TextField(placeholder, text: $text)
                 .font(VTypography.body)
+                #if os(iOS)
                 .textInputAutocapitalization(.never)
+                #endif
                 .autocorrectionDisabled(true)
                 .focused($isFocused)
                 .onChange(of: text) { _, newValue in

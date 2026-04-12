@@ -51,7 +51,7 @@ struct VEmptyState: View {
             }
 
             if let actionLabel = actionLabel, let actionHandler = actionHandler {
-                VActionButton(label: actionLabel, action: actionHandler)
+                VActionButton(actionLabel, action: actionHandler)
                     .padding(.horizontal, VSpacing.screenPadding)
             }
 

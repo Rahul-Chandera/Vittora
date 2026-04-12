@@ -18,10 +18,8 @@ extension String {
 
     /// Check if string is a valid URL.
     var isValidURL: Bool {
-        if let url = URL(string: self) {
-            return UIApplication.shared.canOpenURL(url)
-        }
-        return false
+        guard let url = URL(string: self) else { return false }
+        return url.scheme != nil && url.host != nil
     }
 
     /// Check if string contains only alphabetic characters.

@@ -84,7 +84,7 @@ extension View {
             }
         }
 
-        VCard(backgroundColor: VColors.tertiary Background) {
+        VCard(backgroundColor: VColors.tertiaryBackground) {
             HStack(spacing: VSpacing.md) {
                 Image(systemName: VIcons.Actions.search)
                     .foregroundColor(VColors.primary)

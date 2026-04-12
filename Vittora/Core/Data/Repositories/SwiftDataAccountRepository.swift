@@ -38,8 +38,9 @@ actor SwiftDataAccountRepository: AccountRepository {
     }
 
     func update(_ entity: AccountEntity) async throws {
+        let id = entity.id
         let descriptor = FetchDescriptor<SDAccount>(
-            predicate: #Predicate { $0.id == entity.id }
+            predicate: #Predicate { $0.id == id }
         )
         guard let model = try modelContext.fetch(descriptor).first else {
             throw VittoraError.notFound(String(localized: "Account not found"))
@@ -60,8 +61,9 @@ actor SwiftDataAccountRepository: AccountRepository {
     }
 
     func fetchByType(_ type: AccountType) async throws -> [AccountEntity] {
+        let typeRawValue = type.rawValue
         let descriptor = FetchDescriptor<SDAccount>(
-            predicate: #Predicate { $0.typeRawValue == type.rawValue },
+            predicate: #Predicate { $0.typeRawValue == typeRawValue },
             sortBy: [SortDescriptor(\.name, order: .forward)]
         )
         let models = try modelContext.fetch(descriptor)

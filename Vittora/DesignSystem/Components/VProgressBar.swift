@@ -84,7 +84,7 @@ struct VProgressBar: View {
 
     private var progress: CGFloat {
         guard limit > 0 else { return 0 }
-        return CGFloat(spent / limit)
+        return CGFloat(truncating: NSDecimalNumber(decimal: spent / limit))
     }
 
     private var progressPercentage: Int {

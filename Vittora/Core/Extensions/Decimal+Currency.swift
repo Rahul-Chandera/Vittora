@@ -24,7 +24,7 @@ extension Decimal {
     }
 
     /// Absolute value of the decimal.
-    var abs: Decimal {
+    var absoluteValue: Decimal {
         return self < 0 ? -self : self
     }
 
@@ -62,8 +62,7 @@ extension Decimal {
     /// - Parameter decimalPlaces: Number of decimal places
     /// - Returns: Rounded decimal
     func rounded(to decimalPlaces: Int) -> Decimal {
-        var result = self
-        var behaviorNotation = NSDecimalNumberHandler(
+        let behaviorNotation = NSDecimalNumberHandler(
             roundingMode: .plain,
             scale: Int16(decimalPlaces),
             raiseOnExactness: false,
@@ -81,7 +80,7 @@ extension Decimal {
     ///
     /// - Returns: Abbreviated string with suffix
     func abbreviated() -> String {
-        let absValue = abs(self)
+        let absValue = self.absoluteValue
 
         if absValue >= 1_000_000 {
             let millions = absValue / 1_000_000

@@ -12,8 +12,8 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
     private let biometricService: any BiometricServiceProtocol
     private var _isLocked = false
     private var lastActivityTime = Date()
-    private var lockTimeoutTimer: Timer?
     private var _lockTimeout: TimeInterval = 300
+    private var lockTask: Task<Void, Never>?
 
     var isLocked: Bool { _isLocked }
     var lockTimeout: TimeInterval {
@@ -26,16 +26,12 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
 
     init(biometricService: any BiometricServiceProtocol) {
         self.biometricService = biometricService
-        startLockTimer()
-    }
-
-    deinit {
-        lockTimeoutTimer?.invalidate()
+        resetLockTimer()
     }
 
     func lock() async {
         _isLocked = true
-        lockTimeoutTimer?.invalidate()
+        lockTask?.cancel()
     }
 
     func unlock() async throws -> Bool {
@@ -57,15 +53,12 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
     }
 
     private func resetLockTimer() {
-        lockTimeoutTimer?.invalidate()
-        lockTimeoutTimer = Timer.scheduledTimer(withTimeInterval: lockTimeout, repeats: false) { [weak self] _ in
-            Task { @MainActor in
-                await self?.lock()
-            }
+        lockTask?.cancel()
+        let timeout = _lockTimeout
+        lockTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(timeout))
+            guard !Task.isCancelled else { return }
+            await self?.lock()
         }
-    }
-
-    private func startLockTimer() {
-        resetLockTimer()
     }
 }

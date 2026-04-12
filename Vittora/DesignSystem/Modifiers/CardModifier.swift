@@ -33,19 +33,5 @@ struct CardModifier: ViewModifier {
     }
 }
 
-extension View {
-    /// Apply card styling with customizable padding, corner radius, and shadow.
-    func vCard(
-        padding: CGFloat = VSpacing.cardPadding,
-        cornerRadius: CGFloat = VSpacing.cornerRadiusCard,
-        shadow: VSpacing.Shadow = .subtle,
-        backgroundColor: Color = VColors.secondaryBackground
-    ) -> some View {
-        modifier(CardModifier(
-            padding: padding,
-            cornerRadius: cornerRadius,
-            shadow: shadow,
-            backgroundColor: backgroundColor
-        ))
-    }
-}
+// Note: The `vCard()` View extension is defined in VCard.swift
+// to avoid duplicate declarations.

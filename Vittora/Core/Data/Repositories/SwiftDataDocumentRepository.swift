@@ -36,8 +36,9 @@ actor SwiftDataDocumentRepository: DocumentRepository {
     }
 
     func update(_ entity: DocumentEntity) async throws {
+        let id = entity.id
         let descriptor = FetchDescriptor<SDDocument>(
-            predicate: #Predicate { $0.id == entity.id }
+            predicate: #Predicate { $0.id == id }
         )
         guard let model = try modelContext.fetch(descriptor).first else {
             throw VittoraError.notFound(String(localized: "Document not found"))
@@ -58,8 +59,9 @@ actor SwiftDataDocumentRepository: DocumentRepository {
     }
 
     func fetchForTransaction(_ transactionID: UUID) async throws -> [DocumentEntity] {
+        let capturedTransactionID = transactionID
         let descriptor = FetchDescriptor<SDDocument>(
-            predicate: #Predicate { $0.transactionID == transactionID },
+            predicate: #Predicate { $0.transactionID == capturedTransactionID },
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         let models = try modelContext.fetch(descriptor)

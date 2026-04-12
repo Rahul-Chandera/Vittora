@@ -1,7 +1,7 @@
 import Foundation
 
 extension Date {
-    enum DateFormatStyle {
+    enum DateFormatStyle: Equatable {
         case relative
         case short
         case medium
@@ -38,14 +38,15 @@ extension Date {
     /// - Parameter style: Format style to use
     /// - Returns: Formatted date string
     func formatted(as style: DateFormatStyle) -> String {
-        if style == .relative {
+        switch style {
+        case .relative:
             return relativeFormatted()
+        default:
+            let formatter = DateFormatter()
+            formatter.dateFormat = style.formatString
+            formatter.locale = Locale.current
+            return formatter.string(from: self)
         }
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = style.formatString
-        formatter.locale = Locale.current
-        return formatter.string(from: self)
     }
 
     /// Get relative date string (e.g., "2 hours ago", "Tomorrow", "Last week")

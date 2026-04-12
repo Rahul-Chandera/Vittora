@@ -51,23 +51,6 @@ struct AdaptiveScreenPaddingModifier: ViewModifier {
     }
 }
 
-struct AdaptiveListRowSpacingModifier: ViewModifier {
-    #if os(macOS)
-    let spacing = VSpacing.lg
-    #else
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
-
-    var spacing: CGFloat {
-        horizontalSizeClass == .regular ? VSpacing.lg : VSpacing.md
-    }
-    #endif
-
-    func body(content: Content) -> some View {
-        content
-            .spacing(spacing)
-    }
-}
-
 extension View {
     /// Apply adaptive padding based on platform (iPhone/iPad/Mac) and interface idiom.
     func adaptivePadding(
@@ -82,24 +65,15 @@ extension View {
         modifier(AdaptiveScreenPaddingModifier())
     }
 
-    /// Apply platform-specific vertical spacing.
-    func platformSpacing() -> some View {
-        modifier(AdaptiveListRowSpacingModifier())
-    }
-
     /// Apply different padding for iPhone vs iPad layouts.
     func responsivePadding(
         phone: EdgeInsets,
         tablet: EdgeInsets
     ) -> some View {
         #if os(macOS)
-        return AnyView(self.padding(tablet))
+        self.padding(tablet)
         #else
-        return AnyView(
-            self
-                .environment(\.horizontalSizeClass, .compact)
-                .padding(phone)
-        )
+        self.padding(phone)
         #endif
     }
 }

@@ -4,12 +4,13 @@ struct SidebarNavigation: View {
     @Environment(AppState.self) private var appState
     @Environment(Router.self) private var router
     @State private var showAddTransaction = false
+    @State private var selectedTab: AppState.AppTab? = .dashboard
 
     var body: some View {
         @Bindable var appState = appState
 
         NavigationSplitView {
-            List(selection: $appState.selectedTab) {
+            List(selection: $selectedTab) {
                 Section("Overview") {
                     Label(AppState.AppTab.dashboard.title,
                           systemImage: AppState.AppTab.dashboard.systemImage)
@@ -41,6 +42,14 @@ struct SidebarNavigation: View {
             #if os(macOS)
             .navigationSplitViewColumnWidth(min: 200, ideal: 220, max: 280)
             #endif
+            .onChange(of: selectedTab) { _, newValue in
+                if let tab = newValue {
+                    appState.selectedTab = tab
+                }
+            }
+            .onChange(of: appState.selectedTab) { _, newValue in
+                selectedTab = newValue
+            }
         } detail: {
             NavigationStack {
                 Group {

@@ -41,8 +41,9 @@ actor SwiftDataRecurringRuleRepository: RecurringRuleRepository {
     }
 
     func update(_ entity: RecurringRuleEntity) async throws {
+        let id = entity.id
         let descriptor = FetchDescriptor<SDRecurringRule>(
-            predicate: #Predicate { $0.id == entity.id }
+            predicate: #Predicate { $0.id == id }
         )
         guard let model = try modelContext.fetch(descriptor).first else {
             throw VittoraError.notFound(String(localized: "Recurring rule not found"))
@@ -72,9 +73,10 @@ actor SwiftDataRecurringRuleRepository: RecurringRuleRepository {
     }
 
     func fetchDueRules(before date: Date) async throws -> [RecurringRuleEntity] {
+        let dueDate = date
         let descriptor = FetchDescriptor<SDRecurringRule>(
             predicate: #Predicate { rule in
-                rule.isActive == true && rule.nextDate <= date
+                rule.isActive == true && rule.nextDate <= dueDate
             },
             sortBy: [SortDescriptor(\.nextDate, order: .forward)]
         )

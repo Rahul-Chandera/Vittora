@@ -38,8 +38,9 @@ actor SwiftDataBudgetRepository: BudgetRepository {
     }
 
     func update(_ entity: BudgetEntity) async throws {
+        let id = entity.id
         let descriptor = FetchDescriptor<SDBudget>(
-            predicate: #Predicate { $0.id == entity.id }
+            predicate: #Predicate { $0.id == id }
         )
         guard let model = try modelContext.fetch(descriptor).first else {
             throw VittoraError.notFound(String(localized: "Budget not found"))
@@ -72,9 +73,11 @@ actor SwiftDataBudgetRepository: BudgetRepository {
     }
 
     func fetchForCategory(_ categoryID: UUID, period: BudgetPeriod) async throws -> BudgetEntity? {
+        let capturedCategoryID = categoryID
+        let periodRawValue = period.rawValue
         let descriptor = FetchDescriptor<SDBudget>(
             predicate: #Predicate { budget in
-                budget.categoryID == categoryID && budget.periodRawValue == period.rawValue
+                budget.categoryID == capturedCategoryID && budget.periodRawValue == periodRawValue
             }
         )
         guard let model = try modelContext.fetch(descriptor).first else {

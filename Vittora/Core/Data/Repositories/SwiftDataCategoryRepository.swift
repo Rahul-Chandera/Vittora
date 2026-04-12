@@ -42,8 +42,9 @@ actor SwiftDataCategoryRepository: CategoryRepository {
     }
 
     func update(_ entity: CategoryEntity) async throws {
+        let id = entity.id
         let descriptor = FetchDescriptor<SDCategory>(
-            predicate: #Predicate { $0.id == entity.id }
+            predicate: #Predicate { $0.id == id }
         )
         guard let model = try modelContext.fetch(descriptor).first else {
             throw VittoraError.notFound(String(localized: "Category not found"))
@@ -76,8 +77,9 @@ actor SwiftDataCategoryRepository: CategoryRepository {
     }
 
     func fetchByType(_ type: CategoryType) async throws -> [CategoryEntity] {
+        let typeRawValue = type.rawValue
         let descriptor = FetchDescriptor<SDCategory>(
-            predicate: #Predicate { $0.typeRawValue == type.rawValue },
+            predicate: #Predicate { $0.typeRawValue == typeRawValue },
             sortBy: [
                 SortDescriptor(\.sortOrder, order: .forward),
                 SortDescriptor(\.name, order: .forward)

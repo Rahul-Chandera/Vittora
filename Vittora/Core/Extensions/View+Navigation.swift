@@ -15,34 +15,14 @@ extension View {
         }
     }
 
-    /// Conditionally navigate using NavigationLink.
-    ///
-    /// - Parameters:
-    ///   - isActive: Binding to control navigation state
-    ///   - destination: Destination view
-    func navigate<Destination: View>(
-        isActive: Binding<Bool>,
-        @ViewBuilder to destination: @escaping () -> Destination
-    ) -> some View {
-        NavigationStack {
-            ZStack(alignment: .topLeading) {
-                self
-
-                NavigationLink(
-                    isActive: isActive,
-                    destination: destination
-                ) {
-                    EmptyView()
-                }
-                .hidden()
-            }
-        }
-    }
-
     /// Apply toolbar appearance styling.
     func styledToolbar() -> some View {
+        #if os(macOS)
+        self
+        #else
         self.toolbarBackground(VColors.secondaryBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+        #endif
     }
 
     /// Add a custom back button.
@@ -51,7 +31,7 @@ extension View {
     func customBackButton(action: @escaping () -> Void) -> some View {
         self.navigationBarBackButtonHidden(true)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button(action: action) {
                         HStack(spacing: VSpacing.xs) {
                             Image(systemName: VIcons.Actions.back)
@@ -70,7 +50,7 @@ extension View {
     /// - Parameter action: Action to perform when close button is tapped
     func customCloseButton(action: @escaping () -> Void) -> some View {
         self.toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .confirmationAction) {
                 Button(action: action) {
                     Image(systemName: VIcons.Actions.close)
                         .font(.system(size: 16, weight: .semibold))
@@ -132,22 +112,5 @@ extension View {
         } message: {
             Text(message)
         }
-    }
-}
-
-// MARK: - Navigation State Management
-class NavigationState: ObservableObject {
-    @Published var path: NavigationPath = NavigationPath()
-
-    func push<V: Hashable>(_ value: V) {
-        path.append(value)
-    }
-
-    func pop() {
-        path.removeLast()
-    }
-
-    func popToRoot() {
-        path.removeLast(path.count)
     }
 }

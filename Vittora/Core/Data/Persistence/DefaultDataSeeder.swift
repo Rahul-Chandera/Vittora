@@ -48,14 +48,12 @@ actor DefaultDataSeeder: DataSeederProtocol {
         for (index, category) in expenseCategories.enumerated() {
             let sdCategory = SDCategory(
                 id: UUID(),
-                name: String(localized: category.name),
+                name: category.name,
                 icon: category.icon,
                 colorHex: category.color,
-                typeRawValue: CategoryType.expense.rawValue,
+                type: .expense,
                 isDefault: true,
-                sortOrder: index,
-                createdAt: .now,
-                updatedAt: .now
+                sortOrder: index
             )
             modelContext.insert(sdCategory)
         }
@@ -75,14 +73,12 @@ actor DefaultDataSeeder: DataSeederProtocol {
         for (index, category) in incomeCategories.enumerated() {
             let sdCategory = SDCategory(
                 id: UUID(),
-                name: String(localized: category.name),
+                name: category.name,
                 icon: category.icon,
                 colorHex: category.color,
-                typeRawValue: CategoryType.income.rawValue,
+                type: .income,
                 isDefault: true,
-                sortOrder: index,
-                createdAt: .now,
-                updatedAt: .now
+                sortOrder: index
             )
             modelContext.insert(sdCategory)
         }
