@@ -10,23 +10,28 @@ import SwiftData
 
 @main
 struct VittoraApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+    @State private var appState = AppState()
+    @State private var router = Router()
+    @State private var dependencies: DependencyContainer
 
+    let modelContainer: ModelContainer
+
+    init() {
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            modelContainer = try ModelContainerConfig.makeContainer()
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("Failed to create ModelContainer: \(error)")
         }
-    }()
+        _dependencies = State(initialValue: DependencyContainer.createDefault(modelContainer: modelContainer))
+    }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(appState)
+                .environment(router)
+                .environment(\.dependencies, dependencies)
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(modelContainer)
     }
 }
