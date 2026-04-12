@@ -20,6 +20,10 @@ struct VAmountText: View {
         case medium
         case small
         case caption
+        case title3
+        case title2
+        case callout
+        case body
 
         var font: Font {
             switch self {
@@ -27,6 +31,10 @@ struct VAmountText: View {
             case .medium: return VTypography.amountMedium
             case .small: return VTypography.amountSmall
             case .caption: return VTypography.amountCaption
+            case .title3: return VTypography.title3
+            case .title2: return VTypography.title2
+            case .callout: return VTypography.callout
+            case .body: return VTypography.body
             }
         }
 
@@ -36,6 +44,10 @@ struct VAmountText: View {
             case .medium: return 28
             case .small: return 22
             case .caption: return 16
+            case .title3: return 24
+            case .title2: return 26
+            case .callout: return 20
+            case .body: return 20
             }
         }
     }

@@ -10,19 +10,19 @@ struct NavigationDestinationHandler: ViewModifier {
                 case .addAccount:
                     AccountFormView()
                 case .transactionDetail(let id):
-                    Text(String(localized: "Transaction Detail: \(id)"))
+                    TransactionDetailView(transactionID: id)
                 case .addTransaction:
-                    Text(String(localized: "Add Transaction"))
+                    TransactionFormView()
                 case .editTransaction(let id):
-                    Text(String(localized: "Edit Transaction: \(id)"))
+                    TransactionFormView(transactionID: id)
                 case .categoryDetail(let id):
                     CategoryDetailView(categoryID: id)
                 case .addCategory:
                     CategoryFormView()
                 case .budgetDetail(let id):
-                    Text(String(localized: "Budget Detail: \(id)"))
+                    BudgetDetailView(budgetID: id)
                 case .addBudget:
-                    Text(String(localized: "Add Budget"))
+                    BudgetFormView(isPresented: .constant(false))
                 case .payeeDetail(let id):
                     PayeeDetailView(payeeID: id)
                 case .reportDetail(let type):

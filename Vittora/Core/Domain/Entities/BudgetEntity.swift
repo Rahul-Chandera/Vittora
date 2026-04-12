@@ -2,6 +2,22 @@ import Foundation
 
 enum BudgetPeriod: String, Sendable, Hashable, CaseIterable, Codable {
     case weekly, monthly, quarterly, yearly
+
+    func dateRange(startingFrom startDate: Date) -> ClosedRange<Date> {
+        let calendar = Calendar.current
+        let endDate: Date
+        switch self {
+        case .weekly:
+            endDate = calendar.date(byAdding: .day, value: 7, to: startDate) ?? startDate
+        case .monthly:
+            endDate = calendar.date(byAdding: .month, value: 1, to: startDate) ?? startDate
+        case .quarterly:
+            endDate = calendar.date(byAdding: .month, value: 3, to: startDate) ?? startDate
+        case .yearly:
+            endDate = calendar.date(byAdding: .year, value: 1, to: startDate) ?? startDate
+        }
+        return startDate...endDate
+    }
 }
 
 struct BudgetEntity: Identifiable, Hashable, Equatable, Sendable {

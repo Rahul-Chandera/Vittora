@@ -1,0 +1,132 @@
+import SwiftUI
+
+struct TransactionRowView: View {
+    let transaction: TransactionEntity
+    var category: CategoryEntity?
+    var showSelection: Bool = false
+    var isSelected: Bool = false
+
+    var body: some View {
+        HStack(spacing: VSpacing.md) {
+            // Selection checkbox
+            if showSelection {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.body)
+                    .foregroundColor(isSelected ? VColors.primary : VColors.textTertiary)
+            }
+
+            // Category icon circle
+            ZStack {
+                Circle()
+                    .fill(
+                        Color(hex: category?.colorHex ?? "#007AFF") ?? .blue
+                    )
+                    .frame(width: 40, height: 40)
+
+                Image(systemName: category?.icon ?? "circle")
+                    .font(.body)
+                    .foregroundColor(.white)
+            }
+
+            // Transaction details
+            VStack(alignment: .leading, spacing: VSpacing.xs) {
+                Text(transaction.note ?? "Transaction")
+                    .font(VTypography.body)
+                    .foregroundColor(VColors.textPrimary)
+                    .lineLimit(1)
+
+                HStack(spacing: VSpacing.sm) {
+                    if let categoryName = category?.name {
+                        Text(categoryName)
+                            .font(VTypography.caption2)
+                            .foregroundColor(VColors.textSecondary)
+                    }
+
+                    Text(formattedTime(transaction.date))
+                        .font(VTypography.caption2)
+                        .foregroundColor(VColors.textTertiary)
+                }
+            }
+
+            Spacer()
+
+            // Amount
+            VStack(alignment: .trailing, spacing: VSpacing.xs) {
+                let amountColor = transactionColor(for: transaction.type)
+                Text(formatAmount(transaction.amount))
+                    .font(VTypography.body)
+                    .fontWeight(.semibold)
+                    .foregroundColor(amountColor)
+
+                Text(transaction.type.rawValue.capitalized)
+                    .font(VTypography.caption2)
+                    .foregroundColor(amountColor)
+                    .opacity(0.7)
+            }
+        }
+        .padding(VSpacing.md)
+        .contentShape(Rectangle())
+    }
+
+    private func formattedTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+
+    private func transactionColor(for type: TransactionType) -> Color {
+        switch type {
+        case .expense:
+            return VColors.expense
+        case .income:
+            return VColors.income
+        case .transfer:
+            return VColors.transfer
+        case .adjustment:
+            return VColors.primary
+        }
+    }
+
+    private func formatAmount(_ amount: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+    }
+}
+
+#Preview {
+    VStack {
+        TransactionRowView(
+            transaction: TransactionEntity(
+                amount: 25.50,
+                note: "Coffee",
+                type: .expense,
+                paymentMethod: .cash
+            ),
+            category: CategoryEntity(
+                name: "Food",
+                icon: "fork.knife",
+                colorHex: "#FF9500"
+            )
+        )
+
+        TransactionRowView(
+            transaction: TransactionEntity(
+                amount: 1500.00,
+                note: "Salary",
+                type: .income,
+                paymentMethod: .bankTransfer
+            ),
+            category: CategoryEntity(
+                name: "Income",
+                icon: "banknote",
+                colorHex: "#34C759"
+            ),
+            showSelection: true,
+            isSelected: true
+        )
+    }
+    .padding(VSpacing.md)
+    .background(VColors.background)
+}
