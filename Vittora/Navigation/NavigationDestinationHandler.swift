@@ -6,9 +6,9 @@ struct NavigationDestinationHandler: ViewModifier {
             .navigationDestination(for: NavigationDestination.self) { destination in
                 switch destination {
                 case .accountDetail(let id):
-                    Text(String(localized: "Account Detail: \(id)"))
+                    AccountDetailView(accountID: id)
                 case .addAccount:
-                    Text(String(localized: "Add Account"))
+                    AccountFormView()
                 case .transactionDetail(let id):
                     Text(String(localized: "Transaction Detail: \(id)"))
                 case .addTransaction:
@@ -16,15 +16,15 @@ struct NavigationDestinationHandler: ViewModifier {
                 case .editTransaction(let id):
                     Text(String(localized: "Edit Transaction: \(id)"))
                 case .categoryDetail(let id):
-                    Text(String(localized: "Category Detail: \(id)"))
+                    CategoryDetailView(categoryID: id)
                 case .addCategory:
-                    Text(String(localized: "Add Category"))
+                    CategoryFormView()
                 case .budgetDetail(let id):
                     Text(String(localized: "Budget Detail: \(id)"))
                 case .addBudget:
                     Text(String(localized: "Add Budget"))
                 case .payeeDetail(let id):
-                    Text(String(localized: "Payee Detail: \(id)"))
+                    PayeeDetailView(payeeID: id)
                 case .reportDetail(let type):
                     Text(String(localized: "Report: \(type.rawValue)"))
                 case .settingsDetail(let section):

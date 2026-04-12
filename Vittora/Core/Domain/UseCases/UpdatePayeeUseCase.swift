@@ -1,0 +1,28 @@
+import Foundation
+
+struct UpdatePayeeUseCase: Sendable {
+    private let repository: any PayeeRepository
+
+    init(repository: any PayeeRepository) {
+        self.repository = repository
+    }
+
+    func execute(_ entity: PayeeEntity) async throws {
+        let trimmed = entity.name.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else {
+            throw VittoraError.validationFailed("Payee name cannot be empty")
+        }
+
+        let existing = try await repository.fetchAll()
+        let isDuplicate = existing.contains {
+            $0.id != entity.id && $0.name.lowercased() == trimmed.lowercased()
+        }
+        guard !isDuplicate else {
+            throw VittoraError.duplicateEntry("A payee named '\(trimmed)' already exists")
+        }
+
+        var updated = entity
+        updated.name = trimmed
+        try await repository.update(updated)
+    }
+}
