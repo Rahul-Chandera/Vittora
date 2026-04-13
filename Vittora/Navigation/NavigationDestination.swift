@@ -28,8 +28,8 @@ enum NavigationDestination: Hashable {
     case settingsDetail(section: SettingsSection)
 }
 
-enum ReportType: String, Hashable, Sendable {
-    case monthly, annual, category, cashFlow, netWorth
+enum ReportType: String, Hashable, Sendable, CaseIterable {
+    case monthly, category, trends, custom, annual, cashFlow, netWorth
 }
 
 enum SettingsSection: String, Hashable, Sendable {
