@@ -15,6 +15,7 @@ enum ModelContainerConfig {
             SDDebt.self,
             SDSplitGroup.self,
             SDGroupExpense.self,
+            SDTaxProfile.self,
         ]
     }
 
