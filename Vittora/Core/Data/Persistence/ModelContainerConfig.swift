@@ -12,6 +12,9 @@ enum ModelContainerConfig {
             SDPayee.self,
             SDRecurringRule.self,
             SDDocument.self,
+            SDDebt.self,
+            SDSplitGroup.self,
+            SDGroupExpense.self,
         ]
     }
 

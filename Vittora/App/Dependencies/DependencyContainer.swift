@@ -11,6 +11,8 @@ final class DependencyContainer {
     var budgetRepository: (any BudgetRepository)?
     var recurringRuleRepository: (any RecurringRuleRepository)?
     var documentRepository: (any DocumentRepository)?
+    var debtRepository: (any DebtRepository)?
+    var splitGroupRepository: (any SplitGroupRepository)?
 
     var biometricService: (any BiometricServiceProtocol)?
     var keychainService: (any KeychainServiceProtocol)?
@@ -27,6 +29,8 @@ final class DependencyContainer {
         container.budgetRepository = SwiftDataBudgetRepository(modelContainer: modelContainer)
         container.recurringRuleRepository = SwiftDataRecurringRuleRepository(modelContainer: modelContainer)
         container.documentRepository = SwiftDataDocumentRepository(modelContainer: modelContainer)
+        container.debtRepository = SwiftDataDebtRepository(modelContainer: modelContainer)
+        container.splitGroupRepository = SwiftDataSplitGroupRepository(modelContainer: modelContainer)
 
         let keychainService = KeychainService()
         container.keychainService = keychainService
