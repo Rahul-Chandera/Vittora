@@ -112,6 +112,7 @@ struct TransactionListView: View {
         }
         .if(!vm.selectedTransactionIDs.isEmpty) { view in
             view.toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .bottomBar) {
                     HStack {
                         Button(role: .destructive) {
@@ -129,6 +130,19 @@ struct TransactionListView: View {
                             .foregroundColor(VColors.textSecondary)
                     }
                 }
+                #else
+                ToolbarItem(placement: .automatic) {
+                    HStack {
+                        Button(role: .destructive) {
+                            Task {
+                                await vm.deleteSelected()
+                            }
+                        } label: {
+                            Label("Delete \(vm.selectedTransactionIDs.count) selected", systemImage: "trash")
+                        }
+                    }
+                }
+                #endif
             }
         }
         .if(vm.isLoading) { view in

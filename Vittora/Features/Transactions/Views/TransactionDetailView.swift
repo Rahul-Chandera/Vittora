@@ -118,7 +118,9 @@ struct TransactionDetailView: View {
                     }
                     .padding(VSpacing.screenPadding)
                 }
+                #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
+                #endif
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         HStack(spacing: VSpacing.md) {

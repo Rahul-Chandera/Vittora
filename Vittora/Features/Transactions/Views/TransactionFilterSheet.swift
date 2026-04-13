@@ -63,7 +63,9 @@ struct TransactionFilterSheet: View {
                         #endif
                 }
             }
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Clear") {

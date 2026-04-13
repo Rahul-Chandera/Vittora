@@ -199,7 +199,9 @@ struct RecurringDetailView: View {
             }
         }
         .navigationTitle("Recurring Details")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .sheet(isPresented: $showEditSheet) {
             if let rule = rule {
                 RecurringFormView(onDismiss: {

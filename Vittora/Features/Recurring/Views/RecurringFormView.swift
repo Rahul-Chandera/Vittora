@@ -239,7 +239,9 @@ struct RecurringFormView: View {
                 }
             }
             .navigationTitle(viewModel?.isEditing ?? false ? "Edit Recurring" : "New Recurring")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
