@@ -50,7 +50,9 @@ final class TaxProfileFormViewModel {
     }
 
     func removeDeduction(at offsets: IndexSet) {
-        customDeductions.remove(atOffsets: offsets)
+        for index in offsets.sorted(by: >) {
+            customDeductions.remove(at: index)
+        }
         recalculateLive()
     }
 

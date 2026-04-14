@@ -51,7 +51,7 @@ struct TaxBracketBarView: View {
             .frame(height: 32)
 
             // Legend
-            FlowLayout(spacing: VSpacing.xs) {
+            TaxFlowLayout(spacing: VSpacing.xs) {
                 if estimate.totalDeductions > 0 {
                     legendItem(color: .gray.opacity(0.4), label: String(localized: "Deductions"))
                 }
@@ -85,7 +85,7 @@ struct TaxBracketBarView: View {
 
 // MARK: - Simple Flow Layout
 
-private struct FlowLayout: Layout {
+private struct TaxFlowLayout: Layout {
     var spacing: CGFloat = 4
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {

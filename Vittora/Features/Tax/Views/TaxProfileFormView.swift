@@ -59,6 +59,7 @@ struct TaxProfileFormView: View {
 
     @ViewBuilder
     private func formContent(_ vm: TaxProfileFormViewModel) -> some View {
+        @Bindable var bindableVM = vm
         Form {
             // Country
             Section(String(localized: "Country")) {
@@ -116,7 +117,7 @@ struct TaxProfileFormView: View {
             let showDeductions = vm.country == .unitedStates || vm.indiaRegime == .oldRegime
             if showDeductions {
                 Section {
-                    ForEach($vm.customDeductions) { $deduction in
+                    ForEach($bindableVM.customDeductions) { $deduction in
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(deduction.name)

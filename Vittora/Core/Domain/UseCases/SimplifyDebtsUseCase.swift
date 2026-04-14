@@ -63,12 +63,3 @@ struct SimplifyDebtsUseCase: Sendable {
         )
     }
 }
-
-private extension Decimal {
-    func rounded(scale: Int) -> Decimal {
-        var result = Decimal()
-        var copy = self
-        NSDecimalRound(&result, &copy, scale, .bankers)
-        return result
-    }
-}
