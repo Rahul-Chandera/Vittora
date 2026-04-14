@@ -12,45 +12,69 @@ struct AppTabView: View {
             TabView(selection: $appState.selectedTab) {
                 Tab(AppState.AppTab.dashboard.title,
                     systemImage: AppState.AppTab.dashboard.systemImage,
-                    value: .dashboard) {
+                    value: AppState.AppTab.dashboard) {
                     NavigationStack {
-                        PlaceholderView(tab: .dashboard)
+                        DashboardView()
                             .withNavigationDestinations()
                     }
                 }
 
                 Tab(AppState.AppTab.transactions.title,
                     systemImage: AppState.AppTab.transactions.systemImage,
-                    value: .transactions) {
+                    value: AppState.AppTab.transactions) {
                     NavigationStack {
-                        PlaceholderView(tab: .transactions)
+                        TransactionListView()
                             .withNavigationDestinations()
                     }
                 }
 
                 Tab(AppState.AppTab.budgets.title,
                     systemImage: AppState.AppTab.budgets.systemImage,
-                    value: .budgets) {
+                    value: AppState.AppTab.budgets) {
                     NavigationStack {
-                        PlaceholderView(tab: .budgets)
+                        BudgetListView()
                             .withNavigationDestinations()
                     }
                 }
 
                 Tab(AppState.AppTab.reports.title,
                     systemImage: AppState.AppTab.reports.systemImage,
-                    value: .reports) {
+                    value: AppState.AppTab.reports) {
                     NavigationStack {
-                        PlaceholderView(tab: .reports)
+                        ReportsHomeView()
                             .withNavigationDestinations()
                     }
                 }
 
+                Tab(AppState.AppTab.debt.title,
+                    systemImage: AppState.AppTab.debt.systemImage,
+                    value: AppState.AppTab.debt) {
+                    DebtLedgerView()
+                }
+
+                Tab(AppState.AppTab.splits.title,
+                    systemImage: AppState.AppTab.splits.systemImage,
+                    value: AppState.AppTab.splits) {
+                    SplitGroupListView()
+                }
+
+                Tab(AppState.AppTab.tax.title,
+                    systemImage: AppState.AppTab.tax.systemImage,
+                    value: AppState.AppTab.tax) {
+                    TaxDashboardView()
+                }
+
+                Tab(AppState.AppTab.savings.title,
+                    systemImage: AppState.AppTab.savings.systemImage,
+                    value: AppState.AppTab.savings) {
+                    SavingsGoalListView()
+                }
+
                 Tab(AppState.AppTab.settings.title,
                     systemImage: AppState.AppTab.settings.systemImage,
-                    value: .settings) {
+                    value: AppState.AppTab.settings) {
                     NavigationStack {
-                        PlaceholderView(tab: .settings)
+                        SettingsView()
                             .withNavigationDestinations()
                     }
                 }
@@ -62,17 +86,7 @@ struct AppTabView: View {
             .padding(.bottom, 60)
         }
         .sheet(isPresented: $showAddTransaction) {
-            NavigationStack {
-                Text(String(localized: "Add Transaction"))
-                    .navigationTitle(String(localized: "New Transaction"))
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(String(localized: "Cancel")) {
-                                showAddTransaction = false
-                            }
-                        }
-                    }
-            }
+            TransactionFormView()
         }
     }
 }

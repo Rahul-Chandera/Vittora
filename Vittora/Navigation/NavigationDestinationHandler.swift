@@ -26,11 +26,42 @@ struct NavigationDestinationHandler: ViewModifier {
                 case .payeeDetail(let id):
                     PayeeDetailView(payeeID: id)
                 case .reportDetail(let type):
-                    Text(String(localized: "Report: \(type.rawValue)"))
+                    reportView(for: type)
                 case .settingsDetail(let section):
-                    Text(String(localized: "Settings: \(section.rawValue)"))
+                    settingsView(for: section)
                 }
             }
+    }
+
+    // MARK: - Report routing
+
+    @ViewBuilder
+    private func reportView(for type: ReportType) -> some View {
+        switch type {
+        case .monthly:   MonthlyReportView()
+        case .category:  CategoryReportView()
+        case .trends:    TrendsReportView()
+        case .custom:    CustomReportView()
+        case .annual:    MonthlyReportView()   // reuse monthly view for annual — refine in F4/F5
+        case .cashFlow:  TrendsReportView()
+        case .netWorth:  MonthlyReportView()
+        }
+    }
+
+    // MARK: - Settings routing
+
+    @ViewBuilder
+    private func settingsView(for section: SettingsSection) -> some View {
+        let vm = SettingsViewModel()
+        switch section {
+        case .profile:       ProfileSettingsView(vm: vm)
+        case .security:      SecuritySettingsView(vm: vm)
+        case .sync:          SyncSettingsView(vm: vm)
+        case .notifications: NotificationsSettingsView(vm: vm)
+        case .appearance:    AppearanceSettingsView(vm: vm)
+        case .data:          DataSettingsView()
+        case .about:         AboutView(vm: vm)
+        }
     }
 }
 
