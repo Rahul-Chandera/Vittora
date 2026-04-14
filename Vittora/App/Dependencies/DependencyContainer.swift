@@ -14,6 +14,7 @@ final class DependencyContainer {
     var debtRepository: (any DebtRepository)?
     var splitGroupRepository: (any SplitGroupRepository)?
     var taxProfileRepository: (any TaxProfileRepository)?
+    var savingsGoalRepository: (any SavingsGoalRepository)?
 
     var biometricService: (any BiometricServiceProtocol)?
     var keychainService: (any KeychainServiceProtocol)?
@@ -33,6 +34,7 @@ final class DependencyContainer {
         container.debtRepository = SwiftDataDebtRepository(modelContainer: modelContainer)
         container.splitGroupRepository = SwiftDataSplitGroupRepository(modelContainer: modelContainer)
         container.taxProfileRepository = SwiftDataTaxProfileRepository(modelContainer: modelContainer)
+        container.savingsGoalRepository = SwiftDataSavingsGoalRepository(modelContainer: modelContainer)
 
         let keychainService = KeychainService()
         container.keychainService = keychainService
