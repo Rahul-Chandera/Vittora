@@ -58,8 +58,23 @@ struct SavingsGoalCardView: View {
                 Image(systemName: "chevron.right")
                     .font(.caption)
                     .foregroundStyle(VColors.textSecondary)
+                    .accessibilityHidden(true)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(cardAccessibilityLabel)
+        .accessibilityHint(String(localized: "Tap to view goal details"))
+    }
+
+    private var cardAccessibilityLabel: String {
+        let progress = Int(goal.progressFraction * 100)
+        let saved = goal.currentAmount.formatted(.currency(code: currencyCode))
+        let target = goal.targetAmount.formatted(.currency(code: currencyCode))
+        var label = "\(goal.name), \(progress)% complete, \(saved) of \(target)"
+        if let days = goal.daysRemaining {
+            label += ", \(deadlineLabel(days: days))"
+        }
+        return label
     }
 
     @ViewBuilder

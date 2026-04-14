@@ -38,13 +38,13 @@ struct NavigationDestinationHandler: ViewModifier {
     @ViewBuilder
     private func reportView(for type: ReportType) -> some View {
         switch type {
-        case .monthly:   MonthlyReportView()
-        case .category:  CategoryReportView()
-        case .trends:    TrendsReportView()
+        case .monthly:   MonthlyOverviewView()
+        case .category:  CategoryBreakdownView()
+        case .trends:    SpendingTrendsView()
         case .custom:    CustomReportView()
-        case .annual:    MonthlyReportView()   // reuse monthly view for annual — refine in F4/F5
-        case .cashFlow:  TrendsReportView()
-        case .netWorth:  MonthlyReportView()
+        case .annual:    AnnualReportView()
+        case .cashFlow:  CashFlowReportView()
+        case .netWorth:  NetWorthReportView()
         }
     }
 

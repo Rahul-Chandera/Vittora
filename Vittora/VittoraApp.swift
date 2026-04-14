@@ -13,6 +13,8 @@ struct VittoraApp: App {
     @State private var appState = AppState()
     @State private var router = Router()
     @State private var dependencies: DependencyContainer
+    @State private var settingsVM = SettingsViewModel()
+    @Environment(\.scenePhase) private var scenePhase
 
     let modelContainer: ModelContainer
 
@@ -31,7 +33,15 @@ struct VittoraApp: App {
                 .environment(appState)
                 .environment(router)
                 .environment(\.dependencies, dependencies)
+                .environment(settingsVM)
+                .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
         }
         .modelContainer(modelContainer)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background && settingsVM.isAppLockEnabled {
+                appState.isLocked = true
+                appState.isAuthenticated = false
+            }
+        }
     }
 }

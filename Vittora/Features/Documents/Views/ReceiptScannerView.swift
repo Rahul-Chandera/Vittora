@@ -115,9 +115,10 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
             _ dataScanner: DataScannerViewController,
             didTapOn item: RecognizedItem
         ) {
-            dataScanner.capturePhoto { photo in
-                guard let cgImage = photo?.cgImageRepresentation(),
-                      let data = photo?.fileDataRepresentation() else { return }
+            Task { @MainActor in
+                guard let image = try? await dataScanner.capturePhoto(),
+                      let cgImage = image.cgImage,
+                      let data = image.jpegData(compressionQuality: 0.9) else { return }
                 self.onCapture(cgImage, data)
             }
         }

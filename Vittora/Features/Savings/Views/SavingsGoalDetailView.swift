@@ -10,6 +10,13 @@ struct SavingsGoalDetailView: View {
 
     private var goalColor: Color { Color(hex: vm?.goal.colorHex ?? initialGoal.colorHex) ?? VColors.primary }
 
+    private var currencySymbol: String {
+        let f = NumberFormatter()
+        f.numberStyle = .currency
+        f.currencyCode = currencyCode
+        return f.currencySymbol ?? currencyCode
+    }
+
     var body: some View {
         ZStack {
             if let vm {
@@ -193,7 +200,7 @@ struct SavingsGoalDetailView: View {
                     .foregroundStyle(VColors.textSecondary)
 
                 HStack {
-                    Text(currencyCode == "INR" ? "₹" : "$")
+                    Text(currencySymbol)
                         .foregroundStyle(VColors.textSecondary)
                     TextField(String(localized: "Amount"), text: Bindable(vm).contributionString)
                         #if os(iOS)

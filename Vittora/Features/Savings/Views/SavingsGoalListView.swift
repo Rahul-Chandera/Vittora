@@ -6,7 +6,9 @@ struct SavingsGoalListView: View {
     @State private var showAddGoal = false
     @State private var selectedGoalID: UUID?
 
-    private let currencyCode = "INR" // TODO: pull from user settings when F1 is built
+    private var currencyCode: String {
+        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
+    }
 
     var body: some View {
         NavigationStack {

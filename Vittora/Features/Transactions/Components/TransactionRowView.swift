@@ -66,6 +66,16 @@ struct TransactionRowView: View {
         }
         .padding(VSpacing.md)
         .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
+    }
+
+    private var accessibilityDescription: String {
+        let note = transaction.note ?? String(localized: "Transaction")
+        let amount = formatAmount(transaction.amount)
+        let type = transaction.type.rawValue.capitalized
+        let cat = category.map { ", \($0.name)" } ?? ""
+        return "\(note)\(cat), \(type), \(amount)"
     }
 
     private func formattedTime(_ date: Date) -> String {

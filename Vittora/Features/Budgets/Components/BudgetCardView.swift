@@ -84,6 +84,17 @@ struct BudgetCardView: View {
                 }
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(cardAccessibilityLabel)
+    }
+
+    private var cardAccessibilityLabel: String {
+        let name = category?.name ?? String(localized: "Budget")
+        let spent = budget.spent.formatted(.currency(code: "USD"))
+        let limit = budget.amount.formatted(.currency(code: "USD"))
+        let pct = Int(budget.progress * 100)
+        let status = budget.isOverBudget ? String(localized: "over budget") : String(localized: "\(pct)% used")
+        return "\(name) budget, \(spent) of \(limit), \(status)"
     }
 
     private var statusColor: Color {

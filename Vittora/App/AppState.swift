@@ -4,6 +4,7 @@ import SwiftUI
 @MainActor
 final class AppState {
     var isAuthenticated: Bool = false
+    var isLocked: Bool = false
     var isOnboardingComplete: Bool = UserDefaults.standard.bool(forKey: "vittora.onboardingComplete")
     var selectedTab: AppTab = .dashboard
     var isLoading: Bool = false
