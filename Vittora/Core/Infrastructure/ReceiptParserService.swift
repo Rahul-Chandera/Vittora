@@ -1,8 +1,9 @@
 import Foundation
 
 struct ReceiptParserService: Sendable {
+    nonisolated init() {}
 
-    func parse(blocks: [RecognizedTextBlock]) -> ReceiptData {
+    nonisolated func parse(blocks: [RecognizedTextBlock]) -> ReceiptData {
         let lines = blocks.map(\.text)
         let rawText = lines.joined(separator: "\n")
 
@@ -22,7 +23,7 @@ struct ReceiptParserService: Sendable {
 
     // MARK: - Amount extraction
 
-    private func extractAmount(from lines: [String]) -> Decimal? {
+    private nonisolated func extractAmount(from lines: [String]) -> Decimal? {
         // Prefer lines with "total", "amount due", "grand total"
         let totalKeywords = ["grand total", "total due", "amount due", "total amount", "total"]
         for keyword in totalKeywords {
@@ -36,7 +37,7 @@ struct ReceiptParserService: Sendable {
         return lines.reversed().compactMap { parseAmount(from: $0) }.first
     }
 
-    private func parseAmount(from text: String) -> Decimal? {
+    private nonisolated func parseAmount(from text: String) -> Decimal? {
         // Patterns: $XX.XX, Rs. X,XXX, INR X,XXX.XX, plain XX.XX
         let patterns = [
             #"\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)"#,
@@ -57,7 +58,7 @@ struct ReceiptParserService: Sendable {
 
     // MARK: - Date extraction
 
-    private func extractDate(from lines: [String]) -> Date? {
+    private nonisolated func extractDate(from lines: [String]) -> Date? {
         let patterns: [(pattern: String, format: String)] = [
             (#"\d{2}/\d{2}/\d{4}"#, "MM/dd/yyyy"),
             (#"\d{2}-\d{2}-\d{4}"#, "dd-MM-yyyy"),
@@ -84,7 +85,7 @@ struct ReceiptParserService: Sendable {
 
     // MARK: - Merchant extraction
 
-    private func extractMerchant(from lines: [String]) -> String? {
+    private nonisolated func extractMerchant(from lines: [String]) -> String? {
         // The merchant name is typically one of the first non-empty lines
         let candidates = lines
             .prefix(5)
@@ -93,13 +94,13 @@ struct ReceiptParserService: Sendable {
         return candidates.first
     }
 
-    private func containsOnlyNumbers(_ text: String) -> Bool {
+    private nonisolated func containsOnlyNumbers(_ text: String) -> Bool {
         text.allSatisfy { $0.isNumber || $0 == "." || $0 == "," || $0 == "-" }
     }
 
     // MARK: - Line items extraction
 
-    private func extractLineItems(from lines: [String]) -> [(name: String, amount: Decimal)] {
+    private nonisolated func extractLineItems(from lines: [String]) -> [(name: String, amount: Decimal)] {
         var items: [(name: String, amount: Decimal)] = []
         // Look for lines with item name + price pattern
         let pattern = #"^(.+?)\s+\$?\s*(\d+\.\d{2})\s*$"#

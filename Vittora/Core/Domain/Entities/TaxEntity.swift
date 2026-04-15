@@ -122,7 +122,13 @@ struct TaxBracketResult: Sendable, Identifiable {
     let taxableAmount: Decimal
     let taxAmount: Decimal
 
-    init(id: UUID = UUID(), label: String, ratePercent: Decimal, taxableAmount: Decimal, taxAmount: Decimal) {
+    nonisolated init(
+        id: UUID = UUID(),
+        label: String,
+        ratePercent: Decimal,
+        taxableAmount: Decimal,
+        taxAmount: Decimal
+    ) {
         self.id = id
         self.label = label
         self.ratePercent = ratePercent

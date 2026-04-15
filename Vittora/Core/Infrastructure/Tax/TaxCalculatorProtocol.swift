@@ -22,7 +22,7 @@ struct TaxSlab: Sendable {
 extension [TaxSlab] {
     /// Applies progressive slab calculation to `taxableIncome`.
     /// Returns per-bracket results (zero-rate brackets omitted).
-    func apply(to taxableIncome: Decimal) -> [TaxBracketResult] {
+    nonisolated func apply(to taxableIncome: Decimal) -> [TaxBracketResult] {
         var results: [TaxBracketResult] = []
         var remaining = taxableIncome
         var prev = Decimal(0)
@@ -50,7 +50,7 @@ extension [TaxSlab] {
 }
 
 extension Decimal {
-    func rounded(scale: Int) -> Decimal {
+    nonisolated func rounded(scale: Int) -> Decimal {
         var result = Decimal()
         var copy = self
         NSDecimalRound(&result, &copy, scale, .bankers)

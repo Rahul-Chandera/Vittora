@@ -3,9 +3,10 @@ import Foundation
 /// Implements the "minimize cash flow" algorithm to reduce the number of
 /// settlement transactions in a group to the theoretical minimum.
 struct SimplifyDebtsUseCase: Sendable {
+    nonisolated init() {}
 
     /// Computes the minimum set of transfers to settle all outstanding balances.
-    static func simplify(expenses: [GroupExpense], memberIDs: [UUID]) -> [MemberBalance] {
+    nonisolated static func simplify(expenses: [GroupExpense], memberIDs: [UUID]) -> [MemberBalance] {
         // Step 1: Compute net balance per member
         // Positive balance = person is owed money
         // Negative balance = person owes money
@@ -56,7 +57,7 @@ struct SimplifyDebtsUseCase: Sendable {
         return result
     }
 
-    func execute(groupID: UUID, expenses: [GroupExpense], memberIDs: [UUID]) -> [MemberBalance] {
+    nonisolated func execute(groupID: UUID, expenses: [GroupExpense], memberIDs: [UUID]) -> [MemberBalance] {
         SimplifyDebtsUseCase.simplify(
             expenses: expenses.filter { !$0.isSettled },
             memberIDs: memberIDs

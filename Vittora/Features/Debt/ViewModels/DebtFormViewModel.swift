@@ -32,7 +32,7 @@ final class DebtFormViewModel {
         isLoading = true
         error = nil
         defer { isLoading = false }
-        try await createUseCase.execute(
+        _ = try await createUseCase.execute(
             payeeID: payeeID,
             amount: amount,
             direction: direction,

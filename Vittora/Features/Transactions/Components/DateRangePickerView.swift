@@ -90,7 +90,7 @@ struct DateRangePickerView: View {
     }
 
     private func updateDatesForPreset(_ p: TransactionFilterViewModel.DatePreset) {
-        var vm = TransactionFilterViewModel()
+        let vm = TransactionFilterViewModel()
         vm.applyDatePreset(p)
         startDate = vm.startDate
         endDate = vm.endDate
