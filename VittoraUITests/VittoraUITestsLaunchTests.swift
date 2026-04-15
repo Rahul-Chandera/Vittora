@@ -20,6 +20,10 @@ final class VittoraUITestsLaunchTests: XCTestCase {
             app.state == .runningForeground,
             "App should be running in foreground after launch"
         )
+        XCTAssertTrue(
+            app.otherElements["content-root"].waitForExistence(timeout: 5),
+            "Root view should appear before we capture the launch screenshot"
+        )
 
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Launch Screen"

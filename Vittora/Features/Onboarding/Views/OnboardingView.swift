@@ -26,7 +26,11 @@ struct OnboardingView: View {
                     DoneStepView()
                         .tag(OnboardingViewModel.Step.done)
                 }
+                #if os(iOS)
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                #else
+                .tabViewStyle(.automatic)
+                #endif
                 .animation(.easeInOut, value: vm.currentStep)
 
                 // CTA button

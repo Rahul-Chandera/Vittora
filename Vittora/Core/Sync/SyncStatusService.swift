@@ -42,18 +42,24 @@ final class SyncStatusService: Sendable {
     private(set) var lastSyncDate: Date? = UserDefaults.standard.object(forKey: "vittora.lastSyncDate") as? Date
     private(set) var iCloudAccountAvailable: Bool = false
 
-    private let pathMonitor = NWPathMonitor()
+    private let pathMonitor: NWPathMonitor?
     private let monitorQueue = DispatchQueue(label: "vittora.network.monitor", qos: .utility)
     private var isNetworkAvailable: Bool = true
 
-    init() {
-        startNetworkMonitor()
+    init(isMonitoringEnabled: Bool = true) {
+        if isMonitoringEnabled {
+            let monitor = NWPathMonitor()
+            pathMonitor = monitor
+            startNetworkMonitor(monitor)
+        } else {
+            pathMonitor = nil
+        }
     }
 
     // MARK: - Network monitoring
 
-    private func startNetworkMonitor() {
-        pathMonitor.pathUpdateHandler = { [weak self] path in
+    private func startNetworkMonitor(_ monitor: NWPathMonitor) {
+        monitor.pathUpdateHandler = { [weak self] path in
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 let wasAvailable = self.isNetworkAvailable
@@ -70,7 +76,7 @@ final class SyncStatusService: Sendable {
                 }
             }
         }
-        pathMonitor.start(queue: monitorQueue)
+        monitor.start(queue: monitorQueue)
     }
 
     // MARK: - iCloud status

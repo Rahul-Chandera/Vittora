@@ -8,21 +8,26 @@ struct ContentView: View {
     #endif
 
     var body: some View {
-        if settingsVM.isAppLockEnabled && appState.isLocked {
-            AppLockView()
-        } else if !appState.isOnboardingComplete {
-            OnboardingView()
-        } else {
-            #if os(macOS)
-            SidebarNavigation()
-            #else
-            if horizontalSizeClass == .regular {
-                SidebarNavigation() // iPad
+        ZStack {
+            if !appState.isUITesting && settingsVM.isAppLockEnabled && appState.isLocked {
+                AppLockView()
             } else {
-                AppTabView()        // iPhone
+                if !appState.isOnboardingComplete {
+                    OnboardingView()
+                } else {
+                    #if os(macOS)
+                    SidebarNavigation()
+                    #else
+                    if horizontalSizeClass == .regular {
+                        SidebarNavigation() // iPad
+                    } else {
+                        AppTabView()        // iPhone
+                    }
+                    #endif
+                }
             }
-            #endif
         }
+        .accessibilityIdentifier("content-root")
     }
 }
 

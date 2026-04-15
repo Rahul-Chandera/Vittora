@@ -3,11 +3,28 @@ import SwiftUI
 @Observable
 @MainActor
 final class AppState {
-    var isAuthenticated: Bool = false
-    var isLocked: Bool = false
-    var isOnboardingComplete: Bool = UserDefaults.standard.bool(forKey: "vittora.onboardingComplete")
-    var selectedTab: AppTab = .dashboard
-    var isLoading: Bool = false
+    var isAuthenticated: Bool
+    var isLocked: Bool
+    var isOnboardingComplete: Bool
+    var selectedTab: AppTab
+    var isLoading: Bool
+    var isUITesting: Bool
+
+    init(
+        isAuthenticated: Bool = false,
+        isLocked: Bool = false,
+        isOnboardingComplete: Bool = UserDefaults.standard.bool(forKey: "vittora.onboardingComplete"),
+        selectedTab: AppTab = .dashboard,
+        isLoading: Bool = false,
+        isUITesting: Bool = false
+    ) {
+        self.isAuthenticated = isAuthenticated
+        self.isLocked = isLocked
+        self.isOnboardingComplete = isOnboardingComplete
+        self.selectedTab = selectedTab
+        self.isLoading = isLoading
+        self.isUITesting = isUITesting
+    }
 
     enum AppTab: String, CaseIterable, Identifiable, Sendable {
         case dashboard

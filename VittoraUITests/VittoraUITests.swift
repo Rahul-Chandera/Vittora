@@ -26,7 +26,7 @@ final class AppLaunchUITests: XCTestCase {
     @MainActor
     func testDashboardAppearsOnLaunch() throws {
         // The root view should be visible after launch
-        let rootExists = app.otherElements.firstMatch.waitForExistence(timeout: 5)
+        let rootExists = app.otherElements["content-root"].waitForExistence(timeout: 5)
         XCTAssertTrue(rootExists, "Root view should appear within 5 seconds")
     }
 }
@@ -57,31 +57,34 @@ final class NavigationUITests: XCTestCase {
 
     @MainActor
     func testCanNavigateToTransactions() throws {
+        XCTAssertTrue(app.otherElements["content-root"].waitForExistence(timeout: 5))
         // Attempt to find Transactions tab/button
         let transactionsButton = app.buttons["Transactions"].firstMatch
         if transactionsButton.waitForExistence(timeout: 3) {
             transactionsButton.tap()
         }
         // App should still be running after navigation attempt
-        XCTAssertTrue(app.state == .runningForeground)
+        XCTAssertTrue(app.otherElements["content-root"].exists)
     }
 
     @MainActor
     func testCanNavigateToBudgets() throws {
+        XCTAssertTrue(app.otherElements["content-root"].waitForExistence(timeout: 5))
         let budgetsButton = app.buttons["Budgets"].firstMatch
         if budgetsButton.waitForExistence(timeout: 3) {
             budgetsButton.tap()
         }
-        XCTAssertTrue(app.state == .runningForeground)
+        XCTAssertTrue(app.otherElements["content-root"].exists)
     }
 
     @MainActor
     func testCanNavigateToSettings() throws {
+        XCTAssertTrue(app.otherElements["content-root"].waitForExistence(timeout: 5))
         let settingsButton = app.buttons["Settings"].firstMatch
         if settingsButton.waitForExistence(timeout: 3) {
             settingsButton.tap()
         }
-        XCTAssertTrue(app.state == .runningForeground)
+        XCTAssertTrue(app.otherElements["content-root"].exists)
     }
 }
 

@@ -18,18 +18,19 @@ final class BackgroundTaskScheduler: Sendable {
 
     #if os(iOS)
     /// Register background task handler for recurring transaction generation
-    static func register(
-        modelContainer: ModelContainer,
-        generateUseCase: GenerateRecurringTransactionsUseCase
-    ) {
+    static func register(generateUseCase: GenerateRecurringTransactionsUseCase) {
         let scheduler = BackgroundTaskScheduler(generateUseCase: generateUseCase)
 
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: recurringTaskID,
             using: nil
         ) { task in
+            guard let refreshTask = task as? BGAppRefreshTask else {
+                task.setTaskCompleted(success: false)
+                return
+            }
             Task {
-                await scheduler.handleRecurringTask(task as! BGAppRefreshTask)
+                await scheduler.handleRecurringTask(refreshTask)
             }
         }
     }

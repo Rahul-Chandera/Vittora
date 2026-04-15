@@ -30,7 +30,7 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
 
             // Create transaction from template
             guard let accountID = rule.templateAccountID else { continue }
-            guard let _ = try await accountRepository.fetchByID(accountID) else { continue }
+            guard var account = try await accountRepository.fetchByID(accountID) else { continue }
 
             let transaction = TransactionEntity(
                 amount: rule.templateAmount,
@@ -49,7 +49,6 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
             try await transactionRepository.create(transaction)
 
             // Update account balance
-            var account = try await accountRepository.fetchByID(accountID)!
             account.balance -= rule.templateAmount
             account.updatedAt = .now
             try await accountRepository.update(account)
