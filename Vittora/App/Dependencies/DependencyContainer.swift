@@ -20,6 +20,7 @@ final class DependencyContainer {
     var keychainService: (any KeychainServiceProtocol)?
     var encryptionService: (any EncryptionServiceProtocol)?
     var appLockService: (any AppLockServiceProtocol)?
+    var exportService: (any DataExportServiceProtocol)?
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
         let container = DependencyContainer()
@@ -41,6 +42,12 @@ final class DependencyContainer {
         container.biometricService = BiometricService()
         container.encryptionService = EncryptionService(keychainService: keychainService)
         container.appLockService = AppLockService(biometricService: BiometricService())
+        container.exportService = DataExportService(
+            transactionRepository: container.transactionRepository!,
+            accountRepository: container.accountRepository,
+            categoryRepository: container.categoryRepository,
+            payeeRepository: container.payeeRepository
+        )
 
         return container
     }

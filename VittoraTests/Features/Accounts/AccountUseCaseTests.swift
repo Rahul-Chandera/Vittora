@@ -102,7 +102,7 @@ struct AccountUseCaseTests {
                 try await useCase.execute(
                     name: "",
                     type: .bank,
-                    initialBalance: 0,
+                    balance: 0,
                     currencyCode: "USD",
                     icon: "building.columns.fill"
                 )

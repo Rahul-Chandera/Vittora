@@ -1,9 +1,15 @@
 import Foundation
 import Testing
+@testable import Vittora
 
 @Suite("Date Formatting Tests")
 struct DateFormattingTests {
     private let calendar = Calendar.current
+
+    // Helper to call our custom extension without ambiguity
+    private func format(_ date: Date, as style: Date.DateFormatStyle) -> String {
+        date.formatted(as: style)
+    }
 
     // Helper to create dates for testing
     private func dateByAdding(days: Int, to date: Date = Date()) -> Date {
@@ -13,7 +19,7 @@ struct DateFormattingTests {
     @Test("Format date as short style")
     func testFormatShort() {
         let date = Date()
-        let formatted = date.formatted(as: .short)
+        let formatted = format(date, as: .short)
         #expect(!formatted.isEmpty)
         #expect(formatted.count >= 8) // MM/dd/yy format
     }
@@ -21,7 +27,7 @@ struct DateFormattingTests {
     @Test("Format date as medium style")
     func testFormatMedium() {
         let date = Date()
-        let formatted = date.formatted(as: .medium)
+        let formatted = format(date, as: .medium)
         #expect(!formatted.isEmpty)
         // Should contain day, month, and year
     }
@@ -29,28 +35,28 @@ struct DateFormattingTests {
     @Test("Format date as long style")
     func testFormatLong() {
         let date = Date()
-        let formatted = date.formatted(as: .long)
+        let formatted = format(date, as: .long)
         #expect(!formatted.isEmpty)
     }
 
     @Test("Format date as month-year style")
     func testFormatMonthYear() {
         let date = Date()
-        let formatted = date.formatted(as: .monthYear)
+        let formatted = format(date, as: .monthYear)
         #expect(!formatted.isEmpty)
     }
 
     @Test("Format date as year only")
     func testFormatYearOnly() {
         let date = Date()
-        let formatted = date.formatted(as: .yearOnly)
+        let formatted = format(date, as: .yearOnly)
         #expect(formatted.count == 4) // Should be just the year
     }
 
     @Test("Format date as time")
     func testFormatTime() {
         let date = Date()
-        let formatted = date.formatted(as: .time)
+        let formatted = format(date, as: .time)
         #expect(!formatted.isEmpty)
         #expect(formatted.contains(":")) // Should have time separator
     }
@@ -58,28 +64,28 @@ struct DateFormattingTests {
     @Test("Format relative - just now")
     func testFormatRelativeNow() {
         let date = Date()
-        let formatted = date.formatted(as: .relative)
+        let formatted = format(date, as: .relative)
         #expect(!formatted.isEmpty)
     }
 
     @Test("Format relative - hours ago")
     func testFormatRelativeHoursAgo() {
         let threeHoursAgo = calendar.date(byAdding: .hour, value: -3, to: Date()) ?? Date()
-        let formatted = threeHoursAgo.formatted(as: .relative)
+        let formatted = format(threeHoursAgo, as: .relative)
         #expect(formatted.contains("ago") || formatted.contains("hour"))
     }
 
     @Test("Format relative - days ago")
     func testFormatRelativeDaysAgo() {
         let fiveDaysAgo = dateByAdding(days: -5)
-        let formatted = fiveDaysAgo.formatted(as: .relative)
+        let formatted = format(fiveDaysAgo, as: .relative)
         #expect(formatted.contains("ago") || formatted.contains("day"))
     }
 
     @Test("Format relative - yesterday")
     func testFormatRelativeYesterday() {
         let yesterday = dateByAdding(days: -1)
-        let formatted = yesterday.formatted(as: .relative)
+        let formatted = format(yesterday, as: .relative)
         #expect(formatted.contains("ago") || formatted.contains("Yesterday") || formatted.lowercased().contains("yesterday"))
     }
 
@@ -205,7 +211,7 @@ struct DateFormattingTests {
     @Test("Custom format style")
     func testCustomFormatStyle() {
         let date = Date()
-        let formatted = date.formatted(as: .custom("dd/MM/yyyy"))
+        let formatted = format(date, as: .custom("dd/MM/yyyy"))
         #expect(!formatted.isEmpty)
         #expect(formatted.count >= 8) // dd/MM/yyyy format
     }

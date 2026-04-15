@@ -128,8 +128,7 @@ struct BudgetEntityTests {
     @Test("Default initializer values")
     func testDefaultInitializerValues() {
         let entity = BudgetEntity(
-            amount: Decimal(500.0),
-            templateAmount: Decimal(100.0)
+            amount: Decimal(500.0)
         )
 
         #expect(entity.period == .monthly)
@@ -142,8 +141,7 @@ struct BudgetEntityTests {
         let entity = BudgetEntity(
             amount: Decimal(1000.0),
             spent: Decimal(500.0),
-            period: .quarterly,
-            templateAmount: Decimal(100.0)
+            period: .quarterly
         )
 
         #expect(entity.period == .quarterly)
@@ -154,8 +152,7 @@ struct BudgetEntityTests {
         let id = UUID()
         let entity = BudgetEntity(
             id: id,
-            amount: Decimal(1000.0),
-            templateAmount: Decimal(100.0)
+            amount: Decimal(1000.0)
         )
 
         #expect(entity.id == id)
@@ -167,14 +164,12 @@ struct BudgetEntityTests {
         let entity1 = BudgetEntity(
             id: id,
             amount: Decimal(1000.0),
-            spent: Decimal(500.0),
-            templateAmount: Decimal(100.0)
+            spent: Decimal(500.0)
         )
         let entity2 = BudgetEntity(
             id: id,
             amount: Decimal(1000.0),
-            spent: Decimal(500.0),
-            templateAmount: Decimal(100.0)
+            spent: Decimal(500.0)
         )
 
         #expect(entity1 == entity2)
@@ -185,13 +180,11 @@ struct BudgetEntityTests {
         let id = UUID()
         let entity1 = BudgetEntity(
             id: id,
-            amount: Decimal(1000.0),
-            templateAmount: Decimal(100.0)
+            amount: Decimal(1000.0)
         )
         let entity2 = BudgetEntity(
             id: id,
-            amount: Decimal(1000.0),
-            templateAmount: Decimal(100.0)
+            amount: Decimal(1000.0)
         )
 
         var set: Set<BudgetEntity> = [entity1]

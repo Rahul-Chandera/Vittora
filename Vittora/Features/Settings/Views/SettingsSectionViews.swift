@@ -115,71 +115,15 @@ struct SyncSettingsView: View {
     @Bindable var vm: SettingsViewModel
 
     var body: some View {
-        Form {
-            Section {
-                Toggle(String(localized: "iCloud Sync"), isOn: $vm.isCloudSyncEnabled)
-            } footer: {
-                Text(String(localized: "Sync your Vittora data across all your Apple devices via iCloud."))
-                    .foregroundStyle(VColors.textSecondary)
-            }
-
-            Section(String(localized: "Status")) {
-                HStack {
-                    Text(String(localized: "Last synced"))
-                    Spacer()
-                    Text(String(localized: "Just now"))
-                        .foregroundStyle(VColors.textSecondary)
-                }
-            }
-        }
-        .navigationTitle(String(localized: "iCloud Sync"))
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        #endif
+        SyncDetailView()
     }
 }
 
 // MARK: - Data Settings
 
 struct DataSettingsView: View {
-    @State private var showDeleteConfirm = false
-
     var body: some View {
-        Form {
-            Section(String(localized: "Export")) {
-                Button {
-                    // Export handled in future integration
-                } label: {
-                    Label(String(localized: "Export as CSV"), systemImage: "square.and.arrow.up")
-                }
-                Button {
-                } label: {
-                    Label(String(localized: "Export as JSON"), systemImage: "doc.text")
-                }
-            }
-
-            Section {
-                Button(role: .destructive) {
-                    showDeleteConfirm = true
-                } label: {
-                    Label(String(localized: "Delete All Data"), systemImage: "trash")
-                }
-            }
-        }
-        .navigationTitle(String(localized: "Manage Data"))
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        #endif
-        .confirmationDialog(
-            String(localized: "Delete All Data?"),
-            isPresented: $showDeleteConfirm,
-            titleVisibility: .visible
-        ) {
-            Button(String(localized: "Delete Everything"), role: .destructive) {}
-            Button(String(localized: "Cancel"), role: .cancel) {}
-        } message: {
-            Text(String(localized: "This will permanently erase all your transactions, accounts, budgets, and goals. This cannot be undone."))
-        }
+        DataManagementView()
     }
 }
 

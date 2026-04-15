@@ -14,6 +14,7 @@ struct VittoraApp: App {
     @State private var router = Router()
     @State private var dependencies: DependencyContainer
     @State private var settingsVM = SettingsViewModel()
+    @State private var syncService = SyncStatusService()
     @Environment(\.scenePhase) private var scenePhase
 
     let modelContainer: ModelContainer
@@ -34,6 +35,7 @@ struct VittoraApp: App {
                 .environment(router)
                 .environment(\.dependencies, dependencies)
                 .environment(settingsVM)
+                .environment(syncService)
                 .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
         }
         .modelContainer(modelContainer)
@@ -41,6 +43,9 @@ struct VittoraApp: App {
             if newPhase == .background && settingsVM.isAppLockEnabled {
                 appState.isLocked = true
                 appState.isAuthenticated = false
+            }
+            if newPhase == .active {
+                Task { await syncService.checkiCloudStatus() }
             }
         }
     }

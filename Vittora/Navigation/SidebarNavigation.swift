@@ -89,11 +89,17 @@ struct SidebarNavigation: View {
                 }
                 .keyboardShortcut("n", modifiers: .command)
             }
+            ToolbarItem(placement: .status) {
+                SyncStatusView()
+            }
             #else
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showAddTransaction = true }) {
                     Label(String(localized: "New Transaction"), systemImage: "plus")
                 }
+            }
+            ToolbarItem(placement: .topBarLeading) {
+                SyncStatusView()
             }
             #endif
         }

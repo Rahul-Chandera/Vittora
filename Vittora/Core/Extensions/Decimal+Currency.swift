@@ -52,9 +52,8 @@ extension Decimal {
         formatter.numberStyle = .percent
         formatter.minimumFractionDigits = decimalPlaces
         formatter.maximumFractionDigits = decimalPlaces
-
-        let percentValue = self * 100
-        return formatter.string(from: NSDecimalNumber(decimal: percentValue)) ?? "~%"
+        // NumberFormatter .percent multiplies by 100 internally — pass self directly
+        return formatter.string(from: NSDecimalNumber(decimal: self)) ?? "~%"
     }
 
     /// Round to specified number of decimal places.

@@ -61,4 +61,9 @@ struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
+
+    // MARK: - Equatable & Hashable (identity-based)
+
+    static func == (lhs: TransactionEntity, rhs: TransactionEntity) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }

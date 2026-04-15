@@ -31,4 +31,5 @@ struct ContentView: View {
         .environment(AppState())
         .environment(Router())
         .environment(SettingsViewModel())
+        .environment(SyncStatusService())
 }

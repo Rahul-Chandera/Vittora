@@ -9,21 +9,24 @@ actor MockTransactionRepository: TransactionRepository {
     func fetchAll(filter: TransactionFilter?) async throws -> [TransactionEntity] {
         if shouldThrowError { throw throwError }
         var results = transactions
-        if let filter = filter {
-            if let startDate = filter.startDate {
-                results = results.filter { $0.date >= startDate }
+        if let filter {
+            if let dateRange = filter.dateRange {
+                results = results.filter { dateRange.contains($0.date) }
             }
-            if let endDate = filter.endDate {
-                results = results.filter { $0.date <= endDate }
+            if let categoryIDs = filter.categoryIDs {
+                results = results.filter { $0.categoryID.map { categoryIDs.contains($0) } ?? false }
             }
-            if let categoryID = filter.categoryID {
-                results = results.filter { $0.categoryID == categoryID }
+            if let accountIDs = filter.accountIDs {
+                results = results.filter { $0.accountID.map { accountIDs.contains($0) } ?? false }
             }
-            if let accountID = filter.accountID {
-                results = results.filter { $0.accountID == accountID }
+            if let types = filter.types {
+                results = results.filter { types.contains($0.type) }
             }
-            if let type = filter.transactionType {
-                results = results.filter { $0.type == type }
+            if let query = filter.searchQuery, !query.isEmpty {
+                results = results.filter { ($0.note ?? "").localizedStandardContains(query) }
+            }
+            if let amountRange = filter.amountRange {
+                results = results.filter { amountRange.contains($0.amount) }
             }
         }
         return results.sorted { $0.date > $1.date }

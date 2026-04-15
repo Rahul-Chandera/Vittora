@@ -22,7 +22,7 @@ struct VittoraTests {
 
     @Test("AppTab has correct count")
     func appTabCount() {
-        #expect(AppState.AppTab.allCases.count == 5)
+        #expect(AppState.AppTab.allCases.count == 9)
     }
 
     @Test("AppTab has titles and icons")
