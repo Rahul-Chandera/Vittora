@@ -72,8 +72,8 @@ extension View {
 
 // MARK: - Preview
 #Preview {
-    @State var isSelected = false
-    @State var isLoading = false
+    @Previewable @State var isSelected = false
+    @Previewable @State var isLoading = false
 
     return VStack(spacing: VSpacing.lg) {
         VCard {

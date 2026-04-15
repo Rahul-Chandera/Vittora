@@ -84,7 +84,7 @@ struct FrequencyPickerView: View {
 }
 
 #Preview {
-    @State var selectedFrequency: RecurrenceFrequency = .monthly
+    @Previewable @State var selectedFrequency: RecurrenceFrequency = .monthly
     return FrequencyPickerView(selectedFrequency: $selectedFrequency)
         .padding(VSpacing.lg)
         .background(VColors.background)

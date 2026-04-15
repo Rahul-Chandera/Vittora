@@ -20,6 +20,8 @@ final class BiometricService: BiometricServiceProtocol, Sendable {
             return .none
         }
         switch context.biometryType {
+        case .none:
+            return .none
         case .faceID:
             return .faceID
         case .touchID:

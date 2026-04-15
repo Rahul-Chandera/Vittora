@@ -63,7 +63,7 @@ struct VSearchBar: View {
 
 // MARK: - Preview
 #Preview {
-    @State var searchText = ""
+    @Previewable @State var searchText = ""
 
     return VStack(spacing: VSpacing.lg) {
         VCard {

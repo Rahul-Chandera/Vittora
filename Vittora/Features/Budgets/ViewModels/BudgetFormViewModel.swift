@@ -45,7 +45,7 @@ final class BudgetFormViewModel {
 
         if isEditing, let id = editingID {
             // Update existing budget
-            var updatedBudget = BudgetEntity(
+            let updatedBudget = BudgetEntity(
                 id: id,
                 amount: decimalAmount,
                 period: selectedPeriod,
