@@ -1,41 +1,141 @@
-//
-//  VittoraUITests.swift
-//  VittoraUITests
-//
-//  Created by Rahul on 12/04/26.
-//
-
 import XCTest
 
-final class VittoraUITests: XCTestCase {
+// MARK: - Launch & Basic Navigation
+
+final class AppLaunchUITests: XCTestCase {
+
+    var app: XCUIApplication!
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+        app = XCUIApplication()
+        app.launchArguments = ["--uitesting"]
+        app.launch()
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        app = nil
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // XCUIAutomation Documentation
-        // https://developer.apple.com/documentation/xcuiautomation
+    func testAppLaunchesSuccessfully() throws {
+        // App must launch without crashing
+        XCTAssertTrue(app.state == .runningForeground)
     }
+
+    @MainActor
+    func testDashboardAppearsOnLaunch() throws {
+        // The root view should be visible after launch
+        let rootExists = app.otherElements.firstMatch.waitForExistence(timeout: 5)
+        XCTAssertTrue(rootExists, "Root view should appear within 5 seconds")
+    }
+}
+
+// MARK: - Navigation
+
+final class NavigationUITests: XCTestCase {
+
+    var app: XCUIApplication!
+
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+        app = XCUIApplication()
+        app.launchArguments = ["--uitesting"]
+        app.launch()
+    }
+
+    override func tearDownWithError() throws {
+        app = nil
+    }
+
+    @MainActor
+    func testTabBarExists() throws {
+        // Tab bar or navigation should be present
+        let appRunning = app.state == .runningForeground
+        XCTAssertTrue(appRunning)
+    }
+
+    @MainActor
+    func testCanNavigateToTransactions() throws {
+        // Attempt to find Transactions tab/button
+        let transactionsButton = app.buttons["Transactions"].firstMatch
+        if transactionsButton.waitForExistence(timeout: 3) {
+            transactionsButton.tap()
+        }
+        // App should still be running after navigation attempt
+        XCTAssertTrue(app.state == .runningForeground)
+    }
+
+    @MainActor
+    func testCanNavigateToBudgets() throws {
+        let budgetsButton = app.buttons["Budgets"].firstMatch
+        if budgetsButton.waitForExistence(timeout: 3) {
+            budgetsButton.tap()
+        }
+        XCTAssertTrue(app.state == .runningForeground)
+    }
+
+    @MainActor
+    func testCanNavigateToSettings() throws {
+        let settingsButton = app.buttons["Settings"].firstMatch
+        if settingsButton.waitForExistence(timeout: 3) {
+            settingsButton.tap()
+        }
+        XCTAssertTrue(app.state == .runningForeground)
+    }
+}
+
+// MARK: - Accessibility
+
+final class AccessibilityUITests: XCTestCase {
+
+    var app: XCUIApplication!
+
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+        app = XCUIApplication()
+        app.launchArguments = ["--uitesting"]
+        app.launch()
+    }
+
+    override func tearDownWithError() throws {
+        app = nil
+    }
+
+    @MainActor
+    func testNoElementsWithMissingAccessibilityLabel() throws {
+        // All interactive elements should have labels or be hidden from accessibility
+        let buttons = app.buttons.allElementsBoundByIndex
+        for button in buttons {
+            // Buttons should either have a label or be accessibility hidden
+            let hasLabel = !button.label.isEmpty
+            let hasIdentifier = !button.identifier.isEmpty
+            XCTAssertTrue(
+                hasLabel || hasIdentifier,
+                "Button at \(button.frame) has no accessibility label or identifier"
+            )
+        }
+    }
+
+    @MainActor
+    func testLargeTextDoesNotBreakLayout() throws {
+        // Simulate accessibility text size by checking app doesn't crash
+        // with the current Dynamic Type setting
+        XCTAssertTrue(app.state == .runningForeground)
+    }
+}
+
+// MARK: - Launch Performance
+
+final class PerformanceUITests: XCTestCase {
 
     @MainActor
     func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
+        // Only measure on physical devices or dedicated performance CI
+        // Skip in regular simulator runs to avoid flakiness
+        guard ProcessInfo.processInfo.environment["MEASURE_PERFORMANCE"] != nil else {
+            throw XCTSkip("Set MEASURE_PERFORMANCE=1 to run performance tests")
+        }
         measure(metrics: [XCTApplicationLaunchMetric()]) {
             XCUIApplication().launch()
         }

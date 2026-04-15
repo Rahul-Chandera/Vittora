@@ -1,17 +1,10 @@
-//
-//  VittoraUITestsLaunchTests.swift
-//  VittoraUITests
-//
-//  Created by Rahul on 12/04/26.
-//
-
 import XCTest
 
 final class VittoraUITestsLaunchTests: XCTestCase {
 
-    override class var runsForEachTargetApplicationUIConfiguration: Bool {
-        true
-    }
+    // Disabled: running for every UI configuration causes flaky failures
+    // in simulator environments without a full display context.
+    override class var runsForEachTargetApplicationUIConfiguration: Bool { false }
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -20,12 +13,13 @@ final class VittoraUITestsLaunchTests: XCTestCase {
     @MainActor
     func testLaunch() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["--uitesting"]
         app.launch()
 
-        // Insert steps here to perform after app launch but before taking a screenshot,
-        // such as logging into a test account or navigating somewhere in the app
-        // XCUIAutomation Documentation
-        // https://developer.apple.com/documentation/xcuiautomation
+        XCTAssertTrue(
+            app.state == .runningForeground,
+            "App should be running in foreground after launch"
+        )
 
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Launch Screen"

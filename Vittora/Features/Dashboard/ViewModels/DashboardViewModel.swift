@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import os.signpost
 
 @Observable
 @MainActor
@@ -21,6 +22,9 @@ final class DashboardViewModel {
     }
 
     func load() async {
+        let signpostID = PerformanceLogger.Dashboard.beginLoad()
+        defer { PerformanceLogger.Dashboard.endLoad(id: signpostID) }
+
         isLoading = true
         error = nil
 

@@ -70,9 +70,11 @@ struct TransactionFormView: View {
                             Task {
                                 do {
                                     try await vm.save()
+                                    HapticService.shared.success()
                                     dismiss()
                                 } catch {
                                     vm.error = error.localizedDescription
+                                    HapticService.shared.error()
                                 }
                             }
                         } label: {

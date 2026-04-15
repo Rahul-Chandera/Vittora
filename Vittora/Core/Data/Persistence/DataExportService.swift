@@ -1,4 +1,5 @@
 import Foundation
+import os.signpost
 
 enum ExportFormat: String, CaseIterable, Sendable {
     case csv = "CSV"
@@ -42,6 +43,8 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
     // MARK: - Legacy compatibility
 
     func exportTransactionsCSV(filter: TransactionFilter?) async throws -> URL {
+        let signpostID = PerformanceLogger.Export.beginCSV()
+        defer { PerformanceLogger.Export.endCSV(id: signpostID) }
         let transactions = try await transactionRepository.fetchAll(filter: filter)
         let csv = try await buildCSV(for: transactions)
         return try writeToTemp(content: csv, suffix: "transactions")

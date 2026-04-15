@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import os.signpost
 
 @main
 struct VittoraApp: App {
@@ -45,6 +46,7 @@ struct VittoraApp: App {
                 appState.isAuthenticated = false
             }
             if newPhase == .active {
+                PerformanceLogger.App.sceneDidBecomeActive()
                 Task { await syncService.checkiCloudStatus() }
             }
         }
