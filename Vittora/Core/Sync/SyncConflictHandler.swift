@@ -4,14 +4,14 @@ import Foundation
 struct SyncConflict: Identifiable, Sendable {
     let id: UUID
     let entityType: String
-    let entityID: UUID
+    let entityID: UUID?
     let localTimestamp: Date
     let remoteTimestamp: Date
     let description: String
 
     init(
         entityType: String,
-        entityID: UUID,
+        entityID: UUID? = nil,
         localTimestamp: Date,
         remoteTimestamp: Date,
         description: String
@@ -57,6 +57,25 @@ final class SyncConflictHandler: Sendable {
     /// Returns `.keepRemote` if remote is newer (last-writer-wins).
     func resolveByTimestamp(localUpdatedAt: Date, remoteUpdatedAt: Date) -> ConflictResolution {
         remoteUpdatedAt > localUpdatedAt ? .keepRemote : .keepLocal
+    }
+
+    /// Logs a detected conflict and applies the default resolution strategy.
+    @discardableResult
+    func logConflict(
+        entityType: String,
+        entityID: UUID? = nil,
+        localTimestamp: Date,
+        remoteTimestamp: Date,
+        description: String
+    ) -> ConflictResolution {
+        let conflict = SyncConflict(
+            entityType: entityType,
+            entityID: entityID,
+            localTimestamp: localTimestamp,
+            remoteTimestamp: remoteTimestamp,
+            description: description
+        )
+        return resolve(conflict)
     }
 
     // MARK: - Log management

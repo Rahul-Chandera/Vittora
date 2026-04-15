@@ -15,6 +15,8 @@ struct VittoraApp: App {
     @State private var dependencies: DependencyContainer
     @State private var settingsVM: SettingsViewModel
     @State private var syncService: SyncStatusService
+    @State private var syncConflictHandler: SyncConflictHandler
+    @State private var cloudKitSyncMonitor: CloudKitSyncMonitor?
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
 
@@ -32,10 +34,21 @@ struct VittoraApp: App {
         }
 
         let dependencyContainer = DependencyContainer.createDefault(modelContainer: modelContainer)
+        let syncStatusService = SyncStatusService(isMonitoringEnabled: !isUITesting)
+        let conflictHandler = SyncConflictHandler()
         _dependencies = State(initialValue: dependencyContainer)
         _router = State(initialValue: Router())
         _settingsVM = State(initialValue: SettingsViewModel())
-        _syncService = State(initialValue: SyncStatusService(isMonitoringEnabled: !isUITesting))
+        _syncService = State(initialValue: syncStatusService)
+        _syncConflictHandler = State(initialValue: conflictHandler)
+        _cloudKitSyncMonitor = State(
+            initialValue: isUITesting
+                ? nil
+                : CloudKitSyncMonitor(
+                    syncStatusService: syncStatusService,
+                    conflictHandler: conflictHandler
+                )
+        )
         _appState = State(
             initialValue: AppState(
                 isAuthenticated: isUITesting,
@@ -72,6 +85,7 @@ struct VittoraApp: App {
                 .environment(\.dependencies, dependencies)
                 .environment(settingsVM)
                 .environment(syncService)
+                .environment(syncConflictHandler)
                 .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
                 .task {
                     await performStartupTasksIfNeeded()

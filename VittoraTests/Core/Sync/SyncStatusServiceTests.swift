@@ -200,4 +200,19 @@ struct SyncConflictHandlerTests {
         #expect(handler.resolveByTimestamp(localUpdatedAt: past, remoteUpdatedAt: now) == .keepRemote)
         #expect(handler.resolveByTimestamp(localUpdatedAt: now, remoteUpdatedAt: past) == .keepLocal)
     }
+
+    @Test("logConflict stores conflict even when entity id is unavailable")
+    func logConflictWithoutEntityID() {
+        let handler = SyncConflictHandler()
+        let resolution = handler.logConflict(
+            entityType: "Import",
+            localTimestamp: Date(timeIntervalSinceNow: -30),
+            remoteTimestamp: .now,
+            description: "CloudKit import conflict"
+        )
+
+        #expect(resolution == .keepRemote)
+        #expect(handler.recentConflicts.count == 1)
+        #expect(handler.recentConflicts[0].entityID == nil)
+    }
 }

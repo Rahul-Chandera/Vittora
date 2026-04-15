@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @State private var vm = SettingsViewModel()
+    @Environment(SyncConflictHandler.self) private var syncConflictHandler
 
     var body: some View {
         Form {
@@ -68,7 +69,7 @@ struct SettingsView: View {
                 } label: {
                     SettingsRow(icon: "icloud.fill", iconColor: .blue,
                                 title: String(localized: "iCloud Sync"),
-                                value: vm.isCloudSyncEnabled ? String(localized: "On") : String(localized: "Off"))
+                                value: syncValue)
                 }
                 NavigationLink {
                     DataSettingsView()
@@ -106,6 +107,13 @@ struct SettingsView: View {
         let parts = name.split(separator: " ")
         guard !parts.isEmpty else { return "V" }
         return parts.prefix(2).compactMap { $0.first }.map { String($0) }.joined().uppercased()
+    }
+
+    private var syncValue: String {
+        if syncConflictHandler.hasUnresolvedConflicts {
+            return String(localized: "Review")
+        }
+        return vm.isCloudSyncEnabled ? String(localized: "On") : String(localized: "Off")
     }
 }
 
