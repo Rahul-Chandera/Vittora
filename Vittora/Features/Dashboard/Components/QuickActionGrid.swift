@@ -6,6 +6,7 @@ struct QuickAction: Identifiable {
     let icon: String
     let color: Color
     let destination: NavigationDestination
+    let accessibilityIdentifier: String
 }
 
 struct QuickActionGrid: View {
@@ -16,25 +17,29 @@ struct QuickActionGrid: View {
             title: String(localized: "Expense"),
             icon: "arrow.up.circle.fill",
             color: VColors.expense,
-            destination: .addTransaction
+            destination: .addTransaction,
+            accessibilityIdentifier: "quick-action-expense-button"
         ),
         QuickAction(
             title: String(localized: "Income"),
             icon: "arrow.down.circle.fill",
             color: VColors.income,
-            destination: .addTransaction
+            destination: .addTransaction,
+            accessibilityIdentifier: "quick-action-income-button"
         ),
         QuickAction(
             title: String(localized: "Transfer"),
             icon: "arrow.left.arrow.right.circle.fill",
             color: VColors.transfer,
-            destination: .addTransaction
+            destination: .addTransfer,
+            accessibilityIdentifier: "quick-action-transfer-button"
         ),
         QuickAction(
             title: String(localized: "Budget"),
             icon: "target",
             color: VColors.primary,
-            destination: .addBudget
+            destination: .addBudget,
+            accessibilityIdentifier: "quick-action-budget-button"
         )
     ]
 
@@ -80,6 +85,7 @@ private struct QuickActionButton: View {
             .frame(width: 72)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(action.accessibilityIdentifier)
     }
 }
 

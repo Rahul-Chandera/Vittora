@@ -25,6 +25,7 @@ struct VittoraApp: App {
     private let showsOnboardingForUITesting: Bool
     private let bypassOnboardingForUITesting: Bool
     private let seedsTransactionsForUITesting: Bool
+    private let seedsTransfersForUITesting: Bool
     private let recurringGenerationUseCase: GenerateRecurringTransactionsUseCase?
 
     init() {
@@ -33,6 +34,7 @@ struct VittoraApp: App {
         showsOnboardingForUITesting = launchArguments.contains("--ui-test-onboarding")
         bypassOnboardingForUITesting = isUITesting && !showsOnboardingForUITesting
         seedsTransactionsForUITesting = launchArguments.contains("--ui-test-seed-transactions")
+        seedsTransfersForUITesting = launchArguments.contains("--ui-test-seed-transfers")
 
         do {
             modelContainer = try ModelContainerConfig.makeContainer(inMemory: isUITesting)
@@ -140,6 +142,11 @@ struct VittoraApp: App {
         guard !hasCompletedStartup else { return }
         hasCompletedStartup = true
 
+        if seedsTransfersForUITesting {
+            await seedUITestTransferScenarioIfNeeded()
+            return
+        }
+
         if seedsTransactionsForUITesting {
             await seedUITestTransactionsIfNeeded()
             return
@@ -179,6 +186,26 @@ struct VittoraApp: App {
             try await seeder.seedTransactionScenarioIfNeeded()
         } catch {
             debugPrint("Failed to seed UI test transaction data: \(error)")
+        }
+    }
+
+    private func seedUITestTransferScenarioIfNeeded() async {
+        guard let accountRepository = dependencies.accountRepository,
+              let categoryRepository = dependencies.categoryRepository,
+              let transactionRepository = dependencies.transactionRepository else {
+            return
+        }
+
+        let seeder = UITestDataSeeder(
+            accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
+            transactionRepository: transactionRepository
+        )
+
+        do {
+            try await seeder.seedTransferScenarioIfNeeded()
+        } catch {
+            debugPrint("Failed to seed UI test transfer data: \(error)")
         }
     }
 }

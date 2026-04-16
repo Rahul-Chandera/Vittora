@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 struct AccountPickerView: View {
@@ -5,6 +6,7 @@ struct AccountPickerView: View {
     let accounts: [AccountEntity]
     var excludeID: UUID? = nil
     var title: String = "Select Account"
+    var accessibilityIdentifierPrefix: String = "account-picker-row"
 
     var filteredAccounts: [AccountEntity] {
         accounts.filter { $0.id != excludeID && !$0.isArchived }
@@ -26,11 +28,31 @@ struct AccountPickerView: View {
                 }
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("\(accessibilityIdentifierPrefix)-\(sanitizedIdentifier(for: account.name))")
         }
         .navigationTitle(title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .accessibilityIdentifier("account-picker-root")
+    }
+
+    private func sanitizedIdentifier(for name: String) -> String {
+        let lowered = name.lowercased()
+        var result = ""
+        var lastWasSeparator = false
+
+        for scalar in lowered.unicodeScalars {
+            if CharacterSet.alphanumerics.contains(scalar) {
+                result.unicodeScalars.append(scalar)
+                lastWasSeparator = false
+            } else if !lastWasSeparator {
+                result.append("-")
+                lastWasSeparator = true
+            }
+        }
+
+        return result.trimmingCharacters(in: CharacterSet(charactersIn: "-"))
     }
 }
 

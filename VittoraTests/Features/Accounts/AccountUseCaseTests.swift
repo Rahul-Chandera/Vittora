@@ -110,6 +110,63 @@ struct AccountUseCaseTests {
         }
     }
 
+    // MARK: - TransferFundsUseCase
+
+    @Suite("TransferFundsUseCase")
+    struct TransferFundsUseCaseTests {
+        @Test("Moves funds between accounts and creates paired transfer transactions")
+        func testTransferUpdatesBalancesAndCreatesTransactions() async throws {
+            let accountRepo = MockAccountRepository()
+            let transactionRepo = MockTransactionRepository()
+
+            let checkingAccount = AccountEntity(name: "Checking", type: .bank, balance: Decimal(1500))
+            let savingsAccount = AccountEntity(name: "Savings", type: .bank, balance: Decimal(500))
+            await accountRepo.seed(checkingAccount)
+            await accountRepo.seed(savingsAccount)
+
+            let useCase = TransferFundsUseCase(
+                transactionRepository: transactionRepo,
+                accountRepository: accountRepo
+            )
+
+            try await useCase.execute(
+                sourceAccountID: checkingAccount.id,
+                destinationAccountID: savingsAccount.id,
+                amount: Decimal(125),
+                note: "Move to savings"
+            )
+
+            let updatedCheckingAccount = await accountRepo.accounts.first { $0.id == checkingAccount.id }
+            let updatedSavingsAccount = await accountRepo.accounts.first { $0.id == savingsAccount.id }
+            let savedTransactions = await transactionRepo.transactions
+
+            #expect(updatedCheckingAccount?.balance == Decimal(1375))
+            #expect(updatedSavingsAccount?.balance == Decimal(625))
+            #expect(savedTransactions.count == 2)
+            #expect(savedTransactions.allSatisfy { $0.type == .transfer })
+        }
+
+        @Test("Rejects transfers between the same account")
+        func testTransferRejectsSameAccount() async throws {
+            let accountRepo = MockAccountRepository()
+            let account = AccountEntity(name: "Checking", type: .bank, balance: Decimal(1000))
+            await accountRepo.seed(account)
+
+            let useCase = TransferFundsUseCase(
+                transactionRepository: MockTransactionRepository(),
+                accountRepository: accountRepo
+            )
+
+            await #expect(throws: (any Error).self) {
+                try await useCase.execute(
+                    sourceAccountID: account.id,
+                    destinationAccountID: account.id,
+                    amount: Decimal(50)
+                )
+            }
+        }
+    }
+
     // MARK: - DeleteAccountUseCase
 
     @Suite("DeleteAccountUseCase")

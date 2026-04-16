@@ -20,6 +20,10 @@ struct TransferFundsUseCase: Sendable {
         note: String = "",
         currencyCode: String = "USD"
     ) async throws {
+        guard sourceAccountID != destinationAccountID else {
+            throw VittoraError.validationFailed("Source and destination accounts must be different")
+        }
+
         // Validate accounts exist
         guard let sourceAccount = try await accountRepository.fetchByID(sourceAccountID) else {
             throw VittoraError.notFound("Source account not found")
@@ -27,6 +31,14 @@ struct TransferFundsUseCase: Sendable {
 
         guard let destinationAccount = try await accountRepository.fetchByID(destinationAccountID) else {
             throw VittoraError.notFound("Destination account not found")
+        }
+
+        guard !sourceAccount.isArchived else {
+            throw VittoraError.validationFailed("Cannot transfer from an archived account")
+        }
+
+        guard !destinationAccount.isArchived else {
+            throw VittoraError.validationFailed("Cannot transfer to an archived account")
         }
 
         // Validate amount is positive
@@ -61,5 +73,16 @@ struct TransferFundsUseCase: Sendable {
         )
 
         try await transactionRepository.create(destinationTransaction)
+
+        var updatedSourceAccount = sourceAccount
+        updatedSourceAccount.balance -= amount
+        updatedSourceAccount.updatedAt = .now
+
+        var updatedDestinationAccount = destinationAccount
+        updatedDestinationAccount.balance += amount
+        updatedDestinationAccount.updatedAt = .now
+
+        try await accountRepository.update(updatedSourceAccount)
+        try await accountRepository.update(updatedDestinationAccount)
     }
 }

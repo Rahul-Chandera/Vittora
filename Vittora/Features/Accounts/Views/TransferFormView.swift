@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TransferFormView: View {
+    @Environment(AppState.self) private var appState
     var onSave: (() -> Void)? = nil
 
     @Environment(\.dependencies) private var dependencies
@@ -18,28 +19,31 @@ struct TransferFormView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("Transfer Funds")
+        .navigationTitle(String(localized: "Transfer Funds"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { dismiss() }
+                Button(String(localized: "Cancel")) { dismiss() }
+                    .accessibilityIdentifier("transfer-cancel-button")
             }
             ToolbarItem(placement: .confirmationAction) {
                 if isTransferring {
                     ProgressView()
                 } else {
-                    Button("Transfer") {
+                    Button(String(localized: "Transfer")) {
                         Task { await performTransfer() }
                     }
                     .disabled(viewModel?.canTransfer != true)
+                    .accessibilityIdentifier("transfer-submit-button")
                 }
             }
         }
         .task {
             await setupViewModel()
         }
+        .accessibilityIdentifier("transfer-form-root")
     }
 
     @MainActor
@@ -63,7 +67,7 @@ struct TransferFormView: View {
     @ViewBuilder
     private func formContent(vm: TransferViewModel) -> some View {
         Form {
-            Section("From") {
+            Section(String(localized: "From")) {
                 Button {
                     showSourcePicker = true
                 } label: {
@@ -89,9 +93,10 @@ struct TransferFormView: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("transfer-source-account-button")
             }
 
-            Section("To") {
+            Section(String(localized: "To")) {
                 Button {
                     showDestinationPicker = true
                 } label: {
@@ -117,18 +122,21 @@ struct TransferFormView: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("transfer-destination-account-button")
             }
 
-            Section("Amount") {
-                TextField("0.00", text: Bindable(vm).amount)
+            Section(String(localized: "Amount")) {
+                TextField(String(localized: "0.00"), text: Bindable(vm).amount)
                     #if os(iOS)
                     .keyboardType(.decimalPad)
                     #endif
+                    .accessibilityIdentifier("transfer-amount-field")
             }
 
-            Section("Details") {
-                DatePicker("Date", selection: Bindable(vm).date, displayedComponents: .date)
-                TextField("Note (optional)", text: Bindable(vm).note)
+            Section(String(localized: "Details")) {
+                DatePicker(String(localized: "Date"), selection: Bindable(vm).date, displayedComponents: .date)
+                TextField(String(localized: "Note (optional)"), text: Bindable(vm).note)
+                    .accessibilityIdentifier("transfer-note-field")
             }
 
             if let error = vm.error {
@@ -151,7 +159,8 @@ struct TransferFormView: View {
                     ),
                     accounts: vm.accounts,
                     excludeID: vm.destinationAccount?.id,
-                    title: "From Account"
+                    title: String(localized: "From Account"),
+                    accessibilityIdentifierPrefix: "transfer-source-account"
                 )
             }
         }
@@ -167,7 +176,8 @@ struct TransferFormView: View {
                     ),
                     accounts: vm.accounts,
                     excludeID: vm.sourceAccount?.id,
-                    title: "To Account"
+                    title: String(localized: "To Account"),
+                    accessibilityIdentifierPrefix: "transfer-destination-account"
                 )
             }
         }
@@ -178,6 +188,7 @@ struct TransferFormView: View {
         isTransferring = true
         do {
             try await vm.transfer()
+            appState.transactionRefreshVersion += 1
             onSave?()
             dismiss()
         } catch {

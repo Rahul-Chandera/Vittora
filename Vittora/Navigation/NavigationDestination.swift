@@ -4,6 +4,7 @@ enum NavigationDestination: Hashable {
     // Accounts
     case accountDetail(id: UUID)
     case addAccount
+    case addTransfer
 
     // Transactions
     case transactionDetail(id: UUID)

@@ -229,8 +229,12 @@ struct DashboardView: View {
         switch destination {
         case .transactionDetail(let id):
             TransactionDetailView(transactionID: id)
-        case .addTransaction, .editTransaction:
+        case .addTransaction:
             TransactionFormView()
+        case .editTransaction(let id):
+            TransactionFormView(transactionID: id)
+        case .addTransfer:
+            TransferFormView()
         case .accountDetail(let id):
             AccountDetailView(accountID: id)
         default:

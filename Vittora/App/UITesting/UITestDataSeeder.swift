@@ -1,6 +1,7 @@
 import Foundation
 
-actor UITestDataSeeder {
+@MainActor
+final class UITestDataSeeder {
     private let accountRepository: any AccountRepository
     private let categoryRepository: any CategoryRepository
     private let transactionRepository: any TransactionRepository
@@ -85,6 +86,34 @@ actor UITestDataSeeder {
             paymentMethod: .bankTransfer,
             currencyCode: "USD"
         )
+    }
+
+    func seedTransferScenarioIfNeeded() async throws {
+        let existingAccounts = try await accountRepository.fetchAll()
+        let existingTransactions = try await transactionRepository.fetchAll(filter: nil)
+        guard existingAccounts.isEmpty, existingTransactions.isEmpty else {
+            return
+        }
+
+        let checkingAccount = AccountEntity(
+            id: fixedUUID("3F2C22FE-BAA8-46F9-A31C-1E6E66281C41"),
+            name: String(localized: "UI Test Checking"),
+            type: .bank,
+            balance: 1_500,
+            currencyCode: "USD",
+            icon: "building.columns.fill"
+        )
+        let savingsAccount = AccountEntity(
+            id: fixedUUID("2BDAE8B4-4918-4F0E-B03C-72D8F428E553"),
+            name: String(localized: "UI Test Savings"),
+            type: .bank,
+            balance: 500,
+            currencyCode: "USD",
+            icon: "banknote.fill"
+        )
+
+        try await accountRepository.create(checkingAccount)
+        try await accountRepository.create(savingsAccount)
     }
 
     private func fixedUUID(_ rawValue: String) -> UUID {

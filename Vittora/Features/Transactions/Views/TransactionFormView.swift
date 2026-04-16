@@ -265,37 +265,28 @@ struct TransactionFormView: View {
             return
         }
 
-        async let accountsTask = {
-            let useCase = FetchAccountsUseCase(accountRepository: accountRepo)
-            do {
-                return try await useCase.execute()
-            } catch {
-                return []
-            }
-        }()
+        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: accountRepo)
+        let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: categoryRepo)
+        let fetchPayeesUseCase = FetchPayeesUseCase(repository: payeeRepo)
 
-        async let categoriesTask = {
-            let useCase = FetchCategoriesUseCase(repository: categoryRepo)
-            do {
-                return try await useCase.executeGrouped()
-            } catch {
-                return ([], [])
-            }
-        }()
+        do {
+            accounts = try await fetchAccountsUseCase.execute()
+        } catch {
+            accounts = []
+        }
 
-        async let payeesTask = {
-            let useCase = FetchPayeesUseCase(repository: payeeRepo)
-            do {
-                return try await useCase.execute()
-            } catch {
-                return []
-            }
-        }()
+        do {
+            categories = try await fetchCategoriesUseCase.executeGrouped()
+        } catch {
+            categories = ([], [])
+        }
 
-        let (accts, cats, pyees) = await (accountsTask, categoriesTask, payeesTask)
-        accounts = accts
-        categories = cats
-        payees = pyees
+        do {
+            payees = try await fetchPayeesUseCase.execute()
+        } catch {
+            payees = []
+        }
+
         applyDefaultSelectionsIfNeeded()
     }
 

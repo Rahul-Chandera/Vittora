@@ -9,6 +9,8 @@ struct NavigationDestinationHandler: ViewModifier {
                     AccountDetailView(accountID: id)
                 case .addAccount:
                     AccountFormView()
+                case .addTransfer:
+                    TransferFormView()
                 case .transactionDetail(let id):
                     TransactionDetailView(transactionID: id)
                 case .addTransaction:

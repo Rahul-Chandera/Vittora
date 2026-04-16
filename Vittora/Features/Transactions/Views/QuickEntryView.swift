@@ -83,9 +83,8 @@ struct QuickEntryView: View {
                                     let feedback = UIImpactFeedbackGenerator(style: .light)
                                     feedback.impactOccurred()
                                     #endif
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                        dismiss()
-                                    }
+                                    try await Task.sleep(for: .milliseconds(300))
+                                    dismiss()
                                 } catch {
                                     vm.error = error.localizedDescription
                                 }
@@ -157,28 +156,21 @@ struct QuickEntryView: View {
             return
         }
 
-        async let catsTask = {
-            let useCase = FetchCategoriesUseCase(repository: categoryRepo)
-            do {
-                let grouped = try await useCase.executeGrouped()
-                return grouped.expense
-            } catch {
-                return []
-            }
-        }()
+        let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: categoryRepo)
+        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: accountRepo)
 
-        async let acctsTask = {
-            let useCase = FetchAccountsUseCase(accountRepository: accountRepo)
-            do {
-                return try await useCase.execute()
-            } catch {
-                return []
-            }
-        }()
+        do {
+            let groupedCategories = try await fetchCategoriesUseCase.executeGrouped()
+            categories = groupedCategories.expense
+        } catch {
+            categories = []
+        }
 
-        let (cats, accts) = await (catsTask, acctsTask)
-        categories = cats
-        accounts = accts
+        do {
+            accounts = try await fetchAccountsUseCase.execute()
+        } catch {
+            accounts = []
+        }
 
         if !accounts.isEmpty {
             vm?.selectedAccountID = accounts.first?.id
