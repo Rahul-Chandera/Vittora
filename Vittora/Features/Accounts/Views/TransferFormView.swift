@@ -8,8 +8,6 @@ struct TransferFormView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: TransferViewModel?
     @State private var isTransferring = false
-    @State private var showSourcePicker = false
-    @State private var showDestinationPicker = false
 
     var body: some View {
         Group {
@@ -68,8 +66,20 @@ struct TransferFormView: View {
     private func formContent(vm: TransferViewModel) -> some View {
         Form {
             Section(String(localized: "From")) {
-                Button {
-                    showSourcePicker = true
+                NavigationLink {
+                    AccountPickerView(
+                        selectedAccountID: Binding(
+                            get: { vm.sourceAccount?.id },
+                            set: { id in
+                                vm.sourceAccount = vm.accounts.first { $0.id == id }
+                            }
+                        ),
+                        accounts: vm.accounts,
+                        excludeID: vm.destinationAccount?.id,
+                        title: String(localized: "From Account"),
+                        accessibilityIdentifierPrefix: "transfer-source-account",
+                        dismissOnSelection: true
+                    )
                 } label: {
                     HStack {
                         if let source = vm.sourceAccount {
@@ -92,13 +102,24 @@ struct TransferFormView: View {
                             .font(.caption)
                     }
                 }
-                .buttonStyle(.plain)
                 .accessibilityIdentifier("transfer-source-account-button")
             }
 
             Section(String(localized: "To")) {
-                Button {
-                    showDestinationPicker = true
+                NavigationLink {
+                    AccountPickerView(
+                        selectedAccountID: Binding(
+                            get: { vm.destinationAccount?.id },
+                            set: { id in
+                                vm.destinationAccount = vm.accounts.first { $0.id == id }
+                            }
+                        ),
+                        accounts: vm.accounts,
+                        excludeID: vm.sourceAccount?.id,
+                        title: String(localized: "To Account"),
+                        accessibilityIdentifierPrefix: "transfer-destination-account",
+                        dismissOnSelection: true
+                    )
                 } label: {
                     HStack {
                         if let dest = vm.destinationAccount {
@@ -121,7 +142,6 @@ struct TransferFormView: View {
                             .font(.caption)
                     }
                 }
-                .buttonStyle(.plain)
                 .accessibilityIdentifier("transfer-destination-account-button")
             }
 
@@ -145,40 +165,6 @@ struct TransferFormView: View {
                         .foregroundColor(VColors.expense)
                         .font(VTypography.caption1)
                 }
-            }
-        }
-        .sheet(isPresented: $showSourcePicker) {
-            NavigationStack {
-                AccountPickerView(
-                    selectedAccountID: Binding(
-                        get: { vm.sourceAccount?.id },
-                        set: { id in
-                            vm.sourceAccount = vm.accounts.first { $0.id == id }
-                            showSourcePicker = false
-                        }
-                    ),
-                    accounts: vm.accounts,
-                    excludeID: vm.destinationAccount?.id,
-                    title: String(localized: "From Account"),
-                    accessibilityIdentifierPrefix: "transfer-source-account"
-                )
-            }
-        }
-        .sheet(isPresented: $showDestinationPicker) {
-            NavigationStack {
-                AccountPickerView(
-                    selectedAccountID: Binding(
-                        get: { vm.destinationAccount?.id },
-                        set: { id in
-                            vm.destinationAccount = vm.accounts.first { $0.id == id }
-                            showDestinationPicker = false
-                        }
-                    ),
-                    accounts: vm.accounts,
-                    excludeID: vm.sourceAccount?.id,
-                    title: String(localized: "To Account"),
-                    accessibilityIdentifierPrefix: "transfer-destination-account"
-                )
             }
         }
     }

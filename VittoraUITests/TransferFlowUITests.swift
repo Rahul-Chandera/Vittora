@@ -25,10 +25,10 @@ final class TransferFlowUITests: XCTestCase {
         XCTAssertTrue(sourceButton.waitForExistence(timeout: 5))
         sourceButton.tap()
 
-        let sourceAccountRow = app.buttons.containing(
-            .staticText,
-            identifier: "UI Test Checking"
-        ).firstMatch
+        let accountPicker = app.collectionViews["account-picker-root"]
+        XCTAssertTrue(accountPicker.waitForExistence(timeout: 5))
+
+        let sourceAccountRow = app.buttons["transfer-source-account-ui-test-checking"]
         XCTAssertTrue(sourceAccountRow.waitForExistence(timeout: 5))
         sourceAccountRow.tap()
 
@@ -36,10 +36,9 @@ final class TransferFlowUITests: XCTestCase {
         XCTAssertTrue(destinationButton.waitForExistence(timeout: 5))
         destinationButton.tap()
 
-        let destinationAccountRow = app.buttons.containing(
-            .staticText,
-            identifier: "UI Test Savings"
-        ).firstMatch
+        XCTAssertTrue(accountPicker.waitForExistence(timeout: 5))
+
+        let destinationAccountRow = app.buttons["transfer-destination-account-ui-test-savings"]
         XCTAssertTrue(destinationAccountRow.waitForExistence(timeout: 5))
         destinationAccountRow.tap()
 

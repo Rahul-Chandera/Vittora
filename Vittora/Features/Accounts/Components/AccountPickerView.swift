@@ -2,11 +2,13 @@ import Foundation
 import SwiftUI
 
 struct AccountPickerView: View {
+    @Environment(\.dismiss) private var dismiss
     @Binding var selectedAccountID: UUID?
     let accounts: [AccountEntity]
     var excludeID: UUID? = nil
     var title: String = "Select Account"
     var accessibilityIdentifierPrefix: String = "account-picker-row"
+    var dismissOnSelection: Bool = false
 
     var filteredAccounts: [AccountEntity] {
         accounts.filter { $0.id != excludeID && !$0.isArchived }
@@ -16,6 +18,9 @@ struct AccountPickerView: View {
         List(filteredAccounts) { account in
             Button {
                 selectedAccountID = account.id
+                if dismissOnSelection {
+                    dismiss()
+                }
             } label: {
                 HStack {
                     AccountRowView(account: account)
