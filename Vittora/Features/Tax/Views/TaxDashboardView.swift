@@ -5,6 +5,7 @@ struct TaxDashboardView: View {
     @State private var vm: TaxEstimateViewModel?
     @State private var showProfileForm = false
     @State private var showBreakdown = false
+    @State private var showExportSheet = false
 
     var body: some View {
         NavigationStack {
@@ -52,7 +53,8 @@ struct TaxDashboardView: View {
                     estimateUseCase: EstimateTaxUseCase(),
                     compareUseCase: CompareTaxRegimesUseCase(),
                     saveUseCase: SaveTaxProfileUseCase(taxProfileRepository: taxRepo),
-                    summaryUseCase: summaryUseCase
+                    summaryUseCase: summaryUseCase,
+                    exportService: dependencies.exportService
                 )
                 await vm?.load()
             }
@@ -65,6 +67,14 @@ struct TaxDashboardView: View {
         .sheet(isPresented: $showBreakdown) {
             if let estimate = vm?.estimate {
                 TaxBreakdownView(estimate: estimate)
+            }
+        }
+        .sheet(isPresented: $showExportSheet, onDismiss: {
+            vm?.clearExportURL()
+        }) {
+            if let url = vm?.exportURL {
+                ShareSheet(items: [url])
+                    .ignoresSafeArea()
             }
         }
         .refreshable {
@@ -105,23 +115,28 @@ struct TaxDashboardView: View {
                     TaxAnnualSummaryCard(summary: summary, country: vm.profile.country)
                 }
 
-                // Full breakdown button
-                Button {
+                actionButton(
+                    title: String(localized: "Full Bracket Breakdown"),
+                    icon: "list.number"
+                ) {
                     showBreakdown = true
-                } label: {
-                    HStack {
-                        Image(systemName: "list.number")
-                        Text(String(localized: "Full Bracket Breakdown"))
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(VColors.textSecondary)
-                    }
-                    .padding(VSpacing.cardPadding)
-                    .background(VColors.secondaryBackground)
-                    .cornerRadius(VSpacing.cornerRadiusCard)
-                    .foregroundStyle(VColors.primary)
                 }
+
+                actionButton(
+                    title: vm.isExporting
+                        ? String(localized: "Preparing Tax Report")
+                        : String(localized: "Export Tax Report"),
+                    icon: "square.and.arrow.up",
+                    showsProgress: vm.isExporting
+                ) {
+                    Task {
+                        await vm.exportReport()
+                        if vm.exportURL != nil {
+                            showExportSheet = true
+                        }
+                    }
+                }
+                .disabled(vm.isExporting)
 
                 // Info about regime
                 regimeInfoCard(estimate: estimate, profile: vm.profile)
@@ -203,6 +218,33 @@ struct TaxDashboardView: View {
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
+    }
+
+    private func actionButton(
+        title: String,
+        icon: String,
+        showsProgress: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack {
+                if showsProgress {
+                    ProgressView()
+                        .tint(VColors.primary)
+                } else {
+                    Image(systemName: icon)
+                }
+                Text(title)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(VColors.textSecondary)
+            }
+            .padding(VSpacing.cardPadding)
+            .background(VColors.secondaryBackground)
+            .cornerRadius(VSpacing.cornerRadiusCard)
+            .foregroundStyle(VColors.primary)
+        }
     }
 
     // MARK: - Empty State
