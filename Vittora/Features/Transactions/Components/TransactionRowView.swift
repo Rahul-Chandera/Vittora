@@ -68,6 +68,7 @@ struct TransactionRowView: View {
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
+        .accessibilityIdentifier(rowAccessibilityIdentifier)
     }
 
     private var accessibilityDescription: String {
@@ -102,6 +103,19 @@ struct TransactionRowView: View {
         formatter.numberStyle = .currency
         formatter.currencyCode = "USD"
         return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+    }
+
+    private var rowAccessibilityIdentifier: String {
+        let base = transaction.note?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+        let normalized = base
+            .replacingOccurrences(of: "[^a-z0-9]+", with: "-", options: .regularExpression)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "-"))
+
+        if normalized.isEmpty {
+            return "transaction-row-\(transaction.id.uuidString.lowercased())"
+        }
+
+        return "transaction-row-\(normalized)"
     }
 }
 

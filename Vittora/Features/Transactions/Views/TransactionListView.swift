@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TransactionListView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @State private var vm: TransactionListViewModel?
     @State private var showFilterSheet = false
@@ -17,9 +18,21 @@ struct TransactionListView: View {
                 }
             }
         }
+        .navigationTitle(String(localized: "Transactions"))
+        .accessibilityIdentifier("transaction-list-root")
         .task {
             if vm == nil {
                 vm = await createViewModel()
+                await vm?.loadTransactions()
+            }
+        }
+        .task(id: appState.transactionRefreshVersion) {
+            guard vm != nil else { return }
+            await vm?.loadTransactions()
+        }
+        .onAppear {
+            guard vm != nil else { return }
+            Task {
                 await vm?.loadTransactions()
             }
         }
@@ -86,6 +99,7 @@ struct TransactionListView: View {
                         Image(systemName: "plus.circle.fill")
                             .font(.title2)
                     }
+                    .accessibilityIdentifier("transaction-add-button")
 
                     Button {
                         showFilterSheet = true
@@ -94,6 +108,7 @@ struct TransactionListView: View {
                             .font(.title2)
                             .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
                     }
+                    .accessibilityIdentifier("transaction-filter-button")
                 }
             }
         }
@@ -199,6 +214,7 @@ struct TransactionListView: View {
         .padding(VSpacing.screenPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.background)
+        .accessibilityIdentifier("transaction-empty-state")
     }
 
     @ViewBuilder

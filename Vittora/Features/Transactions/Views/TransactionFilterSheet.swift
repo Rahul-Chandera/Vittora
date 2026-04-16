@@ -21,6 +21,7 @@ struct TransactionFilterSheet: View {
                             Text(preset.displayName).tag(preset)
                         }
                     }
+                    .accessibilityIdentifier("transaction-filter-preset-picker")
                     .onChange(of: localVM.datePreset) { _, newValue in
                         localVM.applyDatePreset(newValue)
                     }
@@ -48,21 +49,25 @@ struct TransactionFilterSheet: View {
                 Section("Transaction Type") {
                     ForEach(TransactionType.allCases, id: \.self) { type in
                         Toggle(type.rawValue.capitalized, isOn: $localVM.selectedTypes.contains(type))
+                            .accessibilityIdentifier("transaction-filter-type-\(type.rawValue)")
                     }
                 }
 
                 Section("Amount Range") {
                     TextField("Min", text: Bindable(localVM).amountMin)
+                        .accessibilityIdentifier("transaction-filter-min-field")
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         #endif
 
                     TextField("Max", text: Bindable(localVM).amountMax)
+                        .accessibilityIdentifier("transaction-filter-max-field")
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         #endif
                 }
             }
+            .accessibilityIdentifier("transaction-filter-sheet")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -71,6 +76,7 @@ struct TransactionFilterSheet: View {
                     Button("Clear") {
                         localVM.clearAll()
                     }
+                    .accessibilityIdentifier("transaction-filter-clear-button")
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -78,6 +84,7 @@ struct TransactionFilterSheet: View {
                         onApply(localVM.buildFilter())
                         dismiss()
                     }
+                    .accessibilityIdentifier("transaction-filter-apply-button")
                 }
             }
         }

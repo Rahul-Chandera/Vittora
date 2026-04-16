@@ -4,6 +4,7 @@ struct AmountInputView: View {
     @Binding var amountString: String
     var currencyCode: String = "USD"
     var type: TransactionType = .expense
+    var textFieldAccessibilityIdentifier: String?
 
     var body: some View {
         VStack(spacing: VSpacing.md) {
@@ -15,6 +16,7 @@ struct AmountInputView: View {
                 TextField("0.00", text: $amountString)
                     .font(.system(size: 32, weight: .semibold))
                     .foregroundColor(transactionColor(for: type))
+                    .accessibilityIdentifier(textFieldAccessibilityIdentifier ?? "")
                     #if os(iOS)
                     .keyboardType(.decimalPad)
                     #endif

@@ -15,6 +15,7 @@ struct BudgetListView: View {
                         title: "No Budgets Yet",
                         subtitle: "Create your first budget to track spending"
                     )
+                    .accessibilityIdentifier("budget-empty-state")
                 } else {
                     List {
                         // Overview card
@@ -83,9 +84,15 @@ struct BudgetListView: View {
                     Button(action: { showAddBudget = true }) {
                         Image(systemName: "plus")
                     }
+                    .accessibilityIdentifier("budget-add-button")
                 }
             }
-            .sheet(isPresented: $showAddBudget) {
+            .sheet(isPresented: $showAddBudget, onDismiss: {
+                guard let viewModel else { return }
+                Task {
+                    await viewModel.loadBudgets()
+                }
+            }) {
                 BudgetFormView(isPresented: $showAddBudget)
             }
             .navigationDestination(for: NavigationDestination.self) { destination in
@@ -118,15 +125,7 @@ struct BudgetListView: View {
                     await viewModel.loadBudgets()
                 }
             }
-            .onDisappear {
-                if showAddBudget {
-                    Task {
-                        if let viewModel = viewModel {
-                            await viewModel.loadBudgets()
-                        }
-                    }
-                }
-            }
+            .accessibilityIdentifier("budget-list-root")
         }
     }
 }

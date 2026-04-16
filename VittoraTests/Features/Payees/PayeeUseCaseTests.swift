@@ -178,6 +178,110 @@ struct PayeeUseCaseTests {
         }
     }
 
+    // MARK: - ImportContactsUseCase
+
+    @Suite("ImportContactsUseCase")
+    struct ImportContactsUseCaseTests {
+        @Test("Imports unique contacts and skips duplicates")
+        func testImportsUniqueContactsAndSkipsDuplicates() async throws {
+            let repository = MockPayeeRepository()
+            await repository.seed(PayeeEntity(name: "Apple", type: .business))
+
+            let contactsService = MockContactsImportService(
+                status: .authorized,
+                candidates: [
+                    ContactPayeeCandidate(
+                        name: "  Jane Doe  ",
+                        type: .person,
+                        phone: "+1 555 0101",
+                        email: "jane@example.com"
+                    ),
+                    ContactPayeeCandidate(
+                        name: "Apple",
+                        type: .business,
+                        phone: nil,
+                        email: nil
+                    ),
+                    ContactPayeeCandidate(
+                        name: "Acme Corp",
+                        type: .business,
+                        phone: "555 0102",
+                        email: "finance@acme.example"
+                    ),
+                    ContactPayeeCandidate(
+                        name: "jane doe",
+                        type: .person,
+                        phone: nil,
+                        email: nil
+                    ),
+                ]
+            )
+
+            let useCase = ImportContactsUseCase(
+                repository: repository,
+                contactsService: contactsService
+            )
+
+            let result = try await useCase.execute()
+            let allPayees = await repository.payees
+
+            #expect(result.importedCount == 2)
+            #expect(result.skippedCount == 2)
+            #expect(allPayees.count == 3)
+            #expect(allPayees.contains {
+                $0.name == "Jane Doe" &&
+                $0.type == .person &&
+                $0.phone == "+1 555 0101" &&
+                $0.email == "jane@example.com"
+            })
+            #expect(allPayees.contains {
+                $0.name == "Acme Corp" &&
+                $0.type == .business &&
+                $0.phone == "555 0102"
+            })
+        }
+
+        @Test("Requests access before importing when status is not determined")
+        func testRequestsAccessBeforeImporting() async throws {
+            let repository = MockPayeeRepository()
+            let contactsService = MockContactsImportService(
+                status: .notDetermined,
+                candidates: [
+                    ContactPayeeCandidate(name: "Jordan Lee", type: .person, phone: nil, email: nil),
+                ]
+            )
+
+            let useCase = ImportContactsUseCase(
+                repository: repository,
+                contactsService: contactsService
+            )
+
+            let result = try await useCase.execute()
+
+            #expect(result.importedCount == 1)
+            #expect(await contactsService.requestAccessCallCount == 1)
+        }
+
+        @Test("Throws access denied when contacts permission is unavailable")
+        func testThrowsAccessDeniedWhenPermissionUnavailable() async throws {
+            let repository = MockPayeeRepository()
+            let contactsService = MockContactsImportService(status: .denied)
+            let useCase = ImportContactsUseCase(
+                repository: repository,
+                contactsService: contactsService
+            )
+
+            do {
+                _ = try await useCase.execute()
+                Issue.record("Expected contacts import to fail when access is denied.")
+            } catch let error as ContactsImportError {
+                #expect(error == .accessDenied)
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+        }
+    }
+
     // MARK: - PayeeAnalyticsUseCase
 
     @Suite("PayeeAnalyticsUseCase")
@@ -196,5 +300,40 @@ struct PayeeUseCaseTests {
             #expect(analytics.averageAmount == 0)
             #expect(analytics.lastTransactionDate == nil)
         }
+    }
+}
+
+private actor MockContactsImportService: ContactsImportServiceProtocol {
+    private(set) var status: ContactsAccessStatus
+    private let candidates: [ContactPayeeCandidate]
+    private let requestAccessResult: Bool
+    private(set) var requestAccessCallCount = 0
+
+    init(
+        status: ContactsAccessStatus,
+        candidates: [ContactPayeeCandidate] = [],
+        requestAccessResult: Bool = true
+    ) {
+        self.status = status
+        self.candidates = candidates
+        self.requestAccessResult = requestAccessResult
+    }
+
+    func authorizationStatus() async -> ContactsAccessStatus {
+        status
+    }
+
+    func requestAccess() async throws -> Bool {
+        requestAccessCallCount += 1
+        if requestAccessResult {
+            status = .authorized
+        } else {
+            status = .denied
+        }
+        return requestAccessResult
+    }
+
+    func fetchCandidates() async throws -> [ContactPayeeCandidate] {
+        candidates
     }
 }

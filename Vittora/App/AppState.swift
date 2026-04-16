@@ -9,6 +9,7 @@ final class AppState {
     var selectedTab: AppTab
     var isLoading: Bool
     var isUITesting: Bool
+    var transactionRefreshVersion: Int
 
     init(
         isAuthenticated: Bool = false,
@@ -16,7 +17,8 @@ final class AppState {
         isOnboardingComplete: Bool = UserDefaults.standard.bool(forKey: "vittora.onboardingComplete"),
         selectedTab: AppTab = .dashboard,
         isLoading: Bool = false,
-        isUITesting: Bool = false
+        isUITesting: Bool = false,
+        transactionRefreshVersion: Int = 0
     ) {
         self.isAuthenticated = isAuthenticated
         self.isLocked = isLocked
@@ -24,6 +26,7 @@ final class AppState {
         self.selectedTab = selectedTab
         self.isLoading = isLoading
         self.isUITesting = isUITesting
+        self.transactionRefreshVersion = transactionRefreshVersion
     }
 
     enum AppTab: String, CaseIterable, Identifiable, Sendable {

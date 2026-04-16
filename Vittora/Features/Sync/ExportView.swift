@@ -9,6 +9,7 @@ final class ExportViewModel {
     var isExporting = false
     var exportURL: URL?
     var error: String?
+    var progressPhase: ExportProgressPhase?
 
     var useCustomDateRange = false
 
@@ -22,17 +23,31 @@ final class ExportViewModel {
         isExporting = true
         error = nil
         exportURL = nil
-        defer { isExporting = false }
+        progressPhase = .preparing
+        defer {
+            isExporting = false
+            progressPhase = nil
+        }
 
         do {
-            exportURL = try await exportService.exportTransactions(
+            await advanceProgress(to: .generating)
+
+            let exportedURL = try await exportService.exportTransactions(
                 startDate: useCustomDateRange ? startDate : nil,
                 endDate: useCustomDateRange ? endDate : nil,
                 format: selectedFormat
             )
+
+            await advanceProgress(to: .finalizing)
+            exportURL = exportedURL
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    private func advanceProgress(to phase: ExportProgressPhase) async {
+        progressPhase = phase
+        await Task.yield()
     }
 }
 
@@ -54,7 +69,14 @@ struct ExportView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .task {
-            guard vm == nil, let repo = dependencies.transactionRepository else { return }
+            guard vm == nil else { return }
+
+            if let exportService = dependencies.exportService {
+                vm = ExportViewModel(exportService: exportService)
+                return
+            }
+
+            guard let repo = dependencies.transactionRepository else { return }
             vm = ExportViewModel(
                 exportService: DataExportService(
                     transactionRepository: repo,
@@ -114,6 +136,14 @@ struct ExportView: View {
                      ? String(localized: "Only transactions within this range will be exported.")
                      : String(localized: "All transactions will be exported."))
                     .foregroundStyle(VColors.textSecondary)
+            }
+
+            if let phase = vm.progressPhase {
+                Section {
+                    ExportProgressView(phase: phase)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                }
             }
 
             // Export button

@@ -22,10 +22,17 @@ struct VittoraApp: App {
 
     private let modelContainer: ModelContainer
     private let isUITesting: Bool
+    private let showsOnboardingForUITesting: Bool
+    private let bypassOnboardingForUITesting: Bool
+    private let seedsTransactionsForUITesting: Bool
     private let recurringGenerationUseCase: GenerateRecurringTransactionsUseCase?
 
     init() {
-        isUITesting = ProcessInfo.processInfo.arguments.contains("--uitesting")
+        let launchArguments = ProcessInfo.processInfo.arguments
+        isUITesting = launchArguments.contains("--uitesting")
+        showsOnboardingForUITesting = launchArguments.contains("--ui-test-onboarding")
+        bypassOnboardingForUITesting = isUITesting && !showsOnboardingForUITesting
+        seedsTransactionsForUITesting = launchArguments.contains("--ui-test-seed-transactions")
 
         do {
             modelContainer = try ModelContainerConfig.makeContainer(inMemory: isUITesting)
@@ -53,7 +60,10 @@ struct VittoraApp: App {
             initialValue: AppState(
                 isAuthenticated: isUITesting,
                 isLocked: false,
-                isOnboardingComplete: isUITesting || UserDefaults.standard.bool(forKey: "vittora.onboardingComplete"),
+                isOnboardingComplete: Self.initialOnboardingCompletionState(
+                    showsOnboardingForUITesting: showsOnboardingForUITesting,
+                    bypassOnboardingForUITesting: bypassOnboardingForUITesting
+                ),
                 isUITesting: isUITesting
             )
         )
@@ -75,6 +85,22 @@ struct VittoraApp: App {
             BackgroundTaskScheduler.register(generateUseCase: recurringGenerationUseCase)
         }
         #endif
+    }
+
+    private static func initialOnboardingCompletionState(
+        showsOnboardingForUITesting: Bool,
+        bypassOnboardingForUITesting: Bool
+    ) -> Bool {
+        if showsOnboardingForUITesting {
+            UserDefaults.standard.removeObject(forKey: "vittora.onboardingComplete")
+            return false
+        }
+
+        if bypassOnboardingForUITesting {
+            return true
+        }
+
+        return UserDefaults.standard.bool(forKey: "vittora.onboardingComplete")
     }
 
     var body: some Scene {
@@ -113,6 +139,12 @@ struct VittoraApp: App {
     private func performStartupTasksIfNeeded() async {
         guard !hasCompletedStartup else { return }
         hasCompletedStartup = true
+
+        if seedsTransactionsForUITesting {
+            await seedUITestTransactionsIfNeeded()
+            return
+        }
+
         guard !isUITesting else { return }
 
         let dataSeeder = DefaultDataSeeder(modelContainer: modelContainer)
@@ -127,6 +159,26 @@ struct VittoraApp: App {
             _ = try await recurringGenerationUseCase.execute()
         } catch {
             debugPrint("Failed to generate recurring transactions on launch: \(error)")
+        }
+    }
+
+    private func seedUITestTransactionsIfNeeded() async {
+        guard let accountRepository = dependencies.accountRepository,
+              let categoryRepository = dependencies.categoryRepository,
+              let transactionRepository = dependencies.transactionRepository else {
+            return
+        }
+
+        let seeder = UITestDataSeeder(
+            accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
+            transactionRepository: transactionRepository
+        )
+
+        do {
+            try await seeder.seedTransactionScenarioIfNeeded()
+        } catch {
+            debugPrint("Failed to seed UI test transaction data: \(error)")
         }
     }
 }

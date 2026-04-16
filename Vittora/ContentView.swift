@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @Environment(AppState.self) private var appState
     @Environment(SettingsViewModel.self) private var settingsVM
+    @Environment(\.dependencies) private var dependencies
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
@@ -13,7 +14,11 @@ struct ContentView: View {
                 AppLockView()
             } else {
                 if !appState.isOnboardingComplete {
-                    OnboardingView()
+                    OnboardingView(
+                        createAccountUseCase: dependencies.accountRepository.map {
+                            CreateAccountUseCase(accountRepository: $0)
+                        }
+                    )
                 } else {
                     #if os(macOS)
                     SidebarNavigation()

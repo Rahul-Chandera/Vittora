@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct QuickEntryView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
     @State private var vm: TransactionFormViewModel?
@@ -77,6 +78,7 @@ struct QuickEntryView: View {
                             Task {
                                 do {
                                     try await vm.save()
+                                    appState.transactionRefreshVersion += 1
                                     #if os(iOS)
                                     let feedback = UIImpactFeedbackGenerator(style: .light)
                                     feedback.impactOccurred()

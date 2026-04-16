@@ -8,6 +8,7 @@ final class OnboardingViewModel {
         case welcome
         case currency
         case profile
+        case account
         case done
 
         var isLast: Bool { self == .done }
@@ -16,13 +17,31 @@ final class OnboardingViewModel {
     var currentStep: Step = .welcome
     var selectedCurrencyCode = "USD"
     var userName = ""
+    var accountName = ""
+    var selectedAccountType: AccountType = .bank
+    var openingBalance = "0"
     var isSaving = false
+    var error: String?
+
+    private let createAccountUseCase: CreateAccountUseCase?
+    private let userDefaults: UserDefaults
+
+    init(
+        createAccountUseCase: CreateAccountUseCase? = nil,
+        userDefaults: UserDefaults = .standard
+    ) {
+        self.createAccountUseCase = createAccountUseCase
+        self.userDefaults = userDefaults
+    }
 
     var canAdvance: Bool {
         switch currentStep {
         case .welcome:   return true
         case .currency:  return !selectedCurrencyCode.isEmpty
         case .profile:   return true   // name is optional
+        case .account:
+            return !accountName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            normalizedOpeningBalance != nil
         case .done:      return true
         }
     }
@@ -46,13 +65,62 @@ final class OnboardingViewModel {
         }
     }
 
-    func complete(appState: AppState) {
-        // Persist selections
-        UserDefaults.standard.set(selectedCurrencyCode, forKey: "vittora.currencyCode")
-        if !userName.isEmpty {
-            UserDefaults.standard.set(userName, forKey: "vittora.userName")
+    func complete(appState: AppState) async {
+        guard !isSaving else { return }
+        guard canAdvance else {
+            error = String(localized: "Complete your first account setup to continue.")
+            return
         }
-        UserDefaults.standard.set(true, forKey: "vittora.onboardingComplete")
-        appState.isOnboardingComplete = true
+
+        isSaving = true
+        error = nil
+        defer { isSaving = false }
+
+        do {
+            if let createAccountUseCase, let openingBalance = normalizedOpeningBalance {
+                try await createAccountUseCase.execute(
+                    name: accountName.trimmingCharacters(in: .whitespacesAndNewlines),
+                    type: selectedAccountType,
+                    balance: openingBalance,
+                    currencyCode: selectedCurrencyCode,
+                    icon: selectedAccountType.onboardingIconName
+                )
+            }
+
+            userDefaults.set(selectedCurrencyCode, forKey: "vittora.currencyCode")
+
+            let trimmedName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedName.isEmpty {
+                userDefaults.removeObject(forKey: "vittora.userName")
+            } else {
+                userDefaults.set(trimmedName, forKey: "vittora.userName")
+            }
+
+            userDefaults.set(true, forKey: "vittora.onboardingComplete")
+            appState.isOnboardingComplete = true
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    private var normalizedOpeningBalance: Decimal? {
+        let trimmed = openingBalance.trimmingCharacters(in: .whitespacesAndNewlines)
+        let sanitized = trimmed.replacingOccurrences(of: ",", with: "")
+        return Decimal(string: sanitized)
+    }
+}
+
+private extension AccountType {
+    var onboardingIconName: String {
+        switch self {
+        case .cash:          "banknote.fill"
+        case .bank:          "building.columns.fill"
+        case .creditCard:    "creditcard.fill"
+        case .loan:          "arrow.up.arrow.down.circle.fill"
+        case .digitalWallet: "iphone.gen2"
+        case .investment:    "chart.line.uptrend.xyaxis"
+        case .receivable:    "arrow.down.circle.fill"
+        case .payable:       "arrow.up.circle.fill"
+        }
     }
 }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TransactionFormView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
     @State private var vm: TransactionFormViewModel?
@@ -26,12 +27,15 @@ struct TransactionFormView: View {
                         AmountInputView(
                             amountString: Bindable(vm).amountString,
                             currencyCode: "USD",
-                            type: vm.type
+                            type: vm.type,
+                            textFieldAccessibilityIdentifier: "transaction-amount-field"
                         )
 
                         TransactionTypePicker(type: Bindable(vm).type)
+                            .accessibilityIdentifier("transaction-type-picker")
 
                         Toggle("Quick Entry", isOn: Bindable(vm).isQuickEntry)
+                            .accessibilityIdentifier("transaction-quick-entry-toggle")
                     }
 
                     if vm.isQuickEntry {
@@ -63,6 +67,7 @@ struct TransactionFormView: View {
                         Button("Cancel") {
                             dismiss()
                         }
+                        .accessibilityIdentifier("transaction-form-cancel-button")
                     }
 
                     ToolbarItem(placement: .confirmationAction) {
@@ -70,6 +75,7 @@ struct TransactionFormView: View {
                             Task {
                                 do {
                                     try await vm.save()
+                                    appState.transactionRefreshVersion += 1
                                     HapticService.shared.success()
                                     dismiss()
                                 } catch {
@@ -82,6 +88,7 @@ struct TransactionFormView: View {
                                 .foregroundColor(vm.canSave ? VColors.primary : VColors.textTertiary)
                         }
                         .disabled(!vm.canSave)
+                        .accessibilityIdentifier("transaction-form-save-button")
                     }
                 }
                 .if(vm.isLoading) { view in
@@ -106,6 +113,7 @@ struct TransactionFormView: View {
                 }
             }
         }
+        .accessibilityIdentifier("transaction-form-root")
         .task {
             if vm == nil {
                 vm = await createViewModel()
@@ -131,6 +139,7 @@ struct TransactionFormView: View {
                     .tag(UUID?(category.id))
                 }
             }
+            .accessibilityIdentifier("transaction-category-picker")
 
             Picker("Account", selection: Bindable(vm).selectedAccountID) {
                 Text("Select account").tag(UUID?.none)
@@ -138,6 +147,7 @@ struct TransactionFormView: View {
                     Text(account.name).tag(UUID?(account.id))
                 }
             }
+            .accessibilityIdentifier("transaction-account-picker")
         }
     }
 
@@ -156,6 +166,7 @@ struct TransactionFormView: View {
                     .tag(UUID?(category.id))
                 }
             }
+            .accessibilityIdentifier("transaction-category-picker")
 
             Picker("Account", selection: Bindable(vm).selectedAccountID) {
                 Text("Select account").tag(UUID?.none)
@@ -163,6 +174,7 @@ struct TransactionFormView: View {
                     Text(account.name).tag(UUID?(account.id))
                 }
             }
+            .accessibilityIdentifier("transaction-account-picker")
 
             Picker("Payee", selection: Bindable(vm).selectedPayeeID) {
                 Text("None").tag(UUID?.none)
@@ -170,6 +182,7 @@ struct TransactionFormView: View {
                     Text(payee.name).tag(UUID?(payee.id))
                 }
             }
+            .accessibilityIdentifier("transaction-payee-picker")
             .onChange(of: vm.selectedPayeeID) { _, _ in
                 Task {
                     await vm.suggestCategory()
@@ -210,6 +223,7 @@ struct TransactionFormView: View {
         Section("Notes") {
             TextField("Notes", text: Bindable(vm).note, axis: .vertical)
                 .lineLimit(3...5)
+                .accessibilityIdentifier("transaction-note-field")
         }
 
         Section("Tags") {
@@ -282,6 +296,20 @@ struct TransactionFormView: View {
         accounts = accts
         categories = cats
         payees = pyees
+        applyDefaultSelectionsIfNeeded()
+    }
+
+    private func applyDefaultSelectionsIfNeeded() {
+        guard let vm else { return }
+
+        if vm.selectedAccountID == nil, accounts.count == 1 {
+            vm.selectedAccountID = accounts[0].id
+        }
+
+        let relevantCategories = vm.type == .income ? categories.income : categories.expense
+        if vm.selectedCategoryID == nil, relevantCategories.count == 1 {
+            vm.selectedCategoryID = relevantCategories[0].id
+        }
     }
 
     private func createViewModel() async -> TransactionFormViewModel? {

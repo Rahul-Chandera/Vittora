@@ -2,7 +2,11 @@ import SwiftUI
 
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
-    @State private var vm = OnboardingViewModel()
+    @State private var vm: OnboardingViewModel
+
+    init(createAccountUseCase: CreateAccountUseCase? = nil) {
+        _vm = State(initialValue: OnboardingViewModel(createAccountUseCase: createAccountUseCase))
+    }
 
     var body: some View {
         ZStack {
@@ -23,7 +27,9 @@ struct OnboardingView: View {
                         .tag(OnboardingViewModel.Step.currency)
                     ProfileStepView(vm: vm)
                         .tag(OnboardingViewModel.Step.profile)
-                    DoneStepView()
+                    AccountSetupStepView(vm: vm)
+                        .tag(OnboardingViewModel.Step.account)
+                    DoneStepView(vm: vm)
                         .tag(OnboardingViewModel.Step.done)
                 }
                 #if os(iOS)
@@ -39,6 +45,16 @@ struct OnboardingView: View {
                     .padding(.bottom, VSpacing.xxxl)
             }
         }
+        .alert(String(localized: "Error"), isPresented: Binding(
+            get: { vm.error != nil },
+            set: { if !$0 { vm.error = nil } }
+        )) {
+            Button(String(localized: "OK")) { vm.error = nil }
+        } message: {
+            Text(vm.error ?? "")
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("onboarding-root")
     }
 
     // MARK: - Progress Dots
@@ -59,18 +75,22 @@ struct OnboardingView: View {
 
     private var ctaButton: some View {
         Button {
-            if vm.currentStep == .profile {
-                vm.advance()
-            } else if vm.currentStep == .done {
-                vm.complete(appState: appState)
+            if vm.currentStep == .done {
+                Task {
+                    await vm.complete(appState: appState)
+                }
             } else {
                 vm.advance()
             }
         } label: {
             HStack {
+                if vm.isSaving {
+                    ProgressView()
+                        .tint(.white)
+                }
                 Text(buttonTitle)
                     .font(VTypography.bodyBold)
-                if vm.currentStep != .done {
+                if vm.currentStep != .done && !vm.isSaving {
                     Image(systemName: "arrow.right")
                         .font(.body.bold())
                 }
@@ -81,14 +101,16 @@ struct OnboardingView: View {
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD))
         }
-        .disabled(!vm.canAdvance)
+        .disabled(!vm.canAdvance || vm.isSaving)
+        .accessibilityIdentifier("onboarding-next-button")
     }
 
     private var buttonTitle: String {
         switch vm.currentStep {
         case .welcome:  return String(localized: "Get Started")
         case .currency: return String(localized: "Continue")
-        case .profile:  return String(localized: "Continue")
+        case .profile:  return String(localized: "Set Up Account")
+        case .account:  return String(localized: "Review Setup")
         case .done:     return String(localized: "Start Tracking")
         }
     }
@@ -111,6 +133,7 @@ private struct WelcomeStepView: View {
                     .font(VTypography.title1.bold())
                     .foregroundStyle(VColors.textPrimary)
                     .multilineTextAlignment(.center)
+                    .accessibilityIdentifier("onboarding-welcome-title")
 
                 Text(String(localized: "Your all-in-one personal finance companion for tracking money, budgets, goals, taxes and more."))
                     .font(VTypography.body)
@@ -198,6 +221,7 @@ private struct CurrencyStepView: View {
                                         ? VColors.primary.opacity(0.08) : Color.clear)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("onboarding-currency-\(currency.code)")
                         Divider()
                     }
                 }
@@ -240,13 +264,133 @@ private struct ProfileStepView: View {
                 .background(VColors.secondaryBackground)
                 .cornerRadius(VSpacing.cornerRadiusMD)
                 .padding(.horizontal, VSpacing.xl)
+                .accessibilityIdentifier("onboarding-name-field")
 
             Spacer()
         }
     }
 }
 
+private struct AccountSetupStepView: View {
+    @Bindable var vm: OnboardingViewModel
+
+    private let columns = [
+        GridItem(.flexible(), spacing: VSpacing.md),
+        GridItem(.flexible(), spacing: VSpacing.md),
+    ]
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: VSpacing.lg) {
+                Spacer(minLength: VSpacing.xl)
+
+                Image(systemName: "wallet.pass.fill")
+                    .font(.system(size: 64))
+                    .foregroundStyle(VColors.primary)
+
+                VStack(spacing: VSpacing.sm) {
+                    Text(String(localized: "Set Up Your First Account"))
+                        .font(VTypography.title2.bold())
+                        .foregroundStyle(VColors.textPrimary)
+                    Text(String(localized: "Create the account where you usually keep or move money. You can always add more later."))
+                        .font(VTypography.body)
+                        .foregroundStyle(VColors.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, VSpacing.xl)
+                }
+
+                VStack(spacing: VSpacing.md) {
+                    VStack(alignment: .leading, spacing: VSpacing.sm) {
+                        Text(String(localized: "Account Name"))
+                            .font(VTypography.caption1.bold())
+                            .foregroundStyle(VColors.textSecondary)
+
+                        TextField(String(localized: "Main Account"), text: $vm.accountName)
+                            .padding(VSpacing.md)
+                            .background(VColors.secondaryBackground)
+                            .cornerRadius(VSpacing.cornerRadiusMD)
+                            .accessibilityIdentifier("onboarding-account-name-field")
+                    }
+
+                    VStack(alignment: .leading, spacing: VSpacing.sm) {
+                        Text(String(localized: "Account Type"))
+                            .font(VTypography.caption1.bold())
+                            .foregroundStyle(VColors.textSecondary)
+
+                        LazyVGrid(columns: columns, spacing: VSpacing.md) {
+                            ForEach(AccountType.allCases, id: \.self) { type in
+                                accountTypeCard(for: type)
+                            }
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: VSpacing.sm) {
+                        Text(String(localized: "Opening Balance"))
+                            .font(VTypography.caption1.bold())
+                            .foregroundStyle(VColors.textSecondary)
+
+                        HStack(spacing: VSpacing.sm) {
+                            Text(vm.selectedCurrencyCode)
+                                .font(VTypography.bodyBold)
+                                .foregroundStyle(VColors.primary)
+                                .padding(.horizontal, VSpacing.sm)
+                                .padding(.vertical, VSpacing.xs)
+                                .background(VColors.primary.opacity(0.12))
+                                .cornerRadius(VSpacing.cornerRadiusSM)
+
+                            TextField(String(localized: "0"), text: $vm.openingBalance)
+                                #if os(iOS)
+                                .keyboardType(.decimalPad)
+                                #endif
+                                .accessibilityIdentifier("onboarding-opening-balance-field")
+                        }
+                        .padding(VSpacing.md)
+                        .background(VColors.secondaryBackground)
+                        .cornerRadius(VSpacing.cornerRadiusMD)
+
+                        Text(String(localized: "Use a positive amount for what you currently have in this account."))
+                            .font(VTypography.caption2)
+                            .foregroundStyle(VColors.textSecondary)
+                    }
+                }
+                .padding(.horizontal, VSpacing.screenPadding)
+
+                Spacer(minLength: VSpacing.xl)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func accountTypeCard(for type: AccountType) -> some View {
+        Button {
+            vm.selectedAccountType = type
+        } label: {
+            VStack(spacing: VSpacing.sm) {
+                AccountTypeIcon(type: type, size: 40)
+                Text(type.onboardingDisplayName)
+                    .font(VTypography.caption1.bold())
+                    .foregroundStyle(VColors.textPrimary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, minHeight: 110)
+            .padding(VSpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: VSpacing.cornerRadiusCard)
+                    .fill(vm.selectedAccountType == type ? VColors.primary.opacity(0.12) : VColors.secondaryBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: VSpacing.cornerRadiusCard)
+                    .stroke(vm.selectedAccountType == type ? VColors.primary : Color.clear, lineWidth: 1.5)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("onboarding-account-type-\(type.rawValue)")
+    }
+}
+
 private struct DoneStepView: View {
+    let vm: OnboardingViewModel
+
     var body: some View {
         VStack(spacing: VSpacing.lg) {
             Spacer()
@@ -260,6 +404,7 @@ private struct DoneStepView: View {
                 Text(String(localized: "You're all set!"))
                     .font(VTypography.title1.bold())
                     .foregroundStyle(VColors.textPrimary)
+                    .accessibilityIdentifier("onboarding-done-title")
                 Text(String(localized: "Vittora is ready to help you take control of your finances."))
                     .font(VTypography.body)
                     .foregroundStyle(VColors.textSecondary)
@@ -267,7 +412,63 @@ private struct DoneStepView: View {
                     .padding(.horizontal, VSpacing.xl)
             }
 
+            VStack(spacing: VSpacing.sm) {
+                onboardingSummaryRow(
+                    title: String(localized: "Currency"),
+                    value: vm.selectedCurrencyCode
+                )
+                onboardingSummaryRow(
+                    title: String(localized: "First Account"),
+                    value: vm.accountName
+                )
+                onboardingSummaryRow(
+                    title: String(localized: "Account Type"),
+                    value: vm.selectedAccountType.onboardingDisplayName
+                )
+            }
+            .padding(VSpacing.cardPadding)
+            .background(VColors.secondaryBackground)
+            .cornerRadius(VSpacing.cornerRadiusCard)
+            .padding(.horizontal, VSpacing.screenPadding)
+
             Spacer()
+        }
+        .accessibilityIdentifier("onboarding-complete-step")
+    }
+
+    @ViewBuilder
+    private func onboardingSummaryRow(title: String, value: String) -> some View {
+        HStack {
+            Text(title)
+                .font(VTypography.caption1)
+                .foregroundStyle(VColors.textSecondary)
+            Spacer()
+            Text(value)
+                .font(VTypography.bodyBold)
+                .foregroundStyle(VColors.textPrimary)
+        }
+    }
+}
+
+private extension AccountType {
+    var onboardingDisplayName: String {
+        switch self {
+        case .cash:
+            String(localized: "Cash")
+        case .bank:
+            String(localized: "Bank")
+        case .creditCard:
+            String(localized: "Credit Card")
+        case .loan:
+            String(localized: "Loan")
+        case .digitalWallet:
+            String(localized: "Digital Wallet")
+        case .investment:
+            String(localized: "Investment")
+        case .receivable:
+            String(localized: "Receivable")
+        case .payable:
+            String(localized: "Payable")
         }
     }
 }

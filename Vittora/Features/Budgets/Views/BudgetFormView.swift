@@ -24,6 +24,7 @@ struct BudgetFormView: View {
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         #endif
+                        .accessibilityIdentifier("budget-amount-field")
                     }
                 }
 
@@ -94,6 +95,7 @@ struct BudgetFormView: View {
                     Button("Cancel") {
                         isPresented = false
                     }
+                    .accessibilityIdentifier("budget-cancel-button")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -107,8 +109,10 @@ struct BudgetFormView: View {
                         }
                     }
                     .disabled(viewModel?.canSave != true)
+                    .accessibilityIdentifier("budget-save-button")
                 }
             }
+            .accessibilityIdentifier("budget-form-root")
         }
         .task {
             if viewModel == nil {
