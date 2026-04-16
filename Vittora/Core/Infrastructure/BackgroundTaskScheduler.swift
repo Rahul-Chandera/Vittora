@@ -7,7 +7,7 @@ import BackgroundTasks
 
 final class BackgroundTaskScheduler: Sendable {
     #if os(iOS)
-    static let recurringTaskID = "com.vittora.recurring-generation"
+    static let recurringTaskID = "com.enerjiktech.vittora.recurring-generation"
     #endif
 
     private let generateUseCase: GenerateRecurringTransactionsUseCase
@@ -37,6 +37,9 @@ final class BackgroundTaskScheduler: Sendable {
 
     /// Schedule the next background refresh task
     static func scheduleNextRefresh() {
+        #if targetEnvironment(simulator)
+        return
+        #else
         let request = BGAppRefreshTaskRequest(identifier: recurringTaskID)
         // Schedule for 4 hours from now
         request.earliestBeginDate = Date(timeIntervalSinceNow: 4 * 3600)
@@ -46,6 +49,7 @@ final class BackgroundTaskScheduler: Sendable {
         } catch {
             print("Failed to schedule background task: \(error)")
         }
+        #endif
     }
 
     /// Handle the background task execution
