@@ -192,3 +192,23 @@ struct TaxComparison: Sendable {
         }
     }
 }
+
+// MARK: - Tax Activity Summary
+
+struct TaxSummaryCategory: Sendable, Identifiable {
+    var id: UUID { category.id }
+    let category: CategoryEntity
+    let totalAmount: Decimal
+    let transactionCount: Int
+}
+
+struct TaxSummary: Sendable {
+    let financialYear: String
+    let dateRange: ClosedRange<Date>
+    let totalRelevantAmount: Decimal
+    let transactionCount: Int
+    let taxRelevantCategories: [CategoryEntity]
+    let categoryBreakdown: [TaxSummaryCategory]
+
+    var matchedCategoryCount: Int { categoryBreakdown.count }
+}

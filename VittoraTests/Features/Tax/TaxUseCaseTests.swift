@@ -140,4 +140,119 @@ struct TaxUseCaseTests {
             #expect(comparison.savingsAmount > 0)
         }
     }
+
+    @Suite("FetchTaxCategoriesUseCase")
+    struct FetchTaxCategoriesUseCaseTests {
+        @Test("Expense categories with deduction-like names are returned")
+        func findsTaxRelevantExpenseCategories() async throws {
+            let repo = MockCategoryRepository()
+            await repo.seedMany([
+                CategoryEntity(name: "Health", icon: "heart.fill", type: .expense, sortOrder: 1),
+                CategoryEntity(name: "Education", icon: "book.fill", type: .expense, sortOrder: 2),
+                CategoryEntity(name: "Groceries", icon: "cart.fill", type: .expense, sortOrder: 3),
+                CategoryEntity(name: "Salary", icon: "briefcase.fill", type: .income, sortOrder: 4),
+            ])
+
+            let useCase = FetchTaxCategoriesUseCase(repository: repo)
+            let categories = try await useCase.execute(country: .india)
+
+            #expect(categories.map(\.name) == ["Health", "Education"])
+        }
+    }
+
+    @Suite("GenerateTaxSummaryUseCase")
+    struct GenerateTaxSummaryUseCaseTests {
+        @Test("India summary uses April to March financial year and matched categories")
+        func indiaSummaryRespectsFinancialYearBoundaries() async throws {
+            let categoryRepo = MockCategoryRepository()
+            let transactionRepo = MockTransactionRepository()
+
+            let health = CategoryEntity(name: "Health", icon: "heart.fill", type: .expense, sortOrder: 1)
+            let groceries = CategoryEntity(name: "Groceries", icon: "cart.fill", type: .expense, sortOrder: 2)
+            await categoryRepo.seedMany([health, groceries])
+
+            try await transactionRepo.create(TransactionEntity(
+                amount: 12_000,
+                date: makeDate(year: 2024, month: 4, day: 10),
+                type: .expense,
+                categoryID: health.id
+            ))
+            try await transactionRepo.create(TransactionEntity(
+                amount: 8_000,
+                date: makeDate(year: 2025, month: 3, day: 25),
+                type: .expense,
+                categoryID: health.id
+            ))
+            try await transactionRepo.create(TransactionEntity(
+                amount: 6_000,
+                date: makeDate(year: 2025, month: 4, day: 1),
+                type: .expense,
+                categoryID: health.id
+            ))
+            try await transactionRepo.create(TransactionEntity(
+                amount: 5_000,
+                date: makeDate(year: 2024, month: 6, day: 1),
+                type: .expense,
+                categoryID: groceries.id
+            ))
+
+            let useCase = GenerateTaxSummaryUseCase(
+                transactionRepository: transactionRepo,
+                fetchTaxCategoriesUseCase: FetchTaxCategoriesUseCase(repository: categoryRepo)
+            )
+
+            let summary = try await useCase.execute(profile: TaxProfile(
+                country: .india,
+                annualIncome: 1_000_000,
+                financialYear: "2024-25"
+            ))
+
+            #expect(summary.totalRelevantAmount == 20_000)
+            #expect(summary.transactionCount == 2)
+            #expect(summary.matchedCategoryCount == 1)
+            #expect(summary.categoryBreakdown.first?.category.name == "Health")
+        }
+
+        @Test("US summary uses the calendar year")
+        func usSummaryRespectsCalendarYear() async throws {
+            let categoryRepo = MockCategoryRepository()
+            let transactionRepo = MockTransactionRepository()
+
+            let charity = CategoryEntity(name: "Charity", icon: "heart.circle.fill", type: .expense, sortOrder: 1)
+            await categoryRepo.seed(charity)
+
+            try await transactionRepo.create(TransactionEntity(
+                amount: 3_500,
+                date: makeDate(year: 2024, month: 2, day: 5),
+                type: .expense,
+                categoryID: charity.id
+            ))
+            try await transactionRepo.create(TransactionEntity(
+                amount: 1_200,
+                date: makeDate(year: 2025, month: 1, day: 3),
+                type: .expense,
+                categoryID: charity.id
+            ))
+
+            let useCase = GenerateTaxSummaryUseCase(
+                transactionRepository: transactionRepo,
+                fetchTaxCategoriesUseCase: FetchTaxCategoriesUseCase(repository: categoryRepo)
+            )
+
+            let summary = try await useCase.execute(profile: TaxProfile(
+                country: .unitedStates,
+                annualIncome: 120_000,
+                financialYear: "2024"
+            ))
+
+            #expect(summary.totalRelevantAmount == 3_500)
+            #expect(summary.transactionCount == 1)
+            #expect(summary.categoryBreakdown.first?.category.name == "Charity")
+        }
+    }
+}
+
+private func makeDate(year: Int, month: Int, day: Int) -> Date {
+    let calendar = Calendar(identifier: .gregorian)
+    return calendar.date(from: DateComponents(year: year, month: month, day: day)) ?? .now
 }

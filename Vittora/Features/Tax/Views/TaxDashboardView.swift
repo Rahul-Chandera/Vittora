@@ -34,10 +34,25 @@ struct TaxDashboardView: View {
         .task {
             if vm == nil {
                 guard let taxRepo = dependencies.taxProfileRepository else { return }
+                let summaryUseCase: GenerateTaxSummaryUseCase? = {
+                    guard
+                        let transactionRepo = dependencies.transactionRepository,
+                        let categoryRepo = dependencies.categoryRepository
+                    else {
+                        return nil
+                    }
+
+                    return GenerateTaxSummaryUseCase(
+                        transactionRepository: transactionRepo,
+                        fetchTaxCategoriesUseCase: FetchTaxCategoriesUseCase(repository: categoryRepo)
+                    )
+                }()
+
                 vm = TaxEstimateViewModel(
                     estimateUseCase: EstimateTaxUseCase(),
                     compareUseCase: CompareTaxRegimesUseCase(),
-                    saveUseCase: SaveTaxProfileUseCase(taxProfileRepository: taxRepo)
+                    saveUseCase: SaveTaxProfileUseCase(taxProfileRepository: taxRepo),
+                    summaryUseCase: summaryUseCase
                 )
                 await vm?.load()
             }
@@ -84,6 +99,10 @@ struct TaxDashboardView: View {
 
                 if let comparison = vm.comparison {
                     TaxComparisonView(comparison: comparison)
+                }
+
+                if let summary = vm.summary {
+                    TaxAnnualSummaryCard(summary: summary, country: vm.profile.country)
                 }
 
                 // Full breakdown button
