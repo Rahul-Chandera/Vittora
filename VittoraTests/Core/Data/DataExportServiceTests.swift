@@ -153,4 +153,113 @@ struct DataExportServiceTests {
         let url = try await service.exportTransactionsCSV(filter: nil)
         #expect(url.lastPathComponent.hasPrefix("vittora_"))
     }
+
+    @Test("tax export includes the required disclaimer")
+    func taxExportIncludesDisclaimer() async throws {
+        let (service, _) = makeService()
+        let url = try await service.exportTaxReportCSV(
+            profile: sampleTaxProfile(),
+            estimate: sampleTaxEstimate(),
+            comparison: nil,
+            summary: nil
+        )
+
+        let content = try String(contentsOf: url, encoding: .utf8)
+
+        #expect(content.contains(TaxDisclaimer.text))
+        #expect(content.contains("Total Tax Payable"))
+    }
+
+    @Test("tax export includes summary and comparison sections")
+    func taxExportIncludesSummaryAndComparison() async throws {
+        let (service, _) = makeService()
+        let firstEstimate = sampleTaxEstimate()
+        let secondEstimate = TaxEstimate(
+            grossIncome: 1_500_000,
+            standardDeduction: 50_000,
+            customDeductionsTotal: 0,
+            taxableIncome: 1_450_000,
+            bracketResults: [
+                TaxBracketResult(label: "0 - 1,450,000", ratePercent: 20, taxableAmount: 1_450_000, taxAmount: 290_000),
+            ],
+            basicTax: 290_000,
+            rebate: 0,
+            surcharge: 0,
+            cess: 11_600,
+            finalTax: 301_600,
+            effectiveRate: 0.2011,
+            marginalRate: 20,
+            country: .india,
+            regimeLabel: "Old Regime"
+        )
+        let comparison = TaxComparison(
+            kind: .indiaRegimes,
+            firstEstimate: firstEstimate,
+            secondEstimate: secondEstimate,
+            winner: .first,
+            savingsAmount: 26_000
+        )
+
+        let url = try await service.exportTaxReportCSV(
+            profile: sampleTaxProfile(),
+            estimate: firstEstimate,
+            comparison: comparison,
+            summary: sampleTaxSummary()
+        )
+
+        let content = try String(contentsOf: url, encoding: .utf8)
+
+        #expect(content.contains("India Regime Comparison"))
+        #expect(content.contains("Health"))
+        #expect(content.contains("Potentially Relevant Amount"))
+    }
+}
+
+private func sampleTaxProfile() -> TaxProfile {
+    TaxProfile(
+        country: .india,
+        annualIncome: 1_500_000,
+        indiaRegime: .newRegime,
+        financialYear: "2024-25"
+    )
+}
+
+private func sampleTaxEstimate() -> TaxEstimate {
+    TaxEstimate(
+        grossIncome: 1_500_000,
+        standardDeduction: 75_000,
+        customDeductionsTotal: 0,
+        taxableIncome: 1_425_000,
+        bracketResults: [
+            TaxBracketResult(label: "0 - 1,425,000", ratePercent: 18, taxableAmount: 1_425_000, taxAmount: 275_000),
+        ],
+        basicTax: 275_000,
+        rebate: 0,
+        surcharge: 0,
+        cess: 11_000,
+        finalTax: 286_000,
+        effectiveRate: 0.1907,
+        marginalRate: 20,
+        country: .india,
+        regimeLabel: "New Regime"
+    )
+}
+
+private func sampleTaxSummary() -> TaxSummary {
+    let category = CategoryEntity(name: "Health", icon: "heart.fill", type: .expense)
+    return TaxSummary(
+        financialYear: "2024-25",
+        dateRange: makeDate(year: 2024, month: 4, day: 1)...makeDate(year: 2025, month: 3, day: 31),
+        totalRelevantAmount: 24_000,
+        transactionCount: 2,
+        taxRelevantCategories: [category],
+        categoryBreakdown: [
+            TaxSummaryCategory(category: category, totalAmount: 24_000, transactionCount: 2),
+        ]
+    )
+}
+
+private func makeDate(year: Int, month: Int, day: Int) -> Date {
+    let calendar = Calendar(identifier: .gregorian)
+    return calendar.date(from: DateComponents(year: year, month: month, day: day)) ?? .now
 }

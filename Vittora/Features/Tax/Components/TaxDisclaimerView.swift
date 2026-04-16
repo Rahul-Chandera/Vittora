@@ -8,7 +8,7 @@ struct TaxDisclaimerView: View {
                 .foregroundStyle(VColors.warning)
                 .padding(.top, 2)
 
-            Text(String(localized: "Estimates only. Consult a qualified tax professional for advice."))
+            Text(TaxDisclaimer.text)
                 .font(VTypography.caption1)
                 .foregroundStyle(VColors.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)

@@ -176,10 +176,12 @@ struct AboutView: View {
             }
 
             Section(String(localized: "Legal")) {
-                Link(String(localized: "Privacy Policy"),
-                     destination: URL(string: "https://vittora.app/privacy")!)
-                Link(String(localized: "Terms of Service"),
-                     destination: URL(string: "https://vittora.app/terms")!)
+                NavigationLink(String(localized: "Privacy Policy")) {
+                    LegalDocumentView(document: .privacyPolicy)
+                }
+                NavigationLink(String(localized: "Terms of Service")) {
+                    LegalDocumentView(document: .termsOfService)
+                }
             }
 
             Section {

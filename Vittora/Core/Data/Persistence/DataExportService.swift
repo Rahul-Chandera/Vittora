@@ -19,6 +19,12 @@ protocol DataExportServiceProtocol: Sendable {
         endDate: Date?,
         format: ExportFormat
     ) async throws -> URL
+    func exportTaxReportCSV(
+        profile: TaxProfile,
+        estimate: TaxEstimate,
+        comparison: TaxComparison?,
+        summary: TaxSummary?
+    ) async throws -> URL
 }
 
 @MainActor
@@ -71,6 +77,21 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
         }
     }
 
+    func exportTaxReportCSV(
+        profile: TaxProfile,
+        estimate: TaxEstimate,
+        comparison: TaxComparison?,
+        summary: TaxSummary?
+    ) async throws -> URL {
+        let csv = buildTaxReportCSV(
+            profile: profile,
+            estimate: estimate,
+            comparison: comparison,
+            summary: summary
+        )
+        return try writeToTemp(content: csv, suffix: "tax_report")
+    }
+
     // MARK: - CSV builder
 
     private func buildCSV(for transactions: [TransactionEntity]) async throws -> String {
@@ -114,6 +135,132 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
         }
 
         return csv
+    }
+
+    private func buildTaxReportCSV(
+        profile: TaxProfile,
+        estimate: TaxEstimate,
+        comparison: TaxComparison?,
+        summary: TaxSummary?
+    ) -> String {
+        var csv = "\u{FEFF}"
+        csv += "Section,Field,Value,Notes\n"
+
+        appendCSVRow(["Tax Report", "Disclaimer", TaxDisclaimer.text, ""], to: &csv)
+        appendCSVRow(["Profile", "Country", profile.country.displayName, ""], to: &csv)
+        appendCSVRow(["Profile", "Financial Year", profile.financialYear, ""], to: &csv)
+        appendCSVRow(
+            ["Profile", "Annual Income", profile.annualIncome.formatted(.currency(code: estimate.country.currencyCode)), ""],
+            to: &csv
+        )
+        appendCSVRow(["Estimate", "Regime", estimate.regimeLabel, ""], to: &csv)
+        appendCSVRow(
+            ["Estimate", "Taxable Income", estimate.taxableIncome.formatted(.currency(code: estimate.country.currencyCode)), ""],
+            to: &csv
+        )
+        appendCSVRow(
+            ["Estimate", "Total Tax Payable", estimate.finalTax.formatted(.currency(code: estimate.country.currencyCode)), ""],
+            to: &csv
+        )
+        appendCSVRow(
+            ["Estimate", "Effective Rate", percentageString(estimate.effectiveRate * 100), ""],
+            to: &csv
+        )
+        appendCSVRow(
+            ["Estimate", "Marginal Rate", percentageString(estimate.marginalRate), ""],
+            to: &csv
+        )
+
+        for bracket in estimate.bracketResults {
+            appendCSVRow(
+                [
+                    "Bracket",
+                    bracket.label,
+                    bracket.taxAmount.formatted(.currency(code: estimate.country.currencyCode)),
+                    "\(percentageString(bracket.ratePercent)) on \(bracket.taxableAmount.formatted(.currency(code: estimate.country.currencyCode)))",
+                ],
+                to: &csv
+            )
+        }
+
+        if let comparison {
+            appendCSVRow(
+                ["Comparison", "Type", comparisonKindLabel(comparison.kind), ""],
+                to: &csv
+            )
+            appendCSVRow(
+                ["Comparison", comparison.firstEstimate.regimeLabel, comparison.firstEstimate.finalTax.formatted(.currency(code: estimate.country.currencyCode)), ""],
+                to: &csv
+            )
+            appendCSVRow(
+                ["Comparison", comparison.secondEstimate.regimeLabel, comparison.secondEstimate.finalTax.formatted(.currency(code: estimate.country.currencyCode)), ""],
+                to: &csv
+            )
+            appendCSVRow(
+                ["Comparison", "Recommended", comparison.recommendedEstimate?.regimeLabel ?? String(localized: "Tie"), ""],
+                to: &csv
+            )
+            appendCSVRow(
+                ["Comparison", "Potential Savings", comparison.savingsAmount.formatted(.currency(code: estimate.country.currencyCode)), ""],
+                to: &csv
+            )
+        }
+
+        if let summary {
+            appendCSVRow(["Tax Summary", "Financial Year", summary.financialYear, formattedDateRange(summary.dateRange)], to: &csv)
+            appendCSVRow(
+                ["Tax Summary", "Potentially Relevant Amount", summary.totalRelevantAmount.formatted(.currency(code: estimate.country.currencyCode)), ""],
+                to: &csv
+            )
+            appendCSVRow(
+                ["Tax Summary", "Transaction Count", summary.transactionCount.formatted(), ""],
+                to: &csv
+            )
+            appendCSVRow(
+                ["Tax Summary", "Matched Categories", summary.matchedCategoryCount.formatted(), ""],
+                to: &csv
+            )
+
+            for item in summary.categoryBreakdown {
+                appendCSVRow(
+                    [
+                        "Tax Category",
+                        item.category.name,
+                        item.totalAmount.formatted(.currency(code: estimate.country.currencyCode)),
+                        String(localized: "\(item.transactionCount.formatted()) transaction(s)"),
+                    ],
+                    to: &csv
+                )
+            }
+        }
+
+        return csv
+    }
+
+    private func appendCSVRow(_ values: [String], to csv: inout String) {
+        csv += values
+            .map { "\"\($0.csvEscaped)\"" }
+            .joined(separator: ",")
+        csv += "\n"
+    }
+
+    private func percentageString(_ value: Decimal) -> String {
+        value.formatted(.number.precision(.fractionLength(1))) + "%"
+    }
+
+    private func comparisonKindLabel(_ kind: TaxComparisonKind) -> String {
+        switch kind {
+        case .indiaRegimes:
+            String(localized: "India Regime Comparison")
+        case .usDeductionModes:
+            String(localized: "US Deduction Comparison")
+        }
+    }
+
+    private func formattedDateRange(_ range: ClosedRange<Date>) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withFullDate]
+        return formatter.string(from: range.lowerBound) + " - " + formatter.string(from: range.upperBound)
     }
 
     // MARK: - File writer
