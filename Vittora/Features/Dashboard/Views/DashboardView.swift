@@ -6,6 +6,10 @@ struct DashboardView: View {
     @State private var navigateDestination: NavigationDestination?
     @State private var showAddBudget = false
 
+    private var currencyCode: String {
+        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
+    }
+
     var body: some View {
         ZStack {
             if let vm = vm {
@@ -78,7 +82,7 @@ struct DashboardView: View {
                     onSelect: { id in navigateDestination = .transactionDetail(id: id) }
                 )
 
-                TopCategoriesChart(categories: data.topCategories)
+                TopCategoriesChart(categories: data.topCategories, currencyCode: currencyCode)
 
                 AccountsSummaryScroll(
                     accounts: data.accountSummary,
@@ -115,7 +119,7 @@ struct DashboardView: View {
                         QuickActionGrid { destination in
                             navigateDestination = destination
                         }
-                        TopCategoriesChart(categories: data.topCategories)
+                        TopCategoriesChart(categories: data.topCategories, currencyCode: currencyCode)
                     }
 
                     VStack(spacing: VSpacing.sectionSpacing) {

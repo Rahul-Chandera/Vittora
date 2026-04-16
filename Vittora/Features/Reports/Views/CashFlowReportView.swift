@@ -109,6 +109,12 @@ struct CashFlowReportView: View {
                         AxisValueLabel()
                     }
                 }
+                .accessibilityChartDescriptor(
+                    MonthlyNetCashFlowChartDescriptor(
+                        data: vm.monthlyData,
+                        currencyCode: currencyCode
+                    )
+                )
                 .frame(height: 220)
 
                 HStack(spacing: VSpacing.lg) {

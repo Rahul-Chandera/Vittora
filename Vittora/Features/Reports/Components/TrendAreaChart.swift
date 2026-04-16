@@ -4,6 +4,7 @@ import Charts
 struct TrendAreaChart: View {
     let dataPoints: [TrendDataPoint]
     let color: Color
+    var currencyCode: String = "USD"
 
     var body: some View {
         Chart(dataPoints) { point in
@@ -56,13 +57,27 @@ struct TrendAreaChart: View {
                 AxisGridLine()
             }
         }
+        .accessibilityChartDescriptor(
+            SpendingTrendChartDescriptor(
+                dataPoints: dataPoints,
+                currencyCode: currencyCode
+            )
+        )
     }
 
     private func compactAmount(_ amount: Double) -> String {
+        let symbol = currencySymbol
         if amount >= 1000 {
-            return String(format: "$%.0fk", amount / 1000)
+            return String(format: "\(symbol)%.0fk", amount / 1000)
         }
-        return String(format: "$%.0f", amount)
+        return String(format: "\(symbol)%.0f", amount)
+    }
+
+    private var currencySymbol: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyCode
+        return formatter.currencySymbol
     }
 }
 

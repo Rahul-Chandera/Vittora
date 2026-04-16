@@ -3,13 +3,7 @@ import Charts
 
 struct IncomeExpenseBarChart: View {
     let data: [MonthlyData]
-
-    private struct ChartEntry: Identifiable {
-        let id = UUID()
-        let month: Date
-        let value: Decimal
-        let label: String
-    }
+    var currencyCode: String = "USD"
 
     var body: some View {
         Chart {
@@ -56,6 +50,12 @@ struct IncomeExpenseBarChart: View {
                 legendItem(color: VColors.expense, label: String(localized: "Expense"))
             }
         }
+        .accessibilityChartDescriptor(
+            MonthlyIncomeExpenseChartDescriptor(
+                data: data,
+                currencyCode: currencyCode
+            )
+        )
     }
 
     private func legendItem(color: Color, label: String) -> some View {
@@ -70,10 +70,18 @@ struct IncomeExpenseBarChart: View {
     }
 
     private func compactAmount(_ amount: Double) -> String {
+        let symbol = currencySymbol
         if amount >= 1000 {
-            return String(format: "$%.0fk", amount / 1000)
+            return String(format: "\(symbol)%.0fk", amount / 1000)
         }
-        return String(format: "$%.0f", amount)
+        return String(format: "\(symbol)%.0f", amount)
+    }
+
+    private var currencySymbol: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyCode
+        return formatter.currencySymbol
     }
 }
 

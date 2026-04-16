@@ -9,6 +9,10 @@ struct CategoryBreakdownView: View {
     @State private var customStart: Date = .now
     @State private var customEnd: Date = .now
 
+    private var currencyCode: String {
+        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: VSpacing.sectionSpacing) {
@@ -72,7 +76,8 @@ struct CategoryBreakdownView: View {
         HStack(alignment: .center, spacing: VSpacing.xl) {
             CategoryDonutChart(
                 breakdowns: vm.breakdowns,
-                selectedCategory: $selectedCategoryID
+                selectedCategory: $selectedCategoryID,
+                currencyCode: currencyCode
             )
             .frame(width: 140, height: 140)
 

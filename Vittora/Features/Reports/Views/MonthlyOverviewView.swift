@@ -5,6 +5,10 @@ struct MonthlyOverviewView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var vm: MonthlyOverviewViewModel?
 
+    private var currencyCode: String {
+        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: VSpacing.sectionSpacing) {
@@ -67,7 +71,7 @@ struct MonthlyOverviewView: View {
                 .font(VTypography.subheadline)
                 .foregroundColor(VColors.textSecondary)
 
-            IncomeExpenseBarChart(data: vm.monthlyData)
+            IncomeExpenseBarChart(data: vm.monthlyData, currencyCode: currencyCode)
                 .frame(height: 220)
                 .padding(VSpacing.md)
                 .background(VColors.secondaryBackground)
@@ -116,7 +120,7 @@ struct MonthlyOverviewView: View {
     private func formattedAmount(_ amount: Decimal) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
+        formatter.currencyCode = currencyCode
         formatter.maximumFractionDigits = 0
         return formatter.string(from: amount as NSDecimalNumber) ?? "$0"
     }

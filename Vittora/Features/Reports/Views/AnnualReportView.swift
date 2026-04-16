@@ -129,6 +129,12 @@ struct AnnualReportView: View {
                         AxisValueLabel()
                     }
                 }
+                .accessibilityChartDescriptor(
+                    MonthlyIncomeExpenseChartDescriptor(
+                        data: vm.monthlyData,
+                        currencyCode: currencyCode
+                    )
+                )
                 .frame(height: 200)
 
                 HStack(spacing: VSpacing.lg) {

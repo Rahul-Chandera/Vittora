@@ -3,6 +3,7 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("AccountEntity Tests")
 struct AccountEntityTests {
     @Test("AccountType.isAsset for asset accounts")

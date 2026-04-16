@@ -3,6 +3,7 @@ import Charts
 
 struct TopCategoriesChart: View {
     let categories: [CategorySpend]
+    var currencyCode: String = "USD"
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
@@ -40,6 +41,12 @@ struct TopCategoriesChart: View {
             .cornerRadius(3)
             .foregroundStyle(categoryColor(at: index))
         }
+        .accessibilityChartDescriptor(
+            CategorySpendChartDescriptor(
+                categories: categories,
+                currencyCode: currencyCode
+            )
+        )
     }
 
     private var legend: some View {
@@ -72,7 +79,7 @@ struct TopCategoriesChart: View {
     private func formattedAmount(_ amount: Decimal) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
+        formatter.currencyCode = currencyCode
         formatter.maximumFractionDigits = 0
         return formatter.string(from: amount as NSDecimalNumber) ?? "$0"
     }

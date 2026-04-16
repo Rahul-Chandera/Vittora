@@ -4,6 +4,7 @@ import Charts
 struct DailySpendChart: View {
     let transactions: [TransactionEntity]
     let dailyBudgetAverage: Decimal
+    var currencyCode: String = "USD"
 
     var dailySpendData: [(day: Int, amount: Decimal)] {
         let calendar = Calendar.current
@@ -21,7 +22,7 @@ struct DailySpendChart: View {
     var body: some View {
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                Text("Daily Spending")
+                Text(String(localized: "Daily Spending"))
                     .font(VTypography.bodyBold)
                     .foregroundColor(VColors.textPrimary)
 
@@ -31,7 +32,7 @@ struct DailySpendChart: View {
                             .font(.system(size: 32))
                             .foregroundColor(VColors.textTertiary)
 
-                        Text("No transactions yet")
+                        Text(String(localized: "No transactions yet"))
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.textSecondary)
                     }
@@ -56,6 +57,13 @@ struct DailySpendChart: View {
                     .chartYAxis {
                         AxisMarks(position: .leading)
                     }
+                    .accessibilityChartDescriptor(
+                        DailySpendAccessibilityChartDescriptor(
+                            points: dailySpendData,
+                            dailyBudgetAverage: dailyBudgetAverage,
+                            currencyCode: currencyCode
+                        )
+                    )
                 }
 
                 // Legend
@@ -64,7 +72,7 @@ struct DailySpendChart: View {
                         RoundedRectangle(cornerRadius: 2)
                             .fill(VColors.budgetSafe)
                             .frame(width: 8, height: 8)
-                        Text("Daily Spend")
+                        Text(String(localized: "Daily Spend"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                     }
@@ -73,7 +81,7 @@ struct DailySpendChart: View {
                         RoundedRectangle(cornerRadius: 2)
                             .stroke(VColors.budgetWarning, lineWidth: 1.5)
                             .frame(width: 8, height: 8)
-                        Text("Daily Budget")
+                        Text(String(localized: "Daily Budget"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                     }

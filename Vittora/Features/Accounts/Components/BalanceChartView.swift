@@ -33,7 +33,7 @@ struct BalanceChartView: View {
             Image(systemName: "chart.line.uptrend.xyaxis")
                 .font(.title2)
                 .foregroundColor(VColors.textTertiary)
-            Text("No balance history")
+            Text(String(localized: "No balance history"))
                 .font(VTypography.caption1)
                 .foregroundColor(VColors.textTertiary)
         }
@@ -68,6 +68,12 @@ struct BalanceChartView: View {
         .chartYAxis(.hidden)
         .chartXAxis(.hidden)
         .frame(height: height)
+        .accessibilityChartDescriptor(
+            BalanceHistoryChartDescriptor(
+                dataPoints: dataPoints,
+                currencyCode: currencyCode
+            )
+        )
     }
 }
 

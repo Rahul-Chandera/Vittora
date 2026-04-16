@@ -7,6 +7,10 @@ struct BudgetDetailView: View {
     @State private var showEdit = false
     let budgetID: UUID
 
+    private var currencyCode: String {
+        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
+    }
+
     var body: some View {
         ZStack {
             if let viewModel = viewModel, let budget = viewModel.budget {
@@ -116,7 +120,8 @@ struct BudgetDetailView: View {
                                 let dailyAverage = budget.amount / Decimal(calculateDaysInPeriod(for: budget))
                                 DailySpendChart(
                                     transactions: viewModel.recentTransactions,
-                                    dailyBudgetAverage: dailyAverage
+                                    dailyBudgetAverage: dailyAverage,
+                                    currencyCode: currencyCode
                                 )
                             }
 

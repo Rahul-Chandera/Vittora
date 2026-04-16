@@ -4,6 +4,7 @@ import Charts
 struct CategoryDonutChart: View {
     let breakdowns: [CategoryBreakdown]
     @Binding var selectedCategory: UUID?
+    var currencyCode: String = "USD"
 
     var body: some View {
         Chart(Array(breakdowns.prefix(8).enumerated()), id: \.offset) { index, item in
@@ -28,6 +29,12 @@ struct CategoryDonutChart: View {
             }
         ))
         .animation(.easeInOut(duration: VSpacing.animationStandard), value: selectedCategory)
+        .accessibilityChartDescriptor(
+            CategoryBreakdownChartDescriptor(
+                breakdowns: breakdowns,
+                currencyCode: currencyCode
+            )
+        )
     }
 
     private func categoryColor(at index: Int) -> Color {

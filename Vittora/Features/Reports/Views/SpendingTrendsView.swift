@@ -8,6 +8,10 @@ struct SpendingTrendsView: View {
     @State private var customStart: Date = .now
     @State private var customEnd: Date = .now
 
+    private var currencyCode: String {
+        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: VSpacing.sectionSpacing) {
@@ -94,7 +98,11 @@ struct SpendingTrendsView: View {
                 .font(VTypography.subheadline)
                 .foregroundColor(VColors.textSecondary)
 
-            TrendAreaChart(dataPoints: vm.dataPoints, color: VColors.expense)
+            TrendAreaChart(
+                dataPoints: vm.dataPoints,
+                color: VColors.expense,
+                currencyCode: currencyCode
+            )
                 .frame(height: 220)
                 .padding(VSpacing.md)
                 .background(VColors.secondaryBackground)
@@ -118,7 +126,7 @@ struct SpendingTrendsView: View {
     private func formattedAmount(_ amount: Decimal) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
+        formatter.currencyCode = currencyCode
         formatter.maximumFractionDigits = 0
         return formatter.string(from: amount as NSDecimalNumber) ?? "$0"
     }

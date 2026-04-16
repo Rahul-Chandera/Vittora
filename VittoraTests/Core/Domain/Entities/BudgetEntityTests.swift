@@ -3,6 +3,7 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("BudgetEntity Tests")
 struct BudgetEntityTests {
     @Test("Remaining calculation - spent less than amount")
