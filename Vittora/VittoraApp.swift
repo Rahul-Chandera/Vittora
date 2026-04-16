@@ -22,6 +22,7 @@ struct VittoraApp: App {
 
     private let modelContainer: ModelContainer
     private let isUITesting: Bool
+    private let isRunningAutomatedTests: Bool
     private let showsOnboardingForUITesting: Bool
     private let bypassOnboardingForUITesting: Bool
     private let seedsTransactionsForUITesting: Bool
@@ -31,19 +32,20 @@ struct VittoraApp: App {
     init() {
         let launchArguments = ProcessInfo.processInfo.arguments
         isUITesting = launchArguments.contains("--uitesting")
+        isRunningAutomatedTests = isUITesting || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         showsOnboardingForUITesting = launchArguments.contains("--ui-test-onboarding")
         bypassOnboardingForUITesting = isUITesting && !showsOnboardingForUITesting
         seedsTransactionsForUITesting = launchArguments.contains("--ui-test-seed-transactions")
         seedsTransfersForUITesting = launchArguments.contains("--ui-test-seed-transfers")
 
         do {
-            modelContainer = try ModelContainerConfig.makeContainer(inMemory: isUITesting)
+            modelContainer = try ModelContainerConfig.makeContainer(inMemory: isRunningAutomatedTests)
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
 
         let dependencyContainer = DependencyContainer.createDefault(modelContainer: modelContainer)
-        let syncStatusService = SyncStatusService(isMonitoringEnabled: !isUITesting)
+        let syncStatusService = SyncStatusService(isMonitoringEnabled: !isRunningAutomatedTests)
         let conflictHandler = SyncConflictHandler()
         _dependencies = State(initialValue: dependencyContainer)
         _router = State(initialValue: Router())
@@ -51,7 +53,7 @@ struct VittoraApp: App {
         _syncService = State(initialValue: syncStatusService)
         _syncConflictHandler = State(initialValue: conflictHandler)
         _cloudKitSyncMonitor = State(
-            initialValue: isUITesting
+            initialValue: isRunningAutomatedTests
                 ? nil
                 : CloudKitSyncMonitor(
                     syncStatusService: syncStatusService,
@@ -83,7 +85,7 @@ struct VittoraApp: App {
         }
 
         #if os(iOS)
-        if !isUITesting, let recurringGenerationUseCase {
+        if !isRunningAutomatedTests, let recurringGenerationUseCase {
             BackgroundTaskScheduler.register(generateUseCase: recurringGenerationUseCase)
         }
         #endif
@@ -121,13 +123,13 @@ struct VittoraApp: App {
         }
         .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .background && !isUITesting && settingsVM.isAppLockEnabled {
+            if newPhase == .background && !isRunningAutomatedTests && settingsVM.isAppLockEnabled {
                 appState.isLocked = true
                 appState.isAuthenticated = false
             }
             if newPhase == .active {
                 PerformanceLogger.App.sceneDidBecomeActive()
-                guard !isUITesting else { return }
+                guard !isRunningAutomatedTests else { return }
                 Task {
                     await syncService.checkiCloudStatus()
                     #if os(iOS)
@@ -152,7 +154,7 @@ struct VittoraApp: App {
             return
         }
 
-        guard !isUITesting else { return }
+        guard !isRunningAutomatedTests else { return }
 
         let dataSeeder = DefaultDataSeeder(modelContainer: modelContainer)
         do {
