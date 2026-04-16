@@ -87,7 +87,7 @@ struct TaxProfile: Identifiable, Hashable, Sendable {
     var createdAt: Date
     var updatedAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         country: TaxCountry = .india,
         annualIncome: Decimal = 0,
@@ -159,4 +159,36 @@ struct TaxEstimate: Sendable {
     let regimeLabel: String
 
     var totalDeductions: Decimal { standardDeduction + customDeductionsTotal }
+}
+
+// MARK: - Tax Comparison
+
+enum TaxComparisonKind: Sendable, Hashable {
+    case indiaRegimes
+    case usDeductionModes
+}
+
+enum TaxComparisonWinner: Sendable, Hashable {
+    case first
+    case second
+    case tie
+}
+
+struct TaxComparison: Sendable {
+    let kind: TaxComparisonKind
+    let firstEstimate: TaxEstimate
+    let secondEstimate: TaxEstimate
+    let winner: TaxComparisonWinner
+    let savingsAmount: Decimal
+
+    var recommendedEstimate: TaxEstimate? {
+        switch winner {
+        case .first:
+            firstEstimate
+        case .second:
+            secondEstimate
+        case .tie:
+            nil
+        }
+    }
 }

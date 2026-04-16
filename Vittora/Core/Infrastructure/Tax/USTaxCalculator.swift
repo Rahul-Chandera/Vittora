@@ -6,17 +6,21 @@ struct USTaxCalculator: TaxCalculatorProtocol {
     let country: TaxCountry = .unitedStates
 
     func calculate(profile: TaxProfile) -> TaxEstimate {
+        calculate(profile: profile, deductionMode: .bestAvailable)
+    }
+
+    func calculate(profile: TaxProfile, deductionMode: USDeductionMode) -> TaxEstimate {
         let status = profile.filingStatus
         let gross = profile.annualIncome
 
         let standardDeduction = Self.standardDeduction(for: status)
-
-        // Custom deductions (itemized — user may enter mortgage interest, SALT, etc.)
-        let customDeductionsTotal = profile.customDeductions.reduce(Decimal(0)) { $0 + $1.amount }
-
-        // Take greater of standard or itemized
-        let totalDeduction = max(standardDeduction, customDeductionsTotal)
-        let taxableIncome = max(0, gross - totalDeduction)
+        let itemizedDeductions = profile.customDeductions.reduce(Decimal(0)) { $0 + $1.amount }
+        let deductionSelection = selectDeduction(
+            standardDeduction: standardDeduction,
+            itemizedDeductions: itemizedDeductions,
+            deductionMode: deductionMode
+        )
+        let taxableIncome = max(0, gross - deductionSelection.appliedDeduction)
 
         let slabs = Self.brackets(for: status)
         let bracketResults = slabs.apply(to: taxableIncome)
@@ -28,8 +32,8 @@ struct USTaxCalculator: TaxCalculatorProtocol {
 
         return TaxEstimate(
             grossIncome: gross,
-            standardDeduction: totalDeduction,
-            customDeductionsTotal: customDeductionsTotal > standardDeduction ? customDeductionsTotal : 0,
+            standardDeduction: deductionSelection.standardDeductionPortion,
+            customDeductionsTotal: deductionSelection.customDeductionsPortion,
             taxableIncome: taxableIncome,
             bracketResults: bracketResults,
             basicTax: basicTax,
@@ -40,8 +44,54 @@ struct USTaxCalculator: TaxCalculatorProtocol {
             effectiveRate: effectiveRate,
             marginalRate: marginalRate,
             country: .unitedStates,
-            regimeLabel: status.displayName
+            regimeLabel: regimeLabel(for: status, deductionMode: deductionMode)
         )
+    }
+
+    private func selectDeduction(
+        standardDeduction: Decimal,
+        itemizedDeductions: Decimal,
+        deductionMode: USDeductionMode
+    ) -> USDeductionSelection {
+        switch deductionMode {
+        case .bestAvailable:
+            if itemizedDeductions > standardDeduction {
+                USDeductionSelection(
+                    appliedDeduction: itemizedDeductions,
+                    standardDeductionPortion: 0,
+                    customDeductionsPortion: itemizedDeductions
+                )
+            } else {
+                USDeductionSelection(
+                    appliedDeduction: standardDeduction,
+                    standardDeductionPortion: standardDeduction,
+                    customDeductionsPortion: 0
+                )
+            }
+        case .standardOnly:
+            USDeductionSelection(
+                appliedDeduction: standardDeduction,
+                standardDeductionPortion: standardDeduction,
+                customDeductionsPortion: 0
+            )
+        case .itemizedOnly:
+            USDeductionSelection(
+                appliedDeduction: itemizedDeductions,
+                standardDeductionPortion: 0,
+                customDeductionsPortion: itemizedDeductions
+            )
+        }
+    }
+
+    private func regimeLabel(for status: USFilingStatus, deductionMode: USDeductionMode) -> String {
+        switch deductionMode {
+        case .bestAvailable:
+            status.displayName
+        case .standardOnly:
+            String(localized: "\(status.displayName) · Standard Deduction")
+        case .itemizedOnly:
+            String(localized: "\(status.displayName) · Itemized Deductions")
+        }
     }
 
     // MARK: - Standard Deductions (2024)
@@ -101,4 +151,16 @@ struct USTaxCalculator: TaxCalculatorProtocol {
             ]
         }
     }
+}
+
+enum USDeductionMode: Sendable {
+    case bestAvailable
+    case standardOnly
+    case itemizedOnly
+}
+
+private struct USDeductionSelection {
+    let appliedDeduction: Decimal
+    let standardDeductionPortion: Decimal
+    let customDeductionsPortion: Decimal
 }

@@ -1,7 +1,7 @@
 import Foundation
 
 enum TaxProfileMapper {
-    static func toEntity(_ model: SDTaxProfile) -> TaxProfile {
+    nonisolated static func toEntity(_ model: SDTaxProfile) -> TaxProfile {
         TaxProfile(
             id: model.id,
             country: model.country,
@@ -15,7 +15,7 @@ enum TaxProfileMapper {
         )
     }
 
-    static func updateModel(_ model: SDTaxProfile, from entity: TaxProfile) {
+    nonisolated static func updateModel(_ model: SDTaxProfile, from entity: TaxProfile) {
         model.country = entity.country
         model.annualIncome = entity.annualIncome
         model.indiaRegime = entity.indiaRegime

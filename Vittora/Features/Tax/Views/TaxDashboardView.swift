@@ -36,6 +36,7 @@ struct TaxDashboardView: View {
                 guard let taxRepo = dependencies.taxProfileRepository else { return }
                 vm = TaxEstimateViewModel(
                     estimateUseCase: EstimateTaxUseCase(),
+                    compareUseCase: CompareTaxRegimesUseCase(),
                     saveUseCase: SaveTaxProfileUseCase(taxProfileRepository: taxRepo)
                 )
                 await vm?.load()
@@ -81,6 +82,10 @@ struct TaxDashboardView: View {
                 // Quick stats grid
                 quickStatsGrid(estimate: estimate)
 
+                if let comparison = vm.comparison {
+                    TaxComparisonView(comparison: comparison)
+                }
+
                 // Full breakdown button
                 Button {
                     showBreakdown = true
@@ -101,6 +106,8 @@ struct TaxDashboardView: View {
 
                 // Info about regime
                 regimeInfoCard(estimate: estimate, profile: vm.profile)
+
+                TaxDisclaimerView()
             }
             .padding(VSpacing.screenPadding)
         }

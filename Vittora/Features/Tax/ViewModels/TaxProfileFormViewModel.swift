@@ -5,6 +5,7 @@ import Foundation
 final class TaxProfileFormViewModel {
     private let saveUseCase: SaveTaxProfileUseCase
     private let estimateUseCase: EstimateTaxUseCase
+    private let compareUseCase: CompareTaxRegimesUseCase
 
     // Form fields
     var country: TaxCountry = .india
@@ -16,6 +17,7 @@ final class TaxProfileFormViewModel {
 
     // Live preview
     var liveEstimate: TaxEstimate?
+    var liveComparison: TaxComparison?
 
     var isSaving = false
     var error: String?
@@ -23,9 +25,14 @@ final class TaxProfileFormViewModel {
     var income: Decimal { Decimal(string: incomeString.replacingOccurrences(of: ",", with: "")) ?? 0 }
     var canSave: Bool { income > 0 }
 
-    init(saveUseCase: SaveTaxProfileUseCase, estimateUseCase: EstimateTaxUseCase) {
+    init(
+        saveUseCase: SaveTaxProfileUseCase,
+        estimateUseCase: EstimateTaxUseCase,
+        compareUseCase: CompareTaxRegimesUseCase
+    ) {
         self.saveUseCase = saveUseCase
         self.estimateUseCase = estimateUseCase
+        self.compareUseCase = compareUseCase
     }
 
     func populate(from profile: TaxProfile) {
@@ -39,8 +46,15 @@ final class TaxProfileFormViewModel {
     }
 
     func recalculateLive() {
-        guard income > 0 else { liveEstimate = nil; return }
-        liveEstimate = estimateUseCase.execute(profile: currentProfile())
+        guard income > 0 else {
+            liveEstimate = nil
+            liveComparison = nil
+            return
+        }
+
+        let profile = currentProfile()
+        liveEstimate = estimateUseCase.execute(profile: profile)
+        liveComparison = compareUseCase.execute(profile: profile)
     }
 
     func addDeduction(name: String, amount: Decimal, section: String?) {

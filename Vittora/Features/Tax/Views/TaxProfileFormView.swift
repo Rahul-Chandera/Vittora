@@ -49,7 +49,11 @@ struct TaxProfileFormView: View {
             guard vm == nil, let taxRepo = dependencies.taxProfileRepository else { return }
             let saveUseCase = SaveTaxProfileUseCase(taxProfileRepository: taxRepo)
             let estimateUseCase = EstimateTaxUseCase()
-            let newVM = TaxProfileFormViewModel(saveUseCase: saveUseCase, estimateUseCase: estimateUseCase)
+            let newVM = TaxProfileFormViewModel(
+                saveUseCase: saveUseCase,
+                estimateUseCase: estimateUseCase,
+                compareUseCase: CompareTaxRegimesUseCase()
+            )
             vm = newVM
             if let profile = existingProfile {
                 newVM.populate(from: profile)
@@ -164,12 +168,26 @@ struct TaxProfileFormView: View {
                 }
             }
 
+            if let comparison = vm.liveComparison {
+                Section(String(localized: "Live Comparison")) {
+                    TaxComparisonView(comparison: comparison)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                }
+            }
+
             if let error = vm.error {
                 Section {
                     Text(error)
                         .foregroundStyle(VColors.expense)
                         .font(VTypography.caption1)
                 }
+            }
+
+            Section {
+                TaxDisclaimerView()
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
             }
         }
     }

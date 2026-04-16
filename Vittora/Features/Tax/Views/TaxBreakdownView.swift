@@ -19,6 +19,7 @@ struct TaxBreakdownView: View {
                     bracketSection
                     adjustmentsSection
                     finalSection
+                    TaxDisclaimerView()
                 }
                 .padding(VSpacing.screenPadding)
             }
