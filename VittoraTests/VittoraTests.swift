@@ -13,7 +13,7 @@ struct VittoraTests {
     @Test("AppState initializes with default values")
     @MainActor
     func appStateDefaults() {
-        let state = AppState()
+        let state = AppState(isOnboardingComplete: false)
         #expect(state.isAuthenticated == false)
         #expect(state.isOnboardingComplete == false)
         #expect(state.selectedTab == .dashboard)
