@@ -87,6 +87,12 @@ final class SyncStatusService: Sendable {
             return
         }
 
+        guard CloudKitRuntimeSupport.isEnabled else {
+            iCloudAccountAvailable = false
+            syncState = .error(CloudKitRuntimeSupport.unavailableMessage)
+            return
+        }
+
         guard isNetworkAvailable else {
             syncState = .offline
             return

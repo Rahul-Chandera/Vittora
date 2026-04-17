@@ -23,10 +23,12 @@ enum ModelContainerConfig {
     /// Create the shared model container
     static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
         let schema = Schema(allModels)
+        let cloudKitDatabase: ModelConfiguration.CloudKitDatabase =
+            inMemory || !CloudKitRuntimeSupport.isEnabled ? .none : .automatic
         let config = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: inMemory,
-            cloudKitDatabase: inMemory ? .none : .automatic
+            cloudKitDatabase: cloudKitDatabase
         )
         return try ModelContainer(for: schema, configurations: [config])
     }
