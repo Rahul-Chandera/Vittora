@@ -7,7 +7,6 @@ struct UpcomingDatesView: View {
     private var upcomingDates: [Date] {
         var dates: [Date] = []
         var currentDate = rule.nextDate
-        let calendar = Calendar.current
 
         for _ in 0..<count {
             if let endDate = rule.endDate, currentDate > endDate {

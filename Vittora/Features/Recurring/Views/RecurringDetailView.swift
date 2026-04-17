@@ -203,7 +203,7 @@ struct RecurringDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .sheet(isPresented: $showEditSheet) {
-            if let rule = rule {
+            if rule != nil {
                 RecurringFormView(onDismiss: {
                     showEditSheet = false
                     Task {

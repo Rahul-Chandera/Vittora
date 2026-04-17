@@ -106,7 +106,7 @@ struct RecurringFormView: View {
                                     )
                                 ) {
                                     HStack {
-                                        if let accountID = viewModel.selectedAccountID {
+                                        if viewModel.selectedAccountID != nil {
                                             Text("Selected")
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
@@ -140,7 +140,7 @@ struct RecurringFormView: View {
                                     )
                                 ) {
                                     HStack {
-                                        if let categoryID = viewModel.selectedCategoryID {
+                                        if viewModel.selectedCategoryID != nil {
                                             Text("Selected")
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
@@ -174,7 +174,7 @@ struct RecurringFormView: View {
                                     )
                                 ) {
                                     HStack {
-                                        if let payeeID = viewModel.selectedPayeeID {
+                                        if viewModel.selectedPayeeID != nil {
                                             Text("Selected")
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
