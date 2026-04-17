@@ -3,6 +3,7 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("Transaction Use Case Tests")
 struct TransactionUseCaseTests {
 
@@ -21,6 +22,7 @@ struct TransactionUseCaseTests {
 
     // MARK: - AddTransactionUseCase
 
+    @MainActor
     @Suite("AddTransactionUseCase")
     struct AddTransactionUseCaseTests {
 
@@ -52,7 +54,7 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = await accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
             #expect(updatedAccount?.balance == 800)
             let savedTransactions = await transactionRepo.transactions
             #expect(savedTransactions.count == 1)
@@ -74,7 +76,7 @@ struct TransactionUseCaseTests {
                 categoryRepository: categoryRepo
             )
 
-            try await useCase.execute(
+            _ = try await useCase.execute(
                 amount: 300,
                 type: .income,
                 date: .now,
@@ -87,7 +89,7 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = await accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
             #expect(updatedAccount?.balance == 800)
         }
 
@@ -106,7 +108,7 @@ struct TransactionUseCaseTests {
                 categoryRepository: categoryRepo
             )
 
-            try await useCase.execute(
+            _ = try await useCase.execute(
                 amount: 50,
                 type: .adjustment,
                 date: .now,
@@ -119,7 +121,7 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = await accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
             #expect(updatedAccount?.balance == 150)
         }
 
@@ -138,7 +140,7 @@ struct TransactionUseCaseTests {
                 categoryRepository: categoryRepo
             )
 
-            try await useCase.execute(
+            _ = try await useCase.execute(
                 amount: 200,
                 type: .transfer,
                 date: .now,
@@ -151,7 +153,7 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = await accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
             #expect(updatedAccount?.balance == 1000)
         }
 
@@ -298,6 +300,7 @@ struct TransactionUseCaseTests {
 
     // MARK: - DeleteTransactionUseCase
 
+    @MainActor
     @Suite("DeleteTransactionUseCase")
     struct DeleteTransactionUseCaseTests {
 
@@ -322,7 +325,7 @@ struct TransactionUseCaseTests {
             )
             try await useCase.execute(id: transaction.id)
 
-            let updatedAccount = await accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
             #expect(updatedAccount?.balance == 1000)
             let remaining = await transactionRepo.transactions
             #expect(remaining.isEmpty)
@@ -349,7 +352,7 @@ struct TransactionUseCaseTests {
             )
             try await useCase.execute(id: transaction.id)
 
-            let updatedAccount = await accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
             #expect(updatedAccount?.balance == 1000)
         }
 
@@ -391,6 +394,7 @@ struct TransactionUseCaseTests {
 
     // MARK: - FetchTransactionsUseCase
 
+    @MainActor
     @Suite("FetchTransactionsUseCase")
     struct FetchTransactionsUseCaseTests {
 
@@ -466,6 +470,7 @@ struct TransactionUseCaseTests {
 
     // MARK: - SearchTransactionsUseCase
 
+    @MainActor
     @Suite("SearchTransactionsUseCase")
     struct SearchTransactionsUseCaseTests {
 
@@ -507,6 +512,7 @@ struct TransactionUseCaseTests {
 
     // MARK: - UpdateTransactionUseCase
 
+    @MainActor
     @Suite("UpdateTransactionUseCase")
     struct UpdateTransactionUseCaseTests {
 
@@ -537,7 +543,7 @@ struct TransactionUseCaseTests {
 
             try await useCase.execute(updated)
 
-            let finalAccount = await accountRepo.accounts.first { $0.id == account.id }
+            let finalAccount = accountRepo.accounts.first { $0.id == account.id }
             #expect(finalAccount?.balance == 900)
         }
 
@@ -567,7 +573,7 @@ struct TransactionUseCaseTests {
             try await useCase.execute(updated)
 
             // Reverse 300 income (-300 → 1000), apply 500 income (+500 → 1500)
-            let finalAccount = await accountRepo.accounts.first { $0.id == account.id }
+            let finalAccount = accountRepo.accounts.first { $0.id == account.id }
             #expect(finalAccount?.balance == 1500)
         }
 

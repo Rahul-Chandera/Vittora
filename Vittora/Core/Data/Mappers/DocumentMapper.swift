@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 enum DocumentMapper {
-    static func toEntity(_ model: SDDocument) -> DocumentEntity {
+    nonisolated static func toEntity(_ model: SDDocument) -> DocumentEntity {
         DocumentEntity(
             id: model.id,
             fileName: model.fileName,
@@ -14,7 +14,7 @@ enum DocumentMapper {
         )
     }
 
-    static func updateModel(_ model: SDDocument, from entity: DocumentEntity) {
+    nonisolated static func updateModel(_ model: SDDocument, from entity: DocumentEntity) {
         model.fileName = entity.fileName
         model.mimeType = entity.mimeType
         model.thumbnailData = entity.thumbnailData

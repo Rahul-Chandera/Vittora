@@ -1,7 +1,8 @@
 import Foundation
 @testable import Vittora
 
-actor MockAccountRepository: AccountRepository {
+@MainActor
+final class MockAccountRepository: AccountRepository {
     private(set) var accounts: [AccountEntity] = []
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))

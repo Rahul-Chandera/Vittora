@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 enum BudgetMapper {
-    static func toEntity(_ model: SDBudget) -> BudgetEntity {
+    nonisolated static func toEntity(_ model: SDBudget) -> BudgetEntity {
         BudgetEntity(
             id: model.id,
             amount: model.amount,
@@ -16,7 +16,7 @@ enum BudgetMapper {
         )
     }
 
-    static func updateModel(_ model: SDBudget, from entity: BudgetEntity) {
+    nonisolated static func updateModel(_ model: SDBudget, from entity: BudgetEntity) {
         model.amount = entity.amount
         model.spent = entity.spent
         model.period = entity.period

@@ -3,6 +3,7 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("TransactionEntity Tests")
 struct TransactionEntityTests {
     @Test("Initializer with defaults")

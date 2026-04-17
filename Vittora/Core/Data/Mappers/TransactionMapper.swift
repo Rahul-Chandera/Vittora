@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 enum TransactionMapper {
-    static func toEntity(_ model: SDTransaction) -> TransactionEntity {
+    nonisolated static func toEntity(_ model: SDTransaction) -> TransactionEntity {
         TransactionEntity(
             id: model.id,
             amount: model.amount,
@@ -23,7 +23,7 @@ enum TransactionMapper {
         )
     }
 
-    static func updateModel(_ model: SDTransaction, from entity: TransactionEntity) {
+    nonisolated static func updateModel(_ model: SDTransaction, from entity: TransactionEntity) {
         model.amount = entity.amount
         model.date = entity.date
         model.note = entity.note

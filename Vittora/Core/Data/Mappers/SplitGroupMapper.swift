@@ -1,7 +1,7 @@
 import Foundation
 
 enum SplitGroupMapper {
-    static func toEntity(_ model: SDSplitGroup) -> SplitGroup {
+    nonisolated static func toEntity(_ model: SDSplitGroup) -> SplitGroup {
         SplitGroup(
             id: model.id,
             name: model.name,
@@ -11,7 +11,7 @@ enum SplitGroupMapper {
         )
     }
 
-    static func updateModel(_ model: SDSplitGroup, from entity: SplitGroup) {
+    nonisolated static func updateModel(_ model: SDSplitGroup, from entity: SplitGroup) {
         model.name = entity.name
         model.memberIDs = entity.memberIDs
         model.updatedAt = .now
@@ -19,7 +19,7 @@ enum SplitGroupMapper {
 }
 
 enum GroupExpenseMapper {
-    static func toEntity(_ model: SDGroupExpense) -> GroupExpense {
+    nonisolated static func toEntity(_ model: SDGroupExpense) -> GroupExpense {
         GroupExpense(
             id: model.id,
             groupID: model.groupID,
@@ -37,7 +37,7 @@ enum GroupExpenseMapper {
         )
     }
 
-    static func updateModel(_ model: SDGroupExpense, from entity: GroupExpense) {
+    nonisolated static func updateModel(_ model: SDGroupExpense, from entity: GroupExpense) {
         model.groupID = entity.groupID
         model.paidByMemberID = entity.paidByMemberID
         model.amount = entity.amount

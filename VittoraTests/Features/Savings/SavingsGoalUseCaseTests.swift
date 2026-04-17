@@ -3,6 +3,7 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("Savings Goal Use Case Tests")
 struct SavingsGoalUseCaseTests {
 

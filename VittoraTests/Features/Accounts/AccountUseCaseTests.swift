@@ -3,11 +3,13 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("Account Use Case Tests")
 struct AccountUseCaseTests {
 
     // MARK: - FetchAccountsUseCase
 
+    @MainActor
     @Suite("FetchAccountsUseCase")
     struct FetchAccountsUseCaseTests {
         @Test("Execute filters out archived accounts")
@@ -40,6 +42,7 @@ struct AccountUseCaseTests {
 
     // MARK: - CalculateNetWorthUseCase
 
+    @MainActor
     @Suite("CalculateNetWorthUseCase")
     struct CalculateNetWorthUseCaseTests {
         @Test("Calculates net worth from assets and liabilities")
@@ -71,6 +74,7 @@ struct AccountUseCaseTests {
 
     // MARK: - CreateAccountUseCase
 
+    @MainActor
     @Suite("CreateAccountUseCase")
     struct CreateAccountUseCaseTests {
         @Test("Creates a bank account with correct fields")
@@ -86,7 +90,7 @@ struct AccountUseCaseTests {
                 icon: "building.columns.fill"
             )
 
-            let all = await repo.accounts
+            let all = repo.accounts
             #expect(all.count == 1)
             #expect(all[0].name == "Chase Checking")
             #expect(all[0].type == .bank)
@@ -112,6 +116,7 @@ struct AccountUseCaseTests {
 
     // MARK: - TransferFundsUseCase
 
+    @MainActor
     @Suite("TransferFundsUseCase")
     struct TransferFundsUseCaseTests {
         @Test("Moves funds between accounts and creates paired transfer transactions")
@@ -136,8 +141,8 @@ struct AccountUseCaseTests {
                 note: "Move to savings"
             )
 
-            let updatedCheckingAccount = await accountRepo.accounts.first { $0.id == checkingAccount.id }
-            let updatedSavingsAccount = await accountRepo.accounts.first { $0.id == savingsAccount.id }
+            let updatedCheckingAccount = accountRepo.accounts.first { $0.id == checkingAccount.id }
+            let updatedSavingsAccount = accountRepo.accounts.first { $0.id == savingsAccount.id }
             let savedTransactions = await transactionRepo.transactions
 
             #expect(updatedCheckingAccount?.balance == Decimal(1375))
@@ -169,6 +174,7 @@ struct AccountUseCaseTests {
 
     // MARK: - DeleteAccountUseCase
 
+    @MainActor
     @Suite("DeleteAccountUseCase")
     struct DeleteAccountUseCaseTests {
         @Test("Archives an account successfully")
@@ -184,7 +190,7 @@ struct AccountUseCaseTests {
             )
             try await useCase.archive(id: account.id)
 
-            let updated = await accountRepo.accounts.first { $0.id == account.id }
+            let updated = accountRepo.accounts.first { $0.id == account.id }
             #expect(updated?.isArchived == true)
         }
 

@@ -14,7 +14,7 @@ struct DeleteAccountUseCase: Sendable {
 
     func delete(id: UUID) async throws {
         // Fetch the account
-        guard let account = try await accountRepository.fetchByID(id) else {
+        guard try await accountRepository.fetchByID(id) != nil else {
             throw VittoraError.notFound("Account not found")
         }
 

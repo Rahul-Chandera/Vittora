@@ -34,7 +34,7 @@ struct DebtEntry: Identifiable, Hashable, Equatable, Sendable {
         return due < Date.now
     }
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         payeeID: UUID,
         amount: Decimal,

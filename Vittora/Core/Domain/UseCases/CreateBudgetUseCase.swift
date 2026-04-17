@@ -25,7 +25,7 @@ struct CreateBudgetUseCase: Sendable {
 
         // Check for existing active budget with same category and period
         if let categoryID = categoryID {
-            if let existing = try await budgetRepository.fetchForCategory(categoryID, period: period) {
+            if try await budgetRepository.fetchForCategory(categoryID, period: period) != nil {
                 throw VittoraError.validationFailed(
                     "An active \(period.rawValue) budget already exists for this category"
                 )

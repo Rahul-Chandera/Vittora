@@ -51,7 +51,7 @@ struct GroupExpense: Identifiable, Hashable, Equatable, Sendable {
     var createdAt: Date
     var updatedAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         groupID: UUID,
         paidByMemberID: UUID,
@@ -92,7 +92,7 @@ struct SplitGroup: Identifiable, Hashable, Equatable, Sendable {
     var createdAt: Date
     var updatedAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         name: String,
         memberIDs: [UUID] = [],

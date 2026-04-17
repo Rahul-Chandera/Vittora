@@ -3,11 +3,13 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("Budget Use Case Tests")
 struct BudgetUseCaseTests {
 
     // MARK: - CreateBudgetUseCase
 
+    @MainActor
     @Suite("CreateBudgetUseCase")
     struct CreateBudgetUseCaseTests {
 
@@ -93,6 +95,7 @@ struct BudgetUseCaseTests {
 
     // MARK: - UpdateBudgetUseCase
 
+    @MainActor
     @Suite("UpdateBudgetUseCase")
     struct UpdateBudgetUseCaseTests {
 
@@ -127,6 +130,7 @@ struct BudgetUseCaseTests {
 
     // MARK: - DeleteBudgetUseCase
 
+    @MainActor
     @Suite("DeleteBudgetUseCase")
     struct DeleteBudgetUseCaseTests {
 
@@ -155,6 +159,7 @@ struct BudgetUseCaseTests {
 
     // MARK: - FetchBudgetsUseCase
 
+    @MainActor
     @Suite("FetchBudgetsUseCase")
     struct FetchBudgetsUseCaseTests {
 
@@ -227,6 +232,7 @@ struct BudgetUseCaseTests {
 
     // MARK: - CalculateBudgetProgressUseCase
 
+    @MainActor
     @Suite("CalculateBudgetProgressUseCase")
     struct CalculateBudgetProgressUseCaseTests {
 
@@ -288,6 +294,7 @@ struct BudgetUseCaseTests {
         }
     }
 
+    @MainActor
     @Suite("CheckBudgetThresholdUseCase")
     struct CheckBudgetThresholdUseCaseTests {
 
@@ -306,6 +313,7 @@ struct BudgetUseCaseTests {
         }
     }
 
+    @MainActor
     @Suite("RolloverBudgetUseCase")
     struct RolloverBudgetUseCaseTests {
 
@@ -374,6 +382,7 @@ struct BudgetUseCaseTests {
         }
     }
 
+    @MainActor
     @Suite("CopyBudgetTemplateUseCase")
     struct CopyBudgetTemplateUseCaseTests {
 

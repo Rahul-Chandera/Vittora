@@ -9,24 +9,24 @@ enum PaymentMethod: String, Sendable, Hashable, CaseIterable, Codable {
 }
 
 struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var amount: Decimal
-    var date: Date
-    var note: String?
-    var type: TransactionType
-    var paymentMethod: PaymentMethod
-    var currencyCode: String
-    var tags: [String]
-    var categoryID: UUID?
-    var accountID: UUID?
-    var payeeID: UUID?
-    var destinationAccountID: UUID?
-    var recurringRuleID: UUID?
-    var documentIDs: [UUID]
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated let id: UUID
+    nonisolated var amount: Decimal
+    nonisolated var date: Date
+    nonisolated var note: String?
+    nonisolated var type: TransactionType
+    nonisolated var paymentMethod: PaymentMethod
+    nonisolated var currencyCode: String
+    nonisolated var tags: [String]
+    nonisolated var categoryID: UUID?
+    nonisolated var accountID: UUID?
+    nonisolated var payeeID: UUID?
+    nonisolated var destinationAccountID: UUID?
+    nonisolated var recurringRuleID: UUID?
+    nonisolated var documentIDs: [UUID]
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         amount: Decimal,
         date: Date = .now,
@@ -64,6 +64,6 @@ struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
 
     // MARK: - Equatable & Hashable (identity-based)
 
-    static func == (lhs: TransactionEntity, rhs: TransactionEntity) -> Bool { lhs.id == rhs.id }
-    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    nonisolated static func == (lhs: TransactionEntity, rhs: TransactionEntity) -> Bool { lhs.id == rhs.id }
+    nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }

@@ -4,7 +4,8 @@ import Foundation
 
 // MARK: - Minimal mock repositories for DataManagementService
 
-private actor MockBudgetRepo: BudgetRepository {
+@MainActor
+private final class MockBudgetRepo: BudgetRepository {
     var items: [BudgetEntity] = []
     func fetchAll() async throws -> [BudgetEntity] { items }
     func fetchByID(_ id: UUID) async throws -> BudgetEntity? { items.first { $0.id == id } }
@@ -17,7 +18,8 @@ private actor MockBudgetRepo: BudgetRepository {
     func fetchForCategory(_ categoryID: UUID, period: BudgetPeriod) async throws -> BudgetEntity? { nil }
 }
 
-private actor MockDebtRepo: DebtRepository {
+@MainActor
+private final class MockDebtRepo: DebtRepository {
     var items: [DebtEntry] = []
     func fetchAll() async throws -> [DebtEntry] { items }
     func fetchByID(_ id: UUID) async throws -> DebtEntry? { items.first { $0.id == id } }
@@ -30,7 +32,8 @@ private actor MockDebtRepo: DebtRepository {
     func fetchOverdue(before date: Date) async throws -> [DebtEntry] { [] }
 }
 
-private actor MockSavingsGoalRepo: SavingsGoalRepository {
+@MainActor
+private final class MockSavingsGoalRepo: SavingsGoalRepository {
     var items: [SavingsGoalEntity] = []
     func fetchAll() async throws -> [SavingsGoalEntity] { items }
     func fetchByID(_ id: UUID) async throws -> SavingsGoalEntity? { items.first { $0.id == id } }
@@ -42,7 +45,8 @@ private actor MockSavingsGoalRepo: SavingsGoalRepository {
     func delete(_ id: UUID) async throws { items.removeAll { $0.id == id } }
 }
 
-private actor MockSplitGroupRepo: SplitGroupRepository {
+@MainActor
+private final class MockSplitGroupRepo: SplitGroupRepository {
     var groups: [SplitGroup] = []
     var expenses: [GroupExpense] = []
     func fetchAllGroups() async throws -> [SplitGroup] { groups }
@@ -59,7 +63,8 @@ private actor MockSplitGroupRepo: SplitGroupRepository {
     func deleteExpense(_ id: UUID) async throws { expenses.removeAll { $0.id == id } }
 }
 
-private actor MockDocumentRepo: DocumentRepository {
+@MainActor
+private final class MockDocumentRepo: DocumentRepository {
     var items: [DocumentEntity] = []
     func fetchAll() async throws -> [DocumentEntity] { items }
     func fetchByID(_ id: UUID) async throws -> DocumentEntity? { items.first { $0.id == id } }
@@ -183,7 +188,7 @@ struct DataManagementServiceTests {
 
     @Test("clearData(.all) clears transactions, budgets, debts, goals, splits")
     func clearAll() async throws {
-        let (service, txRepo, _, _, budRepo, debtRepo, goalRepo, splitRepo, _) = makeService()
+        let (service, txRepo, _, _, budRepo, _, goalRepo, splitRepo, _) = makeService()
         try await txRepo.create(TransactionEntity(amount: 10, type: .expense, paymentMethod: .cash))
         try await budRepo.create(BudgetEntity(id: UUID(), amount: 500, spent: 0, period: .monthly, startDate: .now))
         let goal = SavingsGoalEntity(name: "Car", category: .vehicle, targetAmount: 10000, colorHex: "#FF0000")

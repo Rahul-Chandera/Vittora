@@ -3,6 +3,7 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("Dashboard Use Case Tests")
 struct DashboardUseCaseTests {
 
@@ -38,6 +39,7 @@ struct DashboardUseCaseTests {
 
     // MARK: - DashboardDataUseCase
 
+    @MainActor
     @Suite("DashboardDataUseCase")
     struct DashboardDataUseCaseTests {
 
@@ -219,6 +221,7 @@ struct DashboardUseCaseTests {
 
     // MARK: - MonthComparisonUseCase
 
+    @MainActor
     @Suite("MonthComparisonUseCase")
     struct MonthComparisonUseCaseTests {
 

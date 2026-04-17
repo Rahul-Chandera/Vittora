@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 enum RecurringRuleMapper {
-    static func toEntity(_ model: SDRecurringRule) -> RecurringRuleEntity {
+    nonisolated static func toEntity(_ model: SDRecurringRule) -> RecurringRuleEntity {
         RecurringRuleEntity(
             id: model.id,
             frequency: model.frequency,
@@ -19,7 +19,7 @@ enum RecurringRuleMapper {
         )
     }
 
-    static func updateModel(_ model: SDRecurringRule, from entity: RecurringRuleEntity) {
+    nonisolated static func updateModel(_ model: SDRecurringRule, from entity: RecurringRuleEntity) {
         model.frequency = entity.frequency
         model.nextDate = entity.nextDate
         model.isActive = entity.isActive

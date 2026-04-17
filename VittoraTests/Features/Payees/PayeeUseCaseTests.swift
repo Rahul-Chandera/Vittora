@@ -3,11 +3,13 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("Payee Use Case Tests")
 struct PayeeUseCaseTests {
 
     // MARK: - FetchPayeesUseCase
 
+    @MainActor
     @Suite("FetchPayeesUseCase")
     struct FetchPayeesUseCaseTests {
         @Test("Execute returns payees sorted alphabetically")
@@ -56,6 +58,7 @@ struct PayeeUseCaseTests {
 
     // MARK: - CreatePayeeUseCase
 
+    @MainActor
     @Suite("CreatePayeeUseCase")
     struct CreatePayeeUseCaseTests {
         @Test("Creates a new business payee")
@@ -114,6 +117,7 @@ struct PayeeUseCaseTests {
 
     // MARK: - UpdatePayeeUseCase
 
+    @MainActor
     @Suite("UpdatePayeeUseCase")
     struct UpdatePayeeUseCaseTests {
         @Test("Updates payee name")
@@ -149,6 +153,7 @@ struct PayeeUseCaseTests {
 
     // MARK: - DeletePayeeUseCase
 
+    @MainActor
     @Suite("DeletePayeeUseCase")
     struct DeletePayeeUseCaseTests {
         @Test("Deletes payee with no transactions")
@@ -180,6 +185,7 @@ struct PayeeUseCaseTests {
 
     // MARK: - ImportContactsUseCase
 
+    @MainActor
     @Suite("ImportContactsUseCase")
     struct ImportContactsUseCaseTests {
         @Test("Imports unique contacts and skips duplicates")
@@ -284,6 +290,7 @@ struct PayeeUseCaseTests {
 
     // MARK: - PayeeAnalyticsUseCase
 
+    @MainActor
     @Suite("PayeeAnalyticsUseCase")
     struct PayeeAnalyticsUseCaseTests {
         @Test("Returns zero analytics for payee with no transactions")

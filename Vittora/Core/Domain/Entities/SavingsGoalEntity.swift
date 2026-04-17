@@ -113,7 +113,7 @@ struct SavingsGoalEntity: Identifiable, Hashable, Equatable, Sendable {
         return result
     }
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         name: String,
         category: GoalCategory = .other,

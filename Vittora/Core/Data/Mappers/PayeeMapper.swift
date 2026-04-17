@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 enum PayeeMapper {
-    static func toEntity(_ model: SDPayee) -> PayeeEntity {
+    nonisolated static func toEntity(_ model: SDPayee) -> PayeeEntity {
         PayeeEntity(
             id: model.id,
             name: model.name,
@@ -15,7 +15,7 @@ enum PayeeMapper {
         )
     }
 
-    static func updateModel(_ model: SDPayee, from entity: PayeeEntity) {
+    nonisolated static func updateModel(_ model: SDPayee, from entity: PayeeEntity) {
         model.name = entity.name
         model.type = entity.type
         model.phone = entity.phone

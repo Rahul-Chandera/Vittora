@@ -1,7 +1,7 @@
 import Foundation
 
 enum SavingsGoalMapper {
-    static func toEntity(_ model: SDSavingsGoal) -> SavingsGoalEntity {
+    nonisolated static func toEntity(_ model: SDSavingsGoal) -> SavingsGoalEntity {
         SavingsGoalEntity(
             id: model.id,
             name: model.name,
@@ -18,7 +18,7 @@ enum SavingsGoalMapper {
         )
     }
 
-    static func updateModel(_ model: SDSavingsGoal, from entity: SavingsGoalEntity) {
+    nonisolated static func updateModel(_ model: SDSavingsGoal, from entity: SavingsGoalEntity) {
         model.name = entity.name
         model.category = entity.category
         model.targetAmount = entity.targetAmount

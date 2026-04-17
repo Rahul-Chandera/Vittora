@@ -14,7 +14,7 @@ struct PayeeEntity: Identifiable, Hashable, Equatable, Sendable {
     var createdAt: Date
     var updatedAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         name: String,
         type: PayeeType = .business,

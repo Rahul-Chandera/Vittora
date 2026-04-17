@@ -40,7 +40,7 @@ struct BudgetEntity: Identifiable, Hashable, Equatable, Sendable {
 
     var isOverBudget: Bool { spent > amount }
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         amount: Decimal,
         spent: Decimal = 0,

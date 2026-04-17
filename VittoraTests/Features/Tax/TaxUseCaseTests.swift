@@ -3,9 +3,11 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("Tax Use Case Tests")
 struct TaxUseCaseTests {
 
+    @MainActor
     @Suite("IndiaTaxCalculator")
     struct IndiaTaxCalculatorTests {
         @Test("New regime rebate can reduce tax to zero for lower taxable income")
@@ -49,6 +51,7 @@ struct TaxUseCaseTests {
         }
     }
 
+    @MainActor
     @Suite("USTaxCalculator")
     struct USTaxCalculatorTests {
         @Test("Itemized mode uses custom deductions even when lower than standard")
@@ -95,6 +98,7 @@ struct TaxUseCaseTests {
         }
     }
 
+    @MainActor
     @Suite("CompareTaxRegimesUseCase")
     struct CompareTaxRegimesUseCaseTests {
         @Test("India comparison evaluates old and new regimes side by side")
@@ -141,6 +145,7 @@ struct TaxUseCaseTests {
         }
     }
 
+    @MainActor
     @Suite("FetchTaxCategoriesUseCase")
     struct FetchTaxCategoriesUseCaseTests {
         @Test("Expense categories with deduction-like names are returned")
@@ -160,6 +165,7 @@ struct TaxUseCaseTests {
         }
     }
 
+    @MainActor
     @Suite("GenerateTaxSummaryUseCase")
     struct GenerateTaxSummaryUseCaseTests {
         @Test("India summary uses April to March financial year and matched categories")

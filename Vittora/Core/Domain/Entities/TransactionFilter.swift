@@ -1,16 +1,16 @@
 import Foundation
 
 struct TransactionFilter: Sendable, Equatable {
-    var dateRange: ClosedRange<Date>?
-    var types: Set<TransactionType>?
-    var categoryIDs: Set<UUID>?
-    var accountIDs: Set<UUID>?
-    var payeeIDs: Set<UUID>?
-    var amountRange: ClosedRange<Decimal>?
-    var searchQuery: String?
-    var tags: Set<String>?
+    nonisolated var dateRange: ClosedRange<Date>?
+    nonisolated var types: Set<TransactionType>?
+    nonisolated var categoryIDs: Set<UUID>?
+    nonisolated var accountIDs: Set<UUID>?
+    nonisolated var payeeIDs: Set<UUID>?
+    nonisolated var amountRange: ClosedRange<Decimal>?
+    nonisolated var searchQuery: String?
+    nonisolated var tags: Set<String>?
 
-    init(
+    nonisolated init(
         dateRange: ClosedRange<Date>? = nil,
         types: Set<TransactionType>? = nil,
         categoryIDs: Set<UUID>? = nil,

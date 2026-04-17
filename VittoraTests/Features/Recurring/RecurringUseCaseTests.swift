@@ -3,6 +3,7 @@ import Testing
 
 @testable import Vittora
 
+@MainActor
 @Suite("Recurring Use Case Tests")
 struct RecurringUseCaseTests {
 
@@ -42,7 +43,7 @@ struct RecurringUseCaseTests {
         #expect(transactions[0].recurringRuleID == rule.id)
         #expect(transactions[0].accountID == account.id)
 
-        let accounts = await accountRepository.accounts
+        let accounts = accountRepository.accounts
         #expect(accounts.first?.balance == 425)
 
         let updatedRule = try await ruleRepository.fetchByID(rule.id)

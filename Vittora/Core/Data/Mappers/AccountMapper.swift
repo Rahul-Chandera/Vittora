@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 enum AccountMapper {
-    static func toEntity(_ model: SDAccount) -> AccountEntity {
+    nonisolated static func toEntity(_ model: SDAccount) -> AccountEntity {
         AccountEntity(
             id: model.id,
             name: model.name,
@@ -16,7 +16,7 @@ enum AccountMapper {
         )
     }
 
-    static func updateModel(_ model: SDAccount, from entity: AccountEntity) {
+    nonisolated static func updateModel(_ model: SDAccount, from entity: AccountEntity) {
         model.name = entity.name
         model.type = entity.type
         model.balance = entity.balance

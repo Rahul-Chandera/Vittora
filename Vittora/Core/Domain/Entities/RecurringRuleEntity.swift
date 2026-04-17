@@ -13,7 +13,7 @@ enum RecurrenceFrequency: Sendable, Hashable, Codable {
         case daily, weekly, biweekly, monthly, quarterly, yearly, custom
     }
 
-    init(from decoder: Decoder) throws {
+    nonisolated init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         if container.contains(.daily) {
             self = .daily
@@ -38,7 +38,7 @@ enum RecurrenceFrequency: Sendable, Hashable, Codable {
         }
     }
 
-    func encode(to encoder: Encoder) throws {
+    nonisolated func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
         case .daily:
@@ -73,7 +73,7 @@ struct RecurringRuleEntity: Identifiable, Hashable, Equatable, Sendable {
     var createdAt: Date
     var updatedAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         frequency: RecurrenceFrequency,
         nextDate: Date,

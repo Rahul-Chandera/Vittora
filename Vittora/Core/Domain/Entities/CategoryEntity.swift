@@ -16,7 +16,7 @@ struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
     var createdAt: Date
     var updatedAt: Date
 
-    init(
+    nonisolated init(
         id: UUID = UUID(),
         name: String,
         icon: String,
