@@ -1,0 +1,208 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Dashboard/Components/QuickActionGrid.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Expense",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 19
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add expense",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the expense transaction form",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add income",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the income transaction form",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transfer",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transfer funds",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the transfer form",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 43
+        }
+      },
+      {
+        "comment": "",
+        "key": "Budget",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 46
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create budget",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the budget form",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Quick Actions",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "Expense",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 19
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add expense",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the expense transaction form",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add income",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the income transaction form",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transfer",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transfer funds",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the transfer form",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 43
+        }
+      },
+      {
+        "comment": "",
+        "key": "Budget",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 46
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create budget",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the budget form",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 52
+        }
+      }
+    ]
+  },
+  "version": 1
+}

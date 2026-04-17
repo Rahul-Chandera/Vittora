@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataPayeeRepository.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Payee not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 45
+        }
+      },
+      {
+        "comment": "",
+        "key": "Payee not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 56
+        }
+      }
+    ]
+  },
+  "version": 1
+}

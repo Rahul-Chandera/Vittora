@@ -1,0 +1,64 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Budgets/Components/DailySpendChart.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Daily Spending",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "No transactions yet",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 35
+        }
+      },
+      {
+        "comment": "",
+        "key": "Budget Avg",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Day",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 45
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 46
+        }
+      },
+      {
+        "comment": "",
+        "key": "Daily Spend",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 75
+        }
+      },
+      {
+        "comment": "",
+        "key": "Daily Budget",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 84
+        }
+      }
+    ]
+  },
+  "version": 1
+}

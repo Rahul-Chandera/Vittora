@@ -1,0 +1,88 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Payees/Views/PayeeDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Payee not found",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "Edit",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "Contact",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 106
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recent Transactions",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 129
+        }
+      },
+      {
+        "comment": "",
+        "key": "Business",
+        "location": {
+          "startingColumn": 56,
+          "startingLine": 88
+        }
+      },
+      {
+        "comment": "",
+        "key": "Person",
+        "location": {
+          "startingColumn": 69,
+          "startingLine": 88
+        }
+      },
+      {
+        "comment": "",
+        "key": "Name",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 107
+        }
+      },
+      {
+        "comment": "",
+        "key": "Phone",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 109
+        }
+      },
+      {
+        "comment": "",
+        "key": "Email",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 112
+        }
+      },
+      {
+        "comment": "",
+        "key": "Notes",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 116
+        }
+      }
+    ]
+  },
+  "version": 1
+}

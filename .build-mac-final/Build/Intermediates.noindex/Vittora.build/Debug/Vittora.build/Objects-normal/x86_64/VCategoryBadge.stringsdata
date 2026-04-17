@@ -1,0 +1,32 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VCategoryBadge.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Regular Size",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "Compact Size",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "Various Colors",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 73
+        }
+      }
+    ]
+  },
+  "version": 1
+}

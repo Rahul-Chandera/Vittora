@@ -1,0 +1,88 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/Views/NetWorthReportView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't load net worth right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "Net Worth",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 78
+        }
+      },
+      {
+        "comment": "",
+        "key": "Assets",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "Liabilities",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 66
+        }
+      },
+      {
+        "comment": "",
+        "key": "Net Worth",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 100
+        }
+      },
+      {
+        "comment": "",
+        "key": "Total Assets",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 114
+        }
+      },
+      {
+        "comment": "",
+        "key": "Total Liabilities",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 123
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@, %@",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 204
+        }
+      },
+      {
+        "comment": "",
+        "key": "No accounts yet",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 223
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add accounts to track your net worth",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 226
+        }
+      }
+    ]
+  },
+  "version": 1
+}

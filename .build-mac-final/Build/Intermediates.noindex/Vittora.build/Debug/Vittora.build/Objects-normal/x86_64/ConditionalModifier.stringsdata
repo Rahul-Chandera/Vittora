@@ -1,0 +1,64 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Modifiers/ConditionalModifier.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Conditional Modifier Examples",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Basic if() modifier",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "This text responds to the toggle",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Apply Bold",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "ifElse() modifier",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Content changes based on state",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Show Loading",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 74
+        }
+      }
+    ]
+  },
+  "version": 1
+}

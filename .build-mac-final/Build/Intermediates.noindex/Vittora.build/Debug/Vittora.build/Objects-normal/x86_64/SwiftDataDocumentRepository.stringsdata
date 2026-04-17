@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataDocumentRepository.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Document not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "Document not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 55
+        }
+      }
+    ]
+  },
+  "version": 1
+}

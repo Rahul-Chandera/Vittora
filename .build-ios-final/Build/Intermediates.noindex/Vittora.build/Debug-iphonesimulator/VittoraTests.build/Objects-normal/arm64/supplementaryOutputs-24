@@ -1,0 +1,23 @@
+{
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Features/Reports/ChartAccessibilityDescriptorTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ChartAccessibilityDescriptorTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ChartAccessibilityDescriptorTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ChartAccessibilityDescriptorTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ChartAccessibilityDescriptorTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ChartAccessibilityDescriptorTests.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Features/Savings/SavingsGoalUseCaseTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/SavingsGoalUseCaseTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/SavingsGoalUseCaseTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/SavingsGoalUseCaseTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/SavingsGoalUseCaseTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/SavingsGoalUseCaseTests.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Features/Sync/ExportViewModelTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ExportViewModelTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ExportViewModelTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ExportViewModelTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ExportViewModelTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ExportViewModelTests.swiftdeps"
+  }
+}

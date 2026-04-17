@@ -52,7 +52,9 @@ final class TaxEstimateViewModel {
                 summary = nil
             }
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load your tax profile right now.")
+            )
         }
         isLoading = false
     }
@@ -91,7 +93,9 @@ final class TaxEstimateViewModel {
                 summary: summary
             )
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't export this tax report right now.")
+            )
         }
     }
 

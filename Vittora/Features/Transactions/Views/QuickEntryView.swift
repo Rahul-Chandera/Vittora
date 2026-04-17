@@ -86,7 +86,9 @@ struct QuickEntryView: View {
                                     try await Task.sleep(for: .milliseconds(300))
                                     dismiss()
                                 } catch {
-                                    vm.error = error.localizedDescription
+                                    vm.error = error.userFacingMessage(
+                                        fallback: String(localized: "We couldn't save this transaction.")
+                                    )
                                 }
                             }
                         } label: {
@@ -113,20 +115,6 @@ struct QuickEntryView: View {
                             .tint(VColors.primary)
                     }
                 }
-                .if(vm.error != nil) { view in
-                    view.overlay(alignment: .top) {
-                        VStack {
-                            Text(vm.error ?? "Unknown error")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(VSpacing.md)
-                                .background(VColors.expense)
-                                .cornerRadius(VSpacing.cornerRadiusSM)
-                                .padding(VSpacing.md)
-                            Spacer()
-                        }
-                    }
-                }
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
@@ -139,6 +127,7 @@ struct QuickEntryView: View {
                 }
             }
         }
+        .errorAlert(message: quickEntryErrorBinding)
         .task {
             if vm == nil {
                 vm = await createViewModel()
@@ -158,18 +147,27 @@ struct QuickEntryView: View {
 
         let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: categoryRepo)
         let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: accountRepo)
+        var didFailToLoadOptions = false
 
         do {
             let groupedCategories = try await fetchCategoriesUseCase.executeGrouped()
             categories = groupedCategories.expense
         } catch {
             categories = []
+            didFailToLoadOptions = true
         }
 
         do {
             accounts = try await fetchAccountsUseCase.execute()
         } catch {
             accounts = []
+            didFailToLoadOptions = true
+        }
+
+        if didFailToLoadOptions {
+            vm?.error = String(
+                localized: "Some quick entry options couldn't be loaded. Please try again."
+            )
         }
 
         if !accounts.isEmpty {
@@ -206,6 +204,15 @@ struct QuickEntryView: View {
         vm.type = .expense
 
         return vm
+    }
+
+    private var quickEntryErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
+        )
     }
 }
 

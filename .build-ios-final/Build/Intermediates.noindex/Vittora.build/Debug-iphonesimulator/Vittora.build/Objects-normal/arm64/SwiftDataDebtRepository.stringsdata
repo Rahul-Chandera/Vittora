@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataDebtRepository.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Debt entry not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debt entry not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 55
+        }
+      }
+    ]
+  },
+  "version": 1
+}

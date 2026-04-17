@@ -1,0 +1,170 @@
+{
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Components/GroupExpenseRowView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/GroupExpenseRowView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/GroupExpenseRowView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/GroupExpenseRowView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/GroupExpenseRowView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/GroupExpenseRowView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/ViewModels/AddGroupExpenseViewModel.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AddGroupExpenseViewModel.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AddGroupExpenseViewModel.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AddGroupExpenseViewModel.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AddGroupExpenseViewModel.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AddGroupExpenseViewModel.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/ViewModels/SplitGroupDetailViewModel.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupDetailViewModel.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupDetailViewModel.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupDetailViewModel.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupDetailViewModel.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupDetailViewModel.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/ViewModels/SplitGroupListViewModel.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupListViewModel.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupListViewModel.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupListViewModel.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupListViewModel.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupListViewModel.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Views/AddGroupExpenseView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AddGroupExpenseView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AddGroupExpenseView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AddGroupExpenseView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AddGroupExpenseView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AddGroupExpenseView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Views/SplitGroupDetailView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupDetailView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupDetailView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupDetailView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupDetailView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupDetailView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Views/SplitGroupFormView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupFormView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupFormView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupFormView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupFormView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupFormView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Views/SplitGroupListView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupListView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupListView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupListView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupListView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SplitGroupListView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Sync/DataManagementView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/DataManagementView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/DataManagementView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/DataManagementView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/DataManagementView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/DataManagementView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Sync/ExportProgressView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/ExportProgressView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/ExportProgressView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/ExportProgressView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/ExportProgressView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/ExportProgressView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Sync/ExportView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/ExportView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/ExportView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/ExportView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/ExportView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/ExportView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Sync/SyncStatusView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SyncStatusView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SyncStatusView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SyncStatusView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SyncStatusView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/SyncStatusView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Components/TaxAnnualSummaryCard.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxAnnualSummaryCard.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxAnnualSummaryCard.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxAnnualSummaryCard.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxAnnualSummaryCard.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxAnnualSummaryCard.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Components/TaxBracketBarView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxBracketBarView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxBracketBarView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxBracketBarView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxBracketBarView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxBracketBarView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Components/TaxDisclaimerView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxDisclaimerView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxDisclaimerView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxDisclaimerView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxDisclaimerView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxDisclaimerView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Components/TaxSummaryCard.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxSummaryCard.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxSummaryCard.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxSummaryCard.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxSummaryCard.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxSummaryCard.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/ViewModels/TaxEstimateViewModel.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxEstimateViewModel.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxEstimateViewModel.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxEstimateViewModel.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxEstimateViewModel.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxEstimateViewModel.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/ViewModels/TaxProfileFormViewModel.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxProfileFormViewModel.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxProfileFormViewModel.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxProfileFormViewModel.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxProfileFormViewModel.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxProfileFormViewModel.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Views/TaxBreakdownView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxBreakdownView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxBreakdownView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxBreakdownView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxBreakdownView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxBreakdownView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Views/TaxComparisonView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxComparisonView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxComparisonView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxComparisonView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxComparisonView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxComparisonView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Views/TaxDashboardView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxDashboardView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxDashboardView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxDashboardView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxDashboardView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxDashboardView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Views/TaxProfileFormView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxProfileFormView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxProfileFormView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxProfileFormView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxProfileFormView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/TaxProfileFormView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/Components/AmountInputView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AmountInputView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AmountInputView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AmountInputView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AmountInputView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/AmountInputView.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/Components/DateRangePickerView.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/DateRangePickerView.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/DateRangePickerView.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/DateRangePickerView.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/DateRangePickerView.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/Vittora.build/Objects-normal/arm64/DateRangePickerView.swiftdeps"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Documents/Views/DocumentImportView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Import",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "Import Document",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 19
+        }
+      },
+      {
+        "comment": "",
+        "key": "Supported: JPEG, PNG, PDF",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose File",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 56
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,48 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VCard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Standard Card",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 63
+        }
+      },
+      {
+        "comment": "",
+        "key": "This is a card with default styling.",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 63
+        }
+      },
+      {
+        "comment": "",
+        "key": "Elevated Card",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 63
+        }
+      },
+      {
+        "comment": "",
+        "key": "This card has more padding and a stronger shadow.",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 63
+        }
+      },
+      {
+        "comment": "",
+        "key": "Searchable card",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 63
+        }
+      }
+    ]
+  },
+  "version": 1
+}

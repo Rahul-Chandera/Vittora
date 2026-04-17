@@ -25,7 +25,7 @@ import Foundation
         do {
             let transactions = try await fetchUseCase.execute(filter: nil)
             guard let found = transactions.first(where: { $0.id == id }) else {
-                error = "Transaction not found"
+                error = String(localized: "We couldn't find this transaction.")
                 return
             }
             transaction = found
@@ -45,13 +45,15 @@ import Foundation
                 relatedTransactions = related.filter { $0.id != id }
             }
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load this transaction right now.")
+            )
         }
     }
 
     func delete() async throws {
         guard let transaction = transaction else {
-            throw VittoraError.notFound("Transaction not found")
+            throw VittoraError.notFound(String(localized: "Transaction"))
         }
         try await deleteUseCase.execute(id: transaction.id)
         self.transaction = nil
@@ -59,7 +61,7 @@ import Foundation
 
     func duplicate() async throws -> TransactionEntity {
         guard let transaction = transaction else {
-            throw VittoraError.notFound("Transaction not found")
+            throw VittoraError.notFound(String(localized: "Transaction"))
         }
 
         return TransactionEntity(

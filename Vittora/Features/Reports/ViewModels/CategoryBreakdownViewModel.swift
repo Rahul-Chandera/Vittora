@@ -30,7 +30,9 @@ final class CategoryBreakdownViewModel {
         do {
             breakdowns = try await useCase.execute(dateRange: dateRange, type: selectedType)
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load the category breakdown right now.")
+            )
         }
         isLoading = false
     }

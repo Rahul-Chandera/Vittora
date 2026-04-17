@@ -1,0 +1,48 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Accounts/Components/NetWorthCard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Net worth summary",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "Net worth %@, assets %@, liabilities %@",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Net Worth",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "Assets",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Liabilities",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 37
+        }
+      }
+    ]
+  },
+  "version": 1
+}

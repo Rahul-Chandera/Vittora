@@ -50,7 +50,9 @@ final class RecurringListViewModel {
             self.rules = fetchedRules
             self.costSummary = calculateCostUseCase.execute(rules: fetchedRules)
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load recurring transactions right now.")
+            )
         }
 
         isLoading = false
@@ -63,7 +65,9 @@ final class RecurringListViewModel {
             try await deleteUseCase.execute(id: id)
             await loadRules()
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't delete this recurring transaction.")
+            )
         }
     }
 
@@ -74,7 +78,9 @@ final class RecurringListViewModel {
             try await pauseResumeUseCase.execute(id: id)
             await loadRules()
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't update this recurring transaction right now.")
+            )
         }
     }
 
@@ -93,7 +99,7 @@ final class RecurringListViewModel {
             return "Quarterly"
         case .yearly:
             return "Yearly"
-        case .custom(let days):
+        case .custom:
             return "Custom"
         }
     }

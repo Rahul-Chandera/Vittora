@@ -1,0 +1,112 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Savings/Views/SavingsGoalListView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Error",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "Savings Goals",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 27
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 63
+        }
+      },
+      {
+        "comment": "",
+        "key": "Active",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 97
+        }
+      },
+      {
+        "comment": "",
+        "key": "Achieved 🎉",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld goal(s) past deadline",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 85
+        }
+      },
+      {
+        "comment": "",
+        "key": "Overall Progress",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 119
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld active · %lld achieved",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 133
+        }
+      },
+      {
+        "comment": "",
+        "key": "of",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 126
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 157
+        }
+      },
+      {
+        "comment": "",
+        "key": "No savings goals",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 171
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create a goal and track your progress toward financial milestones",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 174
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create Goal",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 178
+        }
+      }
+    ]
+  },
+  "version": 1
+}

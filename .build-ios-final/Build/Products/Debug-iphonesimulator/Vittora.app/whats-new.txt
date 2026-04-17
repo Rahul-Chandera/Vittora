@@ -1,0 +1,6 @@
+Version 0.1.0
+
+- Added tax comparison tools for India and the United States
+- Added annual tax activity summaries for tax-relevant spending
+- Improved sync conflict review and recurring transaction reliability
+- Expanded cross-platform stability for iPhone, iPad, and Mac

@@ -1,0 +1,177 @@
+{
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Models/SDTaxProfile.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SDTaxProfile.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SDTaxProfile.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SDTaxProfile.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SDTaxProfile.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SDTaxProfile.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Models/SDTransaction.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SDTransaction.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SDTransaction.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SDTransaction.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SDTransaction.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SDTransaction.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Persistence/DataExportService.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DataExportService.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DataExportService.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DataExportService.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DataExportService.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DataExportService.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Persistence/DataManagementService.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DataManagementService.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DataManagementService.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DataManagementService.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DataManagementService.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DataManagementService.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Persistence/DefaultDataSeeder.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DefaultDataSeeder.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DefaultDataSeeder.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DefaultDataSeeder.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DefaultDataSeeder.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DefaultDataSeeder.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Persistence/ModelContainerConfig.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ModelContainerConfig.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ModelContainerConfig.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ModelContainerConfig.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ModelContainerConfig.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ModelContainerConfig.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataAccountRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataAccountRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataAccountRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataAccountRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataAccountRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataAccountRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataBudgetRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataBudgetRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataBudgetRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataBudgetRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataBudgetRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataBudgetRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataCategoryRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataCategoryRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataCategoryRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataCategoryRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataCategoryRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataCategoryRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataDebtRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataDebtRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataDebtRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataDebtRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataDebtRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataDebtRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataDocumentRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataDocumentRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataDocumentRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataDocumentRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataDocumentRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataDocumentRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataPayeeRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataPayeeRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataPayeeRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataPayeeRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataPayeeRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataPayeeRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataRecurringRuleRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataRecurringRuleRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataRecurringRuleRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataRecurringRuleRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataRecurringRuleRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataRecurringRuleRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataSavingsGoalRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataSavingsGoalRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataSavingsGoalRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataSavingsGoalRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataSavingsGoalRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataSavingsGoalRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataSplitGroupRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataSplitGroupRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataSplitGroupRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataSplitGroupRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataSplitGroupRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataSplitGroupRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataTaxProfileRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataTaxProfileRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataTaxProfileRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataTaxProfileRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataTaxProfileRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataTaxProfileRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataTransactionRepository.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataTransactionRepository.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataTransactionRepository.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataTransactionRepository.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataTransactionRepository.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SwiftDataTransactionRepository.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/AccountEntity.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/AccountEntity.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/AccountEntity.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/AccountEntity.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/AccountEntity.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/AccountEntity.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/BudgetEntity.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/BudgetEntity.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/BudgetEntity.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/BudgetEntity.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/BudgetEntity.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/BudgetEntity.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/CategoryEntity.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CategoryEntity.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CategoryEntity.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CategoryEntity.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CategoryEntity.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CategoryEntity.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/CurrencyEntity.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CurrencyEntity.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CurrencyEntity.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CurrencyEntity.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CurrencyEntity.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CurrencyEntity.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/DebtEntry.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DebtEntry.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DebtEntry.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DebtEntry.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DebtEntry.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DebtEntry.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/DocumentEntity.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DocumentEntity.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DocumentEntity.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DocumentEntity.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DocumentEntity.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DocumentEntity.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/PayeeAnalytics.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PayeeAnalytics.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PayeeAnalytics.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PayeeAnalytics.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PayeeAnalytics.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PayeeAnalytics.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/PayeeEntity.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PayeeEntity.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PayeeEntity.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PayeeEntity.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PayeeEntity.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PayeeEntity.swiftdeps"
+  }
+}

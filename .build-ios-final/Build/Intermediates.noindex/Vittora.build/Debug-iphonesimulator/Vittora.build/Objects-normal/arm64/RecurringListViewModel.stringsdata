@@ -1,0 +1,32 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Recurring/ViewModels/RecurringListViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't load recurring transactions right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't delete this recurring transaction.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 69
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't update this recurring transaction right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 82
+        }
+      }
+    ]
+  },
+  "version": 1
+}

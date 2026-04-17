@@ -1,0 +1,88 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Budgets/Components/BudgetProgressRing.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Budget progress",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld percent, %@",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%%",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Over Budget",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 45
+        }
+      },
+      {
+        "comment": "",
+        "key": "Critical",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "Warning",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "On Track",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Safe",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 78
+        }
+      },
+      {
+        "comment": "",
+        "key": "Warning",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 78
+        }
+      },
+      {
+        "comment": "",
+        "key": "Over Budget",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 78
+        }
+      }
+    ]
+  },
+  "version": 1
+}

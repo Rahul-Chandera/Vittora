@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/ViewModels/CustomReportViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't generate this report right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 37
+        }
+      }
+    ]
+  },
+  "version": 1
+}

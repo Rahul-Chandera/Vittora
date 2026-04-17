@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Extensions/View+Navigation.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Back",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 39
+        }
+      }
+    ]
+  },
+  "version": 1
+}

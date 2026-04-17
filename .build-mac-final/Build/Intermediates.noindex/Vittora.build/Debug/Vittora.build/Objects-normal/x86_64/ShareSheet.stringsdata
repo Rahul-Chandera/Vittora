@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/ShareSheet.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "File ready to share",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 20
+        }
+      },
+      {
+        "comment": "",
+        "key": "Share File",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 25
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,88 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Sync/SyncStatusService.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Synced",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 14
+        }
+      },
+      {
+        "comment": "",
+        "key": "Syncing…",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 15
+        }
+      },
+      {
+        "comment": "",
+        "key": "Pending",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Offline",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 17
+        }
+      },
+      {
+        "comment": "",
+        "key": "Error: %@",
+        "location": {
+          "startingColumn": 56,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "No iCloud account. Sign in to Settings → Apple ID.",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 105
+        }
+      },
+      {
+        "comment": "",
+        "key": "iCloud access is restricted on this device.",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 108
+        }
+      },
+      {
+        "comment": "",
+        "key": "Could not determine iCloud status.",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 111
+        }
+      },
+      {
+        "comment": "",
+        "key": "iCloud is temporarily unavailable.",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 114
+        }
+      },
+      {
+        "comment": "",
+        "key": "Never",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 151
+        }
+      }
+    ]
+  },
+  "version": 1
+}

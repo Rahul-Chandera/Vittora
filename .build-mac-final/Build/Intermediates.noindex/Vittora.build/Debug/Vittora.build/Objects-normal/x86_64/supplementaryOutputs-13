@@ -1,0 +1,177 @@
+{
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Infrastructure/OCRService.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/OCRService.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/OCRService.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/OCRService.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/OCRService.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/OCRService.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Infrastructure/OCRServiceProtocol.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/OCRServiceProtocol.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/OCRServiceProtocol.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/OCRServiceProtocol.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/OCRServiceProtocol.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/OCRServiceProtocol.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Infrastructure/PerformanceLogger.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PerformanceLogger.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PerformanceLogger.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PerformanceLogger.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PerformanceLogger.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PerformanceLogger.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Infrastructure/ReceiptParserService.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ReceiptParserService.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ReceiptParserService.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ReceiptParserService.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ReceiptParserService.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ReceiptParserService.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Security/AppLockService.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/AppLockService.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/AppLockService.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/AppLockService.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/AppLockService.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/AppLockService.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Security/BiometricService.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/BiometricService.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/BiometricService.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/BiometricService.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/BiometricService.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/BiometricService.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Security/EncryptionService.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/EncryptionService.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/EncryptionService.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/EncryptionService.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/EncryptionService.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/EncryptionService.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Security/KeychainService.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/KeychainService.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/KeychainService.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/KeychainService.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/KeychainService.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/KeychainService.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Sync/CloudKitSyncMonitor.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CloudKitSyncMonitor.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CloudKitSyncMonitor.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CloudKitSyncMonitor.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CloudKitSyncMonitor.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CloudKitSyncMonitor.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Sync/SyncConflictHandler.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SyncConflictHandler.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SyncConflictHandler.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SyncConflictHandler.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SyncConflictHandler.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SyncConflictHandler.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Sync/SyncStatusService.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SyncStatusService.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SyncStatusService.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SyncStatusService.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SyncStatusService.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/SyncStatusService.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Accessibility/ChartAccessibilityDescriptors.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ChartAccessibilityDescriptors.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ChartAccessibilityDescriptors.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ChartAccessibilityDescriptors.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ChartAccessibilityDescriptors.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ChartAccessibilityDescriptors.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/ShareSheet.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ShareSheet.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ShareSheet.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ShareSheet.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ShareSheet.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ShareSheet.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VActionButton.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VActionButton.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VActionButton.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VActionButton.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VActionButton.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VActionButton.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VAmountText.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VAmountText.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VAmountText.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VAmountText.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VAmountText.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VAmountText.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VCard.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VCard.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VCard.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VCard.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VCard.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VCard.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VCategoryBadge.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VCategoryBadge.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VCategoryBadge.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VCategoryBadge.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VCategoryBadge.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VCategoryBadge.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VEmptyState.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VEmptyState.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VEmptyState.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VEmptyState.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VEmptyState.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VEmptyState.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VProgressBar.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VProgressBar.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VProgressBar.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VProgressBar.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VProgressBar.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VProgressBar.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VSearchBar.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VSearchBar.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VSearchBar.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VSearchBar.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VSearchBar.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VSearchBar.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VStatCard.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VStatCard.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VStatCard.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VStatCard.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VStatCard.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/VStatCard.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Modifiers/CardModifier.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CardModifier.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CardModifier.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CardModifier.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CardModifier.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CardModifier.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Modifiers/ConditionalModifier.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ConditionalModifier.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ConditionalModifier.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ConditionalModifier.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ConditionalModifier.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ConditionalModifier.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Modifiers/PlatformModifier.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PlatformModifier.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PlatformModifier.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PlatformModifier.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PlatformModifier.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/PlatformModifier.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Modifiers/ShimmerModifier.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ShimmerModifier.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ShimmerModifier.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ShimmerModifier.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ShimmerModifier.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/ShimmerModifier.swiftdeps"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/SplitGroup.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Equal",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 13
+        }
+      },
+      {
+        "comment": "",
+        "key": "Percentage",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 14
+        }
+      },
+      {
+        "comment": "",
+        "key": "Exact Amount",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 15
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shares",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 16
+        }
+      }
+    ]
+  },
+  "version": 1
+}

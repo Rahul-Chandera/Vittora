@@ -24,7 +24,9 @@ final class MonthlyOverviewViewModel {
         do {
             monthlyData = try await useCase.execute(monthCount: 12)
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load the monthly report right now.")
+            )
         }
         isLoading = false
     }

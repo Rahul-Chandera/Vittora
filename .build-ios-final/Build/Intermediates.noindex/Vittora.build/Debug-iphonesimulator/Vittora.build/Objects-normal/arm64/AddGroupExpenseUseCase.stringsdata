@@ -1,0 +1,32 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/AddGroupExpenseUseCase.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Amount must be greater than zero.",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 14
+        }
+      },
+      {
+        "comment": "",
+        "key": "Please select who paid.",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Split amounts (%@) must equal the total (%@).",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 18
+        }
+      }
+    ]
+  },
+  "version": 1
+}

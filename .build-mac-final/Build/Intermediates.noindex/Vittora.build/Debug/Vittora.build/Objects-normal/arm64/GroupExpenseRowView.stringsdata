@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Components/GroupExpenseRowView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "paid",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "·",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 32
+        }
+      }
+    ]
+  },
+  "version": 1
+}

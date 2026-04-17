@@ -1,0 +1,72 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Dashboard/Components/HeroSpendingCard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Monthly summary",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "This Month",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "Spent",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 17
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "Spent %@",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income %@",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 121
+        }
+      },
+      {
+        "comment": "",
+        "key": "Savings rate %lld percent",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 125
+        }
+      },
+      {
+        "comment": "",
+        "key": "Savings Rate",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 85
+        }
+      }
+    ]
+  },
+  "version": 1
+}

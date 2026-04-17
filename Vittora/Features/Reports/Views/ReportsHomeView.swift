@@ -8,7 +8,10 @@ struct ReportsHomeView: View {
         (.monthly, String(localized: "Monthly Overview"), String(localized: "Income vs expenses over 12 months"), "chart.bar.fill", .blue),
         (.category, String(localized: "Category Breakdown"), String(localized: "Spending by category with percentages"), "chart.pie.fill", .orange),
         (.trends, String(localized: "Spending Trends"), String(localized: "Daily, weekly, or monthly trend chart"), "chart.line.uptrend.xyaxis", .purple),
-        (.custom, String(localized: "Custom Report"), String(localized: "Filter by date, group by category or account"), "slider.horizontal.3", .teal)
+        (.custom, String(localized: "Custom Report"), String(localized: "Filter by date, group by category or account"), "slider.horizontal.3", .teal),
+        (.annual, String(localized: "Annual Summary"), String(localized: "Review yearly income, spending, and monthly totals"), "calendar", .indigo),
+        (.cashFlow, String(localized: "Cash Flow"), String(localized: "Track inflows and outflows over time"), "waveform.path.ecg", .green),
+        (.netWorth, String(localized: "Net Worth"), String(localized: "See how your total balance changes over time"), "chart.line.uptrend.xyaxis.circle.fill", .pink)
     ]
 
     var body: some View {
@@ -48,6 +51,7 @@ struct ReportsHomeView: View {
                 await vm?.load()
             }
         }
+        .errorAlert(message: reportsHomeErrorBinding)
     }
 
     @ViewBuilder
@@ -95,10 +99,22 @@ struct ReportsHomeView: View {
             SpendingTrendsView()
         case .custom:
             CustomReportView()
-        default:
-            Text(String(localized: "Coming Soon"))
-                .foregroundColor(VColors.textSecondary)
+        case .annual:
+            AnnualReportView()
+        case .cashFlow:
+            CashFlowReportView()
+        case .netWorth:
+            NetWorthReportView()
         }
+    }
+
+    private var reportsHomeErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
+        )
     }
 }
 

@@ -1,0 +1,64 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/App/UITesting/UITestDataSeeder.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "UI Test Checking",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Groceries",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "Salary",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "Coffee Run",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "Monthly Salary",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "UI Test Checking",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 100
+        }
+      },
+      {
+        "comment": "",
+        "key": "UI Test Savings",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 108
+        }
+      }
+    ]
+  },
+  "version": 1
+}

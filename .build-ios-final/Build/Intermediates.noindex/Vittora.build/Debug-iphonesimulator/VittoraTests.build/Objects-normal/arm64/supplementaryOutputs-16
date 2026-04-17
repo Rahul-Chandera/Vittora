@@ -1,0 +1,30 @@
+{
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Core/Domain/Entities/AccountEntityTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/AccountEntityTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/AccountEntityTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/AccountEntityTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/AccountEntityTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/AccountEntityTests.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Core/Domain/Entities/BudgetEntityTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/BudgetEntityTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/BudgetEntityTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/BudgetEntityTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/BudgetEntityTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/BudgetEntityTests.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Core/Domain/Entities/CategoryEntityTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/CategoryEntityTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/CategoryEntityTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/CategoryEntityTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/CategoryEntityTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/CategoryEntityTests.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Core/Domain/Entities/PayeeEntityTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeEntityTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeEntityTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeEntityTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeEntityTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeEntityTests.swiftdeps"
+  }
+}

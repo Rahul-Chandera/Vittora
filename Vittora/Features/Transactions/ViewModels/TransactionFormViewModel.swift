@@ -66,6 +66,7 @@ import Foundation
 
         isLoading = true
         defer { isLoading = false }
+        error = nil
 
         do {
             suggestedCategoryID = try await smartCategorizeUseCase.execute(
@@ -73,7 +74,9 @@ import Foundation
                 amount: amount
             )
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't suggest a category right now.")
+            )
         }
     }
 
@@ -85,6 +88,7 @@ import Foundation
 
         isLoading = true
         defer { isLoading = false }
+        error = nil
 
         do {
             duplicateWarning = try await duplicateDetectionUseCase.execute(
@@ -94,7 +98,9 @@ import Foundation
                 accountID: accountID
             )
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't check for duplicate transactions right now.")
+            )
         }
     }
 
@@ -113,11 +119,13 @@ import Foundation
 
     func save() async throws {
         guard canSave else {
-            throw VittoraError.validationFailed("Amount must be greater than zero and account must be selected")
+            throw VittoraError.validationFailed(
+                String(localized: "Amount must be greater than zero and an account must be selected.")
+            )
         }
 
         guard let accountID = selectedAccountID else {
-            throw VittoraError.validationFailed("Account is required")
+            throw VittoraError.validationFailed(String(localized: "An account is required."))
         }
 
         if isEditing, let editingID = editingID {

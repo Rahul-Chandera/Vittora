@@ -37,6 +37,7 @@ struct MonthlyOverviewView: View {
                 await vm?.load()
             }
         }
+        .errorAlert(message: monthlyOverviewErrorBinding)
     }
 
     @ViewBuilder
@@ -123,6 +124,15 @@ struct MonthlyOverviewView: View {
         formatter.currencyCode = currencyCode
         formatter.maximumFractionDigits = 0
         return formatter.string(from: amount as NSDecimalNumber) ?? "$0"
+    }
+
+    private var monthlyOverviewErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
+        )
     }
 }
 

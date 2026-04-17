@@ -1,0 +1,136 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Savings/Views/SavingsGoalDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Error",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "Edit",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 35
+        }
+      },
+      {
+        "comment": "",
+        "key": "Resume",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "Pause",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 69
+        }
+      },
+      {
+        "comment": "",
+        "key": "Note",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 101
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ remaining",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 135
+        }
+      },
+      {
+        "comment": "",
+        "key": "saved of %@",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 129
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld days overdue",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 155
+        }
+      },
+      {
+        "comment": "",
+        "key": "Due today!",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 157
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld days remaining",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 158
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save monthly to hit deadline",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 181
+        }
+      },
+      {
+        "comment": "",
+        "key": "/month",
+        "location": {
+          "startingColumn": 91,
+          "startingLine": 184
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add Contribution",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 198
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 205
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 216
+        }
+      }
+    ]
+  },
+  "version": 1
+}

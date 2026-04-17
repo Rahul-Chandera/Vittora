@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Infrastructure/Tax/USTaxCalculator.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%@ · Standard Deduction",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 91
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ · Itemized Deductions",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 93
+        }
+      }
+    ]
+  },
+  "version": 1
+}

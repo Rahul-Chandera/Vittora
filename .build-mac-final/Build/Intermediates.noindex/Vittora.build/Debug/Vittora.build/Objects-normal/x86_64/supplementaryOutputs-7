@@ -1,0 +1,177 @@
+{
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CalculateDebtBalanceUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateDebtBalanceUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateDebtBalanceUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateDebtBalanceUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateDebtBalanceUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateDebtBalanceUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CalculateNetWorthUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateNetWorthUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateNetWorthUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateNetWorthUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateNetWorthUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateNetWorthUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CalculateSubscriptionCostUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateSubscriptionCostUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateSubscriptionCostUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateSubscriptionCostUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateSubscriptionCostUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CalculateSubscriptionCostUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CategoryBreakdownUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CategoryBreakdownUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CategoryBreakdownUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CategoryBreakdownUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CategoryBreakdownUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CategoryBreakdownUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CheckBudgetThresholdUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CheckBudgetThresholdUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CheckBudgetThresholdUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CheckBudgetThresholdUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CheckBudgetThresholdUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CheckBudgetThresholdUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CompareTaxRegimesUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CompareTaxRegimesUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CompareTaxRegimesUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CompareTaxRegimesUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CompareTaxRegimesUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CompareTaxRegimesUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CopyBudgetTemplateUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CopyBudgetTemplateUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CopyBudgetTemplateUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CopyBudgetTemplateUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CopyBudgetTemplateUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CopyBudgetTemplateUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CreateAccountUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateAccountUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateAccountUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateAccountUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateAccountUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateAccountUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CreateBudgetUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateBudgetUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateBudgetUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateBudgetUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateBudgetUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateBudgetUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CreateCategoryUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateCategoryUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateCategoryUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateCategoryUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateCategoryUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateCategoryUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CreateDebtEntryUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateDebtEntryUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateDebtEntryUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateDebtEntryUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateDebtEntryUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateDebtEntryUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CreatePayeeUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreatePayeeUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreatePayeeUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreatePayeeUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreatePayeeUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreatePayeeUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CreateRecurringRuleUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateRecurringRuleUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateRecurringRuleUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateRecurringRuleUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateRecurringRuleUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateRecurringRuleUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CreateSplitGroupUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateSplitGroupUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateSplitGroupUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateSplitGroupUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateSplitGroupUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CreateSplitGroupUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CustomReportUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CustomReportUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CustomReportUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CustomReportUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CustomReportUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/CustomReportUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/DashboardDataUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DashboardDataUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DashboardDataUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DashboardDataUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DashboardDataUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DashboardDataUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/DeleteAccountUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteAccountUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteAccountUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteAccountUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteAccountUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteAccountUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/DeleteBudgetUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteBudgetUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteBudgetUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteBudgetUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteBudgetUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteBudgetUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/DeleteCategoryUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteCategoryUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteCategoryUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteCategoryUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteCategoryUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteCategoryUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/DeleteDocumentUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteDocumentUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteDocumentUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteDocumentUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteDocumentUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteDocumentUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/DeletePayeeUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeletePayeeUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeletePayeeUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeletePayeeUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeletePayeeUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeletePayeeUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/DeleteRecurringRuleUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteRecurringRuleUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteRecurringRuleUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteRecurringRuleUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteRecurringRuleUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteRecurringRuleUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/DeleteTransactionUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteTransactionUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteTransactionUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteTransactionUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteTransactionUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DeleteTransactionUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/DuplicateDetectionUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DuplicateDetectionUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DuplicateDetectionUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DuplicateDetectionUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DuplicateDetectionUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/DuplicateDetectionUseCase.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/EstimateTaxUseCase.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/EstimateTaxUseCase.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/EstimateTaxUseCase.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/EstimateTaxUseCase.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/EstimateTaxUseCase.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-mac-final/Build/Intermediates.noindex/Vittora.build/Debug/Vittora.build/Objects-normal/x86_64/EstimateTaxUseCase.swiftdeps"
+  }
+}

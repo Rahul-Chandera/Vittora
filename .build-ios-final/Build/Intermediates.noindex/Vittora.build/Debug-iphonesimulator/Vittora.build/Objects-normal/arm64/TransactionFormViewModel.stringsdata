@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/ViewModels/TransactionFormViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't suggest a category right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 78
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't check for duplicate transactions right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "An account is required.",
+        "location": {
+          "startingColumn": 67,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount must be greater than zero and an account must be selected.",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 123
+        }
+      }
+    ]
+  },
+  "version": 1
+}

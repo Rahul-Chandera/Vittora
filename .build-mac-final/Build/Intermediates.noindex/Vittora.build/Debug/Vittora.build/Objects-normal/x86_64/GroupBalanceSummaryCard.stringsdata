@@ -1,0 +1,48 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Components/GroupBalanceSummaryCard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Settle Up",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "All settled up!",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "Unknown",
+        "location": {
+          "startingColumn": 94,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "Unknown",
+        "location": {
+          "startingColumn": 90,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "owes",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 64
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,256 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Sync/DataManagementView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Manage Data",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear %@?",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 170
+        }
+      },
+      {
+        "comment": "",
+        "key": "Factory Reset?",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 182
+        }
+      },
+      {
+        "comment": "",
+        "key": "Database",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 111
+        }
+      },
+      {
+        "comment": "",
+        "key": "Load Statistics",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 104
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transactions",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 87
+        }
+      },
+      {
+        "comment": "",
+        "key": "Accounts",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 88
+        }
+      },
+      {
+        "comment": "",
+        "key": "Categories",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 89
+        }
+      },
+      {
+        "comment": "",
+        "key": "Budgets",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 90
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debts",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 91
+        }
+      },
+      {
+        "comment": "",
+        "key": "Savings Goals",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 92
+        }
+      },
+      {
+        "comment": "",
+        "key": "Split Groups",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 93
+        }
+      },
+      {
+        "comment": "",
+        "key": "Documents",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 94
+        }
+      },
+      {
+        "comment": "",
+        "key": "Total records",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 99
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export as CSV",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 115
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 121
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear %@",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 133
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clearing…",
+        "location": {
+          "startingColumn": 73,
+          "startingLine": 131
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear Data",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 138
+        }
+      },
+      {
+        "comment": "",
+        "key": "Permanently deletes the selected data. This cannot be undone.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 140
+        }
+      },
+      {
+        "comment": "",
+        "key": "Factory Reset",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 149
+        }
+      },
+      {
+        "comment": "",
+        "key": "Deletes ALL data including accounts and categories, and resets onboarding.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 153
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete %@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 174
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 177
+        }
+      },
+      {
+        "comment": "",
+        "key": "This will permanently delete all %@. This cannot be undone.",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 179
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reset Everything",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 186
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 189
+        }
+      },
+      {
+        "comment": "",
+        "key": "This will permanently erase ALL your data and reset the app to its initial state. This cannot be undone.",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 191
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 202
+        }
+      }
+    ]
+  },
+  "version": 1
+}

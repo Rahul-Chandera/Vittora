@@ -1,0 +1,208 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Views/AddGroupExpenseView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Add Expense",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 94
+        }
+      },
+      {
+        "comment": "",
+        "key": "Expense",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "Paid By",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "Split Method",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "Note",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 81
+        }
+      },
+      {
+        "comment": "",
+        "key": "What was it for?",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "Date",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "$",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 27
+        }
+      },
+      {
+        "comment": "",
+        "key": "Who paid?",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select…",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "Unknown",
+        "location": {
+          "startingColumn": 74,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "Method",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Splits",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "Remaining: %@",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Optional",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 82
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 100
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 103
+        }
+      },
+      {
+        "comment": "",
+        "key": "%",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 149
+        }
+      },
+      {
+        "comment": "",
+        "key": "$",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 151
+        }
+      },
+      {
+        "comment": "",
+        "key": "shares",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 167
+        }
+      },
+      {
+        "comment": "",
+        "key": "=",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 169
+        }
+      },
+      {
+        "comment": "",
+        "key": "0",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 142
+        }
+      },
+      {
+        "comment": "",
+        "key": "0.00",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 152
+        }
+      },
+      {
+        "comment": "",
+        "key": "1",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 160
+        }
+      }
+    ]
+  },
+  "version": 1
+}

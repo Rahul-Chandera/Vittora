@@ -1,0 +1,23 @@
+{
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Core/Sync/SyncStatusServiceTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/SyncStatusServiceTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/SyncStatusServiceTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/SyncStatusServiceTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/SyncStatusServiceTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/SyncStatusServiceTests.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Extensions/ColorHexTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ColorHexTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ColorHexTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ColorHexTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ColorHexTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/ColorHexTests.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Extensions/DateFormattingTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/DateFormattingTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/DateFormattingTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/DateFormattingTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/DateFormattingTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/DateFormattingTests.swiftdeps"
+  }
+}

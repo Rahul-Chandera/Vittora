@@ -1,0 +1,23 @@
+{
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Features/Payees/PayeeListViewModelTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeListViewModelTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeListViewModelTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeListViewModelTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeListViewModelTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeListViewModelTests.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Features/Payees/PayeeUseCaseTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeUseCaseTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeUseCaseTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeUseCaseTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeUseCaseTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/PayeeUseCaseTests.swiftdeps"
+  },
+  "/Volumes/Data/Projects/Vittora/Vittora/VittoraTests/Features/Recurring/RecurringUseCaseTests.swift" : {
+    "const-values" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/RecurringUseCaseTests.swiftconstvalues",
+    "dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/RecurringUseCaseTests.d",
+    "diagnostics" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/RecurringUseCaseTests.dia",
+    "object" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/RecurringUseCaseTests.o",
+    "swift-dependencies" : "/Volumes/Data/Projects/Vittora/Vittora/.build-ios-final/Build/Intermediates.noindex/Vittora.build/Debug-iphonesimulator/VittoraTests.build/Objects-normal/arm64/RecurringUseCaseTests.swiftdeps"
+  }
+}

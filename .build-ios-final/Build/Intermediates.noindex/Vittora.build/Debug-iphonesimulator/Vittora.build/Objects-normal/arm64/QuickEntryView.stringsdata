@@ -1,0 +1,64 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/Views/QuickEntryView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Account",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select account",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 27
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't save this transaction.",
+        "location": {
+          "startingColumn": 69,
+          "startingLine": 90
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save Transaction",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 95
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 123
+        }
+      },
+      {
+        "comment": "",
+        "key": "Some quick entry options couldn't be loaded. Please try again.",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 169
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,88 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Views/SplitGroupListView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Error",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "Split Expenses",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 21
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "No groups yet",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create a group to track shared expenses with friends or family",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 99
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create Group",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 103
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld members",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 138
+        }
+      },
+      {
+        "comment": "",
+        "key": "·",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 143
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld outstanding",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 145
+        }
+      },
+      {
+        "comment": "",
+        "key": "total",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 157
+        }
+      }
+    ]
+  },
+  "version": 1
+}

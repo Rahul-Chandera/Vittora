@@ -1,0 +1,56 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Persistence/DataExportService.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Failed to encode CSV as UTF-8",
+        "location": {
+          "startingColumn": 63,
+          "startingLine": 275
+        }
+      },
+      {
+        "comment": "",
+        "key": "Failed to write CSV: %@",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 283
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ transaction(s)",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 230
+        }
+      },
+      {
+        "comment": "",
+        "key": "India Regime Comparison",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 254
+        }
+      },
+      {
+        "comment": "",
+        "key": "US Deduction Comparison",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 256
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tie",
+        "location": {
+          "startingColumn": 112,
+          "startingLine": 200
+        }
+      }
+    ]
+  },
+  "version": 1
+}

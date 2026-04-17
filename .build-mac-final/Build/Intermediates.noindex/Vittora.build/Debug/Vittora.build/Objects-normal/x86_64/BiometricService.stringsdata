@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Security/BiometricService.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "Biometric authentication is locked out. Please use your device passcode.",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 56
+        }
+      },
+      {
+        "comment": "",
+        "key": "Biometric authentication is not available on this device.",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "No biometric data is enrolled. Please set up Face ID or Touch ID.",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 64
+        }
+      }
+    ]
+  },
+  "version": 1
+}

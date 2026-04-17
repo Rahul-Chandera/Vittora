@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Navigation/QuickEntryButton.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Add Transaction",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 18
+        }
+      }
+    ]
+  },
+  "version": 1
+}

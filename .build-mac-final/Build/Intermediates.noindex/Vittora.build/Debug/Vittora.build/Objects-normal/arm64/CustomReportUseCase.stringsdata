@@ -1,0 +1,72 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CustomReportUseCase.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Category",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 8
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 9
+        }
+      },
+      {
+        "comment": "",
+        "key": "Payee",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 10
+        }
+      },
+      {
+        "comment": "",
+        "key": "Month",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "Uncategorized",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "Unknown Account",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "Unknown Payee",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Unknown",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 97
+        }
+      }
+    ]
+  },
+  "version": 1
+}

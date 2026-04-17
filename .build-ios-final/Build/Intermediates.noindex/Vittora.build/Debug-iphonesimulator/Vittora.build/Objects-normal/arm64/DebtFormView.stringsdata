@@ -1,0 +1,128 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Debt/Views/DebtFormView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Add Debt",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "Direction",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 14
+        }
+      },
+      {
+        "comment": "",
+        "key": "Details",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "Due Date",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Note",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Type",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 15
+        }
+      },
+      {
+        "comment": "",
+        "key": "Person / Business",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select…",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "$",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 32
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "Set Due Date",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "Due",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 45
+        }
+      },
+      {
+        "comment": "",
+        "key": "Optional note",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 53
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 67
+        }
+      }
+    ]
+  },
+  "version": 1
+}

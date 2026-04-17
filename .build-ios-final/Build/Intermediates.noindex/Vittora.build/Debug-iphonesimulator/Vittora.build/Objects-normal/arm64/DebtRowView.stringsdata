@@ -1,0 +1,32 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Debt/Components/DebtRowView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "owes you %@",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "you owe %@",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "Overdue",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 45
+        }
+      }
+    ]
+  },
+  "version": 1
+}

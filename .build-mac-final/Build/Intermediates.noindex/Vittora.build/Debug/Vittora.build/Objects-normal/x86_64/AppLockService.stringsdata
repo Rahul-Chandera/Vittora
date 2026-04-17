@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Security/AppLockService.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Unlock Vittora to continue",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 38
+        }
+      }
+    ]
+  },
+  "version": 1
+}

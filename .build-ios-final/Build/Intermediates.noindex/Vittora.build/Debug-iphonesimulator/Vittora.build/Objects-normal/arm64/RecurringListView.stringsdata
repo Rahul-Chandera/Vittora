@@ -1,0 +1,96 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Recurring/Views/RecurringListView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Recurring Transactions",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 161
+        }
+      },
+      {
+        "comment": "",
+        "key": "Monthly Spend",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "per month",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "per year",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld active %@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "No Recurring Transactions",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create your first recurring transaction to get started",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 77
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add Recurring Transaction",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Pause",
+        "location": {
+          "startingColumn": 69,
+          "startingLine": 110
+        }
+      },
+      {
+        "comment": "",
+        "key": "Resume",
+        "location": {
+          "startingColumn": 79,
+          "startingLine": 110
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 122
+        }
+      }
+    ]
+  },
+  "version": 1
+}

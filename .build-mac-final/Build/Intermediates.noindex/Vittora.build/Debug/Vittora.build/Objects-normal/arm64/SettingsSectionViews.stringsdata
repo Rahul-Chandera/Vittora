@@ -1,0 +1,192 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Settings/Views/SettingsSectionViews.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Profile",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Display Name",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your name",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 13
+        }
+      },
+      {
+        "comment": "",
+        "key": "Currency",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select Currency",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 32
+        }
+      },
+      {
+        "comment": "",
+        "key": "Appearance",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Theme",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "Security",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 105
+        }
+      },
+      {
+        "comment": "",
+        "key": "App Lock",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 99
+        }
+      },
+      {
+        "comment": "",
+        "key": "Require biometrics or passcode when opening Vittora.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 101
+        }
+      },
+      {
+        "comment": "",
+        "key": "Notifications",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 144
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enable Notifications",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 138
+        }
+      },
+      {
+        "comment": "",
+        "key": "Receive reminders for bill due dates, budget limits, and goal milestones.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 140
+        }
+      },
+      {
+        "comment": "",
+        "key": "About Vittora",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 204
+        }
+      },
+      {
+        "comment": "",
+        "key": "Legal",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 178
+        }
+      },
+      {
+        "comment": "",
+        "key": "Version",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 160
+        }
+      },
+      {
+        "comment": "",
+        "key": "v%@ (%@)",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 162
+        }
+      },
+      {
+        "comment": "",
+        "key": "Platform",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 166
+        }
+      },
+      {
+        "comment": "",
+        "key": "macOS",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 172
+        }
+      },
+      {
+        "comment": "",
+        "key": "Privacy Policy",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 179
+        }
+      },
+      {
+        "comment": "",
+        "key": "Terms of Service",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 182
+        }
+      },
+      {
+        "comment": "",
+        "key": "Vittora",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 192
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your personal finance companion",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 195
+        }
+      }
+    ]
+  },
+  "version": 1
+}

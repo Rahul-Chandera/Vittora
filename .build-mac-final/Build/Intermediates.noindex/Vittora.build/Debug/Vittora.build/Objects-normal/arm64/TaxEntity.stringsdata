@@ -1,0 +1,72 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/TaxEntity.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "India",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "United States",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "New Regime",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Old Regime",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "Single",
+        "location": {
+          "startingColumn": 66,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Married Filing Jointly",
+        "location": {
+          "startingColumn": 66,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Married Filing Separately",
+        "location": {
+          "startingColumn": 66,
+          "startingLine": 53
+        }
+      },
+      {
+        "comment": "",
+        "key": "Head of Household",
+        "location": {
+          "startingColumn": 66,
+          "startingLine": 54
+        }
+      }
+    ]
+  },
+  "version": 1
+}

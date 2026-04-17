@@ -1,0 +1,64 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VAmountText.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Large Amounts",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 130
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 130
+        }
+      },
+      {
+        "comment": "",
+        "key": "Expense",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 130
+        }
+      },
+      {
+        "comment": "",
+        "key": "Medium Amounts",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 130
+        }
+      },
+      {
+        "comment": "",
+        "key": "Auto (Positive)",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 130
+        }
+      },
+      {
+        "comment": "",
+        "key": "Auto (Negative)",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 130
+        }
+      },
+      {
+        "comment": "",
+        "key": "Small & Caption Amounts",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 130
+        }
+      }
+    ]
+  },
+  "version": 1
+}

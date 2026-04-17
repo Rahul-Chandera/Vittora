@@ -1,0 +1,216 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Sync/SyncStatusView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Sync status: %@",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Review",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "iCloud Sync",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 178
+        }
+      },
+      {
+        "comment": "",
+        "key": "Refresh",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 66
+        }
+      },
+      {
+        "comment": "",
+        "key": "Last synced",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "iCloud account",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 80
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connected",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Unavailable",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Status",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 90
+        }
+      },
+      {
+        "comment": "",
+        "key": "Error",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 103
+        }
+      },
+      {
+        "comment": "",
+        "key": "Newest update wins automatically",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 109
+        }
+      },
+      {
+        "comment": "",
+        "key": "When CloudKit reports a merge conflict, Vittora keeps the newest version by timestamp and logs the decision here for review.",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 112
+        }
+      },
+      {
+        "comment": "",
+        "key": "Conflict Handling",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 118
+        }
+      },
+      {
+        "comment": "",
+        "key": "The conflict log keeps the 20 most recent automatic resolutions so you can audit what happened after sync completes.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld recent sync conflicts were resolved automatically.",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 141
+        }
+      },
+      {
+        "comment": "",
+        "key": "No recent sync conflicts",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recent iCloud merges have completed without any logged conflicts.",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 131
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear Reviewed Conflicts",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 160
+        }
+      },
+      {
+        "comment": "",
+        "key": "Conflict Review",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 164
+        }
+      },
+      {
+        "comment": "",
+        "key": "The current CloudKit integration logs timestamps and outcomes for automatic resolutions. More detailed record snapshots can be added later without changing this review flow.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 166
+        }
+      },
+      {
+        "comment": "",
+        "key": "Vittora uses CloudKit to automatically sync your data across all your Apple devices signed into the same iCloud account. No manual steps needed.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 171
+        }
+      },
+      {
+        "comment": "",
+        "key": "About iCloud Sync",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 175
+        }
+      },
+      {
+        "comment": "",
+        "key": "Local version kept",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 237
+        }
+      },
+      {
+        "comment": "",
+        "key": "Remote version kept",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 239
+        }
+      },
+      {
+        "comment": "",
+        "key": "Local",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 220
+        }
+      },
+      {
+        "comment": "",
+        "key": "Remote",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 225
+        }
+      }
+    ]
+  },
+  "version": 1
+}

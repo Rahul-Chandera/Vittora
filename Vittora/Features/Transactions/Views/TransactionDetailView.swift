@@ -144,7 +144,9 @@ struct TransactionDetailView: View {
                                         try await vm.delete()
                                         dismiss()
                                     } catch {
-                                        vm.error = error.localizedDescription
+                                        vm.error = error.userFacingMessage(
+                                            fallback: String(localized: "We couldn't delete this transaction.")
+                                        )
                                     }
                                 }
                             } label: {
@@ -156,25 +158,28 @@ struct TransactionDetailView: View {
                         }
                     }
                 }
-                .if(vm.error != nil) { view in
-                    view.overlay(alignment: .top) {
-                        VStack {
-                            Text(vm.error ?? "Unknown error")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(VSpacing.md)
-                                .background(VColors.expense)
-                                .cornerRadius(VSpacing.cornerRadiusSM)
-                                .padding(VSpacing.md)
-                            Spacer()
-                        }
-                    }
-                }
             } else if let vm = vm, vm.isLoading {
                 ProgressView()
                     .tint(VColors.primary)
+            } else if let vm = vm {
+                VStack(spacing: VSpacing.lg) {
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.system(size: 48))
+                        .foregroundColor(VColors.textSecondary)
+
+                    Text(String(localized: "Transaction unavailable"))
+                        .font(VTypography.title3)
+                        .foregroundColor(VColors.textPrimary)
+
+                    Text(vm.error ?? String(localized: "This transaction could not be loaded."))
+                        .font(VTypography.callout)
+                        .foregroundColor(VColors.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(VSpacing.lg)
             }
         }
+        .errorAlert(message: transactionDetailErrorBinding)
         .task {
             if vm == nil {
                 vm = await createViewModel()
@@ -266,6 +271,15 @@ struct TransactionDetailView: View {
         return TransactionDetailViewModel(
             fetchUseCase: fetchUseCase,
             deleteUseCase: deleteUseCase
+        )
+    }
+
+    private var transactionDetailErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
         )
     }
 }

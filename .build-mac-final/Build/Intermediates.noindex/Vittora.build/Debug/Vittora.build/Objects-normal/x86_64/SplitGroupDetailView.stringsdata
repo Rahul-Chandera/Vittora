@@ -1,0 +1,96 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Views/SplitGroupDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Error",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 81
+        }
+      },
+      {
+        "comment": "",
+        "key": "Edit Group",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settle All",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 43
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 85
+        }
+      },
+      {
+        "comment": "",
+        "key": "Outstanding",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 107
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settled",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 116
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 175
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settle",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 182
+        }
+      },
+      {
+        "comment": "",
+        "key": "No expenses yet",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 203
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add the first shared expense for this group",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 206
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add Expense",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 210
+        }
+      }
+    ]
+  },
+  "version": 1
+}

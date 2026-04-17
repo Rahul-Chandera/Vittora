@@ -57,6 +57,7 @@ struct CategoryBreakdownView: View {
                 await vm?.load()
             }
         }
+        .errorAlert(message: categoryBreakdownErrorBinding)
     }
 
     @ViewBuilder
@@ -144,6 +145,15 @@ struct CategoryBreakdownView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(VSpacing.xxxl)
+    }
+
+    private var categoryBreakdownErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
+        )
     }
 }
 

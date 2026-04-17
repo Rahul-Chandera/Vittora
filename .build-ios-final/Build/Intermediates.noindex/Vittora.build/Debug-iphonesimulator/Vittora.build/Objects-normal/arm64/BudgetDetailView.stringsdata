@@ -1,0 +1,88 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Budgets/Views/BudgetDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Budget Details",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 175
+        }
+      },
+      {
+        "comment": "",
+        "key": "Budget Amount",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "Spent",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 56
+        }
+      },
+      {
+        "comment": "",
+        "key": "Remaining",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "Period",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Start Date",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 95
+        }
+      },
+      {
+        "comment": "",
+        "key": "Rollover Enabled",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 107
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recent Transactions",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 132
+        }
+      },
+      {
+        "comment": "",
+        "key": "Edit budget",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 182
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the budget form",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 183
+        }
+      }
+    ]
+  },
+  "version": 1
+}

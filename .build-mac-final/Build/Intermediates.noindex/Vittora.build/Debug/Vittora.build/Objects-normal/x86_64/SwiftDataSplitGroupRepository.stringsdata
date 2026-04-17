@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataSplitGroupRepository.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Split group not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Split group not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Group expense not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 109
+        }
+      },
+      {
+        "comment": "",
+        "key": "Group expense not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 120
+        }
+      }
+    ]
+  },
+  "version": 1
+}

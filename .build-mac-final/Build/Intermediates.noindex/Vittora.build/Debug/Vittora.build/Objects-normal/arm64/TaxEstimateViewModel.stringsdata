@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/ViewModels/TaxEstimateViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't load your tax profile right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 56
+        }
+      },
+      {
+        "comment": "",
+        "key": "Generate a tax estimate before exporting a report.",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 79
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tax export is not available right now.",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 75
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't export this tax report right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 97
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataBudgetRepository.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Budget not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 46
+        }
+      },
+      {
+        "comment": "",
+        "key": "Budget not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 57
+        }
+      }
+    ]
+  },
+  "version": 1
+}

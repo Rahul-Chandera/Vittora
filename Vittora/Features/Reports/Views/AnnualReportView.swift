@@ -41,6 +41,7 @@ struct AnnualReportView: View {
         .onChange(of: selectedYear) { _, _ in
             Task { await loadData() }
         }
+        .errorAlert(message: annualReportErrorBinding)
     }
 
     // MARK: - Year Picker
@@ -204,6 +205,15 @@ struct AnnualReportView: View {
             vm = MonthlyOverviewViewModel(useCase: useCase)
         }
         await vm?.load()
+    }
+
+    private var annualReportErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
+        )
     }
 }
 

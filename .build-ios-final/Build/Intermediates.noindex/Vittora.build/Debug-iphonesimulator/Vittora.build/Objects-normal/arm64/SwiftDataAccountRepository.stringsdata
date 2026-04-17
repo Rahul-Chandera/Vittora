@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataAccountRepository.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Account not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 46
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 57
+        }
+      }
+    ]
+  },
+  "version": 1
+}

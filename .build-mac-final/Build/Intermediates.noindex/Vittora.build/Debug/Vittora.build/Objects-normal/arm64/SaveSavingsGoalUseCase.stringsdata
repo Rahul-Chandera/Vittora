@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/SaveSavingsGoalUseCase.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Goal name must be at least 2 characters.",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 14
+        }
+      },
+      {
+        "comment": "",
+        "key": "Target amount must be greater than zero.",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Saved amount cannot be negative.",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "Savings goal not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 60
+        }
+      }
+    ]
+  },
+  "version": 1
+}

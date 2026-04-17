@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/Components/TagInputView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Add tag (press return)",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 40
+        }
+      }
+    ]
+  },
+  "version": 1
+}

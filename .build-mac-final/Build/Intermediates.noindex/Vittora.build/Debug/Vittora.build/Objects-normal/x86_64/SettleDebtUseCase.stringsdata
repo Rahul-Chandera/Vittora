@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/SettleDebtUseCase.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Settlement amount exceeds remaining balance",
+        "location": {
+          "startingColumn": 67,
+          "startingLine": 20
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settlement amount must be greater than zero",
+        "location": {
+          "startingColumn": 67,
+          "startingLine": 17
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debt entry not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 14
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debt Settlement",
+        "location": {
+          "startingColumn": 83,
+          "startingLine": 34
+        }
+      }
+    ]
+  },
+  "version": 1
+}

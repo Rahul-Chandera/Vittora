@@ -1,0 +1,176 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Settings/Views/SettingsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Settings",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 103
+        }
+      },
+      {
+        "comment": "",
+        "key": "Preferences",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Security",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "Data & Sync",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 66
+        }
+      },
+      {
+        "comment": "",
+        "key": "About",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 94
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your Name",
+        "location": {
+          "startingColumn": 74,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tap to edit profile",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 27
+        }
+      },
+      {
+        "comment": "",
+        "key": "Currency",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "Appearance",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "App Lock",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "On",
+        "location": {
+          "startingColumn": 80,
+          "startingLine": 61
+        }
+      },
+      {
+        "comment": "",
+        "key": "Off",
+        "location": {
+          "startingColumn": 106,
+          "startingLine": 61
+        }
+      },
+      {
+        "comment": "",
+        "key": "iCloud Sync",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "Review",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 114
+        }
+      },
+      {
+        "comment": "",
+        "key": "On",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 116
+        }
+      },
+      {
+        "comment": "",
+        "key": "Off",
+        "location": {
+          "startingColumn": 84,
+          "startingLine": 116
+        }
+      },
+      {
+        "comment": "",
+        "key": "Manage Data",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 78
+        }
+      },
+      {
+        "comment": "",
+        "key": "Notifications",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 88
+        }
+      },
+      {
+        "comment": "",
+        "key": "On",
+        "location": {
+          "startingColumn": 86,
+          "startingLine": 89
+        }
+      },
+      {
+        "comment": "",
+        "key": "Off",
+        "location": {
+          "startingColumn": 112,
+          "startingLine": 89
+        }
+      },
+      {
+        "comment": "",
+        "key": "About Vittora",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 99
+        }
+      }
+    ]
+  },
+  "version": 1
+}

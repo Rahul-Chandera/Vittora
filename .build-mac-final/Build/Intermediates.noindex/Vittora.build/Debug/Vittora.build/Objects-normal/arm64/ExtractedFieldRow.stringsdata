@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Documents/Components/ExtractedFieldRow.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "High",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "Low",
+        "location": {
+          "startingColumn": 69,
+          "startingLine": 40
+        }
+      }
+    ]
+  },
+  "version": 1
+}

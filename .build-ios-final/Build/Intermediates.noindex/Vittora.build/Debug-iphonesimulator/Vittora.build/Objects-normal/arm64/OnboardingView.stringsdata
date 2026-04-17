@@ -1,0 +1,328 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Onboarding/Views/OnboardingView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Error",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Get Started",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 110
+        }
+      },
+      {
+        "comment": "",
+        "key": "Continue",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 111
+        }
+      },
+      {
+        "comment": "",
+        "key": "Set Up Account",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 112
+        }
+      },
+      {
+        "comment": "",
+        "key": "Review Setup",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 113
+        }
+      },
+      {
+        "comment": "",
+        "key": "Start Tracking",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 114
+        }
+      },
+      {
+        "comment": "",
+        "key": "Welcome to Vittora",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 132
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your all-in-one personal finance companion for tracking money, budgets, goals, taxes and more.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 138
+        }
+      },
+      {
+        "comment": "",
+        "key": "Track income & expenses",
+        "location": {
+          "startingColumn": 94,
+          "startingLine": 146
+        }
+      },
+      {
+        "comment": "",
+        "key": "Set and manage budgets",
+        "location": {
+          "startingColumn": 95,
+          "startingLine": 147
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save towards your goals",
+        "location": {
+          "startingColumn": 95,
+          "startingLine": 148
+        }
+      },
+      {
+        "comment": "",
+        "key": "Split expenses with friends",
+        "location": {
+          "startingColumn": 95,
+          "startingLine": 149
+        }
+      },
+      {
+        "comment": "",
+        "key": "Estimate your taxes",
+        "location": {
+          "startingColumn": 95,
+          "startingLine": 150
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose Your Currency",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 189
+        }
+      },
+      {
+        "comment": "",
+        "key": "This will be your default display currency.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 192
+        }
+      },
+      {
+        "comment": "",
+        "key": "Your name",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 260
+        }
+      },
+      {
+        "comment": "",
+        "key": "What should we call you?",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 250
+        }
+      },
+      {
+        "comment": "",
+        "key": "Optional — you can change this in settings anytime.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 253
+        }
+      },
+      {
+        "comment": "",
+        "key": "Set Up Your First Account",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 292
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create the account where you usually keep or move money. You can always add more later.",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 295
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account Name",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 304
+        }
+      },
+      {
+        "comment": "",
+        "key": "Main Account",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 308
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account Type",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 316
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opening Balance",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 328
+        }
+      },
+      {
+        "comment": "",
+        "key": "Use a positive amount for what you currently have in this account.",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 351
+        }
+      },
+      {
+        "comment": "",
+        "key": "0",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 341
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cash",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 457
+        }
+      },
+      {
+        "comment": "",
+        "key": "Bank",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 459
+        }
+      },
+      {
+        "comment": "",
+        "key": "Credit Card",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 461
+        }
+      },
+      {
+        "comment": "",
+        "key": "Loan",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 463
+        }
+      },
+      {
+        "comment": "",
+        "key": "Digital Wallet",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 465
+        }
+      },
+      {
+        "comment": "",
+        "key": "Investment",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 467
+        }
+      },
+      {
+        "comment": "",
+        "key": "Receivable",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 469
+        }
+      },
+      {
+        "comment": "",
+        "key": "Payable",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 471
+        }
+      },
+      {
+        "comment": "",
+        "key": "You're all set!",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 404
+        }
+      },
+      {
+        "comment": "",
+        "key": "Vittora is ready to help you take control of your finances.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 408
+        }
+      },
+      {
+        "comment": "",
+        "key": "Currency",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 417
+        }
+      },
+      {
+        "comment": "",
+        "key": "First Account",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 421
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account Type",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 425
+        }
+      }
+    ]
+  },
+  "version": 1
+}

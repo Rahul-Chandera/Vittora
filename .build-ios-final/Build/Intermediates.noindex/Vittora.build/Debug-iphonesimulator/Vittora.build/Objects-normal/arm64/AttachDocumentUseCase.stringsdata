@@ -1,0 +1,32 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/AttachDocumentUseCase.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Document storage is unavailable.",
+        "location": {
+          "startingColumn": 60,
+          "startingLine": 79
+        }
+      },
+      {
+        "comment": "",
+        "key": "Document file not found.",
+        "location": {
+          "startingColumn": 60,
+          "startingLine": 80
+        }
+      },
+      {
+        "comment": "",
+        "key": "OCR failed: %@",
+        "location": {
+          "startingColumn": 60,
+          "startingLine": 81
+        }
+      }
+    ]
+  },
+  "version": 1
+}

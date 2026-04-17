@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Modifiers/PlatformModifier.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Adaptive Padding Example",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 82
+        }
+      },
+      {
+        "comment": "",
+        "key": "This content uses platform-aware padding that adjusts based on device type (iPhone, iPad, or Mac).",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 82
+        }
+      },
+      {
+        "comment": "",
+        "key": "Platform Information",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 82
+        }
+      },
+      {
+        "comment": "",
+        "key": "Running on iOS",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 82
+        }
+      }
+    ]
+  },
+  "version": 1
+}

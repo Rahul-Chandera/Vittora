@@ -1,0 +1,56 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/Views/CategoryBreakdownView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Category Breakdown",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "Type",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "Expenses",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 69
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 70
+        }
+      },
+      {
+        "comment": "",
+        "key": "All Categories",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 116
+        }
+      },
+      {
+        "comment": "",
+        "key": "No data for selected period",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 142
+        }
+      }
+    ]
+  },
+  "version": 1
+}

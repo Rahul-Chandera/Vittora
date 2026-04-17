@@ -1,0 +1,32 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/SpendingTrendsUseCase.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Daily",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 8
+        }
+      },
+      {
+        "comment": "",
+        "key": "Weekly",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 9
+        }
+      },
+      {
+        "comment": "",
+        "key": "Monthly",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 10
+        }
+      }
+    ]
+  },
+  "version": 1
+}

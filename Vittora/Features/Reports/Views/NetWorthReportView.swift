@@ -26,7 +26,9 @@ private final class NetWorthViewModel {
         do {
             accounts = try await repository.fetchAll()
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load net worth right now.")
+            )
         }
         isLoading = false
     }
@@ -85,6 +87,7 @@ struct NetWorthReportView: View {
         .refreshable {
             await vm?.load()
         }
+        .errorAlert(message: netWorthErrorBinding)
     }
 
     // MARK: - Net Worth Summary
@@ -227,6 +230,15 @@ struct NetWorthReportView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(VSpacing.xxxl)
+    }
+
+    private var netWorthErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
+        )
     }
 }
 

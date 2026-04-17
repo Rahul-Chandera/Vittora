@@ -79,7 +79,9 @@ struct TransactionFormView: View {
                                     HapticService.shared.success()
                                     dismiss()
                                 } catch {
-                                    vm.error = error.localizedDescription
+                                    vm.error = error.userFacingMessage(
+                                        fallback: String(localized: "We couldn't save this transaction.")
+                                    )
                                     HapticService.shared.error()
                                 }
                             }
@@ -97,23 +99,10 @@ struct TransactionFormView: View {
                             .tint(VColors.primary)
                     }
                 }
-                .if(vm.error != nil) { view in
-                    view.overlay(alignment: .top) {
-                        VStack {
-                            Text(vm.error ?? "Unknown error")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(VSpacing.md)
-                                .background(VColors.expense)
-                                .cornerRadius(VSpacing.cornerRadiusSM)
-                                .padding(VSpacing.md)
-                            Spacer()
-                        }
-                    }
-                }
             }
         }
         .accessibilityIdentifier("transaction-form-root")
+        .errorAlert(message: transactionErrorBinding)
         .task {
             if vm == nil {
                 vm = await createViewModel()
@@ -249,9 +238,13 @@ struct TransactionFormView: View {
             let transactions = try await fetchUseCase.execute(filter: nil)
             if let transaction = transactions.first(where: { $0.id == transactionID }) {
                 vm.loadTransaction(transaction)
+            } else {
+                vm.error = String(localized: "We couldn't find this transaction.")
             }
         } catch {
-            vm.error = error.localizedDescription
+            vm.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load this transaction right now.")
+            )
         }
     }
 
@@ -268,23 +261,33 @@ struct TransactionFormView: View {
         let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: accountRepo)
         let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: categoryRepo)
         let fetchPayeesUseCase = FetchPayeesUseCase(repository: payeeRepo)
+        var didFailToLoadPickerData = false
 
         do {
             accounts = try await fetchAccountsUseCase.execute()
         } catch {
             accounts = []
+            didFailToLoadPickerData = true
         }
 
         do {
             categories = try await fetchCategoriesUseCase.executeGrouped()
         } catch {
             categories = ([], [])
+            didFailToLoadPickerData = true
         }
 
         do {
             payees = try await fetchPayeesUseCase.execute()
         } catch {
             payees = []
+            didFailToLoadPickerData = true
+        }
+
+        if didFailToLoadPickerData {
+            vm?.error = String(
+                localized: "Some transaction form options couldn't be loaded. Please try again."
+            )
         }
 
         applyDefaultSelectionsIfNeeded()
@@ -327,6 +330,15 @@ struct TransactionFormView: View {
             updateUseCase: updateUseCase,
             smartCategorizeUseCase: smartCategorizeUseCase,
             duplicateDetectionUseCase: duplicateDetectionUseCase
+        )
+    }
+
+    private var transactionErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
         )
     }
 }

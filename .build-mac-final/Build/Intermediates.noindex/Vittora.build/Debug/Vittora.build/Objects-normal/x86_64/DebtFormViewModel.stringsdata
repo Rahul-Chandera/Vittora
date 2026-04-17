@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Debt/ViewModels/DebtFormViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Please fill all required fields",
+        "location": {
+          "startingColumn": 67,
+          "startingLine": 30
+        }
+      }
+    ]
+  },
+  "version": 1
+}

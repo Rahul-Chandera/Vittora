@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/ViewModels/SpendingTrendsViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't load spending trends right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 43
+        }
+      }
+    ]
+  },
+  "version": 1
+}

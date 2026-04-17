@@ -1,0 +1,120 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Recurring/Views/RecurringDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Recurring Details",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 202
+        }
+      },
+      {
+        "comment": "",
+        "key": "per transaction",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "Next: %@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "Active",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "Paused",
+        "location": {
+          "startingColumn": 64,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "Ends: %@",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 86
+        }
+      },
+      {
+        "comment": "",
+        "key": "Pause",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "Resume",
+        "location": {
+          "startingColumn": 63,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "Edit",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 114
+        }
+      },
+      {
+        "comment": "",
+        "key": "Details",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 126
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recent Generated Transactions",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 150
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recurring Rule Not Found",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 194
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't load this recurring transaction right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 253
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't update this recurring transaction right now.",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 271
+        }
+      }
+    ]
+  },
+  "version": 1
+}

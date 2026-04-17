@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/TaxDisclaimer.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Estimates only. Consult a qualified tax professional for advice.",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 5
+        }
+      }
+    ]
+  },
+  "version": 1
+}

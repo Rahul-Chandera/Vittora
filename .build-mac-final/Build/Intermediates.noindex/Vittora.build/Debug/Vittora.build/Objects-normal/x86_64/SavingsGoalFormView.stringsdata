@@ -1,0 +1,152 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Savings/Views/SavingsGoalFormView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Edit Goal",
+        "location": {
+          "startingColumn": 60,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "New Goal",
+        "location": {
+          "startingColumn": 93,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "Goal",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amounts",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "Deadline",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "Color",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 85
+        }
+      },
+      {
+        "comment": "",
+        "key": "Note",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 107
+        }
+      },
+      {
+        "comment": "",
+        "key": "e.g. Emergency Fund",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "Target",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "0",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Already saved",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "0",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Set Deadline",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "Target Date",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 76
+        }
+      },
+      {
+        "comment": "",
+        "key": "Optional",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 108
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 126
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 129
+        }
+      }
+    ]
+  },
+  "version": 1
+}

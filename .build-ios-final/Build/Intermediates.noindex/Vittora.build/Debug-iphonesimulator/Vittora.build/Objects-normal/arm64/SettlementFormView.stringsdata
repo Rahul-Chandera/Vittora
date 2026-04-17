@@ -1,0 +1,88 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Debt/Views/SettlementFormView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Settle Debt",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settlement Amount",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "Record to Account (optional)",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settle Full Amount (%@)",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "$",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "None",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settle",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 63
+        }
+      }
+    ]
+  },
+  "version": 1
+}

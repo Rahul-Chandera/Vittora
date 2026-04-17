@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Components/TaxBracketBarView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Bracket Distribution",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 13
+        }
+      },
+      {
+        "comment": "",
+        "key": "Deduct.",
+        "location": {
+          "startingColumn": 60,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@%%",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 43
+        }
+      },
+      {
+        "comment": "",
+        "key": "Deductions",
+        "location": {
+          "startingColumn": 84,
+          "startingLine": 56
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,56 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Persistence/DataManagementService.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Transactions",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "Budgets",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debts",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 32
+        }
+      },
+      {
+        "comment": "",
+        "key": "Savings Goals",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "Split Groups",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "Everything",
+        "location": {
+          "startingColumn": 55,
+          "startingLine": 35
+        }
+      }
+    ]
+  },
+  "version": 1
+}

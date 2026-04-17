@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VActionButton.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Primary Button",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 177
+        }
+      },
+      {
+        "comment": "",
+        "key": "Secondary Button",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 177
+        }
+      },
+      {
+        "comment": "",
+        "key": "Destructive Button",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 177
+        }
+      },
+      {
+        "comment": "",
+        "key": "Various Sizes",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 177
+        }
+      }
+    ]
+  },
+  "version": 1
+}

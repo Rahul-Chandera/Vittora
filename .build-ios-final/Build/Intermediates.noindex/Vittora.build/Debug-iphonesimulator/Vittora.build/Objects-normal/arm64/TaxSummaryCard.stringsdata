@@ -1,0 +1,64 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Components/TaxSummaryCard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Tax Estimate",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 15
+        }
+      },
+      {
+        "comment": "",
+        "key": "Effective Rate",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "·",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 45
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@%% Marginal",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "Gross Income",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "Deductions",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 66
+        }
+      },
+      {
+        "comment": "",
+        "key": "Taxable",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 73
+        }
+      }
+    ]
+  },
+  "version": 1
+}

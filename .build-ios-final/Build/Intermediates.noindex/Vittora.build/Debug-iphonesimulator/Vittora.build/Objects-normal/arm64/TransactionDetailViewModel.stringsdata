@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/ViewModels/TransactionDetailViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't find this transaction.",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't load this transaction right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transaction",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 56
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transaction",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 64
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -52,6 +52,7 @@ struct SpendingTrendsView: View {
                 await vm?.load()
             }
         }
+        .errorAlert(message: spendingTrendsErrorBinding)
     }
 
     @ViewBuilder
@@ -129,6 +130,15 @@ struct SpendingTrendsView: View {
         formatter.currencyCode = currencyCode
         formatter.maximumFractionDigits = 0
         return formatter.string(from: amount as NSDecimalNumber) ?? "$0"
+    }
+
+    private var spendingTrendsErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
+        )
     }
 }
 

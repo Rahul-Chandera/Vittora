@@ -1,0 +1,128 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Views/TaxComparisonView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Old Regime",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 169
+        }
+      },
+      {
+        "comment": "",
+        "key": "Standard Deduction",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 171
+        }
+      },
+      {
+        "comment": "",
+        "key": "New Regime",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 178
+        }
+      },
+      {
+        "comment": "",
+        "key": "Itemized Deductions",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 180
+        }
+      },
+      {
+        "comment": "",
+        "key": "Regime Comparison",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 151
+        }
+      },
+      {
+        "comment": "",
+        "key": "Deduction Comparison",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 153
+        }
+      },
+      {
+        "comment": "",
+        "key": "See which Indian tax regime produces the lower estimate using the same income details.",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 160
+        }
+      },
+      {
+        "comment": "",
+        "key": "Compare the standard deduction with your current itemized deductions for the same filing status.",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 162
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ currently saves about %@.",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 190
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ currently saves about %@.",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 192
+        }
+      },
+      {
+        "comment": "",
+        "key": "Both options currently estimate the same tax liability.",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 194
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recommended",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 93
+        }
+      },
+      {
+        "comment": "",
+        "key": "Taxable Income",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 111
+        }
+      },
+      {
+        "comment": "",
+        "key": "Deductions",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 115
+        }
+      },
+      {
+        "comment": "",
+        "key": "Effective Rate",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 119
+        }
+      }
+    ]
+  },
+  "version": 1
+}

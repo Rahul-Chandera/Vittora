@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/ViewModels/SplitGroupDetailViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Unknown",
+        "location": {
+          "startingColumn": 62,
+          "startingLine": 43
+        }
+      },
+      {
+        "comment": "",
+        "key": "Unknown",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 87
+        }
+      }
+    ]
+  },
+  "version": 1
+}

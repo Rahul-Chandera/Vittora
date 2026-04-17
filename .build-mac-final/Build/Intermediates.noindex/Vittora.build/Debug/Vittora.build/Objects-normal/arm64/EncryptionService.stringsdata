@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Security/EncryptionService.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Failed to combine encryption components",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "Failed to retrieve generated key",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 63
+        }
+      },
+      {
+        "comment": "",
+        "key": "Failed to parse encrypted data",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Failed to decrypt data: %@",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 45
+        }
+      }
+    ]
+  },
+  "version": 1
+}

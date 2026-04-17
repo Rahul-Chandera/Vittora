@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Payees/Components/PayeeAnalyticsCard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Spending Summary",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 10
+        }
+      },
+      {
+        "comment": "",
+        "key": "Last transaction: %@",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 40
+        }
+      }
+    ]
+  },
+  "version": 1
+}

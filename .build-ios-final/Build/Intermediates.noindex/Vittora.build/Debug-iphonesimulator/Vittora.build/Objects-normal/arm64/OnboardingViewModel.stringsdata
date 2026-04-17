@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Onboarding/ViewModels/OnboardingViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Complete your first account setup to continue.",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 71
+        }
+      }
+    ]
+  },
+  "version": 1
+}

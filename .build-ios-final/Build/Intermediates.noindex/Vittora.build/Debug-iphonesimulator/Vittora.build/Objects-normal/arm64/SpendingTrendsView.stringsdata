@@ -1,0 +1,64 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/Views/SpendingTrendsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Spending Trends",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 43
+        }
+      },
+      {
+        "comment": "",
+        "key": "Grouping",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "Total",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Average",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 75
+        }
+      },
+      {
+        "comment": "",
+        "key": "Peak",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 76
+        }
+      },
+      {
+        "comment": "",
+        "key": "Trend",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 98
+        }
+      },
+      {
+        "comment": "",
+        "key": "No data for selected period",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 119
+        }
+      }
+    ]
+  },
+  "version": 1
+}

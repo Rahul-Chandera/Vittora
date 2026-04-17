@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Budgets/Components/PeriodSelectorView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Select Period",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 33
+        }
+      }
+    ]
+  },
+  "version": 1
+}

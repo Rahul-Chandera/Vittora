@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Security/KeychainService.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Failed to save data to Keychain: %d",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "Invalid data format in Keychain",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Failed to load data from Keychain: %d",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 57
+        }
+      },
+      {
+        "comment": "",
+        "key": "Failed to delete data from Keychain: %d",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 72
+        }
+      }
+    ]
+  },
+  "version": 1
+}

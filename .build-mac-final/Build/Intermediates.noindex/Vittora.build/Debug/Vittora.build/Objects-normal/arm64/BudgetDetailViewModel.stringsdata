@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Budgets/ViewModels/BudgetDetailViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't find this budget.",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 35
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't load this budget right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 61
+        }
+      }
+    ]
+  },
+  "version": 1
+}

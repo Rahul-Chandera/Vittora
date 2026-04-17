@@ -36,7 +36,9 @@ final class ReportsHomeViewModel {
                 .filter { $0.type == .income }
                 .reduce(Decimal(0)) { $0 + $1.amount }
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load report highlights right now.")
+            )
         }
         isLoading = false
     }

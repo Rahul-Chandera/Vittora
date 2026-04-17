@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VSearchBar.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Default Search Bar",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "With Placeholder",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 65
+        }
+      }
+    ]
+  },
+  "version": 1
+}

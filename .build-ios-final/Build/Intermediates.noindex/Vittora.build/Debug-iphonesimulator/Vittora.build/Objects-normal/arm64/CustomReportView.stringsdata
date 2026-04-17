@@ -1,0 +1,120 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/Views/CustomReportView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Custom Report",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "Generate Report",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Date Range",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "Group By",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "Grouping",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 76
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transaction Type",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 88
+        }
+      },
+      {
+        "comment": "",
+        "key": "Type",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 92
+        }
+      },
+      {
+        "comment": "",
+        "key": "All",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "Expenses",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 97
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 98
+        }
+      },
+      {
+        "comment": "",
+        "key": "No data for selected filters",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 121
+        }
+      },
+      {
+        "comment": "",
+        "key": "Results",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 111
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld groups",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 115
+        }
+      },
+      {
+        "comment": "",
+        "key": "Total",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 149
+        }
+      }
+    ]
+  },
+  "version": 1
+}

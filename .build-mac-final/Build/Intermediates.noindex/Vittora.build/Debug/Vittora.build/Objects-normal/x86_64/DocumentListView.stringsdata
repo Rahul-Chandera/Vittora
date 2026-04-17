@@ -1,0 +1,32 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Documents/Views/DocumentListView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "No attachments",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 106
+        }
+      },
+      {
+        "comment": "",
+        "key": "Attachments",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 75
+        }
+      },
+      {
+        "comment": "",
+        "key": "Import File",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 93
+        }
+      }
+    ]
+  },
+  "version": 1
+}

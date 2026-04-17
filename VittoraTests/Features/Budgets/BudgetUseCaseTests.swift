@@ -287,4 +287,151 @@ struct BudgetUseCaseTests {
             #expect(progress.daysRemaining >= 0)
         }
     }
+
+    @Suite("CheckBudgetThresholdUseCase")
+    struct CheckBudgetThresholdUseCaseTests {
+
+        @Test("Returns budgets at or above fifty percent spent")
+        func testReturnsBudgetsAtThresholdOrAbove() {
+            let useCase = CheckBudgetThresholdUseCase()
+            let belowThreshold = BudgetEntity(amount: 200, spent: 99, period: .monthly)
+            let atThreshold = BudgetEntity(amount: 200, spent: 100, period: .monthly)
+            let overThreshold = BudgetEntity(amount: 200, spent: 175, period: .monthly)
+
+            let result = useCase.execute(budgets: [belowThreshold, atThreshold, overThreshold])
+
+            #expect(result.count == 2)
+            #expect(result.contains(where: { $0.id == atThreshold.id }))
+            #expect(result.contains(where: { $0.id == overThreshold.id }))
+        }
+    }
+
+    @Suite("RolloverBudgetUseCase")
+    struct RolloverBudgetUseCaseTests {
+
+        @Test("Rollover enabled carries unused amount into next budget")
+        func testRolloverCarriesUnusedAmount() async throws {
+            let repo = MockBudgetRepository()
+            let sourceBudget = BudgetEntity(
+                amount: 500,
+                spent: 125,
+                period: .monthly,
+                startDate: makeBudgetDate(year: 2026, month: 1, day: 1),
+                rollover: true,
+                categoryID: UUID()
+            )
+            await repo.seed(sourceBudget)
+
+            let useCase = RolloverBudgetUseCase(budgetRepository: repo)
+            let nextStartDate = makeBudgetDate(year: 2026, month: 2, day: 1)
+
+            try await useCase.execute(budgetID: sourceBudget.id, newStartDate: nextStartDate)
+
+            let budgets = await repo.budgets
+            #expect(budgets.count == 2)
+
+            let rolledBudget = budgets.first(where: { $0.id != sourceBudget.id })
+            #expect(rolledBudget?.amount == 875)
+            #expect(rolledBudget?.spent == 0)
+            #expect(rolledBudget?.startDate == nextStartDate)
+            #expect(rolledBudget?.categoryID == sourceBudget.categoryID)
+        }
+
+        @Test("Rollover disabled keeps original amount")
+        func testRolloverDisabledKeepsOriginalAmount() async throws {
+            let repo = MockBudgetRepository()
+            let sourceBudget = BudgetEntity(
+                amount: 600,
+                spent: 240,
+                period: .monthly,
+                startDate: makeBudgetDate(year: 2026, month: 3, day: 1),
+                rollover: false
+            )
+            await repo.seed(sourceBudget)
+
+            let useCase = RolloverBudgetUseCase(budgetRepository: repo)
+            try await useCase.execute(
+                budgetID: sourceBudget.id,
+                newStartDate: makeBudgetDate(year: 2026, month: 4, day: 1)
+            )
+
+            let budgets = await repo.budgets
+            let rolledBudget = budgets.first(where: { $0.id != sourceBudget.id })
+            #expect(rolledBudget?.amount == 600)
+            #expect(rolledBudget?.rollover == false)
+        }
+
+        @Test("Throws when source budget does not exist")
+        func testThrowsWhenSourceBudgetMissing() async throws {
+            let useCase = RolloverBudgetUseCase(budgetRepository: MockBudgetRepository())
+
+            await #expect(throws: (any Error).self) {
+                try await useCase.execute(
+                    budgetID: UUID(),
+                    newStartDate: makeBudgetDate(year: 2026, month: 5, day: 1)
+                )
+            }
+        }
+    }
+
+    @Suite("CopyBudgetTemplateUseCase")
+    struct CopyBudgetTemplateUseCaseTests {
+
+        @Test("Copies only matching period budgets from the source window")
+        func testCopiesOnlyMatchingPeriodBudgets() async throws {
+            let repo = MockBudgetRepository()
+            let sourceStart = makeBudgetDate(year: 2026, month: 1, day: 1)
+            let targetStart = makeBudgetDate(year: 2026, month: 2, day: 1)
+
+            let matchingBudget = BudgetEntity(
+                amount: 300,
+                spent: 120,
+                period: .monthly,
+                startDate: sourceStart,
+                rollover: true,
+                categoryID: UUID()
+            )
+            let wrongPeriodBudget = BudgetEntity(
+                amount: 900,
+                spent: 100,
+                period: .yearly,
+                startDate: sourceStart,
+                categoryID: UUID()
+            )
+            let outsideWindowBudget = BudgetEntity(
+                amount: 450,
+                spent: 90,
+                period: .monthly,
+                startDate: makeBudgetDate(year: 2026, month: 4, day: 1),
+                categoryID: UUID()
+            )
+
+            await repo.seed(matchingBudget)
+            await repo.seed(wrongPeriodBudget)
+            await repo.seed(outsideWindowBudget)
+
+            let useCase = CopyBudgetTemplateUseCase(budgetRepository: repo)
+            try await useCase.execute(
+                fromPeriodStart: sourceStart,
+                toPeriodStart: targetStart,
+                period: .monthly
+            )
+
+            let budgets = await repo.budgets
+            #expect(budgets.count == 4)
+
+            let copiedBudget = budgets.first(where: {
+                $0.startDate == targetStart && $0.categoryID == matchingBudget.categoryID
+            })
+            #expect(copiedBudget?.amount == matchingBudget.amount)
+            #expect(copiedBudget?.spent == 0)
+            #expect(copiedBudget?.rollover == true)
+            #expect(copiedBudget?.period == .monthly)
+        }
+    }
+}
+
+private func makeBudgetDate(year: Int, month: Int, day: Int) -> Date {
+    let calendar = Calendar(identifier: .gregorian)
+    return calendar.date(from: DateComponents(year: year, month: month, day: day)) ?? .now
 }

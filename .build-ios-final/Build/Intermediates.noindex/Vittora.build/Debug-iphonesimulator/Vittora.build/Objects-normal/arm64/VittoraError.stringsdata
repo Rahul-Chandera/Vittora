@@ -1,0 +1,72 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/VittoraError.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Not found: %@",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Duplicate entry: %@",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "Validation failed: %@",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 20
+        }
+      },
+      {
+        "comment": "",
+        "key": "Encryption error: %@",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "Authentication error: %@",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sync error: %@",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export error: %@",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "An error occurred: %@",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 30
+        }
+      }
+    ]
+  },
+  "version": 1
+}

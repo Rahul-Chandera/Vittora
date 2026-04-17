@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Dashboard/Components/RecentTransactionsList.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "No transactions yet",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recent Transactions",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "See All",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transaction",
+        "location": {
+          "startingColumn": 64,
+          "startingLine": 66
+        }
+      }
+    ]
+  },
+  "version": 1
+}

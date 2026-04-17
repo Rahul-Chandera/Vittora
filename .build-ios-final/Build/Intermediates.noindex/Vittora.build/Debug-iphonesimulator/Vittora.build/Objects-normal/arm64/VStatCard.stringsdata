@@ -1,0 +1,32 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VStatCard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld%%",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Stat Cards Grid",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "Without Trend",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 96
+        }
+      }
+    ]
+  },
+  "version": 1
+}

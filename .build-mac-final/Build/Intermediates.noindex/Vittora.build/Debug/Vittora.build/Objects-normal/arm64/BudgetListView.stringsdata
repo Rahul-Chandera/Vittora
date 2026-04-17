@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Budgets/Views/BudgetListView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Budgets",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 86
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add budget",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 93
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the budget form",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 94
+        }
+      }
+    ]
+  },
+  "version": 1
+}

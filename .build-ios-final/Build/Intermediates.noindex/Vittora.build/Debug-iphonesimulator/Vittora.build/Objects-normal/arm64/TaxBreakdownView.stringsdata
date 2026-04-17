@@ -1,0 +1,128 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Views/TaxBreakdownView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Tax Breakdown",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 27
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tax by Bracket",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 43
+        }
+      },
+      {
+        "comment": "",
+        "key": "Gross Income",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Standard Deduction",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 56
+        }
+      },
+      {
+        "comment": "",
+        "key": "Other Deductions",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "Taxable Income",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "Adjustments",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 101
+        }
+      },
+      {
+        "comment": "",
+        "key": "Basic Tax",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 107
+        }
+      },
+      {
+        "comment": "",
+        "key": "Rebate (Sec 87A)",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 115
+        }
+      },
+      {
+        "comment": "",
+        "key": "Surcharge",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 124
+        }
+      },
+      {
+        "comment": "",
+        "key": "Health & Education Cess (4%)",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 133
+        }
+      },
+      {
+        "comment": "",
+        "key": "Total Tax Payable",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 149
+        }
+      },
+      {
+        "comment": "",
+        "key": "@ %@%%",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 208
+        }
+      },
+      {
+        "comment": "",
+        "key": "on %@",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 217
+        }
+      }
+    ]
+  },
+  "version": 1
+}

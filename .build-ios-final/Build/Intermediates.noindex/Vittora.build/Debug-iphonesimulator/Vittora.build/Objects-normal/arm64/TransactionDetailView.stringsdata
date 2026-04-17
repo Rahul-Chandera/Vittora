@@ -1,0 +1,96 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/Views/TransactionDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Transaction summary",
+        "location": {
+          "startingColumn": 63,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@, %@, %@",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tags",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "Similar Transactions",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 90
+        }
+      },
+      {
+        "comment": "",
+        "key": "Edit transaction",
+        "location": {
+          "startingColumn": 67,
+          "startingLine": 138
+        }
+      },
+      {
+        "comment": "",
+        "key": "Opens the transaction form",
+        "location": {
+          "startingColumn": 66,
+          "startingLine": 139
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete transaction",
+        "location": {
+          "startingColumn": 67,
+          "startingLine": 156
+        }
+      },
+      {
+        "comment": "",
+        "key": "Deletes this transaction",
+        "location": {
+          "startingColumn": 66,
+          "startingLine": 157
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't delete this transaction.",
+        "location": {
+          "startingColumn": 73,
+          "startingLine": 148
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transaction unavailable",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 170
+        }
+      },
+      {
+        "comment": "",
+        "key": "This transaction could not be loaded.",
+        "location": {
+          "startingColumn": 56,
+          "startingLine": 174
+        }
+      }
+    ]
+  },
+  "version": 1
+}

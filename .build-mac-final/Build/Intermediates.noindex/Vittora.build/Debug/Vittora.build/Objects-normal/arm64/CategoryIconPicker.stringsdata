@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Categories/Components/CategoryIconPicker.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Choose Icon",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 53
+        }
+      }
+    ]
+  },
+  "version": 1
+}

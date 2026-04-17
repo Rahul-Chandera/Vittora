@@ -1,0 +1,80 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Components/VProgressBar.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Spent",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 57
+        }
+      },
+      {
+        "comment": "",
+        "key": "Limit",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "Progress",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%%",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 76
+        }
+      },
+      {
+        "comment": "",
+        "key": "Budget Progress Examples",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "Safe (30%)",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "Warning (80%)",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "Danger (120% - Over Budget)",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "Compact (no label)",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 128
+        }
+      }
+    ]
+  },
+  "version": 1
+}

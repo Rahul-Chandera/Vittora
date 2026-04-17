@@ -32,6 +32,7 @@ struct CashFlowReportView: View {
             vm = MonthlyOverviewViewModel(useCase: useCase)
             await vm?.load()
         }
+        .errorAlert(message: cashFlowReportErrorBinding)
     }
 
     // MARK: - Summary Card
@@ -177,6 +178,15 @@ struct CashFlowReportView: View {
 
     private var currencyCode: String {
         UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
+    }
+
+    private var cashFlowReportErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
+        )
     }
 }
 

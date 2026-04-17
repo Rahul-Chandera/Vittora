@@ -1,0 +1,6 @@
+Target dependency graph (3 targets)
+Target 'VittoraUITests' in project 'Vittora'
+➜ Explicit dependency on target 'Vittora' in project 'Vittora'
+Target 'VittoraTests' in project 'Vittora'
+➜ Explicit dependency on target 'Vittora' in project 'Vittora'
+Target 'Vittora' in project 'Vittora' (no dependencies)

@@ -1,0 +1,160 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/Views/ReportsHomeView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Monthly Overview",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 8
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income vs expenses over 12 months",
+        "location": {
+          "startingColumn": 77,
+          "startingLine": 8
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category Breakdown",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 9
+        }
+      },
+      {
+        "comment": "",
+        "key": "Spending by category with percentages",
+        "location": {
+          "startingColumn": 80,
+          "startingLine": 9
+        }
+      },
+      {
+        "comment": "",
+        "key": "Spending Trends",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 10
+        }
+      },
+      {
+        "comment": "",
+        "key": "Daily, weekly, or monthly trend chart",
+        "location": {
+          "startingColumn": 75,
+          "startingLine": 10
+        }
+      },
+      {
+        "comment": "",
+        "key": "Custom Report",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "Filter by date, group by category or account",
+        "location": {
+          "startingColumn": 73,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "Annual Summary",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "Review yearly income, spending, and monthly totals",
+        "location": {
+          "startingColumn": 74,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cash Flow",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 13
+        }
+      },
+      {
+        "comment": "",
+        "key": "Track inflows and outflows over time",
+        "location": {
+          "startingColumn": 71,
+          "startingLine": 13
+        }
+      },
+      {
+        "comment": "",
+        "key": "Net Worth",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 14
+        }
+      },
+      {
+        "comment": "",
+        "key": "See how your total balance changes over time",
+        "location": {
+          "startingColumn": 71,
+          "startingLine": 14
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reports",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "This Month",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 61
+        }
+      },
+      {
+        "comment": "",
+        "key": "Spent",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "This Month",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 75
+        }
+      },
+      {
+        "comment": "",
+        "key": "Earned",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 81
+        }
+      }
+    ]
+  },
+  "version": 1
+}

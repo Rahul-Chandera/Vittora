@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Modifiers/ShimmerModifier.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Loading Content",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "This is a placeholder that will shimmer while content loads.",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transaction",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 68
+        }
+      }
+    ]
+  },
+  "version": 1
+}

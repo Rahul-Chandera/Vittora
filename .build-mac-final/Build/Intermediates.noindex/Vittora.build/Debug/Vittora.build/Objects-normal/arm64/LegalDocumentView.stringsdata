@@ -1,0 +1,40 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Settings/Views/LegalDocumentView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Privacy Policy",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 10
+        }
+      },
+      {
+        "comment": "",
+        "key": "Terms of Service",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "Legal Document Unavailable",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 35
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't load this document from the app bundle.",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 94
+        }
+      }
+    ]
+  },
+  "version": 1
+}

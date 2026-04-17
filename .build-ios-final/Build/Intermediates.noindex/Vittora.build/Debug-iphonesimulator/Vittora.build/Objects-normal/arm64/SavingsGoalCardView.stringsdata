@@ -1,0 +1,80 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Savings/Components/SavingsGoalCardView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Tap to view goal details",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 66
+        }
+      },
+      {
+        "comment": "",
+        "key": "✓ Done",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 86
+        }
+      },
+      {
+        "comment": "",
+        "key": "Paused",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 94
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancelled",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "of",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld days overdue",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 113
+        }
+      },
+      {
+        "comment": "",
+        "key": "Due today",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 114
+        }
+      },
+      {
+        "comment": "",
+        "key": "1 day left",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 115
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld days left",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 116
+        }
+      }
+    ]
+  },
+  "version": 1
+}

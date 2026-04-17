@@ -1,0 +1,224 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/Views/TransactionFormView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Quick Entry",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Details",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 145
+        }
+      },
+      {
+        "comment": "",
+        "key": "Date & Payment",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 198
+        }
+      },
+      {
+        "comment": "",
+        "key": "Notes",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 212
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tags",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 218
+        }
+      },
+      {
+        "comment": "",
+        "key": "Similar transaction(s) found. Review before saving.",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "Duplicate detected",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't save this transaction.",
+        "location": {
+          "startingColumn": 69,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 89
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't find this transaction.",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 242
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't load this transaction right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 246
+        }
+      },
+      {
+        "comment": "",
+        "key": "Some transaction form options couldn't be loaded. Please try again.",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 289
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 133
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select category",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 121
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select account",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 134
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 146
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 160
+        }
+      },
+      {
+        "comment": "",
+        "key": "Payee",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 168
+        }
+      },
+      {
+        "comment": "",
+        "key": "None",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 147
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select account",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 161
+        }
+      },
+      {
+        "comment": "",
+        "key": "None",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 169
+        }
+      },
+      {
+        "comment": "",
+        "key": "Suggested: %@",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 190
+        }
+      },
+      {
+        "comment": "",
+        "key": "Date",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 200
+        }
+      },
+      {
+        "comment": "",
+        "key": "Payment Method",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 205
+        }
+      },
+      {
+        "comment": "",
+        "key": "Notes",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 213
+        }
+      }
+    ]
+  },
+  "version": 1
+}

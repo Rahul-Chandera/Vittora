@@ -1,0 +1,120 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/SavingsGoalEntity.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Emergency Fund",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 19
+        }
+      },
+      {
+        "comment": "",
+        "key": "Travel",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 20
+        }
+      },
+      {
+        "comment": "",
+        "key": "Vehicle",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 21
+        }
+      },
+      {
+        "comment": "",
+        "key": "Home",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "Education",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "Retirement",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Wedding",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "Gadget",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Health",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 27
+        }
+      },
+      {
+        "comment": "",
+        "key": "Other",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Active",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "Achieved",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "Paused",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancelled",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 61
+        }
+      }
+    ]
+  },
+  "version": 1
+}

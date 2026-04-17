@@ -1,0 +1,56 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/Views/MonthlyOverviewView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Monthly Overview",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Total Income",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 46
+        }
+      },
+      {
+        "comment": "",
+        "key": "Total Expense",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "Net Savings",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "Last 12 Months",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "Monthly Breakdown",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 86
+        }
+      }
+    ]
+  },
+  "version": 1
+}

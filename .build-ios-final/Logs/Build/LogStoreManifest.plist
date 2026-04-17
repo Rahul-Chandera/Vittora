@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>12</integer>
+	<key>logs</key>
+	<dict>
+		<key>CB069589-ACF1-4249-A267-279441B01C9C</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>CB069589-ACF1-4249-A267-279441B01C9C.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>1089</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>Vittora project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>Vittora</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project Vittora with scheme Vittora</string>
+			<key>timeStartedRecording</key>
+			<real>798087302.70206797</real>
+			<key>timeStoppedRecording</key>
+			<real>798087320.65072</real>
+			<key>title</key>
+			<string>Testing project Vittora with scheme Vittora</string>
+			<key>uniqueIdentifier</key>
+			<string>CB069589-ACF1-4249-A267-279441B01C9C</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

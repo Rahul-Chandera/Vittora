@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataCategoryRepository.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Category not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 61
+        }
+      }
+    ]
+  },
+  "version": 1
+}

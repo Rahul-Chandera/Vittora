@@ -1,0 +1,72 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Documents/Views/ReceiptReviewView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Review Receipt",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "Extracted Information",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "Merchant",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 27
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "Date (MM/DD/YYYY)",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Raw Text",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 77
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create Transaction",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 81
+        }
+      }
+    ]
+  },
+  "version": 1
+}

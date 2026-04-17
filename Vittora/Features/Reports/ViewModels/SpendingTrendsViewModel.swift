@@ -39,7 +39,9 @@ final class SpendingTrendsViewModel {
                 type: selectedType
             )
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load spending trends right now.")
+            )
         }
         isLoading = false
     }

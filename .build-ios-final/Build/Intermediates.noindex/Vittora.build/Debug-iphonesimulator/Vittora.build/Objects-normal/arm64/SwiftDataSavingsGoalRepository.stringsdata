@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Data/Repositories/SwiftDataSavingsGoalRepository.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Savings goal not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "Savings goal not found",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 65
+        }
+      }
+    ]
+  },
+  "version": 1
+}

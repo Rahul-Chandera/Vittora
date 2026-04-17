@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/Entities/DebtEntry.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Lent",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "Borrowed",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 12
+        }
+      }
+    ]
+  },
+  "version": 1
+}

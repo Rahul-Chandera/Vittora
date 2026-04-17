@@ -45,7 +45,9 @@ import Foundation
             let filter = searchQuery.trimmingCharacters(in: .whitespaces).isEmpty ? activeFilter : nil
             groupedTransactions = try await fetchUseCase.executeGroupedByDate(filter: filter)
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load transactions right now.")
+            )
         }
     }
 
@@ -69,7 +71,9 @@ import Foundation
                 }
             }
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't search transactions right now.")
+            )
         }
     }
 
@@ -89,7 +93,9 @@ import Foundation
             selectedTransactionIDs.remove(id)
             await loadTransactions()
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't delete this transaction.")
+            )
         }
     }
 
@@ -105,7 +111,9 @@ import Foundation
             isMultiSelectMode = false
             await loadTransactions()
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't delete the selected transactions.")
+            )
         }
     }
 
@@ -121,7 +129,9 @@ import Foundation
             isMultiSelectMode = false
             await loadTransactions()
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't update the selected transactions.")
+            )
         }
     }
 

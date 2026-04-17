@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>12</integer>
+	<key>logs</key>
+	<dict>
+		<key>3F14C2B3-6438-4E02-8994-B72ADD7FA852</key>
+		<dict>
+			<key>auxiliaryLogUniqueIdentifier</key>
+			<string>CB069589-ACF1-4249-A267-279441B01C9C</string>
+			<key>auxiliaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>1089</integer>
+			</dict>
+			<key>className</key>
+			<string>IDESchemeActionsInvocationRecord</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>com.apple.dt.unit.cocoaUnitTest</string>
+			<key>fileName</key>
+			<string>Test-Vittora-2026.04.17_08-25-02-+0530.xcresult</string>
+			<key>hasAuxiliaryLog</key>
+			<true/>
+			<key>hasCoverageData</key>
+			<true/>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+				<key>totalCodeCoverage</key>
+				<real>0.29601305011313606</real>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>493</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>Vittora project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>Vittora</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Test Vittora</string>
+			<key>timeStartedRecording</key>
+			<real>798087302.70259094</real>
+			<key>timeStoppedRecording</key>
+			<real>798087481.86524904</real>
+			<key>title</key>
+			<string>Test Vittora</string>
+			<key>uniqueIdentifier</key>
+			<string>3F14C2B3-6438-4E02-8994-B72ADD7FA852</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

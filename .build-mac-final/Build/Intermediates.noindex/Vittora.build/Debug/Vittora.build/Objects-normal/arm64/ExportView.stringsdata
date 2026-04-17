@@ -1,0 +1,80 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Sync/ExportView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Export Data",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "Format",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 95
+        }
+      },
+      {
+        "comment": "",
+        "key": "Custom date range",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 116
+        }
+      },
+      {
+        "comment": "",
+        "key": "From",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "To",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 126
+        }
+      },
+      {
+        "comment": "",
+        "key": "Date Range",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 133
+        }
+      },
+      {
+        "comment": "",
+        "key": "Only transactions within this range will be exported.",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 136
+        }
+      },
+      {
+        "comment": "",
+        "key": "All transactions will be exported.",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 137
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export & Share",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 163
+        }
+      }
+    ]
+  },
+  "version": 1
+}

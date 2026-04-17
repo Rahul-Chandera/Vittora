@@ -33,7 +33,9 @@ final class CustomReportViewModel {
                 transactionType: selectedType
             )
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't generate this report right now.")
+            )
         }
         isLoading = false
     }

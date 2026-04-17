@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/Components/TransactionRowView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Transaction",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 75
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -32,7 +32,7 @@ final class BudgetDetailViewModel {
         error = nil
         do {
             guard var loadedBudget = try await budgetRepository.fetchByID(id) else {
-                error = "Budget not found"
+                error = String(localized: "We couldn't find this budget.")
                 return
             }
 
@@ -57,7 +57,9 @@ final class BudgetDetailViewModel {
             // Load recent transactions (last 5)
             self.recentTransactions = Array(transactions.sorted { $0.date > $1.date }.prefix(5))
         } catch {
-            self.error = error.localizedDescription
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load this budget right now.")
+            )
         }
         isLoading = false
     }

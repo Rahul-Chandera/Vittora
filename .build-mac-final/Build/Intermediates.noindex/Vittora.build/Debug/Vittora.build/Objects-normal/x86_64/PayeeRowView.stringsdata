@@ -1,0 +1,32 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Payees/Components/PayeeRowView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "·",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Business",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "Person",
+        "location": {
+          "startingColumn": 65,
+          "startingLine": 22
+        }
+      }
+    ]
+  },
+  "version": 1
+}

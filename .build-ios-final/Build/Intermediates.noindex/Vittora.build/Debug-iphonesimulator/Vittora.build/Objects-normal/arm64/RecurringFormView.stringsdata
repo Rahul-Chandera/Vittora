@@ -1,0 +1,192 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Recurring/Views/RecurringFormView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Edit Recurring",
+        "location": {
+          "startingColumn": 62,
+          "startingLine": 241
+        }
+      },
+      {
+        "comment": "",
+        "key": "New Recurring",
+        "location": {
+          "startingColumn": 81,
+          "startingLine": 241
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "$",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "0.00",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 32
+        }
+      },
+      {
+        "comment": "",
+        "key": "Start Date",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "Start Date",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 53
+        }
+      },
+      {
+        "comment": "",
+        "key": "End Date",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 80
+        }
+      },
+      {
+        "comment": "",
+        "key": "End Date (Optional)",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account *",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 98
+        }
+      },
+      {
+        "comment": "",
+        "key": "Selected",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 110
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose Account",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 114
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category (Optional)",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 132
+        }
+      },
+      {
+        "comment": "",
+        "key": "Selected",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 144
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose Category",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 148
+        }
+      },
+      {
+        "comment": "",
+        "key": "Payee (Optional)",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 166
+        }
+      },
+      {
+        "comment": "",
+        "key": "Selected",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 178
+        }
+      },
+      {
+        "comment": "",
+        "key": "Choose Payee",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 182
+        }
+      },
+      {
+        "comment": "",
+        "key": "Note (Optional)",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 200
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 247
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 257
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select Category",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 352
+        }
+      }
+    ]
+  },
+  "version": 1
+}

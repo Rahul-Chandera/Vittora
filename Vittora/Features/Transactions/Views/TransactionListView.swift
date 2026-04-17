@@ -39,6 +39,7 @@ struct TransactionListView: View {
         .navigationDestination(item: $navigateDestination) { dest in
             navigationView(for: dest)
         }
+        .errorAlert(message: transactionListErrorBinding)
     }
 
     @ViewBuilder
@@ -172,20 +173,6 @@ struct TransactionListView: View {
                     .tint(VColors.primary)
             }
         }
-        .if(vm.error != nil) { view in
-            view.overlay(alignment: .top) {
-                VStack {
-                    Text(vm.error ?? "Unknown error")
-                        .font(.caption)
-                        .foregroundColor(.white)
-                        .padding(VSpacing.md)
-                        .background(VColors.expense)
-                        .cornerRadius(VSpacing.cornerRadiusSM)
-                        .padding(VSpacing.md)
-                    Spacer()
-                }
-            }
-        }
     }
 
     private var emptyState: some View {
@@ -277,6 +264,15 @@ struct TransactionListView: View {
             searchUseCase: searchUseCase,
             deleteUseCase: deleteUseCase,
             bulkOpsUseCase: bulkOpsUseCase
+        )
+    }
+
+    private var transactionListErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
         )
     }
 }

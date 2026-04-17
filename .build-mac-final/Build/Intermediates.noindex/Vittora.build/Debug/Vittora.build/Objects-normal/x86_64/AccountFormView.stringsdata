@@ -1,0 +1,96 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Accounts/Views/AccountFormView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "New Account",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "Edit Account",
+        "location": {
+          "startingColumn": 66,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account Info",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 69
+        }
+      },
+      {
+        "comment": "",
+        "key": "Starting Balance",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 86
+        }
+      },
+      {
+        "comment": "",
+        "key": "Icon",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 94
+        }
+      },
+      {
+        "comment": "",
+        "key": "Account Name",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 70
+        }
+      },
+      {
+        "comment": "",
+        "key": "Type",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "Currency",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 78
+        }
+      },
+      {
+        "comment": "",
+        "key": "0.00",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 87
+        }
+      }
+    ]
+  },
+  "version": 1
+}

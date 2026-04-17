@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/SaveTaxProfileUseCase.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Annual income must be greater than zero.",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 12
+        }
+      }
+    ]
+  },
+  "version": 1
+}

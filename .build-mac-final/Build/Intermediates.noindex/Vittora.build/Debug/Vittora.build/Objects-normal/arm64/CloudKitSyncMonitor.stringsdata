@@ -1,0 +1,48 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Sync/CloudKitSyncMonitor.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "A sync conflict was resolved automatically. Review iCloud Sync for details.",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "Setup",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 98
+        }
+      },
+      {
+        "comment": "",
+        "key": "Import",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 100
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sync",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 104
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -10,6 +10,7 @@ struct RecurringDetailView: View {
     @State private var recentTransactions: [TransactionEntity] = []
     @State private var isLoading = true
     @State private var showEditSheet = false
+    @State private var errorMessage: String?
 
     var body: some View {
         ZStack {
@@ -212,6 +213,7 @@ struct RecurringDetailView: View {
                 })
             }
         }
+        .errorAlert(message: $errorMessage)
         .onAppear {
             Task {
                 await loadData()
@@ -247,7 +249,9 @@ struct RecurringDetailView: View {
                 }
             }
         } catch {
-            // Silent error for now
+            errorMessage = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load this recurring transaction right now.")
+            )
         }
 
         isLoading = false
@@ -263,7 +267,9 @@ struct RecurringDetailView: View {
                 try await pauseUseCase.execute(id: rule.id)
                 await loadData()
             } catch {
-                // Handle error
+                errorMessage = error.userFacingMessage(
+                    fallback: String(localized: "We couldn't update this recurring transaction right now.")
+                )
             }
         }
     }

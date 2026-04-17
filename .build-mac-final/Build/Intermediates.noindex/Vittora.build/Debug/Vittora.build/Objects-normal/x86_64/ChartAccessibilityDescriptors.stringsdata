@@ -1,0 +1,352 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/DesignSystem/Accessibility/ChartAccessibilityDescriptors.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Day %lld",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "Month",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 77
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 81
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 89
+        }
+      },
+      {
+        "comment": "",
+        "key": "Expense",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 100
+        }
+      },
+      {
+        "comment": "",
+        "key": "Income vs Expenses",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 112
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shows monthly income and expense totals.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 113
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ income",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 95
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ expense",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 106
+        }
+      },
+      {
+        "comment": "",
+        "key": "Month",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 130
+        }
+      },
+      {
+        "comment": "",
+        "key": "Net cash flow",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 134
+        }
+      },
+      {
+        "comment": "",
+        "key": "Net cash flow",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 142
+        }
+      },
+      {
+        "comment": "",
+        "key": "Monthly Net Cash Flow",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 154
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shows each month as either surplus or deficit.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 155
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ net cash flow",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 148
+        }
+      },
+      {
+        "comment": "",
+        "key": "Period",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 172
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 176
+        }
+      },
+      {
+        "comment": "",
+        "key": "Spending",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 184
+        }
+      },
+      {
+        "comment": "",
+        "key": "Spending Trend",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 196
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shows how spending changes over time.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 197
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 215
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 219
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category Breakdown",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 227
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category Breakdown",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 239
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shows the categories contributing the most to the selected period.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 240
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@, %@ transactions",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 233
+        }
+      },
+      {
+        "comment": "",
+        "key": "Category",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 259
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 263
+        }
+      },
+      {
+        "comment": "",
+        "key": "Top Categories",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 271
+        }
+      },
+      {
+        "comment": "",
+        "key": "Top Categories",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 283
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shows the highest-spending categories for the current month.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 284
+        }
+      },
+      {
+        "comment": "",
+        "key": "Day",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 308
+        }
+      },
+      {
+        "comment": "",
+        "key": "Daily spend",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 312
+        }
+      },
+      {
+        "comment": "",
+        "key": "Daily Spend",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 320
+        }
+      },
+      {
+        "comment": "",
+        "key": "Daily Budget",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 331
+        }
+      },
+      {
+        "comment": "",
+        "key": "Daily Spending",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 343
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shows daily spending compared with the average daily budget.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 344
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ budget average",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 337
+        }
+      },
+      {
+        "comment": "",
+        "key": "Date",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 361
+        }
+      },
+      {
+        "comment": "",
+        "key": "Balance",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 365
+        }
+      },
+      {
+        "comment": "",
+        "key": "Balance",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 373
+        }
+      },
+      {
+        "comment": "",
+        "key": "Balance History",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 385
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shows balance changes over time.",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 386
+        }
+      }
+    ]
+  },
+  "version": 1
+}

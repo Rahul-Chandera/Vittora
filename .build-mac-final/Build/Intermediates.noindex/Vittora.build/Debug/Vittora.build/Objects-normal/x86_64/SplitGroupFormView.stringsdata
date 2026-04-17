@@ -1,0 +1,72 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Splits/Views/SplitGroupFormView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "New Group",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Edit Group",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "Group Name",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 35
+        }
+      },
+      {
+        "comment": "",
+        "key": "e.g. Trip to Goa",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "Members (%lld selected)",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select at least 2 members.",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 65
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 87
+        }
+      }
+    ]
+  },
+  "version": 1
+}

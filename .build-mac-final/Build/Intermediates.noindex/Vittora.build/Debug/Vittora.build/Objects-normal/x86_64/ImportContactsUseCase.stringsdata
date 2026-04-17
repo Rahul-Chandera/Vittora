@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/ImportContactsUseCase.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Contacts access was denied. Allow access in Settings to import payees.",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Contacts access is restricted on this device.",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 18
+        }
+      }
+    ]
+  },
+  "version": 1
+}

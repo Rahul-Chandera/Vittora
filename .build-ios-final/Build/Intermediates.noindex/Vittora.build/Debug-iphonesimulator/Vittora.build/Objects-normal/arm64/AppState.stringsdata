@@ -1,0 +1,80 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/App/AppState.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Dashboard",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transactions",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "Budgets",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reports",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debt",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Splits",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tax",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 53
+        }
+      },
+      {
+        "comment": "",
+        "key": "Savings",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settings",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 55
+        }
+      }
+    ]
+  },
+  "version": 1
+}

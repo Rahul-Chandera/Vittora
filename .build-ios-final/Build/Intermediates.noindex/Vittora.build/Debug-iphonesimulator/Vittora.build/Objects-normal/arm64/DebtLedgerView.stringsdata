@@ -1,0 +1,64 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Debt/Views/DebtLedgerView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Debt Ledger",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 21
+        }
+      },
+      {
+        "comment": "",
+        "key": "Owed to You",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 76
+        }
+      },
+      {
+        "comment": "",
+        "key": "You Owe",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 79
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld overdue debt(s)",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 118
+        }
+      },
+      {
+        "comment": "",
+        "key": "No debts recorded",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 133
+        }
+      },
+      {
+        "comment": "",
+        "key": "Track money you lent or borrowed",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 136
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add Entry",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 140
+        }
+      }
+    ]
+  },
+  "version": 1
+}

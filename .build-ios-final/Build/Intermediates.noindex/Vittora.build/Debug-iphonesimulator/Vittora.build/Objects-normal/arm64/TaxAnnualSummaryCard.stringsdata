@@ -1,0 +1,72 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Tax/Components/TaxAnnualSummaryCard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "No tax-relevant transactions were found for this year.",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tax-Related Activity",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 27
+        }
+      },
+      {
+        "comment": "",
+        "key": "Potentially Relevant",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transactions",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Matched Categories",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 57
+        }
+      },
+      {
+        "comment": "",
+        "key": "Top Categories",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ transaction(s)",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 88
+        }
+      },
+      {
+        "comment": "",
+        "key": "Watching Categories",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 108
+        }
+      }
+    ]
+  },
+  "version": 1
+}

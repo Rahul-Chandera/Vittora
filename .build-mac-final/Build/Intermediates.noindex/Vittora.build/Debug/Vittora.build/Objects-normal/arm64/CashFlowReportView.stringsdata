@@ -1,0 +1,144 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/Views/CashFlowReportView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Cash Flow",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "Avg/Month",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "+%@",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 53
+        }
+      },
+      {
+        "comment": "",
+        "key": "-%@",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "Surplus",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 63
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "Deficit",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "Monthly Net Cash Flow",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Zero",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 89
+        }
+      },
+      {
+        "comment": "",
+        "key": "Net",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "Month",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 95
+        }
+      },
+      {
+        "comment": "",
+        "key": "Surplus",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 122
+        }
+      },
+      {
+        "comment": "",
+        "key": "Deficit",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 125
+        }
+      },
+      {
+        "comment": "",
+        "key": "Month-by-Month",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 137
+        }
+      },
+      {
+        "comment": "",
+        "key": "+%@",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 167
+        }
+      },
+      {
+        "comment": "",
+        "key": "-%@",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 168
+        }
+      }
+    ]
+  },
+  "version": 1
+}

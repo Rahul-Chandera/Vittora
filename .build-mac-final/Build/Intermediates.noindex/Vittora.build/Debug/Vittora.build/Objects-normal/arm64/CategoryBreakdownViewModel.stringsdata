@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/ViewModels/CategoryBreakdownViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't load the category breakdown right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 34
+        }
+      }
+    ]
+  },
+  "version": 1
+}

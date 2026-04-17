@@ -1,0 +1,48 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Payees/ViewModels/PayeeListViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "No contacts were available to import.",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "No new payees were imported. %lld contacts were skipped because they already exist.",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Imported %lld contacts as payees.",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 56
+        }
+      },
+      {
+        "comment": "",
+        "key": "Imported %lld contacts as payees and skipped %lld duplicates.",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "Contacts import is unavailable.",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 99
+        }
+      }
+    ]
+  },
+  "version": 1
+}

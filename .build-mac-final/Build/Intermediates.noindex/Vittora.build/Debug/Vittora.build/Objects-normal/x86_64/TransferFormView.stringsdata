@@ -1,0 +1,120 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Accounts/Views/TransferFormView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Transfer Funds",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 20
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transfer",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "From",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "To",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 108
+        }
+      },
+      {
+        "comment": "",
+        "key": "Amount",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 148
+        }
+      },
+      {
+        "comment": "",
+        "key": "Details",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 156
+        }
+      },
+      {
+        "comment": "",
+        "key": "From Account",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 79
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select Account",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "To Account",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 119
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select Account",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 136
+        }
+      },
+      {
+        "comment": "",
+        "key": "0.00",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 149
+        }
+      },
+      {
+        "comment": "",
+        "key": "Date",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 157
+        }
+      },
+      {
+        "comment": "",
+        "key": "Note (optional)",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 158
+        }
+      }
+    ]
+  },
+  "version": 1
+}

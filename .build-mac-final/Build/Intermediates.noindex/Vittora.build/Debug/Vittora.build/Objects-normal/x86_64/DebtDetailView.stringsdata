@@ -1,0 +1,96 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Debt/Views/DebtDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Ledger",
+        "location": {
+          "startingColumn": 63,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "Owed to You",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 60
+        }
+      },
+      {
+        "comment": "",
+        "key": "You Owe",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Net",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 66
+        }
+      },
+      {
+        "comment": "",
+        "key": "History",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 95
+        }
+      },
+      {
+        "comment": "",
+        "key": "Lent",
+        "location": {
+          "startingColumn": 82,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "Borrowed",
+        "location": {
+          "startingColumn": 110,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "Overdue",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settled",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 133
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ left",
+        "location": {
+          "startingColumn": 44,
+          "startingLine": 147
+        }
+      },
+      {
+        "comment": "",
+        "key": "Settle",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 152
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,104 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Dashboard/Components/UpcomingRecurringList.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Upcoming",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 8
+        }
+      },
+      {
+        "comment": "",
+        "key": "No upcoming recurring transactions",
+        "location": {
+          "startingColumn": 40,
+          "startingLine": 13
+        }
+      },
+      {
+        "comment": "",
+        "key": "Recurring",
+        "location": {
+          "startingColumn": 61,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Daily",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 78
+        }
+      },
+      {
+        "comment": "",
+        "key": "Weekly",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 79
+        }
+      },
+      {
+        "comment": "",
+        "key": "Bi-weekly",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 80
+        }
+      },
+      {
+        "comment": "",
+        "key": "Monthly",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 81
+        }
+      },
+      {
+        "comment": "",
+        "key": "Quarterly",
+        "location": {
+          "startingColumn": 51,
+          "startingLine": 82
+        }
+      },
+      {
+        "comment": "",
+        "key": "Yearly",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Every %lld days",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Today",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 91
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tomorrow",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 93
+        }
+      }
+    ]
+  },
+  "version": 1
+}

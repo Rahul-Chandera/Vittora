@@ -50,6 +50,7 @@ struct CustomReportView: View {
                 await vm?.generate()
             }
         }
+        .errorAlert(message: customReportErrorBinding)
     }
 
     @ViewBuilder
@@ -163,6 +164,15 @@ struct CustomReportView: View {
         formatter.numberStyle = .currency
         formatter.currencyCode = "USD"
         return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+    }
+
+    private var customReportErrorBinding: Binding<String?> {
+        Binding(
+            get: { vm?.error },
+            set: { newValue in
+                vm?.error = newValue
+            }
+        )
     }
 }
 

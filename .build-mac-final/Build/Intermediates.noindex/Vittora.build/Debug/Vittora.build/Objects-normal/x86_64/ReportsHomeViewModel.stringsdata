@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Reports/ViewModels/ReportsHomeViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't load report highlights right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 40
+        }
+      }
+    ]
+  },
+  "version": 1
+}

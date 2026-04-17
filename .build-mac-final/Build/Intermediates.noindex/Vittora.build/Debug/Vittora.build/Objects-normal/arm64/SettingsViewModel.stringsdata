@@ -1,0 +1,32 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Settings/ViewModels/SettingsViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "System",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "Light",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 69
+        }
+      },
+      {
+        "comment": "",
+        "key": "Dark",
+        "location": {
+          "startingColumn": 52,
+          "startingLine": 70
+        }
+      }
+    ]
+  },
+  "version": 1
+}

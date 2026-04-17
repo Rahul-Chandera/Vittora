@@ -1,0 +1,48 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/ViewModels/TransactionListViewModel.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "We couldn't load transactions right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't search transactions right now.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 75
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't delete this transaction.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 97
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't delete the selected transactions.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 115
+        }
+      },
+      {
+        "comment": "",
+        "key": "We couldn't update the selected transactions.",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 133
+        }
+      }
+    ]
+  },
+  "version": 1
+}

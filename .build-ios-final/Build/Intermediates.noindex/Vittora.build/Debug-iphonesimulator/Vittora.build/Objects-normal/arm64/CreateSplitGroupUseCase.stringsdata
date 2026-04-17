@@ -1,0 +1,24 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Core/Domain/UseCases/CreateSplitGroupUseCase.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Group name must be at least 2 characters.",
+        "location": {
+          "startingColumn": 62,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "A group requires at least 2 members.",
+        "location": {
+          "startingColumn": 62,
+          "startingLine": 13
+        }
+      }
+    ]
+  },
+  "version": 1
+}

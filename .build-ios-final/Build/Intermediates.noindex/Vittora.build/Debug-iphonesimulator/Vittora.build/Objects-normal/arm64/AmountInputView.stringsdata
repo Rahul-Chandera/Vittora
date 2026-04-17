@@ -1,0 +1,16 @@
+{
+  "source": "/Volumes/Data/Projects/Vittora/Vittora/Vittora/Features/Transactions/Components/AmountInputView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "0.00",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 16
+        }
+      }
+    ]
+  },
+  "version": 1
+}
