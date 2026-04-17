@@ -35,17 +35,20 @@ struct BudgetProgressRing: View {
             }
         }
         .frame(width: size, height: size)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Budget progress"))
+        .accessibilityValue(String(localized: "\(Int(min(progress * 100, 999))) percent, \(statusLabel)"))
     }
 
     private var statusLabel: String {
         if progress >= 1.0 {
-            return "Over Budget"
+            return String(localized: "Over Budget")
         } else if progress >= 0.9 {
-            return "Critical"
+            return String(localized: "Critical")
         } else if progress >= 0.75 {
-            return "Warning"
+            return String(localized: "Warning")
         } else {
-            return "On Track"
+            return String(localized: "On Track")
         }
     }
 

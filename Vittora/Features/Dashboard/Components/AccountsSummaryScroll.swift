@@ -68,13 +68,31 @@ private struct AccountMiniCard: View {
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityHint(String(localized: "Opens account details"))
     }
 
     private func formattedBalance(_ balance: Decimal) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: balance as NSDecimalNumber) ?? "$0.00"
+        formatter.currencyCode = account.currencyCode
+        return formatter.string(from: balance as NSDecimalNumber) ?? balance.formatted(.currency(code: account.currencyCode))
+    }
+
+    private var accountTypeDescription: String {
+        account.type.rawValue
+            .capitalized
+            .replacingOccurrences(of: "Creditcard", with: "Credit Card")
+            .replacingOccurrences(of: "Digitalwallet", with: "Digital Wallet")
+    }
+
+    private var accessibilityLabel: String {
+        [
+            account.name,
+            accountTypeDescription,
+            formattedBalance(account.balance)
+        ].joined(separator: ", ")
     }
 }
 

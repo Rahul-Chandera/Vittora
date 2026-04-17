@@ -34,6 +34,7 @@ struct VEmptyState: View {
                     .padding(VSpacing.lg)
                     .background(VColors.tertiaryBackground)
                     .clipShape(Circle())
+                    .accessibilityHidden(true)
 
                 VStack(spacing: VSpacing.sm) {
                     Text(title)
@@ -58,6 +59,7 @@ struct VEmptyState: View {
             Spacer()
         }
         .padding(VSpacing.screenPadding)
+        .accessibilityElement(children: .contain)
     }
 }
 

@@ -34,6 +34,31 @@ struct AccountRowView: View {
             }
         }
         .padding(.vertical, VSpacing.xs)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+    }
+}
+
+private extension AccountRowView {
+    var accountTypeDescription: String {
+        account.type.rawValue
+            .capitalized
+            .replacingOccurrences(of: "Creditcard", with: "Credit Card")
+            .replacingOccurrences(of: "Digitalwallet", with: "Digital Wallet")
+    }
+
+    var accessibilityLabel: String {
+        var parts = [
+            account.name,
+            accountTypeDescription,
+            account.balance.formatted(.currency(code: account.currencyCode))
+        ]
+
+        if account.isArchived {
+            parts.append(String(localized: "Archived"))
+        }
+
+        return parts.joined(separator: ", ")
     }
 }
 

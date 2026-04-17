@@ -13,6 +13,7 @@ struct AccountTypeIcon: View {
                 .font(.system(size: size * 0.45, weight: .semibold))
                 .foregroundColor(color)
         }
+        .accessibilityHidden(true)
     }
 
     private var iconName: String {

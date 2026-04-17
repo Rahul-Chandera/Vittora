@@ -4,6 +4,7 @@ struct HeroSpendingCard: View {
     let monthSpending: Decimal
     let monthIncome: Decimal
     let comparison: MonthComparison?
+    var currencyCode: String = "USD"
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
@@ -46,6 +47,9 @@ struct HeroSpendingCard: View {
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Monthly summary"))
+        .accessibilityValue(accessibilitySummary)
     }
 
     @ViewBuilder
@@ -54,6 +58,7 @@ struct HeroSpendingCard: View {
         HStack(spacing: VSpacing.xxs) {
             Image(systemName: increased ? "arrow.up" : "arrow.down")
                 .font(.caption2)
+                .accessibilityHidden(true)
             Text(String(format: "%.1f%%", abs(percent)))
                 .font(VTypography.caption2)
         }
@@ -66,6 +71,7 @@ struct HeroSpendingCard: View {
         HStack(spacing: VSpacing.xxs) {
             Image(systemName: increased ? "arrow.up" : "arrow.down")
                 .font(.caption2)
+                .accessibilityHidden(true)
             Text(String(format: "%.1f%%", abs(percent)))
                 .font(VTypography.caption2)
         }
@@ -105,8 +111,21 @@ struct HeroSpendingCard: View {
     private func formattedAmount(_ amount: Decimal) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        formatter.currencyCode = currencyCode
+        return formatter.string(from: amount as NSDecimalNumber) ?? amount.formatted(.currency(code: currencyCode))
+    }
+
+    private var accessibilitySummary: String {
+        var parts = [
+            String(localized: "Spent \(formattedAmount(monthSpending))"),
+            String(localized: "Income \(formattedAmount(monthIncome))")
+        ]
+
+        if let comparison {
+            parts.append(String(localized: "Savings rate \(Int(comparison.savingsRate * 100)) percent"))
+        }
+
+        return parts.joined(separator: ", ")
     }
 }
 

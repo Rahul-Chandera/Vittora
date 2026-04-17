@@ -6,6 +6,10 @@ struct BudgetListView: View {
     @State private var showAddBudget = false
     @State private var navigationPath = NavigationPath()
 
+    private var currencyCode: String {
+        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
+    }
+
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ZStack {
@@ -24,7 +28,8 @@ struct BudgetListView: View {
                                 BudgetOverviewCard(
                                     spent: viewModel.overallSpent,
                                     budget: viewModel.overallBudget,
-                                    progress: viewModel.overallProgress
+                                    progress: viewModel.overallProgress,
+                                    currencyCode: currencyCode
                                 )
                                 .listRowInsets(EdgeInsets())
                                 .listRowSeparator(.hidden)
@@ -85,6 +90,8 @@ struct BudgetListView: View {
                         Image(systemName: "plus")
                     }
                     .accessibilityIdentifier("budget-add-button")
+                    .accessibilityLabel(String(localized: "Add budget"))
+                    .accessibilityHint(String(localized: "Opens the budget form"))
                 }
             }
             .sheet(isPresented: $showAddBudget, onDismiss: {

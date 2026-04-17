@@ -45,6 +45,13 @@ struct TransactionDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(VColors.secondaryBackground)
                         .cornerRadius(VSpacing.cornerRadiusSM)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(String(localized: "Transaction summary"))
+                        .accessibilityValue(
+                            String(
+                                localized: "\(transaction.type.rawValue.capitalized), \(formatAmount(transaction.amount)), \(formatDate(transaction.date))"
+                            )
+                        )
 
                         // Details section
                         VStack(alignment: .leading, spacing: VSpacing.md) {
@@ -127,6 +134,9 @@ struct TransactionDetailView: View {
                             NavigationLink(value: NavigationDestination.editTransaction(id: transaction.id)) {
                                 Image(systemName: "pencil")
                             }
+                            .accessibilityIdentifier("transaction-detail-edit-button")
+                            .accessibilityLabel(String(localized: "Edit transaction"))
+                            .accessibilityHint(String(localized: "Opens the transaction form"))
 
                             Button(role: .destructive) {
                                 Task {
@@ -140,6 +150,9 @@ struct TransactionDetailView: View {
                             } label: {
                                 Image(systemName: "trash")
                             }
+                            .accessibilityIdentifier("transaction-detail-delete-button")
+                            .accessibilityLabel(String(localized: "Delete transaction"))
+                            .accessibilityHint(String(localized: "Deletes this transaction"))
                         }
                     }
                 }

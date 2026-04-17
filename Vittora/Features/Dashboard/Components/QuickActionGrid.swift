@@ -7,6 +7,8 @@ struct QuickAction: Identifiable {
     let color: Color
     let destination: NavigationDestination
     let accessibilityIdentifier: String
+    let accessibilityLabel: String
+    let accessibilityHint: String
 }
 
 struct QuickActionGrid: View {
@@ -18,28 +20,36 @@ struct QuickActionGrid: View {
             icon: "arrow.up.circle.fill",
             color: VColors.expense,
             destination: .addTransaction,
-            accessibilityIdentifier: "quick-action-expense-button"
+            accessibilityIdentifier: "quick-action-expense-button",
+            accessibilityLabel: String(localized: "Add expense"),
+            accessibilityHint: String(localized: "Opens the expense transaction form")
         ),
         QuickAction(
             title: String(localized: "Income"),
             icon: "arrow.down.circle.fill",
             color: VColors.income,
             destination: .addTransaction,
-            accessibilityIdentifier: "quick-action-income-button"
+            accessibilityIdentifier: "quick-action-income-button",
+            accessibilityLabel: String(localized: "Add income"),
+            accessibilityHint: String(localized: "Opens the income transaction form")
         ),
         QuickAction(
             title: String(localized: "Transfer"),
             icon: "arrow.left.arrow.right.circle.fill",
             color: VColors.transfer,
             destination: .addTransfer,
-            accessibilityIdentifier: "quick-action-transfer-button"
+            accessibilityIdentifier: "quick-action-transfer-button",
+            accessibilityLabel: String(localized: "Transfer funds"),
+            accessibilityHint: String(localized: "Opens the transfer form")
         ),
         QuickAction(
             title: String(localized: "Budget"),
             icon: "target",
             color: VColors.primary,
             destination: .addBudget,
-            accessibilityIdentifier: "quick-action-budget-button"
+            accessibilityIdentifier: "quick-action-budget-button",
+            accessibilityLabel: String(localized: "Create budget"),
+            accessibilityHint: String(localized: "Opens the budget form")
         )
     ]
 
@@ -77,6 +87,7 @@ private struct QuickActionButton: View {
                     .frame(width: 56, height: 56)
                     .background(action.color.opacity(0.12))
                     .clipShape(Circle())
+                    .accessibilityHidden(true)
 
                 Text(action.title)
                     .font(VTypography.caption1)
@@ -86,6 +97,8 @@ private struct QuickActionButton: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(action.accessibilityIdentifier)
+        .accessibilityLabel(action.accessibilityLabel)
+        .accessibilityHint(action.accessibilityHint)
     }
 }
 

@@ -67,7 +67,8 @@ struct DashboardView: View {
                 HeroSpendingCard(
                     monthSpending: data.monthSpending,
                     monthIncome: data.monthIncome,
-                    comparison: vm.comparison
+                    comparison: vm.comparison,
+                    currencyCode: currencyCode
                 )
 
                 budgetProgressSection(progress: data.monthBudgetProgress)
@@ -106,7 +107,8 @@ struct DashboardView: View {
                 HeroSpendingCard(
                     monthSpending: data.monthSpending,
                     monthIncome: data.monthIncome,
-                    comparison: vm.comparison
+                    comparison: vm.comparison,
+                    currencyCode: currencyCode
                 )
 
                 LazyVGrid(
@@ -159,6 +161,7 @@ struct DashboardView: View {
                         .foregroundColor(VColors.primary)
                 }
                 .buttonStyle(.plain)
+                .accessibilityHint(String(localized: "Opens the budget form"))
             }
 
             VStack(spacing: VSpacing.sm) {
@@ -207,6 +210,9 @@ struct DashboardView: View {
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Net worth"))
+        .accessibilityValue(vm?.formattedAmount(netWorth) ?? netWorth.formatted(.currency(code: currencyCode)))
     }
 
     private func progressColor(_ progress: Double) -> Color {

@@ -86,7 +86,7 @@ struct TransactionListView: View {
         #else
         .listStyle(.inset)
         #endif
-        .searchable(text: Bindable(vm).searchQuery, prompt: "Search transactions")
+        .searchable(text: Bindable(vm).searchQuery, prompt: String(localized: "Search transactions"))
         .onChange(of: vm.searchQuery) { oldValue, newValue in
             Task {
                 await vm.search(newValue)
@@ -100,6 +100,8 @@ struct TransactionListView: View {
                             .font(.title2)
                     }
                     .accessibilityIdentifier("transaction-add-button")
+                    .accessibilityLabel(String(localized: "Add transaction"))
+                    .accessibilityHint(String(localized: "Opens the new transaction form"))
 
                     Button {
                         showFilterSheet = true
@@ -109,6 +111,9 @@ struct TransactionListView: View {
                             .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
                     }
                     .accessibilityIdentifier("transaction-filter-button")
+                    .accessibilityLabel(String(localized: "Filter transactions"))
+                    .accessibilityHint(String(localized: "Opens transaction filters"))
+                    .accessibilityValue(vm.hasActiveFilter ? String(localized: "Filter active") : String(localized: "No filters applied"))
                 }
             }
         }

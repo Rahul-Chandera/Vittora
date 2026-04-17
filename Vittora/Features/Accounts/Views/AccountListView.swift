@@ -7,6 +7,10 @@ struct AccountListView: View {
     @State private var showingDeleteAlert = false
     @State private var accountToDelete: UUID?
 
+    private var currencyCode: String {
+        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
+    }
+
     var body: some View {
         Group {
             if let vm = viewModel {
@@ -23,6 +27,9 @@ struct AccountListView: View {
                 } label: {
                     Image(systemName: VIcons.Actions.add)
                 }
+                .accessibilityIdentifier("account-add-button")
+                .accessibilityLabel(String(localized: "Add account"))
+                .accessibilityHint(String(localized: "Opens the account form"))
             }
         }
         .sheet(isPresented: $showAddAccount) {
@@ -111,7 +118,8 @@ struct AccountListView: View {
                 NetWorthCard(
                     netWorth: vm.netWorth,
                     totalAssets: vm.totalAssets,
-                    totalLiabilities: vm.totalLiabilities
+                    totalLiabilities: vm.totalLiabilities,
+                    currencyCode: currencyCode
                 )
                 .listRowInsets(EdgeInsets(
                     top: VSpacing.sm,

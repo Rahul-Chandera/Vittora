@@ -178,6 +178,9 @@ struct BudgetDetailView: View {
                 Button(action: { showEdit = true }) {
                     Image(systemName: "pencil")
                 }
+                .accessibilityIdentifier("budget-edit-button")
+                .accessibilityLabel(String(localized: "Edit budget"))
+                .accessibilityHint(String(localized: "Opens the budget form"))
             }
         }
         .sheet(isPresented: $showEdit) {

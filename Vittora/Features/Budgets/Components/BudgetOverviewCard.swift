@@ -4,6 +4,7 @@ struct BudgetOverviewCard: View {
     let spent: Decimal
     let budget: Decimal
     let progress: Double
+    var currencyCode: String = "USD"
 
     var remaining: Decimal {
         budget - spent
@@ -65,6 +66,13 @@ struct BudgetOverviewCard: View {
                 }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Budget overview"))
+        .accessibilityValue(
+            String(
+                localized: "Total budget \(formattedAmount(budget)), spent \(formattedAmount(spent)), remaining \(formattedAmount(remaining)), \(Int(min(progress * 100, 999))) percent used"
+            )
+        )
     }
 
     private var statusColor: Color {
@@ -75,6 +83,13 @@ struct BudgetOverviewCard: View {
         } else {
             return VColors.budgetSafe
         }
+    }
+
+    private func formattedAmount(_ amount: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyCode
+        return formatter.string(from: amount as NSDecimalNumber) ?? amount.formatted(.currency(code: currencyCode))
     }
 }
 

@@ -9,7 +9,7 @@ struct NetWorthCard: View {
     var body: some View {
         VCard(padding: VSpacing.lg, shadow: .medium, backgroundColor: VColors.primary) {
             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                Text("Net Worth")
+                Text(String(localized: "Net Worth"))
                     .font(VTypography.caption1)
                     .foregroundColor(.white.opacity(0.8))
 
@@ -23,7 +23,7 @@ struct NetWorthCard: View {
 
                 HStack {
                     VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                        Text("Assets")
+                        Text(String(localized: "Assets"))
                             .font(VTypography.caption2)
                             .foregroundColor(.white.opacity(0.7))
                         Text(totalAssets.formatted(.currency(code: currencyCode)))
@@ -34,7 +34,7 @@ struct NetWorthCard: View {
                     Spacer()
 
                     VStack(alignment: .trailing, spacing: VSpacing.xxs) {
-                        Text("Liabilities")
+                        Text(String(localized: "Liabilities"))
                             .font(VTypography.caption2)
                             .foregroundColor(.white.opacity(0.7))
                         Text(totalLiabilities.formatted(.currency(code: currencyCode)))
@@ -44,6 +44,13 @@ struct NetWorthCard: View {
                 }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Net worth summary"))
+        .accessibilityValue(
+            String(
+                localized: "Net worth \(netWorth.formatted(.currency(code: currencyCode))), assets \(totalAssets.formatted(.currency(code: currencyCode))), liabilities \(totalLiabilities.formatted(.currency(code: currencyCode)))"
+            )
+        )
     }
 }
 
