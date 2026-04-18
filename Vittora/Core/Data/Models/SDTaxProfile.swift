@@ -11,6 +11,8 @@ final class SDTaxProfile {
     /// JSON-encoded [TaxDeduction]
     var deductionsJSON: String = "[]"
     var financialYear: String = TaxCountry.india.defaultFinancialYear
+    var incomeSourceTypeRawValue: String = IncomeSourceType.salaried.rawValue
+    var dateOfBirth: Date? = nil
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
 
@@ -24,6 +26,8 @@ final class SDTaxProfile {
         filingStatus: USFilingStatus,
         customDeductions: [TaxDeduction] = [],
         financialYear: String,
+        incomeSourceType: IncomeSourceType = .salaried,
+        dateOfBirth: Date? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -34,6 +38,8 @@ final class SDTaxProfile {
         self.filingStatusRawValue = filingStatus.rawValue
         self.deductionsJSON = SDTaxProfile.encode(customDeductions)
         self.financialYear = financialYear
+        self.incomeSourceTypeRawValue = incomeSourceType.rawValue
+        self.dateOfBirth = dateOfBirth
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -51,6 +57,11 @@ final class SDTaxProfile {
     var filingStatus: USFilingStatus {
         get { USFilingStatus(rawValue: filingStatusRawValue) ?? .single }
         set { filingStatusRawValue = newValue.rawValue }
+    }
+
+    var incomeSourceType: IncomeSourceType {
+        get { IncomeSourceType(rawValue: incomeSourceTypeRawValue) ?? .salaried }
+        set { incomeSourceTypeRawValue = newValue.rawValue }
     }
 
     var customDeductions: [TaxDeduction] {

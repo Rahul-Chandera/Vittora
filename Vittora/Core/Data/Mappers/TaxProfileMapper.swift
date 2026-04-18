@@ -10,6 +10,8 @@ enum TaxProfileMapper {
             filingStatus: model.filingStatus,
             customDeductions: model.customDeductions,
             financialYear: model.financialYear,
+            incomeSourceType: model.incomeSourceType,
+            dateOfBirth: model.dateOfBirth,
             createdAt: model.createdAt,
             updatedAt: model.updatedAt
         )
@@ -22,6 +24,8 @@ enum TaxProfileMapper {
         model.filingStatus = entity.filingStatus
         model.customDeductions = entity.customDeductions
         model.financialYear = entity.financialYear
+        model.incomeSourceType = entity.incomeSourceType
+        model.dateOfBirth = entity.dateOfBirth
         model.updatedAt = .now
     }
 }

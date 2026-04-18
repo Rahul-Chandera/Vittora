@@ -111,6 +111,42 @@ struct TaxProfileFormView: View {
                     }
                     .pickerStyle(.segmented)
                     .onChange(of: vm.indiaRegime) { _, _ in vm.recalculateLive() }
+
+                    Picker(String(localized: "Income Type"), selection: Bindable(vm).incomeSourceType) {
+                        ForEach(IncomeSourceType.allCases, id: \.self) { t in
+                            Text(t.displayName).tag(t)
+                        }
+                    }
+                    .onChange(of: vm.incomeSourceType) { _, _ in vm.recalculateLive() }
+                }
+
+                if vm.indiaRegime == .oldRegime {
+                    Section {
+                        if let dob = vm.dateOfBirth {
+                            DatePicker(
+                                String(localized: "Date of Birth"),
+                                selection: Binding(
+                                    get: { dob },
+                                    set: { vm.dateOfBirth = $0; vm.recalculateLive() }
+                                ),
+                                in: ...Date.now,
+                                displayedComponents: .date
+                            )
+                            Button(String(localized: "Clear Date of Birth"), role: .destructive) {
+                                vm.dateOfBirth = nil
+                                vm.recalculateLive()
+                            }
+                        } else {
+                            Button(String(localized: "Set Date of Birth")) {
+                                vm.dateOfBirth = Calendar.current.date(byAdding: .year, value: -30, to: .now) ?? .now
+                                vm.recalculateLive()
+                            }
+                        }
+                    } header: {
+                        Text(String(localized: "Age (for senior citizen slabs)"))
+                    } footer: {
+                        Text(String(localized: "Senior citizens (60+) and super-senior citizens (80+) have higher basic exemption limits under the old regime."))
+                    }
                 }
             } else {
                 Section {

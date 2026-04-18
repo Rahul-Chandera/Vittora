@@ -10,13 +10,14 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
         let gross = profile.annualIncome
         let financialYear = Self.supportedFinancialYear(for: profile)
 
-        let standardDeduction = standardDeduction(for: regime)
+        let standardDeduction = standardDeduction(for: regime, incomeSourceType: profile.incomeSourceType)
         let customDeductionsTotal: Decimal = regime == .oldRegime
             ? profile.customDeductions.reduce(0) { $0 + $1.amount }
             : 0
 
         let taxableIncome = max(0, gross - standardDeduction - customDeductionsTotal)
-        let slabs = slabs(for: regime, financialYear: financialYear)
+        let ageCat = Self.ageCategory(dateOfBirth: profile.dateOfBirth, financialYear: financialYear)
+        let slabs = slabs(for: regime, financialYear: financialYear, ageCategory: ageCat)
         let bracketResults = slabs.apply(to: taxableIncome)
         let basicTax = bracketResults.reduce(Decimal(0)) { $0 + $1.taxAmount }
 
@@ -62,11 +63,28 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
         case fy2025 = 2025
     }
 
-    private func standardDeduction(for regime: IndiaRegime) -> Decimal {
-        regime == .newRegime ? 75_000 : 50_000
+    private enum AgeCategory {
+        case regular      // under 60
+        case senior       // 60–79
+        case superSenior  // 80+
     }
 
-    private func slabs(for regime: IndiaRegime, financialYear: FinancialYear) -> [TaxSlab] {
+    private func standardDeduction(for regime: IndiaRegime, incomeSourceType: IncomeSourceType) -> Decimal {
+        guard incomeSourceType == .salaried else { return 0 }
+        return regime == .newRegime ? 75_000 : 50_000
+    }
+
+    private static func ageCategory(dateOfBirth: Date?, financialYear: FinancialYear) -> AgeCategory {
+        guard let dob = dateOfBirth else { return .regular }
+        let fyStart = DateComponents(year: financialYear.rawValue, month: 4, day: 1)
+        guard let refDate = Calendar.current.date(from: fyStart) else { return .regular }
+        let age = Calendar.current.dateComponents([.year], from: dob, to: refDate).year ?? 0
+        if age >= 80 { return .superSenior }
+        if age >= 60 { return .senior }
+        return .regular
+    }
+
+    private func slabs(for regime: IndiaRegime, financialYear: FinancialYear, ageCategory: AgeCategory) -> [TaxSlab] {
         switch regime {
         case .newRegime:
             switch financialYear {
@@ -92,12 +110,28 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
             }
 
         case .oldRegime:
-            [
-                TaxSlab(lower: 0,         upper: 250_000,   ratePercent: 0,  label: "₹0 – ₹2.5L"),
-                TaxSlab(lower: 250_000,   upper: 500_000,   ratePercent: 5,  label: "₹2.5L – ₹5L"),
-                TaxSlab(lower: 500_000,   upper: 1_000_000, ratePercent: 20, label: "₹5L – ₹10L"),
-                TaxSlab(lower: 1_000_000, upper: nil,       ratePercent: 30, label: "Above ₹10L"),
-            ]
+            switch ageCategory {
+            case .regular:
+                [
+                    TaxSlab(lower: 0,         upper: 250_000,   ratePercent: 0,  label: "₹0 – ₹2.5L"),
+                    TaxSlab(lower: 250_000,   upper: 500_000,   ratePercent: 5,  label: "₹2.5L – ₹5L"),
+                    TaxSlab(lower: 500_000,   upper: 1_000_000, ratePercent: 20, label: "₹5L – ₹10L"),
+                    TaxSlab(lower: 1_000_000, upper: nil,       ratePercent: 30, label: "Above ₹10L"),
+                ]
+            case .senior:
+                [
+                    TaxSlab(lower: 0,         upper: 300_000,   ratePercent: 0,  label: "₹0 – ₹3L"),
+                    TaxSlab(lower: 300_000,   upper: 500_000,   ratePercent: 5,  label: "₹3L – ₹5L"),
+                    TaxSlab(lower: 500_000,   upper: 1_000_000, ratePercent: 20, label: "₹5L – ₹10L"),
+                    TaxSlab(lower: 1_000_000, upper: nil,       ratePercent: 30, label: "Above ₹10L"),
+                ]
+            case .superSenior:
+                [
+                    TaxSlab(lower: 0,         upper: 500_000,   ratePercent: 0,  label: "₹0 – ₹5L"),
+                    TaxSlab(lower: 500_000,   upper: 1_000_000, ratePercent: 20, label: "₹5L – ₹10L"),
+                    TaxSlab(lower: 1_000_000, upper: nil,       ratePercent: 30, label: "Above ₹10L"),
+                ]
+            }
         }
     }
 

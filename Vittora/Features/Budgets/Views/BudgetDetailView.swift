@@ -5,6 +5,7 @@ struct BudgetDetailView: View {
     @Environment(\.dismiss) var dismiss
     @State private var viewModel: BudgetDetailViewModel?
     @State private var showEdit = false
+    @State private var editRefreshTask: Task<Void, Never>?
     let budgetID: UUID
 
     private var currencyCode: String {
@@ -187,7 +188,8 @@ struct BudgetDetailView: View {
             if let viewModel = viewModel, let budget = viewModel.budget {
                 BudgetFormView(isPresented: $showEdit, editingBudget: budget)
                     .onDisappear {
-                        Task {
+                        editRefreshTask?.cancel()
+                        editRefreshTask = Task {
                             await viewModel.loadBudget(id: budgetID)
                         }
                     }

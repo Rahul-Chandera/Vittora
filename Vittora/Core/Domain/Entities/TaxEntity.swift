@@ -56,6 +56,18 @@ enum IndiaRegime: String, Sendable, Hashable, CaseIterable, Codable {
     }
 }
 
+enum IncomeSourceType: String, Sendable, Hashable, CaseIterable, Codable {
+    case salaried
+    case selfEmployed
+
+    var displayName: String {
+        switch self {
+        case .salaried:     return String(localized: "Salaried / Pensioner")
+        case .selfEmployed: return String(localized: "Self Employed / Business")
+        }
+    }
+}
+
 enum USFilingStatus: String, Sendable, Hashable, CaseIterable, Codable {
     case single
     case marriedFilingJointly
@@ -103,6 +115,10 @@ struct TaxProfile: Identifiable, Hashable, Sendable {
     var customDeductions: [TaxDeduction]
     /// e.g. "2025-26" (India) or "2026" (US)
     var financialYear: String
+    /// Salary/pension vs self-employed; gates India standard deduction
+    var incomeSourceType: IncomeSourceType
+    /// Used for India old-regime senior/super-senior basic exemption tiers
+    var dateOfBirth: Date?
     var createdAt: Date
     var updatedAt: Date
 
@@ -114,6 +130,8 @@ struct TaxProfile: Identifiable, Hashable, Sendable {
         filingStatus: USFilingStatus = .single,
         customDeductions: [TaxDeduction] = [],
         financialYear: String = TaxCountry.india.defaultFinancialYear,
+        incomeSourceType: IncomeSourceType = .salaried,
+        dateOfBirth: Date? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -124,6 +142,8 @@ struct TaxProfile: Identifiable, Hashable, Sendable {
         self.filingStatus = filingStatus
         self.customDeductions = customDeductions
         self.financialYear = financialYear
+        self.incomeSourceType = incomeSourceType
+        self.dateOfBirth = dateOfBirth
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

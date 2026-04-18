@@ -13,6 +13,8 @@ final class TaxProfileFormViewModel {
     var indiaRegime: IndiaRegime = .newRegime
     var filingStatus: USFilingStatus = .single
     var financialYear = TaxCountry.india.defaultFinancialYear
+    var incomeSourceType: IncomeSourceType = .salaried
+    var dateOfBirth: Date? = nil
     var customDeductions: [TaxDeduction] = []
 
     // Live preview
@@ -41,6 +43,8 @@ final class TaxProfileFormViewModel {
         indiaRegime = profile.indiaRegime
         filingStatus = profile.filingStatus
         financialYear = profile.financialYear
+        incomeSourceType = profile.incomeSourceType
+        dateOfBirth = profile.dateOfBirth
         customDeductions = profile.customDeductions
         recalculateLive()
     }
@@ -90,7 +94,9 @@ final class TaxProfileFormViewModel {
             indiaRegime: indiaRegime,
             filingStatus: filingStatus,
             customDeductions: customDeductions,
-            financialYear: financialYear
+            financialYear: financialYear,
+            incomeSourceType: incomeSourceType,
+            dateOfBirth: dateOfBirth
         )
     }
 }

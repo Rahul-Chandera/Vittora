@@ -32,13 +32,8 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
     func decrypt(_ encryptedData: Data) async throws -> Data {
         let key = try await getOrCreateKey()
 
-        guard let sealedBox = try? AES.GCM.SealedBox(combined: encryptedData) else {
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to parse encrypted data")
-            )
-        }
-
         do {
+            let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
             return try AES.GCM.open(sealedBox, using: key)
         } catch {
             throw VittoraError.encryptionFailed(
