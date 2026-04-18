@@ -1,5 +1,6 @@
 import Foundation
 import CoreData
+import CloudKit
 
 @MainActor
 final class CloudKitSyncMonitor {
@@ -54,10 +55,14 @@ final class CloudKitSyncMonitor {
         }
 
         if isConflictError(error) {
+            // Entity modification timestamps are not surfaced by NSPersistentCloudKitContainer
+            // events, so resolution is advisory only (.ambiguous). The system has already applied
+            // its own LWW resolution before this handler fires.
             _ = conflictHandler.logConflict(
                 entityType: event.type.vittoraDisplayName,
-                localTimestamp: event.startDate,
-                remoteTimestamp: event.endDate ?? .now,
+                detectedAt: event.endDate ?? .now,
+                localModifiedAt: nil,
+                remoteModifiedAt: nil,
                 description: conflictDescription(for: event.type, error: error)
             )
             PerformanceLogger.Sync.conflict()
@@ -68,19 +73,33 @@ final class CloudKitSyncMonitor {
         syncStatusService.markError(error.localizedDescription)
     }
 
+    /// Returns true when the error chain contains a CKError indicating a record conflict.
     private func isConflictError(_ error: Error) -> Bool {
-        let nsError = error as NSError
-        let detail = [
-            nsError.localizedDescription,
-            nsError.localizedFailureReason,
-            nsError.localizedRecoverySuggestion,
-        ]
-        .compactMap { $0?.lowercased() }
-        .joined(separator: " ")
+        guard let ckError = extractCKError(from: error) else { return false }
+        switch ckError.code {
+        case .serverRecordChanged:
+            return true
+        case .batchRequestFailed, .partialFailure:
+            let partialErrors = ckError.userInfo[CKPartialErrorsByItemIDKey] as? [AnyHashable: Error]
+            return partialErrors?.values.contains {
+                (extractCKError(from: $0)?.code) == .serverRecordChanged
+            } ?? false
+        default:
+            return false
+        }
+    }
 
-        return detail.contains("conflict")
-            || detail.contains("merge")
-            || detail.contains("server record changed")
+    /// Walks the NSError `underlyingErrors` / `NSUnderlyingErrorKey` chain to find a CKError.
+    private func extractCKError(from error: Error) -> CKError? {
+        if let ck = error as? CKError { return ck }
+        let ns = error as NSError
+        if let underlying = ns.userInfo[NSUnderlyingErrorKey] as? Error {
+            return extractCKError(from: underlying)
+        }
+        if let underlyingErrors = ns.userInfo[NSDetailedErrorsKey] as? [Error] {
+            return underlyingErrors.lazy.compactMap { self.extractCKError(from: $0) }.first
+        }
+        return nil
     }
 
     private func conflictDescription(

@@ -117,49 +117,71 @@ struct SyncStatusServiceTests {
 @MainActor
 struct SyncConflictHandlerTests {
 
-    @Test("resolves to keepRemote when remote is newer")
-    func resolvesRemoteWhenNewer() {
+    @Test("resolves to keepRemote when remote is clearly newer (outside skew threshold)")
+    func resolvesRemoteWhenClearlyNewer() {
         let handler = SyncConflictHandler()
-        let local = Date(timeIntervalSinceNow: -100)
+        let local = Date(timeIntervalSinceNow: -200)
         let remote = Date.now
-        let conflict = SyncConflict(
+        let resolution = handler.logConflict(
             entityType: "Transaction",
             entityID: UUID(),
-            localTimestamp: local,
-            remoteTimestamp: remote,
+            localModifiedAt: local,
+            remoteModifiedAt: remote,
             description: "Test conflict"
         )
-        let resolution = handler.resolve(conflict)
         #expect(resolution == .keepRemote)
     }
 
-    @Test("resolves to keepLocal when local is newer")
-    func resolvesLocalWhenNewer() {
+    @Test("resolves to keepLocal when local is clearly newer (outside skew threshold)")
+    func resolvesLocalWhenClearlyNewer() {
         let handler = SyncConflictHandler()
-        let remote = Date(timeIntervalSinceNow: -100)
+        let remote = Date(timeIntervalSinceNow: -200)
         let local = Date.now
-        let conflict = SyncConflict(
+        let resolution = handler.logConflict(
             entityType: "Transaction",
             entityID: UUID(),
-            localTimestamp: local,
-            remoteTimestamp: remote,
+            localModifiedAt: local,
+            remoteModifiedAt: remote,
             description: "Test conflict"
         )
-        let resolution = handler.resolve(conflict)
         #expect(resolution == .keepLocal)
     }
 
-    @Test("resolved conflict is logged")
+    @Test("resolves to ambiguous when timestamps are within clock-skew threshold")
+    func resolvesAmbiguousWithinSkewThreshold() {
+        let handler = SyncConflictHandler()
+        let local = Date(timeIntervalSinceNow: -30)
+        let remote = Date.now
+        let resolution = handler.logConflict(
+            entityType: "Transaction",
+            entityID: UUID(),
+            localModifiedAt: local,
+            remoteModifiedAt: remote,
+            description: "Close timestamps"
+        )
+        #expect(resolution == .ambiguous)
+    }
+
+    @Test("resolves to ambiguous when entity timestamps are unavailable")
+    func resolvesAmbiguousWhenTimestampsAbsent() {
+        let handler = SyncConflictHandler()
+        let resolution = handler.logConflict(
+            entityType: "Import",
+            description: "No entity timestamps from NSPersistentCloudKitContainer event"
+        )
+        #expect(resolution == .ambiguous)
+    }
+
+    @Test("logged conflict is stored")
     func conflictIsLogged() {
         let handler = SyncConflictHandler()
-        let conflict = SyncConflict(
+        handler.logConflict(
             entityType: "Budget",
             entityID: UUID(),
-            localTimestamp: Date(timeIntervalSinceNow: -50),
-            remoteTimestamp: Date.now,
+            localModifiedAt: Date(timeIntervalSinceNow: -200),
+            remoteModifiedAt: .now,
             description: "Budget conflict"
         )
-        handler.resolve(conflict)
         #expect(handler.recentConflicts.count == 1)
         #expect(handler.hasUnresolvedConflicts)
     }
@@ -168,10 +190,7 @@ struct SyncConflictHandlerTests {
     func clearLogRemovesAll() {
         let handler = SyncConflictHandler()
         for _ in 0..<5 {
-            let c = SyncConflict(entityType: "X", entityID: UUID(),
-                                 localTimestamp: .now, remoteTimestamp: .now,
-                                 description: "")
-            handler.resolve(c)
+            handler.logConflict(entityType: "X", description: "")
         }
         #expect(handler.recentConflicts.count == 5)
         handler.clearLog()
@@ -183,36 +202,39 @@ struct SyncConflictHandlerTests {
     func logCappedAt20() {
         let handler = SyncConflictHandler()
         for _ in 0..<25 {
-            let c = SyncConflict(entityType: "X", entityID: UUID(),
-                                 localTimestamp: .now, remoteTimestamp: .now,
-                                 description: "")
-            handler.resolve(c)
+            handler.logConflict(entityType: "X", description: "")
         }
         #expect(handler.recentConflicts.count == 20)
     }
 
-    @Test("resolveByTimestamp convenience method works correctly")
-    func resolveByTimestampConvenience() {
+    @Test("resolveByTimestamp is ambiguous at exactly the skew boundary")
+    func resolveByTimestampSkewBoundary() {
         let handler = SyncConflictHandler()
-        let now = Date.now
-        let past = Date(timeIntervalSinceNow: -60)
+        let base = Date.now
+        let justUnder = base.addingTimeInterval(-SyncConflictHandler.clockSkewThreshold + 1)
+        let justOver  = base.addingTimeInterval(-SyncConflictHandler.clockSkewThreshold - 1)
 
-        #expect(handler.resolveByTimestamp(localUpdatedAt: past, remoteUpdatedAt: now) == .keepRemote)
-        #expect(handler.resolveByTimestamp(localUpdatedAt: now, remoteUpdatedAt: past) == .keepLocal)
+        #expect(handler.resolveByTimestamp(localModifiedAt: justUnder, remoteModifiedAt: base) == .ambiguous)
+        #expect(handler.resolveByTimestamp(localModifiedAt: justOver,  remoteModifiedAt: base) == .keepRemote)
+    }
+
+    @Test("resolveByTimestamp returns ambiguous when either timestamp is nil")
+    func resolveByTimestampNilHandling() {
+        let handler = SyncConflictHandler()
+        #expect(handler.resolveByTimestamp(localModifiedAt: nil,      remoteModifiedAt: .now) == .ambiguous)
+        #expect(handler.resolveByTimestamp(localModifiedAt: .now,     remoteModifiedAt: nil)  == .ambiguous)
+        #expect(handler.resolveByTimestamp(localModifiedAt: nil,      remoteModifiedAt: nil)  == .ambiguous)
     }
 
     @Test("logConflict stores conflict even when entity id is unavailable")
     func logConflictWithoutEntityID() {
         let handler = SyncConflictHandler()
-        let resolution = handler.logConflict(
+        handler.logConflict(
             entityType: "Import",
-            localTimestamp: Date(timeIntervalSinceNow: -30),
-            remoteTimestamp: .now,
             description: "CloudKit import conflict"
         )
-
-        #expect(resolution == .keepRemote)
         #expect(handler.recentConflicts.count == 1)
         #expect(handler.recentConflicts[0].entityID == nil)
+        #expect(handler.recentConflicts[0].resolution == .ambiguous)
     }
 }
