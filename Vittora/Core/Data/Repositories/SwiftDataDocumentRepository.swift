@@ -22,11 +22,13 @@ actor SwiftDataDocumentRepository: DocumentRepository {
     }
 
     func create(_ entity: DocumentEntity) async throws {
+        if let thumb = entity.thumbnailData {
+            try DocumentMapper.saveThumbnail(thumb, for: entity.id)
+        }
         let model = SDDocument(
             id: entity.id,
             fileName: entity.fileName,
             mimeType: entity.mimeType,
-            thumbnailData: entity.thumbnailData,
             transactionID: entity.transactionID,
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt
@@ -43,6 +45,11 @@ actor SwiftDataDocumentRepository: DocumentRepository {
         guard let model = try modelContext.fetch(descriptor).first else {
             throw VittoraError.notFound(String(localized: "Document not found"))
         }
+        if let thumb = entity.thumbnailData {
+            try DocumentMapper.saveThumbnail(thumb, for: entity.id)
+        } else {
+            DocumentMapper.deleteThumbnail(for: entity.id)
+        }
         DocumentMapper.updateModel(model, from: entity)
         try modelContext.save()
     }
@@ -54,6 +61,7 @@ actor SwiftDataDocumentRepository: DocumentRepository {
         guard let model = try modelContext.fetch(descriptor).first else {
             throw VittoraError.notFound(String(localized: "Document not found"))
         }
+        DocumentMapper.deleteThumbnail(for: id)
         modelContext.delete(model)
         try modelContext.save()
     }
