@@ -189,8 +189,8 @@ struct DateFormattingTests {
 
     @Test("Is in same week")
     func testIsInSameWeek() {
-        let date = Date()
-        let nextDay = dateByAdding(days: 1)
+        let date = calendar.date(from: DateComponents(year: 2026, month: 4, day: 15)) ?? Date()
+        let nextDay = dateByAdding(days: 1, to: date)
         #expect(date.isInSameWeek(as: nextDay) == true)
     }
 

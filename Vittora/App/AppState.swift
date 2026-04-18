@@ -10,6 +10,7 @@ final class AppState {
     var isLoading: Bool
     var isUITesting: Bool
     var transactionRefreshVersion: Int
+    var isPrivacyShieldVisible: Bool
 
     init(
         isAuthenticated: Bool = false,
@@ -18,7 +19,8 @@ final class AppState {
         selectedTab: AppTab = .dashboard,
         isLoading: Bool = false,
         isUITesting: Bool = false,
-        transactionRefreshVersion: Int = 0
+        transactionRefreshVersion: Int = 0,
+        isPrivacyShieldVisible: Bool = false
     ) {
         self.isAuthenticated = isAuthenticated
         self.isLocked = isLocked
@@ -27,6 +29,7 @@ final class AppState {
         self.isLoading = isLoading
         self.isUITesting = isUITesting
         self.transactionRefreshVersion = transactionRefreshVersion
+        self.isPrivacyShieldVisible = isPrivacyShieldVisible
     }
 
     enum AppTab: String, CaseIterable, Identifiable, Sendable {

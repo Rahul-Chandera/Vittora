@@ -12,7 +12,7 @@ final class TaxProfileFormViewModel {
     var incomeString = ""
     var indiaRegime: IndiaRegime = .newRegime
     var filingStatus: USFilingStatus = .single
-    var financialYear = "2024-25"
+    var financialYear = TaxCountry.india.defaultFinancialYear
     var customDeductions: [TaxDeduction] = []
 
     // Live preview

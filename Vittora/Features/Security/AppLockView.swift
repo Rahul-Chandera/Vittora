@@ -63,9 +63,17 @@ struct AppLockView: View {
                 .accessibilityLabel(String(localized: "Unlock Vittora"))
                 .accessibilityHint(String(localized: "Authenticates using biometrics or passcode"))
 
+                Button(String(localized: "Use Passcode")) {
+                    Task { await authenticateWithPasscode() }
+                }
+                .buttonStyle(.bordered)
+                .disabled(isAuthenticating)
+                .accessibilityHint(String(localized: "Unlocks using your device passcode"))
+
                 Spacer()
             }
         }
+        .privacySensitive()
         .task { await authenticate() }
     }
 
@@ -80,6 +88,20 @@ struct AppLockView: View {
     }
 
     private func authenticate() async {
+        await performAuthentication { lockService in
+            try await lockService.unlock()
+        }
+    }
+
+    private func authenticateWithPasscode() async {
+        await performAuthentication { lockService in
+            try await lockService.unlockWithPasscode()
+        }
+    }
+
+    private func performAuthentication(
+        _ action: @escaping (any AppLockServiceProtocol) async throws -> Bool
+    ) async {
         guard let lockService = dependencies.appLockService else {
             appState.isLocked = false
             return
@@ -89,7 +111,7 @@ struct AppLockView: View {
         defer { isAuthenticating = false }
 
         do {
-            let success = try await lockService.unlock()
+            let success = try await action(lockService)
             if success {
                 appState.isAuthenticated = true
                 appState.isLocked = false

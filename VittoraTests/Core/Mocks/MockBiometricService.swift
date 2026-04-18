@@ -9,15 +9,23 @@ final class MockBiometricService: BiometricServiceProtocol, Sendable {
     var throwError: VittoraError = .biometricFailed(String(localized: "Mock error"))
     var mockBiometricType: BiometricType = .faceID
 
-    nonisolated var biometricType: BiometricType {
-        get { BiometricType.faceID }
-    }
+    var biometricType: BiometricType { mockBiometricType }
 
-    nonisolated func canUseBiometrics() -> Bool {
+    func canUseBiometrics() -> Bool {
         true
     }
 
     func authenticate(reason: String) async throws -> Bool {
+        authenticateCallCount += 1
+
+        if shouldThrowError {
+            throw throwError
+        }
+
+        return shouldSucceed
+    }
+
+    func authenticateWithPasscode(reason: String) async throws -> Bool {
         authenticateCallCount += 1
 
         if shouldThrowError {

@@ -26,6 +26,22 @@ enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
         case .unitedStates: return "$"
         }
     }
+
+    nonisolated var defaultFinancialYear: String {
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: .now)
+
+        switch self {
+        case .india:
+            let month = calendar.component(.month, from: .now)
+            let startYear = month >= 4 ? currentYear : currentYear - 1
+            let endYearSuffix = (startYear + 1) % 100
+            return "\(startYear)-\(String(format: "%02d", endYearSuffix))"
+
+        case .unitedStates:
+            return "\(currentYear)"
+        }
+    }
 }
 
 enum IndiaRegime: String, Sendable, Hashable, CaseIterable, Codable {
@@ -45,6 +61,7 @@ enum USFilingStatus: String, Sendable, Hashable, CaseIterable, Codable {
     case marriedFilingJointly
     case marriedFilingSeparately
     case headOfHousehold
+    case qualifyingSurvivingSpouse
 
     var displayName: String {
         switch self {
@@ -52,6 +69,8 @@ enum USFilingStatus: String, Sendable, Hashable, CaseIterable, Codable {
         case .marriedFilingJointly:     return String(localized: "Married Filing Jointly")
         case .marriedFilingSeparately:  return String(localized: "Married Filing Separately")
         case .headOfHousehold:          return String(localized: "Head of Household")
+        case .qualifyingSurvivingSpouse:
+            return String(localized: "Qualifying Surviving Spouse")
         }
     }
 }
@@ -82,7 +101,7 @@ struct TaxProfile: Identifiable, Hashable, Sendable {
     var indiaRegime: IndiaRegime
     var filingStatus: USFilingStatus
     var customDeductions: [TaxDeduction]
-    /// e.g. "2024-25" (India) or "2024" (US)
+    /// e.g. "2025-26" (India) or "2026" (US)
     var financialYear: String
     var createdAt: Date
     var updatedAt: Date
@@ -94,7 +113,7 @@ struct TaxProfile: Identifiable, Hashable, Sendable {
         indiaRegime: IndiaRegime = .newRegime,
         filingStatus: USFilingStatus = .single,
         customDeductions: [TaxDeduction] = [],
-        financialYear: String = "2024-25",
+        financialYear: String = TaxCountry.india.defaultFinancialYear,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {

@@ -49,16 +49,26 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
 
     func generateKey() async throws {
         let newKey = SymmetricKey(size: .bits256)
-        try await keychainService.save(newKey.withUnsafeBytes { Data($0) }, forKey: keyIdentifier)
+        try await keychainService.save(
+            newKey.withUnsafeBytes { Data($0) },
+            forKey: keyIdentifier,
+            access: .biometricBound
+        )
     }
 
     private func getOrCreateKey() async throws -> SymmetricKey {
-        if let existingKeyData = try await keychainService.load(forKey: keyIdentifier) {
+        if let existingKeyData = try await keychainService.load(
+            forKey: keyIdentifier,
+            access: .biometricBound
+        ) {
             return SymmetricKey(data: existingKeyData)
         }
 
         try await generateKey()
-        guard let keyData = try await keychainService.load(forKey: keyIdentifier) else {
+        guard let keyData = try await keychainService.load(
+            forKey: keyIdentifier,
+            access: .biometricBound
+        ) else {
             throw VittoraError.encryptionFailed(
                 String(localized: "Failed to retrieve generated key")
             )

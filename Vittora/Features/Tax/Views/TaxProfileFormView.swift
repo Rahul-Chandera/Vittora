@@ -38,7 +38,13 @@ struct TaxProfileFormView: View {
                                 try await vm.save()
                                 onSaved()
                                 dismiss()
-                            } catch {}
+                            } catch {
+                                if vm.error == nil {
+                                    vm.error = error.userFacingMessage(
+                                        fallback: String(localized: "We couldn't save this tax profile right now.")
+                                    )
+                                }
+                            }
                         }
                     }
                     .disabled(!(vm?.canSave ?? false) || (vm?.isSaving ?? false))
@@ -73,7 +79,7 @@ struct TaxProfileFormView: View {
                     }
                 }
                 .onChange(of: vm.country) { _, _ in
-                    vm.financialYear = vm.country == .india ? "2024-25" : "2024"
+                    vm.financialYear = vm.country.defaultFinancialYear
                     vm.recalculateLive()
                 }
             }
@@ -107,13 +113,21 @@ struct TaxProfileFormView: View {
                     .onChange(of: vm.indiaRegime) { _, _ in vm.recalculateLive() }
                 }
             } else {
-                Section(String(localized: "Filing Status")) {
+                Section {
                     Picker(String(localized: "Status"), selection: Bindable(vm).filingStatus) {
                         ForEach(USFilingStatus.allCases, id: \.self) { s in
                             Text(s.displayName).tag(s)
                         }
                     }
                     .onChange(of: vm.filingStatus) { _, _ in vm.recalculateLive() }
+                } header: {
+                    Text(String(localized: "Filing Status"))
+                } footer: {
+                    if vm.filingStatus == .qualifyingSurvivingSpouse {
+                        Text(
+                            String(localized: "Use this status only during the two tax years after a spouse's death if you still meet IRS eligibility requirements.")
+                        )
+                    }
                 }
             }
 

@@ -10,7 +10,7 @@ final class SDTaxProfile {
     var filingStatusRawValue: String = USFilingStatus.single.rawValue
     /// JSON-encoded [TaxDeduction]
     var deductionsJSON: String = "[]"
-    var financialYear: String = "2024-25"
+    var financialYear: String = TaxCountry.india.defaultFinancialYear
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
 

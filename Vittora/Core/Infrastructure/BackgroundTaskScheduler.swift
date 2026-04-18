@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 
 #if os(iOS)
@@ -9,6 +10,7 @@ final class BackgroundTaskScheduler: Sendable {
     #if os(iOS)
     static let recurringTaskID = "com.enerjiktech.vittora.recurring-generation"
     #endif
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "background")
 
     private let generateUseCase: GenerateRecurringTransactionsUseCase
 
@@ -47,7 +49,7 @@ final class BackgroundTaskScheduler: Sendable {
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            print("Failed to schedule background task: \(error)")
+            logger.error("Failed to schedule background task: \(error.localizedDescription)")
         }
         #endif
     }
@@ -59,10 +61,10 @@ final class BackgroundTaskScheduler: Sendable {
 
         do {
             let count = try await generateUseCase.execute()
-            print("Generated \(count) recurring transactions")
+            Self.logger.info("Generated \(count) recurring transactions")
             task.setTaskCompleted(success: true)
         } catch {
-            print("Background task failed: \(error)")
+            Self.logger.error("Background task failed: \(error.localizedDescription)")
             task.setTaskCompleted(success: false)
         }
     }

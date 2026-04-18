@@ -5,6 +5,7 @@ protocol AppLockServiceProtocol: Sendable {
     var lockTimeout: TimeInterval { get set }
     func lock() async
     func unlock() async throws -> Bool
+    func unlockWithPasscode() async throws -> Bool
 }
 
 @MainActor
@@ -35,9 +36,21 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
     }
 
     func unlock() async throws -> Bool {
-        let reason = String(localized: "Unlock Vittora to continue")
-        let success = try await biometricService.authenticate(reason: reason)
+        try await unlock(usingPasscodeFallback: false)
+    }
 
+    func unlockWithPasscode() async throws -> Bool {
+        try await unlock(usingPasscodeFallback: true)
+    }
+
+    private func unlock(usingPasscodeFallback: Bool) async throws -> Bool {
+        let reason = String(localized: "Unlock Vittora to continue")
+        let success: Bool
+        if usingPasscodeFallback {
+            success = try await biometricService.authenticateWithPasscode(reason: reason)
+        } else {
+            success = try await biometricService.authenticate(reason: reason)
+        }
         if success {
             _isLocked = false
             lastActivityTime = Date()

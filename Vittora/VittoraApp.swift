@@ -123,11 +123,15 @@ struct VittoraApp: App {
         }
         .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, newPhase in
+            let shouldShowPrivacyShield = newPhase == .inactive || newPhase == .background
+            appState.isPrivacyShieldVisible = !isRunningAutomatedTests && shouldShowPrivacyShield
+
             if newPhase == .background && !isRunningAutomatedTests && settingsVM.isAppLockEnabled {
                 appState.isLocked = true
                 appState.isAuthenticated = false
             }
             if newPhase == .active {
+                appState.isPrivacyShieldVisible = false
                 PerformanceLogger.App.sceneDidBecomeActive()
                 guard !isRunningAutomatedTests else { return }
                 Task {

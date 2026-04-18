@@ -128,10 +128,13 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
             let account  = tx.accountID.flatMap  { accountMap[$0]  } ?? ""
             let payee    = tx.payeeID.flatMap     { payeeMap[$0]    } ?? ""
             let method   = tx.paymentMethod.rawValue
-            let note     = (tx.note ?? "").csvEscaped
-            let tags     = tx.tags.joined(separator: ";").csvEscaped
+            let note     = tx.note ?? ""
+            let tags     = tx.tags.joined(separator: ";")
 
-            csv += "\"\(date)\",\"\(amount)\",\"\(type)\",\"\(category)\",\"\(account)\",\"\(payee)\",\"\(method)\",\"\(note)\",\"\(tags)\"\n"
+            appendCSVRow(
+                [date, amount, type, category, account, payee, method, note, tags],
+                to: &csv
+            )
         }
 
         return csv
@@ -276,7 +279,15 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
         }
 
         do {
-            try data.write(to: url)
+            #if os(iOS)
+            try data.write(to: url, options: [.atomic, .completeFileProtection])
+            try FileManager.default.setAttributes(
+                [.protectionKey: FileProtectionType.complete],
+                ofItemAtPath: url.path
+            )
+            #else
+            try data.write(to: url, options: [.atomic])
+            #endif
             return url
         } catch {
             throw VittoraError.exportFailed(
@@ -289,8 +300,10 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
 // MARK: - String CSV helper
 
 private extension String {
-    /// Escape double quotes by doubling them (per RFC 4180).
+    /// Escape double quotes and neutralize spreadsheet formula injection.
     var csvEscaped: String {
-        replacingOccurrences(of: "\"", with: "\"\"")
+        let formulaPrefixes = ["=", "+", "-", "@", "\t", "\r", "\n"]
+        let sanitized = formulaPrefixes.contains(where: hasPrefix) ? "'" + self : self
+        return sanitized.replacingOccurrences(of: "\"", with: "\"\"")
     }
 }

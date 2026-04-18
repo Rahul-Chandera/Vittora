@@ -39,10 +39,11 @@ final class DependencyContainer {
         container.savingsGoalRepository = SwiftDataSavingsGoalRepository(modelContainer: modelContainer)
 
         let keychainService = KeychainService()
+        let biometricService = BiometricService()
         container.keychainService = keychainService
-        container.biometricService = BiometricService()
+        container.biometricService = biometricService
         container.encryptionService = EncryptionService(keychainService: keychainService)
-        container.appLockService = AppLockService(biometricService: BiometricService())
+        container.appLockService = AppLockService(biometricService: biometricService)
         container.contactsImportService = SystemContactsImportService()
         container.exportService = DataExportService(
             transactionRepository: container.transactionRepository!,
