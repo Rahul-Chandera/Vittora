@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class SDSplitGroup {
-    var id: UUID = UUID()
+    @Attribute(.unique) var id: UUID = UUID()
     var name: String = ""
     /// JSON-encoded [UUID] of member payee IDs
     var memberIDsJSON: String = "[]"

@@ -3,7 +3,9 @@ import SwiftData
 
 @Model
 final class SDTransaction {
-    var id: UUID = UUID()
+    #Index<SDTransaction>([\.date], [\.accountID], [\.categoryID], [\.typeRawValue])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var amount: Decimal = 0
     var date: Date = Date.now
     var note: String?

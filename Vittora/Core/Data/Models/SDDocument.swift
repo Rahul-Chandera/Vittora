@@ -3,7 +3,9 @@ import SwiftData
 
 @Model
 final class SDDocument {
-    var id: UUID = UUID()
+    #Index<SDDocument>([\.transactionID])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var fileName: String = ""
     var mimeType: String = "image/jpeg"
     var transactionID: UUID?

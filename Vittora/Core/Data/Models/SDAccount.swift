@@ -3,7 +3,9 @@ import SwiftData
 
 @Model
 final class SDAccount {
-    var id: UUID = UUID()
+    #Index<SDAccount>([\.typeRawValue], [\.isArchived])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var name: String = ""
     var typeRawValue: String = AccountType.bank.rawValue
     var balance: Decimal = 0

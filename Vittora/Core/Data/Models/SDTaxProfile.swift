@@ -3,7 +3,9 @@ import SwiftData
 
 @Model
 final class SDTaxProfile {
-    var id: UUID = UUID()
+    #Index<SDTaxProfile>([\.countryRawValue], [\.financialYear])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var countryRawValue: String = TaxCountry.india.rawValue
     var annualIncome: Decimal = Decimal(0)
     var indiaRegimeRawValue: String = IndiaRegime.newRegime.rawValue

@@ -3,7 +3,9 @@ import SwiftData
 
 @Model
 final class SDRecurringRule {
-    var id: UUID = UUID()
+    #Index<SDRecurringRule>([\.nextDate], [\.isActive])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var frequencyData: Data = Data()
     var nextDate: Date = Date.now
     var isActive: Bool = true

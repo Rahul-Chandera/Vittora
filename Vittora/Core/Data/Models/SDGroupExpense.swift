@@ -3,7 +3,9 @@ import SwiftData
 
 @Model
 final class SDGroupExpense {
-    var id: UUID = UUID()
+    #Index<SDGroupExpense>([\.groupID], [\.date], [\.isSettled])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var groupID: UUID = UUID()
     var paidByMemberID: UUID = UUID()
     var amount: Decimal = Decimal(0)
