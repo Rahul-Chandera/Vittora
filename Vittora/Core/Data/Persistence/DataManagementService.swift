@@ -47,6 +47,7 @@ final class DataManagementService: Sendable {
     private let savingsGoalRepository: any SavingsGoalRepository
     private let splitGroupRepository: any SplitGroupRepository
     private let documentRepository: any DocumentRepository
+    private let keychainService: any KeychainServiceProtocol
 
     init(
         transactionRepository: any TransactionRepository,
@@ -56,7 +57,8 @@ final class DataManagementService: Sendable {
         debtRepository: any DebtRepository,
         savingsGoalRepository: any SavingsGoalRepository,
         splitGroupRepository: any SplitGroupRepository,
-        documentRepository: any DocumentRepository
+        documentRepository: any DocumentRepository,
+        keychainService: (any KeychainServiceProtocol)? = nil
     ) {
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
@@ -66,6 +68,7 @@ final class DataManagementService: Sendable {
         self.savingsGoalRepository = savingsGoalRepository
         self.splitGroupRepository = splitGroupRepository
         self.documentRepository = documentRepository
+        self.keychainService = keychainService ?? KeychainService()
     }
 
     // MARK: - Statistics
@@ -128,7 +131,12 @@ final class DataManagementService: Sendable {
         for account in accounts { try await accountRepository.delete(account.id) }
         let categories = try await categoryRepository.fetchAll()
         for category in categories { try await categoryRepository.delete(category.id) }
-        UserDefaults.standard.removeObject(forKey: "vittora.onboardingComplete")
+
+        // Clear sensitive Keychain entries
+        try await keychainService.delete(forKey: "vittora.onboardingComplete")
+        try await keychainService.delete(forKey: "vittora.appLockEnabled")
+        try await keychainService.delete(forKey: "vittora.userName")
+
         UserDefaults.standard.removeObject(forKey: "vittora.lastSyncDate")
     }
 

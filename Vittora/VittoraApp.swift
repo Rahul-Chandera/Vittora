@@ -49,7 +49,8 @@ struct VittoraApp: App {
         let conflictHandler = SyncConflictHandler()
         _dependencies = State(initialValue: dependencyContainer)
         _router = State(initialValue: Router())
-        _settingsVM = State(initialValue: SettingsViewModel())
+        let keychainService = dependencyContainer.keychainService ?? KeychainService()
+        _settingsVM = State(initialValue: SettingsViewModel(keychainService: keychainService))
         _syncService = State(initialValue: syncStatusService)
         _syncConflictHandler = State(initialValue: conflictHandler)
         _cloudKitSyncMonitor = State(
@@ -96,15 +97,22 @@ struct VittoraApp: App {
         bypassOnboardingForUITesting: Bool
     ) -> Bool {
         if showsOnboardingForUITesting {
-            UserDefaults.standard.removeObject(forKey: "vittora.onboardingComplete")
+            KeychainService.syncDelete(forKey: "vittora.onboardingComplete")
             return false
         }
 
-        if bypassOnboardingForUITesting {
-            return true
-        }
+        if bypassOnboardingForUITesting { return true }
 
-        return UserDefaults.standard.bool(forKey: "vittora.onboardingComplete")
+        // Keychain is authoritative; migrate from UserDefaults on first upgrade
+        if let data = KeychainService.syncLoad(forKey: "vittora.onboardingComplete") {
+            return data.first == 1
+        }
+        let udValue = UserDefaults.standard.bool(forKey: "vittora.onboardingComplete")
+        if udValue {
+            KeychainService.syncSave(Data([1]), forKey: "vittora.onboardingComplete")
+            UserDefaults.standard.removeObject(forKey: "vittora.onboardingComplete")
+        }
+        return udValue
     }
 
     var body: some Scene {

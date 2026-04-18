@@ -223,7 +223,8 @@ struct DataManagementView: View {
             debtRepository: debtRepo,
             savingsGoalRepository: goalRepo,
             splitGroupRepository: splitRepo,
-            documentRepository: docRepo
+            documentRepository: docRepo,
+            keychainService: dependencies.keychainService ?? KeychainService()
         )
         vm = DataManagementViewModel(service: service)
         Task { await vm?.loadStats() }

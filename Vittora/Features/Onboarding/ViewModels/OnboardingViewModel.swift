@@ -24,14 +24,14 @@ final class OnboardingViewModel {
     var error: String?
 
     private let createAccountUseCase: CreateAccountUseCase?
-    private let userDefaults: UserDefaults
+    private let keychainService: any KeychainServiceProtocol
 
     init(
         createAccountUseCase: CreateAccountUseCase? = nil,
-        userDefaults: UserDefaults = .standard
+        keychainService: (any KeychainServiceProtocol)? = nil
     ) {
         self.createAccountUseCase = createAccountUseCase
-        self.userDefaults = userDefaults
+        self.keychainService = keychainService ?? KeychainService()
     }
 
     var canAdvance: Bool {
@@ -87,16 +87,17 @@ final class OnboardingViewModel {
                 )
             }
 
-            userDefaults.set(selectedCurrencyCode, forKey: "vittora.currencyCode")
+            // currencyCode is non-sensitive; UserDefaults is acceptable
+            UserDefaults.standard.set(selectedCurrencyCode, forKey: "vittora.currencyCode")
 
             let trimmedName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedName.isEmpty {
-                userDefaults.removeObject(forKey: "vittora.userName")
-            } else {
-                userDefaults.set(trimmedName, forKey: "vittora.userName")
+                try? await keychainService.delete(forKey: "vittora.userName")
+            } else if let data = trimmedName.data(using: .utf8) {
+                try await keychainService.save(data, forKey: "vittora.userName")
             }
 
-            userDefaults.set(true, forKey: "vittora.onboardingComplete")
+            try await keychainService.save(Data([1]), forKey: "vittora.onboardingComplete")
             appState.isOnboardingComplete = true
         } catch {
             self.error = error.localizedDescription

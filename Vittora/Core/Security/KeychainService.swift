@@ -123,4 +123,58 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
         let status = SecItemCopyMatching(query as CFDictionary, nil)
         return status == errSecSuccess
     }
+
+    // MARK: - Synchronous helpers (for use in init/startup code that cannot be async)
+
+    nonisolated static func syncLoad(
+        forKey key: String,
+        service: String = "com.vittora.keychain"
+    ) -> Data? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true
+        ]
+        var result: AnyObject?
+        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess else { return nil }
+        return result as? Data
+    }
+
+    nonisolated static func syncSave(
+        _ data: Data,
+        forKey key: String,
+        service: String = "com.vittora.keychain"
+    ) {
+        let baseQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key
+        ]
+        var addQuery = baseQuery
+        addQuery[kSecValueData as String] = data
+        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        SecItemDelete(baseQuery as CFDictionary)
+        SecItemAdd(addQuery as CFDictionary, nil)
+    }
+
+    nonisolated static func syncDelete(
+        forKey key: String,
+        service: String = "com.vittora.keychain"
+    ) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
+
+    nonisolated static func syncLoadBool(forKey key: String) -> Bool {
+        syncLoad(forKey: key).map { $0.first == 1 } ?? false
+    }
+
+    nonisolated static func syncLoadString(forKey key: String) -> String? {
+        syncLoad(forKey: key).flatMap { String(data: $0, encoding: .utf8) }
+    }
 }
