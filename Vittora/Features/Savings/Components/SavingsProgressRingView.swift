@@ -39,5 +39,12 @@ struct SavingsProgressRingView: View {
             }
         }
         .frame(width: size, height: size)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Savings progress"))
+        .accessibilityValue(
+            progress >= 1
+                ? String(localized: "Goal reached")
+                : "\(Int(progress * 100))%"
+        )
     }
 }

@@ -2,6 +2,8 @@ import SwiftUI
 
 struct AddGroupExpenseView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.currencySymbol) private var currencySymbol
     @State private var vm: AddGroupExpenseViewModel
 
     let onSaved: () -> Void
@@ -23,7 +25,7 @@ struct AddGroupExpenseView: View {
                     TextField(String(localized: "What was it for?"), text: Bindable(vm).title)
 
                     HStack {
-                        Text("$").foregroundStyle(VColors.textSecondary)
+                        Text(currencySymbol).foregroundStyle(VColors.textSecondary)
                         TextField(String(localized: "Amount"), text: Bindable(vm).amountString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -119,6 +121,8 @@ struct AddGroupExpenseView: View {
 // MARK: - Allocation Row
 
 private struct AllocationRow: View {
+    @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.currencySymbol) private var currencySymbol
     @Binding var row: MemberAllocationRow
     let method: SplitMethod
     let onValueChanged: () -> Void
@@ -133,7 +137,7 @@ private struct AllocationRow: View {
 
             if method == .equal {
                 // Read-only calculated amount
-                Text(row.calculatedAmount.formatted(.currency(code: "USD")))
+                Text(row.calculatedAmount.formatted(.currency(code: currencyCode)))
                     .font(VTypography.body)
                     .foregroundStyle(VColors.textSecondary)
             } else {
@@ -148,7 +152,7 @@ private struct AllocationRow: View {
                             .onChange(of: row.inputValue) { _, _ in onValueChanged() }
                         Text("%").foregroundStyle(VColors.textSecondary)
                     } else if method == .exact {
-                        Text("$").foregroundStyle(VColors.textSecondary)
+                        Text(currencySymbol).foregroundStyle(VColors.textSecondary)
                         TextField("0.00", text: $row.inputValue)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -167,7 +171,7 @@ private struct AllocationRow: View {
                         Text(String(localized: "shares")).foregroundStyle(VColors.textSecondary)
                     }
                     Text("=").foregroundStyle(VColors.textSecondary)
-                    Text(row.calculatedAmount.formatted(.currency(code: "USD")))
+                    Text(row.calculatedAmount.formatted(.currency(code: currencyCode)))
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textSecondary)
                         .frame(width: 70, alignment: .trailing)

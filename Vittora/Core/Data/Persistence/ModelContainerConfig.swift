@@ -30,7 +30,11 @@ enum ModelContainerConfig {
             isStoredInMemoryOnly: inMemory,
             cloudKitDatabase: cloudKitDatabase
         )
-        return try ModelContainer(for: schema, configurations: [config])
+        return try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
     }
 
     /// In-memory container for previews and tests

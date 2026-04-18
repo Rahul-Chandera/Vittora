@@ -7,7 +7,7 @@ struct PayeeAnalyticsCard: View {
     var body: some View {
         VCard(padding: VSpacing.lg) {
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                Text("Spending Summary")
+                Text(String(localized: "Spending Summary"))
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
                     .textCase(.uppercase)
@@ -15,19 +15,19 @@ struct PayeeAnalyticsCard: View {
                 HStack(spacing: VSpacing.xl) {
                     statItem(
                         value: analytics.totalSpent.formatted(.currency(code: currencyCode)),
-                        label: "Total Spent"
+                        label: String(localized: "Total Spent")
                     )
                     Divider()
                         .frame(height: 40)
                     statItem(
                         value: "\(analytics.transactionCount)",
-                        label: "Transactions"
+                        label: String(localized: "Transactions")
                     )
                     Divider()
                         .frame(height: 40)
                     statItem(
                         value: analytics.averageAmount.formatted(.currency(code: currencyCode)),
-                        label: "Average"
+                        label: String(localized: "Average")
                     )
                 }
 
@@ -37,7 +37,7 @@ struct PayeeAnalyticsCard: View {
                         Image(systemName: "clock.fill")
                             .font(.caption)
                             .foregroundColor(VColors.textTertiary)
-                        Text("Last transaction: \(lastDate.formatted(date: .abbreviated, time: .omitted))")
+                        Text(String(localized: "Last transaction: \(lastDate.formatted(date: .abbreviated, time: .omitted))"))
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.textSecondary)
                     }

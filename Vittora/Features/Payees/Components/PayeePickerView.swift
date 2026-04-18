@@ -19,7 +19,7 @@ struct PayeePickerView: View {
                 selectedPayeeID = nil
             } label: {
                 HStack {
-                    Text("None")
+                    Text(String(localized: "None"))
                         .font(VTypography.body)
                         .foregroundColor(VColors.textSecondary)
                     Spacer()

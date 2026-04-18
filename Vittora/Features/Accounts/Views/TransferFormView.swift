@@ -100,6 +100,7 @@ struct TransferFormView: View {
                         Image(systemName: "chevron.right")
                             .foregroundColor(VColors.textTertiary)
                             .font(.caption)
+                            .accessibilityHidden(true)
                     }
                 }
                 .accessibilityIdentifier("transfer-source-account-button")
@@ -140,6 +141,7 @@ struct TransferFormView: View {
                         Image(systemName: "chevron.right")
                             .foregroundColor(VColors.textTertiary)
                             .font(.caption)
+                            .accessibilityHidden(true)
                     }
                 }
                 .accessibilityIdentifier("transfer-destination-account-button")

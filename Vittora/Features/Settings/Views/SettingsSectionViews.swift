@@ -166,10 +166,10 @@ struct AboutView: View {
                     Text(String(localized: "Platform"))
                     Spacer()
                     #if os(iOS)
-                    Text("iOS")
+                    Text(String(localized: "iOS"))
                         .foregroundStyle(VColors.textSecondary)
                     #elseif os(macOS)
-                    Text("macOS")
+                    Text(String(localized: "macOS"))
                         .foregroundStyle(VColors.textSecondary)
                     #endif
                 }
@@ -189,6 +189,7 @@ struct AboutView: View {
                     Image(systemName: "indianrupeesign.circle.fill")
                         .font(.system(size: 44))
                         .foregroundStyle(VColors.primary)
+                        .accessibilityHidden(true)
                     Text(String(localized: "Vittora"))
                         .font(VTypography.title3.bold())
                         .foregroundStyle(VColors.textPrimary)

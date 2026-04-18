@@ -120,6 +120,7 @@ struct RecurringFormView: View {
 
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(VColors.textSecondary)
+                                            .accessibilityHidden(true)
                                     }
                                     .padding(VSpacing.md)
                                     .background(VColors.secondaryBackground)
@@ -154,6 +155,7 @@ struct RecurringFormView: View {
 
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(VColors.textSecondary)
+                                            .accessibilityHidden(true)
                                     }
                                     .padding(VSpacing.md)
                                     .background(VColors.secondaryBackground)
@@ -188,6 +190,7 @@ struct RecurringFormView: View {
 
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(VColors.textSecondary)
+                                            .accessibilityHidden(true)
                                     }
                                     .padding(VSpacing.md)
                                     .background(VColors.secondaryBackground)

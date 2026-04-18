@@ -18,7 +18,10 @@ struct MonthlyOverviewUseCase: Sendable {
             from: calendar.dateComponents([.year, .month], from: now)
         ) ?? now
 
-        let allTransactions = try await transactionRepository.fetchAll(filter: nil)
+        // Bound the fetch to the requested window instead of loading all history.
+        let windowStart = calendar.date(byAdding: .month, value: -(monthCount - 1), to: currentMonthStart) ?? currentMonthStart
+        let filter = TransactionFilter(dateRange: windowStart...now)
+        let allTransactions = try await transactionRepository.fetchAll(filter: filter)
 
         var results: [MonthlyData] = []
         for i in stride(from: monthCount - 1, through: 0, by: -1) {

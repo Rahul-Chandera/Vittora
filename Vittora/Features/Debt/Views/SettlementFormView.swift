@@ -3,6 +3,8 @@ import SwiftUI
 struct SettlementFormView: View {
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.currencySymbol) private var currencySymbol
     let debt: DebtEntry
     let onSettled: () -> Void
 
@@ -21,7 +23,7 @@ struct SettlementFormView: View {
             Form {
                 Section(String(localized: "Settlement Amount")) {
                     HStack {
-                        Text("$").foregroundColor(VColors.textSecondary)
+                        Text(currencySymbol).foregroundColor(VColors.textSecondary)
                         TextField(String(localized: "Amount"), text: $amountString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -101,7 +103,7 @@ struct SettlementFormView: View {
     private func formattedAmount(_ amount: Decimal) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        formatter.currencyCode = currencyCode
+        return formatter.string(from: amount as NSDecimalNumber) ?? "\(currencySymbol)0.00"
     }
 }

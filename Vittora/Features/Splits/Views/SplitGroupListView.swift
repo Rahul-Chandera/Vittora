@@ -162,6 +162,7 @@ private struct GroupRowView: View {
                 Image(systemName: "chevron.right")
                     .font(.caption)
                     .foregroundStyle(VColors.textSecondary)
+                    .accessibilityHidden(true)
             }
         }
     }

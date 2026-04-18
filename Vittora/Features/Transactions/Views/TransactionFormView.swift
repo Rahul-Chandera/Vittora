@@ -4,6 +4,7 @@ struct TransactionFormView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: TransactionFormViewModel?
     @State private var accounts: [AccountEntity] = []
     @State private var categories: (expense: [CategoryEntity], income: [CategoryEntity]) = ([], [])
@@ -26,7 +27,7 @@ struct TransactionFormView: View {
                     Section {
                         AmountInputView(
                             amountString: Bindable(vm).amountString,
-                            currencyCode: "USD",
+                            currencyCode: currencyCode,
                             type: vm.type,
                             textFieldAccessibilityIdentifier: "transaction-amount-field"
                         )
@@ -296,13 +297,13 @@ struct TransactionFormView: View {
     private func applyDefaultSelectionsIfNeeded() {
         guard let vm else { return }
 
-        if vm.selectedAccountID == nil, accounts.count == 1 {
-            vm.selectedAccountID = accounts[0].id
+        if vm.selectedAccountID == nil, accounts.count == 1, let first = accounts.first {
+            vm.selectedAccountID = first.id
         }
 
         let relevantCategories = vm.type == .income ? categories.income : categories.expense
-        if vm.selectedCategoryID == nil, relevantCategories.count == 1 {
-            vm.selectedCategoryID = relevantCategories[0].id
+        if vm.selectedCategoryID == nil, relevantCategories.count == 1, let first = relevantCategories.first {
+            vm.selectedCategoryID = first.id
         }
     }
 

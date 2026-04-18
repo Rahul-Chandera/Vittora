@@ -239,6 +239,7 @@ struct TaxDashboardView: View {
                 Image(systemName: "chevron.right")
                     .font(.caption)
                     .foregroundStyle(VColors.textSecondary)
+                    .accessibilityHidden(true)
             }
             .padding(VSpacing.cardPadding)
             .background(VColors.secondaryBackground)

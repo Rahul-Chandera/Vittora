@@ -116,6 +116,8 @@ struct VittoraApp: App {
                 .environment(settingsVM)
                 .environment(syncService)
                 .environment(syncConflictHandler)
+                .environment(\.currencyCode, settingsVM.selectedCurrencyCode)
+                .environment(\.currencySymbol, String.currencySymbol(for: settingsVM.selectedCurrencyCode))
                 .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
                 .task {
                     await performStartupTasksIfNeeded()

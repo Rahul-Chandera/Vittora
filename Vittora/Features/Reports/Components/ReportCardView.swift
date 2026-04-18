@@ -31,6 +31,7 @@ struct ReportCardView: View {
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundColor(VColors.textTertiary)
+                .accessibilityHidden(true)
         }
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryBackground)

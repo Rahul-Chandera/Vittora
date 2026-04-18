@@ -12,6 +12,7 @@ struct PayeeRowView: View {
                 Image(systemName: payee.type == .business ? "building.2.fill" : "person.fill")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(payee.type == .business ? VColors.primary : VColors.income)
+                    .accessibilityHidden(true)
             }
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
@@ -19,7 +20,7 @@ struct PayeeRowView: View {
                     .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)
                 HStack(spacing: VSpacing.xs) {
-                    Text(payee.type == .business ? "Business" : "Person")
+                    Text(payee.type == .business ? String(localized: "Business") : String(localized: "Person"))
                         .font(VTypography.caption1)
                         .foregroundColor(VColors.textSecondary)
                     if let phone = payee.phone {
@@ -37,6 +38,7 @@ struct PayeeRowView: View {
             Image(systemName: "chevron.right")
                 .font(.caption2)
                 .foregroundColor(VColors.textTertiary)
+                .accessibilityHidden(true)
         }
         .padding(.vertical, VSpacing.xxs)
     }

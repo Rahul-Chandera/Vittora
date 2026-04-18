@@ -18,16 +18,16 @@ struct PayeeFormView: View {
                 ProgressView()
             }
         }
-        .navigationTitle(editingPayee == nil ? "New Payee" : "Edit Payee")
+        .navigationTitle(editingPayee == nil ? String(localized: "New Payee") : String(localized: "Edit Payee"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { dismiss() }
+                Button(String(localized: "Cancel")) { dismiss() }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
+                Button(String(localized: "Save")) {
                     Task { await save() }
                 }
                 .disabled(viewModel?.canSave != true || isSaving)
@@ -56,30 +56,30 @@ struct PayeeFormView: View {
     @ViewBuilder
     private func formContent(vm: PayeeFormViewModel) -> some View {
         Form {
-            Section("Type") {
-                Picker("Payee Type", selection: Bindable(vm).selectedType) {
+            Section(String(localized: "Type")) {
+                Picker(String(localized: "Payee Type"), selection: Bindable(vm).selectedType) {
                     HStack {
                         Image(systemName: "building.2.fill")
-                        Text("Business")
+                        Text(String(localized: "Business"))
                     }.tag(PayeeType.business)
                     HStack {
                         Image(systemName: "person.fill")
-                        Text("Person")
+                        Text(String(localized: "Person"))
                     }.tag(PayeeType.person)
                 }
                 .pickerStyle(.segmented)
             }
 
-            Section("Details") {
-                TextField("Name", text: Bindable(vm).name)
+            Section(String(localized: "Details")) {
+                TextField(String(localized: "Name"), text: Bindable(vm).name)
             }
 
-            Section("Contact (Optional)") {
+            Section(String(localized: "Contact (Optional)")) {
                 HStack {
                     Image(systemName: "phone.fill")
                         .foregroundColor(VColors.textTertiary)
                         .frame(width: 24)
-                    TextField("Phone", text: Bindable(vm).phone)
+                    TextField(String(localized: "Phone"), text: Bindable(vm).phone)
                         #if os(iOS)
                         .keyboardType(.phonePad)
                         #endif
@@ -89,7 +89,7 @@ struct PayeeFormView: View {
                     Image(systemName: "envelope.fill")
                         .foregroundColor(VColors.textTertiary)
                         .frame(width: 24)
-                    TextField("Email", text: Bindable(vm).email)
+                    TextField(String(localized: "Email"), text: Bindable(vm).email)
                         #if os(iOS)
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
@@ -98,8 +98,8 @@ struct PayeeFormView: View {
                 }
             }
 
-            Section("Notes") {
-                TextField("Notes (optional)", text: Bindable(vm).notes, axis: .vertical)
+            Section(String(localized: "Notes")) {
+                TextField(String(localized: "Notes (optional)"), text: Bindable(vm).notes, axis: .vertical)
                     .lineLimit(3...6)
             }
 
