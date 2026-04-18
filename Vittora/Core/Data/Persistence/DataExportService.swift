@@ -100,16 +100,16 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
         var categoryMap: [UUID: String] = [:]
         var payeeMap: [UUID: String] = [:]
 
-        if let accountRepo = accountRepository,
-           let accounts = try? await accountRepo.fetchAll() {
+        if let accountRepo = accountRepository {
+            let accounts = try await accountRepo.fetchAll()
             accountMap = Dictionary(uniqueKeysWithValues: accounts.map { ($0.id, $0.name) })
         }
-        if let catRepo = categoryRepository,
-           let categories = try? await catRepo.fetchAll() {
+        if let catRepo = categoryRepository {
+            let categories = try await catRepo.fetchAll()
             categoryMap = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.name) })
         }
-        if let payeeRepo = payeeRepository,
-           let payees = try? await payeeRepo.fetchAll() {
+        if let payeeRepo = payeeRepository {
+            let payees = try await payeeRepo.fetchAll()
             payeeMap = Dictionary(uniqueKeysWithValues: payees.map { ($0.id, $0.name) })
         }
 

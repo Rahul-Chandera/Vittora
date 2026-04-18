@@ -86,8 +86,13 @@ struct DebtFormView: View {
             guard vm == nil,
                   let debtRepo = dependencies.debtRepository,
                   let payeeRepo = dependencies.payeeRepository else { return }
-            vm = DebtFormViewModel(createUseCase: CreateDebtEntryUseCase(debtRepository: debtRepo))
-            payees = (try? await payeeRepo.fetchAll()) ?? []
+            let formVM = DebtFormViewModel(createUseCase: CreateDebtEntryUseCase(debtRepository: debtRepo))
+            vm = formVM
+            do {
+                payees = try await payeeRepo.fetchAll()
+            } catch {
+                formVM.error = error.localizedDescription
+            }
         }
     }
 }

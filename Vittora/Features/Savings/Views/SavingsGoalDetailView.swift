@@ -55,9 +55,13 @@ struct SavingsGoalDetailView: View {
             if let vm {
                 SavingsGoalFormView(existingGoal: vm.goal) {
                     Task {
-                        guard let repo = dependencies.savingsGoalRepository,
-                              let fresh = try? await repo.fetchByID(vm.goal.id) else { return }
-                        vm.goal = fresh
+                        guard let repo = dependencies.savingsGoalRepository else { return }
+                        do {
+                            guard let fresh = try await repo.fetchByID(vm.goal.id) else { return }
+                            vm.goal = fresh
+                        } catch {
+                            vm.error = error.localizedDescription
+                        }
                     }
                 }
             }

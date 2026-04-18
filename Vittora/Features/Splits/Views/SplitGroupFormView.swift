@@ -93,7 +93,11 @@ struct SplitGroupFormView: View {
         }
         .task {
             guard let payeeRepo = dependencies.payeeRepository else { return }
-            allPayees = (try? await payeeRepo.fetchAll()) ?? []
+            do {
+                allPayees = try await payeeRepo.fetchAll()
+            } catch {
+                self.error = error.localizedDescription
+            }
             if let existing = existingGroup {
                 groupName = existing.name
                 selectedMemberIDs = Set(existing.memberIDs)

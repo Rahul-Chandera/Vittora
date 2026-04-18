@@ -70,7 +70,11 @@ struct SettlementFormView: View {
             }
         }
         .task {
-            accounts = (try? await dependencies.accountRepository?.fetchAll()) ?? []
+            do {
+                accounts = try await dependencies.accountRepository?.fetchAll() ?? []
+            } catch {
+                self.error = error.localizedDescription
+            }
         }
     }
 

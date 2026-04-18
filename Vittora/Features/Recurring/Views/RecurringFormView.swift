@@ -294,14 +294,22 @@ struct RecurringFormView: View {
     private func loadAccounts() async {
         guard let accountRepository = dependencies.accountRepository else { return }
         let fetchUseCase = FetchAccountsUseCase(accountRepository: accountRepository)
-        accounts = (try? await fetchUseCase.execute()) ?? []
+        do {
+            accounts = try await fetchUseCase.execute()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     @MainActor
     private func loadPayees() async {
         guard let payeeRepository = dependencies.payeeRepository else { return }
         let fetchUseCase = FetchPayeesUseCase(repository: payeeRepository)
-        payees = (try? await fetchUseCase.execute()) ?? []
+        do {
+            payees = try await fetchUseCase.execute()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     private func save() {
@@ -328,6 +336,7 @@ struct RecurringCategoryPickerView: View {
     @Binding var selectedID: UUID?
     var categoryType: CategoryType = .expense
     @State private var categories: [CategoryEntity] = []
+    @State private var loadError: String?
 
     var body: some View {
         List(categories, id: \.id) { category in
@@ -353,11 +362,21 @@ struct RecurringCategoryPickerView: View {
             }
         }
         .navigationTitle("Select Category")
+        .overlay {
+            if let loadError {
+                Text(loadError)
+                    .foregroundStyle(VColors.expense)
+                    .padding()
+            }
+        }
         .onAppear {
             Task {
-                if let repo = dependencies.categoryRepository {
-                    let allCategories = (try? await repo.fetchAll()) ?? []
+                guard let repo = dependencies.categoryRepository else { return }
+                do {
+                    let allCategories = try await repo.fetchAll()
                     categories = allCategories.filter { $0.type == categoryType }
+                } catch {
+                    loadError = error.localizedDescription
                 }
             }
         }
