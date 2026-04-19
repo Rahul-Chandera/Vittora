@@ -10,22 +10,28 @@ struct FetchDebtLedgerUseCase: Sendable {
         async let allPayeesTask = payeeRepository.fetchAll()
         let (outstandingDebts, allPayees) = try await (outstandingDebtsTask, allPayeesTask)
 
+        // O(1) payee lookup instead of O(n) linear scan per entry
+        let payeeByID: [UUID: PayeeEntity] = Dictionary(uniqueKeysWithValues: allPayees.map { ($0.id, $0) })
+
         var payeeDebts: [UUID: [DebtEntry]] = [:]
         for debt in outstandingDebts {
-            var list = payeeDebts[debt.payeeID] ?? []
-            list.append(debt)
-            payeeDebts[debt.payeeID] = list
+            payeeDebts[debt.payeeID, default: []].append(debt)
         }
 
         return payeeDebts.compactMap { (payeeID, entries) -> DebtLedgerEntry? in
-            guard let payee = allPayees.first(where: { $0.id == payeeID }) else { return nil }
+            guard let payee = payeeByID[payeeID] else { return nil }
 
-            let totalLent = entries
-                .filter { $0.direction == .lent }
-                .reduce(Decimal(0)) { $0 + $1.remainingAmount }
-            let totalBorrowed = entries
-                .filter { $0.direction == .borrowed }
-                .reduce(Decimal(0)) { $0 + $1.remainingAmount }
+            var totalLent = Decimal(0)
+            var totalBorrowed = Decimal(0)
+            for entry in entries {
+                if entry.direction == .lent {
+                    totalLent += entry.remainingAmount
+                } else {
+                    totalBorrowed += entry.remainingAmount
+                }
+            }
+
+            guard totalLent > 0 || totalBorrowed > 0 else { return nil }
 
             return DebtLedgerEntry(
                 payee: payee,
@@ -34,7 +40,6 @@ struct FetchDebtLedgerUseCase: Sendable {
                 totalBorrowed: totalBorrowed
             )
         }
-        .filter { $0.totalLent > 0 || $0.totalBorrowed > 0 }
         .sorted { abs($0.netBalance) > abs($1.netBalance) }
     }
 }
