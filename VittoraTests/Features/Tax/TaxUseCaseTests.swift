@@ -66,6 +66,40 @@ struct TaxUseCaseTests {
             #expect(estimate.taxableIncome == 975_000)
             #expect(estimate.finalTax > 0)
         }
+
+        @Test("Old regime §87A rebate eliminates tax at the 5 lakh threshold")
+        func oldRegimeRebateAtThreshold() {
+            let calculator = IndiaTaxCalculator()
+            let profile = TaxProfile(
+                country: .india,
+                annualIncome: 500_000,
+                indiaRegime: .oldRegime,
+                incomeSourceType: .nonSalaried,
+                financialYear: "2024-25"
+            )
+            let estimate = calculator.calculate(profile: profile)
+            #expect(estimate.taxableIncome == 500_000)
+            #expect(estimate.rebate == 12_500)
+            #expect(estimate.finalTax == 0)
+        }
+
+        @Test("Old regime §87A marginal relief caps tax at the excess above 5 lakh")
+        func oldRegimeMarginalRelief() {
+            let calculator = IndiaTaxCalculator()
+            let profile = TaxProfile(
+                country: .india,
+                annualIncome: 510_000,
+                indiaRegime: .oldRegime,
+                incomeSourceType: .nonSalaried,
+                financialYear: "2024-25"
+            )
+            let estimate = calculator.calculate(profile: profile)
+            // Basic tax on ₹5.1L: 5% × 2.5L = 12,500 + 20% × 10,000 = 2,000 → 14,500
+            // Marginal relief: rebate = min(14500, 12500, 14500 − 10000) = 4500
+            // taxAfterRebate = 14500 − 4500 = 10000 = excess (₹10,000 above threshold)
+            #expect(estimate.rebate == 4_500)
+            #expect(estimate.finalTax == 10_400) // 10000 × 4% cess = 400
+        }
     }
 
     @MainActor

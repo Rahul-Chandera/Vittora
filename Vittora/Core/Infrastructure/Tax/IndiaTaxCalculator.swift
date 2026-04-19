@@ -10,7 +10,7 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
         let gross = profile.annualIncome
         let financialYear = Self.supportedFinancialYear(for: profile)
 
-        let standardDeduction = standardDeduction(for: regime, incomeSourceType: profile.incomeSourceType)
+        let standardDeduction = standardDeduction(for: regime, incomeSourceType: profile.incomeSourceType, financialYear: financialYear)
         let customDeductionsTotal: Decimal = regime == .oldRegime
             ? profile.customDeductions.reduce(0) { $0 + $1.amount }
             : 0
@@ -69,9 +69,19 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
         case superSenior  // 80+
     }
 
-    private func standardDeduction(for regime: IndiaRegime, incomeSourceType: IncomeSourceType) -> Decimal {
+    private func standardDeduction(
+        for regime: IndiaRegime,
+        incomeSourceType: IncomeSourceType,
+        financialYear: FinancialYear
+    ) -> Decimal {
         guard incomeSourceType == .salaried else { return 0 }
-        return regime == .newRegime ? 75_000 : 50_000
+        switch regime {
+        case .newRegime:
+            // ₹75,000 from FY 2024-25; earlier years (FY 2023-24 and before) were ₹50,000
+            return financialYear == .fy2024 || financialYear == .fy2025 ? 75_000 : 50_000
+        case .oldRegime:
+            return 50_000
+        }
     }
 
     private static func ageCategory(dateOfBirth: Date?, financialYear: FinancialYear) -> AgeCategory {
@@ -143,8 +153,14 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
     ) -> Decimal {
         switch regime {
         case .oldRegime:
-            guard taxableIncome <= 500_000 else { return 0 }
-            return min(basicTax, 12_500)
+            let threshold: Decimal = 500_000
+            let cap: Decimal = 12_500
+            if taxableIncome <= threshold {
+                return min(basicTax, cap)
+            }
+            // Marginal relief: tax payable should not exceed excess income above threshold
+            let excess = taxableIncome - threshold
+            return max(0, min(basicTax, cap, basicTax - excess))
 
         case .newRegime:
             let threshold: Decimal
