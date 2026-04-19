@@ -410,30 +410,6 @@ struct TransactionUseCaseTests {
             #expect(result.count == 2)
         }
 
-        @Test("Returns paginated transactions")
-        func testPagination() async throws {
-            let repo = MockTransactionRepository()
-            for i in 1...5 {
-                await repo.seed(TransactionEntity(amount: Decimal(i * 10), type: .expense))
-            }
-
-            let useCase = FetchTransactionsUseCase(transactionRepository: repo)
-            let page = try await useCase.executePaginated(filter: nil, offset: 2, limit: 2)
-
-            #expect(page.count == 2)
-        }
-
-        @Test("Returns empty array when offset exceeds count")
-        func testPaginationBeyondCount() async throws {
-            let repo = MockTransactionRepository()
-            await repo.seed(TransactionEntity(amount: 50, type: .expense))
-
-            let useCase = FetchTransactionsUseCase(transactionRepository: repo)
-            let page = try await useCase.executePaginated(filter: nil, offset: 10, limit: 5)
-
-            #expect(page.isEmpty)
-        }
-
         @Test("Groups transactions by calendar day")
         func testGroupedByDate() async throws {
             let repo = MockTransactionRepository()

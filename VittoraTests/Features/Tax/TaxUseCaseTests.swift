@@ -74,8 +74,8 @@ struct TaxUseCaseTests {
                 country: .india,
                 annualIncome: 500_000,
                 indiaRegime: .oldRegime,
-                incomeSourceType: .nonSalaried,
-                financialYear: "2024-25"
+                financialYear: "2024-25",
+                incomeSourceType: .selfEmployed
             )
             let estimate = calculator.calculate(profile: profile)
             #expect(estimate.taxableIncome == 500_000)
@@ -90,8 +90,8 @@ struct TaxUseCaseTests {
                 country: .india,
                 annualIncome: 510_000,
                 indiaRegime: .oldRegime,
-                incomeSourceType: .nonSalaried,
-                financialYear: "2024-25"
+                financialYear: "2024-25",
+                incomeSourceType: .selfEmployed
             )
             let estimate = calculator.calculate(profile: profile)
             // Basic tax on ₹5.1L: 5% × 2.5L = 12,500 + 20% × 10,000 = 2,000 → 14,500
