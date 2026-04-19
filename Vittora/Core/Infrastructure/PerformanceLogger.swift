@@ -79,4 +79,18 @@ enum PerformanceLogger {
         static func endSync(id: OSSignpostID) { end(syncLog, name: "CloudKitSync", id: id) }
         static func conflict() { event(syncLog, name: "SyncConflict") }
     }
+
+    static let securityLog = OSLog(subsystem: "com.vittora.app", category: "Security")
+
+    struct Security {
+        static func authFailed(consecutiveCount: Int) {
+            event(securityLog, name: "AuthFailed", message: "consecutive=\(consecutiveCount)")
+        }
+        static func cooldownStarted(seconds: Int) {
+            event(securityLog, name: "CooldownStarted", message: "duration=\(seconds)s")
+        }
+        static func cooldownBlocked(remainingSeconds: Int) {
+            event(securityLog, name: "CooldownBlocked", message: "remaining=\(remainingSeconds)s")
+        }
+    }
 }

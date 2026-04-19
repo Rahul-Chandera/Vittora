@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 protocol AppLockServiceProtocol: Sendable {
     var isLocked: Bool { get }
@@ -86,6 +87,7 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
     private func guardCooldown() throws {
         guard let expires = cooldownExpiresAt, expires > .now else { return }
         let remaining = Int(expires.timeIntervalSince(.now).rounded(.up))
+        PerformanceLogger.Security.cooldownBlocked(remainingSeconds: remaining)
         throw VittoraError.biometricFailed(
             String(localized: "Too many failed attempts. Try again in \(remaining) seconds.")
         )
@@ -93,10 +95,13 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
 
     private func recordFailure() {
         consecutiveFailures += 1
+        PerformanceLogger.Security.authFailed(consecutiveCount: consecutiveFailures)
         let excess = consecutiveFailures - Self.cooldownThreshold
         guard excess > 0 else { return }
         let index = min(excess - 1, Self.cooldownDurations.count - 1)
-        cooldownExpiresAt = Date.now.addingTimeInterval(Self.cooldownDurations[index])
+        let duration = Self.cooldownDurations[index]
+        cooldownExpiresAt = Date.now.addingTimeInterval(duration)
+        PerformanceLogger.Security.cooldownStarted(seconds: Int(duration))
     }
 
     func recordActivity() {
