@@ -11,21 +11,6 @@ struct FetchTransactionsUseCase: Sendable {
         return try await transactionRepository.fetchAll(filter: filter)
     }
 
-    func executePaginated(
-        filter: TransactionFilter?,
-        offset: Int,
-        limit: Int
-    ) async throws -> [TransactionEntity] {
-        let allTransactions = try await transactionRepository.fetchAll(filter: filter)
-        let endIndex = min(offset + limit, allTransactions.count)
-
-        guard offset < allTransactions.count else {
-            return []
-        }
-
-        return Array(allTransactions[offset..<endIndex])
-    }
-
     func executeGroupedByDate(filter: TransactionFilter?) async throws -> [(date: Date, transactions: [TransactionEntity])] {
         let transactions = try await transactionRepository.fetchAll(filter: filter)
 
