@@ -77,13 +77,13 @@ struct TransactionFormView: View {
                                 do {
                                     try await vm.save()
                                     appState.transactionRefreshVersion += 1
-                                    HapticService.shared.success()
+                                    HapticService.success()
                                     dismiss()
                                 } catch {
                                     vm.error = error.userFacingMessage(
                                         fallback: String(localized: "We couldn't save this transaction.")
                                     )
-                                    HapticService.shared.error()
+                                    HapticService.error()
                                 }
                             }
                         } label: {
