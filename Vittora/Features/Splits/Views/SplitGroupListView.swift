@@ -12,6 +12,19 @@ struct SplitGroupListView: View {
                 if let vm {
                     if vm.isLoading && vm.summaries.isEmpty {
                         ProgressView().tint(VColors.primary)
+                    } else if let error = vm.error {
+                        ContentUnavailableView {
+                            Label(String(localized: "Unable to Load"), systemImage: "exclamationmark.triangle")
+                        } description: {
+                            Text(error)
+                        } actions: {
+                            Button(String(localized: "Try Again")) {
+                                vm.error = nil
+                                Task { await vm.load() }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(VColors.primary)
+                        }
                     } else {
                         listContent(vm)
                     }
@@ -57,14 +70,6 @@ struct SplitGroupListView: View {
         .refreshable {
             await vm?.load()
         }
-        .alert(String(localized: "Error"), isPresented: Binding(
-            get: { vm?.error != nil },
-            set: { if !$0 { vm?.error = nil } }
-        )) {
-            Button(String(localized: "OK")) { vm?.error = nil }
-        } message: {
-            Text(vm?.error ?? "")
-        }
     }
 
     @ViewBuilder
@@ -89,25 +94,17 @@ struct SplitGroupListView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: VSpacing.lg) {
-            Image(systemName: "person.3.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(VColors.textTertiary)
-            Text(String(localized: "No groups yet"))
-                .font(VTypography.bodyBold)
-                .foregroundStyle(VColors.textPrimary)
+        ContentUnavailableView {
+            Label(String(localized: "No groups yet"), systemImage: "person.3.fill")
+        } description: {
             Text(String(localized: "Create a group to track shared expenses with friends or family"))
-                .font(VTypography.caption1)
-                .foregroundStyle(VColors.textSecondary)
-                .multilineTextAlignment(.center)
+        } actions: {
             Button(String(localized: "Create Group")) {
                 showAddGroup = true
             }
             .buttonStyle(.borderedProminent)
             .tint(VColors.primary)
         }
-        .frame(maxWidth: .infinity)
-        .padding(VSpacing.xxxl)
     }
 }
 

@@ -11,7 +11,21 @@ struct RecurringListView: View {
             VColors.background.ignoresSafeArea()
 
             if let viewModel = viewModel {
-                VStack(spacing: 0) {
+                if let error = viewModel.error, viewModel.rules.isEmpty {
+                    ContentUnavailableView {
+                        Label(String(localized: "Unable to Load"), systemImage: "exclamationmark.triangle")
+                    } description: {
+                        Text(error)
+                    } actions: {
+                        Button(String(localized: "Try Again")) {
+                            viewModel.error = nil
+                            Task { await viewModel.loadRules() }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(VColors.primary)
+                    }
+                } else {
+                    VStack(spacing: 0) {
                     // Cost Summary Card
                     if let costSummary = viewModel.costSummary {
                         VStack(alignment: .leading, spacing: VSpacing.md) {
@@ -65,33 +79,17 @@ struct RecurringListView: View {
                     }
 
                     if viewModel.rules.isEmpty {
-                        VStack(spacing: VSpacing.lg) {
-                            Image(systemName: "repeat.circle")
-                                .font(.system(size: 48))
-                                .foregroundColor(VColors.textSecondary)
-
-                            Text("No Recurring Transactions")
-                                .font(VTypography.title3)
-                                .foregroundColor(VColors.textPrimary)
-
-                            Text("Create your first recurring transaction to get started")
-                                .font(VTypography.callout)
-                                .foregroundColor(VColors.textSecondary)
-                                .multilineTextAlignment(.center)
-
-                            Button(action: { showAddSheet = true }) {
-                                Text("Add Recurring Transaction")
-                                    .font(VTypography.calloutBold)
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(VSpacing.md)
-                                    .background(VColors.primary)
-                                    .cornerRadius(VSpacing.cornerRadiusMD)
+                        ContentUnavailableView {
+                            Label(String(localized: "No Recurring Transactions"), systemImage: "repeat.circle")
+                        } description: {
+                            Text(String(localized: "Create your first recurring transaction to get started"))
+                        } actions: {
+                            Button(String(localized: "Add Recurring Transaction")) {
+                                showAddSheet = true
                             }
-                            .padding(.top, VSpacing.lg)
+                            .buttonStyle(.borderedProminent)
+                            .tint(VColors.primary)
                         }
-                        .frame(maxHeight: .infinity)
-                        .padding(VSpacing.lg)
                     } else {
                         List {
                             ForEach(viewModel.grouped, id: \.label) { group in
@@ -132,26 +130,6 @@ struct RecurringListView: View {
                         .listStyle(.inset)
                         #endif
                     }
-                }
-
-                if let error = viewModel.error {
-                    VStack {
-                        HStack {
-                            Image(systemName: "exclamationmark.circle.fill")
-                                .foregroundColor(.red)
-
-                            Text(error)
-                                .font(VTypography.callout)
-                                .foregroundColor(.red)
-
-                            Spacer()
-                        }
-                        .padding(VSpacing.md)
-                        .background(Color.red.opacity(0.1))
-                        .cornerRadius(VSpacing.cornerRadiusMD)
-                        .padding(VSpacing.lg)
-
-                        Spacer()
                     }
                 }
             } else {

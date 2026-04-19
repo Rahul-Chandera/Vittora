@@ -12,6 +12,19 @@ struct DebtLedgerView: View {
                 if let vm = vm {
                     if vm.isLoading && vm.ledgerEntries.isEmpty {
                         ProgressView().tint(VColors.primary)
+                    } else if let error = vm.error {
+                        ContentUnavailableView {
+                            Label(String(localized: "Unable to Load"), systemImage: "exclamationmark.triangle")
+                        } description: {
+                            Text(error)
+                        } actions: {
+                            Button(String(localized: "Try Again")) {
+                                vm.error = nil
+                                Task { await vm.load() }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(VColors.primary)
+                        }
                     } else {
                         ledgerContent(vm)
                     }
@@ -126,25 +139,17 @@ struct DebtLedgerView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: VSpacing.lg) {
-            Image(systemName: "person.2.slash")
-                .font(.system(size: 48))
-                .foregroundColor(VColors.textTertiary)
-            Text(String(localized: "No debts recorded"))
-                .font(VTypography.bodyBold)
-                .foregroundColor(VColors.textPrimary)
+        ContentUnavailableView {
+            Label(String(localized: "No debts recorded"), systemImage: "person.2.slash")
+        } description: {
             Text(String(localized: "Track money you lent or borrowed"))
-                .font(VTypography.caption1)
-                .foregroundColor(VColors.textSecondary)
-                .multilineTextAlignment(.center)
+        } actions: {
             Button(String(localized: "Add Entry")) {
                 showAddDebt = true
             }
             .buttonStyle(.borderedProminent)
             .tint(VColors.primary)
         }
-        .frame(maxWidth: .infinity)
-        .padding(VSpacing.xxxl)
     }
 }
 

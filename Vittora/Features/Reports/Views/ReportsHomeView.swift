@@ -19,7 +19,15 @@ struct ReportsHomeView: View {
             ScrollView {
                 VStack(spacing: VSpacing.sectionSpacing) {
                     if let vm = vm {
-                        summaryCard(vm)
+                        if vm.isLoading {
+                            ProgressView()
+                                .frame(maxWidth: .infinity)
+                                .padding(VSpacing.cardPadding)
+                                .background(VColors.secondaryBackground)
+                                .cornerRadius(VSpacing.cornerRadiusCard)
+                        } else if vm.error == nil {
+                            summaryCard(vm)
+                        }
                     }
 
                     VStack(spacing: VSpacing.md) {
