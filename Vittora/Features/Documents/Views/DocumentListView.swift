@@ -62,8 +62,12 @@ struct DocumentListView: View {
         ), selection: $selectedPhoto, matching: .images)
         .onChange(of: selectedPhoto) { _, item in
             Task {
-                if let data = try? await item?.loadTransferable(type: Data.self) {
-                    await vm?.attach(imageData: data, mimeType: "image/jpeg")
+                do {
+                    if let data = try await item?.loadTransferable(type: Data.self) {
+                        await vm?.attach(imageData: data, mimeType: "image/jpeg")
+                    }
+                } catch {
+                    vm?.error = error.localizedDescription
                 }
                 selectedPhoto = nil
             }

@@ -31,6 +31,8 @@ final class SettingsViewModel {
 
     // MARK: - Keychain-backed sensitive properties
 
+    var keychainError: String?
+
     @ObservationIgnored private var _isAppLockEnabled: Bool
     var isAppLockEnabled: Bool {
         get {
@@ -42,7 +44,11 @@ final class SettingsViewModel {
                 _isAppLockEnabled = newValue
             }
             Task { [keychainService] in
-                try? await keychainService.save(Data([newValue ? 1 : 0]), forKey: "vittora.appLockEnabled")
+                do {
+                    try await keychainService.save(Data([newValue ? 1 : 0]), forKey: "vittora.appLockEnabled")
+                } catch {
+                    keychainError = error.localizedDescription
+                }
             }
         }
     }
@@ -58,10 +64,14 @@ final class SettingsViewModel {
                 _userName = newValue
             }
             Task { [keychainService] in
-                if newValue.isEmpty {
-                    try? await keychainService.delete(forKey: "vittora.userName")
-                } else if let data = newValue.data(using: .utf8) {
-                    try? await keychainService.save(data, forKey: "vittora.userName")
+                do {
+                    if newValue.isEmpty {
+                        try await keychainService.delete(forKey: "vittora.userName")
+                    } else if let data = newValue.data(using: .utf8) {
+                        try await keychainService.save(data, forKey: "vittora.userName")
+                    }
+                } catch {
+                    keychainError = error.localizedDescription
                 }
             }
         }

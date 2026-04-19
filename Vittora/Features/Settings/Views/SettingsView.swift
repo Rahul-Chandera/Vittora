@@ -101,6 +101,10 @@ struct SettingsView: View {
             }
         }
         .navigationTitle(String(localized: "Settings"))
+        .errorAlert(message: Binding(
+            get: { vm.keychainError },
+            set: { vm.keychainError = $0 }
+        ))
     }
 
     private func initials(_ name: String) -> String {

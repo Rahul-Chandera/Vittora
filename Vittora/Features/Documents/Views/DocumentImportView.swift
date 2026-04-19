@@ -8,6 +8,7 @@ struct DocumentImportView: View {
     #if os(iOS)
     @State private var showFilePicker = false
     #endif
+    @State private var importError: String?
 
     var body: some View {
         NavigationStack {
@@ -56,20 +57,27 @@ struct DocumentImportView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                 }
             }
+            .errorAlert(message: $importError)
         }
     }
 
     private func handleFileImport(_ result: Result<[URL], Error>) {
-        guard case .success(let urls) = result,
-              let url = urls.first else { return }
-
-        let accessing = url.startAccessingSecurityScopedResource()
-        defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-
-        guard let data = try? Data(contentsOf: url) else { return }
-        let mimeType = mimeType(for: url)
-        onDocumentSelected(data, mimeType)
-        dismiss()
+        switch result {
+        case .failure(let error):
+            importError = error.localizedDescription
+            return
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            let accessing = url.startAccessingSecurityScopedResource()
+            defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+            do {
+                let data = try Data(contentsOf: url)
+                onDocumentSelected(data, mimeType(for: url))
+                dismiss()
+            } catch {
+                importError = error.localizedDescription
+            }
+        }
     }
 
     #if os(macOS)
@@ -79,13 +87,14 @@ struct DocumentImportView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
 
-        guard panel.runModal() == .OK,
-              let url = panel.url,
-              let data = try? Data(contentsOf: url) else { return }
-
-        let mimeType = mimeType(for: url)
-        onDocumentSelected(data, mimeType)
-        dismiss()
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            let data = try Data(contentsOf: url)
+            onDocumentSelected(data, mimeType(for: url))
+            dismiss()
+        } catch {
+            importError = error.localizedDescription
+        }
     }
     #endif
 

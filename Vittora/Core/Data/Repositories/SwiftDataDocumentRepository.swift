@@ -48,7 +48,7 @@ actor SwiftDataDocumentRepository: DocumentRepository {
         if let thumb = entity.thumbnailData {
             try DocumentMapper.saveThumbnail(thumb, for: entity.id)
         } else {
-            DocumentMapper.deleteThumbnail(for: entity.id)
+            try DocumentMapper.deleteThumbnail(for: entity.id)
         }
         DocumentMapper.updateModel(model, from: entity)
         try modelContext.save()
@@ -61,7 +61,7 @@ actor SwiftDataDocumentRepository: DocumentRepository {
         guard let model = try modelContext.fetch(descriptor).first else {
             throw VittoraError.notFound(String(localized: "Document not found"))
         }
-        DocumentMapper.deleteThumbnail(for: id)
+        try DocumentMapper.deleteThumbnail(for: id)
         modelContext.delete(model)
         try modelContext.save()
     }

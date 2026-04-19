@@ -92,7 +92,7 @@ final class OnboardingViewModel {
 
             let trimmedName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedName.isEmpty {
-                try? await keychainService.delete(forKey: "vittora.userName")
+                try await keychainService.delete(forKey: "vittora.userName")
             } else if let data = trimmedName.data(using: .utf8) {
                 try await keychainService.save(data, forKey: "vittora.userName")
             }

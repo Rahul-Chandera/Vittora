@@ -35,9 +35,13 @@ enum DocumentMapper {
         try data.write(to: url, options: .completeFileProtection)
     }
 
-    nonisolated static func deleteThumbnail(for id: UUID) {
+    nonisolated static func deleteThumbnail(for id: UUID) throws {
         guard let url = thumbnailURL(for: id) else { return }
-        try? FileManager.default.removeItem(at: url)
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch CocoaError.fileNoSuchFile {
+            // File was already absent — nothing to delete
+        }
     }
 
     private nonisolated static func loadThumbnail(for id: UUID) -> Data? {
