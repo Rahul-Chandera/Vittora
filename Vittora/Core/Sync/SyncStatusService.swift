@@ -39,14 +39,17 @@ enum SyncState: Equatable, Sendable {
 @MainActor
 final class SyncStatusService: Sendable {
     private(set) var syncState: SyncState = .synced
-    private(set) var lastSyncDate: Date? = UserDefaults.standard.object(forKey: "vittora.lastSyncDate") as? Date
+    private(set) var lastSyncDate: Date?
     private(set) var iCloudAccountAvailable: Bool = false
 
+    private let userDefaults: UserDefaults
     private let pathMonitor: NWPathMonitor?
     private let monitorQueue = DispatchQueue(label: "vittora.network.monitor", qos: .utility)
     private var isNetworkAvailable: Bool = true
 
-    init(isMonitoringEnabled: Bool = true) {
+    init(isMonitoringEnabled: Bool = true, userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+        self.lastSyncDate = userDefaults.object(forKey: "vittora.lastSyncDate") as? Date
         if isMonitoringEnabled {
             let monitor = NWPathMonitor()
             pathMonitor = monitor
@@ -136,7 +139,7 @@ final class SyncStatusService: Sendable {
     func markSynced() {
         let now = Date.now
         lastSyncDate = now
-        UserDefaults.standard.set(now, forKey: "vittora.lastSyncDate")
+        userDefaults.set(now, forKey: "vittora.lastSyncDate")
         syncState = .synced
     }
 
