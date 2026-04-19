@@ -54,7 +54,7 @@ struct TransactionListView: View {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     Task {
-                                        HapticService.warning()
+                                        dependencies.hapticService.warning()
                                         await vm.deleteTransaction(id: transaction.id)
                                     }
                                 } label: {

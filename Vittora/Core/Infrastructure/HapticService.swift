@@ -1,5 +1,18 @@
 import SwiftUI
 
+// MARK: - Protocol
+
+@MainActor
+protocol HapticServiceProtocol {
+    func light()
+    func medium()
+    func heavy()
+    func success()
+    func warning()
+    func error()
+    func selection()
+}
+
 // MARK: - Haptic Feedback Service
 
 /// Centralized haptic feedback for consistent tactile responses across the app.
@@ -68,6 +81,19 @@ enum HapticService {
         generator.selectionChanged()
         #endif
     }
+}
+
+// MARK: - Live Implementation
+
+@MainActor
+final class LiveHapticService: HapticServiceProtocol {
+    func light()     { HapticService.light() }
+    func medium()    { HapticService.medium() }
+    func heavy()     { HapticService.heavy() }
+    func success()   { HapticService.success() }
+    func warning()   { HapticService.warning() }
+    func error()     { HapticService.error() }
+    func selection() { HapticService.selection() }
 }
 
 // MARK: - View Extension

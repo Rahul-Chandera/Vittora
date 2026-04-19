@@ -22,6 +22,7 @@ final class DependencyContainer {
     var appLockService: (any AppLockServiceProtocol)?
     var exportService: (any DataExportServiceProtocol)?
     var contactsImportService: (any ContactsImportServiceProtocol)?
+    var hapticService: (any HapticServiceProtocol) = LiveHapticService()
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
         let container = DependencyContainer()
