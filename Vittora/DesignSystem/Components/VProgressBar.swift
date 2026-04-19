@@ -40,15 +40,19 @@ struct VProgressBar: View {
                         }
                 }
 
-                // Overflow indicator
-                if progress > 1.0 {
+                // Status indicator (non-color signal for warning/danger/overflow)
+                if progress >= 0.75 {
                     HStack {
                         Spacer()
-                        Image(systemName: "exclamationmark.circle.fill")
+                        Image(systemName: progress > 1.0 ? "exclamationmark.circle.fill" : "exclamationmark.triangle.fill")
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(VColors.budgetDanger)
+                            .foregroundColor(statusColor)
                             .padding(.horizontal, VSpacing.xs)
-                            .accessibilityLabel(String(localized: "Over budget"))
+                            .accessibilityLabel(progress > 1.0
+                                ? String(localized: "Over budget")
+                                : progress >= 0.9
+                                    ? String(localized: "Near limit")
+                                    : String(localized: "Approaching limit"))
                     }
                 }
             }

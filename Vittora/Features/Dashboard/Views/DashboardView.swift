@@ -168,6 +168,12 @@ struct DashboardView: View {
                         .font(VTypography.caption1)
                         .foregroundColor(VColors.textPrimary)
                     Spacer()
+                    if progress >= 0.75 {
+                        Image(systemName: progress > 1.0 ? "exclamationmark.circle.fill" : "exclamationmark.triangle.fill")
+                            .font(.caption2)
+                            .foregroundColor(progressColor(progress))
+                            .accessibilityHidden(true)
+                    }
                     Text(String(format: "%.0f%%", progress * 100))
                         .font(VTypography.caption1Bold)
                         .foregroundColor(progressColor(progress))
