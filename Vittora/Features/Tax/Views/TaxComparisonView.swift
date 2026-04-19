@@ -68,6 +68,8 @@ struct TaxComparisonView: View {
         .padding(VSpacing.md)
         .background(VColors.tertiaryBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(String(localized: "Recommendation: \(recommendationText)"))
     }
 
     private func optionCard(
@@ -128,6 +130,12 @@ struct TaxComparisonView: View {
         .overlay(
             RoundedRectangle(cornerRadius: VSpacing.cornerRadiusCard)
                 .strokeBorder(isRecommended ? VColors.primary.opacity(0.25) : .clear, lineWidth: 1)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(
+            isRecommended
+                ? String(localized: "\(title), recommended. Tax: \(estimate.finalTax.formatted(.currency(code: estimate.country.currencyCode))). Effective rate \((estimate.effectiveRate * 100).formatted(.number.precision(.fractionLength(1))))%")
+                : String(localized: "\(title). Tax: \(estimate.finalTax.formatted(.currency(code: estimate.country.currencyCode))). Effective rate \((estimate.effectiveRate * 100).formatted(.number.precision(.fractionLength(1))))%")
         )
     }
 
