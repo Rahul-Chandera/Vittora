@@ -22,6 +22,7 @@ private final class MockBudgetRepo: BudgetRepository {
 private final class MockDebtRepo: DebtRepository {
     var items: [DebtEntry] = []
     func fetchAll() async throws -> [DebtEntry] { items }
+    func fetchOutstanding() async throws -> [DebtEntry] { items.filter { !$0.isSettled } }
     func fetchByID(_ id: UUID) async throws -> DebtEntry? { items.first { $0.id == id } }
     func create(_ e: DebtEntry) async throws { items.append(e) }
     func update(_ e: DebtEntry) async throws {

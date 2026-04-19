@@ -5,13 +5,13 @@ struct FetchDebtLedgerUseCase: Sendable {
     let payeeRepository: any PayeeRepository
 
     func execute() async throws -> [DebtLedgerEntry] {
-        async let allDebtsTask = debtRepository.fetchAll()
+        // Fetch only outstanding (non-settled) debts at the DB level
+        async let outstandingDebtsTask = debtRepository.fetchOutstanding()
         async let allPayeesTask = payeeRepository.fetchAll()
-        let (allDebts, allPayees) = try await (allDebtsTask, allPayeesTask)
+        let (outstandingDebts, allPayees) = try await (outstandingDebtsTask, allPayeesTask)
 
-        // Group by payee, only non-settled entries count toward balance
         var payeeDebts: [UUID: [DebtEntry]] = [:]
-        for debt in allDebts {
+        for debt in outstandingDebts {
             var list = payeeDebts[debt.payeeID] ?? []
             list.append(debt)
             payeeDebts[debt.payeeID] = list
@@ -20,11 +20,10 @@ struct FetchDebtLedgerUseCase: Sendable {
         return payeeDebts.compactMap { (payeeID, entries) -> DebtLedgerEntry? in
             guard let payee = allPayees.first(where: { $0.id == payeeID }) else { return nil }
 
-            let outstanding = entries.filter { !$0.isSettled }
-            let totalLent = outstanding
+            let totalLent = entries
                 .filter { $0.direction == .lent }
                 .reduce(Decimal(0)) { $0 + $1.remainingAmount }
-            let totalBorrowed = outstanding
+            let totalBorrowed = entries
                 .filter { $0.direction == .borrowed }
                 .reduce(Decimal(0)) { $0 + $1.remainingAmount }
 
@@ -35,7 +34,7 @@ struct FetchDebtLedgerUseCase: Sendable {
                 totalBorrowed: totalBorrowed
             )
         }
-        .filter { $0.totalLent > 0 || $0.totalBorrowed > 0 || !$0.entries.filter({ !$0.isSettled }).isEmpty }
+        .filter { $0.totalLent > 0 || $0.totalBorrowed > 0 }
         .sorted { abs($0.netBalance) > abs($1.netBalance) }
     }
 }
