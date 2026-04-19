@@ -38,7 +38,7 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
                 note: rule.templateNote,
                 type: .expense,
                 paymentMethod: .other,
-                currencyCode: "USD",
+                currencyCode: account.currencyCode,
                 tags: [],
                 categoryID: rule.templateCategoryID,
                 accountID: accountID,

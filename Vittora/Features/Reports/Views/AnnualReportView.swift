@@ -3,6 +3,7 @@ import Charts
 
 struct AnnualReportView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: MonthlyOverviewViewModel?
     @State private var selectedYear: Int = Calendar.current.component(.year, from: .now)
 
@@ -193,10 +194,6 @@ struct AnnualReportView: View {
     }
 
     // MARK: - Helpers
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     private func loadData() async {
         guard let repo = dependencies.transactionRepository else { return }

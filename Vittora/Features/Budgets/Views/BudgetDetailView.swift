@@ -3,14 +3,11 @@ import SwiftUI
 struct BudgetDetailView: View {
     @Environment(\.dependencies) var dependencies
     @Environment(\.dismiss) var dismiss
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: BudgetDetailViewModel?
     @State private var showEdit = false
     @State private var editRefreshTask: Task<Void, Never>?
     let budgetID: UUID
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         ZStack {

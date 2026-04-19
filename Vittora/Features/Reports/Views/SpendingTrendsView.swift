@@ -3,14 +3,11 @@ import Charts
 
 struct SpendingTrendsView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: SpendingTrendsViewModel?
     @State private var selectedPreset: DateRangePreset = .thisMonth
     @State private var customStart: Date = .now
     @State private var customEnd: Date = .now
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         ScrollView {

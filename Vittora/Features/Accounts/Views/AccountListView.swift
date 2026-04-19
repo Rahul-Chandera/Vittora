@@ -2,14 +2,11 @@ import SwiftUI
 
 struct AccountListView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: AccountListViewModel?
     @State private var showAddAccount = false
     @State private var showingDeleteAlert = false
     @State private var accountToDelete: UUID?
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         Group {

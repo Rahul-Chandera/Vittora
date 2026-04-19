@@ -4,6 +4,7 @@ struct QuickEntryView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: TransactionFormViewModel?
     @State private var categories: [CategoryEntity] = []
     @State private var accounts: [AccountEntity] = []
@@ -17,7 +18,7 @@ struct QuickEntryView: View {
                         // Large amount input
                         AmountInputView(
                             amountString: Bindable(vm).amountString,
-                            currencyCode: "USD",
+                            currencyCode: currencyCode,
                             type: .expense
                         )
                         .padding(VSpacing.lg)
@@ -198,7 +199,8 @@ struct QuickEntryView: View {
             addUseCase: addUseCase,
             updateUseCase: updateUseCase,
             smartCategorizeUseCase: smartCategorizeUseCase,
-            duplicateDetectionUseCase: duplicateDetectionUseCase
+            duplicateDetectionUseCase: duplicateDetectionUseCase,
+            currencyCode: currencyCode
         )
         vm.isQuickEntry = true
         vm.type = .expense

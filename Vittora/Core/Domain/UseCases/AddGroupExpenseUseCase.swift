@@ -18,7 +18,8 @@ struct AddGroupExpenseUseCase: Sendable {
             case .splitGroupHasNoMembers:
                 return String(localized: "Split group has no members.")
             case let .splitDoesNotBalance(total, splitSum):
-                return String(localized: "Split amounts (\(splitSum.formatted(.currency(code: "USD")))) must equal the total (\(total.formatted(.currency(code: "USD")))).")
+                let code = Locale.current.currency?.identifier ?? "USD"
+                return String(localized: "Split amounts (\(splitSum.formatted(.currency(code: code)))) must equal the total (\(total.formatted(.currency(code: code)))).")
             }
         }
     }

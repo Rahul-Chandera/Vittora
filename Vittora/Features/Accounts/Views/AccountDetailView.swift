@@ -3,6 +3,7 @@ import SwiftUI
 struct AccountDetailView: View {
     let accountID: UUID
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: AccountDetailViewModel?
     @State private var showEditSheet = false
 
@@ -147,7 +148,7 @@ private struct TransactionRowCell: View {
                     .foregroundColor(VColors.textSecondary)
             }
             Spacer()
-            Text(transaction.amount.formatted(.currency(code: "USD")))
+            Text(transaction.amount.formatted(.currency(code: currencyCode)))
                 .font(VTypography.bodyBold)
                 .foregroundColor(transaction.type == .income ? VColors.income : VColors.expense)
         }

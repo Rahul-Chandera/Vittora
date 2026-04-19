@@ -3,13 +3,10 @@ import SwiftUI
 struct DashboardView: View {
     @Environment(\.dependencies) private var dependencies
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: DashboardViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var showAddBudget = false
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         ZStack {

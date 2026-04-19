@@ -27,6 +27,7 @@ struct SettleDebtUseCase: Sendable {
 
         // Create linked transaction if an account is provided
         if let accountID {
+            let account = try await accountRepository.fetchByID(accountID)
             let transactionType: TransactionType = entry.direction == .lent ? .income : .expense
             let transaction = TransactionEntity(
                 amount: settlementAmount,
@@ -34,16 +35,17 @@ struct SettleDebtUseCase: Sendable {
                 note: entry.note.map { "Settlement: \($0)" } ?? String(localized: "Debt Settlement"),
                 type: transactionType,
                 paymentMethod: .bankTransfer,
-                currencyCode: "USD",
+                currencyCode: account?.currencyCode ?? Locale.current.currency?.identifier ?? "USD",
                 tags: ["debt-settlement"],
                 accountID: accountID
             )
             try await transactionRepository.create(transaction)
 
             // Update account balance
-            if var account = try await accountRepository.fetchByID(accountID) {
-                account.balance += transactionType == .income ? settlementAmount : -settlementAmount
-                try await accountRepository.update(account)
+            if var acct = account {
+                acct.balance += transactionType == .income ? settlementAmount : -settlementAmount
+                acct.updatedAt = .now
+                try await accountRepository.update(acct)
             }
 
             entry.linkedTransactionID = transaction.id

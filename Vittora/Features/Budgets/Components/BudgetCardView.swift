@@ -4,6 +4,7 @@ struct BudgetCardView: View {
     let budget: BudgetEntity
     let progress: BudgetProgress?
     let category: CategoryEntity?
+    @Environment(\.currencyCode) private var currencyCode
 
     var body: some View {
         VCard {
@@ -90,8 +91,8 @@ struct BudgetCardView: View {
 
     private var cardAccessibilityLabel: String {
         let name = category?.name ?? String(localized: "Budget")
-        let spent = budget.spent.formatted(.currency(code: "USD"))
-        let limit = budget.amount.formatted(.currency(code: "USD"))
+        let spent = budget.spent.formatted(.currency(code: currencyCode))
+        let limit = budget.amount.formatted(.currency(code: currencyCode))
         let pct = Int(budget.progress * 100)
         let status = budget.isOverBudget ? String(localized: "over budget") : String(localized: "\(pct)% used")
         return "\(name) budget, \(spent) of \(limit), \(status)"

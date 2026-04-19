@@ -3,6 +3,7 @@ import Charts
 
 struct CashFlowReportView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: MonthlyOverviewViewModel?
 
     var body: some View {
@@ -174,10 +175,6 @@ struct CashFlowReportView: View {
                 Divider()
             }
         }
-    }
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
     }
 
     private var cashFlowReportErrorBinding: Binding<String?> {

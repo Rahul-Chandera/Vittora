@@ -330,7 +330,8 @@ struct TransactionFormView: View {
             addUseCase: addUseCase,
             updateUseCase: updateUseCase,
             smartCategorizeUseCase: smartCategorizeUseCase,
-            duplicateDetectionUseCase: duplicateDetectionUseCase
+            duplicateDetectionUseCase: duplicateDetectionUseCase,
+            currencyCode: currencyCode
         )
     }
 

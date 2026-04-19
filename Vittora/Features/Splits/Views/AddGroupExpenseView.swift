@@ -73,7 +73,7 @@ struct AddGroupExpenseView: View {
                         let total = vm.allocations.reduce(Decimal(0)) { $0 + $1.calculatedAmount }
                         let diff = abs(total - vm.amount)
                         if diff > 0.005 && vm.amount > 0 {
-                            Text(String(localized: "Remaining: \((vm.amount - total).formatted(.currency(code: "USD")))"))
+                            Text(String(localized: "Remaining: \((vm.amount - total).formatted(.currency(code: currencyCode)))"))
                                 .foregroundStyle(VColors.expense)
                         }
                     }

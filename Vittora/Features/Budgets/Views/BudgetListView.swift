@@ -2,13 +2,10 @@ import SwiftUI
 
 struct BudgetListView: View {
     @Environment(\.dependencies) var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: BudgetListViewModel?
     @State private var showAddBudget = false
     @State private var navigationPath = NavigationPath()
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         NavigationStack(path: $navigationPath) {

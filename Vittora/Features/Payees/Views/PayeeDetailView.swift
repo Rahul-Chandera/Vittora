@@ -3,6 +3,7 @@ import SwiftUI
 struct PayeeDetailView: View {
     let payeeID: UUID
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: PayeeDetailViewModel?
     @State private var showEditSheet = false
 
@@ -140,7 +141,7 @@ struct PayeeDetailView: View {
                                         .foregroundColor(VColors.textSecondary)
                                 }
                                 Spacer()
-                                Text(tx.amount.formatted(.currency(code: "USD")))
+                                Text(tx.amount.formatted(.currency(code: currencyCode)))
                                     .font(VTypography.bodyBold)
                                     .foregroundColor(tx.type == .income ? VColors.income : VColors.expense)
                             }

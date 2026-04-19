@@ -3,11 +3,8 @@ import Charts
 
 struct MonthlyOverviewView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: MonthlyOverviewViewModel?
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         ScrollView {
