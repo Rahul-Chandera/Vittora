@@ -66,12 +66,6 @@ private func makeViewModel(
     )
 }
 
-private actor MockTaxProfileRepository: TaxProfileRepository {
-    func fetch() async throws -> TaxProfile? { nil }
-    func save(_ profile: TaxProfile) async throws {}
-    func delete() async throws {}
-}
-
 private actor MockDataExportService: DataExportServiceProtocol {
     let resultURL: URL
     let shouldFailTaxExport: Bool
