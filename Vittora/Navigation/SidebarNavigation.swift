@@ -104,7 +104,9 @@ struct SidebarNavigation: View {
             #endif
         }
         .sheet(isPresented: $showAddTransaction) {
-            TransactionFormView()
+            NavigationStack {
+                TransactionFormView()
+            }
         }
     }
 }

@@ -21,7 +21,7 @@ struct TransactionFormView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        Group {
             if let vm = vm {
                 Form {
                     Section {
