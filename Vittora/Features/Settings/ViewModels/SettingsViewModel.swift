@@ -44,9 +44,24 @@ final class SettingsViewModel {
         set { UserDefaults.standard.set(newValue, forKey: "vittora.notifyRecurring") }
     }
 
+    @ObservationIgnored private var _allowPasscodeFallback: Bool
     var allowPasscodeFallback: Bool {
-        get { UserDefaults.standard.object(forKey: "vittora.passcodeFallback") as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: "vittora.passcodeFallback") }
+        get {
+            access(keyPath: \.allowPasscodeFallback)
+            return _allowPasscodeFallback
+        }
+        set {
+            withMutation(keyPath: \.allowPasscodeFallback) {
+                _allowPasscodeFallback = newValue
+            }
+            Task { [keychainService] in
+                do {
+                    try await keychainService.save(Data([newValue ? 1 : 0]), forKey: "vittora.passcodeFallback")
+                } catch {
+                    keychainError = error.localizedDescription
+                }
+            }
+        }
     }
 
     var exportSchedule: ExportSchedule {
@@ -151,6 +166,16 @@ final class SettingsViewModel {
             _isAppLockEnabled = udValue
             KeychainService.syncSave(Data([udValue ? 1 : 0]), forKey: "vittora.appLockEnabled")
             UserDefaults.standard.removeObject(forKey: "vittora.appLockEnabled")
+        }
+
+        // passcodeFallback: read from Keychain; migrate from UserDefaults on first upgrade
+        if let data = KeychainService.syncLoad(forKey: "vittora.passcodeFallback") {
+            _allowPasscodeFallback = data.first == 1
+        } else {
+            let udValue = UserDefaults.standard.object(forKey: "vittora.passcodeFallback") as? Bool ?? true
+            _allowPasscodeFallback = udValue
+            KeychainService.syncSave(Data([udValue ? 1 : 0]), forKey: "vittora.passcodeFallback")
+            UserDefaults.standard.removeObject(forKey: "vittora.passcodeFallback")
         }
 
         // userName: read from Keychain; migrate from UserDefaults on first upgrade
