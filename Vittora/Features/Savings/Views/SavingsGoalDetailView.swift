@@ -153,6 +153,7 @@ struct SavingsGoalDetailView: View {
             Image(systemName: days < 0 ? "exclamationmark.triangle.fill" : "calendar.badge.clock")
                 .font(.title2)
                 .foregroundStyle(days < 0 ? VColors.expense : VColors.primary)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(days < 0
@@ -181,6 +182,7 @@ struct SavingsGoalDetailView: View {
             Image(systemName: "arrow.up.circle.fill")
                 .font(.title2)
                 .foregroundStyle(VColors.income)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 Text(String(localized: "Save monthly to hit deadline"))
                     .font(VTypography.caption1)

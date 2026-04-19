@@ -79,6 +79,7 @@ struct SavingsGoalListView: View {
                     HStack(spacing: VSpacing.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.white)
+                            .accessibilityHidden(true)
                         Text(String(localized: "\(vm.overdueGoals.count) goal(s) past deadline"))
                             .font(VTypography.caption1.bold())
                             .foregroundStyle(.white)

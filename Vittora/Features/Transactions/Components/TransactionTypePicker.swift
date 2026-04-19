@@ -8,18 +8,21 @@ struct TransactionTypePicker: View {
             HStack {
                 Image(systemName: "arrow.down")
                     .foregroundColor(VColors.expense)
+                    .accessibilityHidden(true)
                 Text(String(localized: "Expense")).tag(TransactionType.expense)
             }
 
             HStack {
                 Image(systemName: "arrow.up")
                     .foregroundColor(VColors.income)
+                    .accessibilityHidden(true)
                 Text(String(localized: "Income")).tag(TransactionType.income)
             }
 
             HStack {
                 Image(systemName: "arrow.left.arrow.right")
                     .foregroundColor(VColors.transfer)
+                    .accessibilityHidden(true)
                 Text(String(localized: "Transfer")).tag(TransactionType.transfer)
             }
         }

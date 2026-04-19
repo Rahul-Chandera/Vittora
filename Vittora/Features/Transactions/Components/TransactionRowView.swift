@@ -5,6 +5,7 @@ struct TransactionRowView: View {
     var category: CategoryEntity?
     var showSelection: Bool = false
     var isSelected: Bool = false
+    @Environment(\.currencyCode) private var currencyCode
 
     var body: some View {
         HStack(spacing: VSpacing.md) {
@@ -97,10 +98,7 @@ struct TransactionRowView: View {
     }
 
     private func formatAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 
     private var rowAccessibilityIdentifier: String {

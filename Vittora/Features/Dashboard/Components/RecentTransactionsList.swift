@@ -49,6 +49,7 @@ struct RecentTransactionsList: View {
 private struct RecentTransactionRow: View {
     let transaction: TransactionEntity
     let onTap: () -> Void
+    @Environment(\.currencyCode) private var currencyCode
 
     var body: some View {
         Button(action: onTap) {
@@ -60,6 +61,7 @@ private struct RecentTransactionRow: View {
                         Image(systemName: typeIcon(for: transaction.type))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(typeColor(for: transaction.type))
+                            .accessibilityHidden(true)
                     }
 
                 VStack(alignment: .leading, spacing: VSpacing.xxs) {
@@ -104,10 +106,7 @@ private struct RecentTransactionRow: View {
     }
 
     private func formattedAmount(_ amount: Decimal, type: TransactionType) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        let formatted = formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        let formatted = amount.formatted(.currency(code: currencyCode))
         switch type {
         case .expense: return "-\(formatted)"
         case .income: return "+\(formatted)"

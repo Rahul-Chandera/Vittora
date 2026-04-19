@@ -116,6 +116,7 @@ struct DebtDetailView: View {
             Image(systemName: entry.direction == .lent ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
                 .foregroundColor(entry.direction == .lent ? VColors.income : VColors.expense)
                 .font(.title3)
+                .accessibilityLabel(entry.direction == .lent ? String(localized: "Lent") : String(localized: "Borrowed"))
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
                 Text(entry.note ?? (entry.direction == .lent ? String(localized: "Lent") : String(localized: "Borrowed")))

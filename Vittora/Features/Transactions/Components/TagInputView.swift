@@ -25,6 +25,7 @@ struct TagInputView: View {
                                     .font(.caption2)
                                     .foregroundColor(VColors.textSecondary)
                             }
+                            .accessibilityLabel(String(localized: "Remove \(tag) tag"))
                         }
                         .padding(.horizontal, VSpacing.sm)
                         .padding(.vertical, VSpacing.xs)
@@ -51,6 +52,7 @@ struct TagInputView: View {
                         Image(systemName: "plus.circle.fill")
                             .foregroundColor(VColors.primary)
                     }
+                    .accessibilityLabel(String(localized: "Add tag"))
                 }
             }
             .padding(VSpacing.sm)
