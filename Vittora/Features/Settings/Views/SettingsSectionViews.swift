@@ -11,6 +11,9 @@ struct ProfileSettingsView: View {
         Form {
             Section(String(localized: "Display Name")) {
                 TextField(String(localized: "Your name"), text: $editingName)
+                    #if os(iOS)
+                    .textContentType(.name)
+                    #endif
             }
         }
         .navigationTitle(String(localized: "Profile"))

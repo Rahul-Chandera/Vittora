@@ -4,6 +4,7 @@ struct BudgetProgressRing: View {
     let progress: Double  // 0.0 to 1.0+
     let size: CGFloat
     var animated: Bool = true
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -19,7 +20,7 @@ struct BudgetProgressRing: View {
                     style: StrokeStyle(lineWidth: 12, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .if(animated) { view in
+                .if(animated && !reduceMotion) { view in
                     view.animation(.easeInOut(duration: 0.6), value: progress)
                 }
 

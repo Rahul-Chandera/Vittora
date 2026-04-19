@@ -5,6 +5,7 @@ struct CategoryDonutChart: View {
     let breakdowns: [CategoryBreakdown]
     @Binding var selectedCategory: UUID?
     var currencyCode: String = "USD"
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Chart(Array(breakdowns.prefix(8).enumerated()), id: \.offset) { index, item in
@@ -28,7 +29,7 @@ struct CategoryDonutChart: View {
                 }
             }
         ))
-        .animation(.easeInOut(duration: VSpacing.animationStandard), value: selectedCategory)
+        .animation(reduceMotion ? .none : .easeInOut(duration: VSpacing.animationStandard), value: selectedCategory)
         .accessibilityChartDescriptor(
             CategoryBreakdownChartDescriptor(
                 breakdowns: breakdowns,

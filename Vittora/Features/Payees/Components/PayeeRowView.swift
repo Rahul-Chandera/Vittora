@@ -41,6 +41,7 @@ struct PayeeRowView: View {
                 .accessibilityHidden(true)
         }
         .padding(.vertical, VSpacing.xxs)
+        .accessibilityElement(children: .combine)
     }
 }
 

@@ -29,6 +29,7 @@ struct ShimmerModifier: ViewModifier {
 // MARK: - ShimmerView
 private struct ShimmerView: View {
     @Binding var isAnimating: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let gradientColor = LinearGradient(
         gradient: Gradient(stops: [
             .init(color: .white, location: 0),
@@ -47,7 +48,7 @@ private struct ShimmerView: View {
                     .frame(width: geometry.size.width * 2)
                     .offset(x: isAnimating ? geometry.size.width : -geometry.size.width)
                     .animation(
-                        Animation.linear(duration: 1.5)
+                        reduceMotion ? .none : Animation.linear(duration: 1.5)
                             .repeatForever(autoreverses: false),
                         value: isAnimating
                     )

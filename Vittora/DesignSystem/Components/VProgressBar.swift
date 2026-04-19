@@ -7,6 +7,7 @@ struct VProgressBar: View {
     let limit: Decimal
     let showLabel: Bool
     let animated: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(
         spent: Decimal,
@@ -34,7 +35,7 @@ struct VProgressBar: View {
                         .fill(progressGradient)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .frame(width: max(0, progress * 300), height: 8)
-                        .if(animated) { view in
+                        .if(animated && !reduceMotion) { view in
                             view.animation(.easeInOut(duration: 0.6), value: progress)
                         }
                 }

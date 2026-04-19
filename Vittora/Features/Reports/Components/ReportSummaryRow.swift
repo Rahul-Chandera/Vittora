@@ -6,6 +6,7 @@ struct ReportSummaryRow: View {
     let percentage: Double
     let color: Color
     let count: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: VSpacing.sm) {
@@ -43,7 +44,7 @@ struct ReportSummaryRow: View {
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
                         .fill(color)
                         .frame(width: geometry.size.width * CGFloat(percentage / 100), height: 4)
-                        .animation(.easeOut(duration: VSpacing.animationStandard), value: percentage)
+                        .animation(reduceMotion ? .none : .easeOut(duration: VSpacing.animationStandard), value: percentage)
                 }
             }
             .frame(height: 4)

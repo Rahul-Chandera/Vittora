@@ -5,6 +5,7 @@ struct HeroSpendingCard: View {
     let monthIncome: Decimal
     let comparison: MonthComparison?
     var currencyCode: String = "USD"
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
@@ -100,7 +101,7 @@ struct HeroSpendingCard: View {
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
                         .fill(rate >= 0.2 ? VColors.income : VColors.warning)
                         .frame(width: geometry.size.width * CGFloat(rate), height: 6)
-                        .animation(.easeOut(duration: VSpacing.animationStandard), value: rate)
+                        .animation(reduceMotion ? .none : .easeOut(duration: VSpacing.animationStandard), value: rate)
                 }
             }
             .frame(height: 6)

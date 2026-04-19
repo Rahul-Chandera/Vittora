@@ -7,6 +7,7 @@ struct SavingsProgressRingView: View {
     var size: CGFloat = 80
     var lineWidth: CGFloat = 8
     var showLabel = true
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -22,7 +23,7 @@ struct SavingsProgressRingView: View {
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .animation(.easeInOut(duration: 0.6), value: progress)
+                .animation(reduceMotion ? .none : .easeInOut(duration: 0.6), value: progress)
 
             if showLabel {
                 if progress >= 1 {

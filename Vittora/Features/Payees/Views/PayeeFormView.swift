@@ -72,6 +72,9 @@ struct PayeeFormView: View {
 
             Section(String(localized: "Details")) {
                 TextField(String(localized: "Name"), text: Bindable(vm).name)
+                    #if os(iOS)
+                    .textContentType(.name)
+                    #endif
             }
 
             Section(String(localized: "Contact (Optional)")) {
@@ -82,6 +85,7 @@ struct PayeeFormView: View {
                     TextField(String(localized: "Phone"), text: Bindable(vm).phone)
                         #if os(iOS)
                         .keyboardType(.phonePad)
+                        .textContentType(.telephoneNumber)
                         #endif
                 }
 
@@ -92,6 +96,7 @@ struct PayeeFormView: View {
                     TextField(String(localized: "Email"), text: Bindable(vm).email)
                         #if os(iOS)
                         .keyboardType(.emailAddress)
+                        .textContentType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         #endif

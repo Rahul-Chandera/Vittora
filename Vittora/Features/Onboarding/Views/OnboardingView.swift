@@ -2,6 +2,7 @@ import SwiftUI
 
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var vm: OnboardingViewModel
 
     init(createAccountUseCase: CreateAccountUseCase? = nil) {
@@ -37,7 +38,7 @@ struct OnboardingView: View {
                 #else
                 .tabViewStyle(.automatic)
                 #endif
-                .animation(.easeInOut, value: vm.currentStep)
+                .animation(reduceMotion ? .none : .easeInOut, value: vm.currentStep)
 
                 // CTA button
                 ctaButton
@@ -65,7 +66,7 @@ struct OnboardingView: View {
                 Capsule()
                     .fill(vm.currentStep.rawValue >= step.rawValue ? VColors.primary : VColors.primary.opacity(0.2))
                     .frame(width: vm.currentStep == step ? 24 : 8, height: 8)
-                    .animation(.spring(duration: 0.3), value: vm.currentStep)
+                    .animation(reduceMotion ? .none : .spring(duration: 0.3), value: vm.currentStep)
             }
         }
         .padding(.bottom, VSpacing.lg)
@@ -260,6 +261,9 @@ private struct ProfileStepView: View {
             TextField(String(localized: "Your name"), text: $vm.userName)
                 .font(VTypography.title3)
                 .multilineTextAlignment(.center)
+                #if os(iOS)
+                .textContentType(.name)
+                #endif
                 .padding(VSpacing.md)
                 .background(VColors.secondaryBackground)
                 .cornerRadius(VSpacing.cornerRadiusMD)

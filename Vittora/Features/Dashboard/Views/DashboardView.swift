@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var vm: DashboardViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var showAddBudget = false
@@ -184,7 +185,7 @@ struct DashboardView: View {
                         RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
                             .fill(progressColor(progress))
                             .frame(width: geometry.size.width * CGFloat(progress), height: 8)
-                            .animation(.easeOut(duration: VSpacing.animationStandard), value: progress)
+                            .animation(reduceMotion ? .none : .easeOut(duration: VSpacing.animationStandard), value: progress)
                     }
                 }
                 .frame(height: 8)
