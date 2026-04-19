@@ -3,6 +3,8 @@ import SwiftUI
 struct SettingsView: View {
     @State private var vm = SettingsViewModel()
     @Environment(SyncConflictHandler.self) private var syncConflictHandler
+    @Environment(\.dependencies) private var dependencies
+    @State private var showDeleteAccountConfirm = false
 
     var body: some View {
         Form {
@@ -90,6 +92,20 @@ struct SettingsView: View {
                 }
             }
 
+            // Account deletion
+            Section {
+                Button(role: .destructive) {
+                    showDeleteAccountConfirm = true
+                } label: {
+                    SettingsRow(icon: "trash.fill", iconColor: .red,
+                                title: String(localized: "Delete All Data"),
+                                value: "")
+                }
+            } footer: {
+                Text(String(localized: "Permanently deletes all financial data and resets the app."))
+                    .foregroundStyle(VColors.textSecondary)
+            }
+
             // About
             Section(String(localized: "About")) {
                 NavigationLink {
@@ -105,6 +121,41 @@ struct SettingsView: View {
             get: { vm.keychainError },
             set: { vm.keychainError = $0 }
         ))
+        .confirmationDialog(
+            String(localized: "Delete All Data?"),
+            isPresented: $showDeleteAccountConfirm,
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Delete All Data"), role: .destructive) {
+                Task { await deleteAllData() }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "This will permanently erase all your financial data and reset Vittora to its initial state. This cannot be undone."))
+        }
+    }
+
+    private func deleteAllData() async {
+        guard let txRepo = dependencies.transactionRepository,
+              let accRepo = dependencies.accountRepository,
+              let catRepo = dependencies.categoryRepository,
+              let budRepo = dependencies.budgetRepository,
+              let debtRepo = dependencies.debtRepository,
+              let goalRepo = dependencies.savingsGoalRepository,
+              let splitRepo = dependencies.splitGroupRepository,
+              let docRepo = dependencies.documentRepository else { return }
+        let service = DataManagementService(
+            transactionRepository: txRepo,
+            accountRepository: accRepo,
+            categoryRepository: catRepo,
+            budgetRepository: budRepo,
+            debtRepository: debtRepo,
+            savingsGoalRepository: goalRepo,
+            splitGroupRepository: splitRepo,
+            documentRepository: docRepo,
+            keychainService: dependencies.keychainService ?? KeychainService()
+        )
+        try? await service.factoryReset()
     }
 
     private func initials(_ name: String) -> String {

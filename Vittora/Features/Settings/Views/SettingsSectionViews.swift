@@ -104,11 +104,21 @@ struct SecuritySettingsView: View {
                 Text(String(localized: "Require biometrics or passcode when opening Vittora."))
                     .foregroundStyle(VColors.textSecondary)
             }
+
+            if vm.isAppLockEnabled {
+                Section {
+                    Toggle(String(localized: "Passcode Fallback"), isOn: $vm.allowPasscodeFallback)
+                } footer: {
+                    Text(String(localized: "Allow your device passcode if biometric authentication fails."))
+                        .foregroundStyle(VColors.textSecondary)
+                }
+            }
         }
         .navigationTitle(String(localized: "Security"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .animation(.default, value: vm.isAppLockEnabled)
     }
 }
 
@@ -143,11 +153,21 @@ struct NotificationsSettingsView: View {
                 Text(String(localized: "Receive reminders for bill due dates, budget limits, and goal milestones."))
                     .foregroundStyle(VColors.textSecondary)
             }
+
+            if vm.isNotificationsEnabled {
+                Section(String(localized: "Reminders")) {
+                    Toggle(String(localized: "Bill & Debt Due Dates"), isOn: $vm.notifyBillsDue)
+                    Toggle(String(localized: "Budget Limit Alerts"), isOn: $vm.notifyBudgetAlerts)
+                    Toggle(String(localized: "Goal Milestones"), isOn: $vm.notifyGoalMilestones)
+                    Toggle(String(localized: "Recurring Transactions"), isOn: $vm.notifyRecurringTransactions)
+                }
+            }
         }
         .navigationTitle(String(localized: "Notifications"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .animation(.default, value: vm.isNotificationsEnabled)
     }
 }
 

@@ -24,9 +24,51 @@ final class SettingsViewModel {
         set { UserDefaults.standard.set(newValue, forKey: "vittora.notificationsEnabled") }
     }
 
+    var notifyBillsDue: Bool {
+        get { UserDefaults.standard.object(forKey: "vittora.notifyBillsDue") as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: "vittora.notifyBillsDue") }
+    }
+
+    var notifyBudgetAlerts: Bool {
+        get { UserDefaults.standard.object(forKey: "vittora.notifyBudgetAlerts") as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: "vittora.notifyBudgetAlerts") }
+    }
+
+    var notifyGoalMilestones: Bool {
+        get { UserDefaults.standard.object(forKey: "vittora.notifyGoalMilestones") as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: "vittora.notifyGoalMilestones") }
+    }
+
+    var notifyRecurringTransactions: Bool {
+        get { UserDefaults.standard.object(forKey: "vittora.notifyRecurring") as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: "vittora.notifyRecurring") }
+    }
+
+    var allowPasscodeFallback: Bool {
+        get { UserDefaults.standard.object(forKey: "vittora.passcodeFallback") as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: "vittora.passcodeFallback") }
+    }
+
+    var exportSchedule: ExportSchedule {
+        get { ExportSchedule(rawValue: UserDefaults.standard.string(forKey: "vittora.exportSchedule") ?? "") ?? .off }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: "vittora.exportSchedule") }
+    }
+
     var isCloudSyncEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: "vittora.cloudSyncEnabled") }
         set { UserDefaults.standard.set(newValue, forKey: "vittora.cloudSyncEnabled") }
+    }
+
+    enum ExportSchedule: String, CaseIterable, Sendable {
+        case off, weekly, monthly
+
+        var displayName: String {
+            switch self {
+            case .off:     return String(localized: "Off")
+            case .weekly:  return String(localized: "Weekly")
+            case .monthly: return String(localized: "Monthly")
+            }
+        }
     }
 
     // MARK: - Keychain-backed sensitive properties
