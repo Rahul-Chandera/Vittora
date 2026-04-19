@@ -47,7 +47,7 @@ struct RecurringUseCaseTests {
         #expect(accounts.first?.balance == 425)
 
         let updatedRule = try await ruleRepository.fetchByID(rule.id)
-        let expectedNextDate = Calendar.current.date(byAdding: .month, value: 1, to: originalNextDate)
+        let expectedNextDate = Calendar(identifier: .gregorian).date(byAdding: .month, value: 1, to: originalNextDate)
         #expect(updatedRule?.nextDate == expectedNextDate)
     }
 
@@ -112,12 +112,16 @@ struct RecurringUseCaseTests {
         _ = try await useCase.execute()
 
         let updatedRule = try await ruleRepository.fetchByID(rule.id)
-        let expectedNextDate = Calendar.current.date(byAdding: .day, value: 10, to: originalNextDate)
+        let expectedNextDate = Calendar(identifier: .gregorian).date(byAdding: .day, value: 10, to: originalNextDate)
         #expect(updatedRule?.nextDate == expectedNextDate)
     }
 }
 
 private func makeRecurringDate(year: Int, month: Int, day: Int) -> Date {
     let calendar = Calendar(identifier: .gregorian)
-    return calendar.date(from: DateComponents(year: year, month: month, day: day)) ?? .now
+    guard let date = calendar.date(from: DateComponents(year: year, month: month, day: day)) else {
+        Issue.record("makeRecurringDate failed for \(year)-\(month)-\(day)")
+        return Date(timeIntervalSince1970: 0)
+    }
+    return date
 }

@@ -334,5 +334,9 @@ struct TaxUseCaseTests {
 
 private func makeDate(year: Int, month: Int, day: Int) -> Date {
     let calendar = Calendar(identifier: .gregorian)
-    return calendar.date(from: DateComponents(year: year, month: month, day: day)) ?? .now
+    guard let date = calendar.date(from: DateComponents(year: year, month: month, day: day)) else {
+        Issue.record("makeDate failed for \(year)-\(month)-\(day)")
+        return Date(timeIntervalSince1970: 0)
+    }
+    return date
 }
