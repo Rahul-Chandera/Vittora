@@ -33,7 +33,7 @@ struct TransactionRowView: View {
                 Text(transaction.note ?? "Transaction")
                     .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)
-                    .lineLimit(1)
+                    .adaptiveLineLimit(1)
 
                 HStack(spacing: VSpacing.sm) {
                     if let categoryName = category?.name {

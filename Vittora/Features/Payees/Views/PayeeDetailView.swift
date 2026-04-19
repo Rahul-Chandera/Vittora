@@ -134,7 +134,7 @@ struct PayeeDetailView: View {
                                     Text(tx.note ?? "Transaction")
                                         .font(VTypography.body)
                                         .foregroundColor(VColors.textPrimary)
-                                        .lineLimit(1)
+                                        .adaptiveLineLimit(1)
                                     Text(tx.date.formatted(date: .abbreviated, time: .omitted))
                                         .font(VTypography.caption1)
                                         .foregroundColor(VColors.textSecondary)

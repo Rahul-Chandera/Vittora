@@ -34,7 +34,7 @@ struct SavingsProgressRingView: View {
                     Text("\(Int(progress * 100))%")
                         .font(.system(size: size * 0.22, weight: .bold, design: .rounded))
                         .foregroundStyle(color)
-                        .lineLimit(1)
+                        .adaptiveLineLimit(1)
                         .minimumScaleFactor(0.7)
                 }
             }

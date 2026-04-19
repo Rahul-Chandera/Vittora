@@ -68,7 +68,7 @@ struct VAmountText: View {
         Text(formattedAmount)
             .font(size.font)
             .foregroundColor(amountColor)
-            .lineLimit(1)
+            .adaptiveLineLimit(1)
             .minimumScaleFactor(0.9)
     }
 

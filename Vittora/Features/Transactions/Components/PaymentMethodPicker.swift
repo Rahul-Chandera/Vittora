@@ -30,7 +30,7 @@ struct PaymentMethodPicker: View {
                                 .foregroundColor(
                                     selectedMethod == method ? .white : VColors.textPrimary
                                 )
-                                .lineLimit(1)
+                                .adaptiveLineLimit(1)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(VSpacing.md)

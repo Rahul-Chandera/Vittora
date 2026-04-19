@@ -95,7 +95,7 @@ private struct TaxFigure: View {
             Text(compact(value, code: currencyCode))
                 .font(VTypography.bodyBold)
                 .foregroundStyle(color)
-                .lineLimit(1)
+                .adaptiveLineLimit(1)
                 .minimumScaleFactor(0.8)
             Text(label)
                 .font(VTypography.caption2)

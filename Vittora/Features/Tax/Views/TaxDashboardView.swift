@@ -292,7 +292,7 @@ private struct StatTile: View {
             Text(value)
                 .font(VTypography.bodyBold)
                 .foregroundStyle(VColors.textPrimary)
-                .lineLimit(1)
+                .adaptiveLineLimit(1)
                 .minimumScaleFactor(0.8)
             Text(title)
                 .font(VTypography.caption2)

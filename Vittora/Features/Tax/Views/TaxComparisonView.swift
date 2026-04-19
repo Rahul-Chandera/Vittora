@@ -103,7 +103,7 @@ struct TaxComparisonView: View {
             Text(estimate.finalTax.formatted(.currency(code: estimate.country.currencyCode)))
                 .font(VTypography.amountMedium)
                 .foregroundStyle(isRecommended ? VColors.primary : VColors.expense)
-                .lineLimit(1)
+                .adaptiveLineLimit(1)
                 .minimumScaleFactor(0.8)
 
             VStack(spacing: VSpacing.xs) {
@@ -140,7 +140,7 @@ struct TaxComparisonView: View {
             Text(value)
                 .font(VTypography.caption1Bold)
                 .foregroundStyle(VColors.textPrimary)
-                .lineLimit(1)
+                .adaptiveLineLimit(1)
                 .minimumScaleFactor(0.8)
         }
     }

@@ -138,7 +138,7 @@ private struct SummaryMetric: View {
             Text(value)
                 .font(VTypography.bodyBold)
                 .foregroundStyle(color)
-                .lineLimit(1)
+                .adaptiveLineLimit(1)
                 .minimumScaleFactor(0.85)
             Text(label)
                 .font(VTypography.caption2)

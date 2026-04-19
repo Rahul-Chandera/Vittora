@@ -54,7 +54,7 @@ struct MonthlyOverviewView: View {
             Text(title)
                 .font(VTypography.caption2)
                 .foregroundColor(VColors.textSecondary)
-                .lineLimit(1)
+                .adaptiveLineLimit(1)
             Text(formattedAmount(amount))
                 .font(VTypography.amountSmall)
                 .foregroundColor(color)

@@ -66,7 +66,7 @@ private struct RecentTransactionRow: View {
                     Text(transaction.note ?? String(localized: "Transaction"))
                         .font(VTypography.caption1Bold)
                         .foregroundColor(VColors.textPrimary)
-                        .lineLimit(1)
+                        .adaptiveLineLimit(1)
 
                     Text(transaction.date.formatted(.dateTime.month(.abbreviated).day()))
                         .font(VTypography.caption2)

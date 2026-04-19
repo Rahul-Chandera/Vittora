@@ -94,7 +94,7 @@ struct CategoryBreakdownView: View {
                             Text(item.category.name)
                                 .font(VTypography.caption2)
                                 .foregroundColor(VColors.textPrimary)
-                                .lineLimit(1)
+                                .adaptiveLineLimit(1)
                             Spacer()
                             Text(String(format: "%.0f%%", item.percentage))
                                 .font(VTypography.caption2Bold)

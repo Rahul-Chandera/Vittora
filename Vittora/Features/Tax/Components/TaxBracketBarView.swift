@@ -28,7 +28,7 @@ struct TaxBracketBarView: View {
                                     Text(String(localized: "Deduct."))
                                         .font(.system(size: 9))
                                         .foregroundStyle(.secondary)
-                                        .lineLimit(1)
+                                        .adaptiveLineLimit(1)
                                 }
                             }
                     }

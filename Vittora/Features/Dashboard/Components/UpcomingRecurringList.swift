@@ -51,7 +51,7 @@ private struct UpcomingRuleRow: View {
                 Text(rule.templateNote ?? String(localized: "Recurring"))
                     .font(VTypography.caption1Bold)
                     .foregroundColor(VColors.textPrimary)
-                    .lineLimit(1)
+                    .adaptiveLineLimit(1)
 
                 Text(frequencyLabel(rule.frequency))
                     .font(VTypography.caption2)

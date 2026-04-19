@@ -51,7 +51,7 @@ private struct AccountMiniCard: View {
                     Text(account.name)
                         .font(VTypography.caption1Bold)
                         .foregroundColor(VColors.textPrimary)
-                        .lineLimit(1)
+                        .adaptiveLineLimit(1)
                 }
 
                 Text(formattedBalance(account.balance))

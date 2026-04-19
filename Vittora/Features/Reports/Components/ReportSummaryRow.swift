@@ -19,7 +19,7 @@ struct ReportSummaryRow: View {
                     Text(label)
                         .font(VTypography.caption1)
                         .foregroundColor(VColors.textPrimary)
-                        .lineLimit(1)
+                        .adaptiveLineLimit(1)
                 }
 
                 Spacer()

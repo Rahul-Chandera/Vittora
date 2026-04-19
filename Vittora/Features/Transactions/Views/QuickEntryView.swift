@@ -55,7 +55,7 @@ struct QuickEntryView: View {
                                             Text(category.name)
                                                 .font(VTypography.caption2)
                                                 .foregroundColor(VColors.textPrimary)
-                                                .lineLimit(1)
+                                                .adaptiveLineLimit(1)
                                         }
                                         .frame(width: 60)
                                         .contentShape(Rectangle())

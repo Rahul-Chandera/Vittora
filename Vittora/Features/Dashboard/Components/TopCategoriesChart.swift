@@ -60,7 +60,7 @@ struct TopCategoriesChart: View {
                     Text(item.category.name)
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textPrimary)
-                        .lineLimit(1)
+                        .adaptiveLineLimit(1)
 
                     Spacer()
 

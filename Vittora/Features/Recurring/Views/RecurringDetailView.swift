@@ -316,7 +316,7 @@ struct DetailRow: View {
             Text(value)
                 .font(VTypography.callout)
                 .foregroundColor(VColors.textPrimary)
-                .lineLimit(1)
+                .adaptiveLineLimit(1)
         }
         .padding(VSpacing.md)
         .background(VColors.tertiaryBackground)
