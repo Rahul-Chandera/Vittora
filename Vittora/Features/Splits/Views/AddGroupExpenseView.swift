@@ -115,6 +115,11 @@ struct AddGroupExpenseView: View {
                 }
             }
         }
+        .onChange(of: vm.error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(Text(msg)).post()
+            }
+        }
     }
 }
 

@@ -103,6 +103,11 @@ struct SplitGroupFormView: View {
                 selectedMemberIDs = Set(existing.memberIDs)
             }
         }
+        .onChange(of: error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(Text(msg)).post()
+            }
+        }
     }
 
     private func save() async {

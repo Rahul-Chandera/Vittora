@@ -38,6 +38,11 @@ struct CategoryFormView: View {
         .task {
             setupViewModel()
         }
+        .onChange(of: saveError) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(Text(msg)).post()
+            }
+        }
     }
 
     private func setupViewModel() {

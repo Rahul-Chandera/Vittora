@@ -275,6 +275,11 @@ struct RecurringFormView: View {
                 }
             }
         }
+        .onChange(of: errorMessage) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(Text(msg)).post()
+            }
+        }
     }
 
     private func setupViewModel() {

@@ -145,6 +145,11 @@ struct SavingsGoalFormView: View {
                 selectedColor = goal.colorHex
             }
         }
+        .onChange(of: error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(Text(msg)).post()
+            }
+        }
     }
 
     private func save() async {

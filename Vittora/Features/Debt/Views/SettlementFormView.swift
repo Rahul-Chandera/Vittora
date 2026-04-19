@@ -76,6 +76,11 @@ struct SettlementFormView: View {
                 self.error = error.localizedDescription
             }
         }
+        .onChange(of: error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(Text(msg)).post()
+            }
+        }
     }
 
     private func settle() async {

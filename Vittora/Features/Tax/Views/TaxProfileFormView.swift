@@ -65,6 +65,11 @@ struct TaxProfileFormView: View {
                 newVM.populate(from: profile)
             }
         }
+        .onChange(of: vm?.error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(Text(msg)).post()
+            }
+        }
     }
 
     @ViewBuilder
