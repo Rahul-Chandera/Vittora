@@ -38,7 +38,7 @@ struct PayeeFormView: View {
         }
         .onChange(of: saveError) { _, newValue in
             if let msg = newValue {
-                AccessibilityNotification.Announcement(Text(msg)).post()
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
             }
         }
     }

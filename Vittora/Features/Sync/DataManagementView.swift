@@ -113,7 +113,7 @@ struct DataManagementView: View {
             }
 
             // Export
-            Section(String(localized: "Export")) {
+            Section {
                 NavigationLink {
                     ExportView()
                 } label: {
@@ -128,6 +128,8 @@ struct DataManagementView: View {
                         Text(schedule.displayName).tag(schedule)
                     }
                 }
+            } header: {
+                Text(String(localized: "Export"))
             } footer: {
                 if exportSchedule != .off {
                     Text(String(localized: "Vittora will generate and share a CSV export \(exportSchedule.displayName.lowercased())."))

@@ -105,7 +105,7 @@ struct SplitGroupFormView: View {
         }
         .onChange(of: error) { _, newValue in
             if let msg = newValue {
-                AccessibilityNotification.Announcement(Text(msg)).post()
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
             }
         }
     }

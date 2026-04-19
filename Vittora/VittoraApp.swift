@@ -58,7 +58,8 @@ struct VittoraApp: App {
                 ? nil
                 : CloudKitSyncMonitor(
                     syncStatusService: syncStatusService,
-                    conflictHandler: conflictHandler
+                    conflictHandler: conflictHandler,
+                    integrityValidator: SyncIntegrityValidator(modelContainer: modelContainer)
                 )
         )
         _appState = State(

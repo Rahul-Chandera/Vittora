@@ -43,7 +43,7 @@ struct TransferFormView: View {
         }
         .onChange(of: viewModel?.error) { _, newValue in
             if let msg = newValue {
-                AccessibilityNotification.Announcement(Text(msg)).post()
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
             }
         }
         .accessibilityIdentifier("transfer-form-root")

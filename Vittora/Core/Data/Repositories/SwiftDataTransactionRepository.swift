@@ -22,52 +22,48 @@ actor SwiftDataTransactionRepository: TransactionRepository {
     // Tags and amountRange are post-filtered because SwiftData cannot express
     // array-element membership or Decimal ordering in SQLite.
     private func fetchFiltered(_ filter: TransactionFilter) throws -> [SDTransaction] {
-        let hasDateRange = filter.dateRange != nil
+        // PERF-05: Push date range to SQLite (most selective indexed dimension).
+        // Type, category, account, payee, and text filters are applied in-memory
+        // because compound optional-UUID predicates exceed Xcode 26's type-check budget.
         let startDate: Date = filter.dateRange?.lowerBound ?? .distantPast
         let endDate: Date = filter.dateRange?.upperBound ?? .distantFuture
+        let hasDateRange = filter.dateRange != nil
 
-        let hasTypes = !(filter.types?.isEmpty ?? true)
-        let typeValues: [String] = filter.types?.map(\.rawValue) ?? []
-
-        let hasCats = !(filter.categoryIDs?.isEmpty ?? true)
-        let catIDs: [UUID] = filter.categoryIDs.map(Array.init) ?? []
-        let catSentinel = UUID()
-
-        let hasAccs = !(filter.accountIDs?.isEmpty ?? true)
-        let accIDs: [UUID] = filter.accountIDs.map(Array.init) ?? []
-        let accSentinel = UUID()
-
-        let hasPayees = !(filter.payeeIDs?.isEmpty ?? true)
-        let payeeIDArr: [UUID] = filter.payeeIDs.map(Array.init) ?? []
-        let payeeSentinel = UUID()
-
-        let hasQuery = !(filter.searchQuery?.isEmpty ?? true)
-        let query: String = filter.searchQuery ?? ""
-
+        let predicate = #Predicate<SDTransaction> { tx in
+            hasDateRange == false || (tx.date >= startDate && tx.date <= endDate)
+        }
         var descriptor = FetchDescriptor<SDTransaction>(
-            predicate: #Predicate<SDTransaction> { tx in
-                (!hasDateRange || (tx.date >= startDate && tx.date <= endDate)) &&
-                (!hasTypes || typeValues.contains(tx.typeRawValue)) &&
-                (!hasCats || catIDs.contains(tx.categoryID ?? catSentinel)) &&
-                (!hasAccs || accIDs.contains(tx.accountID ?? accSentinel)) &&
-                (!hasPayees || payeeIDArr.contains(tx.payeeID ?? payeeSentinel)) &&
-                (!hasQuery || tx.note?.localizedStandardContains(query) == true)
-            },
+            predicate: predicate,
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
-        // Limit how many rows we pull when doing a note search with no date range
-        if hasQuery && !hasDateRange {
+        // Cap note-search queries when no date range narrows the scan.
+        if filter.searchQuery != nil && !filter.searchQuery!.isEmpty && !hasDateRange {
             descriptor.fetchLimit = 200
         }
 
         var results = try modelContext.fetch(descriptor)
 
-        // Decimal comparisons cannot be expressed as SwiftData predicates
+        if let types = filter.types, !types.isEmpty {
+            let rawValues = Set(types.map(\.rawValue))
+            results = results.filter { rawValues.contains($0.typeRawValue) }
+        }
+        if let catIDs = filter.categoryIDs, !catIDs.isEmpty {
+            results = results.filter { $0.categoryID.map { catIDs.contains($0) } ?? false }
+        }
+        if let accIDs = filter.accountIDs, !accIDs.isEmpty {
+            results = results.filter { $0.accountID.map { accIDs.contains($0) } ?? false }
+        }
+        if let payeeIDs = filter.payeeIDs, !payeeIDs.isEmpty {
+            results = results.filter { $0.payeeID.map { payeeIDs.contains($0) } ?? false }
+        }
+        if let query = filter.searchQuery, !query.isEmpty {
+            results = results.filter {
+                $0.note?.localizedStandardContains(query) == true
+            }
+        }
         if let amountRange = filter.amountRange {
             results = results.filter { amountRange.contains($0.amount) }
         }
-
-        // [String] array field – must remain as a post-filter
         if let tags = filter.tags, !tags.isEmpty {
             results = results.filter { !tags.isDisjoint(with: Set($0.tags)) }
         }

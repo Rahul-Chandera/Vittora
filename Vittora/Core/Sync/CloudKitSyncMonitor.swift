@@ -6,16 +6,19 @@ import CloudKit
 final class CloudKitSyncMonitor {
     private let syncStatusService: SyncStatusService
     private let conflictHandler: SyncConflictHandler
+    private let integrityValidator: (any SyncIntegrityValidating)?
     private let notificationCenter: NotificationCenter
     private var eventObserver: NSObjectProtocol?
 
     init(
         syncStatusService: SyncStatusService,
         conflictHandler: SyncConflictHandler,
+        integrityValidator: (any SyncIntegrityValidating)? = nil,
         notificationCenter: NotificationCenter = .default
     ) {
         self.syncStatusService = syncStatusService
         self.conflictHandler = conflictHandler
+        self.integrityValidator = integrityValidator
         self.notificationCenter = notificationCenter
         startObserving()
     }
@@ -47,6 +50,25 @@ final class CloudKitSyncMonitor {
         if event.endDate == nil {
             syncStatusService.markSyncing()
             return
+        }
+
+        // After any completed import, check amount-bearing entities for invariant violations.
+        // NSPersistentCloudKitContainer applies LWW before this fires; the check detects any
+        // records that arrived in an invalid state (e.g. zero amount, empty currency code).
+        if event.type == .import, let validator = integrityValidator {
+            Task { @MainActor [conflictHandler] in
+                let violations = await validator.validateAmountBearingEntities()
+                for violation in violations {
+                    conflictHandler.logConflict(
+                        entityType: violation.entityType,
+                        entityID: violation.entityID,
+                        description: violation.description
+                    )
+                }
+                if !violations.isEmpty {
+                    syncStatusService.markError(String(localized: "Data integrity issues detected after sync. Review iCloud Sync for details."))
+                }
+            }
         }
 
         guard let error = event.error else {
