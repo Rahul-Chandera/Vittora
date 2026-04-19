@@ -3,6 +3,7 @@ import SwiftUI
 struct TransactionDetailView: View {
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: TransactionDetailViewModel?
     let transactionID: UUID
     @State private var navigateDestination: NavigationDestination?
@@ -56,12 +57,12 @@ struct TransactionDetailView: View {
                         // Details section
                         VStack(alignment: .leading, spacing: VSpacing.md) {
                             if let note = transaction.note, !note.isEmpty {
-                                detailRow(label: "Note", value: note)
+                                detailRow(label: String(localized: "Note"), value: note)
                             }
 
                             if !transaction.tags.isEmpty {
                                 VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                    Text("Tags")
+                                    Text(String(localized: "Tags"))
                                         .font(VTypography.caption2)
                                         .foregroundColor(VColors.textSecondary)
 
@@ -80,14 +81,14 @@ struct TransactionDetailView: View {
                                 }
                             }
 
-                            detailRow(label: "Payment Method", value: transaction.paymentMethod.rawValue.capitalized)
+                            detailRow(label: String(localized: "Payment Method"), value: transaction.paymentMethod.rawValue.capitalized)
                         }
                         .padding(VSpacing.lg)
 
                         // Related transactions
                         if !vm.relatedTransactions.isEmpty {
                             VStack(alignment: .leading, spacing: VSpacing.md) {
-                                Text("Similar Transactions")
+                                Text(String(localized: "Similar Transactions"))
                                     .font(VTypography.bodyBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -204,10 +205,7 @@ struct TransactionDetailView: View {
     }
 
     private func formatAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 
     private func formatDate(_ date: Date) -> String {

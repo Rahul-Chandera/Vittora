@@ -21,7 +21,7 @@ struct AccountDetailView: View {
         #endif
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("Edit") { showEditSheet = true }
+                Button(String(localized: "Edit")) { showEditSheet = true }
                     .disabled(viewModel?.account == nil)
             }
         }
@@ -62,7 +62,7 @@ struct AccountDetailView: View {
         } else if let account = vm.account {
             accountDetail(account: account, vm: vm)
         } else {
-            Text("Account not found")
+            Text(String(localized: "Account not found"))
                 .foregroundColor(VColors.textSecondary)
         }
     }
@@ -86,7 +86,7 @@ struct AccountDetailView: View {
                                     .foregroundColor(VColors.textTertiary)
                             }
                         }
-                        Text("Current Balance")
+                        Text(String(localized: "Current Balance"))
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.textSecondary)
                         Text(account.balance.formatted(.currency(code: account.currencyCode)))
@@ -99,14 +99,14 @@ struct AccountDetailView: View {
             }
 
             // Account Details
-            Section("Details") {
+            Section(String(localized: "Details")) {
                 LabeledContent("Name", value: account.name)
                 LabeledContent("Type", value: account.type.rawValue.capitalized)
                 LabeledContent("Currency", value: account.currencyCode)
                 LabeledContent("Created", value: account.createdAt.formatted(date: .abbreviated, time: .omitted))
                 if account.isArchived {
                     LabeledContent("Status") {
-                        Text("Archived")
+                        Text(String(localized: "Archived"))
                             .foregroundColor(VColors.textTertiary)
                     }
                 }
@@ -114,7 +114,7 @@ struct AccountDetailView: View {
 
             // Recent Transactions
             if !vm.recentTransactions.isEmpty {
-                Section("Recent Transactions") {
+                Section(String(localized: "Recent Transactions")) {
                     ForEach(vm.recentTransactions) { tx in
                         NavigationLink(value: NavigationDestination.transactionDetail(id: tx.id)) {
                             TransactionRowCell(transaction: tx)
@@ -135,6 +135,7 @@ struct AccountDetailView: View {
 // MARK: - Simple transaction row for reuse
 private struct TransactionRowCell: View {
     let transaction: TransactionEntity
+    @Environment(\.currencyCode) private var currencyCode
 
     var body: some View {
         HStack(spacing: VSpacing.sm) {

@@ -6,27 +6,27 @@ struct FrequencyPickerView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Frequency")
+            Text(String(localized: "Frequency"))
                 .font(VTypography.calloutBold)
                 .foregroundColor(VColors.textPrimary)
 
             VStack(spacing: VSpacing.sm) {
-                frequencyButton("Daily", frequency: .daily)
-                frequencyButton("Weekly", frequency: .weekly)
-                frequencyButton("Bi-weekly", frequency: .biweekly)
-                frequencyButton("Monthly", frequency: .monthly)
-                frequencyButton("Quarterly", frequency: .quarterly)
-                frequencyButton("Yearly", frequency: .yearly)
+                frequencyButton(String(localized: "Daily"), frequency: .daily)
+                frequencyButton(String(localized: "Weekly"), frequency: .weekly)
+                frequencyButton(String(localized: "Bi-weekly"), frequency: .biweekly)
+                frequencyButton(String(localized: "Monthly"), frequency: .monthly)
+                frequencyButton(String(localized: "Quarterly"), frequency: .quarterly)
+                frequencyButton(String(localized: "Yearly"), frequency: .yearly)
 
                 // Custom frequency
                 HStack(spacing: VSpacing.md) {
-                    Text("Custom (days)")
+                    Text(String(localized: "Custom (days)"))
                         .font(VTypography.callout)
                         .foregroundColor(VColors.textPrimary)
 
                     Spacer()
 
-                    TextField("Days", text: $customDays)
+                    TextField(String(localized: "Days"), text: $customDays)
                         .font(VTypography.callout)
                         #if os(iOS)
                         .keyboardType(.numberPad)

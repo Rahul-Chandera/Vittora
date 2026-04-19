@@ -23,7 +23,7 @@ struct AccountRowView: View {
                     .font(VTypography.bodyBold)
                     .foregroundColor(account.balance >= 0 ? VColors.textPrimary : VColors.expense)
                 if account.isArchived {
-                    Text("Archived")
+                    Text(String(localized: "Archived"))
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textTertiary)
                         .padding(.horizontal, VSpacing.xs)

@@ -30,7 +30,7 @@ struct CategoryColorPicker: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Preset Colors")
+            Text(String(localized: "Preset Colors"))
                 .font(VTypography.caption1)
                 .foregroundColor(VColors.textSecondary)
                 .padding(.horizontal, VSpacing.md)
@@ -72,7 +72,7 @@ struct CategoryColorPicker: View {
                         .foregroundColor(colorFor(selectedColorHex))
                 }
                 VStack(alignment: .leading) {
-                    Text("Preview")
+                    Text(String(localized: "Preview"))
                         .font(VTypography.caption1)
                         .foregroundColor(VColors.textSecondary)
                     Text(selectedColorHex.uppercased())
@@ -82,7 +82,7 @@ struct CategoryColorPicker: View {
             }
             .padding(.horizontal, VSpacing.md)
         }
-        .navigationTitle("Choose Color")
+        .navigationTitle(String(localized: "Choose Color"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

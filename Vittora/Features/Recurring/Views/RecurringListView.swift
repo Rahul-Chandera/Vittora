@@ -29,7 +29,7 @@ struct RecurringListView: View {
                     // Cost Summary Card
                     if let costSummary = viewModel.costSummary {
                         VStack(alignment: .leading, spacing: VSpacing.md) {
-                            Text("Monthly Spend")
+                            Text(String(localized: "Monthly Spend"))
                                 .font(VTypography.callout)
                                 .foregroundColor(VColors.textSecondary)
 
@@ -39,7 +39,7 @@ struct RecurringListView: View {
                                         .font(VTypography.amountLarge)
                                         .foregroundColor(VColors.expense)
 
-                                    Text("per month")
+                                    Text(String(localized: "per month"))
                                         .font(VTypography.caption2)
                                         .foregroundColor(VColors.textSecondary)
                                 }
@@ -51,7 +51,7 @@ struct RecurringListView: View {
                                         .font(VTypography.bodyBold)
                                         .foregroundColor(VColors.expense)
 
-                                    Text("per year")
+                                    Text(String(localized: "per year"))
                                         .font(VTypography.caption2)
                                         .foregroundColor(VColors.textSecondary)
                                 }
@@ -65,7 +65,7 @@ struct RecurringListView: View {
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(VColors.primary)
 
-                                Text("\(costSummary.ruleCount) active \(costSummary.ruleCount == 1 ? "subscription" : "subscriptions")")
+                                Text(String(localized: "\(costSummary.ruleCount) active \(costSummary.ruleCount == 1 ? "subscription" : "subscriptions")"))
                                     .font(VTypography.caption1)
                                     .foregroundColor(VColors.textSecondary)
 
@@ -136,7 +136,7 @@ struct RecurringListView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("Recurring Transactions")
+        .navigationTitle(String(localized: "Recurring Transactions"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showAddSheet = true }) {

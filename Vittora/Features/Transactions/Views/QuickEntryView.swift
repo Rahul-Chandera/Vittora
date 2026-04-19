@@ -24,8 +24,8 @@ struct QuickEntryView: View {
                         .padding(VSpacing.lg)
 
                         // Account picker
-                        Picker("Account", selection: Bindable(vm).selectedAccountID) {
-                            Text("Select account").tag(UUID?.none)
+                        Picker(String(localized: "Account"), selection: Bindable(vm).selectedAccountID) {
+                            Text(String(localized: "Select account")).tag(UUID?.none)
                             ForEach(accounts) { account in
                                 Text(account.name).tag(UUID?(account.id))
                             }
@@ -34,7 +34,7 @@ struct QuickEntryView: View {
 
                         // Quick category grid
                         VStack(alignment: .leading, spacing: VSpacing.sm) {
-                            Text("Category")
+                            Text(String(localized: "Category"))
                                 .font(VTypography.caption2)
                                 .foregroundColor(VColors.textSecondary)
                                 .padding(.horizontal, VSpacing.lg)
@@ -93,7 +93,7 @@ struct QuickEntryView: View {
                                 }
                             }
                         } label: {
-                            Text("Save Transaction")
+                            Text(String(localized: "Save Transaction"))
                                 .font(VTypography.body)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -121,7 +121,7 @@ struct QuickEntryView: View {
                 #endif
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
+                        Button(String(localized: "Cancel")) {
                             dismiss()
                         }
                     }

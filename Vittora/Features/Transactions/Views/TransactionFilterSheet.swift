@@ -15,8 +15,8 @@ struct TransactionFilterSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Date Range") {
-                    Picker("Preset", selection: Bindable(localVM).datePreset) {
+                Section(String(localized: "Date Range")) {
+                    Picker(String(localized: "Preset"), selection: Bindable(localVM).datePreset) {
                         ForEach(TransactionFilterViewModel.DatePreset.allCases, id: \.self) { preset in
                             Text(preset.displayName).tag(preset)
                         }
@@ -28,7 +28,7 @@ struct TransactionFilterSheet: View {
 
                     if localVM.datePreset == .custom {
                         DatePicker(
-                            "From",
+                            String(localized: "From"),
                             selection: Binding(
                                 get: { localVM.startDate ?? Date.now },
                                 set: { localVM.startDate = $0 }
@@ -36,7 +36,7 @@ struct TransactionFilterSheet: View {
                             displayedComponents: [.date]
                         )
                         DatePicker(
-                            "To",
+                            String(localized: "To"),
                             selection: Binding(
                                 get: { localVM.endDate ?? Date.now },
                                 set: { localVM.endDate = $0 }
@@ -46,21 +46,21 @@ struct TransactionFilterSheet: View {
                     }
                 }
 
-                Section("Transaction Type") {
+                Section(String(localized: "Transaction Type")) {
                     ForEach(TransactionType.allCases, id: \.self) { type in
                         Toggle(type.rawValue.capitalized, isOn: $localVM.selectedTypes.contains(type))
                             .accessibilityIdentifier("transaction-filter-type-\(type.rawValue)")
                     }
                 }
 
-                Section("Amount Range") {
-                    TextField("Min", text: Bindable(localVM).amountMin)
+                Section(String(localized: "Amount Range")) {
+                    TextField(String(localized: "Min"), text: Bindable(localVM).amountMin)
                         .accessibilityIdentifier("transaction-filter-min-field")
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         #endif
 
-                    TextField("Max", text: Bindable(localVM).amountMax)
+                    TextField(String(localized: "Max"), text: Bindable(localVM).amountMax)
                         .accessibilityIdentifier("transaction-filter-max-field")
                         #if os(iOS)
                         .keyboardType(.decimalPad)
@@ -73,14 +73,14 @@ struct TransactionFilterSheet: View {
             #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Clear") {
+                    Button(String(localized: "Clear")) {
                         localVM.clearAll()
                     }
                     .accessibilityIdentifier("transaction-filter-clear-button")
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Apply") {
+                    Button(String(localized: "Apply")) {
                         onApply(localVM.buildFilter())
                         dismiss()
                     }

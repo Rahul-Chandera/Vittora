@@ -15,7 +15,7 @@ struct PayeeListView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("Payees")
+        .navigationTitle(String(localized: "Payees"))
         .toolbar {
             if let vm = viewModel {
                 ToolbarItem(placement: .automatic) {
@@ -40,15 +40,15 @@ struct PayeeListView: View {
                 }
             }
         }
-        .alert("Delete Payee", isPresented: $showingDeleteAlert) {
-            Button("Delete", role: .destructive) {
+        .alert(String(localized: "Delete Payee"), isPresented: $showingDeleteAlert) {
+            Button(String(localized: "Delete"), role: .destructive) {
                 if let id = payeeToDelete, let vm = viewModel {
                     Task { await vm.deletePayee(id: id) }
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel"), role: .cancel) {}
         } message: {
-            Text("Are you sure you want to delete this payee?")
+            Text(String(localized: "Are you sure you want to delete this payee?"))
         }
         .alert(
             String(localized: "Contacts Imported"),
@@ -113,14 +113,14 @@ struct PayeeListView: View {
             Image(systemName: "person.2.fill")
                 .font(.system(size: 48))
                 .foregroundColor(VColors.textTertiary)
-            Text("No Payees")
+            Text(String(localized: "No Payees"))
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
-            Text("Add payees to track who you pay or receive money from.")
+            Text(String(localized: "Add payees to track who you pay or receive money from."))
                 .font(VTypography.body)
                 .foregroundColor(VColors.textSecondary)
                 .multilineTextAlignment(.center)
-            Button("Add Payee") { showAddPayee = true }
+            Button(String(localized: "Add Payee")) { showAddPayee = true }
                 .buttonStyle(.borderedProminent)
             Button {
                 Task { await vm.importContacts() }

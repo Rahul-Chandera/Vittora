@@ -5,7 +5,7 @@ struct PeriodSelectorView: View {
 
     var body: some View {
         #if os(iOS)
-        Picker("Period", selection: $selectedPeriod) {
+        Picker(String(localized: "Period"), selection: $selectedPeriod) {
             ForEach(BudgetPeriod.allCases, id: \.self) { period in
                 Text(period.rawValue.capitalized).tag(period)
             }

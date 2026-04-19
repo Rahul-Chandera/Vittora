@@ -98,7 +98,7 @@ struct TransferFormView: View {
                                     .foregroundColor(VColors.textSecondary)
                             }
                         } else {
-                            Text("Select Account")
+                            Text(String(localized: "Select Account"))
                                 .foregroundColor(VColors.textTertiary)
                         }
                         Spacer()
@@ -139,7 +139,7 @@ struct TransferFormView: View {
                                     .foregroundColor(VColors.textSecondary)
                             }
                         } else {
-                            Text("Select Account")
+                            Text(String(localized: "Select Account"))
                                 .foregroundColor(VColors.textTertiary)
                         }
                         Spacer()

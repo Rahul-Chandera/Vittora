@@ -141,7 +141,7 @@ struct TransactionListView: View {
 
                         Spacer()
 
-                        Text("\(vm.selectedTransactionIDs.count) selected")
+                        Text(String(localized: "\(vm.selectedTransactionIDs.count) selected"))
                             .font(.caption)
                             .foregroundColor(VColors.textSecondary)
                     }
@@ -175,17 +175,17 @@ struct TransactionListView: View {
                 .font(.system(size: 48))
                 .foregroundColor(VColors.textTertiary)
 
-            Text("No transactions")
+            Text(String(localized: "No transactions"))
                 .font(VTypography.bodyBold)
                 .foregroundColor(VColors.textPrimary)
 
-            Text("Add your first transaction to get started")
+            Text(String(localized: "Add your first transaction to get started"))
                 .font(VTypography.caption1)
                 .foregroundColor(VColors.textSecondary)
                 .multilineTextAlignment(.center)
 
             NavigationLink(value: NavigationDestination.addTransaction) {
-                Text("Add Transaction")
+                Text(String(localized: "Add Transaction"))
                     .font(VTypography.body)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -208,10 +208,10 @@ struct TransactionListView: View {
         let calendar = Calendar.current
 
         if calendar.isDateInToday(date) {
-            Text("Today")
+            Text(String(localized: "Today"))
                 .foregroundColor(VColors.textSecondary)
         } else if calendar.isDateInYesterday(date) {
-            Text("Yesterday")
+            Text(String(localized: "Yesterday"))
                 .foregroundColor(VColors.textSecondary)
         } else {
             Text(date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))

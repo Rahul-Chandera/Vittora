@@ -13,7 +13,7 @@ struct AmountInputView: View {
                     .font(.system(size: 32, weight: .semibold))
                     .foregroundColor(transactionColor(for: type))
 
-                TextField("0.00", text: $amountString)
+                TextField(String(localized: "0.00"), text: $amountString)
                     .font(.system(size: 32, weight: .semibold))
                     .foregroundColor(transactionColor(for: type))
                     .accessibilityIdentifier(textFieldAccessibilityIdentifier ?? "")

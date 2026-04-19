@@ -48,11 +48,11 @@ struct TransactionFormView: View {
                     if !vm.duplicateWarning.isEmpty {
                         Section {
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Label("Duplicate detected", systemImage: "exclamationmark.triangle.fill")
+                                Label(String(localized: "Duplicate detected"), systemImage: "exclamationmark.triangle.fill")
                                     .foregroundColor(VColors.warning)
                                     .font(VTypography.caption1)
 
-                                Text("Similar transaction(s) found. Review before saving.")
+                                Text(String(localized: "Similar transaction(s) found. Review before saving."))
                                     .font(VTypography.caption2)
                                     .foregroundColor(VColors.textSecondary)
                             }
@@ -65,7 +65,7 @@ struct TransactionFormView: View {
                 #endif
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
+                        Button(String(localized: "Cancel")) {
                             dismiss()
                         }
                         .accessibilityIdentifier("transaction-form-cancel-button")
@@ -87,7 +87,7 @@ struct TransactionFormView: View {
                                 }
                             }
                         } label: {
-                            Text("Save")
+                            Text(String(localized: "Save"))
                                 .foregroundColor(vm.canSave ? VColors.primary : VColors.textTertiary)
                         }
                         .disabled(!vm.canSave)
@@ -118,8 +118,8 @@ struct TransactionFormView: View {
     @ViewBuilder
     private func quickEntryContent(_ vm: TransactionFormViewModel) -> some View {
         Section {
-            Picker("Category", selection: Bindable(vm).selectedCategoryID) {
-                Text("Select category").tag(UUID?.none)
+            Picker(String(localized: "Category"), selection: Bindable(vm).selectedCategoryID) {
+                Text(String(localized: "Select category")).tag(UUID?.none)
                 ForEach(categories.expense) { category in
                     HStack {
                         Image(systemName: category.icon)
@@ -131,8 +131,8 @@ struct TransactionFormView: View {
             }
             .accessibilityIdentifier("transaction-category-picker")
 
-            Picker("Account", selection: Bindable(vm).selectedAccountID) {
-                Text("Select account").tag(UUID?.none)
+            Picker(String(localized: "Account"), selection: Bindable(vm).selectedAccountID) {
+                Text(String(localized: "Select account")).tag(UUID?.none)
                 ForEach(accounts) { account in
                     Text(account.name).tag(UUID?(account.id))
                 }
@@ -143,9 +143,9 @@ struct TransactionFormView: View {
 
     @ViewBuilder
     private func fullFormContent(_ vm: TransactionFormViewModel) -> some View {
-        Section("Details") {
-            Picker("Category", selection: Bindable(vm).selectedCategoryID) {
-                Text("None").tag(UUID?.none)
+        Section(String(localized: "Details")) {
+            Picker(String(localized: "Category"), selection: Bindable(vm).selectedCategoryID) {
+                Text(String(localized: "None")).tag(UUID?.none)
                 let relevantCategories = vm.type == .income ? categories.income : categories.expense
                 ForEach(relevantCategories) { category in
                     HStack {
@@ -158,16 +158,16 @@ struct TransactionFormView: View {
             }
             .accessibilityIdentifier("transaction-category-picker")
 
-            Picker("Account", selection: Bindable(vm).selectedAccountID) {
-                Text("Select account").tag(UUID?.none)
+            Picker(String(localized: "Account"), selection: Bindable(vm).selectedAccountID) {
+                Text(String(localized: "Select account")).tag(UUID?.none)
                 ForEach(accounts) { account in
                     Text(account.name).tag(UUID?(account.id))
                 }
             }
             .accessibilityIdentifier("transaction-account-picker")
 
-            Picker("Payee", selection: Bindable(vm).selectedPayeeID) {
-                Text("None").tag(UUID?.none)
+            Picker(String(localized: "Payee"), selection: Bindable(vm).selectedPayeeID) {
+                Text(String(localized: "None")).tag(UUID?.none)
                 ForEach(payees) { payee in
                     Text(payee.name).tag(UUID?(payee.id))
                 }
@@ -188,7 +188,7 @@ struct TransactionFormView: View {
                     HStack {
                         Image(systemName: "lightbulb.fill")
                             .foregroundColor(.yellow)
-                        Text("Suggested: \(suggested.name)")
+                        Text(String(localized: "Suggested: \(suggested.name)"))
                             .foregroundColor(VColors.textPrimary)
                         Spacer()
                     }
@@ -196,27 +196,27 @@ struct TransactionFormView: View {
             }
         }
 
-        Section("Date & Payment") {
+        Section(String(localized: "Date & Payment")) {
             DatePicker(
-                "Date",
+                String(localized: "Date"),
                 selection: Bindable(vm).date,
                 displayedComponents: [.date]
             )
 
-            Picker("Payment Method", selection: Bindable(vm).paymentMethod) {
+            Picker(String(localized: "Payment Method"), selection: Bindable(vm).paymentMethod) {
                 ForEach(PaymentMethod.allCases, id: \.self) { method in
                     Text(method.rawValue.capitalized).tag(method)
                 }
             }
         }
 
-        Section("Notes") {
-            TextField("Notes", text: Bindable(vm).note, axis: .vertical)
+        Section(String(localized: "Notes")) {
+            TextField(String(localized: "Notes"), text: Bindable(vm).note, axis: .vertical)
                 .lineLimit(3...5)
                 .accessibilityIdentifier("transaction-note-field")
         }
 
-        Section("Tags") {
+        Section(String(localized: "Tags")) {
             TagInputView(
                 tags: Bindable(vm).tags,
                 tagInput: Bindable(vm).tagInput,

@@ -20,7 +20,7 @@ struct RecurringFormView: View {
                         VStack(alignment: .leading, spacing: VSpacing.lg) {
                             // Amount Input
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Amount")
+                                Text(String(localized: "Amount"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -45,7 +45,7 @@ struct RecurringFormView: View {
 
                             // Start Date
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Start Date")
+                                Text(String(localized: "Start Date"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -65,7 +65,7 @@ struct RecurringFormView: View {
                             // Optional End Date
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
                                 HStack {
-                                    Text("End Date (Optional)")
+                                    Text(String(localized: "End Date (Optional)"))
                                         .font(VTypography.calloutBold)
                                         .foregroundColor(VColors.textPrimary)
 
@@ -95,7 +95,7 @@ struct RecurringFormView: View {
 
                             // Account Selection
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Account *")
+                                Text(String(localized: "Account *"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -107,11 +107,11 @@ struct RecurringFormView: View {
                                 ) {
                                     HStack {
                                         if viewModel.selectedAccountID != nil {
-                                            Text("Selected")
+                                            Text(String(localized: "Selected"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
                                         } else {
-                                            Text("Choose Account")
+                                            Text(String(localized: "Choose Account"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textSecondary)
                                         }
@@ -130,7 +130,7 @@ struct RecurringFormView: View {
 
                             // Category Selection
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Category (Optional)")
+                                Text(String(localized: "Category (Optional)"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -142,11 +142,11 @@ struct RecurringFormView: View {
                                 ) {
                                     HStack {
                                         if viewModel.selectedCategoryID != nil {
-                                            Text("Selected")
+                                            Text(String(localized: "Selected"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
                                         } else {
-                                            Text("Choose Category")
+                                            Text(String(localized: "Choose Category"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textSecondary)
                                         }
@@ -165,7 +165,7 @@ struct RecurringFormView: View {
 
                             // Payee Selection
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Payee (Optional)")
+                                Text(String(localized: "Payee (Optional)"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -177,11 +177,11 @@ struct RecurringFormView: View {
                                 ) {
                                     HStack {
                                         if viewModel.selectedPayeeID != nil {
-                                            Text("Selected")
+                                            Text(String(localized: "Selected"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
                                         } else {
-                                            Text("Choose Payee")
+                                            Text(String(localized: "Choose Payee"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textSecondary)
                                         }
@@ -200,7 +200,7 @@ struct RecurringFormView: View {
 
                             // Note Input
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Note (Optional)")
+                                Text(String(localized: "Note (Optional)"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -241,13 +241,13 @@ struct RecurringFormView: View {
                     ProgressView()
                 }
             }
-            .navigationTitle(viewModel?.isEditing ?? false ? "Edit Recurring" : "New Recurring")
+            .navigationTitle(viewModel?.isEditing ?? false ? String(localized: "Edit Recurring") : String(localized: "New Recurring"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }
@@ -257,7 +257,7 @@ struct RecurringFormView: View {
                         if isLoading {
                             ProgressView()
                         } else {
-                            Text("Save")
+                            Text(String(localized: "Save"))
                                 .font(VTypography.calloutBold)
                                 .foregroundColor(viewModel?.canSave ?? false ? VColors.primary : VColors.textSecondary)
                         }
@@ -366,7 +366,7 @@ struct RecurringCategoryPickerView: View {
                 }
             }
         }
-        .navigationTitle("Select Category")
+        .navigationTitle(String(localized: "Select Category"))
         .overlay {
             if let loadError {
                 Text(loadError)

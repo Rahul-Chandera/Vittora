@@ -13,8 +13,8 @@ struct BudgetListView: View {
                 if let viewModel = viewModel, viewModel.budgets.isEmpty && !viewModel.isLoading {
                     VEmptyState(
                         icon: "target",
-                        title: "No Budgets Yet",
-                        subtitle: "Create your first budget to track spending"
+                        title: String(localized: "No Budgets Yet"),
+                        subtitle: String(localized: "Create your first budget to track spending")
                     )
                     .accessibilityIdentifier("budget-empty-state")
                 } else {
@@ -80,7 +80,7 @@ struct BudgetListView: View {
                     #endif
                 }
             }
-            .navigationTitle("Budgets")
+            .navigationTitle(String(localized: "Budgets"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showAddBudget = true }) {

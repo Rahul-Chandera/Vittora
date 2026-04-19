@@ -21,7 +21,7 @@ struct PayeeDetailView: View {
         #endif
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("Edit") { showEditSheet = true }
+                Button(String(localized: "Edit")) { showEditSheet = true }
                     .disabled(viewModel?.payee == nil)
             }
         }
@@ -63,7 +63,7 @@ struct PayeeDetailView: View {
         } else if let payee = vm.payee {
             payeeDetail(payee: payee, vm: vm)
         } else {
-            Text("Payee not found")
+            Text(String(localized: "Payee not found"))
                 .foregroundColor(VColors.textSecondary)
         }
     }
@@ -86,7 +86,7 @@ struct PayeeDetailView: View {
                         Text(payee.name)
                             .font(VTypography.title3)
                             .foregroundColor(VColors.textPrimary)
-                        Text(payee.type == .business ? "Business" : "Person")
+                        Text(payee.type == .business ? String(localized: "Business") : String(localized: "Person"))
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.textSecondary)
                     }
@@ -104,7 +104,7 @@ struct PayeeDetailView: View {
             }
 
             // Contact Info
-            Section("Contact") {
+            Section(String(localized: "Contact")) {
                 LabeledContent("Name", value: payee.name)
                 if let phone = payee.phone {
                     LabeledContent("Phone", value: phone)
@@ -114,7 +114,7 @@ struct PayeeDetailView: View {
                 }
                 if let notes = payee.notes, !notes.isEmpty {
                     VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                        Text("Notes")
+                        Text(String(localized: "Notes"))
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.textSecondary)
                         Text(notes)
@@ -127,7 +127,7 @@ struct PayeeDetailView: View {
 
             // Recent Transactions
             if !vm.recentTransactions.isEmpty {
-                Section("Recent Transactions") {
+                Section(String(localized: "Recent Transactions")) {
                     ForEach(vm.recentTransactions) { tx in
                         NavigationLink(value: NavigationDestination.transactionDetail(id: tx.id)) {
                             HStack(spacing: VSpacing.sm) {

@@ -15,7 +15,7 @@ struct SubscriptionTrackerView: View {
                         if let costSummary = viewModel.costSummary {
                             VStack(alignment: .leading, spacing: VSpacing.lg) {
                                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                    Text("Monthly Spending")
+                                    Text(String(localized: "Monthly Spending"))
                                         .font(VTypography.callout)
                                         .foregroundColor(VColors.textSecondary)
 
@@ -28,7 +28,7 @@ struct SubscriptionTrackerView: View {
 
                                 HStack(spacing: VSpacing.xl) {
                                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                        Text("Yearly Estimate")
+                                        Text(String(localized: "Yearly Estimate"))
                                             .font(VTypography.caption2)
                                             .foregroundColor(VColors.textSecondary)
 
@@ -40,7 +40,7 @@ struct SubscriptionTrackerView: View {
                                     Spacer()
 
                                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                        Text("Active Subscriptions")
+                                        Text(String(localized: "Active Subscriptions"))
                                             .font(VTypography.caption2)
                                             .foregroundColor(VColors.textSecondary)
 
@@ -56,7 +56,7 @@ struct SubscriptionTrackerView: View {
 
                             // Breakdown
                             VStack(alignment: .leading, spacing: VSpacing.md) {
-                                Text("Your Subscriptions")
+                                Text(String(localized: "Your Subscriptions"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -66,11 +66,11 @@ struct SubscriptionTrackerView: View {
                                             .font(.system(size: 48))
                                             .foregroundColor(.green)
 
-                                        Text("No Active Subscriptions")
+                                        Text(String(localized: "No Active Subscriptions"))
                                             .font(VTypography.title3)
                                             .foregroundColor(VColors.textPrimary)
 
-                                        Text("You're all set! No recurring expenses scheduled.")
+                                        Text(String(localized: "You're all set! No recurring expenses scheduled."))
                                             .font(VTypography.callout)
                                             .foregroundColor(VColors.textSecondary)
                                             .multilineTextAlignment(.center)
@@ -103,7 +103,7 @@ struct SubscriptionTrackerView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("Subscriptions")
+        .navigationTitle(String(localized: "Subscriptions"))
         .onAppear {
             if viewModel == nil {
                 setupViewModel()

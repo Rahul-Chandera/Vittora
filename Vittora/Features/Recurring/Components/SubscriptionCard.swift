@@ -77,7 +77,7 @@ struct SubscriptionCard: View {
             // Cost breakdown
             HStack(spacing: VSpacing.xl) {
                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                    Text("Per Transaction")
+                    Text(String(localized: "Per Transaction"))
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
 
@@ -89,7 +89,7 @@ struct SubscriptionCard: View {
                 Spacer()
 
                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                    Text("Monthly Cost")
+                    Text(String(localized: "Monthly Cost"))
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
 
@@ -105,7 +105,7 @@ struct SubscriptionCard: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(VColors.textSecondary)
 
-                Text("Next: \(rule.nextDate.formatted(date: .abbreviated, time: .omitted))")
+                Text(String(localized: "Next: \(rule.nextDate.formatted(date: .abbreviated, time: .omitted))"))
                     .font(VTypography.caption2)
                     .foregroundColor(VColors.textSecondary)
 

@@ -37,7 +37,7 @@ struct TagInputView: View {
 
             // Input field
             HStack {
-                TextField("Add tag (press return)", text: $tagInput)
+                TextField(String(localized: "Add tag (press return)"), text: $tagInput)
                     .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)
                     .onSubmit {
