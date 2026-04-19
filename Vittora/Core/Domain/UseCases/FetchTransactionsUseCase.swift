@@ -30,8 +30,9 @@ struct FetchTransactionsUseCase: Sendable {
         let transactions = try await transactionRepository.fetchAll(filter: filter)
 
         // Group by calendar day
+        let calendar = Calendar.current
         let grouped = Dictionary(grouping: transactions) { transaction in
-            Calendar.current.startOfDay(for: transaction.date)
+            calendar.startOfDay(for: transaction.date)
         }
 
         // Sort by date descending and return as array of tuples

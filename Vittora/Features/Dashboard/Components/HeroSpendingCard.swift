@@ -109,10 +109,7 @@ struct HeroSpendingCard: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        return formatter.string(from: amount as NSDecimalNumber) ?? amount.formatted(.currency(code: currencyCode))
+        amount.formatted(.currency(code: currencyCode))
     }
 
     private var accessibilitySummary: String {

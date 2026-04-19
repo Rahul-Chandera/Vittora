@@ -122,26 +122,34 @@ extension Date {
 
     /// Get the start of the month
     var startOfMonth: Date {
-        let components = Calendar.current.dateComponents([.year, .month], from: self)
-        return Calendar.current.date(from: components) ?? self
+        let cal = Calendar.current
+        let components = cal.dateComponents([.year, .month], from: self)
+        return cal.date(from: components) ?? self
     }
 
     /// Get the end of the month
     var endOfMonth: Date {
-        let nextMonth = Calendar.current.date(byAdding: .month, value: 1, to: startOfMonth) ?? self
-        return Calendar.current.date(byAdding: .second, value: -1, to: nextMonth) ?? self
+        let cal = Calendar.current
+        let components = cal.dateComponents([.year, .month], from: self)
+        let monthStart = cal.date(from: components) ?? self
+        let nextMonth = cal.date(byAdding: .month, value: 1, to: monthStart) ?? self
+        return cal.date(byAdding: .second, value: -1, to: nextMonth) ?? self
     }
 
     /// Get the start of the year
     var startOfYear: Date {
-        let components = Calendar.current.dateComponents([.year], from: self)
-        return Calendar.current.date(from: components) ?? self
+        let cal = Calendar.current
+        let components = cal.dateComponents([.year], from: self)
+        return cal.date(from: components) ?? self
     }
 
     /// Get the end of the year
     var endOfYear: Date {
-        let nextYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) ?? self
-        return Calendar.current.date(byAdding: .second, value: -1, to: nextYear) ?? self
+        let cal = Calendar.current
+        let components = cal.dateComponents([.year], from: self)
+        let yearStart = cal.date(from: components) ?? self
+        let nextYear = cal.date(byAdding: .year, value: 1, to: yearStart) ?? self
+        return cal.date(byAdding: .second, value: -1, to: nextYear) ?? self
     }
 
     /// Get the next occurrence of a given weekday
@@ -149,12 +157,13 @@ extension Date {
     /// - Parameter weekday: Weekday to find (1=Sunday, 2=Monday, ..., 7=Saturday)
     /// - Returns: Date of next occurrence
     func nextOccurrence(of weekday: Int) -> Date {
+        let cal = Calendar.current
         var dateComponent = DateComponents()
-        dateComponent.day = (weekday - Calendar.current.component(.weekday, from: self) + 7) % 7
+        dateComponent.day = (weekday - cal.component(.weekday, from: self) + 7) % 7
         if dateComponent.day ?? 0 == 0 {
             dateComponent.day = 7
         }
-        return Calendar.current.date(byAdding: dateComponent, to: self) ?? self
+        return cal.date(byAdding: dateComponent, to: self) ?? self
     }
 
     /// Check if date is within the same week as another date

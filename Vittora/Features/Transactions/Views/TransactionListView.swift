@@ -30,12 +30,6 @@ struct TransactionListView: View {
             guard vm != nil else { return }
             await vm?.loadTransactions()
         }
-        .onAppear {
-            guard vm != nil else { return }
-            Task {
-                await vm?.loadTransactions()
-            }
-        }
         .navigationDestination(item: $navigateDestination) { dest in
             navigationView(for: dest)
         }

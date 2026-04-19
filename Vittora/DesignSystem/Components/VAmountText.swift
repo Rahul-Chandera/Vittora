@@ -73,16 +73,7 @@ struct VAmountText: View {
     }
 
     private var formattedAmount: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 2
-
-        if let formatted = formatter.string(from: NSDecimalNumber(decimal: abs(amount))) {
-            return formatted
-        }
-        return "~"
+        abs(amount).formatted(.currency(code: currencyCode).precision(.fractionLength(0...2)))
     }
 
     private var amountColor: Color {

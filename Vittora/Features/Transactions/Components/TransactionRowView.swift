@@ -80,9 +80,7 @@ struct TransactionRowView: View {
     }
 
     private func formattedTime(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
+        date.formatted(date: .omitted, time: .shortened)
     }
 
     private func transactionColor(for type: TransactionType) -> Color {
