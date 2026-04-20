@@ -95,6 +95,7 @@ struct AppearanceSettingsView: View {
 
 struct SecuritySettingsView: View {
     @Bindable var vm: SettingsViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Form {
@@ -118,7 +119,7 @@ struct SecuritySettingsView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .animation(.default, value: vm.isAppLockEnabled)
+        .animation(reduceMotion ? nil : .default, value: vm.isAppLockEnabled)
     }
 }
 
@@ -144,6 +145,7 @@ struct DataSettingsView: View {
 
 struct NotificationsSettingsView: View {
     @Bindable var vm: SettingsViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Form {
@@ -167,7 +169,7 @@ struct NotificationsSettingsView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .animation(.default, value: vm.isNotificationsEnabled)
+        .animation(reduceMotion ? nil : .default, value: vm.isNotificationsEnabled)
     }
 }
 
