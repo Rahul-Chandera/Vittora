@@ -52,6 +52,23 @@ struct TaxExportViewModelTests {
         #expect(viewModel.exportURL == nil)
         #expect(viewModel.error == "Generate a tax estimate before exporting a report.")
     }
+
+    @Test("cleanupExport clears the shared tax report URL")
+    func cleanupExportClearsURL() async {
+        let exportURL = URL(fileURLWithPath: "/tmp/vittora_tax_report.csv")
+        let exportService = MockDataExportService(resultURL: exportURL)
+        let viewModel = makeViewModel(exportService: exportService)
+
+        viewModel.profile = sampleTaxProfile()
+        viewModel.estimate = sampleTaxEstimate()
+
+        await viewModel.exportReport()
+        await viewModel.cleanupExport()
+
+        #expect(viewModel.exportURL == nil)
+        let cleanedURLs = await exportService.cleanedURLs
+        #expect(cleanedURLs == [exportURL])
+    }
 }
 
 @MainActor
@@ -69,6 +86,7 @@ private func makeViewModel(
 private actor MockDataExportService: DataExportServiceProtocol {
     let resultURL: URL
     let shouldFailTaxExport: Bool
+    private(set) var cleanedURLs: [URL] = []
 
     init(resultURL: URL, shouldFailTaxExport: Bool = false) {
         self.resultURL = resultURL
@@ -97,6 +115,10 @@ private actor MockDataExportService: DataExportServiceProtocol {
             throw VittoraError.exportFailed(String(localized: "Tax export failed"))
         }
         return resultURL
+    }
+
+    func cleanupTemporaryExport(at url: URL) async {
+        cleanedURLs.append(url)
     }
 }
 

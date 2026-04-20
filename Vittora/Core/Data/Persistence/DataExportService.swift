@@ -1,5 +1,7 @@
 import Foundation
 import os.signpost
+import OSLog
+import Security
 
 enum ExportFormat: String, CaseIterable, Sendable {
     case csv = "CSV"
@@ -19,6 +21,7 @@ protocol DataExportServiceProtocol: Sendable {
         endDate: Date?,
         format: ExportFormat
     ) async throws -> URL
+    func cleanupTemporaryExport(at url: URL) async
     func exportTaxReportCSV(
         profile: TaxProfile,
         estimate: TaxEstimate,
@@ -29,6 +32,7 @@ protocol DataExportServiceProtocol: Sendable {
 
 @MainActor
 final class DataExportService: DataExportServiceProtocol, Sendable {
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "export")
     private let transactionRepository: any TransactionRepository
     private let accountRepository: (any AccountRepository)?
     private let categoryRepository: (any CategoryRepository)?
@@ -90,6 +94,16 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
             summary: summary
         )
         return try writeToTemp(content: csv, suffix: "tax_report")
+    }
+
+    func cleanupTemporaryExport(at url: URL) async {
+        do {
+            try securelyDeleteFile(at: url)
+        } catch {
+            Self.logger.error(
+                "Failed to securely delete temporary export at \(url.path, privacy: .private): \(error.localizedDescription, privacy: .public)"
+            )
+        }
     }
 
     // MARK: - CSV builder
@@ -294,6 +308,51 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
                 String(localized: "Failed to write CSV: \(error.localizedDescription)")
             )
         }
+    }
+
+    private func securelyDeleteFile(at url: URL) throws {
+        guard FileManager.default.fileExists(atPath: url.path) else { return }
+
+        let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+        let fileSize = (attributes[.size] as? NSNumber)?.intValue ?? 0
+
+        if fileSize > 0 {
+            let handle = try FileHandle(forWritingTo: url)
+            defer { try? handle.close() }
+
+            try handle.seek(toOffset: 0)
+
+            var remainingBytes = fileSize
+            while remainingBytes > 0 {
+                let chunkSize = min(remainingBytes, 64 * 1024)
+                try handle.write(contentsOf: randomData(count: chunkSize))
+                remainingBytes -= chunkSize
+            }
+
+            try handle.synchronize()
+        }
+
+        try FileManager.default.removeItem(at: url)
+    }
+
+    private func randomData(count: Int) throws -> Data {
+        guard count > 0 else { return Data() }
+
+        var data = Data(count: count)
+        let status = data.withUnsafeMutableBytes { buffer in
+            guard let baseAddress = buffer.baseAddress else {
+                return errSecParam
+            }
+            return SecRandomCopyBytes(kSecRandomDefault, count, baseAddress)
+        }
+
+        guard status == errSecSuccess else {
+            throw VittoraError.exportFailed(
+                String(localized: "Failed to generate secure random bytes for export cleanup.")
+            )
+        }
+
+        return data
     }
 }
 

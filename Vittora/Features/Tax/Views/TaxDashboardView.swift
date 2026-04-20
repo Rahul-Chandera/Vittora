@@ -70,7 +70,7 @@ struct TaxDashboardView: View {
             }
         }
         .sheet(isPresented: $showExportSheet, onDismiss: {
-            vm?.clearExportURL()
+            Task { await vm?.cleanupExport() }
         }) {
             if let url = vm?.exportURL {
                 ShareSheet(items: [url])

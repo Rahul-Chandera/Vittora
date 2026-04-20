@@ -45,6 +45,12 @@ final class ExportViewModel {
         }
     }
 
+    func cleanupExport() async {
+        guard let exportURL else { return }
+        await exportService.cleanupTemporaryExport(at: exportURL)
+        self.exportURL = nil
+    }
+
     private func advanceProgress(to phase: ExportProgressPhase) async {
         progressPhase = phase
         await Task.yield()
@@ -181,7 +187,9 @@ struct ExportView: View {
                 }
             }
         }
-        .sheet(isPresented: $showShareSheet) {
+        .sheet(isPresented: $showShareSheet, onDismiss: {
+            Task { await vm.cleanupExport() }
+        }) {
             if let url = vm.exportURL {
                 ShareSheet(items: [url])
                     .ignoresSafeArea()

@@ -102,4 +102,12 @@ final class TaxEstimateViewModel {
     func clearExportURL() {
         exportURL = nil
     }
+
+    func cleanupExport() async {
+        guard let exportURL else { return }
+        if let exportService {
+            await exportService.cleanupTemporaryExport(at: exportURL)
+        }
+        self.exportURL = nil
+    }
 }
