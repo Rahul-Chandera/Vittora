@@ -7,7 +7,7 @@ struct DocumentListView: View {
     @State private var vm: DocumentListViewModel?
     @State private var showScanner = false
     @State private var showImport = false
-    @State private var showPreviewURL: URL?
+    @State private var previewItem: DocumentPreviewItem?
     @State private var selectedPhoto: PhotosPickerItem?
 
     var body: some View {
@@ -30,15 +30,25 @@ struct DocumentListView: View {
         }
         .task {
             if vm == nil {
-                guard let docRepo = dependencies.documentRepository else { return }
+                guard let docRepo = dependencies.documentRepository,
+                      let documentStorageService = dependencies.documentStorageService else {
+                    return
+                }
                 let fetchUseCase = FetchDocumentsUseCase(documentRepository: docRepo)
-                let attachUseCase = AttachDocumentUseCase(documentRepository: docRepo)
-                let deleteUseCase = DeleteDocumentUseCase(documentRepository: docRepo)
+                let attachUseCase = AttachDocumentUseCase(
+                    documentRepository: docRepo,
+                    documentStorageService: documentStorageService
+                )
+                let deleteUseCase = DeleteDocumentUseCase(
+                    documentRepository: docRepo,
+                    documentStorageService: documentStorageService
+                )
                 vm = DocumentListViewModel(
                     transactionID: transactionID,
                     fetchUseCase: fetchUseCase,
                     attachUseCase: attachUseCase,
-                    deleteUseCase: deleteUseCase
+                    deleteUseCase: deleteUseCase,
+                    documentStorageService: documentStorageService
                 )
                 await vm?.load()
             }
@@ -53,8 +63,8 @@ struct DocumentListView: View {
                 Task { await vm?.attach(imageData: data, mimeType: mimeType) }
             })
         }
-        .sheet(item: $showPreviewURL) { url in
-            DocumentPreviewView(url: url)
+        .sheet(item: $previewItem) { item in
+            DocumentPreviewView(item: item)
         }
         .photosPicker(isPresented: Binding(
             get: { false },
@@ -117,8 +127,12 @@ struct DocumentListView: View {
                         DocumentThumbnailView(
                             entity: entity,
                             onTap: {
-                                if let url = vm.fileURL(for: entity) {
-                                    showPreviewURL = url
+                                Task {
+                                    do {
+                                        previewItem = try await vm.previewItem(for: entity)
+                                    } catch {
+                                        vm.error = error.localizedDescription
+                                    }
                                 }
                             },
                             onDelete: {
@@ -130,10 +144,6 @@ struct DocumentListView: View {
             }
         }
     }
-}
-
-extension URL: @retroactive Identifiable {
-    public var id: String { absoluteString }
 }
 
 #Preview {

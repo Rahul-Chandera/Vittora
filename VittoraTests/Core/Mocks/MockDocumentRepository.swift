@@ -47,3 +47,48 @@ final class MockDocumentRepository: DocumentRepository {
         documents.append(entity)
     }
 }
+
+@MainActor
+final class MockDocumentStorageService: DocumentStorageServiceProtocol {
+    private(set) var savedDocuments: [UUID: Data] = [:]
+    private(set) var savedThumbnails: [UUID: Data] = [:]
+    private(set) var deletedDocuments: [UUID] = []
+    private(set) var deletedThumbnails: [UUID] = []
+    var shouldThrowError = false
+    var errorToThrow: Error = DocumentError.storageUnavailable
+
+    func saveDocument(_ data: Data, for entity: DocumentEntity) async throws {
+        if shouldThrowError { throw errorToThrow }
+        savedDocuments[entity.id] = data
+    }
+
+    func loadDocument(for entity: DocumentEntity) async throws -> Data {
+        if shouldThrowError { throw errorToThrow }
+        guard let data = savedDocuments[entity.id] else {
+            throw DocumentError.fileNotFound
+        }
+        return data
+    }
+
+    func deleteDocument(for entity: DocumentEntity) async throws {
+        if shouldThrowError { throw errorToThrow }
+        deletedDocuments.append(entity.id)
+        savedDocuments.removeValue(forKey: entity.id)
+    }
+
+    func saveThumbnail(_ data: Data, for documentID: UUID) async throws {
+        if shouldThrowError { throw errorToThrow }
+        savedThumbnails[documentID] = data
+    }
+
+    func loadThumbnail(for documentID: UUID) async throws -> Data? {
+        if shouldThrowError { throw errorToThrow }
+        return savedThumbnails[documentID]
+    }
+
+    func deleteThumbnail(for documentID: UUID) async throws {
+        if shouldThrowError { throw errorToThrow }
+        deletedThumbnails.append(documentID)
+        savedThumbnails.removeValue(forKey: documentID)
+    }
+}

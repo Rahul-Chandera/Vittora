@@ -7,6 +7,23 @@ import SwiftData
 @Suite("DocumentMapper Tests")
 struct DocumentMapperTests {
 
+    @MainActor
+    final class MockEncryptionService: EncryptionServiceProtocol {
+        func encrypt(_ data: Data) async throws -> Data {
+            Data(data.reversed()) + Data([0xA5])
+        }
+
+        func decrypt(_ encryptedData: Data) async throws -> Data {
+            guard encryptedData.last == 0xA5 else {
+                throw VittoraError.encryptionFailed(String(localized: "Invalid encrypted payload"))
+            }
+
+            return Data(encryptedData.dropLast().reversed())
+        }
+
+        func generateKey() async throws {}
+    }
+
     @Test("toEntity maps all persisted fields correctly")
     func testToEntityMapsAllFields() {
         let id = UUID()
@@ -121,5 +138,30 @@ struct DocumentMapperTests {
         DocumentMapper.updateModel(model, from: entity)
 
         #expect(model.transactionID == nil)
+    }
+
+    @Test("Encrypted document storage writes ciphertext at rest and decrypts on load")
+    @MainActor
+    func encryptedStorageRoundTrip() async throws {
+        let tempDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storage = EncryptedDocumentStorageService(
+            encryptionService: MockEncryptionService(),
+            secureBaseDirectoryURL: tempDirectory
+        )
+        let entity = DocumentEntity(fileName: "receipt.jpg", mimeType: "image/jpeg")
+        let plaintext = Data("private receipt bytes".utf8)
+
+        try await storage.saveDocument(plaintext, for: entity)
+
+        let encryptedURL = tempDirectory
+            .appendingPathComponent("\(entity.id.uuidString).document.enc")
+        let ciphertext = try Data(contentsOf: encryptedURL)
+        let decrypted = try await storage.loadDocument(for: entity)
+
+        #expect(ciphertext != plaintext)
+        #expect(decrypted == plaintext)
+
+        try? FileManager.default.removeItem(at: tempDirectory)
     }
 }

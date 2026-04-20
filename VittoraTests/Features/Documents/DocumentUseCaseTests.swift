@@ -6,6 +6,36 @@ import Testing
 @MainActor
 struct DocumentUseCaseTests {
 
+    // MARK: - AttachDocumentUseCase
+
+    @Suite("AttachDocumentUseCase")
+    @MainActor
+    struct AttachDocumentUseCaseTests {
+
+        @Test("execute stores document bytes before creating repository metadata")
+        func attachStoresDocumentBytes() async throws {
+            let repo = MockDocumentRepository()
+            let storage = MockDocumentStorageService()
+            let useCase = AttachDocumentUseCase(
+                documentRepository: repo,
+                documentStorageService: storage
+            )
+            let txID = UUID()
+            let imageData = Data("receipt-image".utf8)
+
+            let entity = try await useCase.execute(
+                imageData: imageData,
+                mimeType: "image/jpeg",
+                transactionID: txID
+            )
+
+            let storedEntity = try #require(repo.documents.first)
+            #expect(storedEntity.id == entity.id)
+            #expect(storage.savedDocuments[entity.id] == imageData)
+            #expect(storedEntity.transactionID == txID)
+        }
+    }
+
     // MARK: - FetchDocumentsUseCase
 
     @Suite("FetchDocumentsUseCase")
@@ -62,20 +92,31 @@ struct DocumentUseCaseTests {
         @Test("deletes document from repository")
         func deletesFromRepository() async throws {
             let repo = MockDocumentRepository()
+            let storage = MockDocumentStorageService()
             let doc = DocumentEntity(fileName: "receipt.jpg", transactionID: nil)
             repo.seed(doc)
+            try await storage.saveDocument(Data("ciphertext".utf8), for: doc)
 
-            let useCase = DeleteDocumentUseCase(documentRepository: repo)
+            let useCase = DeleteDocumentUseCase(
+                documentRepository: repo,
+                documentStorageService: storage
+            )
             try await useCase.execute(id: doc.id)
 
             let remaining = try await repo.fetchAll()
             #expect(remaining.isEmpty)
+            #expect(storage.savedDocuments[doc.id] == nil)
+            #expect(storage.deletedDocuments.contains(doc.id))
         }
 
         @Test("is a no-op when document does not exist")
         func noOpForMissingDocument() async throws {
             let repo = MockDocumentRepository()
-            let useCase = DeleteDocumentUseCase(documentRepository: repo)
+            let storage = MockDocumentStorageService()
+            let useCase = DeleteDocumentUseCase(
+                documentRepository: repo,
+                documentStorageService: storage
+            )
             // Should not throw even for an unknown ID
             try await useCase.execute(id: UUID())
         }
@@ -83,17 +124,25 @@ struct DocumentUseCaseTests {
         @Test("does not affect other documents")
         func doesNotAffectOtherDocuments() async throws {
             let repo = MockDocumentRepository()
+            let storage = MockDocumentStorageService()
             let keep = DocumentEntity(fileName: "keep.pdf", transactionID: nil)
             let remove = DocumentEntity(fileName: "remove.jpg", transactionID: nil)
             repo.seed(keep)
             repo.seed(remove)
+            try await storage.saveDocument(Data("keep".utf8), for: keep)
+            try await storage.saveDocument(Data("remove".utf8), for: remove)
 
-            let useCase = DeleteDocumentUseCase(documentRepository: repo)
+            let useCase = DeleteDocumentUseCase(
+                documentRepository: repo,
+                documentStorageService: storage
+            )
             try await useCase.execute(id: remove.id)
 
             let remaining = try await repo.fetchAll()
             #expect(remaining.count == 1)
             #expect(remaining.first?.id == keep.id)
+            #expect(storage.savedDocuments[keep.id] != nil)
+            #expect(storage.savedDocuments[remove.id] == nil)
         }
     }
 }

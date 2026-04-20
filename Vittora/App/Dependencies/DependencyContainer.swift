@@ -19,6 +19,7 @@ final class DependencyContainer {
     var biometricService: (any BiometricServiceProtocol)?
     var keychainService: (any KeychainServiceProtocol)?
     var encryptionService: (any EncryptionServiceProtocol)?
+    var documentStorageService: (any DocumentStorageServiceProtocol)?
     var appLockService: (any AppLockServiceProtocol)?
     var exportService: (any DataExportServiceProtocol)?
     var contactsImportService: (any ContactsImportServiceProtocol)?
@@ -33,7 +34,6 @@ final class DependencyContainer {
         container.payeeRepository = SwiftDataPayeeRepository(modelContainer: modelContainer)
         container.budgetRepository = SwiftDataBudgetRepository(modelContainer: modelContainer)
         container.recurringRuleRepository = SwiftDataRecurringRuleRepository(modelContainer: modelContainer)
-        container.documentRepository = SwiftDataDocumentRepository(modelContainer: modelContainer)
         container.debtRepository = SwiftDataDebtRepository(modelContainer: modelContainer)
         container.splitGroupRepository = SwiftDataSplitGroupRepository(modelContainer: modelContainer)
         container.taxProfileRepository = SwiftDataTaxProfileRepository(modelContainer: modelContainer)
@@ -41,9 +41,19 @@ final class DependencyContainer {
 
         let keychainService = KeychainService()
         let biometricService = BiometricService()
+        let encryptionService = EncryptionService(keychainService: keychainService)
         container.keychainService = keychainService
         container.biometricService = biometricService
-        container.encryptionService = EncryptionService(keychainService: keychainService)
+        container.encryptionService = encryptionService
+        container.documentStorageService = EncryptedDocumentStorageService(
+            encryptionService: encryptionService
+        )
+        if let documentStorageService = container.documentStorageService {
+            container.documentRepository = EncryptedDocumentRepository(
+                modelContainer: modelContainer,
+                documentStorageService: documentStorageService
+            )
+        }
         container.appLockService = AppLockService(biometricService: biometricService)
         container.contactsImportService = SystemContactsImportService()
         container.exportService = DataExportService(

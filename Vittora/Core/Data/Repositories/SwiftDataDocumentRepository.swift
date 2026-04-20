@@ -22,9 +22,6 @@ actor SwiftDataDocumentRepository: DocumentRepository {
     }
 
     func create(_ entity: DocumentEntity) async throws {
-        if let thumb = entity.thumbnailData {
-            try DocumentMapper.saveThumbnail(thumb, for: entity.id)
-        }
         let model = SDDocument(
             id: entity.id,
             fileName: entity.fileName,
@@ -45,11 +42,6 @@ actor SwiftDataDocumentRepository: DocumentRepository {
         guard let model = try modelContext.fetch(descriptor).first else {
             throw VittoraError.notFound(String(localized: "Document not found"))
         }
-        if let thumb = entity.thumbnailData {
-            try DocumentMapper.saveThumbnail(thumb, for: entity.id)
-        } else {
-            try DocumentMapper.deleteThumbnail(for: entity.id)
-        }
         DocumentMapper.updateModel(model, from: entity)
         try modelContext.save()
     }
@@ -61,7 +53,6 @@ actor SwiftDataDocumentRepository: DocumentRepository {
         guard let model = try modelContext.fetch(descriptor).first else {
             throw VittoraError.notFound(String(localized: "Document not found"))
         }
-        try DocumentMapper.deleteThumbnail(for: id)
         modelContext.delete(model)
         try modelContext.save()
     }
@@ -74,5 +65,89 @@ actor SwiftDataDocumentRepository: DocumentRepository {
         )
         let models = try modelContext.fetch(descriptor)
         return models.map(DocumentMapper.toEntity)
+    }
+}
+
+@MainActor
+final class EncryptedDocumentRepository: DocumentRepository, Sendable {
+    private let metadataRepository: SwiftDataDocumentRepository
+    private let documentStorageService: any DocumentStorageServiceProtocol
+
+    init(
+        modelContainer: ModelContainer,
+        documentStorageService: any DocumentStorageServiceProtocol
+    ) {
+        self.metadataRepository = SwiftDataDocumentRepository(modelContainer: modelContainer)
+        self.documentStorageService = documentStorageService
+    }
+
+    func fetchAll() async throws -> [DocumentEntity] {
+        let entities = try await metadataRepository.fetchAll()
+        return try await hydrateThumbnails(in: entities)
+    }
+
+    func fetchByID(_ id: UUID) async throws -> DocumentEntity? {
+        guard let entity = try await metadataRepository.fetchByID(id) else {
+            return nil
+        }
+        return try await hydrateThumbnail(in: entity)
+    }
+
+    func create(_ entity: DocumentEntity) async throws {
+        try await metadataRepository.create(strippingThumbnail(from: entity))
+
+        do {
+            if let thumbnailData = entity.thumbnailData {
+                try await documentStorageService.saveThumbnail(thumbnailData, for: entity.id)
+            }
+        } catch {
+            try? await metadataRepository.delete(entity.id)
+            throw error
+        }
+    }
+
+    func update(_ entity: DocumentEntity) async throws {
+        try await metadataRepository.update(strippingThumbnail(from: entity))
+
+        if let thumbnailData = entity.thumbnailData {
+            try await documentStorageService.saveThumbnail(thumbnailData, for: entity.id)
+        } else {
+            try await documentStorageService.deleteThumbnail(for: entity.id)
+        }
+    }
+
+    func delete(_ id: UUID) async throws {
+        if let entity = try await metadataRepository.fetchByID(id) {
+            try await documentStorageService.deleteThumbnail(for: entity.id)
+        }
+        try await metadataRepository.delete(id)
+    }
+
+    func fetchForTransaction(_ transactionID: UUID) async throws -> [DocumentEntity] {
+        let entities = try await metadataRepository.fetchForTransaction(transactionID)
+        return try await hydrateThumbnails(in: entities)
+    }
+
+    private func hydrateThumbnails(in entities: [DocumentEntity]) async throws -> [DocumentEntity] {
+        var hydratedEntities: [DocumentEntity] = []
+        hydratedEntities.reserveCapacity(entities.count)
+
+        for entity in entities {
+            hydratedEntities.append(try await hydrateThumbnail(in: entity))
+        }
+
+        return hydratedEntities
+    }
+
+    private func hydrateThumbnail(in entity: DocumentEntity) async throws -> DocumentEntity {
+        var hydratedEntity = entity
+        hydratedEntity.thumbnailData = try await documentStorageService.loadThumbnail(for: entity.id)
+        return hydratedEntity
+    }
+
+    private func strippingThumbnail(from entity: DocumentEntity) -> DocumentEntity {
+        var metadataOnly = entity
+        metadataOnly.thumbnailData = nil
+        return metadataOnly
     }
 }

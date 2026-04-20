@@ -4,11 +4,18 @@ import SwiftData
 @testable import Vittora
 
 @Suite("SwiftDataDocumentRepository Tests")
+@MainActor
 struct SwiftDataDocumentRepositoryTests {
 
-    private func makeRepo() throws -> SwiftDataDocumentRepository {
+    private func makeRepo(
+        storage: MockDocumentStorageService? = nil
+    ) throws -> EncryptedDocumentRepository {
         let container = try ModelContainerConfig.makePreviewContainer()
-        return SwiftDataDocumentRepository(modelContainer: container)
+        let resolvedStorage = storage ?? MockDocumentStorageService()
+        return EncryptedDocumentRepository(
+            modelContainer: container,
+            documentStorageService: resolvedStorage
+        )
     }
 
     // MARK: - Basic CRUD
@@ -201,5 +208,29 @@ struct SwiftDataDocumentRepositoryTests {
 
         let results = try await repo.fetchForTransaction(UUID())
         #expect(results.isEmpty)
+    }
+
+    @Test("fetchByID hydrates thumbnail data from secure storage")
+    func testFetchByIDHydratesThumbnailData() async throws {
+        let storage = MockDocumentStorageService()
+        let repo = try makeRepo(storage: storage)
+        let id = UUID()
+        let thumbnailData = Data("thumb".utf8)
+
+        try await repo.create(
+            DocumentEntity(
+                id: id,
+                fileName: "receipt.jpg",
+                mimeType: "image/jpeg",
+                thumbnailData: thumbnailData,
+                createdAt: Date(timeIntervalSince1970: 8_000_000),
+                updatedAt: Date(timeIntervalSince1970: 8_000_000)
+            )
+        )
+
+        let found = try await repo.fetchByID(id)
+
+        #expect(found?.thumbnailData == thumbnailData)
+        #expect(storage.savedThumbnails[id] == thumbnailData)
     }
 }

@@ -11,18 +11,21 @@ final class DocumentListViewModel {
     private let fetchUseCase: FetchDocumentsUseCase
     private let attachUseCase: AttachDocumentUseCase
     private let deleteUseCase: DeleteDocumentUseCase
+    private let documentStorageService: any DocumentStorageServiceProtocol
     let transactionID: UUID
 
     init(
         transactionID: UUID,
         fetchUseCase: FetchDocumentsUseCase,
         attachUseCase: AttachDocumentUseCase,
-        deleteUseCase: DeleteDocumentUseCase
+        deleteUseCase: DeleteDocumentUseCase,
+        documentStorageService: any DocumentStorageServiceProtocol
     ) {
         self.transactionID = transactionID
         self.fetchUseCase = fetchUseCase
         self.attachUseCase = attachUseCase
         self.deleteUseCase = deleteUseCase
+        self.documentStorageService = documentStorageService
     }
 
     func load() async {
@@ -60,10 +63,13 @@ final class DocumentListViewModel {
         }
     }
 
-    func fileURL(for entity: DocumentEntity) -> URL? {
-        FileManager.default
-            .urls(for: .documentDirectory, in: .userDomainMask)
-            .first?
-            .appendingPathComponent(entity.fileName)
+    func previewItem(for entity: DocumentEntity) async throws -> DocumentPreviewItem {
+        let data = try await documentStorageService.loadDocument(for: entity)
+        return DocumentPreviewItem(
+            id: entity.id,
+            fileName: entity.fileName,
+            mimeType: entity.mimeType,
+            data: data
+        )
     }
 }

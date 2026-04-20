@@ -8,3 +8,12 @@ protocol DocumentRepository: Sendable {
     func delete(_ id: UUID) async throws
     func fetchForTransaction(_ transactionID: UUID) async throws -> [DocumentEntity]
 }
+
+protocol DocumentStorageServiceProtocol: Sendable {
+    func saveDocument(_ data: Data, for entity: DocumentEntity) async throws
+    func loadDocument(for entity: DocumentEntity) async throws -> Data
+    func deleteDocument(for entity: DocumentEntity) async throws
+    func saveThumbnail(_ data: Data, for documentID: UUID) async throws
+    func loadThumbnail(for documentID: UUID) async throws -> Data?
+    func deleteThumbnail(for documentID: UUID) async throws
+}

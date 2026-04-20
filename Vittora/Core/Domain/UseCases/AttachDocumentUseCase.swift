@@ -7,36 +7,32 @@ import AppKit
 
 struct AttachDocumentUseCase: Sendable {
     let documentRepository: any DocumentRepository
+    let documentStorageService: any DocumentStorageServiceProtocol
 
     func execute(
         imageData: Data,
         mimeType: String,
         transactionID: UUID?
     ) async throws -> DocumentEntity {
-        let fileName = "\(UUID().uuidString).\(fileExtension(for: mimeType))"
+        let documentID = UUID()
+        let fileName = "\(documentID.uuidString).\(fileExtension(for: mimeType))"
         let thumbnailData = generateThumbnail(from: imageData, mimeType: mimeType)
 
-        try saveFile(data: imageData, fileName: fileName)
-
         let entity = DocumentEntity(
+            id: documentID,
             fileName: fileName,
             mimeType: mimeType,
             thumbnailData: thumbnailData,
             transactionID: transactionID
         )
-        try await documentRepository.create(entity)
-        return entity
-    }
-
-    // MARK: - File storage
-
-    private func saveFile(data: Data, fileName: String) throws {
-        guard let documentsURL = FileManager.default
-            .urls(for: .documentDirectory, in: .userDomainMask).first else {
-            throw DocumentError.storageUnavailable
+        try await documentStorageService.saveDocument(imageData, for: entity)
+        do {
+            try await documentRepository.create(entity)
+        } catch {
+            try? await documentStorageService.deleteDocument(for: entity)
+            throw error
         }
-        let fileURL = documentsURL.appendingPathComponent(fileName)
-        try data.write(to: fileURL, options: .completeFileProtection)
+        return entity
     }
 
     // MARK: - Thumbnail generation
