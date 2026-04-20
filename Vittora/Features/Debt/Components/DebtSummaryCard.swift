@@ -56,9 +56,6 @@ struct DebtSummaryCard: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(currencyCode: "USD")
     }
 }

@@ -4,11 +4,10 @@ import SwiftUI
 
 enum ChartAccessibilitySupport {
     static func currencyString(for value: Double, currencyCode: String) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        formatter.maximumFractionDigits = value.rounded() == value ? 0 : 2
-        return formatter.string(from: NSNumber(value: value)) ?? value.formatted()
+        let fractionDigits = value.rounded() == value ? 0 : 2
+        return Decimal(value).formatted(
+            .currency(code: currencyCode).precision(.fractionLength(fractionDigits))
+        )
     }
 
     static func numericRange(for values: [Double], includeZero: Bool = false) -> ClosedRange<Double> {
