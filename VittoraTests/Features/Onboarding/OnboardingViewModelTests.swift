@@ -122,6 +122,10 @@ private actor TestOnboardingAccountRepository: AccountRepository {
         accounts
     }
 
+    func fetchActive() async throws -> [AccountEntity] {
+        accounts.filter { !$0.isArchived }
+    }
+
     func fetchByID(_ id: UUID) async throws -> AccountEntity? {
         accounts.first { $0.id == id }
     }

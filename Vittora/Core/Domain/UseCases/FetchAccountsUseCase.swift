@@ -8,10 +8,8 @@ struct FetchAccountsUseCase: Sendable {
     }
 
     func execute() async throws -> [AccountEntity] {
-        let accounts = try await accountRepository.fetchAll()
-        // Filter out archived accounts and sort by type then by name
+        let accounts = try await accountRepository.fetchActive()
         return accounts
-            .filter { !$0.isArchived }
             .sorted { a, b in
                 if a.type == b.type {
                     return a.name < b.name

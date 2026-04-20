@@ -11,6 +11,15 @@ actor SwiftDataAccountRepository: AccountRepository {
         return models.map(AccountMapper.toEntity)
     }
 
+    func fetchActive() async throws -> [AccountEntity] {
+        let descriptor = FetchDescriptor<SDAccount>(
+            predicate: #Predicate { !$0.isArchived },
+            sortBy: [SortDescriptor(\.name, order: .forward)]
+        )
+        let models = try modelContext.fetch(descriptor)
+        return models.map(AccountMapper.toEntity)
+    }
+
     func fetchByID(_ id: UUID) async throws -> AccountEntity? {
         let descriptor = FetchDescriptor<SDAccount>(
             predicate: #Predicate { $0.id == id }
