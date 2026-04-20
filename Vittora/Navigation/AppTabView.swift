@@ -85,10 +85,18 @@ struct AppTabView: View {
             }
             .padding(.bottom, 60)
         }
+        #if os(iOS)
         .fullScreenCover(isPresented: $showAddTransaction) {
             NavigationStack {
                 TransactionFormView()
             }
         }
+        #else
+        .sheet(isPresented: $showAddTransaction) {
+            NavigationStack {
+                TransactionFormView()
+            }
+        }
+        #endif
     }
 }
