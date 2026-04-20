@@ -155,7 +155,11 @@ struct SettingsView: View {
             documentRepository: docRepo,
             keychainService: dependencies.keychainService ?? KeychainService()
         )
-        try? await service.factoryReset()
+        do {
+            try await service.factoryReset()
+        } catch {
+            vm.keychainError = error.localizedDescription
+        }
     }
 
     private func initials(_ name: String) -> String {

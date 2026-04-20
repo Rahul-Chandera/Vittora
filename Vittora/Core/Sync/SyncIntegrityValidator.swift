@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import os
 
 struct IntegrityViolation: Sendable {
     let entityType: String
@@ -17,19 +18,29 @@ protocol SyncIntegrityValidating: Sendable {
 @ModelActor
 actor SyncIntegrityValidator: SyncIntegrityValidating {
 
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "SyncIntegrity")
+
     func validateAmountBearingEntities() async -> [IntegrityViolation] {
         var violations: [IntegrityViolation] = []
-        violations += checkTransactions()
-        violations += checkBudgets()
-        violations += checkDebts()
-        violations += checkGroupExpenses()
+        do { violations += try checkTransactions() } catch {
+            Self.logger.error("SyncIntegrityValidator: transaction fetch failed: \(error.localizedDescription, privacy: .public)")
+        }
+        do { violations += try checkBudgets() } catch {
+            Self.logger.error("SyncIntegrityValidator: budget fetch failed: \(error.localizedDescription, privacy: .public)")
+        }
+        do { violations += try checkDebts() } catch {
+            Self.logger.error("SyncIntegrityValidator: debt fetch failed: \(error.localizedDescription, privacy: .public)")
+        }
+        do { violations += try checkGroupExpenses() } catch {
+            Self.logger.error("SyncIntegrityValidator: group expense fetch failed: \(error.localizedDescription, privacy: .public)")
+        }
         return violations
     }
 
     // MARK: - Per-entity checks
 
-    private func checkTransactions() -> [IntegrityViolation] {
-        let all = (try? modelContext.fetch(FetchDescriptor<SDTransaction>())) ?? []
+    private func checkTransactions() throws -> [IntegrityViolation] {
+        let all = try modelContext.fetch(FetchDescriptor<SDTransaction>())
         return all.compactMap { entity in
             guard entity.amount > 0, !entity.currencyCode.isEmpty else {
                 return IntegrityViolation(
@@ -42,8 +53,8 @@ actor SyncIntegrityValidator: SyncIntegrityValidating {
         }
     }
 
-    private func checkBudgets() -> [IntegrityViolation] {
-        let all = (try? modelContext.fetch(FetchDescriptor<SDBudget>())) ?? []
+    private func checkBudgets() throws -> [IntegrityViolation] {
+        let all = try modelContext.fetch(FetchDescriptor<SDBudget>())
         return all.compactMap { entity in
             guard entity.amount > 0 else {
                 return IntegrityViolation(
@@ -56,8 +67,8 @@ actor SyncIntegrityValidator: SyncIntegrityValidating {
         }
     }
 
-    private func checkDebts() -> [IntegrityViolation] {
-        let all = (try? modelContext.fetch(FetchDescriptor<SDDebt>())) ?? []
+    private func checkDebts() throws -> [IntegrityViolation] {
+        let all = try modelContext.fetch(FetchDescriptor<SDDebt>())
         return all.compactMap { entity in
             guard entity.amount > 0, entity.settledAmount >= 0, entity.settledAmount <= entity.amount else {
                 return IntegrityViolation(
@@ -70,8 +81,8 @@ actor SyncIntegrityValidator: SyncIntegrityValidating {
         }
     }
 
-    private func checkGroupExpenses() -> [IntegrityViolation] {
-        let all = (try? modelContext.fetch(FetchDescriptor<SDGroupExpense>())) ?? []
+    private func checkGroupExpenses() throws -> [IntegrityViolation] {
+        let all = try modelContext.fetch(FetchDescriptor<SDGroupExpense>())
         return all.compactMap { entity in
             guard entity.amount > 0 else {
                 return IntegrityViolation(
