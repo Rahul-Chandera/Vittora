@@ -4,6 +4,13 @@ import Observation
 @Observable
 @MainActor
 final class ReceiptReviewViewModel {
+    private static let receiptDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }()
+
     var merchantName: String
     var amountString: String
     var dateString: String
@@ -12,9 +19,7 @@ final class ReceiptReviewViewModel {
     var amount: Decimal? { Decimal(string: amountString) }
 
     var date: Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM/dd/yyyy"
-        return formatter.date(from: dateString)
+        Self.receiptDateFormatter.date(from: dateString)
     }
 
     init(receiptData: ReceiptData) {
@@ -22,9 +27,7 @@ final class ReceiptReviewViewModel {
         self.amountString = receiptData.totalAmount.map { "\($0)" } ?? ""
         self.rawText = receiptData.rawText
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM/dd/yyyy"
-        self.dateString = receiptData.date.map { formatter.string(from: $0) } ?? ""
+        self.dateString = receiptData.date.map { Self.receiptDateFormatter.string(from: $0) } ?? ""
     }
 
     var isValid: Bool {

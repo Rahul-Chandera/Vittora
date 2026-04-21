@@ -209,9 +209,7 @@ struct TransactionDetailView: View {
     }
 
     private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy"
-        return formatter.string(from: date)
+        date.formatted(.dateTime.month(.abbreviated).day().year())
     }
 
     private func transactionColor(for type: TransactionType) -> Color {
