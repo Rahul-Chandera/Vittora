@@ -213,9 +213,6 @@ struct TransactionFormView: View {
         Section(String(localized: "Notes")) {
             TextField(String(localized: "Notes"), text: Bindable(vm).note, axis: .vertical)
                 .lineLimit(3...5)
-                #if os(iOS)
-                .textContentType(.notes)
-                #endif
                 .accessibilityIdentifier("transaction-note-field")
         }
 
