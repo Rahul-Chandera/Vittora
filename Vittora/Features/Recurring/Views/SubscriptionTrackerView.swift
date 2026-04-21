@@ -80,13 +80,9 @@ struct SubscriptionTrackerView: View {
                                 } else {
                                     VStack(spacing: VSpacing.md) {
                                         ForEach(viewModel.activeRules, id: \.id) { rule in
-                                            let monthlyCost = normalizeToMonthlyCost(
-                                                amount: rule.templateAmount,
-                                                frequency: rule.frequency
-                                            )
                                             SubscriptionCard(
                                                 rule: rule,
-                                                monthlyCost: monthlyCost
+                                                monthlyCost: viewModel.monthlyCost(for: rule)
                                             )
                                         }
                                     }
@@ -125,27 +121,6 @@ struct SubscriptionTrackerView: View {
             fetchUseCase: fetchUseCase,
             calculateCostUseCase: calculateCostUseCase
         )
-    }
-
-    private func normalizeToMonthlyCost(amount: Decimal, frequency: RecurrenceFrequency) -> Decimal {
-        switch frequency {
-        case .daily:
-            return amount * 30
-        case .weekly:
-            return amount * (Decimal(string: "4.33") ?? 4.33)
-        case .biweekly:
-            return amount * (Decimal(string: "2.165") ?? 2.165)
-        case .monthly:
-            return amount * 1
-        case .quarterly:
-            return amount / 3
-        case .yearly:
-            return amount / 12
-        case .custom(let days):
-            let daysPerMonth = Decimal(string: "30.0") ?? 30.0
-            let daysFraction = Decimal(days) > 0 ? daysPerMonth / Decimal(days) : 1
-            return amount * daysFraction
-        }
     }
 }
 

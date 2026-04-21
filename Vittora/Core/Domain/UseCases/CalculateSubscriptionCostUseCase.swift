@@ -7,7 +7,16 @@ struct SubscriptionCostSummary: Sendable {
 }
 
 struct CalculateSubscriptionCostUseCase: Sendable {
-    init() {}
+    private let calendar: Calendar
+    private let nowProvider: @Sendable () -> Date
+
+    init(
+        calendar: Calendar = .current,
+        nowProvider: @escaping @Sendable () -> Date = { Date.now }
+    ) {
+        self.calendar = calendar
+        self.nowProvider = nowProvider
+    }
 
     func execute(rules: [RecurringRuleEntity]) -> SubscriptionCostSummary {
         var totalMonthlyCost: Decimal = 0
@@ -15,7 +24,7 @@ struct CalculateSubscriptionCostUseCase: Sendable {
         for rule in rules {
             guard rule.isActive else { continue }
 
-            let monthlyEquivalent = normalizeToMonthlyCost(
+            let monthlyEquivalent = monthlyEquivalent(
                 amount: rule.templateAmount,
                 frequency: rule.frequency
             )
@@ -32,25 +41,30 @@ struct CalculateSubscriptionCostUseCase: Sendable {
         )
     }
 
-    /// Normalize a recurring amount to its monthly equivalent
-    private func normalizeToMonthlyCost(amount: Decimal, frequency: RecurrenceFrequency) -> Decimal {
+    /// Normalize a recurring amount to its monthly equivalent for the current calendar month.
+    func monthlyEquivalent(amount: Decimal, frequency: RecurrenceFrequency) -> Decimal {
+        let daysInMonth = Decimal(daysInReferenceMonth())
+
         switch frequency {
         case .daily:
-            return amount * 30
+            return amount * daysInMonth
         case .weekly:
-            return amount * (Decimal(string: "4.33") ?? 4.33)
+            return amount * daysInMonth / 7
         case .biweekly:
-            return amount * (Decimal(string: "2.165") ?? 2.165)
+            return amount * daysInMonth / 14
         case .monthly:
-            return amount * 1
+            return amount
         case .quarterly:
             return amount / 3
         case .yearly:
             return amount / 12
         case .custom(let days):
-            let daysPerMonth = Decimal(string: "30.0") ?? 30.0
-            let daysFraction = Decimal(days) > 0 ? daysPerMonth / Decimal(days) : 1
-            return amount * daysFraction
+            guard days > 0 else { return amount }
+            return amount * daysInMonth / Decimal(days)
         }
+    }
+
+    private func daysInReferenceMonth() -> Int {
+        calendar.range(of: .day, in: .month, for: nowProvider())?.count ?? 1
     }
 }

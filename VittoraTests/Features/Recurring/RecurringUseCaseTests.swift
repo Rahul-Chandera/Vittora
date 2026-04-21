@@ -115,6 +115,42 @@ struct RecurringUseCaseTests {
         let expectedNextDate = Calendar(identifier: .gregorian).date(byAdding: .day, value: 10, to: originalNextDate)
         #expect(updatedRule?.nextDate == expectedNextDate)
     }
+
+    @Test("Subscription cost uses actual days in a 30 day month")
+    func subscriptionCostUsesThirtyDayMonth() {
+        let useCase = CalculateSubscriptionCostUseCase(
+            calendar: Calendar(identifier: .gregorian),
+            nowProvider: { makeRecurringDate(year: 2026, month: 4, day: 15) }
+        )
+        let rule = RecurringRuleEntity(
+            frequency: .weekly,
+            nextDate: makeRecurringDate(year: 2026, month: 4, day: 1),
+            templateAmount: 70
+        )
+
+        let summary = useCase.execute(rules: [rule])
+
+        #expect(summary.monthlyCost == 300)
+        #expect(summary.annualCost == 3_600)
+    }
+
+    @Test("Subscription cost uses actual days in February")
+    func subscriptionCostUsesFebruaryDays() {
+        let useCase = CalculateSubscriptionCostUseCase(
+            calendar: Calendar(identifier: .gregorian),
+            nowProvider: { makeRecurringDate(year: 2026, month: 2, day: 15) }
+        )
+        let rule = RecurringRuleEntity(
+            frequency: .biweekly,
+            nextDate: makeRecurringDate(year: 2026, month: 2, day: 1),
+            templateAmount: 50
+        )
+
+        let summary = useCase.execute(rules: [rule])
+
+        #expect(summary.monthlyCost == 100)
+        #expect(summary.annualCost == 1_200)
+    }
 }
 
 private func makeRecurringDate(year: Int, month: Int, day: Int) -> Date {

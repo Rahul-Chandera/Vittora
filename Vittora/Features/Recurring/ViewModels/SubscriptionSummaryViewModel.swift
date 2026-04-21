@@ -32,4 +32,11 @@ final class SubscriptionSummaryViewModel {
 
         isLoading = false
     }
+
+    func monthlyCost(for rule: RecurringRuleEntity) -> Decimal {
+        calculateCostUseCase.monthlyEquivalent(
+            amount: rule.templateAmount,
+            frequency: rule.frequency
+        )
+    }
 }
