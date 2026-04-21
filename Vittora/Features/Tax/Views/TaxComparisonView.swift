@@ -106,7 +106,7 @@ struct TaxComparisonView: View {
                 .font(VTypography.amountMedium)
                 .foregroundStyle(isRecommended ? VColors.primary : VColors.expense)
                 .adaptiveLineLimit(1)
-                .minimumScaleFactor(0.8)
+                .adaptiveMinimumScaleFactor(0.8)
 
             VStack(spacing: VSpacing.xs) {
                 metricRow(
@@ -149,7 +149,7 @@ struct TaxComparisonView: View {
                 .font(VTypography.caption1Bold)
                 .foregroundStyle(VColors.textPrimary)
                 .adaptiveLineLimit(1)
-                .minimumScaleFactor(0.8)
+                .adaptiveMinimumScaleFactor(0.8)
         }
     }
 

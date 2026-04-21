@@ -96,7 +96,7 @@ private struct TaxFigure: View {
                 .font(VTypography.bodyBold)
                 .foregroundStyle(color)
                 .adaptiveLineLimit(1)
-                .minimumScaleFactor(0.8)
+                .adaptiveMinimumScaleFactor(0.8)
             Text(label)
                 .font(VTypography.caption2)
                 .foregroundStyle(VColors.textSecondary)

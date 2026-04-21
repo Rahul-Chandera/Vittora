@@ -35,7 +35,7 @@ struct SavingsProgressRingView: View {
                         .font(.system(size: size * 0.22, weight: .bold, design: .rounded))
                         .foregroundStyle(color)
                         .adaptiveLineLimit(1)
-                        .minimumScaleFactor(0.7)
+                        .adaptiveMinimumScaleFactor(0.7)
                 }
             }
         }

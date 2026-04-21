@@ -69,7 +69,7 @@ struct VAmountText: View {
             .font(size.font)
             .foregroundColor(amountColor)
             .adaptiveLineLimit(1)
-            .minimumScaleFactor(0.9)
+            .adaptiveMinimumScaleFactor(0.9)
     }
 
     private var formattedAmount: String {
