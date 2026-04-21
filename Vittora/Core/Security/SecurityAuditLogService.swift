@@ -36,16 +36,24 @@ final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
         self.encryptionService = encryptionService
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let dir = base.appendingPathComponent("Security", isDirectory: true)
-        try? FileManager.default.createDirectory(
-            at: dir,
-            withIntermediateDirectories: true,
-            attributes: [.protectionKey: FileProtectionType.complete]
-        )
+        do {
+            try FileManager.default.createDirectory(
+                at: dir,
+                withIntermediateDirectories: true,
+                attributes: [.protectionKey: FileProtectionType.complete]
+            )
+        } catch {
+            PerformanceLogger.Security.auditDirectorySetupFailed(error.localizedDescription)
+        }
         self.fileURL = dir.appendingPathComponent("audit.log.enc")
-        try? FileManager.default.setAttributes(
-            [.protectionKey: FileProtectionType.complete],
-            ofItemAtPath: dir.path
-        )
+        do {
+            try FileManager.default.setAttributes(
+                [.protectionKey: FileProtectionType.complete],
+                ofItemAtPath: dir.path
+            )
+        } catch {
+            PerformanceLogger.Security.auditFileProtectionUpdateFailed(error.localizedDescription)
+        }
     }
 
     func record(_ event: SecurityAuditEvent) async {
@@ -64,14 +72,24 @@ final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
                 try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
             } else {
                 let handle = try FileHandle(forWritingTo: fileURL)
-                defer { try? handle.close() }
+                defer {
+                    do {
+                        try handle.close()
+                    } catch {
+                        PerformanceLogger.Security.auditFileHandleCloseFailed(error.localizedDescription)
+                    }
+                }
                 try handle.seekToEnd()
                 try handle.write(contentsOf: data)
             }
-            try? FileManager.default.setAttributes(
-                [.protectionKey: FileProtectionType.complete],
-                ofItemAtPath: fileURL.path
-            )
+            do {
+                try FileManager.default.setAttributes(
+                    [.protectionKey: FileProtectionType.complete],
+                    ofItemAtPath: fileURL.path
+                )
+            } catch {
+                PerformanceLogger.Security.auditFileProtectionUpdateFailed(error.localizedDescription)
+            }
         } catch {
             // Avoid throwing from audit path; OSLog only.
             PerformanceLogger.Security.auditWriteFailed(error.localizedDescription)
@@ -81,8 +99,14 @@ final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
     /// Decrypted recent entries, newest last.
     func recentEntries(limit: Int = 50) async -> [SecurityAuditLogEntry] {
         let cap = min(max(limit, 1), Self.maxEntriesToRead)
-        guard FileManager.default.fileExists(atPath: fileURL.path),
-              let raw = try? String(contentsOf: fileURL, encoding: .utf8) else {
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            return []
+        }
+        let raw: String
+        do {
+            raw = try String(contentsOf: fileURL, encoding: .utf8)
+        } catch {
+            PerformanceLogger.Security.auditReadFailed(error.localizedDescription)
             return []
         }
         let lines = raw.split(separator: "\n", omittingEmptySubsequences: true).suffix(cap)
@@ -91,8 +115,11 @@ final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
             guard let data = Data(base64Encoded: String(line)) else { continue }
             do {
                 let decrypted = try await encryptionService.decrypt(data)
-                if let entry = try? JSONDecoder().decode(SecurityAuditLogEntry.self, from: decrypted) {
+                do {
+                    let entry = try JSONDecoder().decode(SecurityAuditLogEntry.self, from: decrypted)
                     result.append(entry)
+                } catch {
+                    PerformanceLogger.Security.auditDecodeFailed(error.localizedDescription)
                 }
             } catch {
                 continue

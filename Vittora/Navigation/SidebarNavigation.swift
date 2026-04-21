@@ -108,5 +108,11 @@ struct SidebarNavigation: View {
                 TransactionFormView()
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .vittoraNewTransaction)) { _ in
+            showAddTransaction = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .vittoraOpenSettings)) { _ in
+            appState.selectedTab = .settings
+        }
     }
 }

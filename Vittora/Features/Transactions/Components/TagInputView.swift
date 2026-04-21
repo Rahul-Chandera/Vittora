@@ -41,6 +41,9 @@ struct TagInputView: View {
                 TextField(String(localized: "Add tag (press return)"), text: $tagInput)
                     .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)
+                    #if os(iOS)
+                    .textContentType(.none)
+                    #endif
                     .onSubmit {
                         onAddTag()
                     }

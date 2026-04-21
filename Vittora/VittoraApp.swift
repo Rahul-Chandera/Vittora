@@ -161,6 +161,23 @@ struct VittoraApp: App {
                 .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
             }
         }
+        #if os(macOS)
+        .defaultSize(width: 1200, height: 800)
+        .commands {
+            CommandGroup(after: .newItem) {
+                Button(String(localized: "New Transaction")) {
+                    NotificationCenter.default.post(name: .vittoraNewTransaction, object: nil)
+                }
+                .keyboardShortcut("n", modifiers: .command)
+            }
+            CommandGroup(after: .appSettings) {
+                Button(String(localized: "Settings")) {
+                    NotificationCenter.default.post(name: .vittoraOpenSettings, object: nil)
+                }
+                .keyboardShortcut(",", modifiers: .command)
+            }
+        }
+        #endif
         .onChange(of: scenePhase) { _, newPhase in
             let shouldShowPrivacyShield = newPhase == .inactive || newPhase == .background
             appState.isPrivacyShieldVisible = !isRunningAutomatedTests && shouldShowPrivacyShield

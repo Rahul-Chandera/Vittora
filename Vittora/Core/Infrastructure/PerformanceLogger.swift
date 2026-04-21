@@ -96,5 +96,20 @@ enum PerformanceLogger {
         static func auditWriteFailed(_ message: String) {
             event(securityLog, name: "AuditWriteFailed", message: message)
         }
+        static func auditReadFailed(_ message: String) {
+            event(securityLog, name: "AuditReadFailed", message: message)
+        }
+        static func auditDirectorySetupFailed(_ message: String) {
+            event(securityLog, name: "AuditDirSetupFailed", message: message)
+        }
+        static func auditDecodeFailed(_ message: String) {
+            event(securityLog, name: "AuditDecodeFailed", message: message)
+        }
+        static func auditFileProtectionUpdateFailed(_ message: String) {
+            event(securityLog, name: "AuditFileProtectionUpdateFailed", message: message)
+        }
+        static func auditFileHandleCloseFailed(_ message: String) {
+            event(securityLog, name: "AuditFileHandleCloseFailed", message: message)
+        }
     }
 }

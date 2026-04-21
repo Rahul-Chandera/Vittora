@@ -20,6 +20,8 @@ struct AmountInputView: View {
                     #if os(iOS)
                     .keyboardType(.decimalPad)
                     .textContentType(nil)
+                    #elseif os(macOS)
+                    .textFieldStyle(.plain)
                     #endif
                     .onChange(of: amountString) { _, newValue in
                         let filtered = newValue.filter { $0.isNumber || $0 == "." }

@@ -109,6 +109,13 @@ struct SyncStatusServiceTests {
     }
 }
 
+private actor RecordingAuditLogger: SecurityAuditLogging {
+    private(set) var events: [SecurityAuditEvent] = []
+    func record(_ event: SecurityAuditEvent) async {
+        events.append(event)
+    }
+}
+
 @Suite("SyncConflictHandler Tests")
 @MainActor
 struct SyncConflictHandlerTests {
@@ -232,5 +239,46 @@ struct SyncConflictHandlerTests {
         #expect(handler.recentConflicts.count == 1)
         #expect(handler.recentConflicts[0].entityID == nil)
         #expect(handler.recentConflicts[0].resolution == .ambiguous)
+    }
+
+    @Test("logConflict with cloudKitAutoResolved records audit event")
+    func cloudKitAutoResolvedRecordsAudit() async throws {
+        let logger = RecordingAuditLogger()
+        let handler = SyncConflictHandler(auditLogger: logger)
+        _ = handler.logConflict(
+            entityType: "Transaction",
+            description: "merged",
+            resolutionOverride: .cloudKitAutoResolved
+        )
+        try await Task.sleep(for: .milliseconds(200))
+        let events = await logger.events
+        #expect(events.contains { $0.kind == .syncConflictAutoResolved })
+    }
+
+    @Test("logConflict without cloudKitAutoResolved does not record audit")
+    func nonCloudKitConflictSkipsAudit() async throws {
+        let logger = RecordingAuditLogger()
+        let handler = SyncConflictHandler(auditLogger: logger)
+        _ = handler.logConflict(
+            entityType: "Transaction",
+            description: "t",
+            resolutionOverride: .keepLocal
+        )
+        try await Task.sleep(for: .milliseconds(200))
+        let events = await logger.events
+        #expect(events.isEmpty)
+    }
+
+    @Test("logIntegrityViolation records audit and logs conflict")
+    func integrityViolationRecordsAudit() async throws {
+        let logger = RecordingAuditLogger()
+        let handler = SyncConflictHandler(auditLogger: logger)
+        let id = UUID()
+        handler.logIntegrityViolation(entityType: "Transaction", entityID: id, description: "invalid")
+        try await Task.sleep(for: .milliseconds(200))
+        let events = await logger.events
+        #expect(events.contains { $0.kind == .syncIntegrityViolation })
+        #expect(handler.recentConflicts.first?.resolution == .integrityViolation)
+        #expect(handler.recentConflicts.first?.entityID == id)
     }
 }
