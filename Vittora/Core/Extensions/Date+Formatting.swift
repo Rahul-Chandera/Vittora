@@ -9,28 +9,6 @@ extension Date {
         case monthYear
         case yearOnly
         case time
-        case custom(String)
-
-        var formatString: String {
-            switch self {
-            case .relative:
-                return "relative"
-            case .short:
-                return "MM/dd/yy"
-            case .medium:
-                return "MMM d, yyyy"
-            case .long:
-                return "MMMM d, yyyy"
-            case .monthYear:
-                return "MMMM yyyy"
-            case .yearOnly:
-                return "yyyy"
-            case .time:
-                return "h:mm a"
-            case .custom(let format):
-                return format
-            }
-        }
     }
 
     /// Format date using predefined or custom format styles.
@@ -41,11 +19,18 @@ extension Date {
         switch style {
         case .relative:
             return relativeFormatted()
-        default:
-            let formatter = DateFormatter()
-            formatter.dateFormat = style.formatString
-            formatter.locale = Locale.current
-            return formatter.string(from: self)
+        case .short:
+            return formatted(date: .numeric, time: .omitted)
+        case .medium:
+            return formatted(date: .abbreviated, time: .omitted)
+        case .long:
+            return formatted(date: .long, time: .omitted)
+        case .monthYear:
+            return formatted(.dateTime.month(.wide).year())
+        case .yearOnly:
+            return formatted(.dateTime.year())
+        case .time:
+            return formatted(date: .omitted, time: .shortened)
         }
     }
 
