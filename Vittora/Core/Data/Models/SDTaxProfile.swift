@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 
 @Model
@@ -17,6 +18,8 @@ final class SDTaxProfile {
     var dateOfBirth: Date? = nil
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
+
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "persistence")
 
     init() {}
 
@@ -72,14 +75,30 @@ final class SDTaxProfile {
     }
 
     private static func encode(_ deductions: [TaxDeduction]) -> String {
-        guard let data = try? JSONEncoder().encode(deductions),
-              let str = String(data: data, encoding: .utf8) else { return "[]" }
-        return str
+        do {
+            let data = try JSONEncoder().encode(deductions)
+            guard let str = String(data: data, encoding: .utf8) else {
+                logger.error("Failed to encode tax deductions as UTF-8.")
+                return "[]"
+            }
+            return str
+        } catch {
+            logger.error("Failed to encode tax deductions: \(error.localizedDescription, privacy: .public)")
+            return "[]"
+        }
     }
 
     private static func decode(_ json: String) -> [TaxDeduction] {
-        guard let data = json.data(using: .utf8),
-              let deductions = try? JSONDecoder().decode([TaxDeduction].self, from: data) else { return [] }
-        return deductions
+        guard let data = json.data(using: .utf8) else {
+            logger.error("Failed to decode tax deductions JSON as UTF-8.")
+            return []
+        }
+
+        do {
+            return try JSONDecoder().decode([TaxDeduction].self, from: data)
+        } catch {
+            logger.error("Failed to decode tax deductions: \(error.localizedDescription, privacy: .public)")
+            return []
+        }
     }
 }

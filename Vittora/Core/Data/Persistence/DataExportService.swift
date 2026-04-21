@@ -318,7 +318,15 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
 
         if fileSize > 0 {
             let handle = try FileHandle(forWritingTo: url)
-            defer { try? handle.close() }
+            defer {
+                do {
+                    try handle.close()
+                } catch {
+                    Self.logger.error(
+                        "Failed to close temporary export file handle for \(url.lastPathComponent, privacy: .public): \(error.localizedDescription, privacy: .public)"
+                    )
+                }
+            }
 
             try handle.seek(toOffset: 0)
 

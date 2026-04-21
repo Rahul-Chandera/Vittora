@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 
 @ModelActor
@@ -70,6 +71,7 @@ actor SwiftDataDocumentRepository: DocumentRepository {
 
 @MainActor
 final class EncryptedDocumentRepository: DocumentRepository, Sendable {
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "documents")
     private let metadataRepository: SwiftDataDocumentRepository
     private let documentStorageService: any DocumentStorageServiceProtocol
 
@@ -101,7 +103,13 @@ final class EncryptedDocumentRepository: DocumentRepository, Sendable {
                 try await documentStorageService.saveThumbnail(thumbnailData, for: entity.id)
             }
         } catch {
-            try? await metadataRepository.delete(entity.id)
+            do {
+                try await metadataRepository.delete(entity.id)
+            } catch {
+                Self.logger.error(
+                    "Failed to roll back document metadata after thumbnail save failure: \(error.localizedDescription, privacy: .public)"
+                )
+            }
             throw error
         }
     }

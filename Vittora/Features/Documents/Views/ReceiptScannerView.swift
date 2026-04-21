@@ -23,6 +23,7 @@ struct ReceiptScannerView: View {
             let scanUseCase = ScanReceiptUseCase(ocrService: ocrService)
             scannerVM = ReceiptScannerViewModel(scanUseCase: scanUseCase)
         }
+        .errorAlert(message: scannerErrorBinding)
         .sheet(isPresented: $showReview) {
             if let data = receiptData {
                 ReceiptReviewView(receiptData: data) { _, _, _ in
@@ -51,6 +52,9 @@ struct ReceiptScannerView: View {
                             showReview = true
                         }
                     }
+                },
+                onError: { message in
+                    vm.error = message
                 }
             )
             .ignoresSafeArea()
@@ -71,6 +75,15 @@ struct ReceiptScannerView: View {
         })
     }
     #endif
+
+    private var scannerErrorBinding: Binding<String?> {
+        Binding(
+            get: { scannerVM?.error },
+            set: { newValue in
+                scannerVM?.error = newValue
+            }
+        )
+    }
 }
 
 // MARK: - iOS DataScanner wrapper
@@ -83,6 +96,7 @@ import CoreGraphics
 struct DataScannerRepresentable: UIViewControllerRepresentable {
     let isProcessing: Bool
     let onCapture: (CGImage, Data) -> Void
+    let onError: (String) -> Void
 
     func makeUIViewController(context: Context) -> DataScannerViewController {
         let scanner = DataScannerViewController(
@@ -92,23 +106,36 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
             isHighlightingEnabled: false
         )
         scanner.delegate = context.coordinator
-        try? scanner.startScanning()
+        do {
+            try scanner.startScanning()
+        } catch {
+            context.coordinator.report(
+                error,
+                fallback: String(localized: "We couldn't start the receipt scanner right now.")
+            )
+        }
         return scanner
     }
 
     func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {
         context.coordinator.onCapture = onCapture
+        context.coordinator.onError = onError
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(onCapture: onCapture)
+        Coordinator(onCapture: onCapture, onError: onError)
     }
 
     final class Coordinator: NSObject, DataScannerViewControllerDelegate {
         var onCapture: (CGImage, Data) -> Void
+        var onError: (String) -> Void
 
-        init(onCapture: @escaping (CGImage, Data) -> Void) {
+        init(
+            onCapture: @escaping (CGImage, Data) -> Void,
+            onError: @escaping (String) -> Void
+        ) {
             self.onCapture = onCapture
+            self.onError = onError
         }
 
         func dataScanner(
@@ -116,10 +143,27 @@ struct DataScannerRepresentable: UIViewControllerRepresentable {
             didTapOn item: RecognizedItem
         ) {
             Task { @MainActor in
-                guard let image = try? await dataScanner.capturePhoto(),
-                      let cgImage = image.cgImage,
-                      let data = image.jpegData(compressionQuality: 0.9) else { return }
-                self.onCapture(cgImage, data)
+                do {
+                    let image = try await dataScanner.capturePhoto()
+                    guard let cgImage = image.cgImage,
+                          let data = image.jpegData(compressionQuality: 0.9) else {
+                        onError(String(localized: "We couldn't capture a photo from the scanner."))
+                        return
+                    }
+                    onCapture(cgImage, data)
+                } catch {
+                    report(
+                        error,
+                        fallback: String(localized: "We couldn't capture a photo from the scanner.")
+                    )
+                }
+            }
+        }
+
+        func report(_ error: Error, fallback: String) {
+            let message = error.userFacingMessage(fallback: fallback)
+            Task { @MainActor in
+                onError(message)
             }
         }
     }

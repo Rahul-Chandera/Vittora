@@ -91,10 +91,19 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
         }
 
         // 2. Migrate a legacy raw key if one exists (first upgrade after SEC-03).
-        if let legacyData = try? await keychainService.load(
-            forKey: legacyKeyID,
-            access: .biometricBound
-        ) {
+        let legacyData: Data?
+        do {
+            legacyData = try await keychainService.load(
+                forKey: legacyKeyID,
+                access: .biometricBound
+            )
+        } catch {
+            throw VittoraError.encryptionFailed(
+                String(localized: "Failed to migrate the legacy encryption key: \(error.localizedDescription)")
+            )
+        }
+
+        if let legacyData {
             let wrapped = try wrapAESKey(legacyData, with: seKey)
             try await keychainService.save(wrapped, forKey: seWrappedKeyID)
             try await keychainService.delete(forKey: legacyKeyID)

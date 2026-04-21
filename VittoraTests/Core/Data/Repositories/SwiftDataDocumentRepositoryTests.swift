@@ -233,4 +233,27 @@ struct SwiftDataDocumentRepositoryTests {
         #expect(found?.thumbnailData == thumbnailData)
         #expect(storage.savedThumbnails[id] == thumbnailData)
     }
+
+    @Test("create removes metadata when thumbnail persistence fails")
+    func testCreateRollsBackMetadataOnThumbnailSaveFailure() async throws {
+        let storage = MockDocumentStorageService()
+        storage.shouldThrowError = true
+        let repo = try makeRepo(storage: storage)
+        let entity = DocumentEntity(
+            id: UUID(),
+            fileName: "receipt.jpg",
+            mimeType: "image/jpeg",
+            thumbnailData: Data("thumb".utf8),
+            createdAt: Date(timeIntervalSince1970: 9_000_000),
+            updatedAt: Date(timeIntervalSince1970: 9_000_000)
+        )
+
+        do {
+            try await repo.create(entity)
+            Issue.record("Expected thumbnail persistence to throw")
+        } catch {
+            let remaining = try await repo.fetchAll()
+            #expect(remaining.isEmpty)
+        }
+    }
 }

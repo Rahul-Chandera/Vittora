@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 #if canImport(UIKit)
 import UIKit
 #elseif canImport(AppKit)
@@ -6,6 +7,7 @@ import AppKit
 #endif
 
 struct AttachDocumentUseCase: Sendable {
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "documents")
     let documentRepository: any DocumentRepository
     let documentStorageService: any DocumentStorageServiceProtocol
 
@@ -29,7 +31,13 @@ struct AttachDocumentUseCase: Sendable {
         do {
             try await documentRepository.create(entity)
         } catch {
-            try? await documentStorageService.deleteDocument(for: entity)
+            do {
+                try await documentStorageService.deleteDocument(for: entity)
+            } catch {
+                Self.logger.error(
+                    "Failed to clean up document bytes after metadata save failure: \(error.localizedDescription, privacy: .public)"
+                )
+            }
             throw error
         }
         return entity

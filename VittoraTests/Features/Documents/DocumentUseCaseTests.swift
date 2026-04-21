@@ -34,6 +34,29 @@ struct DocumentUseCaseTests {
             #expect(storage.savedDocuments[entity.id] == imageData)
             #expect(storedEntity.transactionID == txID)
         }
+
+        @Test("execute deletes stored document bytes when repository create fails")
+        func attachRollsBackStoredDocumentBytesOnRepositoryFailure() async throws {
+            let repo = MockDocumentRepository()
+            repo.shouldThrowError = true
+            let storage = MockDocumentStorageService()
+            let useCase = AttachDocumentUseCase(
+                documentRepository: repo,
+                documentStorageService: storage
+            )
+
+            do {
+                _ = try await useCase.execute(
+                    imageData: Data("receipt-image".utf8),
+                    mimeType: "image/jpeg",
+                    transactionID: UUID()
+                )
+                Issue.record("Expected document creation to throw")
+            } catch {
+                #expect(storage.deletedDocuments.count == 1)
+                #expect(storage.savedDocuments.isEmpty)
+            }
+        }
     }
 
     // MARK: - FetchDocumentsUseCase

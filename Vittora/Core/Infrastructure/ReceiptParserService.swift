@@ -1,6 +1,29 @@
 import Foundation
+import OSLog
 
 struct ReceiptParserService: Sendable {
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "receipt_parser")
+    private static let amountRegexes = compileRegexes(
+        [
+            #"\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)"#,
+            #"(?:Rs\.?|INR)\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)"#,
+            #"(\d{1,3}(?:,\d{3})*\.\d{2})"#
+        ],
+        options: .caseInsensitive
+    )
+    private static let dateRegexes = compileDateRegexes(
+        [
+            (#"\d{2}/\d{2}/\d{4}"#, "MM/dd/yyyy"),
+            (#"\d{2}-\d{2}-\d{4}"#, "dd-MM-yyyy"),
+            (#"\d{4}-\d{2}-\d{2}"#, "yyyy-MM-dd"),
+            (#"\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}"#, "dd MMM yyyy")
+        ],
+        options: .caseInsensitive
+    )
+    private static let lineItemRegex = compileRegex(
+        #"^(.+?)\s+\$?\s*(\d+\.\d{2})\s*$"#
+    )
+
     nonisolated init() {}
 
     nonisolated func parse(blocks: [RecognizedTextBlock]) -> ReceiptData {
@@ -38,15 +61,8 @@ struct ReceiptParserService: Sendable {
     }
 
     private nonisolated func parseAmount(from text: String) -> Decimal? {
-        // Patterns: $XX.XX, Rs. X,XXX, INR X,XXX.XX, plain XX.XX
-        let patterns = [
-            #"\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)"#,
-            #"(?:Rs\.?|INR)\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)"#,
-            #"(\d{1,3}(?:,\d{3})*\.\d{2})"#
-        ]
-        for pattern in patterns {
-            if let match = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
-                .firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+        for regex in Self.amountRegexes {
+            if let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
                match.numberOfRanges > 1,
                let range = Range(match.range(at: 1), in: text) {
                 let numStr = text[range].replacingOccurrences(of: ",", with: "")
@@ -59,19 +75,12 @@ struct ReceiptParserService: Sendable {
     // MARK: - Date extraction
 
     private nonisolated func extractDate(from lines: [String]) -> Date? {
-        let patterns: [(pattern: String, format: String)] = [
-            (#"\d{2}/\d{2}/\d{4}"#, "MM/dd/yyyy"),
-            (#"\d{2}-\d{2}-\d{4}"#, "dd-MM-yyyy"),
-            (#"\d{4}-\d{2}-\d{2}"#, "yyyy-MM-dd"),
-            (#"\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}"#, "dd MMM yyyy")
-        ]
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
 
         for line in lines {
-            for (pattern, format) in patterns {
-                if let match = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
-                    .firstMatch(in: line, range: NSRange(line.startIndex..., in: line)),
+            for (regex, format) in Self.dateRegexes {
+                if let match = regex.firstMatch(in: line, range: NSRange(line.startIndex..., in: line)),
                    let range = Range(match.range, in: line) {
                     formatter.dateFormat = format
                     if let date = formatter.date(from: String(line[range])) {
@@ -103,8 +112,7 @@ struct ReceiptParserService: Sendable {
     private nonisolated func extractLineItems(from lines: [String]) -> [(name: String, amount: Decimal)] {
         var items: [(name: String, amount: Decimal)] = []
         // Look for lines with item name + price pattern
-        let pattern = #"^(.+?)\s+\$?\s*(\d+\.\d{2})\s*$"#
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
+        guard let regex = Self.lineItemRegex else { return [] }
 
         for line in lines {
             let range = NSRange(line.startIndex..., in: line)
@@ -118,5 +126,35 @@ struct ReceiptParserService: Sendable {
             }
         }
         return items
+    }
+
+    private static func compileRegexes(
+        _ patterns: [String],
+        options: NSRegularExpression.Options = []
+    ) -> [NSRegularExpression] {
+        patterns.compactMap { compileRegex($0, options: options) }
+    }
+
+    private static func compileDateRegexes(
+        _ rules: [(pattern: String, format: String)],
+        options: NSRegularExpression.Options = []
+    ) -> [(regex: NSRegularExpression, format: String)] {
+        rules.compactMap { rule in
+            compileRegex(rule.pattern, options: options).map { ($0, rule.format) }
+        }
+    }
+
+    private static func compileRegex(
+        _ pattern: String,
+        options: NSRegularExpression.Options = []
+    ) -> NSRegularExpression? {
+        do {
+            return try NSRegularExpression(pattern: pattern, options: options)
+        } catch {
+            logger.fault(
+                "Invalid receipt regex pattern \(pattern, privacy: .public): \(error.localizedDescription, privacy: .public)"
+            )
+            return nil
+        }
     }
 }

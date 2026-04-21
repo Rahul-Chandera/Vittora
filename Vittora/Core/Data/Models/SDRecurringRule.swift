@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 
 @Model
@@ -17,6 +18,8 @@ final class SDRecurringRule {
     var templatePayeeID: UUID?
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
+
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "persistence")
 
     init() {}
 
@@ -46,21 +49,33 @@ final class SDRecurringRule {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
 
-        if let encoded = try? JSONEncoder().encode(frequency) {
-            self.frequencyData = encoded
+        do {
+            self.frequencyData = try JSONEncoder().encode(frequency)
+        } catch {
+            Self.logger.error(
+                "Failed to encode recurrence frequency during init: \(error.localizedDescription, privacy: .public)"
+            )
         }
     }
 
     var frequency: RecurrenceFrequency {
         get {
-            if let decoded = try? JSONDecoder().decode(RecurrenceFrequency.self, from: frequencyData) {
-                return decoded
+            do {
+                return try JSONDecoder().decode(RecurrenceFrequency.self, from: frequencyData)
+            } catch {
+                Self.logger.error(
+                    "Failed to decode recurrence frequency: \(error.localizedDescription, privacy: .public)"
+                )
+                return .monthly
             }
-            return .monthly
         }
         set {
-            if let encoded = try? JSONEncoder().encode(newValue) {
-                frequencyData = encoded
+            do {
+                frequencyData = try JSONEncoder().encode(newValue)
+            } catch {
+                Self.logger.error(
+                    "Failed to encode recurrence frequency: \(error.localizedDescription, privacy: .public)"
+                )
             }
         }
     }
