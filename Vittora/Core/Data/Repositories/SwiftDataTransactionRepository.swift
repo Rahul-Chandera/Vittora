@@ -90,6 +90,14 @@ actor SwiftDataTransactionRepository: TransactionRepository {
         return try modelContext.fetch(descriptor).map(TransactionMapper.toEntity)
     }
 
+    func hasTransactions(forAccountID id: UUID) async throws -> Bool {
+        var descriptor = FetchDescriptor<SDTransaction>(
+            predicate: #Predicate { $0.accountID == id || $0.destinationAccountID == id }
+        )
+        descriptor.fetchLimit = 1
+        return try !modelContext.fetch(descriptor).isEmpty
+    }
+
     func create(_ entity: TransactionEntity) async throws {
         let model = SDTransaction(
             id: entity.id,

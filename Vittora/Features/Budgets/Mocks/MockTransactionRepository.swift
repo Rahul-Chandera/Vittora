@@ -44,6 +44,11 @@ struct MockTransactionRepository: TransactionRepository {
             .sorted { $0.date > $1.date }
     }
 
+    func hasTransactions(forAccountID id: UUID) async throws -> Bool {
+        try await fetchAll(filter: nil)
+            .contains { $0.accountID == id || $0.destinationAccountID == id }
+    }
+
     func create(_ entity: TransactionEntity) async throws {}
 
     func update(_ entity: TransactionEntity) async throws {}

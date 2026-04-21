@@ -46,6 +46,11 @@ actor MockTransactionRepository: TransactionRepository {
             .map { $0 }
     }
 
+    func hasTransactions(forAccountID id: UUID) async throws -> Bool {
+        if shouldThrowError { throw throwError }
+        return transactions.contains { $0.accountID == id || $0.destinationAccountID == id }
+    }
+
     func create(_ entity: TransactionEntity) async throws {
         if shouldThrowError { throw throwError }
         transactions.append(entity)
