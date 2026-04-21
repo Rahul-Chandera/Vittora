@@ -12,10 +12,12 @@ struct MonthlyOverviewView: View {
                 if let vm = vm {
                     if vm.isLoading {
                         ProgressView().tint(VColors.primary)
-                    } else {
+                    } else if hasReportData(vm) {
                         summaryRow(vm)
                         chartSection(vm)
                         monthTable(vm)
+                    } else {
+                        emptyState
                     }
                 }
             }
@@ -117,6 +119,19 @@ struct MonthlyOverviewView: View {
 
     private func formattedAmount(_ amount: Decimal) -> String {
         amount.formatted(.currency(code: currencyCode).precision(.fractionLength(0)))
+    }
+
+    private func hasReportData(_ vm: MonthlyOverviewViewModel) -> Bool {
+        vm.monthlyData.contains { $0.income != 0 || $0.expense != 0 }
+    }
+
+    private var emptyState: some View {
+        ContentUnavailableView {
+            Label(String(localized: "No monthly data yet"), systemImage: "chart.bar")
+        } description: {
+            Text(String(localized: "Transactions from the last 12 months will appear here once you add them."))
+        }
+        .padding(VSpacing.xxxl)
     }
 
     private var monthlyOverviewErrorBinding: Binding<String?> {

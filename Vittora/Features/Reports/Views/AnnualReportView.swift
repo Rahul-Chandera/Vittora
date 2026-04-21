@@ -22,10 +22,12 @@ struct AnnualReportView: View {
                     if vm.isLoading {
                         ProgressView().tint(VColors.primary)
                             .padding(.top, VSpacing.xxxl)
-                    } else {
+                    } else if hasReportData(vm) {
                         annualSummaryCard(vm)
                         annualChart(vm)
                         monthBreakdownList(vm)
+                    } else {
+                        emptyState
                     }
                 }
             }
@@ -202,6 +204,19 @@ struct AnnualReportView: View {
             vm = MonthlyOverviewViewModel(useCase: useCase)
         }
         await vm?.load()
+    }
+
+    private func hasReportData(_ vm: MonthlyOverviewViewModel) -> Bool {
+        vm.monthlyData.contains { $0.income != 0 || $0.expense != 0 }
+    }
+
+    private var emptyState: some View {
+        ContentUnavailableView {
+            Label(String(localized: "No annual data yet"), systemImage: "calendar")
+        } description: {
+            Text(String(localized: "Transactions in \(selectedYear) will appear here once you add them."))
+        }
+        .padding(VSpacing.xxxl)
     }
 
     private var annualReportErrorBinding: Binding<String?> {
