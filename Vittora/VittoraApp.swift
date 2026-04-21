@@ -55,7 +55,9 @@ struct VittoraApp: App {
             dependencyContainer = DependencyContainer()
         }
         let syncStatusService = SyncStatusService(isMonitoringEnabled: !isRunningAutomatedTests)
-        let conflictHandler = SyncConflictHandler()
+        let conflictHandler = SyncConflictHandler(
+            auditLogger: dependencyContainer.securityAuditLogService
+        )
         _dependencies = State(initialValue: dependencyContainer)
         _router = State(initialValue: Router())
         let keychainService = dependencyContainer.keychainService ?? KeychainService()

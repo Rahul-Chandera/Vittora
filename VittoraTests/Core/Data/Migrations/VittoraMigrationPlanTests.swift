@@ -13,18 +13,19 @@ struct VittoraMigrationPlanTests {
     @MainActor
     struct PlanStructureTests {
 
-        @Test("plan has three schemas in ascending version order")
-        func planHasThreeSchemas() {
+        @Test("plan has four schemas in ascending version order")
+        func planHasFourSchemas() {
             let schemas = VittoraMigrationPlan.schemas
-            #expect(schemas.count == 3)
+            #expect(schemas.count == 4)
             #expect(VittoraSchemaV1.versionIdentifier == Schema.Version(1, 0, 0))
             #expect(VittoraSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
             #expect(VittoraSchemaV3.versionIdentifier == Schema.Version(3, 0, 0))
+            #expect(VittoraSchemaV4.versionIdentifier == Schema.Version(4, 0, 0))
         }
 
-        @Test("plan has exactly two migration stages")
-        func planHasTwoStages() {
-            #expect(VittoraMigrationPlan.stages.count == 2)
+        @Test("plan has exactly three migration stages")
+        func planHasThreeStages() {
+            #expect(VittoraMigrationPlan.stages.count == 3)
         }
 
         @Test("V1 schema registers twelve model types")
@@ -32,10 +33,11 @@ struct VittoraMigrationPlanTests {
             #expect(VittoraSchemaV1.models.count == 12)
         }
 
-        @Test("V2 and V3 schemas register twelve model types")
-        func v2v3RegistersTwelveModels() {
+        @Test("V2, V3, and V4 schemas register twelve model types")
+        func v2v3v4RegistersTwelveModels() {
             #expect(VittoraSchemaV2.models.count == 12)
             #expect(VittoraSchemaV3.models.count == 12)
+            #expect(VittoraSchemaV4.models.count == 12)
         }
     }
 

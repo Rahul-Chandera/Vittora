@@ -52,9 +52,11 @@ final class SyncStatusService: Sendable {
     private let monitorQueue = DispatchQueue(label: "vittora.network.monitor", qos: .utility)
     private var isNetworkAvailable: Bool = true
 
-    init(isMonitoringEnabled: Bool = true, userDefaults: UserDefaults = .standard) {
-        self.userDefaults = userDefaults
-        self.lastSyncDate = userDefaults.object(forKey: "vittora.lastSyncDate") as? Date
+    init(isMonitoringEnabled: Bool = true, userDefaults: UserDefaults? = nil) {
+        AppUserDefaults.migrateLastSyncDateIfNeeded()
+        let store = userDefaults ?? AppUserDefaults.sync
+        self.userDefaults = store
+        self.lastSyncDate = store.object(forKey: "vittora.lastSyncDate") as? Date
         if isMonitoringEnabled {
             let monitor = NWPathMonitor()
             pathMonitor = monitor
@@ -116,7 +118,8 @@ final class SyncStatusService: Sendable {
                 else if syncState == .pending { /* stay pending until confirmed synced */ }
             case .noAccount:
                 iCloudAccountAvailable = false
-                syncState = .error(String(localized: "No iCloud account. Sign in to Settings → Apple ID."))
+                // OFFL-02: stay usable without iCloud — not an error state.
+                syncState = .offline
             case .restricted:
                 iCloudAccountAvailable = false
                 syncState = .error(String(localized: "iCloud access is restricted on this device."))

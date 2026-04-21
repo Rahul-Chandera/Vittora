@@ -74,7 +74,7 @@ final class DataManagementService: Sendable {
     // MARK: - Statistics
 
     func fetchStats() async throws -> DatabaseStats {
-        async let transactions = transactionRepository.fetchAll(filter: nil)
+        async let transactionCount = transactionRepository.fetchTransactionCount()
         async let accounts     = accountRepository.fetchAll()
         async let categories   = categoryRepository.fetchAll()
         async let budgets      = budgetRepository.fetchAll()
@@ -84,7 +84,7 @@ final class DataManagementService: Sendable {
         async let documents    = documentRepository.fetchAll()
 
         return try await DatabaseStats(
-            transactionCount: transactions.count,
+            transactionCount: transactionCount,
             accountCount:     accounts.count,
             categoryCount:    categories.count,
             budgetCount:      budgets.count,
@@ -138,13 +138,17 @@ final class DataManagementService: Sendable {
         try await keychainService.delete(forKey: "vittora.userName")
 
         UserDefaults.standard.removeObject(forKey: "vittora.lastSyncDate")
+        AppUserDefaults.sync.removeObject(forKey: "vittora.lastSyncDate")
     }
 
     // MARK: - Helpers
 
     private func deleteAll(from repo: any TransactionRepository) async throws {
-        let items = try await repo.fetchAll(filter: nil)
-        for item in items { try await repo.delete(item.id) }
+        while true {
+            let items = try await repo.fetchAll(filter: nil)
+            if items.isEmpty { break }
+            for item in items { try await repo.delete(item.id) }
+        }
     }
 
     private func deleteAll(from repo: any BudgetRepository) async throws {

@@ -12,6 +12,7 @@ enum TaxProfileMapper {
             financialYear: model.financialYear,
             incomeSourceType: model.incomeSourceType,
             dateOfBirth: model.dateOfBirth,
+            advancedInputs: model.advancedInputs,
             createdAt: model.createdAt,
             updatedAt: model.updatedAt
         )
@@ -26,6 +27,7 @@ enum TaxProfileMapper {
         model.financialYear = entity.financialYear
         model.incomeSourceType = entity.incomeSourceType
         model.dateOfBirth = entity.dateOfBirth
+        model.advancedInputs = entity.advancedInputs
         model.updatedAt = .now
     }
 }

@@ -24,6 +24,7 @@ final class DependencyContainer {
     var exportService: (any DataExportServiceProtocol)?
     var contactsImportService: (any ContactsImportServiceProtocol)?
     var hapticService: (any HapticServiceProtocol) = LiveHapticService()
+    var securityAuditLogService: SecurityAuditLogService?
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
         let container = DependencyContainer()
@@ -42,6 +43,8 @@ final class DependencyContainer {
         let keychainService = KeychainService()
         let biometricService = BiometricService()
         let encryptionService = EncryptionService(keychainService: keychainService)
+        let auditLogService = SecurityAuditLogService(encryptionService: encryptionService)
+        container.securityAuditLogService = auditLogService
         container.keychainService = keychainService
         container.biometricService = biometricService
         container.encryptionService = encryptionService
@@ -54,14 +57,18 @@ final class DependencyContainer {
                 documentStorageService: documentStorageService
             )
         }
-        container.appLockService = AppLockService(biometricService: biometricService)
+        container.appLockService = AppLockService(
+            biometricService: biometricService,
+            auditLogger: auditLogService
+        )
         container.contactsImportService = SystemContactsImportService()
         if let transactionRepository = container.transactionRepository {
             container.exportService = DataExportService(
                 transactionRepository: transactionRepository,
                 accountRepository: container.accountRepository,
                 categoryRepository: container.categoryRepository,
-                payeeRepository: container.payeeRepository
+                payeeRepository: container.payeeRepository,
+                auditLogger: auditLogService
             )
         }
 

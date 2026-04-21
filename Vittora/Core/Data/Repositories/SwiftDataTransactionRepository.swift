@@ -3,15 +3,21 @@ import SwiftData
 
 @ModelActor
 actor SwiftDataTransactionRepository: TransactionRepository {
+    func fetchTransactionCount() async throws -> Int {
+        try modelContext.fetchCount(FetchDescriptor<SDTransaction>())
+    }
+
     func fetchAll(filter: TransactionFilter?) async throws -> [TransactionEntity] {
         let models: [SDTransaction]
 
         if let filter = filter {
             models = try fetchFiltered(filter)
         } else {
-            let descriptor = FetchDescriptor<SDTransaction>(
+            var descriptor = FetchDescriptor<SDTransaction>(
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
+            // PERF-12: unbounded history loads are capped; callers needing full sets should iterate.
+            descriptor.fetchLimit = 500
             models = try modelContext.fetch(descriptor)
         }
 

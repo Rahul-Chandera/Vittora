@@ -37,17 +37,20 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
     private let accountRepository: (any AccountRepository)?
     private let categoryRepository: (any CategoryRepository)?
     private let payeeRepository: (any PayeeRepository)?
+    private let auditLogger: (any SecurityAuditLogging)?
 
     init(
         transactionRepository: any TransactionRepository,
         accountRepository: (any AccountRepository)? = nil,
         categoryRepository: (any CategoryRepository)? = nil,
-        payeeRepository: (any PayeeRepository)? = nil
+        payeeRepository: (any PayeeRepository)? = nil,
+        auditLogger: (any SecurityAuditLogging)? = nil
     ) {
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
         self.categoryRepository = categoryRepository
         self.payeeRepository = payeeRepository
+        self.auditLogger = auditLogger
     }
 
     // MARK: - Legacy compatibility
@@ -302,6 +305,10 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
             #else
             try data.write(to: url, options: [.atomic])
             #endif
+            if let auditLogger {
+                let name = url.lastPathComponent
+                Task { await auditLogger.record(SecurityAuditEvent(kind: .exportCreated, detail: name)) }
+            }
             return url
         } catch {
             throw VittoraError.exportFailed(

@@ -18,7 +18,9 @@ struct TaxBreakdownView: View {
 
                     bracketSection
                     adjustmentsSection
+                    supplementarySection
                     finalSection
+                    provenanceSection
                     TaxDisclaimerView()
                 }
                 .padding(VSpacing.screenPadding)
@@ -140,6 +142,66 @@ struct TaxBreakdownView: View {
                 .background(VColors.secondaryBackground)
                 .cornerRadius(VSpacing.cornerRadiusCard)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var supplementarySection: some View {
+        if !estimate.supplementaryLines.isEmpty {
+            VStack(alignment: .leading, spacing: VSpacing.md) {
+                Text(String(localized: "Payroll & Other Lines"))
+                    .font(VTypography.subheadline)
+                    .foregroundStyle(VColors.textSecondary)
+
+                VStack(spacing: 0) {
+                    ForEach(estimate.supplementaryLines) { line in
+                        BreakdownRow(
+                            label: line.title,
+                            value: line.amount,
+                            currencyCode: currencyCode,
+                            style: .tax
+                        )
+                        if line.id != estimate.supplementaryLines.last?.id {
+                            Divider().padding(.leading, VSpacing.md)
+                        }
+                    }
+                }
+                .background(VColors.secondaryBackground)
+                .cornerRadius(VSpacing.cornerRadiusCard)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var provenanceSection: some View {
+        let hasMeta = !estimate.assumptions.isEmpty || !estimate.warnings.isEmpty || !estimate.exclusions.isEmpty
+        if hasMeta {
+            VStack(alignment: .leading, spacing: VSpacing.sm) {
+                if !estimate.ruleSetID.isEmpty {
+                    Text(verbatim: "Rule set: \(estimate.ruleSetID)")
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textTertiary)
+                }
+                ForEach(Array(estimate.assumptions.enumerated()), id: \.offset) { _, line in
+                    Text("• \(line)")
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
+                }
+                ForEach(Array(estimate.warnings.enumerated()), id: \.offset) { _, line in
+                    Text("⚠ \(line)")
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.warning)
+                }
+                ForEach(Array(estimate.exclusions.enumerated()), id: \.offset) { _, line in
+                    Text("○ \(line)")
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textTertiary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(VSpacing.cardPadding)
+            .background(VColors.tertiaryBackground)
+            .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }
 

@@ -40,6 +40,10 @@ enum ConflictResolution: Sendable {
     case keepRemote
     /// Timestamps are within clock-skew threshold or unknown; system applied its own LWW.
     case ambiguous
+    /// CloudKit / Core Data already merged; this entry is advisory (SEC-09).
+    case cloudKitAutoResolved
+    /// Imported record failed invariant checks — user should review underlying data (SEC-09).
+    case integrityViolation
 }
 
 /// Handles CloudKit merge conflicts.
@@ -53,10 +57,15 @@ enum ConflictResolution: Sendable {
 final class SyncConflictHandler: Sendable {
     private(set) var recentConflicts: [SyncConflict] = []
     private let maxConflictLog = 20
+    private let auditLogger: (any SecurityAuditLogging)?
 
     /// Seconds within which two timestamps are considered potentially skewed rather than
     /// clearly ordered. Protects against clock manipulation on either device.
     static let clockSkewThreshold: TimeInterval = 60
+
+    init(auditLogger: (any SecurityAuditLogging)? = nil) {
+        self.auditLogger = auditLogger
+    }
 
     // MARK: - Conflict resolution
 
@@ -84,9 +93,10 @@ final class SyncConflictHandler: Sendable {
         detectedAt: Date = .now,
         localModifiedAt: Date? = nil,
         remoteModifiedAt: Date? = nil,
-        description: String
+        description: String,
+        resolutionOverride: ConflictResolution? = nil
     ) -> ConflictResolution {
-        let resolution = resolveByTimestamp(
+        let resolution = resolutionOverride ?? resolveByTimestamp(
             localModifiedAt: localModifiedAt,
             remoteModifiedAt: remoteModifiedAt
         )
@@ -100,7 +110,39 @@ final class SyncConflictHandler: Sendable {
             resolution: resolution
         )
         appendToLog(conflict)
+        if resolution == .cloudKitAutoResolved {
+            Task { [auditLogger] in
+                await auditLogger?.record(SecurityAuditEvent(
+                    kind: .syncConflictAutoResolved,
+                    detail: "\(entityType) \(entityID?.uuidString ?? "?"): \(description)"
+                ))
+            }
+        }
         return resolution
+    }
+
+    /// Logs a post-merge integrity issue (rejects silently invalid data for user review).
+    func logIntegrityViolation(
+        entityType: String,
+        entityID: UUID?,
+        description: String
+    ) {
+        let conflict = SyncConflict(
+            entityType: entityType,
+            entityID: entityID,
+            detectedAt: .now,
+            localModifiedAt: nil,
+            remoteModifiedAt: nil,
+            description: description,
+            resolution: .integrityViolation
+        )
+        appendToLog(conflict)
+        Task { [auditLogger] in
+            await auditLogger?.record(SecurityAuditEvent(
+                kind: .syncIntegrityViolation,
+                detail: "\(entityType) \(entityID?.uuidString ?? "?"): \(description)"
+            ))
+        }
     }
 
     // MARK: - Log management

@@ -25,7 +25,14 @@ struct EstimateTaxUseCase: Sendable {
                 effectiveRate: 0,
                 marginalRate: 0,
                 country: profile.country,
-                regimeLabel: ""
+                regimeLabel: "",
+                supplementaryLines: [],
+                assumptions: [],
+                warnings: [String(localized: "No calculator registered for this country.")],
+                exclusions: [],
+                disclaimerKey: "tax.disclaimer.generic.v1",
+                ruleSetID: "UNKNOWN",
+                rulesLastUpdated: .now
             )
         }
         return calculator.calculate(profile: profile)

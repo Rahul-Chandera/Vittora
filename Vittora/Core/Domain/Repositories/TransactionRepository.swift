@@ -1,6 +1,8 @@
 import Foundation
 
 protocol TransactionRepository: Sendable {
+    /// Total persisted rows (not subject to fetch limits).
+    func fetchTransactionCount() async throws -> Int
     func fetchAll(filter: TransactionFilter?) async throws -> [TransactionEntity]
     func fetchByID(_ id: UUID) async throws -> TransactionEntity?
     func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity]

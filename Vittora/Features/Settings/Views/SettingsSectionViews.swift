@@ -114,6 +114,21 @@ struct SecuritySettingsView: View {
                         .foregroundStyle(VColors.textSecondary)
                 }
             }
+
+            if DeviceSecurityAssessment.isLikelyCompromisedEnvironment {
+                Section {
+                    Label {
+                        Text(String(localized: "Modified device environment detected"))
+                            .font(VTypography.caption1)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(VColors.warning)
+                    }
+                } footer: {
+                    Text(String(localized: "For your security, avoid storing highly sensitive data on modified devices. This check is informational only."))
+                        .foregroundStyle(VColors.textSecondary)
+                }
+            }
         }
         .navigationTitle(String(localized: "Security"))
         #if os(iOS)

@@ -66,6 +66,12 @@ struct SettingsView: View {
                                 title: String(localized: "App Lock"),
                                 value: vm.isAppLockEnabled ? String(localized: "On") : String(localized: "Off"))
                 }
+                NavigationLink {
+                    SecurityAuditLogView()
+                } label: {
+                    SettingsRow(icon: "list.bullet.rectangle", iconColor: .gray,
+                                title: String(localized: "Security audit log"), value: "")
+                }
             }
 
             // Data

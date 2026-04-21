@@ -34,6 +34,9 @@ actor SyncIntegrityValidator: SyncIntegrityValidating {
         do { violations += try checkGroupExpenses() } catch {
             Self.logger.error("SyncIntegrityValidator: group expense fetch failed: \(error.localizedDescription, privacy: .public)")
         }
+        do { violations += try checkAccounts() } catch {
+            Self.logger.error("SyncIntegrityValidator: account fetch failed: \(error.localizedDescription, privacy: .public)")
+        }
         return violations
     }
 
@@ -42,11 +45,46 @@ actor SyncIntegrityValidator: SyncIntegrityValidating {
     private func checkTransactions() throws -> [IntegrityViolation] {
         let all = try modelContext.fetch(FetchDescriptor<SDTransaction>())
         return all.compactMap { entity in
-            guard entity.amount > 0, !entity.currencyCode.isEmpty else {
+            if !entity.amount.isFiniteDecimal {
                 return IntegrityViolation(
                     entityType: "Transaction",
                     entityID: entity.id,
-                    description: "Transaction \(entity.id) has amount \(entity.amount) or empty currencyCode '\(entity.currencyCode)'"
+                    description: "Transaction \(entity.id) has non-finite amount"
+                )
+            }
+            guard entity.amount > 0, !entity.currencyCode.isEmpty, entity.currencyCode.count == 3 else {
+                return IntegrityViolation(
+                    entityType: "Transaction",
+                    entityID: entity.id,
+                    description: "Transaction \(entity.id) has amount \(entity.amount) or invalid currencyCode '\(entity.currencyCode)'"
+                )
+            }
+            return nil
+        }
+    }
+
+    private func checkAccounts() throws -> [IntegrityViolation] {
+        let all = try modelContext.fetch(FetchDescriptor<SDAccount>())
+        return all.compactMap { entity in
+            if !entity.balance.isFiniteDecimal {
+                return IntegrityViolation(
+                    entityType: "Account",
+                    entityID: entity.id,
+                    description: "Account \(entity.id) has non-finite balance"
+                )
+            }
+            guard !entity.currencyCode.isEmpty, entity.currencyCode.count == 3 else {
+                return IntegrityViolation(
+                    entityType: "Account",
+                    entityID: entity.id,
+                    description: "Account \(entity.id) has invalid currency code '\(entity.currencyCode)'"
+                )
+            }
+            if entity.type.isAsset, entity.balance < 0 {
+                return IntegrityViolation(
+                    entityType: "Account",
+                    entityID: entity.id,
+                    description: "Asset account \(entity.id) has negative balance \(entity.balance)"
                 )
             }
             return nil

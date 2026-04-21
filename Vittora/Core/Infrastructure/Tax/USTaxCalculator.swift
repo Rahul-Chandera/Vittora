@@ -12,41 +12,198 @@ struct USTaxCalculator: TaxCalculatorProtocol {
     func calculate(profile: TaxProfile, deductionMode: USDeductionMode) -> TaxEstimate {
         let status = profile.filingStatus
         let gross = profile.annualIncome
+        let adv = profile.advancedInputs
         let taxYear = Self.supportedTaxYear(for: profile)
+        let ruleSetID = "US_FEDERAL_TY\(taxYear)"
+        let rulesLastUpdated = Self.rulesLastUpdated
 
-        let standardDeduction = Self.standardDeduction(for: status, taxYear: taxYear)
+        var standardDeduction = Self.standardDeduction(for: status, taxYear: taxYear)
+        if let age = ageAtEndOfTaxYear(dateOfBirth: profile.dateOfBirth, taxYear: taxYear), age >= 65 {
+            standardDeduction += 6_000
+        }
+
         let itemizedDeductions = profile.customDeductions.reduce(Decimal(0)) { $0 + $1.amount }
         let deductionSelection = selectDeduction(
             standardDeduction: standardDeduction,
             itemizedDeductions: itemizedDeductions,
             deductionMode: deductionMode
         )
-        let taxableIncome = max(0, gross - deductionSelection.appliedDeduction)
+
+        let ordinaryGross = gross + adv.usShortTermCapitalGains
+        let taxableOrdinary = max(0, ordinaryGross - deductionSelection.appliedDeduction)
 
         let slabs = Self.brackets(for: status, taxYear: taxYear)
-        let bracketResults = slabs.apply(to: taxableIncome)
+        let bracketResults = slabs.apply(to: taxableOrdinary)
 
-        let basicTax = bracketResults.reduce(Decimal(0)) { $0 + $1.taxAmount }
-        let finalTax = basicTax.rounded(scale: 2)
-        let effectiveRate = gross > 0 ? (finalTax / gross).rounded(scale: 4) : 0
+        let ordinaryFederalTax = bracketResults.reduce(Decimal(0)) { $0 + $1.taxAmount }
+
+        let preferentialIncome = adv.usLongTermCapitalGains + adv.usQualifiedDividends
+        let preferentialTax = Self.preferentialCapitalGainsTax(
+            amount: preferentialIncome,
+            ordinaryTaxable: taxableOrdinary,
+            status: status,
+            taxYear: taxYear
+        )
+
+        let magi = ordinaryGross + adv.usLongTermCapitalGains + adv.usQualifiedDividends + adv.usOtherInvestmentIncome
+        let netInvestmentIncome = adv.usLongTermCapitalGains + adv.usQualifiedDividends + adv.usShortTermCapitalGains + adv.usOtherInvestmentIncome
+        let niit = Self.netInvestmentIncomeTax(
+            magi: magi,
+            netInvestmentIncome: netInvestmentIncome,
+            status: status
+        )
+
+        let wagesForPayroll = max(0, gross)
+        let payroll = Self.payrollTaxes(wages: wagesForPayroll, status: status, taxYear: taxYear)
+
+        let incomeTaxTotal = (ordinaryFederalTax + preferentialTax + niit).rounded(scale: 2)
+        let totalDenominator = max(ordinaryGross + preferentialIncome, 1)
+        let effectiveRate = (incomeTaxTotal / totalDenominator).rounded(scale: 4)
         let marginalRate = bracketResults.last?.ratePercent ?? 0
+
+        var supplementary: [TaxSupplementaryLine] = payroll.lines
+        supplementary += Self.contributionAdvisoryLines(taxYear: taxYear)
+
+        var assumptions: [String] = [
+            String(localized: "Annual income treated as wages for Social Security and Medicare estimates unless you adjust advanced inputs.")
+        ]
+        if preferentialIncome > 0 {
+            assumptions.append(String(localized: "Long-term gains and qualified dividends use a simplified 0/15/20% schedule; your actual rate may differ."))
+        }
+        if netInvestmentIncome > 0 {
+            assumptions.append(String(localized: "Net Investment Income Tax uses a simplified MAGI model."))
+        }
+
+        var warnings: [String] = []
+        if profile.dateOfBirth != nil, ageAtEndOfTaxYear(dateOfBirth: profile.dateOfBirth, taxYear: taxYear).map({ $0 >= 65 }) == true {
+            warnings.append(String(localized: "OBBBA additional standard deduction for age 65+ is modeled without income phase-outs."))
+        }
+
+        let exclusions = [
+            String(localized: "Alternative Minimum Tax (AMT) is not calculated."),
+            String(localized: "State and local taxes are not included."),
+            String(localized: "Payroll taxes are shown separately and are not included in the federal income tax total.")
+        ]
 
         return TaxEstimate(
             grossIncome: gross,
             standardDeduction: deductionSelection.standardDeductionPortion,
             customDeductionsTotal: deductionSelection.customDeductionsPortion,
-            taxableIncome: taxableIncome,
+            taxableIncome: taxableOrdinary,
             bracketResults: bracketResults,
-            basicTax: basicTax,
+            basicTax: ordinaryFederalTax,
             rebate: 0,
             surcharge: 0,
             cess: 0,
-            finalTax: finalTax,
+            finalTax: incomeTaxTotal,
             effectiveRate: effectiveRate,
             marginalRate: marginalRate,
             country: .unitedStates,
-            regimeLabel: regimeLabel(for: status, deductionMode: deductionMode)
+            regimeLabel: regimeLabel(for: status, deductionMode: deductionMode),
+            supplementaryLines: supplementary,
+            assumptions: assumptions,
+            warnings: warnings,
+            exclusions: exclusions,
+            disclaimerKey: "tax.disclaimer.us.v1",
+            ruleSetID: ruleSetID,
+            rulesLastUpdated: rulesLastUpdated
         )
+    }
+
+    private static let rulesLastUpdated: Date = {
+        Calendar.current.date(from: DateComponents(year: 2026, month: 4, day: 18)) ?? .now
+    }()
+
+    private func ageAtEndOfTaxYear(dateOfBirth: Date?, taxYear: Int) -> Int? {
+        guard let dob = dateOfBirth else { return nil }
+        guard let end = Calendar.current.date(from: DateComponents(year: taxYear, month: 12, day: 31)) else { return nil }
+        return Calendar.current.dateComponents([.year], from: dob, to: end).year
+    }
+
+    private struct PayrollBreakdown {
+        let lines: [TaxSupplementaryLine]
+    }
+
+    private static func payrollTaxes(wages: Decimal, status: USFilingStatus, taxYear: Int) -> PayrollBreakdown {
+        let ssWageBase: Decimal = taxYear >= 2026 ? 184_500 : 176_100
+        let ss = (min(wages, ssWageBase) * (Decimal(string: "0.062") ?? 0)).rounded(scale: 2)
+        let medicare = (wages * (Decimal(string: "0.0145") ?? 0)).rounded(scale: 2)
+        let addMedThreshold: Decimal
+        switch status {
+        case .marriedFilingJointly, .qualifyingSurvivingSpouse:
+            addMedThreshold = 250_000
+        case .marriedFilingSeparately:
+            addMedThreshold = 125_000
+        default:
+            addMedThreshold = 200_000
+        }
+        let additionalMedicare = (max(0, wages - addMedThreshold) * (Decimal(string: "0.009") ?? 0)).rounded(scale: 2)
+        let lines = [
+            TaxSupplementaryLine(title: String(localized: "Social Security (employee)"), amount: ss),
+            TaxSupplementaryLine(title: String(localized: "Medicare (employee)"), amount: medicare),
+            TaxSupplementaryLine(title: String(localized: "Additional Medicare Tax"), amount: additionalMedicare)
+        ]
+        return PayrollBreakdown(lines: lines)
+    }
+
+    private static func netInvestmentIncomeTax(magi: Decimal, netInvestmentIncome: Decimal, status: USFilingStatus) -> Decimal {
+        guard netInvestmentIncome > 0 else { return 0 }
+        let threshold: Decimal
+        switch status {
+        case .marriedFilingJointly, .qualifyingSurvivingSpouse:
+            threshold = 250_000
+        case .marriedFilingSeparately:
+            threshold = 125_000
+        default:
+            threshold = 200_000
+        }
+        guard magi > threshold else { return 0 }
+        let base = min(netInvestmentIncome, magi - threshold)
+        return (max(0, base) * (Decimal(string: "0.038") ?? 0)).rounded(scale: 2)
+    }
+
+    /// Simplified preferential rate: 15% on gains when taxable ordinary is below upper breakpoint, else 20%.
+    private static func preferentialCapitalGainsTax(
+        amount: Decimal,
+        ordinaryTaxable: Decimal,
+        status: USFilingStatus,
+        taxYear: Int
+    ) -> Decimal {
+        guard amount > 0 else { return 0 }
+        let upperBreakpoint = preferentialUpperBreakpoint(status: status, taxYear: taxYear)
+        let rate: Decimal = ordinaryTaxable < upperBreakpoint
+            ? (Decimal(string: "0.15") ?? 0)
+            : (Decimal(string: "0.20") ?? 0)
+        return (amount * rate).rounded(scale: 2)
+    }
+
+    private static func preferentialUpperBreakpoint(status: USFilingStatus, taxYear: Int) -> Decimal {
+        _ = taxYear
+        switch status {
+        case .marriedFilingJointly, .qualifyingSurvivingSpouse:
+            return 583_750
+        case .marriedFilingSeparately:
+            return 291_850
+        case .headOfHousehold:
+            return 566_700
+        case .single:
+            return 518_900
+        }
+    }
+
+    private static func contributionAdvisoryLines(taxYear: Int) -> [TaxSupplementaryLine] {
+        if taxYear >= 2026 {
+            return [
+                TaxSupplementaryLine(title: String(localized: "401(k) elective deferral limit (advisory)"), amount: 24_500),
+                TaxSupplementaryLine(title: String(localized: "IRA contribution limit (advisory)"), amount: 7_500),
+                TaxSupplementaryLine(title: String(localized: "HSA family contribution limit (advisory)"), amount: 8_750)
+            ]
+        }
+        return [
+            TaxSupplementaryLine(title: String(localized: "401(k) elective deferral limit (advisory)"), amount: 23_500),
+            TaxSupplementaryLine(title: String(localized: "IRA contribution limit (advisory)"), amount: 7_000),
+            TaxSupplementaryLine(title: String(localized: "HSA family contribution limit (advisory)"), amount: 8_550)
+        ]
     }
 
     private func selectDeduction(

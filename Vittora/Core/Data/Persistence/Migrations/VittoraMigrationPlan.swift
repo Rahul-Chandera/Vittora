@@ -84,15 +84,38 @@ enum VittoraSchemaV3: VersionedSchema {
     }
 }
 
+// MARK: - Schema V4 (tax profile advanced JSON)
+
+enum VittoraSchemaV4: VersionedSchema {
+    static let versionIdentifier = Schema.Version(4, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            SDTransaction.self,
+            SDAccount.self,
+            SDCategory.self,
+            SDBudget.self,
+            SDPayee.self,
+            SDRecurringRule.self,
+            SDDocument.self,
+            SDDebt.self,
+            SDSplitGroup.self,
+            SDGroupExpense.self,
+            SDTaxProfile.self,
+            SDSavingsGoal.self,
+        ]
+    }
+}
+
 // MARK: - Migration plan
 
 enum VittoraMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [VittoraSchemaV1.self, VittoraSchemaV2.self, VittoraSchemaV3.self]
+        [VittoraSchemaV1.self, VittoraSchemaV2.self, VittoraSchemaV3.self, VittoraSchemaV4.self]
     }
 
     static var stages: [MigrationStage] {
-        [migrateV1toV2, migrateV2toV3]
+        [migrateV1toV2, migrateV2toV3, migrateV3toV4]
     }
 
     /// Moves thumbnail blobs from the SwiftData store to the filesystem before
@@ -128,5 +151,10 @@ enum VittoraMigrationPlan: SchemaMigrationPlan {
     private static let migrateV2toV3 = MigrationStage.lightweight(
         fromVersion: VittoraSchemaV2.self,
         toVersion: VittoraSchemaV3.self
+    )
+
+    private static let migrateV3toV4 = MigrationStage.lightweight(
+        fromVersion: VittoraSchemaV3.self,
+        toVersion: VittoraSchemaV4.self
     )
 }

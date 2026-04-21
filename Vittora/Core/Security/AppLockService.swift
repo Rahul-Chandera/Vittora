@@ -14,6 +14,7 @@ protocol AppLockServiceProtocol: Sendable {
 @MainActor
 final class AppLockService: AppLockServiceProtocol, Sendable {
     private let biometricService: any BiometricServiceProtocol
+    private let auditLogger: (any SecurityAuditLogging)?
     private var _isLocked = false
     private var lastActivityTime = Date()
     private var _lockTimeout: TimeInterval = 300
@@ -40,14 +41,19 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
         }
     }
 
-    init(biometricService: any BiometricServiceProtocol) {
+    init(
+        biometricService: any BiometricServiceProtocol,
+        auditLogger: (any SecurityAuditLogging)? = nil
+    ) {
         self.biometricService = biometricService
+        self.auditLogger = auditLogger
         resetLockTimer()
     }
 
     func lock() async {
         _isLocked = true
         lockTask?.cancel()
+        await auditLogger?.record(SecurityAuditEvent(kind: .appLocked, detail: "session"))
     }
 
     func unlock() async throws -> Bool {
@@ -77,6 +83,10 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
             _isLocked = false
             lastActivityTime = Date()
             resetLockTimer()
+            await auditLogger?.record(SecurityAuditEvent(
+                kind: .appUnlocked,
+                detail: usingPasscodeFallback ? "passcode" : "biometric"
+            ))
         } else {
             recordFailure()
         }

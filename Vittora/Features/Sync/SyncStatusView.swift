@@ -81,10 +81,16 @@ struct SyncDetailView: View {
                     Spacer()
                     Text(syncService.iCloudAccountAvailable
                          ? String(localized: "Connected")
-                         : String(localized: "Unavailable"))
+                         : String(localized: "Not signed in"))
                         .foregroundStyle(syncService.iCloudAccountAvailable
                                          ? VColors.income
-                                         : VColors.expense)
+                                         : VColors.textSecondary)
+                }
+
+                if !syncService.iCloudAccountAvailable {
+                    Text(String(localized: "Your data stays on this device. Sign in to iCloud in Settings to sync across devices."))
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
                 }
             } header: {
                 Text(String(localized: "Status"))
@@ -241,6 +247,10 @@ private struct SyncConflictReviewRow: View {
             String(localized: "Remote version kept")
         case .ambiguous:
             String(localized: "System applied LWW (outcome ambiguous)")
+        case .cloudKitAutoResolved:
+            String(localized: "CloudKit merged changes automatically")
+        case .integrityViolation:
+            String(localized: "Integrity check — review this record")
         }
     }
 
@@ -252,6 +262,10 @@ private struct SyncConflictReviewRow: View {
             "icloud.and.arrow.down"
         case .ambiguous:
             "questionmark.circle"
+        case .cloudKitAutoResolved:
+            "arrow.triangle.merge"
+        case .integrityViolation:
+            "exclamationmark.shield.fill"
         }
     }
 
@@ -263,6 +277,10 @@ private struct SyncConflictReviewRow: View {
             VColors.warning
         case .ambiguous:
             VColors.textSecondary
+        case .cloudKitAutoResolved:
+            VColors.warning
+        case .integrityViolation:
+            VColors.expense
         }
     }
 

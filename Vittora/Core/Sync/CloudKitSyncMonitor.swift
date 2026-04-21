@@ -59,7 +59,7 @@ final class CloudKitSyncMonitor {
             Task { @MainActor [conflictHandler] in
                 let violations = await validator.validateAmountBearingEntities()
                 for violation in violations {
-                    conflictHandler.logConflict(
+                    conflictHandler.logIntegrityViolation(
                         entityType: violation.entityType,
                         entityID: violation.entityID,
                         description: violation.description
@@ -85,7 +85,8 @@ final class CloudKitSyncMonitor {
                 detectedAt: event.endDate ?? .now,
                 localModifiedAt: nil,
                 remoteModifiedAt: nil,
-                description: conflictDescription(for: event.type, error: error)
+                description: conflictDescription(for: event.type, error: error),
+                resolutionOverride: .cloudKitAutoResolved
             )
             PerformanceLogger.Sync.conflict()
             syncStatusService.markError(String(localized: "A sync conflict was resolved automatically. Review iCloud Sync for details."))

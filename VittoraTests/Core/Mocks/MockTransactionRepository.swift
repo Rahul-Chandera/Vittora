@@ -6,6 +6,11 @@ actor MockTransactionRepository: TransactionRepository {
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
 
+    func fetchTransactionCount() async throws -> Int {
+        if shouldThrowError { throw throwError }
+        return transactions.count
+    }
+
     func fetchAll(filter: TransactionFilter?) async throws -> [TransactionEntity] {
         if shouldThrowError { throw throwError }
         var results = transactions

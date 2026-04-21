@@ -1,6 +1,10 @@
 import Foundation
 
 struct MockTransactionRepository: TransactionRepository {
+    func fetchTransactionCount() async throws -> Int {
+        try await fetchAll(filter: nil).count
+    }
+
     func fetchAll(filter: TransactionFilter?) async throws -> [TransactionEntity] {
         let now = Date()
         return [

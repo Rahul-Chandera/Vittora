@@ -92,5 +92,9 @@ enum PerformanceLogger {
         static func cooldownBlocked(remainingSeconds: Int) {
             event(securityLog, name: "CooldownBlocked", message: "remaining=\(remainingSeconds)s")
         }
+
+        static func auditWriteFailed(_ message: String) {
+            event(securityLog, name: "AuditWriteFailed", message: message)
+        }
     }
 }

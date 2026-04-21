@@ -8,7 +8,10 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
     func calculate(profile: TaxProfile) -> TaxEstimate {
         let regime = profile.indiaRegime
         let gross = profile.annualIncome
+        let adv = profile.advancedInputs
         let financialYear = Self.supportedFinancialYear(for: profile)
+        let ruleSetID = "IN_FY\(financialYear == .fy2025 ? "2025_26" : "2024_25")"
+        let rulesLastUpdated = Self.rulesLastUpdated
 
         let standardDeduction = standardDeduction(for: regime, incomeSourceType: profile.incomeSourceType, financialYear: financialYear)
         let customDeductionsTotal: Decimal = regime == .oldRegime
@@ -28,17 +31,42 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
             financialYear: financialYear
         )
 
-        let taxAfterRebate = max(0, basicTax - rebate)
+        let ltcgTax = Self.equityLongTermCapitalGainsTax(amount: adv.indiaEquityLTCG)
+        let stcgTax = (adv.indiaEquitySTCG * (Decimal(string: "0.20") ?? 0)).rounded(scale: 2)
+
+        let taxAfterRebate = max(0, basicTax - rebate) + ltcgTax + stcgTax
+        let totalGrossForSurcharge = gross + adv.indiaEquityLTCG + adv.indiaEquitySTCG
         let surcharge = calculateSurcharge(
             taxAfterRebate: taxAfterRebate,
-            grossIncome: gross,
+            grossIncome: totalGrossForSurcharge,
             regime: regime
         )
         let cess = ((taxAfterRebate + surcharge) * 4 / 100).rounded(scale: 2)
 
         let finalTax = (taxAfterRebate + surcharge + cess).rounded(scale: 2)
-        let effectiveRate = gross > 0 ? (finalTax / gross).rounded(scale: 4) : 0
+        let denom = totalGrossForSurcharge
+        let effectiveRate = denom > 0 ? (finalTax / denom).rounded(scale: 4) : 0
         let marginalRate = bracketResults.last?.ratePercent ?? 0
+
+        var supplementary: [TaxSupplementaryLine] = []
+        if ltcgTax > 0 {
+            supplementary.append(TaxSupplementaryLine(title: String(localized: "Equity LTCG (Section 112A-style)"), amount: ltcgTax))
+        }
+        if stcgTax > 0 {
+            supplementary.append(TaxSupplementaryLine(title: String(localized: "Equity STCG (simplified)"), amount: stcgTax))
+        }
+
+        var assumptions: [String] = [
+            String(localized: "Ordinary income is slab-taxed; equity LTCG/STCG use simplified rates and exemptions.")
+        ]
+        var warnings: [String] = []
+        if adv.indiaEquityLTCG > 0 || adv.indiaEquitySTCG > 0 {
+            warnings.append(String(localized: "Section 87A rebate applies to ordinary slab tax only, not to special-rate equity gains."))
+        }
+
+        var exclusions: [String] = [
+            String(localized: "State taxes and cess on surcharges are modeled only at the federal level; verify with a CA.")
+        ]
 
         return TaxEstimate(
             grossIncome: gross,
@@ -54,8 +82,27 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
             effectiveRate: effectiveRate,
             marginalRate: marginalRate,
             country: .india,
-            regimeLabel: regime.displayName
+            regimeLabel: regime.displayName,
+            supplementaryLines: supplementary,
+            assumptions: assumptions,
+            warnings: warnings,
+            exclusions: exclusions,
+            disclaimerKey: "tax.disclaimer.in.v1",
+            ruleSetID: ruleSetID,
+            rulesLastUpdated: rulesLastUpdated
         )
+    }
+
+    private static let rulesLastUpdated: Date = {
+        Calendar.current.date(from: DateComponents(year: 2026, month: 4, day: 18)) ?? .now
+    }()
+
+    /// Simplified: 12.5% on amount above ₹1.25L exemption (new regime equity LTCG).
+    private static func equityLongTermCapitalGainsTax(amount: Decimal) -> Decimal {
+        guard amount > 0 else { return 0 }
+        let exempt: Decimal = 125_000
+        let taxable = max(0, amount - exempt)
+        return (taxable * (Decimal(string: "0.125") ?? 0)).rounded(scale: 2)
     }
 
     private enum FinancialYear: Int {
