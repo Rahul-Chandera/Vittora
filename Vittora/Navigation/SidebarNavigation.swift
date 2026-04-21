@@ -87,7 +87,6 @@ struct SidebarNavigation: View {
                 Button(action: { showAddTransaction = true }) {
                     Label(String(localized: "New Transaction"), systemImage: "plus")
                 }
-                .keyboardShortcut("n", modifiers: .command)
             }
             ToolbarItem(placement: .status) {
                 SyncStatusView()

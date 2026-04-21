@@ -20,12 +20,14 @@ struct SyncStatusServiceTests {
         #expect(isValidInitial)
     }
 
-    @Test("markSyncing sets state to syncing when account available")
-    func markSyncingUpdatesState() throws {
+    /// OFFL-03: sync UI must not block local use; when iCloud is unavailable, `markSyncing` is a no-op.
+    @Test("markSyncing does not switch to syncing when iCloud account unavailable")
+    func markSyncingNoOpWhenICloudUnavailable() throws {
         let (service, _) = try makeService()
+        #expect(service.iCloudAccountAvailable == false)
         service.markSynced()
         service.markSyncing()
-        #expect(service.syncState == .syncing || service.syncState == .synced)
+        #expect(service.syncState == .synced)
     }
 
     @Test("markSynced updates lastSyncDate")
@@ -46,13 +48,14 @@ struct SyncStatusServiceTests {
         #expect(stored != nil)
     }
 
-    @Test("markPending sets pending state when account available")
-    func markPendingSetsState() throws {
+    /// OFFL-03: pending is only surfaced when sync can run; otherwise state stays unchanged.
+    @Test("markPending does not switch to pending when iCloud account unavailable")
+    func markPendingNoOpWhenICloudUnavailable() throws {
         let (service, _) = try makeService()
+        #expect(service.iCloudAccountAvailable == false)
         service.markSynced()
         service.markPending()
-        let isPendingOrSynced = service.syncState == .pending || service.syncState == .synced
-        #expect(isPendingOrSynced)
+        #expect(service.syncState == .synced)
     }
 
     @Test("markError sets error state with message")
@@ -97,6 +100,13 @@ struct SyncStatusServiceTests {
         #expect(SyncState.offline.isError == false)
         #expect(SyncState.syncing.isError == false)
         #expect(SyncState.pending.isError == false)
+    }
+
+    /// OFFL-02: missing iCloud is modeled as `.offline`, not `.error`, so the chip stays non-alarming.
+    @Test("offline state is not classified as error for UI")
+    func offlineNotErrorForDisplay() {
+        #expect(!SyncState.offline.isError)
+        #expect(SyncState.offline.displayText == String(localized: "Offline"))
     }
 
     @Test("SyncState equality")
