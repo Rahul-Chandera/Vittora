@@ -23,13 +23,15 @@ struct VittoraApp: App {
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
 
-    private let modelContainer: ModelContainer
+    private let modelContainer: ModelContainer?
     private let isUITesting: Bool
     private let isRunningAutomatedTests: Bool
     private let showsOnboardingForUITesting: Bool
     private let bypassOnboardingForUITesting: Bool
     private let seedsTransactionsForUITesting: Bool
     private let seedsTransfersForUITesting: Bool
+    private let startupErrorMessage: String?
+    private let startupFailureMessage: String?
     private let recurringGenerationUseCase: GenerateRecurringTransactionsUseCase?
 
     init() {
@@ -41,13 +43,17 @@ struct VittoraApp: App {
         seedsTransactionsForUITesting = launchArguments.contains("--ui-test-seed-transactions")
         seedsTransfersForUITesting = launchArguments.contains("--ui-test-seed-transfers")
 
-        do {
-            modelContainer = try ModelContainerConfig.makeContainer(inMemory: isRunningAutomatedTests)
-        } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
-        }
+        let startupContainer = Self.makeStartupModelContainer(inMemory: isRunningAutomatedTests)
+        modelContainer = startupContainer.container
+        startupErrorMessage = startupContainer.errorMessage
+        startupFailureMessage = startupContainer.failureMessage
 
-        let dependencyContainer = DependencyContainer.createDefault(modelContainer: modelContainer)
+        let dependencyContainer: DependencyContainer
+        if let modelContainer {
+            dependencyContainer = DependencyContainer.createDefault(modelContainer: modelContainer)
+        } else {
+            dependencyContainer = DependencyContainer()
+        }
         let syncStatusService = SyncStatusService(isMonitoringEnabled: !isRunningAutomatedTests)
         let conflictHandler = SyncConflictHandler()
         _dependencies = State(initialValue: dependencyContainer)
@@ -59,11 +65,13 @@ struct VittoraApp: App {
         _cloudKitSyncMonitor = State(
             initialValue: isRunningAutomatedTests
                 ? nil
-                : CloudKitSyncMonitor(
-                    syncStatusService: syncStatusService,
-                    conflictHandler: conflictHandler,
-                    integrityValidator: SyncIntegrityValidator(modelContainer: modelContainer)
-                )
+                : modelContainer.map { container in
+                    CloudKitSyncMonitor(
+                        syncStatusService: syncStatusService,
+                        conflictHandler: conflictHandler,
+                        integrityValidator: SyncIntegrityValidator(modelContainer: container)
+                    )
+                }
         )
         _appState = State(
             initialValue: AppState(
@@ -121,21 +129,36 @@ struct VittoraApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(appState)
-                .environment(router)
-                .environment(\.dependencies, dependencies)
-                .environment(settingsVM)
-                .environment(syncService)
-                .environment(syncConflictHandler)
-                .environment(\.currencyCode, settingsVM.selectedCurrencyCode)
-                .environment(\.currencySymbol, String.currencySymbol(for: settingsVM.selectedCurrencyCode))
+            if let modelContainer {
+                ContentView()
+                    .environment(appState)
+                    .environment(router)
+                    .environment(\.dependencies, dependencies)
+                    .environment(settingsVM)
+                    .environment(syncService)
+                    .environment(syncConflictHandler)
+                    .environment(\.currencyCode, settingsVM.selectedCurrencyCode)
+                    .environment(\.currencySymbol, String.currencySymbol(for: settingsVM.selectedCurrencyCode))
+                    .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
+                    .modelContainer(modelContainer)
+                    .overlay(alignment: .top) {
+                        if let startupErrorMessage {
+                            StartupRecoveryBanner(message: startupErrorMessage)
+                                .padding(.horizontal, VSpacing.screenPadding)
+                                .padding(.top, VSpacing.sm)
+                        }
+                    }
+                    .task {
+                        await performStartupTasksIfNeeded()
+                    }
+            } else {
+                StartupFailureView(
+                    message: startupFailureMessage
+                        ?? String(localized: "Vittora couldn't open its data store or create a recovery store.")
+                )
                 .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
-                .task {
-                    await performStartupTasksIfNeeded()
-                }
+            }
         }
-        .modelContainer(modelContainer)
         .onChange(of: scenePhase) { _, newPhase in
             let shouldShowPrivacyShield = newPhase == .inactive || newPhase == .background
             appState.isPrivacyShieldVisible = !isRunningAutomatedTests && shouldShowPrivacyShield
@@ -174,6 +197,7 @@ struct VittoraApp: App {
 
         guard !isRunningAutomatedTests else { return }
 
+        guard let modelContainer else { return }
         let dataSeeder = DefaultDataSeeder(modelContainer: modelContainer)
         do {
             try await dataSeeder.seedDefaultCategoriesIfNeeded()
@@ -227,5 +251,69 @@ struct VittoraApp: App {
         } catch {
             Self.logger.error("Failed to seed UI test transfer data: \(error.localizedDescription, privacy: .public)")
         }
+    }
+
+    private static func makeStartupModelContainer(
+        inMemory: Bool
+    ) -> (container: ModelContainer?, errorMessage: String?, failureMessage: String?) {
+        do {
+            return (try ModelContainerConfig.makeContainer(inMemory: inMemory), nil, nil)
+        } catch {
+            logger.error("Failed to create persistent ModelContainer: \(error.localizedDescription, privacy: .public)")
+
+            do {
+                let recoveryContainer = try ModelContainerConfig.makeContainer(inMemory: true)
+                let message = String(localized: "Vittora couldn't open its data store, so it started in recovery mode. Your saved data was left untouched.")
+                return (recoveryContainer, message, nil)
+            } catch {
+                logger.fault("Failed to create recovery ModelContainer: \(error.localizedDescription, privacy: .public)")
+                let message = String(localized: "Vittora couldn't open its data store or create a recovery store. Please restart the app and contact support if this continues.")
+                return (nil, nil, message)
+            }
+        }
+    }
+}
+
+private struct StartupRecoveryBanner: View {
+    let message: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: VSpacing.sm) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(VColors.warning)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                Text(String(localized: "Recovery Mode"))
+                    .font(VTypography.caption1Bold)
+                    .foregroundStyle(VColors.textPrimary)
+                Text(message)
+                    .font(VTypography.caption2)
+                    .foregroundStyle(VColors.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(VSpacing.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(VColors.warning.opacity(0.14))
+        .overlay {
+            RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD)
+                .stroke(VColors.warning.opacity(0.35), lineWidth: 1)
+        }
+        .cornerRadius(VSpacing.cornerRadiusMD)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct StartupFailureView: View {
+    let message: String
+
+    var body: some View {
+        ContentUnavailableView {
+            Label(String(localized: "Vittora Couldn't Start"), systemImage: "exclamationmark.triangle.fill")
+        } description: {
+            Text(message)
+        }
+        .background(VColors.background)
     }
 }

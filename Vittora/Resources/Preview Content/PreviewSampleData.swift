@@ -8,7 +8,7 @@ enum PreviewSampleData {
         do {
             return try ModelContainerConfig.makePreviewContainer()
         } catch {
-            fatalError("Failed to create preview container: \(error)")
+            preconditionFailure("Failed to create preview container: \(error)")
         }
     }
 
