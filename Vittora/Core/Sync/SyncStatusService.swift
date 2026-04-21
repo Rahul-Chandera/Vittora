@@ -35,6 +35,11 @@ enum SyncState: Equatable, Sendable {
     }
 }
 
+/// Offline contract:
+/// - Local SwiftData writes must not be blocked by network or iCloud availability.
+/// - CloudKit sync runs opportunistically when network and account access return.
+/// - NSPersistentCloudKitContainer applies last-writer-wins conflict resolution by
+///   modification timestamp; ambiguous merge events are surfaced in the sync log.
 @Observable
 @MainActor
 final class SyncStatusService: Sendable {
