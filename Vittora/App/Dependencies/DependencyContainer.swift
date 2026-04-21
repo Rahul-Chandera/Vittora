@@ -56,12 +56,14 @@ final class DependencyContainer {
         }
         container.appLockService = AppLockService(biometricService: biometricService)
         container.contactsImportService = SystemContactsImportService()
-        container.exportService = DataExportService(
-            transactionRepository: container.transactionRepository!,
-            accountRepository: container.accountRepository,
-            categoryRepository: container.categoryRepository,
-            payeeRepository: container.payeeRepository
-        )
+        if let transactionRepository = container.transactionRepository {
+            container.exportService = DataExportService(
+                transactionRepository: transactionRepository,
+                accountRepository: container.accountRepository,
+                categoryRepository: container.categoryRepository,
+                payeeRepository: container.payeeRepository
+            )
+        }
 
         return container
     }
