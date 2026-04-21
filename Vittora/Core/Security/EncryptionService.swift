@@ -137,10 +137,10 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
         ]
         var item: CFTypeRef?
         guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
-              let ref = item else { return nil }
-        // SecItemCopyMatching with kSecReturnRef and kSecClassKey guarantees a SecKey;
-        // the Security framework requires this CF-type cast (no optional variant exists).
-        return (ref as! SecKey) // swiftlint:disable:this force_cast
+              let ref = item,
+              CFGetTypeID(ref) == SecKeyGetTypeID() else { return nil }
+        // SecKey is a CoreFoundation type; after checking CFTypeID, this bridge is safe.
+        return unsafeBitCast(ref, to: SecKey.self)
     }
 
     private func createSEPrivateKey() throws -> SecKey {

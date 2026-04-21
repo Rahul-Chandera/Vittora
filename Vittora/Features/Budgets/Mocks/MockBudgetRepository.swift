@@ -1,17 +1,20 @@
 import Foundation
 
 struct MockBudgetRepository: BudgetRepository {
+    private static let monthlyBudgetID = UUID(uuidString: "12345678-1234-5678-1234-567812345678") ?? UUID()
+    private static let weeklyBudgetID = UUID(uuidString: "23456789-2345-6789-2345-678923456789") ?? UUID()
+
     func fetchAll() async throws -> [BudgetEntity] {
         return [
             BudgetEntity(
-                id: UUID(uuidString: "1234-5678-1234-5678")!,
+                id: Self.monthlyBudgetID,
                 amount: 1000,
                 spent: 650,
                 period: .monthly,
                 startDate: Date()
             ),
             BudgetEntity(
-                id: UUID(uuidString: "2345-6789-2345-6789")!,
+                id: Self.weeklyBudgetID,
                 amount: 500,
                 spent: 480,
                 period: .weekly,

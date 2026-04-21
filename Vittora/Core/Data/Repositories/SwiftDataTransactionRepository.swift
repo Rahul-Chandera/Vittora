@@ -37,7 +37,7 @@ actor SwiftDataTransactionRepository: TransactionRepository {
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
         // Cap note-search queries when no date range narrows the scan.
-        if filter.searchQuery != nil && !filter.searchQuery!.isEmpty && !hasDateRange {
+        if let query = filter.searchQuery, !query.isEmpty, !hasDateRange {
             descriptor.fetchLimit = 200
         }
 
