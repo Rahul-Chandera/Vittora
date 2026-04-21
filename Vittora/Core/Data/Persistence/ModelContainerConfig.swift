@@ -21,7 +21,7 @@ enum ModelContainerConfig {
         ]
     }
 
-    /// Create the shared model container
+    /// Create the shared model container (single schema snapshot — no migration plan; pre-production).
     static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
         let schema = Schema(allModels)
         let cloudKitDatabase: ModelConfiguration.CloudKitDatabase =
@@ -31,11 +31,7 @@ enum ModelContainerConfig {
             isStoredInMemoryOnly: inMemory,
             cloudKitDatabase: cloudKitDatabase
         )
-        let container = try ModelContainer(
-            for: schema,
-            migrationPlan: VittoraMigrationPlan.self,
-            configurations: [config]
-        )
+        let container = try ModelContainer(for: schema, configurations: [config])
         if !inMemory {
             applyStoreFileAttributes(to: container)
         }
