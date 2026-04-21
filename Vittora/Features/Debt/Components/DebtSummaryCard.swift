@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct DebtSummaryCard: View {
+    @Environment(\.currencyCode) private var currencyCode
+
     let balance: DebtBalance
 
     var body: some View {
@@ -56,6 +58,6 @@ struct DebtSummaryCard: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(currencyCode: "USD")
+        amount.formatted(currencyCode: currencyCode)
     }
 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct RecurringFormView: View {
     @Environment(\.dependencies) var dependencies
     @Environment(\.dismiss) var dismiss
+    @Environment(\.currencySymbol) private var currencySymbol
     @State private var viewModel: RecurringFormViewModel?
     @State private var accounts: [AccountEntity] = []
     @State private var payees: [PayeeEntity] = []
@@ -25,7 +26,7 @@ struct RecurringFormView: View {
                                     .foregroundColor(VColors.textPrimary)
 
                                 HStack(spacing: VSpacing.sm) {
-                                    Text("$")
+                                    Text(currencySymbol)
                                         .font(VTypography.callout)
                                         .foregroundColor(VColors.textSecondary)
 

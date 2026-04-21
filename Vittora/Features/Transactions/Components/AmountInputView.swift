@@ -9,7 +9,7 @@ struct AmountInputView: View {
     var body: some View {
         VStack(spacing: VSpacing.md) {
             HStack(spacing: VSpacing.xs) {
-                Text(currencySymbol(for: currencyCode))
+                Text(String.currencySymbol(for: currencyCode))
                     .font(.system(size: 32, weight: .semibold))
                     .foregroundColor(transactionColor(for: type))
 
@@ -40,14 +40,6 @@ struct AmountInputView: View {
             .background(VColors.secondaryBackground)
             .cornerRadius(VSpacing.cornerRadiusSM)
         }
-    }
-
-    private func currencySymbol(for code: String) -> String {
-        let locale = NSLocale(localeIdentifier: "en_US_POSIX")
-        if let symbol = locale.displayName(forKey: NSLocale.Key.currencySymbol, value: code) {
-            return symbol
-        }
-        return "$"
     }
 
     private func transactionColor(for type: TransactionType) -> Color {

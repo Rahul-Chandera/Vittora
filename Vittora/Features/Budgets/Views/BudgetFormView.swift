@@ -2,6 +2,7 @@ import SwiftUI
 
 struct BudgetFormView: View {
     @Environment(\.dependencies) var dependencies
+    @Environment(\.currencySymbol) private var currencySymbol
     @Binding var isPresented: Bool
     @State private var viewModel: BudgetFormViewModel?
     @State private var showCategoryPicker = false
@@ -15,7 +16,7 @@ struct BudgetFormView: View {
             Form {
                 Section(String(localized: "Amount")) {
                     HStack {
-                        Text("$")
+                        Text(currencySymbol)
                             .foregroundColor(VColors.textSecondary)
                         TextField("0.00", text: Binding(
                             get: { viewModel?.amount ?? "" },
