@@ -5,6 +5,10 @@ struct SettingsView: View {
     @Environment(SyncConflictHandler.self) private var syncConflictHandler
     @Environment(\.dependencies) private var dependencies
     @State private var showDeleteAccountConfirm = false
+    @State private var deleteConfirmationText = ""
+    @State private var isDeletingAllData = false
+
+    private let deleteConfirmationPhrase = String(localized: "DELETE")
 
     var body: some View {
         Form {
@@ -95,6 +99,7 @@ struct SettingsView: View {
             // Account deletion
             Section {
                 Button(role: .destructive) {
+                    deleteConfirmationText = ""
                     showDeleteAccountConfirm = true
                 } label: {
                     SettingsRow(icon: "trash.fill", iconColor: .red,
@@ -121,21 +126,70 @@ struct SettingsView: View {
             get: { vm.keychainError },
             set: { vm.keychainError = $0 }
         ))
-        .confirmationDialog(
-            String(localized: "Delete All Data?"),
-            isPresented: $showDeleteAccountConfirm,
-            titleVisibility: .visible
-        ) {
-            Button(String(localized: "Delete All Data"), role: .destructive) {
-                Task { await deleteAllData() }
-            }
-            Button(String(localized: "Cancel"), role: .cancel) {}
-        } message: {
-            Text(String(localized: "This will permanently erase all your financial data and reset Vittora to its initial state. This cannot be undone."))
+        .sheet(isPresented: $showDeleteAccountConfirm) {
+            deleteAllDataConfirmationSheet
         }
     }
 
-    private func deleteAllData() async {
+    private var deleteAllDataConfirmationSheet: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Text(String(localized: "This permanently erases all financial data, removes saved settings, and resets Vittora to its initial state. This cannot be undone."))
+                        .foregroundStyle(VColors.textPrimary)
+                }
+
+                Section(String(localized: "Confirmation")) {
+                    Text(String(localized: "Type \(deleteConfirmationPhrase) to confirm."))
+                        .foregroundStyle(VColors.textSecondary)
+
+                    TextField(deleteConfirmationPhrase, text: $deleteConfirmationText)
+                        #if os(iOS)
+                        .textInputAutocapitalization(.characters)
+                        #endif
+                        .autocorrectionDisabled()
+
+                    if !deleteConfirmationText.isEmpty && !canConfirmDeleteAllData {
+                        VInlineErrorText(String(localized: "The confirmation text must match exactly."))
+                    }
+                }
+            }
+            .navigationTitle(String(localized: "Delete All Data"))
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(String(localized: "Cancel")) {
+                        showDeleteAccountConfirm = false
+                    }
+                    .disabled(isDeletingAllData)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(String(localized: "Permanently Delete"), role: .destructive) {
+                        Task { await confirmDeleteAllData() }
+                    }
+                    .disabled(!canConfirmDeleteAllData || isDeletingAllData)
+                }
+            }
+        }
+    }
+
+    private var canConfirmDeleteAllData: Bool {
+        deleteConfirmationText.trimmingCharacters(in: .whitespacesAndNewlines) == deleteConfirmationPhrase
+    }
+
+    private func confirmDeleteAllData() async {
+        isDeletingAllData = true
+        let didDelete = await deleteAllData()
+        isDeletingAllData = false
+
+        if didDelete {
+            showDeleteAccountConfirm = false
+        }
+    }
+
+    private func deleteAllData() async -> Bool {
         guard let txRepo = dependencies.transactionRepository,
               let accRepo = dependencies.accountRepository,
               let catRepo = dependencies.categoryRepository,
@@ -143,7 +197,10 @@ struct SettingsView: View {
               let debtRepo = dependencies.debtRepository,
               let goalRepo = dependencies.savingsGoalRepository,
               let splitRepo = dependencies.splitGroupRepository,
-              let docRepo = dependencies.documentRepository else { return }
+              let docRepo = dependencies.documentRepository else {
+            vm.keychainError = String(localized: "We couldn't access the data store to delete your data.")
+            return false
+        }
         let service = DataManagementService(
             transactionRepository: txRepo,
             accountRepository: accRepo,
@@ -157,8 +214,10 @@ struct SettingsView: View {
         )
         do {
             try await service.factoryReset()
+            return true
         } catch {
             vm.keychainError = error.localizedDescription
+            return false
         }
     }
 
