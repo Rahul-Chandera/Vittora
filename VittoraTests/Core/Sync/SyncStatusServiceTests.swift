@@ -6,30 +6,31 @@ import Foundation
 @MainActor
 struct SyncStatusServiceTests {
 
-    private func makeService() -> (SyncStatusService, UserDefaults) {
-        let ud = UserDefaults(suiteName: "com.vittora.test.\(UUID().uuidString)")!
+    private func makeService() throws -> (SyncStatusService, UserDefaults) {
+        let suiteName = "com.vittora.test.\(UUID().uuidString)"
+        let ud = try #require(UserDefaults(suiteName: suiteName))
         return (SyncStatusService(isMonitoringEnabled: false, userDefaults: ud), ud)
     }
 
     @Test("Initial state is synced")
-    func initialStateSynced() {
-        let (service, _) = makeService()
+    func initialStateSynced() throws {
+        let (service, _) = try makeService()
         let validStates: [SyncState] = [.synced, .syncing, .pending, .offline]
         let isValidInitial = validStates.contains(service.syncState) || service.syncState.isError
         #expect(isValidInitial)
     }
 
     @Test("markSyncing sets state to syncing when account available")
-    func markSyncingUpdatesState() {
-        let (service, _) = makeService()
+    func markSyncingUpdatesState() throws {
+        let (service, _) = try makeService()
         service.markSynced()
         service.markSyncing()
         #expect(service.syncState == .syncing || service.syncState == .synced)
     }
 
     @Test("markSynced updates lastSyncDate")
-    func markSyncedUpdatesDate() {
-        let (service, _) = makeService()
+    func markSyncedUpdatesDate() throws {
+        let (service, _) = try makeService()
         let before = Date.now
         service.markSynced()
         #expect(service.syncState == .synced)
@@ -38,16 +39,16 @@ struct SyncStatusServiceTests {
     }
 
     @Test("markSynced persists date to injected UserDefaults")
-    func markSyncedPersistsToUserDefaults() {
-        let (service, ud) = makeService()
+    func markSyncedPersistsToUserDefaults() throws {
+        let (service, ud) = try makeService()
         service.markSynced()
         let stored = ud.object(forKey: "vittora.lastSyncDate") as? Date
         #expect(stored != nil)
     }
 
     @Test("markPending sets pending state when account available")
-    func markPendingSetsState() {
-        let (service, _) = makeService()
+    func markPendingSetsState() throws {
+        let (service, _) = try makeService()
         service.markSynced()
         service.markPending()
         let isPendingOrSynced = service.syncState == .pending || service.syncState == .synced
@@ -55,8 +56,8 @@ struct SyncStatusServiceTests {
     }
 
     @Test("markError sets error state with message")
-    func markErrorSetsMessage() {
-        let (service, _) = makeService()
+    func markErrorSetsMessage() throws {
+        let (service, _) = try makeService()
         service.markError("Test error")
         if case .error(let msg) = service.syncState {
             #expect(msg == "Test error")
@@ -66,8 +67,8 @@ struct SyncStatusServiceTests {
     }
 
     @Test("lastSyncFormatted returns Never when no prior date stored")
-    func lastSyncFormattedNever() {
-        let (freshService, _) = makeService()
+    func lastSyncFormattedNever() throws {
+        let (freshService, _) = try makeService()
         if freshService.lastSyncDate == nil {
             #expect(freshService.lastSyncFormatted == String(localized: "Never"))
         }
