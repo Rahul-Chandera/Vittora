@@ -24,6 +24,7 @@ struct BudgetFormView: View {
                         ))
                         #if os(iOS)
                         .keyboardType(.decimalPad)
+                        .textContentType(nil)
                         #endif
                         .accessibilityIdentifier("budget-amount-field")
                     }

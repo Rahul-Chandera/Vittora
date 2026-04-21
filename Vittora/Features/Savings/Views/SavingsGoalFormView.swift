@@ -52,6 +52,7 @@ struct SavingsGoalFormView: View {
                         TextField("0", text: $targetString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .multilineTextAlignment(.trailing)
                             .frame(width: 140)
@@ -62,6 +63,7 @@ struct SavingsGoalFormView: View {
                         TextField("0", text: $currentString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .multilineTextAlignment(.trailing)
                             .frame(width: 140)

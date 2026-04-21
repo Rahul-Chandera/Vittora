@@ -30,6 +30,7 @@ struct FrequencyPickerView: View {
                         .font(VTypography.callout)
                         #if os(iOS)
                         .keyboardType(.numberPad)
+                        .textContentType(nil)
                         #endif
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 80)

@@ -97,6 +97,7 @@ struct TaxProfileFormView: View {
                     TextField(String(localized: "e.g. 1200000"), text: Bindable(vm).incomeString)
                         #if os(iOS)
                         .keyboardType(.numberPad)
+                        .textContentType(nil)
                         #endif
                         .onChange(of: vm.incomeString) { _, _ in vm.recalculateLive() }
                 }
@@ -305,6 +306,7 @@ private struct AddDeductionSheet: View {
                         TextField("0", text: $amountString)
                             #if os(iOS)
                             .keyboardType(.numberPad)
+                            .textContentType(nil)
                             #endif
                     }
                 }

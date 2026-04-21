@@ -29,6 +29,7 @@ struct AddGroupExpenseView: View {
                         TextField(String(localized: "Amount"), text: Bindable(vm).amountString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .onChange(of: vm.amountString) { _, _ in vm.recalculate() }
                     }
@@ -151,6 +152,7 @@ private struct AllocationRow: View {
                         TextField("0", text: $row.inputValue)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .multilineTextAlignment(.trailing)
                             .frame(width: 60)
@@ -161,6 +163,7 @@ private struct AllocationRow: View {
                         TextField("0.00", text: $row.inputValue)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
@@ -169,6 +172,7 @@ private struct AllocationRow: View {
                         TextField("1", text: $row.inputValue)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .multilineTextAlignment(.trailing)
                             .frame(width: 40)

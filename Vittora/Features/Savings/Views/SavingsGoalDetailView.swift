@@ -208,6 +208,7 @@ struct SavingsGoalDetailView: View {
                     TextField(String(localized: "Amount"), text: Bindable(vm).contributionString)
                         #if os(iOS)
                         .keyboardType(.decimalPad)
+                        .textContentType(nil)
                         #endif
                     Spacer()
                     Button {

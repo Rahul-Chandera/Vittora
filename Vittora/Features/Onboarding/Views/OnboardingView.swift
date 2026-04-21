@@ -345,6 +345,7 @@ private struct AccountSetupStepView: View {
                             TextField(String(localized: "0"), text: $vm.openingBalance)
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
+                                .textContentType(nil)
                                 #endif
                                 .accessibilityIdentifier("onboarding-opening-balance-field")
                         }

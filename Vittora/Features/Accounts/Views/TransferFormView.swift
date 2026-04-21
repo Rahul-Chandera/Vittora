@@ -156,6 +156,7 @@ struct TransferFormView: View {
                 TextField(String(localized: "0.00"), text: Bindable(vm).amount)
                     #if os(iOS)
                     .keyboardType(.decimalPad)
+                    .textContentType(nil)
                     #endif
                     .accessibilityIdentifier("transfer-amount-field")
             }

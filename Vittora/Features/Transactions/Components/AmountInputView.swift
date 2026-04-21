@@ -19,6 +19,7 @@ struct AmountInputView: View {
                     .accessibilityIdentifier(textFieldAccessibilityIdentifier ?? "")
                     #if os(iOS)
                     .keyboardType(.decimalPad)
+                    .textContentType(nil)
                     #endif
                     .onChange(of: amountString) { _, newValue in
                         let filtered = newValue.filter { $0.isNumber || $0 == "." }

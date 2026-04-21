@@ -27,6 +27,7 @@ struct SettlementFormView: View {
                         TextField(String(localized: "Amount"), text: $amountString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                     }
                     Button(String(localized: "Settle Full Amount (\(formattedAmount(maxAmount)))")) {

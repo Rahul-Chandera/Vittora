@@ -34,6 +34,7 @@ struct RecurringFormView: View {
                                         .font(VTypography.body)
                                         #if os(iOS)
                                         .keyboardType(.decimalPad)
+                                        .textContentType(nil)
                                         #endif
                                 }
                                 .padding(VSpacing.md)

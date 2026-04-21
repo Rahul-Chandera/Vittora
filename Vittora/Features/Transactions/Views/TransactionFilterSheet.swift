@@ -58,12 +58,14 @@ struct TransactionFilterSheet: View {
                         .accessibilityIdentifier("transaction-filter-min-field")
                         #if os(iOS)
                         .keyboardType(.decimalPad)
+                        .textContentType(nil)
                         #endif
 
                     TextField(String(localized: "Max"), text: Bindable(localVM).amountMax)
                         .accessibilityIdentifier("transaction-filter-max-field")
                         #if os(iOS)
                         .keyboardType(.decimalPad)
+                        .textContentType(nil)
                         #endif
                 }
             }

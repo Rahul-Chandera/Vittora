@@ -36,6 +36,7 @@ struct DebtFormView: View {
                             TextField(String(localized: "Amount"), text: Bindable(vm).amountString)
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
+                                .textContentType(nil)
                                 #endif
                         }
                     }

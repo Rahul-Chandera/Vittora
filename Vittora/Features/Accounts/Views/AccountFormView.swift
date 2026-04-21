@@ -92,6 +92,7 @@ struct AccountFormView: View {
                     TextField(String(localized: "0.00"), text: Bindable(vm).initialBalance)
                         #if os(iOS)
                         .keyboardType(.decimalPad)
+                        .textContentType(nil)
                         #endif
                 }
             }
