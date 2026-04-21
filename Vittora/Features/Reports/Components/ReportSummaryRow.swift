@@ -6,7 +6,7 @@ struct ReportSummaryRow: View {
     let percentage: Double
     let color: Color
     let count: Int
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {

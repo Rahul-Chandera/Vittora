@@ -17,7 +17,7 @@ final class DashboardViewModel {
     init(
         dashboardDataUseCase: DashboardDataUseCase,
         monthComparisonUseCase: MonthComparisonUseCase,
-        currencyCode: String = "USD"
+        currencyCode: String = CurrencyDefaults.code
     ) {
         self.dashboardDataUseCase = dashboardDataUseCase
         self.monthComparisonUseCase = monthComparisonUseCase

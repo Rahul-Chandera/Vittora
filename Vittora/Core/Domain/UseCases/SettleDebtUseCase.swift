@@ -35,7 +35,7 @@ struct SettleDebtUseCase: Sendable {
                 note: entry.note.map { "Settlement: \($0)" } ?? String(localized: "Debt Settlement"),
                 type: transactionType,
                 paymentMethod: .bankTransfer,
-                currencyCode: account?.currencyCode ?? Locale.current.currency?.identifier ?? "USD",
+                currencyCode: account?.currencyCode ?? CurrencyDefaults.code,
                 tags: ["debt-settlement"],
                 accountID: accountID
             )

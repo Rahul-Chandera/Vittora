@@ -5,7 +5,7 @@ extension Decimal {
     ///
     /// - Parameter currencyCode: ISO 4217 currency code (e.g., "USD", "EUR", "GBP")
     /// - Returns: Formatted currency string
-    func formatted(currencyCode: String = "USD") -> String {
+    func formatted(currencyCode: String = CurrencyDefaults.code) -> String {
         formatted(.currency(code: currencyCode))
     }
 
@@ -74,7 +74,7 @@ extension Decimal {
             let thousands = absValue / 1_000
             return (self < 0 ? "-" : "") + String(format: "%.1fK", NSDecimalNumber(decimal: thousands).doubleValue)
         } else {
-            return formatted(currencyCode: "USD")
+            return formatted()
         }
     }
 }

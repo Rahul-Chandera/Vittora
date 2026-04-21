@@ -15,7 +15,7 @@ final class OnboardingViewModel {
     }
 
     var currentStep: Step = .welcome
-    var selectedCurrencyCode = "USD"
+    var selectedCurrencyCode = CurrencyDefaults.code
     var userName = ""
     var accountName = ""
     var selectedAccountType: AccountType = .bank

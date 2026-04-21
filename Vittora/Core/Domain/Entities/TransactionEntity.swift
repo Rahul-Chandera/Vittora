@@ -33,7 +33,7 @@ struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
         note: String? = nil,
         type: TransactionType = .expense,
         paymentMethod: PaymentMethod = .cash,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         tags: [String] = [],
         categoryID: UUID? = nil,
         accountID: UUID? = nil,

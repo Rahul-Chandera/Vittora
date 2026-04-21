@@ -3,7 +3,7 @@ import Charts
 
 struct TopCategoriesChart: View {
     let categories: [CategorySpend]
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {

@@ -14,7 +14,7 @@ final class ReportsHomeViewModel {
 
     init(
         transactionRepository: any TransactionRepository,
-        currencyCode: String = "USD"
+        currencyCode: String = CurrencyDefaults.code
     ) {
         self.transactionRepository = transactionRepository
         self.currencyCode = currencyCode

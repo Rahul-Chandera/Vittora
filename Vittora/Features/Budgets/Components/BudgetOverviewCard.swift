@@ -4,7 +4,7 @@ struct BudgetOverviewCard: View {
     let spent: Decimal
     let budget: Decimal
     let progress: Double
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
 
     var remaining: Decimal {
         budget - spent

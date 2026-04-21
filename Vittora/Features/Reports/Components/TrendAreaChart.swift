@@ -4,7 +4,7 @@ import Charts
 struct TrendAreaChart: View {
     let dataPoints: [TrendDataPoint]
     let color: Color
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
 
     var body: some View {
         Chart(dataPoints) { point in

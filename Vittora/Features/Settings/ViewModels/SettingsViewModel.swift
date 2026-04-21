@@ -8,7 +8,7 @@ final class SettingsViewModel {
 
     // Non-sensitive preferences remain in UserDefaults
     var selectedCurrencyCode: String {
-        get { UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD" }
+        get { UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? CurrencyDefaults.code }
         set { UserDefaults.standard.set(newValue, forKey: "vittora.currencyCode") }
     }
 

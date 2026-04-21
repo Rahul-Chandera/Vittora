@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AmountInputView: View {
     @Binding var amountString: String
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
     var type: TransactionType = .expense
     var textFieldAccessibilityIdentifier: String?
 

@@ -18,7 +18,7 @@ struct TransferFundsUseCase: Sendable {
         amount: Decimal,
         date: Date = .now,
         note: String = "",
-        currencyCode: String = "USD"
+        currencyCode: String = CurrencyDefaults.code
     ) async throws {
         guard sourceAccountID != destinationAccountID else {
             throw VittoraError.validationFailed("Source and destination accounts must be different")

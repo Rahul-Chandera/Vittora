@@ -3,7 +3,7 @@ import Charts
 
 struct IncomeExpenseBarChart: View {
     let data: [MonthlyData]
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
 
     var body: some View {
         Chart {

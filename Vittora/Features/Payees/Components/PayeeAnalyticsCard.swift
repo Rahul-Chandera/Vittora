@@ -2,7 +2,7 @@ import SwiftUI
 
 struct PayeeAnalyticsCard: View {
     let analytics: PayeeAnalytics
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
 
     var body: some View {
         VCard(padding: VSpacing.lg) {

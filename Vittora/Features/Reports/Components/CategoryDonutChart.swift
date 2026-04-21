@@ -4,7 +4,7 @@ import Charts
 struct CategoryDonutChart: View {
     let breakdowns: [CategoryBreakdown]
     @Binding var selectedCategory: UUID?
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {

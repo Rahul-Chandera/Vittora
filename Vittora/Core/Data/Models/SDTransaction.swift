@@ -11,7 +11,7 @@ final class SDTransaction {
     var note: String?
     var typeRawValue: String = TransactionType.expense.rawValue
     var paymentMethodRawValue: String = PaymentMethod.cash.rawValue
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
     var tags: [String] = []
     var categoryID: UUID?
     var accountID: UUID?
@@ -31,7 +31,7 @@ final class SDTransaction {
         note: String? = nil,
         type: TransactionType = .expense,
         paymentMethod: PaymentMethod = .cash,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         tags: [String] = [],
         categoryID: UUID? = nil,
         accountID: UUID? = nil,

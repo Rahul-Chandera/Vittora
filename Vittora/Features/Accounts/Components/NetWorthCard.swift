@@ -4,7 +4,7 @@ struct NetWorthCard: View {
     let netWorth: Decimal
     let totalAssets: Decimal
     let totalLiabilities: Decimal
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
 
     var body: some View {
         VCard(padding: VSpacing.lg, shadow: .medium, backgroundColor: VColors.primary) {

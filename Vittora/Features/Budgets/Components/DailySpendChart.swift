@@ -4,7 +4,7 @@ import Charts
 struct DailySpendChart: View {
     let transactions: [TransactionEntity]
     let dailyBudgetAverage: Decimal
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
 
     var dailySpendData: [(day: Int, amount: Decimal)] {
         let calendar = Calendar.current

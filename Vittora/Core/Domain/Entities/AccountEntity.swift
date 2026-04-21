@@ -27,7 +27,7 @@ struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
         name: String,
         type: AccountType,
         balance: Decimal = 0,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         icon: String = "building.columns.fill",
         isArchived: Bool = false,
         createdAt: Date = .now,

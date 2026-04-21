@@ -54,7 +54,7 @@ struct VAmountText: View {
 
     init(
         _ amount: Decimal,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         type: TransactionType = .auto,
         size: AmountSize = .medium
     ) {
@@ -94,7 +94,7 @@ struct VAmountText: View {
 extension VAmountText {
     init(
         income amount: Decimal,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         size: AmountSize = .medium
     ) {
         self.init(amount, currencyCode: currencyCode, type: .income, size: size)
@@ -102,7 +102,7 @@ extension VAmountText {
 
     init(
         expense amount: Decimal,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         size: AmountSize = .medium
     ) {
         self.init(amount, currencyCode: currencyCode, type: .expense, size: size)
@@ -110,7 +110,7 @@ extension VAmountText {
 
     init(
         _ amount: Decimal,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         size: AmountSize = .medium
     ) {
         self.init(amount, currencyCode: currencyCode, type: .auto, size: size)

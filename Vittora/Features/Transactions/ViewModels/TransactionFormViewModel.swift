@@ -38,7 +38,7 @@ import Foundation
         updateUseCase: UpdateTransactionUseCase,
         smartCategorizeUseCase: SmartCategorizeUseCase,
         duplicateDetectionUseCase: DuplicateDetectionUseCase,
-        currencyCode: String = Locale.current.currency?.identifier ?? "USD"
+        currencyCode: String = CurrencyDefaults.code
     ) {
         self.addUseCase = addUseCase
         self.updateUseCase = updateUseCase
