@@ -221,20 +221,12 @@ struct RecurringFormView: View {
 
                     if let error = errorMessage {
                         VStack {
-                            HStack {
-                                Image(systemName: "exclamationmark.circle.fill")
-                                    .foregroundColor(.red)
-
-                                Text(error)
-                                    .font(VTypography.callout)
-                                    .foregroundColor(.red)
-
-                                Spacer()
-                            }
-                            .padding(VSpacing.md)
-                            .background(Color.red.opacity(0.1))
-                            .cornerRadius(VSpacing.cornerRadiusMD)
-                            .padding(VSpacing.lg)
+                            VInlineErrorText(error)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(VSpacing.md)
+                                .background(VColors.expense.opacity(0.1))
+                                .cornerRadius(VSpacing.cornerRadiusMD)
+                                .padding(VSpacing.lg)
 
                             Spacer()
                         }

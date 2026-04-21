@@ -113,9 +113,7 @@ struct SavingsGoalFormView: View {
 
                 if let error {
                     Section {
-                        Text(error)
-                            .foregroundStyle(VColors.expense)
-                            .font(VTypography.caption1)
+                        VInlineErrorText(error)
                     }
                 }
             }

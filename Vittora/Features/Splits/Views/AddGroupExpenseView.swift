@@ -88,9 +88,7 @@ struct AddGroupExpenseView: View {
 
                 if let error = vm.error {
                     Section {
-                        Text(error)
-                            .foregroundStyle(VColors.expense)
-                            .font(VTypography.caption1)
+                        VInlineErrorText(error)
                     }
                 }
             }

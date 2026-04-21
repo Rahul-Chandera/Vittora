@@ -169,9 +169,7 @@ struct TransferFormView: View {
 
             if let error = vm.error {
                 Section {
-                    Text(error)
-                        .foregroundColor(VColors.expense)
-                        .font(VTypography.caption1)
+                    VInlineErrorText(error)
                 }
             }
         }

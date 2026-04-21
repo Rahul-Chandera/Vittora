@@ -48,9 +48,7 @@ struct SettlementFormView: View {
 
                 if let errorMessage = error {
                     Section {
-                        Text(errorMessage)
-                            .foregroundColor(VColors.expense)
-                            .font(VTypography.caption1)
+                        VInlineErrorText(errorMessage)
                     }
                 }
             }

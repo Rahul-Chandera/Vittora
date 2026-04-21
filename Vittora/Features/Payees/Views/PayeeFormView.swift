@@ -115,9 +115,7 @@ struct PayeeFormView: View {
 
             if let error = saveError {
                 Section {
-                    Text(error)
-                        .foregroundColor(VColors.expense)
-                        .font(VTypography.caption1)
+                    VInlineErrorText(error)
                 }
             }
         }

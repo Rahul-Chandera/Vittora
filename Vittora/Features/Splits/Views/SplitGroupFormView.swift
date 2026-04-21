@@ -62,16 +62,13 @@ struct SplitGroupFormView: View {
                     Text(String(localized: "Members (\(selectedMemberIDs.count) selected)"))
                 } footer: {
                     if selectedMemberIDs.count < 2 {
-                        Text(String(localized: "Select at least 2 members."))
-                            .foregroundStyle(VColors.expense)
+                        VInlineErrorText(String(localized: "Select at least 2 members."))
                     }
                 }
 
                 if let error {
                     Section {
-                        Text(error)
-                            .foregroundStyle(VColors.expense)
-                            .font(VTypography.caption1)
+                        VInlineErrorText(error)
                     }
                 }
             }
