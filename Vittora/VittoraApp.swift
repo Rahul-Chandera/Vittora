@@ -7,9 +7,12 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 @main
 struct VittoraApp: App {
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "startup")
+
     @State private var appState: AppState
     @State private var router: Router
     @State private var dependencies: DependencyContainer
@@ -175,14 +178,14 @@ struct VittoraApp: App {
         do {
             try await dataSeeder.seedDefaultCategoriesIfNeeded()
         } catch {
-            debugPrint("Failed to seed default categories: \(error)")
+            Self.logger.error("Failed to seed default categories: \(error.localizedDescription, privacy: .public)")
         }
 
         guard let recurringGenerationUseCase else { return }
         do {
             _ = try await recurringGenerationUseCase.execute()
         } catch {
-            debugPrint("Failed to generate recurring transactions on launch: \(error)")
+            Self.logger.error("Failed to generate recurring transactions on launch: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -202,7 +205,7 @@ struct VittoraApp: App {
         do {
             try await seeder.seedTransactionScenarioIfNeeded()
         } catch {
-            debugPrint("Failed to seed UI test transaction data: \(error)")
+            Self.logger.error("Failed to seed UI test transaction data: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -222,7 +225,7 @@ struct VittoraApp: App {
         do {
             try await seeder.seedTransferScenarioIfNeeded()
         } catch {
-            debugPrint("Failed to seed UI test transfer data: \(error)")
+            Self.logger.error("Failed to seed UI test transfer data: \(error.localizedDescription, privacy: .public)")
         }
     }
 }
