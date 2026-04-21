@@ -38,54 +38,11 @@ enum VittoraSchemaV1: VersionedSchema {
     }
 }
 
-// MARK: - Schema V2 (document blobs moved to filesystem)
+// MARK: - Schema V4 (current)
 
-enum VittoraSchemaV2: VersionedSchema {
-    static let versionIdentifier = Schema.Version(2, 0, 0)
-
-    static var models: [any PersistentModel.Type] {
-        [
-            SDTransaction.self,
-            SDAccount.self,
-            SDCategory.self,
-            SDBudget.self,
-            SDPayee.self,
-            SDRecurringRule.self,
-            SDDocument.self,
-            SDDebt.self,
-            SDSplitGroup.self,
-            SDGroupExpense.self,
-            SDTaxProfile.self,
-            SDSavingsGoal.self,
-        ]
-    }
-}
-
-// MARK: - Schema V3 (unique id constraints + query indexes on all models)
-
-enum VittoraSchemaV3: VersionedSchema {
-    static let versionIdentifier = Schema.Version(3, 0, 0)
-
-    static var models: [any PersistentModel.Type] {
-        [
-            SDTransaction.self,
-            SDAccount.self,
-            SDCategory.self,
-            SDBudget.self,
-            SDPayee.self,
-            SDRecurringRule.self,
-            SDDocument.self,
-            SDDebt.self,
-            SDSplitGroup.self,
-            SDGroupExpense.self,
-            SDTaxProfile.self,
-            SDSavingsGoal.self,
-        ]
-    }
-}
-
-// MARK: - Schema V4 (tax profile advanced JSON)
-
+/// Post–V1 schema. V2/V3 were folded into V4: listing the same `@Model` types under multiple
+/// `VersionedSchema` enums produced **identical SwiftData checksums**, which crashes Core Data with
+/// `NSInvalidArgumentException: Duplicate version checksums detected` during store load.
 enum VittoraSchemaV4: VersionedSchema {
     static let versionIdentifier = Schema.Version(4, 0, 0)
 
@@ -111,19 +68,19 @@ enum VittoraSchemaV4: VersionedSchema {
 
 enum VittoraMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [VittoraSchemaV1.self, VittoraSchemaV2.self, VittoraSchemaV3.self, VittoraSchemaV4.self]
+        [VittoraSchemaV1.self, VittoraSchemaV4.self]
     }
 
     static var stages: [MigrationStage] {
-        [migrateV1toV2, migrateV2toV3, migrateV3toV4]
+        [migrateV1toV4]
     }
 
     /// Moves thumbnail blobs from the SwiftData store to the filesystem before
     /// the schema upgrade drops the three blob columns. Files are written with
     /// .completeFileProtection so they are encrypted at rest by the OS.
-    private static let migrateV1toV2 = MigrationStage.custom(
+    private static let migrateV1toV4 = MigrationStage.custom(
         fromVersion: VittoraSchemaV1.self,
-        toVersion: VittoraSchemaV2.self,
+        toVersion: VittoraSchemaV4.self,
         willMigrate: { context in
             guard let documentsDir = FileManager.default
                 .urls(for: .documentDirectory, in: .userDomainMask).first
@@ -146,15 +103,5 @@ enum VittoraMigrationPlan: SchemaMigrationPlan {
             try context.save()
         },
         didMigrate: nil
-    )
-
-    private static let migrateV2toV3 = MigrationStage.lightweight(
-        fromVersion: VittoraSchemaV2.self,
-        toVersion: VittoraSchemaV3.self
-    )
-
-    private static let migrateV3toV4 = MigrationStage.lightweight(
-        fromVersion: VittoraSchemaV3.self,
-        toVersion: VittoraSchemaV4.self
     )
 }

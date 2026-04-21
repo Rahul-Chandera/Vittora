@@ -13,19 +13,17 @@ struct VittoraMigrationPlanTests {
     @MainActor
     struct PlanStructureTests {
 
-        @Test("plan has four schemas in ascending version order")
-        func planHasFourSchemas() {
+        @Test("plan has two schemas in ascending version order")
+        func planHasTwoSchemas() {
             let schemas = VittoraMigrationPlan.schemas
-            #expect(schemas.count == 4)
+            #expect(schemas.count == 2)
             #expect(VittoraSchemaV1.versionIdentifier == Schema.Version(1, 0, 0))
-            #expect(VittoraSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
-            #expect(VittoraSchemaV3.versionIdentifier == Schema.Version(3, 0, 0))
             #expect(VittoraSchemaV4.versionIdentifier == Schema.Version(4, 0, 0))
         }
 
-        @Test("plan has exactly three migration stages")
-        func planHasThreeStages() {
-            #expect(VittoraMigrationPlan.stages.count == 3)
+        @Test("plan has exactly one migration stage (V1→V4)")
+        func planHasOneStage() {
+            #expect(VittoraMigrationPlan.stages.count == 1)
         }
 
         @Test("V1 schema registers twelve model types")
@@ -33,10 +31,8 @@ struct VittoraMigrationPlanTests {
             #expect(VittoraSchemaV1.models.count == 12)
         }
 
-        @Test("V2, V3, and V4 schemas register twelve model types")
-        func v2v3v4RegistersTwelveModels() {
-            #expect(VittoraSchemaV2.models.count == 12)
-            #expect(VittoraSchemaV3.models.count == 12)
+        @Test("V4 schema registers twelve model types")
+        func v4RegistersTwelveModels() {
             #expect(VittoraSchemaV4.models.count == 12)
         }
     }
@@ -69,9 +65,9 @@ struct VittoraMigrationPlanTests {
         }
     }
 
-    // MARK: - V1 → V3 File Migration
+    // MARK: - V1 → V4 File Migration
 
-    @Suite("V1→V3 file migration")
+    @Suite("V1→V4 file migration")
     @MainActor
     struct FileMigrationTests {
 
@@ -89,8 +85,8 @@ struct VittoraMigrationPlanTests {
             try ctx.save()
         }
 
-        @Test("migrating V1 store to V3 preserves document identity")
-        func v1ToV3PreservesDocumentIdentity() throws {
+        @Test("migrating V1 store to V4 preserves document identity")
+        func v1ToV4PreservesDocumentIdentity() throws {
             let tempDir = FileManager.default.temporaryDirectory
                 .appendingPathComponent("vittora_mig_\(UUID().uuidString)", isDirectory: true)
             try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
@@ -106,7 +102,7 @@ struct VittoraMigrationPlanTests {
                 thumbData: Data("thumbnail_bytes".utf8)
             )
 
-            // Open via migration plan (V1→V2→V3)
+            // Open via migration plan (V1→V4)
             let currentSchema = Schema(ModelContainerConfig.allModels)
             let migratedConfig = ModelConfiguration(
                 schema: currentSchema,
@@ -125,7 +121,7 @@ struct VittoraMigrationPlanTests {
             )
             descriptor.fetchLimit = 1
             let docs = try ctx.fetch(descriptor)
-            #expect(docs.count == 1, "document must survive V1→V3 migration")
+            #expect(docs.count == 1, "document must survive V1→V4 migration")
             #expect(docs.first?.fileName == "receipt.jpg")
             #expect(docs.first?.mimeType == "image/jpeg")
 
@@ -138,7 +134,7 @@ struct VittoraMigrationPlanTests {
         }
 
         @Test("migrating V1 store with no blob data preserves document")
-        func v1ToV3NoBlobData() throws {
+        func v1ToV4NoBlobData() throws {
             let tempDir = FileManager.default.temporaryDirectory
                 .appendingPathComponent("vittora_mig_noblob_\(UUID().uuidString)", isDirectory: true)
             try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
@@ -168,7 +164,7 @@ struct VittoraMigrationPlanTests {
         }
 
         @Test("migrating V1 store with multiple documents preserves all records")
-        func v1ToV3MultipleDocuments() throws {
+        func v1ToV4MultipleDocuments() throws {
             let tempDir = FileManager.default.temporaryDirectory
                 .appendingPathComponent("vittora_mig_multi_\(UUID().uuidString)", isDirectory: true)
             try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
@@ -219,13 +215,13 @@ struct VittoraMigrationPlanTests {
         }
     }
 
-    // MARK: - Current Schema (V3)
+    // MARK: - Current Schema (V4)
 
-    @Suite("Current schema (V3)")
+    @Suite("Current schema (V4)")
     @MainActor
     struct CurrentSchemaTests {
 
-        @Test("in-memory V3 container supports all registered model types")
+        @Test("in-memory container supports all registered model types")
         func inMemoryContainerSupportsAllModels() throws {
             let container = try ModelContainerConfig.makeContainer(inMemory: true)
             #expect(container.configurations.isEmpty == false)
@@ -238,8 +234,8 @@ struct VittoraMigrationPlanTests {
             #expect(txs.first?.amount == 42)
         }
 
-        @Test("V3 SDDocument has no blob columns")
-        func v3DocumentHasNoBlobColumns() {
+        @Test("SDDocument has no blob columns")
+        func v4DocumentHasNoBlobColumns() {
             let doc = SDDocument()
             #expect(doc.fileName == "")
             #expect(doc.mimeType == "image/jpeg")
