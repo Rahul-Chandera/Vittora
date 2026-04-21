@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RecurringListView: View {
     @Environment(\.dependencies) var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: RecurringListViewModel?
     @State private var showAddSheet = false
     @State private var selectedRuleID: UUID? = nil
@@ -35,7 +36,7 @@ struct RecurringListView: View {
 
                             HStack(spacing: VSpacing.xl) {
                                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                    Text(String(format: "$%.2f", Double(truncating: costSummary.monthlyCost as NSDecimalNumber)))
+                                    Text(costSummary.monthlyCost.formatted(currencyCode: currencyCode))
                                         .font(VTypography.amountLarge)
                                         .foregroundColor(VColors.expense)
 
@@ -47,7 +48,7 @@ struct RecurringListView: View {
                                 Spacer()
 
                                 VStack(alignment: .trailing, spacing: VSpacing.xs) {
-                                    Text(String(format: "$%.2f", Double(truncating: costSummary.annualCost as NSDecimalNumber)))
+                                    Text(costSummary.annualCost.formatted(currencyCode: currencyCode))
                                         .font(VTypography.bodyBold)
                                         .foregroundColor(VColors.expense)
 

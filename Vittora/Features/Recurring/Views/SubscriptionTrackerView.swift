@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SubscriptionTrackerView: View {
     @Environment(\.dependencies) var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: SubscriptionSummaryViewModel?
 
     var body: some View {
@@ -19,7 +20,7 @@ struct SubscriptionTrackerView: View {
                                         .font(VTypography.callout)
                                         .foregroundColor(VColors.textSecondary)
 
-                                    Text(String(format: "$%.2f", Double(truncating: costSummary.monthlyCost as NSDecimalNumber)))
+                                    Text(costSummary.monthlyCost.formatted(currencyCode: currencyCode))
                                         .font(VTypography.largeTitle)
                                         .foregroundColor(VColors.expense)
                                 }
@@ -32,7 +33,7 @@ struct SubscriptionTrackerView: View {
                                             .font(VTypography.caption2)
                                             .foregroundColor(VColors.textSecondary)
 
-                                        Text(String(format: "$%.2f", Double(truncating: costSummary.annualCost as NSDecimalNumber)))
+                                        Text(costSummary.annualCost.formatted(currencyCode: currencyCode))
                                             .font(VTypography.title3)
                                             .foregroundColor(VColors.expense)
                                     }

@@ -1,10 +1,11 @@
 import SwiftUI
 
 struct SubscriptionCard: View {
+    @Environment(\.currencyCode) private var currencyCode
+
     let rule: RecurringRuleEntity
     let monthlyCost: Decimal
     var category: CategoryEntity? = nil
-    var currencyCode: String = "USD"
 
     private var categoryColor: Color {
         if let colorHex = category?.colorHex {
@@ -81,7 +82,7 @@ struct SubscriptionCard: View {
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
 
-                    Text(String(format: "$%.2f", Double(truncating: rule.templateAmount as NSDecimalNumber)))
+                    Text(rule.templateAmount.formatted(currencyCode: currencyCode))
                         .font(VTypography.title3)
                         .foregroundColor(VColors.expense)
                 }
@@ -93,7 +94,7 @@ struct SubscriptionCard: View {
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
 
-                    Text(String(format: "$%.2f", Double(truncating: monthlyCost as NSDecimalNumber)))
+                    Text(monthlyCost.formatted(currencyCode: currencyCode))
                         .font(VTypography.title3)
                         .foregroundColor(VColors.expense)
                 }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RecurringDetailView: View {
     @Environment(\.dependencies) var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     let ruleID: UUID
     @State private var rule: RecurringRuleEntity?
     @State private var category: CategoryEntity?
@@ -47,7 +48,7 @@ struct RecurringDetailView: View {
                                 Spacer()
 
                                 VStack(alignment: .trailing, spacing: VSpacing.xs) {
-                                    Text(String(format: "$%.2f", Double(truncating: rule.templateAmount as NSDecimalNumber)))
+                                    Text(rule.templateAmount.formatted(currencyCode: currencyCode))
                                         .font(VTypography.amountMedium)
                                         .foregroundColor(VColors.expense)
 
@@ -168,7 +169,7 @@ struct RecurringDetailView: View {
 
                                             Spacer()
 
-                                            Text(String(format: "$%.2f", Double(truncating: transaction.amount as NSDecimalNumber)))
+                                            Text(transaction.amount.formatted(currencyCode: currencyCode))
                                                 .font(VTypography.calloutBold)
                                                 .foregroundColor(VColors.expense)
                                         }
