@@ -10,9 +10,14 @@ final class ReportsHomeViewModel {
     var error: String?
 
     private let transactionRepository: any TransactionRepository
+    private let currencyCode: String
 
-    init(transactionRepository: any TransactionRepository) {
+    init(
+        transactionRepository: any TransactionRepository,
+        currencyCode: String = "USD"
+    ) {
         self.transactionRepository = transactionRepository
+        self.currencyCode = currencyCode
     }
 
     func load() async {
@@ -44,9 +49,6 @@ final class ReportsHomeViewModel {
     }
 
     func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 }

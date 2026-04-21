@@ -133,7 +133,8 @@ struct CustomReportView: View {
                             amount: row.amount,
                             percentage: row.percentage,
                             color: VColors.categoryColors[index % VColors.categoryColors.count],
-                            count: row.count
+                            count: row.count,
+                            currencyCode: currencyCode
                         )
                     }
                 }
@@ -162,10 +163,7 @@ struct CustomReportView: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        return formatter.string(from: amount as NSDecimalNumber) ?? "\(currencySymbol)0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 
     private var customReportErrorBinding: Binding<String?> {

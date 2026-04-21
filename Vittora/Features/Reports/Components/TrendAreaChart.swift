@@ -74,10 +74,7 @@ struct TrendAreaChart: View {
     }
 
     private var currencySymbol: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        return formatter.currencySymbol
+        String.currencySymbol(for: currencyCode)
     }
 }
 

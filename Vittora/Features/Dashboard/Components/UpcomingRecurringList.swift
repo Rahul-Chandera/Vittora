@@ -35,6 +35,7 @@ struct UpcomingRecurringList: View {
 
 private struct UpcomingRuleRow: View {
     let rule: RecurringRuleEntity
+    @Environment(\.currencyCode) private var currencyCode
 
     var body: some View {
         HStack(spacing: VSpacing.md) {
@@ -102,10 +103,7 @@ private struct UpcomingRuleRow: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 }
 

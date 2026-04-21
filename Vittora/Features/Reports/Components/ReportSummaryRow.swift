@@ -6,6 +6,7 @@ struct ReportSummaryRow: View {
     let percentage: Double
     let color: Color
     let count: Int
+    var currencyCode: String = "USD"
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -52,10 +53,7 @@ struct ReportSummaryRow: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 }
 

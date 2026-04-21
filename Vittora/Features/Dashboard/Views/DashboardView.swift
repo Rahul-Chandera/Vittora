@@ -276,7 +276,8 @@ struct DashboardView: View {
 
         return DashboardViewModel(
             dashboardDataUseCase: dataUseCase,
-            monthComparisonUseCase: comparisonUseCase
+            monthComparisonUseCase: comparisonUseCase,
+            currencyCode: currencyCode
         )
     }
 }

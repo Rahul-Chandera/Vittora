@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ReportsHomeView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: ReportsHomeViewModel?
 
     private let reportCards: [(type: ReportType, title: String, subtitle: String, icon: String, color: Color)] = [
@@ -55,7 +56,10 @@ struct ReportsHomeView: View {
         .task {
             if vm == nil {
                 guard let transactionRepo = dependencies.transactionRepository else { return }
-                vm = ReportsHomeViewModel(transactionRepository: transactionRepo)
+                vm = ReportsHomeViewModel(
+                    transactionRepository: transactionRepo,
+                    currencyCode: currencyCode
+                )
                 await vm?.load()
             }
         }

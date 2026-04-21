@@ -121,7 +121,8 @@ struct CategoryBreakdownView: View {
                         amount: item.amount,
                         percentage: item.percentage,
                         color: VColors.categoryColors[index % VColors.categoryColors.count],
-                        count: item.transactionCount
+                        count: item.transactionCount,
+                        currencyCode: currencyCode
                     )
                 }
             }

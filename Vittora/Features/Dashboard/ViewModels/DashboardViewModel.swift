@@ -12,13 +12,16 @@ final class DashboardViewModel {
 
     private let dashboardDataUseCase: DashboardDataUseCase
     private let monthComparisonUseCase: MonthComparisonUseCase
+    private let currencyCode: String
 
     init(
         dashboardDataUseCase: DashboardDataUseCase,
-        monthComparisonUseCase: MonthComparisonUseCase
+        monthComparisonUseCase: MonthComparisonUseCase,
+        currencyCode: String = "USD"
     ) {
         self.dashboardDataUseCase = dashboardDataUseCase
         self.monthComparisonUseCase = monthComparisonUseCase
+        self.currencyCode = currencyCode
     }
 
     func load() async {
@@ -48,10 +51,7 @@ final class DashboardViewModel {
     // MARK: - Formatted helpers
 
     func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 
     func formattedPercent(_ value: Double) -> String {
