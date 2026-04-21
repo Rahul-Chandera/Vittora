@@ -9,6 +9,7 @@ extension Date {
         case monthYear
         case yearOnly
         case time
+        case custom(String)
     }
 
     /// Format date using predefined or custom format styles.
@@ -31,6 +32,11 @@ extension Date {
             return formatted(.dateTime.year())
         case .time:
             return formatted(date: .omitted, time: .shortened)
+        case .custom(let format):
+            let formatter = DateFormatter()
+            formatter.dateFormat = format
+            formatter.locale = Locale.current
+            return formatter.string(from: self)
         }
     }
 
