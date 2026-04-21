@@ -81,6 +81,15 @@ actor SwiftDataTransactionRepository: TransactionRepository {
         return TransactionMapper.toEntity(model)
     }
 
+    func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {
+        var descriptor = FetchDescriptor<SDTransaction>(
+            predicate: #Predicate { $0.recurringRuleID == id },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = 20
+        return try modelContext.fetch(descriptor).map(TransactionMapper.toEntity)
+    }
+
     func create(_ entity: TransactionEntity) async throws {
         let model = SDTransaction(
             id: entity.id,

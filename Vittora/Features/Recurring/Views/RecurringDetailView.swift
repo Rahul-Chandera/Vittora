@@ -243,10 +243,7 @@ struct RecurringDetailView: View {
 
                 // Fetch recent transactions for this rule
                 if let transactionRepo = dependencies.transactionRepository {
-                    let allTransactions = try await transactionRepo.fetchAll(filter: nil)
-                    recentTransactions = allTransactions
-                        .filter { $0.recurringRuleID == ruleID }
-                        .sorted { $0.date > $1.date }
+                    recentTransactions = try await transactionRepo.fetchForRecurringRule(ruleID)
                 }
             }
         } catch {

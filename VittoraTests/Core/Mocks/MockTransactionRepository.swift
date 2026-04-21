@@ -37,6 +37,15 @@ actor MockTransactionRepository: TransactionRepository {
         return transactions.first { $0.id == id }
     }
 
+    func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {
+        if shouldThrowError { throw throwError }
+        return transactions
+            .filter { $0.recurringRuleID == id }
+            .sorted { $0.date > $1.date }
+            .prefix(20)
+            .map { $0 }
+    }
+
     func create(_ entity: TransactionEntity) async throws {
         if shouldThrowError { throw throwError }
         transactions.append(entity)
