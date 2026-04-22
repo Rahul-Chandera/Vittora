@@ -93,7 +93,7 @@ final class DataManagementService: Sendable {
         async let debts        = debtRepository.fetchAll()
         async let goals        = savingsGoalRepository.fetchAll()
         async let groups       = splitGroupRepository.fetchAllGroups()
-        async let documents    = documentRepository.fetchAll()
+        async let documentCount = documentRepository.fetchCount()
 
         return try await DatabaseStats(
             transactionCount: transactionCount,
@@ -103,7 +103,7 @@ final class DataManagementService: Sendable {
             debtCount:        debts.count,
             savingsGoalCount: goals.count,
             splitGroupCount:  groups.count,
-            documentCount:    documents.count
+            documentCount:    documentCount
         )
     }
 

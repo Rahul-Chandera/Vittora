@@ -67,7 +67,16 @@ private final class MockSplitGroupRepo: SplitGroupRepository {
 @MainActor
 private final class MockDocumentRepo: DocumentRepository {
     var items: [DocumentEntity] = []
-    func fetchAll() async throws -> [DocumentEntity] { items }
+    private(set) var fetchAllCallCount = 0
+    private(set) var fetchCountCallCount = 0
+    func fetchAll() async throws -> [DocumentEntity] {
+        fetchAllCallCount += 1
+        return items
+    }
+    func fetchCount() async throws -> Int {
+        fetchCountCallCount += 1
+        return items.count
+    }
     func fetchByID(_ id: UUID) async throws -> DocumentEntity? { items.first { $0.id == id } }
     func create(_ e: DocumentEntity) async throws { items.append(e) }
     func update(_ e: DocumentEntity) async throws {}
@@ -133,6 +142,21 @@ struct DataManagementServiceTests {
         }
         let stats = try await service.fetchStats()
         #expect(stats.transactionCount == 4)
+    }
+
+    @Test("fetchStats uses document count path without fetching all documents")
+    func fetchStatsUsesDocumentCountPath() async throws {
+        let (service, _, _, _, _, _, _, _, docRepo) = makeService()
+        docRepo.items = [
+            DocumentEntity(fileName: "a.jpg", mimeType: "image/jpeg"),
+            DocumentEntity(fileName: "b.jpg", mimeType: "image/jpeg")
+        ]
+
+        let stats = try await service.fetchStats()
+
+        #expect(stats.documentCount == 2)
+        #expect(docRepo.fetchCountCallCount == 1)
+        #expect(docRepo.fetchAllCallCount == 0)
     }
 
     @Test("fetchStats totalRecords sums all entities")

@@ -4,12 +4,21 @@ import Foundation
 @MainActor
 final class MockDocumentRepository: DocumentRepository {
     private(set) var documents: [DocumentEntity] = []
+    private(set) var fetchAllCallCount = 0
+    private(set) var fetchCountCallCount = 0
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
 
     func fetchAll() async throws -> [DocumentEntity] {
         if shouldThrowError { throw throwError }
+        fetchAllCallCount += 1
         return documents
+    }
+
+    func fetchCount() async throws -> Int {
+        if shouldThrowError { throw throwError }
+        fetchCountCallCount += 1
+        return documents.count
     }
 
     func fetchByID(_ id: UUID) async throws -> DocumentEntity? {
@@ -54,6 +63,8 @@ final class MockDocumentStorageService: DocumentStorageServiceProtocol {
     private(set) var savedThumbnails: [UUID: Data] = [:]
     private(set) var deletedDocuments: [UUID] = []
     private(set) var deletedThumbnails: [UUID] = []
+    private(set) var loadDocumentCallCount = 0
+    private(set) var loadThumbnailCallCount = 0
     var shouldThrowError = false
     var errorToThrow: Error = DocumentError.storageUnavailable
 
@@ -64,6 +75,7 @@ final class MockDocumentStorageService: DocumentStorageServiceProtocol {
 
     func loadDocument(for entity: DocumentEntity) async throws -> Data {
         if shouldThrowError { throw errorToThrow }
+        loadDocumentCallCount += 1
         guard let data = savedDocuments[entity.id] else {
             throw DocumentError.fileNotFound
         }
@@ -83,6 +95,7 @@ final class MockDocumentStorageService: DocumentStorageServiceProtocol {
 
     func loadThumbnail(for documentID: UUID) async throws -> Data? {
         if shouldThrowError { throw errorToThrow }
+        loadThumbnailCallCount += 1
         return savedThumbnails[documentID]
     }
 

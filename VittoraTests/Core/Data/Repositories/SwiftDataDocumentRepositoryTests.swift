@@ -256,4 +256,32 @@ struct SwiftDataDocumentRepositoryTests {
             #expect(remaining.isEmpty)
         }
     }
+
+    @Test("fetchCount returns count without thumbnail hydration")
+    func testFetchCountAvoidsThumbnailHydration() async throws {
+        let storage = MockDocumentStorageService()
+        let repo = try makeRepo(storage: storage)
+
+        try await repo.create(
+            DocumentEntity(
+                id: UUID(),
+                fileName: "receipt-1.jpg",
+                mimeType: "image/jpeg",
+                thumbnailData: Data("thumb-1".utf8)
+            )
+        )
+        try await repo.create(
+            DocumentEntity(
+                id: UUID(),
+                fileName: "receipt-2.jpg",
+                mimeType: "image/jpeg",
+                thumbnailData: Data("thumb-2".utf8)
+            )
+        )
+
+        let count = try await repo.fetchCount()
+
+        #expect(count == 2)
+        #expect(storage.loadThumbnailCallCount == 0)
+    }
 }

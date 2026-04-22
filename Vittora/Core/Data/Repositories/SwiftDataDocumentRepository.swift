@@ -12,6 +12,10 @@ actor SwiftDataDocumentRepository: DocumentRepository {
         return models.map(DocumentMapper.toEntity)
     }
 
+    func fetchCount() async throws -> Int {
+        try modelContext.fetchCount(FetchDescriptor<SDDocument>())
+    }
+
     func fetchByID(_ id: UUID) async throws -> DocumentEntity? {
         let descriptor = FetchDescriptor<SDDocument>(
             predicate: #Predicate { $0.id == id }
@@ -86,6 +90,10 @@ final class EncryptedDocumentRepository: DocumentRepository, Sendable {
     func fetchAll() async throws -> [DocumentEntity] {
         let entities = try await metadataRepository.fetchAll()
         return try await hydrateThumbnails(in: entities)
+    }
+
+    func fetchCount() async throws -> Int {
+        try await metadataRepository.fetchCount()
     }
 
     func fetchByID(_ id: UUID) async throws -> DocumentEntity? {
