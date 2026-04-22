@@ -170,6 +170,86 @@ struct TaxUseCaseTests {
             #expect(survivingSpouseEstimate.standardDeduction == 32_200)
             #expect(survivingSpouseEstimate.finalTax == jointEstimate.finalTax)
         }
+
+        @Test("Preferential stacking applies 0% band before 15% band")
+        func preferentialStackingUsesZeroThenFifteen() {
+            let calculator = USTaxCalculator()
+            let profile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 56_100, // TY2026 single -> ordinary taxable 40,000
+                filingStatus: .single,
+                financialYear: "2026",
+                advancedInputs: TaxAdvancedInputs(
+                    usQualifiedDividends: 0,
+                    usLongTermCapitalGains: 20_000,
+                    usShortTermCapitalGains: 0,
+                    usOtherInvestmentIncome: 0
+                )
+            )
+
+            let estimate = calculator.calculate(profile: profile)
+
+            // Ordinary tax: 4,552. Preferential: 10,000 @0% + 10,000 @15% = 1,500.
+            #expect(estimate.finalTax == 6_052)
+        }
+
+        @Test("Preferential stacking transitions from 15% to 20% at threshold")
+        func preferentialStackingUsesFifteenThenTwenty() {
+            let calculator = USTaxCalculator()
+            let baseProfile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 560_100, // TY2026 single -> ordinary taxable 544,000
+                filingStatus: .single,
+                financialYear: "2026"
+            )
+            let gainsProfile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 560_100,
+                filingStatus: .single,
+                financialYear: "2026",
+                advancedInputs: TaxAdvancedInputs(
+                    usQualifiedDividends: 0,
+                    usLongTermCapitalGains: 2_000,
+                    usShortTermCapitalGains: 0,
+                    usOtherInvestmentIncome: 0
+                )
+            )
+
+            let baseEstimate = calculator.calculate(profile: baseProfile)
+            let gainsEstimate = calculator.calculate(profile: gainsProfile)
+
+            // 1,000 @15% + 1,000 @20% + NIIT(2,000 @ 3.8%) = 426 incremental tax.
+            #expect(gainsEstimate.finalTax - baseEstimate.finalTax == 426)
+        }
+
+        @Test("Preferential income above upper threshold is taxed at 20%")
+        func preferentialIncomeAboveUpperThresholdUsesTwentyPercent() {
+            let calculator = USTaxCalculator()
+            let baseProfile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 566_100, // TY2026 single -> ordinary taxable 550,000 (> 545,000 upper)
+                filingStatus: .single,
+                financialYear: "2026"
+            )
+            let gainsProfile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 566_100,
+                filingStatus: .single,
+                financialYear: "2026",
+                advancedInputs: TaxAdvancedInputs(
+                    usQualifiedDividends: 0,
+                    usLongTermCapitalGains: 1_000,
+                    usShortTermCapitalGains: 0,
+                    usOtherInvestmentIncome: 0
+                )
+            )
+
+            let baseEstimate = calculator.calculate(profile: baseProfile)
+            let gainsEstimate = calculator.calculate(profile: gainsProfile)
+
+            // 1,000 @20% + NIIT(1,000 @ 3.8%) = 238 incremental tax.
+            #expect(gainsEstimate.finalTax - baseEstimate.finalTax == 238)
+        }
     }
 
     @MainActor

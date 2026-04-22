@@ -68,7 +68,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
             String(localized: "Annual income treated as wages for Social Security and Medicare estimates unless you adjust advanced inputs.")
         ]
         if preferentialIncome > 0 {
-            assumptions.append(String(localized: "Long-term gains and qualified dividends use a simplified 0/15/20% schedule; your actual rate may differ."))
+            assumptions.append(String(localized: "Long-term gains and qualified dividends are modeled with status/year 0/15/20% bracket stacking against ordinary taxable income."))
         }
         if netInvestmentIncome > 0 {
             assumptions.append(String(localized: "Net Investment Income Tax uses a simplified MAGI model."))
@@ -162,7 +162,6 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         return (max(0, base) * (Decimal(string: "0.038") ?? 0)).rounded(scale: 2)
     }
 
-    /// Simplified preferential rate: 15% on gains when taxable ordinary is below upper breakpoint, else 20%.
     private static func preferentialCapitalGainsTax(
         amount: Decimal,
         ordinaryTaxable: Decimal,
@@ -170,24 +169,76 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         taxYear: Int
     ) -> Decimal {
         guard amount > 0 else { return 0 }
-        let upperBreakpoint = preferentialUpperBreakpoint(status: status, taxYear: taxYear)
-        let rate: Decimal = ordinaryTaxable < upperBreakpoint
-            ? (Decimal(string: "0.15") ?? 0)
-            : (Decimal(string: "0.20") ?? 0)
-        return (amount * rate).rounded(scale: 2)
+        let thresholds = preferentialThresholds(status: status, taxYear: taxYear)
+
+        let zeroRateCapacity = max(0, thresholds.zeroRateUpperBound - ordinaryTaxable)
+        let zeroRatePortion = min(amount, zeroRateCapacity)
+
+        let amountRemainingAfterZeroRate = amount - zeroRatePortion
+        let fifteenRateStart = max(ordinaryTaxable, thresholds.zeroRateUpperBound)
+        let fifteenRateCapacity = max(0, thresholds.fifteenRateUpperBound - fifteenRateStart)
+        let fifteenRatePortion = min(amountRemainingAfterZeroRate, fifteenRateCapacity)
+
+        let twentyRatePortion = max(0, amountRemainingAfterZeroRate - fifteenRatePortion)
+
+        let fifteenRateTax = (fifteenRatePortion * (Decimal(string: "0.15") ?? 0))
+        let twentyRateTax = (twentyRatePortion * (Decimal(string: "0.20") ?? 0))
+        return (fifteenRateTax + twentyRateTax).rounded(scale: 2)
     }
 
-    private static func preferentialUpperBreakpoint(status: USFilingStatus, taxYear: Int) -> Decimal {
-        _ = taxYear
+    private struct PreferentialThresholds {
+        let zeroRateUpperBound: Decimal
+        let fifteenRateUpperBound: Decimal
+    }
+
+    private static func preferentialThresholds(status: USFilingStatus, taxYear: Int) -> PreferentialThresholds {
+        switch supportedTaxYearValue(from: taxYear) {
+        case .ty2024:
+            return preferentialThresholds2024(status: status)
+        case .ty2025:
+            return preferentialThresholds2025(status: status)
+        case .ty2026:
+            return preferentialThresholds2026(status: status)
+        }
+    }
+
+    private static func preferentialThresholds2024(status: USFilingStatus) -> PreferentialThresholds {
         switch status {
         case .marriedFilingJointly, .qualifyingSurvivingSpouse:
-            return 583_750
+            PreferentialThresholds(zeroRateUpperBound: 94_050, fifteenRateUpperBound: 583_750)
         case .marriedFilingSeparately:
-            return 291_850
+            PreferentialThresholds(zeroRateUpperBound: 47_025, fifteenRateUpperBound: 291_850)
         case .headOfHousehold:
-            return 566_700
+            PreferentialThresholds(zeroRateUpperBound: 63_000, fifteenRateUpperBound: 551_350)
         case .single:
-            return 518_900
+            PreferentialThresholds(zeroRateUpperBound: 47_025, fifteenRateUpperBound: 518_900)
+        }
+    }
+
+    private static func preferentialThresholds2025(status: USFilingStatus) -> PreferentialThresholds {
+        switch status {
+        case .marriedFilingJointly, .qualifyingSurvivingSpouse:
+            PreferentialThresholds(zeroRateUpperBound: 96_700, fifteenRateUpperBound: 600_050)
+        case .marriedFilingSeparately:
+            PreferentialThresholds(zeroRateUpperBound: 48_350, fifteenRateUpperBound: 300_000)
+        case .headOfHousehold:
+            PreferentialThresholds(zeroRateUpperBound: 64_750, fifteenRateUpperBound: 566_700)
+        case .single:
+            PreferentialThresholds(zeroRateUpperBound: 48_350, fifteenRateUpperBound: 533_400)
+        }
+    }
+
+    private static func preferentialThresholds2026(status: USFilingStatus) -> PreferentialThresholds {
+        // Uses current app rule assumptions for TY2026.
+        switch status {
+        case .marriedFilingJointly, .qualifyingSurvivingSpouse:
+            PreferentialThresholds(zeroRateUpperBound: 100_000, fifteenRateUpperBound: 612_000)
+        case .marriedFilingSeparately:
+            PreferentialThresholds(zeroRateUpperBound: 50_000, fifteenRateUpperBound: 306_000)
+        case .headOfHousehold:
+            PreferentialThresholds(zeroRateUpperBound: 67_000, fifteenRateUpperBound: 578_000)
+        case .single:
+            PreferentialThresholds(zeroRateUpperBound: 50_000, fifteenRateUpperBound: 545_000)
         }
     }
 
