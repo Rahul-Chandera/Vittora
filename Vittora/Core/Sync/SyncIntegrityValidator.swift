@@ -19,6 +19,7 @@ protocol SyncIntegrityValidating: Sendable {
 actor SyncIntegrityValidator: SyncIntegrityValidating {
 
     private static let logger = Logger(subsystem: "com.vittora.app", category: "SyncIntegrity")
+    private static let maxRecordsPerEntityValidation = 500
 
     func validateAmountBearingEntities() async -> [IntegrityViolation] {
         var violations: [IntegrityViolation] = []
@@ -43,7 +44,11 @@ actor SyncIntegrityValidator: SyncIntegrityValidating {
     // MARK: - Per-entity checks
 
     private func checkTransactions() throws -> [IntegrityViolation] {
-        let all = try modelContext.fetch(FetchDescriptor<SDTransaction>())
+        var descriptor = FetchDescriptor<SDTransaction>(
+            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = Self.maxRecordsPerEntityValidation
+        let all = try modelContext.fetch(descriptor)
         return all.compactMap { entity in
             if !entity.amount.isFiniteDecimal {
                 return IntegrityViolation(
@@ -64,7 +69,11 @@ actor SyncIntegrityValidator: SyncIntegrityValidating {
     }
 
     private func checkAccounts() throws -> [IntegrityViolation] {
-        let all = try modelContext.fetch(FetchDescriptor<SDAccount>())
+        var descriptor = FetchDescriptor<SDAccount>(
+            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = Self.maxRecordsPerEntityValidation
+        let all = try modelContext.fetch(descriptor)
         return all.compactMap { entity in
             if !entity.balance.isFiniteDecimal {
                 return IntegrityViolation(
@@ -92,7 +101,11 @@ actor SyncIntegrityValidator: SyncIntegrityValidating {
     }
 
     private func checkBudgets() throws -> [IntegrityViolation] {
-        let all = try modelContext.fetch(FetchDescriptor<SDBudget>())
+        var descriptor = FetchDescriptor<SDBudget>(
+            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = Self.maxRecordsPerEntityValidation
+        let all = try modelContext.fetch(descriptor)
         return all.compactMap { entity in
             guard entity.amount > 0 else {
                 return IntegrityViolation(
@@ -106,7 +119,11 @@ actor SyncIntegrityValidator: SyncIntegrityValidating {
     }
 
     private func checkDebts() throws -> [IntegrityViolation] {
-        let all = try modelContext.fetch(FetchDescriptor<SDDebt>())
+        var descriptor = FetchDescriptor<SDDebt>(
+            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = Self.maxRecordsPerEntityValidation
+        let all = try modelContext.fetch(descriptor)
         return all.compactMap { entity in
             guard entity.amount > 0, entity.settledAmount >= 0, entity.settledAmount <= entity.amount else {
                 return IntegrityViolation(
@@ -120,7 +137,11 @@ actor SyncIntegrityValidator: SyncIntegrityValidating {
     }
 
     private func checkGroupExpenses() throws -> [IntegrityViolation] {
-        let all = try modelContext.fetch(FetchDescriptor<SDGroupExpense>())
+        var descriptor = FetchDescriptor<SDGroupExpense>(
+            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = Self.maxRecordsPerEntityValidation
+        let all = try modelContext.fetch(descriptor)
         return all.compactMap { entity in
             guard entity.amount > 0 else {
                 return IntegrityViolation(
