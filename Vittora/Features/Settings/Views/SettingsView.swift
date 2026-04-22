@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State private var vm = SettingsViewModel()
+    @Environment(SettingsViewModel.self) private var vm
     @Environment(SyncConflictHandler.self) private var syncConflictHandler
     @Environment(\.dependencies) private var dependencies
     @State private var showDeleteAccountConfirm = false
