@@ -31,6 +31,17 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
             // Create transaction from template
             guard let accountID = rule.templateAccountID else { continue }
             guard var account = try await accountRepository.fetchByID(accountID) else { continue }
+            let originalBalance = account.balance
+
+            let existingTransactions = try await transactionRepository.fetchForRecurringRule(rule.id)
+            if hasExistingTransaction(
+                in: existingTransactions,
+                forRule: rule,
+                accountID: accountID
+            ) {
+                try await advanceRule(rule)
+                continue
+            }
 
             let transaction = TransactionEntity(
                 amount: rule.templateAmount,
@@ -46,20 +57,25 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
                 recurringRuleID: rule.id
             )
 
-            try await transactionRepository.create(transaction)
+            do {
+                try await transactionRepository.create(transaction)
 
-            // Update account balance
-            account.balance -= rule.templateAmount
-            account.updatedAt = .now
-            try await accountRepository.update(account)
+                // Update account balance
+                account.balance -= rule.templateAmount
+                account.updatedAt = .now
+                try await accountRepository.update(account)
 
-            // Advance rule to next date
-            var updatedRule = rule
-            updatedRule.nextDate = advanceDate(from: rule.nextDate, frequency: rule.frequency)
-            updatedRule.updatedAt = .now
-            try await ruleRepository.update(updatedRule)
-
-            generatedCount += 1
+                try await advanceRule(rule)
+                generatedCount += 1
+            } catch {
+                // Best-effort rollback to keep generation idempotent on retries.
+                try? await transactionRepository.delete(transaction.id)
+                var restoredAccount = account
+                restoredAccount.balance = originalBalance
+                restoredAccount.updatedAt = .now
+                try? await accountRepository.update(restoredAccount)
+                throw error
+            }
         }
 
         return generatedCount
@@ -84,6 +100,25 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
             return calendar.date(byAdding: .year, value: 1, to: date) ?? date.addingTimeInterval(31536000)
         case .custom(let days):
             return calendar.date(byAdding: .day, value: days, to: date) ?? date.addingTimeInterval(TimeInterval(days * 86400))
+        }
+    }
+
+    private func advanceRule(_ rule: RecurringRuleEntity) async throws {
+        var updatedRule = rule
+        updatedRule.nextDate = advanceDate(from: rule.nextDate, frequency: rule.frequency)
+        updatedRule.updatedAt = .now
+        try await ruleRepository.update(updatedRule)
+    }
+
+    private func hasExistingTransaction(
+        in transactions: [TransactionEntity],
+        forRule rule: RecurringRuleEntity,
+        accountID: UUID
+    ) -> Bool {
+        transactions.contains {
+            $0.date == rule.nextDate &&
+            $0.accountID == accountID &&
+            $0.amount == rule.templateAmount
         }
     }
 }

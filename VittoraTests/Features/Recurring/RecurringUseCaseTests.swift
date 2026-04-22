@@ -116,6 +116,84 @@ struct RecurringUseCaseTests {
         #expect(updatedRule?.nextDate == expectedNextDate)
     }
 
+    @Test("Generate recurring transactions is idempotent when scheduled transaction already exists")
+    func generateRecurringTransactionsSkipsDuplicateSchedule() async throws {
+        let ruleRepository = MockRecurringRuleRepository()
+        let transactionRepository = MockTransactionRepository()
+        let accountRepository = MockAccountRepository()
+        let account = AccountEntity(name: "Main Account", type: .bank, balance: 1_000)
+        try await accountRepository.create(account)
+
+        let originalNextDate = makeRecurringDate(year: 2026, month: 2, day: 1)
+        let rule = RecurringRuleEntity(
+            frequency: .monthly,
+            nextDate: originalNextDate,
+            templateAmount: 120,
+            templateAccountID: account.id
+        )
+        await ruleRepository.seed(rule)
+
+        try await transactionRepository.create(
+            TransactionEntity(
+                amount: 120,
+                date: originalNextDate,
+                type: .expense,
+                paymentMethod: .other,
+                currencyCode: account.currencyCode,
+                accountID: account.id,
+                recurringRuleID: rule.id
+            )
+        )
+
+        let useCase = GenerateRecurringTransactionsUseCase(
+            ruleRepository: ruleRepository,
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository
+        )
+
+        let generatedCount = try await useCase.execute()
+
+        #expect(generatedCount == 0)
+        let transactions = await transactionRepository.transactions
+        #expect(transactions.count == 1)
+        #expect(accountRepository.accounts.first?.balance == 1_000)
+        let updatedRule = try await ruleRepository.fetchByID(rule.id)
+        let expectedNextDate = Calendar(identifier: .gregorian).date(byAdding: .month, value: 1, to: originalNextDate)
+        #expect(updatedRule?.nextDate == expectedNextDate)
+    }
+
+    @Test("Generate recurring transactions rolls back transaction and balance when rule update fails")
+    func generateRecurringTransactionsRollsBackOnRuleUpdateFailure() async throws {
+        let ruleRepository = MockRecurringRuleRepository()
+        let transactionRepository = MockTransactionRepository()
+        let accountRepository = MockAccountRepository()
+        let account = AccountEntity(name: "Main Account", type: .bank, balance: 500)
+        try await accountRepository.create(account)
+
+        let rule = RecurringRuleEntity(
+            frequency: .monthly,
+            nextDate: makeRecurringDate(year: 2026, month: 3, day: 1),
+            templateAmount: 50,
+            templateAccountID: account.id
+        )
+        await ruleRepository.seed(rule)
+        await ruleRepository.configureUpdateFailure(true)
+
+        let useCase = GenerateRecurringTransactionsUseCase(
+            ruleRepository: ruleRepository,
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository
+        )
+
+        await #expect(throws: (any Error).self) {
+            try await useCase.execute()
+        }
+
+        let transactions = await transactionRepository.transactions
+        #expect(transactions.isEmpty)
+        #expect(accountRepository.accounts.first?.balance == 500)
+    }
+
     @Test("Subscription cost uses actual days in a 30 day month")
     func subscriptionCostUsesThirtyDayMonth() {
         let useCase = CalculateSubscriptionCostUseCase(
