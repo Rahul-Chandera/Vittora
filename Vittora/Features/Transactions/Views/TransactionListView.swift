@@ -238,7 +238,9 @@ struct TransactionListView: View {
 
     private func createViewModel() async -> TransactionListViewModel? {
         guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository else {
+              let accountRepo = dependencies.accountRepository,
+              let documentRepo = dependencies.documentRepository,
+              let documentStorage = dependencies.documentStorageService else {
             return nil
         }
 
@@ -246,7 +248,9 @@ struct TransactionListView: View {
         let searchUseCase = SearchTransactionsUseCase(transactionRepository: transactionRepo)
         let deleteUseCase = DeleteTransactionUseCase(
             transactionRepository: transactionRepo,
-            accountRepository: accountRepo
+            accountRepository: accountRepo,
+            documentRepository: documentRepo,
+            documentStorageService: documentStorage
         )
         let bulkOpsUseCase = BulkOperationsUseCase(
             transactionRepository: transactionRepo,

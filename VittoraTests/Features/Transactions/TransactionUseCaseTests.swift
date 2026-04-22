@@ -321,7 +321,9 @@ struct TransactionUseCaseTests {
 
             let useCase = DeleteTransactionUseCase(
                 transactionRepository: transactionRepo,
-                accountRepository: accountRepo
+                accountRepository: accountRepo,
+                documentRepository: MockDocumentRepository(),
+                documentStorageService: MockDocumentStorageService()
             )
             try await useCase.execute(id: transaction.id)
 
@@ -348,7 +350,9 @@ struct TransactionUseCaseTests {
 
             let useCase = DeleteTransactionUseCase(
                 transactionRepository: transactionRepo,
-                accountRepository: accountRepo
+                accountRepository: accountRepo,
+                documentRepository: MockDocumentRepository(),
+                documentStorageService: MockDocumentStorageService()
             )
             try await useCase.execute(id: transaction.id)
 
@@ -371,7 +375,9 @@ struct TransactionUseCaseTests {
 
             let useCase = DeleteTransactionUseCase(
                 transactionRepository: transactionRepo,
-                accountRepository: accountRepo
+                accountRepository: accountRepo,
+                documentRepository: MockDocumentRepository(),
+                documentStorageService: MockDocumentStorageService()
             )
             try await useCase.executeBulk(ids: [t1.id, t2.id])
 
@@ -383,12 +389,51 @@ struct TransactionUseCaseTests {
         func testThrowsWhenTransactionMissing() async throws {
             let useCase = DeleteTransactionUseCase(
                 transactionRepository: MockTransactionRepository(),
-                accountRepository: MockAccountRepository()
+                accountRepository: MockAccountRepository(),
+                documentRepository: MockDocumentRepository(),
+                documentStorageService: MockDocumentStorageService()
             )
 
             await #expect(throws: (any Error).self) {
                 try await useCase.execute(id: UUID())
             }
+        }
+
+        @Test("Deletes linked documents before deleting transaction")
+        func testDeleteRemovesLinkedDocuments() async throws {
+            let accountRepo = MockAccountRepository()
+            let transactionRepo = MockTransactionRepository()
+            let documentRepo = MockDocumentRepository()
+            let documentStorage = MockDocumentStorageService()
+
+            let account = AccountEntity(name: "Bank", type: .bank, balance: Decimal(800))
+            await accountRepo.seed(account)
+
+            let transaction = TransactionEntity(
+                amount: 200,
+                type: .expense,
+                accountID: account.id
+            )
+            await transactionRepo.seed(transaction)
+
+            let linkedDocument = DocumentEntity(
+                fileName: "receipt.jpg",
+                mimeType: "image/jpeg",
+                transactionID: transaction.id
+            )
+            await documentRepo.seed(linkedDocument)
+
+            let useCase = DeleteTransactionUseCase(
+                transactionRepository: transactionRepo,
+                accountRepository: accountRepo,
+                documentRepository: documentRepo,
+                documentStorageService: documentStorage
+            )
+            try await useCase.execute(id: transaction.id)
+
+            let remainingDocuments = try await documentRepo.fetchForTransaction(transaction.id)
+            #expect(remainingDocuments.isEmpty)
+            #expect(documentStorage.deletedDocuments.contains(linkedDocument.id))
         }
     }
 
