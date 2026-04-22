@@ -3,8 +3,8 @@ import SwiftData
 import Foundation
 @testable import Vittora
 
-/// Pre-production: one schema snapshot only — no `SchemaMigrationPlan`.
-@Suite("ModelContainer (schema V1)")
+/// Uses V1 versioned schema with migration-plan scaffolding.
+@Suite("ModelContainer (versioned schema)")
 @MainActor
 struct ModelContainerConfigTests {
 

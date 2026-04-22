@@ -5,23 +5,10 @@ import os
 enum ModelContainerConfig {
     /// All SwiftData model types registered in the app
     static var allModels: [any PersistentModel.Type] {
-        [
-            SDTransaction.self,
-            SDAccount.self,
-            SDCategory.self,
-            SDBudget.self,
-            SDPayee.self,
-            SDRecurringRule.self,
-            SDDocument.self,
-            SDDebt.self,
-            SDSplitGroup.self,
-            SDGroupExpense.self,
-            SDTaxProfile.self,
-            SDSavingsGoal.self,
-        ]
+        VittoraSchemaV1.models
     }
 
-    /// Create the shared model container (single schema snapshot — no migration plan; pre-production).
+    /// Create the shared model container using a versioned schema baseline.
     static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
         let schema = Schema(allModels)
         let cloudKitDatabase: ModelConfiguration.CloudKitDatabase =
@@ -31,7 +18,11 @@ enum ModelContainerConfig {
             isStoredInMemoryOnly: inMemory,
             cloudKitDatabase: cloudKitDatabase
         )
-        let container = try ModelContainer(for: schema, configurations: [config])
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
         if !inMemory {
             applyStoreFileAttributes(to: container)
         }
