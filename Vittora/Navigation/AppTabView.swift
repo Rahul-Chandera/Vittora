@@ -2,7 +2,6 @@ import SwiftUI
 
 struct AppTabView: View {
     @Environment(AppState.self) private var appState
-    @Environment(Router.self) private var router
     @State private var showAddTransaction = false
 
     var body: some View {

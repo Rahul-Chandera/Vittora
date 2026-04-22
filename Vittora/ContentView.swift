@@ -71,7 +71,6 @@ private struct PrivacyShieldOverlay: View {
 #Preview {
     ContentView()
         .environment(AppState())
-        .environment(Router())
         .environment(SettingsViewModel())
         .environment(SyncStatusService())
 }

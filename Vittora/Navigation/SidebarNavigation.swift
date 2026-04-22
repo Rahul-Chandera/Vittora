@@ -2,7 +2,6 @@ import SwiftUI
 
 struct SidebarNavigation: View {
     @Environment(AppState.self) private var appState
-    @Environment(Router.self) private var router
     @State private var showAddTransaction = false
     @State private var selectedTab: AppState.AppTab? = .dashboard
 

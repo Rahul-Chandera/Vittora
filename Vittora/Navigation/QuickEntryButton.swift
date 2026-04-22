@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct QuickEntryButton: View {
-    @Environment(Router.self) private var router
     var action: () -> Void = {}
 
     var body: some View {
@@ -21,5 +20,4 @@ struct QuickEntryButton: View {
 
 #Preview {
     QuickEntryButton()
-        .environment(Router())
 }

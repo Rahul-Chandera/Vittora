@@ -14,7 +14,6 @@ struct VittoraApp: App {
     private static let logger = Logger(subsystem: "com.vittora.app", category: "startup")
 
     @State private var appState: AppState
-    @State private var router: Router
     @State private var dependencies: DependencyContainer
     @State private var settingsVM: SettingsViewModel
     @State private var syncService: SyncStatusService
@@ -59,7 +58,6 @@ struct VittoraApp: App {
             auditLogger: dependencyContainer.securityAuditLogService
         )
         _dependencies = State(initialValue: dependencyContainer)
-        _router = State(initialValue: Router())
         let keychainService = dependencyContainer.keychainService ?? KeychainService()
         _settingsVM = State(initialValue: SettingsViewModel(keychainService: keychainService))
         _syncService = State(initialValue: syncStatusService)
@@ -134,7 +132,6 @@ struct VittoraApp: App {
             if let modelContainer {
                 ContentView()
                     .environment(appState)
-                    .environment(router)
                     .environment(\.dependencies, dependencies)
                     .environment(settingsVM)
                     .environment(syncService)
