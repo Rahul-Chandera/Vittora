@@ -187,4 +187,39 @@ struct SwiftDataTaxProfileRepositoryTests {
         #expect(fetched?.customDeductions.first?.name == "80C")
         #expect(fetched?.customDeductions.first?.amount == 150_000)
     }
+
+    @Test("first save preserves income source, DOB, and advanced inputs")
+    func testFirstSavePreservesExtendedFields() async throws {
+        let repo = try makeRepo()
+        let dob = Date(timeIntervalSince1970: 315532800) // 1980-01-01 UTC
+        let advanced = TaxAdvancedInputs(
+            usQualifiedDividends: 4_000,
+            usLongTermCapitalGains: 12_000,
+            usShortTermCapitalGains: 2_500,
+            usOtherInvestmentIncome: 800,
+            indiaEquityLTCG: 65_000,
+            indiaEquitySTCG: 10_000
+        )
+        let profile = TaxProfile(
+            id: UUID(),
+            country: .india,
+            annualIncome: 1_450_000,
+            indiaRegime: .newRegime,
+            filingStatus: .single,
+            customDeductions: [],
+            financialYear: "2025-26",
+            incomeSourceType: .selfEmployed,
+            dateOfBirth: dob,
+            advancedInputs: advanced,
+            createdAt: Date(timeIntervalSince1970: 7_000_000),
+            updatedAt: Date(timeIntervalSince1970: 7_000_000)
+        )
+
+        try await repo.save(profile)
+        let fetched = try await repo.fetch()
+
+        #expect(fetched?.incomeSourceType == .selfEmployed)
+        #expect(fetched?.dateOfBirth == dob)
+        #expect(fetched?.advancedInputs == advanced)
+    }
 }

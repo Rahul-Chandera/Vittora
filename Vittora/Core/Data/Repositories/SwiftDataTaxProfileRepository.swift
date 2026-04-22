@@ -28,6 +28,9 @@ actor SwiftDataTaxProfileRepository: TaxProfileRepository {
                 filingStatus: profile.filingStatus,
                 customDeductions: profile.customDeductions,
                 financialYear: profile.financialYear,
+                incomeSourceType: profile.incomeSourceType,
+                dateOfBirth: profile.dateOfBirth,
+                advancedInputs: profile.advancedInputs,
                 createdAt: profile.createdAt,
                 updatedAt: profile.updatedAt
             )
