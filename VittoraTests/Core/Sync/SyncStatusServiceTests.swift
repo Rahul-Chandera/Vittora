@@ -196,7 +196,7 @@ struct SyncConflictHandlerTests {
             description: "Budget conflict"
         )
         #expect(handler.recentConflicts.count == 1)
-        #expect(handler.hasUnresolvedConflicts)
+        #expect(handler.hasUnresolvedConflicts == false)
     }
 
     @Test("clearLog removes all conflicts")
@@ -209,6 +209,24 @@ struct SyncConflictHandlerTests {
         handler.clearLog()
         #expect(handler.recentConflicts.isEmpty)
         #expect(!handler.hasUnresolvedConflicts)
+    }
+
+    @Test("hasUnresolvedConflicts is true only for actionable conflicts")
+    func unresolvedConflictsReflectActionableOnly() {
+        let handler = SyncConflictHandler()
+        handler.logConflict(
+            entityType: "Transaction",
+            description: "Auto merged",
+            resolutionOverride: .cloudKitAutoResolved
+        )
+        #expect(handler.hasUnresolvedConflicts == false)
+        handler.logConflict(
+            entityType: "Transaction",
+            description: "Ambiguous timing",
+            resolutionOverride: .ambiguous
+        )
+        #expect(handler.hasUnresolvedConflicts)
+        #expect(handler.actionableConflicts.count == 1)
     }
 
     @Test("log capped at 20 entries")

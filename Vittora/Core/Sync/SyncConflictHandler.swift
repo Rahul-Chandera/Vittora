@@ -13,6 +13,14 @@ struct SyncConflict: Identifiable, Sendable {
     let remoteModifiedAt: Date?
     let description: String
     let resolution: ConflictResolution
+    var requiresReview: Bool {
+        switch resolution {
+        case .ambiguous, .integrityViolation:
+            true
+        case .keepLocal, .keepRemote, .cloudKitAutoResolved:
+            false
+        }
+    }
 
     init(
         entityType: String,
@@ -158,5 +166,7 @@ final class SyncConflictHandler: Sendable {
         recentConflicts.removeAll()
     }
 
-    var hasUnresolvedConflicts: Bool { !recentConflicts.isEmpty }
+    var actionableConflicts: [SyncConflict] { recentConflicts.filter(\.requiresReview) }
+    var hasActionableConflicts: Bool { !actionableConflicts.isEmpty }
+    var hasUnresolvedConflicts: Bool { hasActionableConflicts }
 }

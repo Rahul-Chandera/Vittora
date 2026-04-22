@@ -238,7 +238,7 @@ struct SettingsView: View {
     }
 
     private var syncValue: String {
-        if syncConflictHandler.hasUnresolvedConflicts {
+        if syncConflictHandler.hasActionableConflicts {
             return String(localized: "Review")
         }
         return vm.isCloudSyncEnabled ? String(localized: "On") : String(localized: "Off")

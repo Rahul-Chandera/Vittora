@@ -29,7 +29,7 @@ struct SyncStatusView: View {
     }
 
     private var needsConflictReview: Bool {
-        syncConflictHandler.hasUnresolvedConflicts && syncService.syncState != .syncing
+        syncConflictHandler.hasActionableConflicts && syncService.syncState != .syncing
     }
 
     private var statusText: String {
@@ -144,7 +144,7 @@ struct SyncDetailView: View {
                     }
                     .padding(.vertical, 4)
                 } else {
-                    Text(String(localized: "\(syncConflictHandler.recentConflicts.count) recent sync conflicts were resolved automatically."))
+                    Text(conflictSummaryText)
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textSecondary)
 
@@ -179,6 +179,17 @@ struct SyncDetailView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+    }
+
+    private var conflictSummaryText: String {
+        let actionableCount = syncConflictHandler.actionableConflicts.count
+        let informationalCount = syncConflictHandler.recentConflicts.count - actionableCount
+        if actionableCount > 0 {
+            return String(
+                localized: "\(actionableCount) sync event(s) need review. \(informationalCount) were auto-resolved."
+            )
+        }
+        return String(localized: "\(informationalCount) recent sync events were resolved automatically.")
     }
 }
 
