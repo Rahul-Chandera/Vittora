@@ -47,6 +47,10 @@ final class DataManagementService: Sendable {
     private let savingsGoalRepository: any SavingsGoalRepository
     private let splitGroupRepository: any SplitGroupRepository
     private let documentRepository: any DocumentRepository
+    private let payeeRepository: (any PayeeRepository)?
+    private let recurringRuleRepository: (any RecurringRuleRepository)?
+    private let taxProfileRepository: (any TaxProfileRepository)?
+    private let documentStorageService: (any DocumentStorageServiceProtocol)?
     private let keychainService: any KeychainServiceProtocol
 
     init(
@@ -58,6 +62,10 @@ final class DataManagementService: Sendable {
         savingsGoalRepository: any SavingsGoalRepository,
         splitGroupRepository: any SplitGroupRepository,
         documentRepository: any DocumentRepository,
+        payeeRepository: (any PayeeRepository)? = nil,
+        recurringRuleRepository: (any RecurringRuleRepository)? = nil,
+        taxProfileRepository: (any TaxProfileRepository)? = nil,
+        documentStorageService: (any DocumentStorageServiceProtocol)? = nil,
         keychainService: (any KeychainServiceProtocol)? = nil
     ) {
         self.transactionRepository = transactionRepository
@@ -68,6 +76,10 @@ final class DataManagementService: Sendable {
         self.savingsGoalRepository = savingsGoalRepository
         self.splitGroupRepository = splitGroupRepository
         self.documentRepository = documentRepository
+        self.payeeRepository = payeeRepository
+        self.recurringRuleRepository = recurringRuleRepository
+        self.taxProfileRepository = taxProfileRepository
+        self.documentStorageService = documentStorageService
         self.keychainService = keychainService ?? KeychainService()
     }
 
@@ -121,7 +133,17 @@ final class DataManagementService: Sendable {
             for group in groups {
                 try await splitGroupRepository.deleteGroup(group.id)
             }
-            // Keep accounts and categories — user likely wants to preserve structure
+            try await deleteAllDocuments()
+            if let payeeRepository {
+                try await deleteAll(from: payeeRepository)
+            }
+            if let recurringRuleRepository {
+                try await deleteAll(from: recurringRuleRepository)
+            }
+            if let taxProfileRepository {
+                try await taxProfileRepository.delete()
+            }
+            // Keep accounts and categories in clear-all mode for structural retention.
         }
     }
 
@@ -135,7 +157,10 @@ final class DataManagementService: Sendable {
         // Clear sensitive Keychain entries
         try await keychainService.delete(forKey: "vittora.onboardingComplete")
         try await keychainService.delete(forKey: "vittora.appLockEnabled")
+        try await keychainService.delete(forKey: "vittora.passcodeFallback")
         try await keychainService.delete(forKey: "vittora.userName")
+        try await keychainService.delete(forKey: "com.vittora.encryption.key")
+        try await keychainService.delete(forKey: "com.vittora.encryption.key.se_wrapped")
 
         UserDefaults.standard.removeObject(forKey: "vittora.lastSyncDate")
         AppUserDefaults.sync.removeObject(forKey: "vittora.lastSyncDate")
@@ -164,5 +189,32 @@ final class DataManagementService: Sendable {
     private func deleteAll(from repo: any SavingsGoalRepository) async throws {
         let items = try await repo.fetchAll()
         for item in items { try await repo.delete(item.id) }
+    }
+
+    private func deleteAll(from repo: any PayeeRepository) async throws {
+        let items = try await repo.fetchAll()
+        for item in items { try await repo.delete(item.id) }
+    }
+
+    private func deleteAll(from repo: any RecurringRuleRepository) async throws {
+        let items = try await repo.fetchAll()
+        for item in items { try await repo.delete(item.id) }
+    }
+
+    private func deleteAllDocuments() async throws {
+        let documents = try await documentRepository.fetchAll()
+        if let documentStorageService {
+            let deleteUseCase = DeleteDocumentUseCase(
+                documentRepository: documentRepository,
+                documentStorageService: documentStorageService
+            )
+            for document in documents {
+                try await deleteUseCase.execute(id: document.id)
+            }
+        } else {
+            for document in documents {
+                try await documentRepository.delete(document.id)
+            }
+        }
     }
 }

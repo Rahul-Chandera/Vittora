@@ -245,6 +245,10 @@ struct DataManagementView: View {
             savingsGoalRepository: goalRepo,
             splitGroupRepository: splitRepo,
             documentRepository: docRepo,
+            payeeRepository: dependencies.payeeRepository,
+            recurringRuleRepository: dependencies.recurringRuleRepository,
+            taxProfileRepository: dependencies.taxProfileRepository,
+            documentStorageService: dependencies.documentStorageService,
             keychainService: dependencies.keychainService ?? KeychainService()
         )
         vm = DataManagementViewModel(service: service)

@@ -126,6 +126,7 @@ final class EncryptedDocumentRepository: DocumentRepository, Sendable {
 
     func delete(_ id: UUID) async throws {
         if let entity = try await metadataRepository.fetchByID(id) {
+            try await documentStorageService.deleteDocument(for: entity)
             try await documentStorageService.deleteThumbnail(for: entity.id)
         }
         try await metadataRepository.delete(id)
