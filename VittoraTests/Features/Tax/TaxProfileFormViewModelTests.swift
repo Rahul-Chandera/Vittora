@@ -166,4 +166,43 @@ struct TaxProfileFormViewModelTests {
         #expect(vm.error != nil)
         #expect(vm.isSaving == false)
     }
+
+    @Test("save() preserves advanced inputs and profile identity after populate")
+    func savePreservesAdvancedInputsAndIdentity() async throws {
+        let taxRepo = MockTaxProfileRepository()
+        let vm = makeViewModel(taxRepo: taxRepo)
+        let originalID = UUID()
+        let createdAt = Date(timeIntervalSince1970: 1_234_567)
+        let advanced = TaxAdvancedInputs(
+            usQualifiedDividends: 3_200,
+            usLongTermCapitalGains: 12_500,
+            usShortTermCapitalGains: 1_400,
+            usOtherInvestmentIncome: 450,
+            indiaEquityLTCG: 22_000,
+            indiaEquitySTCG: 6_000
+        )
+        let existingProfile = TaxProfile(
+            id: originalID,
+            country: .unitedStates,
+            annualIncome: 90_000,
+            indiaRegime: .newRegime,
+            filingStatus: .single,
+            customDeductions: [],
+            financialYear: "2026",
+            incomeSourceType: .salaried,
+            dateOfBirth: Date(timeIntervalSince1970: 315_532_800),
+            advancedInputs: advanced,
+            createdAt: createdAt,
+            updatedAt: createdAt
+        )
+
+        vm.populate(from: existingProfile)
+        vm.incomeString = "95000"
+        try await vm.save()
+
+        #expect(taxRepo.profile?.id == originalID)
+        #expect(taxRepo.profile?.createdAt == createdAt)
+        #expect(taxRepo.profile?.advancedInputs == advanced)
+        #expect(taxRepo.profile?.annualIncome == 95_000)
+    }
 }
