@@ -1,0 +1,16 @@
+---
+description: Extra guardrails for security, sync, and tax code paths
+globs: Vittora/Core/{Security,Sync,Infrastructure/Tax}/**/*.swift
+alwaysApply: false
+---
+
+# High-Risk Domain Guardrails
+
+These files require stricter caution because they affect security, data integrity, and tax correctness.
+
+- Prefer minimal, reviewable changes over broad refactors.
+- Add/update targeted tests for every behavioral change.
+- Keep assumptions and warning text aligned with logic changes.
+- Do not weaken app-lock gating, keychain handling, or delete/reset cascades.
+- For sync semantics changes, preserve actionable-vs-informational conflict behavior.
+- For tax logic changes, include threshold/boundary regression vectors.
