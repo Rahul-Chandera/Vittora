@@ -110,6 +110,13 @@ import UIKit
 struct PDFPreviewRepresentable: UIViewRepresentable {
     let data: Data
 
+    final class Coordinator {
+        var lastDataSignature: UInt64?
+        var document: PDFDocument?
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
     func makeUIView(context: Context) -> PDFView {
         let pdfView = PDFView()
         pdfView.autoScales = true
@@ -120,7 +127,12 @@ struct PDFPreviewRepresentable: UIViewRepresentable {
     }
 
     func updateUIView(_ pdfView: PDFView, context: Context) {
-        pdfView.document = PDFDocument(data: data)
+        let signature = pdfDataSignature(data)
+        if context.coordinator.lastDataSignature != signature {
+            context.coordinator.lastDataSignature = signature
+            context.coordinator.document = PDFDocument(data: data)
+        }
+        pdfView.document = context.coordinator.document
     }
 }
 #elseif os(macOS)
@@ -128,6 +140,13 @@ import AppKit
 
 struct PDFPreviewRepresentable: NSViewRepresentable {
     let data: Data
+
+    final class Coordinator {
+        var lastDataSignature: UInt64?
+        var document: PDFDocument?
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
 
     func makeNSView(context: Context) -> PDFView {
         let pdfView = PDFView()
@@ -138,10 +157,22 @@ struct PDFPreviewRepresentable: NSViewRepresentable {
     }
 
     func updateNSView(_ pdfView: PDFView, context: Context) {
-        pdfView.document = PDFDocument(data: data)
+        let signature = pdfDataSignature(data)
+        if context.coordinator.lastDataSignature != signature {
+            context.coordinator.lastDataSignature = signature
+            context.coordinator.document = PDFDocument(data: data)
+        }
+        pdfView.document = context.coordinator.document
     }
 }
 #endif
+
+private func pdfDataSignature(_ data: Data) -> UInt64 {
+    // Lightweight rolling hash to avoid reparsing identical PDF bytes.
+    data.reduce(14_695_981_039_346_656_037) { hash, byte in
+        (hash ^ UInt64(byte)) &* 1_099_511_628_211
+    }
+}
 
 #Preview {
     DocumentPreviewView(
