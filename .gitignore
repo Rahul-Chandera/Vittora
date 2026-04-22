@@ -66,3 +66,5 @@ fastlane/test_output
 /.build-swift6-tests
 /.build-ios-final-regression
 /.build-sim-crash-fix
+/.build-ios
+/.build-macos
