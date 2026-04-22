@@ -187,6 +187,13 @@ struct VittoraApp: App {
                 appState.isAuthenticated = false
             }
             if newPhase == .active {
+                if !isRunningAutomatedTests {
+                    if settingsVM.isAppLockEnabled && !appState.isAuthenticated {
+                        appState.isLocked = true
+                    } else if !settingsVM.isAppLockEnabled {
+                        appState.isLocked = false
+                    }
+                }
                 appState.isPrivacyShieldVisible = false
                 PerformanceLogger.App.sceneDidBecomeActive()
                 guard !isRunningAutomatedTests else { return }

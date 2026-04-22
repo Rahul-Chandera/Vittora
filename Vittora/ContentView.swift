@@ -10,7 +10,9 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            if !appState.isUITesting && settingsVM.isAppLockEnabled && appState.isLocked {
+            if !appState.isUITesting &&
+                settingsVM.isAppLockEnabled &&
+                (appState.isLocked || !appState.isAuthenticated) {
                 AppLockView()
             } else {
                 if !appState.isOnboardingComplete {
