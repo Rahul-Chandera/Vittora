@@ -1,5 +1,21 @@
 import Foundation
 
+private enum DateFormattingCache {
+    private static let customFormatters = NSCache<NSString, DateFormatter>()
+
+    static func customFormatted(_ date: Date, format: String) -> String {
+        let key = "\(format)|\(Locale.current.identifier)" as NSString
+        if let cached = customFormatters.object(forKey: key) {
+            return cached.string(from: date)
+        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.locale = Locale.current
+        customFormatters.setObject(formatter, forKey: key)
+        return formatter.string(from: date)
+    }
+}
+
 extension Date {
     enum DateFormatStyle: Equatable {
         case relative
@@ -10,27 +26,6 @@ extension Date {
         case yearOnly
         case time
         case custom(String)
-
-        var formatString: String {
-            switch self {
-            case .relative:
-                return "relative"
-            case .short:
-                return "MM/dd/yy"
-            case .medium:
-                return "MMM d, yyyy"
-            case .long:
-                return "MMMM d, yyyy"
-            case .monthYear:
-                return "MMMM yyyy"
-            case .yearOnly:
-                return "yyyy"
-            case .time:
-                return "h:mm a"
-            case .custom(let format):
-                return format
-            }
-        }
     }
 
     /// Format date using predefined or custom format styles.
@@ -41,17 +36,26 @@ extension Date {
         switch style {
         case .relative:
             return relativeFormatted()
-        default:
-            let formatter = DateFormatter()
-            formatter.dateFormat = style.formatString
-            formatter.locale = Locale.current
-            return formatter.string(from: self)
+        case .short:
+            return formatted(date: .numeric, time: .omitted)
+        case .medium:
+            return formatted(date: .abbreviated, time: .omitted)
+        case .long:
+            return formatted(date: .long, time: .omitted)
+        case .monthYear:
+            return formatted(.dateTime.month(.wide).year())
+        case .yearOnly:
+            return formatted(.dateTime.year())
+        case .time:
+            return formatted(date: .omitted, time: .shortened)
+        case .custom(let format):
+            return DateFormattingCache.customFormatted(self, format: format)
         }
     }
 
     /// Get relative date string (e.g., "2 hours ago", "Tomorrow", "Last week")
     private func relativeFormatted() -> String {
-        let calendar = Calendar.current
+        let calendar = Calendar.autoupdatingCurrent
         let now = Date()
 
         let components = calendar.dateComponents([.second, .minute, .hour, .day, .weekOfYear, .month, .year], from: self, to: now)
@@ -87,17 +91,17 @@ extension Date {
 
     /// Check if date is today
     var isToday: Bool {
-        Calendar.current.isDateInToday(self)
+        Calendar.autoupdatingCurrent.isDateInToday(self)
     }
 
     /// Check if date is yesterday
     var isYesterday: Bool {
-        Calendar.current.isDateInYesterday(self)
+        Calendar.autoupdatingCurrent.isDateInYesterday(self)
     }
 
     /// Check if date is tomorrow
     var isTomorrow: Bool {
-        Calendar.current.isDateInTomorrow(self)
+        Calendar.autoupdatingCurrent.isDateInTomorrow(self)
     }
 
     /// Check if date is in the past
@@ -112,36 +116,44 @@ extension Date {
 
     /// Get the start of the day
     var startOfDay: Date {
-        Calendar.current.startOfDay(for: self)
+        Calendar.autoupdatingCurrent.startOfDay(for: self)
     }
 
     /// Get the end of the day
     var endOfDay: Date {
-        Calendar.current.date(byAdding: DateComponents(day: 1, second: -1), to: startOfDay) ?? self
+        Calendar.autoupdatingCurrent.date(byAdding: DateComponents(day: 1, second: -1), to: startOfDay) ?? self
     }
 
     /// Get the start of the month
     var startOfMonth: Date {
-        let components = Calendar.current.dateComponents([.year, .month], from: self)
-        return Calendar.current.date(from: components) ?? self
+        let cal = Calendar.autoupdatingCurrent
+        let components = cal.dateComponents([.year, .month], from: self)
+        return cal.date(from: components) ?? self
     }
 
     /// Get the end of the month
     var endOfMonth: Date {
-        let nextMonth = Calendar.current.date(byAdding: .month, value: 1, to: startOfMonth) ?? self
-        return Calendar.current.date(byAdding: .second, value: -1, to: nextMonth) ?? self
+        let cal = Calendar.autoupdatingCurrent
+        let components = cal.dateComponents([.year, .month], from: self)
+        let monthStart = cal.date(from: components) ?? self
+        let nextMonth = cal.date(byAdding: .month, value: 1, to: monthStart) ?? self
+        return cal.date(byAdding: .second, value: -1, to: nextMonth) ?? self
     }
 
     /// Get the start of the year
     var startOfYear: Date {
-        let components = Calendar.current.dateComponents([.year], from: self)
-        return Calendar.current.date(from: components) ?? self
+        let cal = Calendar.autoupdatingCurrent
+        let components = cal.dateComponents([.year], from: self)
+        return cal.date(from: components) ?? self
     }
 
     /// Get the end of the year
     var endOfYear: Date {
-        let nextYear = Calendar.current.date(byAdding: .year, value: 1, to: startOfYear) ?? self
-        return Calendar.current.date(byAdding: .second, value: -1, to: nextYear) ?? self
+        let cal = Calendar.autoupdatingCurrent
+        let components = cal.dateComponents([.year], from: self)
+        let yearStart = cal.date(from: components) ?? self
+        let nextYear = cal.date(byAdding: .year, value: 1, to: yearStart) ?? self
+        return cal.date(byAdding: .second, value: -1, to: nextYear) ?? self
     }
 
     /// Get the next occurrence of a given weekday
@@ -149,32 +161,33 @@ extension Date {
     /// - Parameter weekday: Weekday to find (1=Sunday, 2=Monday, ..., 7=Saturday)
     /// - Returns: Date of next occurrence
     func nextOccurrence(of weekday: Int) -> Date {
+        let cal = Calendar.autoupdatingCurrent
         var dateComponent = DateComponents()
-        dateComponent.day = (weekday - Calendar.current.component(.weekday, from: self) + 7) % 7
+        dateComponent.day = (weekday - cal.component(.weekday, from: self) + 7) % 7
         if dateComponent.day ?? 0 == 0 {
             dateComponent.day = 7
         }
-        return Calendar.current.date(byAdding: dateComponent, to: self) ?? self
+        return cal.date(byAdding: dateComponent, to: self) ?? self
     }
 
     /// Check if date is within the same week as another date
     func isInSameWeek(as other: Date) -> Bool {
-        Calendar.current.isDate(self, equalTo: other, toGranularity: .weekOfYear)
+        Calendar.autoupdatingCurrent.isDate(self, equalTo: other, toGranularity: .weekOfYear)
     }
 
     /// Check if date is within the same month as another date
     func isInSameMonth(as other: Date) -> Bool {
-        Calendar.current.isDate(self, equalTo: other, toGranularity: .month)
+        Calendar.autoupdatingCurrent.isDate(self, equalTo: other, toGranularity: .month)
     }
 
     /// Check if date is within the same year as another date
     func isInSameYear(as other: Date) -> Bool {
-        Calendar.current.isDate(self, equalTo: other, toGranularity: .year)
+        Calendar.autoupdatingCurrent.isDate(self, equalTo: other, toGranularity: .year)
     }
 
     /// Get number of days between this date and another date
     func daysBetween(_ other: Date) -> Int {
-        let components = Calendar.current.dateComponents([.day], from: self, to: other)
+        let components = Calendar.autoupdatingCurrent.dateComponents([.day], from: self, to: other)
         return components.day ?? 0
     }
 }

@@ -43,7 +43,7 @@ struct VStatCard: View {
     init(
         label: String,
         value: Decimal,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         trend: Trend? = nil,
         backgroundColor: Color = VColors.secondaryBackground,
         accentColor: Color = VColors.primary

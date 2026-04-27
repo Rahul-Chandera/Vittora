@@ -54,7 +54,7 @@ struct VAmountText: View {
 
     init(
         _ amount: Decimal,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         type: TransactionType = .auto,
         size: AmountSize = .medium
     ) {
@@ -68,21 +68,12 @@ struct VAmountText: View {
         Text(formattedAmount)
             .font(size.font)
             .foregroundColor(amountColor)
-            .lineLimit(1)
-            .minimumScaleFactor(0.9)
+            .adaptiveLineLimit(1)
+            .adaptiveMinimumScaleFactor(0.9)
     }
 
     private var formattedAmount: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 2
-
-        if let formatted = formatter.string(from: NSDecimalNumber(decimal: abs(amount))) {
-            return formatted
-        }
-        return "~"
+        abs(amount).formatted(.currency(code: currencyCode).precision(.fractionLength(0...2)))
     }
 
     private var amountColor: Color {
@@ -103,7 +94,7 @@ struct VAmountText: View {
 extension VAmountText {
     init(
         income amount: Decimal,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         size: AmountSize = .medium
     ) {
         self.init(amount, currencyCode: currencyCode, type: .income, size: size)
@@ -111,7 +102,7 @@ extension VAmountText {
 
     init(
         expense amount: Decimal,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         size: AmountSize = .medium
     ) {
         self.init(amount, currencyCode: currencyCode, type: .expense, size: size)
@@ -119,7 +110,7 @@ extension VAmountText {
 
     init(
         _ amount: Decimal,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         size: AmountSize = .medium
     ) {
         self.init(amount, currencyCode: currencyCode, type: .auto, size: size)

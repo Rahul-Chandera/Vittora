@@ -168,21 +168,22 @@ struct BudgetUseCaseTests {
             let budgetRepo = MockBudgetRepository()
             let transactionRepo = MockTransactionRepository()
 
+            // Fixed dates: budget starts April 1 2026, transaction mid-month — avoids month-boundary races
+            let aprilStart = makeBudgetDate(year: 2026, month: 4, day: 1)
+            let aprilMid = makeBudgetDate(year: 2026, month: 4, day: 15)
             let categoryID = UUID()
             let budget = BudgetEntity(
                 amount: 500,
                 period: .monthly,
-                startDate: Calendar.current.date(
-                    from: Calendar.current.dateComponents([.year, .month], from: .now)
-                ) ?? .now,
+                startDate: aprilStart,
                 categoryID: categoryID
             )
             await budgetRepo.seed(budget)
 
-            // Add expense transaction in this month for the same category
+            // Add expense transaction in the same fixed month for the same category
             let transaction = TransactionEntity(
                 amount: 120,
-                date: .now,
+                date: aprilMid,
                 type: .expense,
                 categoryID: categoryID
             )
@@ -284,9 +285,9 @@ struct BudgetUseCaseTests {
             #expect(progress.percentage == budget.progress)
         }
 
-        @Test("Days remaining is non-negative for current period")
+        @Test("Days remaining is non-negative for a period that has not ended")
         func testDaysRemainingNonNegative() {
-            let budget = BudgetEntity(amount: 500, period: .monthly, startDate: .now)
+            let budget = BudgetEntity(amount: 500, period: .monthly, startDate: makeBudgetDate(year: 2026, month: 4, day: 1))
             let useCase = CalculateBudgetProgressUseCase()
             let progress = useCase.execute(budget: budget)
 
@@ -442,5 +443,9 @@ struct BudgetUseCaseTests {
 
 private func makeBudgetDate(year: Int, month: Int, day: Int) -> Date {
     let calendar = Calendar(identifier: .gregorian)
-    return calendar.date(from: DateComponents(year: year, month: month, day: day)) ?? .now
+    guard let date = calendar.date(from: DateComponents(year: year, month: month, day: day)) else {
+        Issue.record("makeBudgetDate failed for \(year)-\(month)-\(day)")
+        return Date(timeIntervalSince1970: 0)
+    }
+    return date
 }

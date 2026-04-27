@@ -31,17 +31,20 @@ import Foundation
     private let updateUseCase: UpdateTransactionUseCase
     private let smartCategorizeUseCase: SmartCategorizeUseCase
     private let duplicateDetectionUseCase: DuplicateDetectionUseCase
+    private let currencyCode: String
 
     init(
         addUseCase: AddTransactionUseCase,
         updateUseCase: UpdateTransactionUseCase,
         smartCategorizeUseCase: SmartCategorizeUseCase,
-        duplicateDetectionUseCase: DuplicateDetectionUseCase
+        duplicateDetectionUseCase: DuplicateDetectionUseCase,
+        currencyCode: String = CurrencyDefaults.code
     ) {
         self.addUseCase = addUseCase
         self.updateUseCase = updateUseCase
         self.smartCategorizeUseCase = smartCategorizeUseCase
         self.duplicateDetectionUseCase = duplicateDetectionUseCase
+        self.currencyCode = currencyCode
     }
 
     func loadTransaction(_ entity: TransactionEntity) {
@@ -137,7 +140,7 @@ import Foundation
                 note: note.isEmpty ? nil : note,
                 type: type,
                 paymentMethod: paymentMethod,
-                currencyCode: "USD",
+                currencyCode: currencyCode,
                 tags: tags,
                 categoryID: selectedCategoryID,
                 accountID: accountID,
@@ -157,7 +160,7 @@ import Foundation
                 note: note.isEmpty ? nil : note,
                 tags: tags,
                 paymentMethod: paymentMethod,
-                currencyCode: "USD"
+                currencyCode: currencyCode
             )
         }
     }

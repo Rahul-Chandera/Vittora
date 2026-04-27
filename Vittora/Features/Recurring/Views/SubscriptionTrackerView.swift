@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SubscriptionTrackerView: View {
     @Environment(\.dependencies) var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: SubscriptionSummaryViewModel?
 
     var body: some View {
@@ -15,11 +16,11 @@ struct SubscriptionTrackerView: View {
                         if let costSummary = viewModel.costSummary {
                             VStack(alignment: .leading, spacing: VSpacing.lg) {
                                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                    Text("Monthly Spending")
+                                    Text(String(localized: "Monthly Spending"))
                                         .font(VTypography.callout)
                                         .foregroundColor(VColors.textSecondary)
 
-                                    Text(String(format: "$%.2f", Double(truncating: costSummary.monthlyCost as NSDecimalNumber)))
+                                    Text(costSummary.monthlyCost.formatted(currencyCode: currencyCode))
                                         .font(VTypography.largeTitle)
                                         .foregroundColor(VColors.expense)
                                 }
@@ -28,11 +29,11 @@ struct SubscriptionTrackerView: View {
 
                                 HStack(spacing: VSpacing.xl) {
                                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                        Text("Yearly Estimate")
+                                        Text(String(localized: "Yearly Estimate"))
                                             .font(VTypography.caption2)
                                             .foregroundColor(VColors.textSecondary)
 
-                                        Text(String(format: "$%.2f", Double(truncating: costSummary.annualCost as NSDecimalNumber)))
+                                        Text(costSummary.annualCost.formatted(currencyCode: currencyCode))
                                             .font(VTypography.title3)
                                             .foregroundColor(VColors.expense)
                                     }
@@ -40,7 +41,7 @@ struct SubscriptionTrackerView: View {
                                     Spacer()
 
                                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                        Text("Active Subscriptions")
+                                        Text(String(localized: "Active Subscriptions"))
                                             .font(VTypography.caption2)
                                             .foregroundColor(VColors.textSecondary)
 
@@ -56,7 +57,7 @@ struct SubscriptionTrackerView: View {
 
                             // Breakdown
                             VStack(alignment: .leading, spacing: VSpacing.md) {
-                                Text("Your Subscriptions")
+                                Text(String(localized: "Your Subscriptions"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -66,11 +67,11 @@ struct SubscriptionTrackerView: View {
                                             .font(.system(size: 48))
                                             .foregroundColor(.green)
 
-                                        Text("No Active Subscriptions")
+                                        Text(String(localized: "No Active Subscriptions"))
                                             .font(VTypography.title3)
                                             .foregroundColor(VColors.textPrimary)
 
-                                        Text("You're all set! No recurring expenses scheduled.")
+                                        Text(String(localized: "You're all set! No recurring expenses scheduled."))
                                             .font(VTypography.callout)
                                             .foregroundColor(VColors.textSecondary)
                                             .multilineTextAlignment(.center)
@@ -80,13 +81,9 @@ struct SubscriptionTrackerView: View {
                                 } else {
                                     VStack(spacing: VSpacing.md) {
                                         ForEach(viewModel.activeRules, id: \.id) { rule in
-                                            let monthlyCost = normalizeToMonthlyCost(
-                                                amount: rule.templateAmount,
-                                                frequency: rule.frequency
-                                            )
                                             SubscriptionCard(
                                                 rule: rule,
-                                                monthlyCost: monthlyCost
+                                                monthlyCost: viewModel.monthlyCost(for: rule)
                                             )
                                         }
                                     }
@@ -103,7 +100,7 @@ struct SubscriptionTrackerView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("Subscriptions")
+        .navigationTitle(String(localized: "Subscriptions"))
         .onAppear {
             if viewModel == nil {
                 setupViewModel()
@@ -125,27 +122,6 @@ struct SubscriptionTrackerView: View {
             fetchUseCase: fetchUseCase,
             calculateCostUseCase: calculateCostUseCase
         )
-    }
-
-    private func normalizeToMonthlyCost(amount: Decimal, frequency: RecurrenceFrequency) -> Decimal {
-        switch frequency {
-        case .daily:
-            return amount * 30
-        case .weekly:
-            return amount * (Decimal(string: "4.33") ?? 4.33)
-        case .biweekly:
-            return amount * (Decimal(string: "2.165") ?? 2.165)
-        case .monthly:
-            return amount * 1
-        case .quarterly:
-            return amount / 3
-        case .yearly:
-            return amount / 12
-        case .custom(let days):
-            let daysPerMonth = Decimal(string: "30.0") ?? 30.0
-            let daysFraction = Decimal(days) > 0 ? daysPerMonth / Decimal(days) : 1
-            return amount * daysFraction
-        }
     }
 }
 

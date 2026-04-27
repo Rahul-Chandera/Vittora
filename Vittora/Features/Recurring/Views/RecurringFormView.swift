@@ -3,6 +3,7 @@ import SwiftUI
 struct RecurringFormView: View {
     @Environment(\.dependencies) var dependencies
     @Environment(\.dismiss) var dismiss
+    @Environment(\.currencySymbol) private var currencySymbol
     @State private var viewModel: RecurringFormViewModel?
     @State private var accounts: [AccountEntity] = []
     @State private var payees: [PayeeEntity] = []
@@ -20,12 +21,12 @@ struct RecurringFormView: View {
                         VStack(alignment: .leading, spacing: VSpacing.lg) {
                             // Amount Input
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Amount")
+                                Text(String(localized: "Amount"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
                                 HStack(spacing: VSpacing.sm) {
-                                    Text("$")
+                                    Text(currencySymbol)
                                         .font(VTypography.callout)
                                         .foregroundColor(VColors.textSecondary)
 
@@ -33,6 +34,7 @@ struct RecurringFormView: View {
                                         .font(VTypography.body)
                                         #if os(iOS)
                                         .keyboardType(.decimalPad)
+                                        .textContentType(nil)
                                         #endif
                                 }
                                 .padding(VSpacing.md)
@@ -45,7 +47,7 @@ struct RecurringFormView: View {
 
                             // Start Date
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Start Date")
+                                Text(String(localized: "Start Date"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -65,7 +67,7 @@ struct RecurringFormView: View {
                             // Optional End Date
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
                                 HStack {
-                                    Text("End Date (Optional)")
+                                    Text(String(localized: "End Date (Optional)"))
                                         .font(VTypography.calloutBold)
                                         .foregroundColor(VColors.textPrimary)
 
@@ -95,7 +97,7 @@ struct RecurringFormView: View {
 
                             // Account Selection
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Account *")
+                                Text(String(localized: "Account *"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -107,11 +109,11 @@ struct RecurringFormView: View {
                                 ) {
                                     HStack {
                                         if viewModel.selectedAccountID != nil {
-                                            Text("Selected")
+                                            Text(String(localized: "Selected"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
                                         } else {
-                                            Text("Choose Account")
+                                            Text(String(localized: "Choose Account"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textSecondary)
                                         }
@@ -120,6 +122,7 @@ struct RecurringFormView: View {
 
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(VColors.textSecondary)
+                                            .accessibilityHidden(true)
                                     }
                                     .padding(VSpacing.md)
                                     .background(VColors.secondaryBackground)
@@ -129,7 +132,7 @@ struct RecurringFormView: View {
 
                             // Category Selection
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Category (Optional)")
+                                Text(String(localized: "Category (Optional)"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -141,11 +144,11 @@ struct RecurringFormView: View {
                                 ) {
                                     HStack {
                                         if viewModel.selectedCategoryID != nil {
-                                            Text("Selected")
+                                            Text(String(localized: "Selected"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
                                         } else {
-                                            Text("Choose Category")
+                                            Text(String(localized: "Choose Category"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textSecondary)
                                         }
@@ -154,6 +157,7 @@ struct RecurringFormView: View {
 
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(VColors.textSecondary)
+                                            .accessibilityHidden(true)
                                     }
                                     .padding(VSpacing.md)
                                     .background(VColors.secondaryBackground)
@@ -163,7 +167,7 @@ struct RecurringFormView: View {
 
                             // Payee Selection
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Payee (Optional)")
+                                Text(String(localized: "Payee (Optional)"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -175,11 +179,11 @@ struct RecurringFormView: View {
                                 ) {
                                     HStack {
                                         if viewModel.selectedPayeeID != nil {
-                                            Text("Selected")
+                                            Text(String(localized: "Selected"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
                                         } else {
-                                            Text("Choose Payee")
+                                            Text(String(localized: "Choose Payee"))
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textSecondary)
                                         }
@@ -188,6 +192,7 @@ struct RecurringFormView: View {
 
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(VColors.textSecondary)
+                                            .accessibilityHidden(true)
                                     }
                                     .padding(VSpacing.md)
                                     .background(VColors.secondaryBackground)
@@ -197,7 +202,7 @@ struct RecurringFormView: View {
 
                             // Note Input
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text("Note (Optional)")
+                                Text(String(localized: "Note (Optional)"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -216,20 +221,12 @@ struct RecurringFormView: View {
 
                     if let error = errorMessage {
                         VStack {
-                            HStack {
-                                Image(systemName: "exclamationmark.circle.fill")
-                                    .foregroundColor(.red)
-
-                                Text(error)
-                                    .font(VTypography.callout)
-                                    .foregroundColor(.red)
-
-                                Spacer()
-                            }
-                            .padding(VSpacing.md)
-                            .background(Color.red.opacity(0.1))
-                            .cornerRadius(VSpacing.cornerRadiusMD)
-                            .padding(VSpacing.lg)
+                            VInlineErrorText(error)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(VSpacing.md)
+                                .background(VColors.expense.opacity(0.1))
+                                .cornerRadius(VSpacing.cornerRadiusMD)
+                                .padding(VSpacing.lg)
 
                             Spacer()
                         }
@@ -238,13 +235,13 @@ struct RecurringFormView: View {
                     ProgressView()
                 }
             }
-            .navigationTitle(viewModel?.isEditing ?? false ? "Edit Recurring" : "New Recurring")
+            .navigationTitle(viewModel?.isEditing ?? false ? String(localized: "Edit Recurring") : String(localized: "New Recurring"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                 }
@@ -254,7 +251,7 @@ struct RecurringFormView: View {
                         if isLoading {
                             ProgressView()
                         } else {
-                            Text("Save")
+                            Text(String(localized: "Save"))
                                 .font(VTypography.calloutBold)
                                 .foregroundColor(viewModel?.canSave ?? false ? VColors.primary : VColors.textSecondary)
                         }
@@ -270,6 +267,11 @@ struct RecurringFormView: View {
                     await loadAccounts()
                     await loadPayees()
                 }
+            }
+        }
+        .onChange(of: errorMessage) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
             }
         }
     }
@@ -291,14 +293,22 @@ struct RecurringFormView: View {
     private func loadAccounts() async {
         guard let accountRepository = dependencies.accountRepository else { return }
         let fetchUseCase = FetchAccountsUseCase(accountRepository: accountRepository)
-        accounts = (try? await fetchUseCase.execute()) ?? []
+        do {
+            accounts = try await fetchUseCase.execute()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     @MainActor
     private func loadPayees() async {
         guard let payeeRepository = dependencies.payeeRepository else { return }
         let fetchUseCase = FetchPayeesUseCase(repository: payeeRepository)
-        payees = (try? await fetchUseCase.execute()) ?? []
+        do {
+            payees = try await fetchUseCase.execute()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     private func save() {
@@ -325,6 +335,7 @@ struct RecurringCategoryPickerView: View {
     @Binding var selectedID: UUID?
     var categoryType: CategoryType = .expense
     @State private var categories: [CategoryEntity] = []
+    @State private var loadError: String?
 
     var body: some View {
         List(categories, id: \.id) { category in
@@ -349,12 +360,22 @@ struct RecurringCategoryPickerView: View {
                 }
             }
         }
-        .navigationTitle("Select Category")
+        .navigationTitle(String(localized: "Select Category"))
+        .overlay {
+            if let loadError {
+                Text(loadError)
+                    .foregroundStyle(VColors.expense)
+                    .padding()
+            }
+        }
         .onAppear {
             Task {
-                if let repo = dependencies.categoryRepository {
-                    let allCategories = (try? await repo.fetchAll()) ?? []
+                guard let repo = dependencies.categoryRepository else { return }
+                do {
+                    let allCategories = try await repo.fetchAll()
                     categories = allCategories.filter { $0.type == categoryType }
+                } catch {
+                    loadError = error.localizedDescription
                 }
             }
         }

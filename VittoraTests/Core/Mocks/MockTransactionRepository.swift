@@ -6,6 +6,11 @@ actor MockTransactionRepository: TransactionRepository {
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
 
+    func fetchTransactionCount() async throws -> Int {
+        if shouldThrowError { throw throwError }
+        return transactions.count
+    }
+
     func fetchAll(filter: TransactionFilter?) async throws -> [TransactionEntity] {
         if shouldThrowError { throw throwError }
         var results = transactions
@@ -35,6 +40,20 @@ actor MockTransactionRepository: TransactionRepository {
     func fetchByID(_ id: UUID) async throws -> TransactionEntity? {
         if shouldThrowError { throw throwError }
         return transactions.first { $0.id == id }
+    }
+
+    func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {
+        if shouldThrowError { throw throwError }
+        return transactions
+            .filter { $0.recurringRuleID == id }
+            .sorted { $0.date > $1.date }
+            .prefix(20)
+            .map { $0 }
+    }
+
+    func hasTransactions(forAccountID id: UUID) async throws -> Bool {
+        if shouldThrowError { throw throwError }
+        return transactions.contains { $0.accountID == id || $0.destinationAccountID == id }
     }
 
     func create(_ entity: TransactionEntity) async throws {

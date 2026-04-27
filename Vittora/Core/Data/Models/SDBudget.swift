@@ -3,7 +3,9 @@ import SwiftData
 
 @Model
 final class SDBudget {
-    var id: UUID = UUID()
+    #Index<SDBudget>([\.categoryID], [\.startDate])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var amount: Decimal = 0
     var spent: Decimal = 0
     var periodRawValue: String = BudgetPeriod.monthly.rawValue

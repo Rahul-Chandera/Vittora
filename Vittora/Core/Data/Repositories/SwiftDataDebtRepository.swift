@@ -58,6 +58,14 @@ actor SwiftDataDebtRepository: DebtRepository {
         try modelContext.save()
     }
 
+    func fetchOutstanding() async throws -> [DebtEntry] {
+        let descriptor = FetchDescriptor<SDDebt>(
+            predicate: #Predicate { $0.isSettled == false },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        return try modelContext.fetch(descriptor).map(DebtMapper.toEntity)
+    }
+
     func fetchForPayee(_ payeeID: UUID) async throws -> [DebtEntry] {
         let descriptor = FetchDescriptor<SDDebt>(
             predicate: #Predicate { $0.payeeID == payeeID },

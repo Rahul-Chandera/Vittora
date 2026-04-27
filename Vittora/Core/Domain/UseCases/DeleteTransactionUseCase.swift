@@ -3,19 +3,35 @@ import Foundation
 struct DeleteTransactionUseCase: Sendable {
     let transactionRepository: any TransactionRepository
     let accountRepository: any AccountRepository
+    let documentRepository: any DocumentRepository
+    let documentStorageService: any DocumentStorageServiceProtocol
 
     init(
         transactionRepository: any TransactionRepository,
-        accountRepository: any AccountRepository
+        accountRepository: any AccountRepository,
+        documentRepository: any DocumentRepository,
+        documentStorageService: any DocumentStorageServiceProtocol
     ) {
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
+        self.documentRepository = documentRepository
+        self.documentStorageService = documentStorageService
     }
 
     func execute(id: UUID) async throws {
         // Fetch the transaction to be deleted
         guard let transaction = try await transactionRepository.fetchByID(id) else {
             throw VittoraError.notFound("Transaction not found")
+        }
+
+        // Delete linked documents first to avoid orphaned encrypted payloads.
+        let linkedDocuments = try await documentRepository.fetchForTransaction(id)
+        let deleteDocumentUseCase = DeleteDocumentUseCase(
+            documentRepository: documentRepository,
+            documentStorageService: documentStorageService
+        )
+        for document in linkedDocuments {
+            try await deleteDocumentUseCase.execute(id: document.id)
         }
 
         // Reverse the balance effect on the account

@@ -23,6 +23,7 @@ struct TaxSummaryCard: View {
                     Image(systemName: "building.columns.fill")
                         .font(.title2)
                         .foregroundStyle(VColors.primary.opacity(0.7))
+                        .accessibilityHidden(true)
                 }
 
                 Divider()
@@ -94,8 +95,8 @@ private struct TaxFigure: View {
             Text(compact(value, code: currencyCode))
                 .font(VTypography.bodyBold)
                 .foregroundStyle(color)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .adaptiveLineLimit(1)
+                .adaptiveMinimumScaleFactor(0.8)
             Text(label)
                 .font(VTypography.caption2)
                 .foregroundStyle(VColors.textSecondary)

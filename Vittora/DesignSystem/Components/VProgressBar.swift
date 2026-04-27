@@ -7,6 +7,7 @@ struct VProgressBar: View {
     let limit: Decimal
     let showLabel: Bool
     let animated: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(
         spent: Decimal,
@@ -34,34 +35,42 @@ struct VProgressBar: View {
                         .fill(progressGradient)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .frame(width: max(0, progress * 300), height: 8)
-                        .if(animated) { view in
+                        .if(animated && !reduceMotion) { view in
                             view.animation(.easeInOut(duration: 0.6), value: progress)
                         }
                 }
 
-                // Overflow indicator
-                if progress > 1.0 {
+                // Status indicator (non-color signal for warning/danger/overflow)
+                if progress >= 0.75 {
                     HStack {
                         Spacer()
-                        Image(systemName: "exclamationmark.circle.fill")
+                        Image(systemName: progress > 1.0 ? "exclamationmark.circle.fill" : "exclamationmark.triangle.fill")
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(VColors.budgetDanger)
+                            .foregroundColor(statusColor)
                             .padding(.horizontal, VSpacing.xs)
+                            .accessibilityLabel(progress > 1.0
+                                ? String(localized: "Over budget")
+                                : progress >= 0.9
+                                    ? String(localized: "Near limit")
+                                    : String(localized: "Approaching limit"))
                     }
                 }
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(String(localized: "Budget progress"))
+            .accessibilityValue(accessibilityStatusLabel)
 
             if showLabel {
                 HStack(spacing: VSpacing.md) {
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        Text("Spent")
+                        Text(String(localized: "Spent"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                         VAmountText(spent, size: .caption)
                     }
 
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        Text("Limit")
+                        Text(String(localized: "Limit"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                         VAmountText(limit, size: .caption)
@@ -70,15 +79,33 @@ struct VProgressBar: View {
                     Spacer()
 
                     VStack(alignment: .trailing, spacing: VSpacing.xs) {
-                        Text("Progress")
+                        Text(String(localized: "Progress"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
-                        Text("\(progressPercentage)%")
-                            .font(VTypography.caption1Bold)
-                            .foregroundColor(statusColor)
+                        HStack(spacing: VSpacing.xxs) {
+                            if progress >= 1.0 {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.caption2)
+                                    .foregroundColor(statusColor)
+                                    .accessibilityHidden(true)
+                            }
+                            Text("\(progressPercentage)%")
+                                .font(VTypography.caption1Bold)
+                                .foregroundColor(statusColor)
+                        }
                     }
                 }
             }
+        }
+    }
+
+    private var accessibilityStatusLabel: String {
+        if progress > 1.0 {
+            return "\(progressPercentage)%, \(String(localized: "over budget"))"
+        } else if progress >= 0.9 {
+            return "\(progressPercentage)%, \(String(localized: "near limit"))"
+        } else {
+            return "\(progressPercentage)%"
         }
     }
 

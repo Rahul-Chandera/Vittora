@@ -35,18 +35,28 @@ enum SyncState: Equatable, Sendable {
     }
 }
 
+/// Offline contract:
+/// - Local SwiftData writes must not be blocked by network or iCloud availability.
+/// - CloudKit sync runs opportunistically when network and account access return.
+/// - NSPersistentCloudKitContainer applies last-writer-wins conflict resolution by
+///   modification timestamp; ambiguous merge events are surfaced in the sync log.
 @Observable
 @MainActor
 final class SyncStatusService: Sendable {
     private(set) var syncState: SyncState = .synced
-    private(set) var lastSyncDate: Date? = UserDefaults.standard.object(forKey: "vittora.lastSyncDate") as? Date
+    private(set) var lastSyncDate: Date?
     private(set) var iCloudAccountAvailable: Bool = false
 
+    private let userDefaults: UserDefaults
     private let pathMonitor: NWPathMonitor?
     private let monitorQueue = DispatchQueue(label: "vittora.network.monitor", qos: .utility)
     private var isNetworkAvailable: Bool = true
 
-    init(isMonitoringEnabled: Bool = true) {
+    init(isMonitoringEnabled: Bool = true, userDefaults: UserDefaults? = nil) {
+        AppUserDefaults.migrateLastSyncDateIfNeeded()
+        let store = userDefaults ?? AppUserDefaults.sync
+        self.userDefaults = store
+        self.lastSyncDate = store.object(forKey: "vittora.lastSyncDate") as? Date
         if isMonitoringEnabled {
             let monitor = NWPathMonitor()
             pathMonitor = monitor
@@ -108,7 +118,8 @@ final class SyncStatusService: Sendable {
                 else if syncState == .pending { /* stay pending until confirmed synced */ }
             case .noAccount:
                 iCloudAccountAvailable = false
-                syncState = .error(String(localized: "No iCloud account. Sign in to Settings → Apple ID."))
+                // OFFL-02: stay usable without iCloud — not an error state.
+                syncState = .offline
             case .restricted:
                 iCloudAccountAvailable = false
                 syncState = .error(String(localized: "iCloud access is restricted on this device."))
@@ -136,7 +147,7 @@ final class SyncStatusService: Sendable {
     func markSynced() {
         let now = Date.now
         lastSyncDate = now
-        UserDefaults.standard.set(now, forKey: "vittora.lastSyncDate")
+        userDefaults.set(now, forKey: "vittora.lastSyncDate")
         syncState = .synced
     }
 

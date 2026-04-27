@@ -47,6 +47,11 @@ final class DataManagementService: Sendable {
     private let savingsGoalRepository: any SavingsGoalRepository
     private let splitGroupRepository: any SplitGroupRepository
     private let documentRepository: any DocumentRepository
+    private let payeeRepository: (any PayeeRepository)?
+    private let recurringRuleRepository: (any RecurringRuleRepository)?
+    private let taxProfileRepository: (any TaxProfileRepository)?
+    private let documentStorageService: (any DocumentStorageServiceProtocol)?
+    private let keychainService: any KeychainServiceProtocol
 
     init(
         transactionRepository: any TransactionRepository,
@@ -56,7 +61,12 @@ final class DataManagementService: Sendable {
         debtRepository: any DebtRepository,
         savingsGoalRepository: any SavingsGoalRepository,
         splitGroupRepository: any SplitGroupRepository,
-        documentRepository: any DocumentRepository
+        documentRepository: any DocumentRepository,
+        payeeRepository: (any PayeeRepository)? = nil,
+        recurringRuleRepository: (any RecurringRuleRepository)? = nil,
+        taxProfileRepository: (any TaxProfileRepository)? = nil,
+        documentStorageService: (any DocumentStorageServiceProtocol)? = nil,
+        keychainService: (any KeychainServiceProtocol)? = nil
     ) {
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
@@ -66,29 +76,34 @@ final class DataManagementService: Sendable {
         self.savingsGoalRepository = savingsGoalRepository
         self.splitGroupRepository = splitGroupRepository
         self.documentRepository = documentRepository
+        self.payeeRepository = payeeRepository
+        self.recurringRuleRepository = recurringRuleRepository
+        self.taxProfileRepository = taxProfileRepository
+        self.documentStorageService = documentStorageService
+        self.keychainService = keychainService ?? KeychainService()
     }
 
     // MARK: - Statistics
 
     func fetchStats() async throws -> DatabaseStats {
-        async let transactions = transactionRepository.fetchAll(filter: nil)
+        async let transactionCount = transactionRepository.fetchTransactionCount()
         async let accounts     = accountRepository.fetchAll()
         async let categories   = categoryRepository.fetchAll()
         async let budgets      = budgetRepository.fetchAll()
         async let debts        = debtRepository.fetchAll()
         async let goals        = savingsGoalRepository.fetchAll()
         async let groups       = splitGroupRepository.fetchAllGroups()
-        async let documents    = documentRepository.fetchAll()
+        async let documentCount = documentRepository.fetchCount()
 
         return try await DatabaseStats(
-            transactionCount: transactions.count,
+            transactionCount: transactionCount,
             accountCount:     accounts.count,
             categoryCount:    categories.count,
             budgetCount:      budgets.count,
             debtCount:        debts.count,
             savingsGoalCount: goals.count,
             splitGroupCount:  groups.count,
-            documentCount:    documents.count
+            documentCount:    documentCount
         )
     }
 
@@ -118,7 +133,17 @@ final class DataManagementService: Sendable {
             for group in groups {
                 try await splitGroupRepository.deleteGroup(group.id)
             }
-            // Keep accounts and categories — user likely wants to preserve structure
+            try await deleteAllDocuments()
+            if let payeeRepository {
+                try await deleteAll(from: payeeRepository)
+            }
+            if let recurringRuleRepository {
+                try await deleteAll(from: recurringRuleRepository)
+            }
+            if let taxProfileRepository {
+                try await taxProfileRepository.delete()
+            }
+            // Keep accounts and categories in clear-all mode for structural retention.
         }
     }
 
@@ -128,15 +153,27 @@ final class DataManagementService: Sendable {
         for account in accounts { try await accountRepository.delete(account.id) }
         let categories = try await categoryRepository.fetchAll()
         for category in categories { try await categoryRepository.delete(category.id) }
-        UserDefaults.standard.removeObject(forKey: "vittora.onboardingComplete")
+
+        // Clear sensitive Keychain entries
+        try await keychainService.delete(forKey: "vittora.onboardingComplete")
+        try await keychainService.delete(forKey: "vittora.appLockEnabled")
+        try await keychainService.delete(forKey: "vittora.passcodeFallback")
+        try await keychainService.delete(forKey: "vittora.userName")
+        try await keychainService.delete(forKey: "com.vittora.encryption.key")
+        try await keychainService.delete(forKey: "com.vittora.encryption.key.se_wrapped")
+
         UserDefaults.standard.removeObject(forKey: "vittora.lastSyncDate")
+        AppUserDefaults.sync.removeObject(forKey: "vittora.lastSyncDate")
     }
 
     // MARK: - Helpers
 
     private func deleteAll(from repo: any TransactionRepository) async throws {
-        let items = try await repo.fetchAll(filter: nil)
-        for item in items { try await repo.delete(item.id) }
+        while true {
+            let items = try await repo.fetchAll(filter: nil)
+            if items.isEmpty { break }
+            for item in items { try await repo.delete(item.id) }
+        }
     }
 
     private func deleteAll(from repo: any BudgetRepository) async throws {
@@ -152,5 +189,32 @@ final class DataManagementService: Sendable {
     private func deleteAll(from repo: any SavingsGoalRepository) async throws {
         let items = try await repo.fetchAll()
         for item in items { try await repo.delete(item.id) }
+    }
+
+    private func deleteAll(from repo: any PayeeRepository) async throws {
+        let items = try await repo.fetchAll()
+        for item in items { try await repo.delete(item.id) }
+    }
+
+    private func deleteAll(from repo: any RecurringRuleRepository) async throws {
+        let items = try await repo.fetchAll()
+        for item in items { try await repo.delete(item.id) }
+    }
+
+    private func deleteAllDocuments() async throws {
+        let documents = try await documentRepository.fetchAll()
+        if let documentStorageService {
+            let deleteUseCase = DeleteDocumentUseCase(
+                documentRepository: documentRepository,
+                documentStorageService: documentStorageService
+            )
+            for document in documents {
+                try await deleteUseCase.execute(id: document.id)
+            }
+        } else {
+            for document in documents {
+                try await documentRepository.delete(document.id)
+            }
+        }
     }
 }

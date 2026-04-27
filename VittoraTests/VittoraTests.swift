@@ -5,6 +5,7 @@
 //  Created by Rahul on 12/04/26.
 //
 
+import Foundation
 import Testing
 @testable import Vittora
 
@@ -25,12 +26,36 @@ struct VittoraTests {
         #expect(AppState.AppTab.allCases.count == 9)
     }
 
-    @Test("AppTab has titles and icons")
-    func appTabProperties() {
+    @Test("AppTab titles match expected localized strings")
+    func appTabTitles() {
+        #expect(AppState.AppTab.dashboard.title    == String(localized: "Dashboard"))
+        #expect(AppState.AppTab.transactions.title == String(localized: "Transactions"))
+        #expect(AppState.AppTab.budgets.title      == String(localized: "Budgets"))
+        #expect(AppState.AppTab.reports.title      == String(localized: "Reports"))
+        #expect(AppState.AppTab.debt.title         == String(localized: "Debt"))
+        #expect(AppState.AppTab.splits.title       == String(localized: "Splits"))
+        #expect(AppState.AppTab.tax.title          == String(localized: "Tax"))
+        #expect(AppState.AppTab.savings.title      == String(localized: "Savings"))
+        #expect(AppState.AppTab.settings.title     == String(localized: "Settings"))
+    }
+
+    @Test("AppTab system images match expected SF Symbol names")
+    func appTabSystemImages() {
+        #expect(AppState.AppTab.dashboard.systemImage    == "chart.pie.fill")
+        #expect(AppState.AppTab.transactions.systemImage == "list.bullet.rectangle.fill")
+        #expect(AppState.AppTab.budgets.systemImage      == "target")
+        #expect(AppState.AppTab.reports.systemImage      == "chart.bar.fill")
+        #expect(AppState.AppTab.debt.systemImage         == "hand.point.up.left.fill")
+        #expect(AppState.AppTab.splits.systemImage       == "person.3.fill")
+        #expect(AppState.AppTab.tax.systemImage          == "building.columns.fill")
+        #expect(AppState.AppTab.savings.systemImage      == "star.circle.fill")
+        #expect(AppState.AppTab.settings.systemImage     == "gearshape.fill")
+    }
+
+    @Test("AppTab id equals rawValue")
+    func appTabIDEqualsRawValue() {
         for tab in AppState.AppTab.allCases {
-            #expect(!tab.title.isEmpty)
-            #expect(!tab.systemImage.isEmpty)
-            #expect(!tab.id.isEmpty)
+            #expect(tab.id == tab.rawValue)
         }
     }
 }

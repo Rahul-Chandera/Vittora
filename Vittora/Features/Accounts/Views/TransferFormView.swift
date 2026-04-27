@@ -41,6 +41,11 @@ struct TransferFormView: View {
         .task {
             await setupViewModel()
         }
+        .onChange(of: viewModel?.error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
+            }
+        }
         .accessibilityIdentifier("transfer-form-root")
     }
 
@@ -93,13 +98,14 @@ struct TransferFormView: View {
                                     .foregroundColor(VColors.textSecondary)
                             }
                         } else {
-                            Text("Select Account")
+                            Text(String(localized: "Select Account"))
                                 .foregroundColor(VColors.textTertiary)
                         }
                         Spacer()
                         Image(systemName: "chevron.right")
                             .foregroundColor(VColors.textTertiary)
                             .font(.caption)
+                            .accessibilityHidden(true)
                     }
                 }
                 .accessibilityIdentifier("transfer-source-account-button")
@@ -133,13 +139,14 @@ struct TransferFormView: View {
                                     .foregroundColor(VColors.textSecondary)
                             }
                         } else {
-                            Text("Select Account")
+                            Text(String(localized: "Select Account"))
                                 .foregroundColor(VColors.textTertiary)
                         }
                         Spacer()
                         Image(systemName: "chevron.right")
                             .foregroundColor(VColors.textTertiary)
                             .font(.caption)
+                            .accessibilityHidden(true)
                     }
                 }
                 .accessibilityIdentifier("transfer-destination-account-button")
@@ -149,6 +156,7 @@ struct TransferFormView: View {
                 TextField(String(localized: "0.00"), text: Bindable(vm).amount)
                     #if os(iOS)
                     .keyboardType(.decimalPad)
+                    .textContentType(nil)
                     #endif
                     .accessibilityIdentifier("transfer-amount-field")
             }
@@ -161,9 +169,7 @@ struct TransferFormView: View {
 
             if let error = vm.error {
                 Section {
-                    Text(error)
-                        .foregroundColor(VColors.expense)
-                        .font(VTypography.caption1)
+                    VInlineErrorText(error)
                 }
             }
         }

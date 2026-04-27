@@ -1,0 +1,49 @@
+---
+description: Vittora core engineering rules and safety checks
+alwaysApply: true
+---
+
+# Vittora Core Rules
+
+## Project facts
+
+- App source lives in `Vittora/`, tests in `VittoraTests/`, UI tests in `VittoraUITests/`.
+- Platforms: iOS/iPadOS/macOS via SwiftUI + SwiftData + CloudKit.
+- Use Swift 6 style concurrency (`async/await`, actors, Sendable-safe patterns).
+
+## Non-negotiables
+
+- No third-party SDKs/services unless explicitly requested.
+- Keep user-facing strings localized with `String(localized:)`.
+- Do not use force unwraps in production code.
+- Preserve offline-first behavior; local data must remain authoritative.
+- Treat finance/tax/security changes as high-risk and add tests.
+
+## Security and privacy
+
+- Do not log sensitive financial or personal values in plaintext.
+- Keep keychain and app-lock behavior consistent across launch/foreground flows.
+- Keep document deletion and factory reset behavior fully cascading.
+- Maintain `Vittora/PrivacyInfo.xcprivacy` and `Docs/Compliance/Privacy_Compliance_Checklist.md`.
+
+## Data and sync
+
+- Prefer repository APIs that avoid unnecessary hydration/decryption for counts/stats.
+- For sync conflicts, use actionable-vs-informational semantics (review only actionable).
+- Avoid full-table scans in sync/integrity paths unless explicitly needed.
+
+## Build/test workflow
+
+- For compile checks, run:
+  - `make build-ios`
+  - `make build-macos`
+- For focused safety checks:
+  - `make test-tax`
+  - `make test-sync`
+  - `make test-data`
+- After substantive edits, run relevant targeted tests before final response.
+
+## Commit hygiene
+
+- Use conventional commit style: `type(scope): summary`.
+- Keep commits focused and atomic when executing backlog items.

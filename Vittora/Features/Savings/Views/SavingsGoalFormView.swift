@@ -52,6 +52,7 @@ struct SavingsGoalFormView: View {
                         TextField("0", text: $targetString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .multilineTextAlignment(.trailing)
                             .frame(width: 140)
@@ -62,6 +63,7 @@ struct SavingsGoalFormView: View {
                         TextField("0", text: $currentString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .multilineTextAlignment(.trailing)
                             .frame(width: 140)
@@ -111,9 +113,7 @@ struct SavingsGoalFormView: View {
 
                 if let error {
                     Section {
-                        Text(error)
-                            .foregroundStyle(VColors.expense)
-                            .font(VTypography.caption1)
+                        VInlineErrorText(error)
                     }
                 }
             }
@@ -143,6 +143,11 @@ struct SavingsGoalFormView: View {
                 targetDate = goal.targetDate ?? Calendar.current.date(byAdding: .month, value: 12, to: .now) ?? .now
                 note = goal.note ?? ""
                 selectedColor = goal.colorHex
+            }
+        }
+        .onChange(of: error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
             }
         }
     }

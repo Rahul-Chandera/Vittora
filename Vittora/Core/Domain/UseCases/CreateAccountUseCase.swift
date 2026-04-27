@@ -11,7 +11,7 @@ struct CreateAccountUseCase: Sendable {
         name: String,
         type: AccountType,
         balance: Decimal = 0,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         icon: String = "building.columns.fill"
     ) async throws {
         // Validate name is not empty

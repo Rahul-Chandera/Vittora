@@ -1,8 +1,14 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State private var vm = SettingsViewModel()
+    @Environment(SettingsViewModel.self) private var vm
     @Environment(SyncConflictHandler.self) private var syncConflictHandler
+    @Environment(\.dependencies) private var dependencies
+    @State private var showDeleteAccountConfirm = false
+    @State private var deleteConfirmationText = ""
+    @State private var isDeletingAllData = false
+
+    private let deleteConfirmationPhrase = String(localized: "DELETE")
 
     var body: some View {
         Form {
@@ -60,6 +66,12 @@ struct SettingsView: View {
                                 title: String(localized: "App Lock"),
                                 value: vm.isAppLockEnabled ? String(localized: "On") : String(localized: "Off"))
                 }
+                NavigationLink {
+                    SecurityAuditLogView()
+                } label: {
+                    SettingsRow(icon: "list.bullet.rectangle", iconColor: .gray,
+                                title: String(localized: "Security audit log"), value: "")
+                }
             }
 
             // Data
@@ -90,6 +102,21 @@ struct SettingsView: View {
                 }
             }
 
+            // Account deletion
+            Section {
+                Button(role: .destructive) {
+                    deleteConfirmationText = ""
+                    showDeleteAccountConfirm = true
+                } label: {
+                    SettingsRow(icon: "trash.fill", iconColor: .red,
+                                title: String(localized: "Delete All Data"),
+                                value: "")
+                }
+            } footer: {
+                Text(String(localized: "Permanently deletes all financial data and resets the app."))
+                    .foregroundStyle(VColors.textSecondary)
+            }
+
             // About
             Section(String(localized: "About")) {
                 NavigationLink {
@@ -101,6 +128,107 @@ struct SettingsView: View {
             }
         }
         .navigationTitle(String(localized: "Settings"))
+        .errorAlert(message: Binding(
+            get: { vm.keychainError },
+            set: { vm.keychainError = $0 }
+        ))
+        .sheet(isPresented: $showDeleteAccountConfirm) {
+            deleteAllDataConfirmationSheet
+        }
+    }
+
+    private var deleteAllDataConfirmationSheet: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Text(String(localized: "This permanently erases all financial data, removes saved settings, and resets Vittora to its initial state. This cannot be undone."))
+                        .foregroundStyle(VColors.textPrimary)
+                }
+
+                Section(String(localized: "Confirmation")) {
+                    Text(String(localized: "Type \(deleteConfirmationPhrase) to confirm."))
+                        .foregroundStyle(VColors.textSecondary)
+
+                    TextField(deleteConfirmationPhrase, text: $deleteConfirmationText)
+                        #if os(iOS)
+                        .textInputAutocapitalization(.characters)
+                        #endif
+                        .autocorrectionDisabled()
+
+                    if !deleteConfirmationText.isEmpty && !canConfirmDeleteAllData {
+                        VInlineErrorText(String(localized: "The confirmation text must match exactly."))
+                    }
+                }
+            }
+            .navigationTitle(String(localized: "Delete All Data"))
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(String(localized: "Cancel")) {
+                        showDeleteAccountConfirm = false
+                    }
+                    .disabled(isDeletingAllData)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(String(localized: "Permanently Delete"), role: .destructive) {
+                        Task { await confirmDeleteAllData() }
+                    }
+                    .disabled(!canConfirmDeleteAllData || isDeletingAllData)
+                }
+            }
+        }
+    }
+
+    private var canConfirmDeleteAllData: Bool {
+        deleteConfirmationText.trimmingCharacters(in: .whitespacesAndNewlines) == deleteConfirmationPhrase
+    }
+
+    private func confirmDeleteAllData() async {
+        isDeletingAllData = true
+        let didDelete = await deleteAllData()
+        isDeletingAllData = false
+
+        if didDelete {
+            showDeleteAccountConfirm = false
+        }
+    }
+
+    private func deleteAllData() async -> Bool {
+        guard let txRepo = dependencies.transactionRepository,
+              let accRepo = dependencies.accountRepository,
+              let catRepo = dependencies.categoryRepository,
+              let budRepo = dependencies.budgetRepository,
+              let debtRepo = dependencies.debtRepository,
+              let goalRepo = dependencies.savingsGoalRepository,
+              let splitRepo = dependencies.splitGroupRepository,
+              let docRepo = dependencies.documentRepository else {
+            vm.keychainError = String(localized: "We couldn't access the data store to delete your data.")
+            return false
+        }
+        let service = DataManagementService(
+            transactionRepository: txRepo,
+            accountRepository: accRepo,
+            categoryRepository: catRepo,
+            budgetRepository: budRepo,
+            debtRepository: debtRepo,
+            savingsGoalRepository: goalRepo,
+            splitGroupRepository: splitRepo,
+            documentRepository: docRepo,
+            payeeRepository: dependencies.payeeRepository,
+            recurringRuleRepository: dependencies.recurringRuleRepository,
+            taxProfileRepository: dependencies.taxProfileRepository,
+            documentStorageService: dependencies.documentStorageService,
+            keychainService: dependencies.keychainService ?? KeychainService()
+        )
+        do {
+            try await service.factoryReset()
+            return true
+        } catch {
+            vm.keychainError = error.localizedDescription
+            return false
+        }
     }
 
     private func initials(_ name: String) -> String {
@@ -110,7 +238,7 @@ struct SettingsView: View {
     }
 
     private var syncValue: String {
-        if syncConflictHandler.hasUnresolvedConflicts {
+        if syncConflictHandler.hasActionableConflicts {
             return String(localized: "Review")
         }
         return vm.isCloudSyncEnabled ? String(localized: "On") : String(localized: "Off")

@@ -12,7 +12,9 @@ final class TaxProfileFormViewModel {
     var incomeString = ""
     var indiaRegime: IndiaRegime = .newRegime
     var filingStatus: USFilingStatus = .single
-    var financialYear = "2024-25"
+    var financialYear = TaxCountry.india.defaultFinancialYear
+    var incomeSourceType: IncomeSourceType = .salaried
+    var dateOfBirth: Date? = nil
     var customDeductions: [TaxDeduction] = []
 
     // Live preview
@@ -21,6 +23,7 @@ final class TaxProfileFormViewModel {
 
     var isSaving = false
     var error: String?
+    private var loadedProfile: TaxProfile?
 
     var income: Decimal { Decimal(string: incomeString.replacingOccurrences(of: ",", with: "")) ?? 0 }
     var canSave: Bool { income > 0 }
@@ -36,11 +39,14 @@ final class TaxProfileFormViewModel {
     }
 
     func populate(from profile: TaxProfile) {
+        loadedProfile = profile
         country = profile.country
         incomeString = profile.annualIncome == 0 ? "" : "\(profile.annualIncome)"
         indiaRegime = profile.indiaRegime
         filingStatus = profile.filingStatus
         financialYear = profile.financialYear
+        incomeSourceType = profile.incomeSourceType
+        dateOfBirth = profile.dateOfBirth
         customDeductions = profile.customDeductions
         recalculateLive()
     }
@@ -74,7 +80,9 @@ final class TaxProfileFormViewModel {
         isSaving = true
         error = nil
         do {
-            try await saveUseCase.execute(currentProfile())
+            let profileToSave = currentProfile()
+            try await saveUseCase.execute(profileToSave)
+            loadedProfile = profileToSave
         } catch {
             self.error = error.localizedDescription
             isSaving = false
@@ -84,13 +92,16 @@ final class TaxProfileFormViewModel {
     }
 
     private func currentProfile() -> TaxProfile {
-        TaxProfile(
-            country: country,
-            annualIncome: income,
-            indiaRegime: indiaRegime,
-            filingStatus: filingStatus,
-            customDeductions: customDeductions,
-            financialYear: financialYear
-        )
+        var profile = loadedProfile ?? TaxProfile()
+        profile.country = country
+        profile.annualIncome = income
+        profile.indiaRegime = indiaRegime
+        profile.filingStatus = filingStatus
+        profile.customDeductions = customDeductions
+        profile.financialYear = financialYear
+        profile.incomeSourceType = incomeSourceType
+        profile.dateOfBirth = dateOfBirth
+        profile.updatedAt = .now
+        return profile
     }
 }

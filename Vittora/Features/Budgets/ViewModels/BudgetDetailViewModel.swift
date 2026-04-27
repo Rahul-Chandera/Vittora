@@ -66,20 +66,23 @@ final class BudgetDetailViewModel {
 
     private func calculateDateRange(for period: BudgetPeriod, startingFrom startDate: Date) -> ClosedRange<Date> {
         let calendar = Calendar.current
-        var endDateComponents = calendar.dateComponents([.year, .month, .day], from: startDate)
 
-        switch period {
+        let dateOffset: (component: Calendar.Component, value: Int) = switch period {
         case .weekly:
-            endDateComponents.day! += 7
+            (.day, 7)
         case .monthly:
-            endDateComponents.month! += 1
+            (.month, 1)
         case .quarterly:
-            endDateComponents.month! += 3
+            (.month, 3)
         case .yearly:
-            endDateComponents.year! += 1
+            (.year, 1)
         }
 
-        let endDate = calendar.date(from: endDateComponents) ?? Date()
+        let endDate = calendar.date(
+            byAdding: dateOffset.component,
+            value: dateOffset.value,
+            to: startDate
+        ) ?? startDate
         return startDate...endDate
     }
 }

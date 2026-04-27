@@ -7,12 +7,12 @@ final class MockKeychainService: KeychainServiceProtocol, Sendable {
     var shouldThrowError = false
     var throwError: VittoraError = .encryptionFailed(String(localized: "Mock error"))
 
-    func save(_ data: Data, forKey key: String) async throws {
+    func save(_ data: Data, forKey key: String, access: KeychainItemAccess) async throws {
         if shouldThrowError { throw throwError }
         storage[key] = data
     }
 
-    func load(forKey key: String) async throws -> Data? {
+    func load(forKey key: String, access: KeychainItemAccess) async throws -> Data? {
         if shouldThrowError { throw throwError }
         return storage[key]
     }

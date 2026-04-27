@@ -22,6 +22,7 @@ private final class MockBudgetRepo: BudgetRepository {
 private final class MockDebtRepo: DebtRepository {
     var items: [DebtEntry] = []
     func fetchAll() async throws -> [DebtEntry] { items }
+    func fetchOutstanding() async throws -> [DebtEntry] { items.filter { !$0.isSettled } }
     func fetchByID(_ id: UUID) async throws -> DebtEntry? { items.first { $0.id == id } }
     func create(_ e: DebtEntry) async throws { items.append(e) }
     func update(_ e: DebtEntry) async throws {
@@ -66,7 +67,16 @@ private final class MockSplitGroupRepo: SplitGroupRepository {
 @MainActor
 private final class MockDocumentRepo: DocumentRepository {
     var items: [DocumentEntity] = []
-    func fetchAll() async throws -> [DocumentEntity] { items }
+    private(set) var fetchAllCallCount = 0
+    private(set) var fetchCountCallCount = 0
+    func fetchAll() async throws -> [DocumentEntity] {
+        fetchAllCallCount += 1
+        return items
+    }
+    func fetchCount() async throws -> Int {
+        fetchCountCallCount += 1
+        return items.count
+    }
     func fetchByID(_ id: UUID) async throws -> DocumentEntity? { items.first { $0.id == id } }
     func create(_ e: DocumentEntity) async throws { items.append(e) }
     func update(_ e: DocumentEntity) async throws {}
@@ -132,6 +142,21 @@ struct DataManagementServiceTests {
         }
         let stats = try await service.fetchStats()
         #expect(stats.transactionCount == 4)
+    }
+
+    @Test("fetchStats uses document count path without fetching all documents")
+    func fetchStatsUsesDocumentCountPath() async throws {
+        let (service, _, _, _, _, _, _, _, docRepo) = makeService()
+        docRepo.items = [
+            DocumentEntity(fileName: "a.jpg", mimeType: "image/jpeg"),
+            DocumentEntity(fileName: "b.jpg", mimeType: "image/jpeg")
+        ]
+
+        let stats = try await service.fetchStats()
+
+        #expect(stats.documentCount == 2)
+        #expect(docRepo.fetchCountCallCount == 1)
+        #expect(docRepo.fetchAllCallCount == 0)
     }
 
     @Test("fetchStats totalRecords sums all entities")
@@ -214,5 +239,73 @@ struct DataManagementServiceTests {
         let stats = try await service.fetchStats()
         #expect(stats.accountCount == 1)
         #expect(stats.categoryCount == 1)
+    }
+
+    @Test("factoryReset clears supplemental domains and keychain namespace")
+    func factoryResetClearsSupplementalData() async throws {
+        let txRepo = MockTransactionRepository()
+        let accRepo = MockAccountRepository()
+        let catRepo = MockCategoryRepository()
+        let budRepo = MockBudgetRepo()
+        let debtRepo = MockDebtRepo()
+        let goalRepo = MockSavingsGoalRepo()
+        let splitRepo = MockSplitGroupRepo()
+        let docRepo = MockDocumentRepo()
+        let payeeRepo = MockPayeeRepository()
+        let recurringRepo = MockRecurringRuleRepository()
+        let taxRepo = MockTaxProfileRepository()
+        let keychain = MockKeychainService()
+        let documentStorage = MockDocumentStorageService()
+
+        try await accRepo.create(AccountEntity(name: "Wallet", type: .cash))
+        try await catRepo.create(CategoryEntity(name: "Food", icon: "fork.knife", colorHex: "#FF0000", type: .expense))
+        await payeeRepo.seed(PayeeEntity(name: "Vendor"))
+        await recurringRepo.seed(
+            RecurringRuleEntity(
+                frequency: .monthly,
+                nextDate: .now,
+                templateAmount: 250
+            )
+        )
+        taxRepo.seed(TaxProfile(country: .india, annualIncome: 900_000))
+        let document = DocumentEntity(fileName: "receipt.jpg", mimeType: "image/jpeg", transactionID: UUID())
+        try await docRepo.create(document)
+
+        try await keychain.save(Data([1]), forKey: "vittora.onboardingComplete", access: .standard)
+        try await keychain.save(Data([1]), forKey: "vittora.appLockEnabled", access: .standard)
+        try await keychain.save(Data([1]), forKey: "vittora.passcodeFallback", access: .standard)
+        try await keychain.save(Data("name".utf8), forKey: "vittora.userName", access: .standard)
+        try await keychain.save(Data([1]), forKey: "com.vittora.encryption.key", access: .standard)
+        try await keychain.save(Data([1]), forKey: "com.vittora.encryption.key.se_wrapped", access: .standard)
+
+        let service = DataManagementService(
+            transactionRepository: txRepo,
+            accountRepository: accRepo,
+            categoryRepository: catRepo,
+            budgetRepository: budRepo,
+            debtRepository: debtRepo,
+            savingsGoalRepository: goalRepo,
+            splitGroupRepository: splitRepo,
+            documentRepository: docRepo,
+            payeeRepository: payeeRepo,
+            recurringRuleRepository: recurringRepo,
+            taxProfileRepository: taxRepo,
+            documentStorageService: documentStorage,
+            keychainService: keychain
+        )
+
+        try await service.factoryReset()
+
+        #expect((try await payeeRepo.fetchAll()).isEmpty)
+        #expect((try await recurringRepo.fetchAll()).isEmpty)
+        #expect(try await taxRepo.fetch() == nil)
+        #expect((try await docRepo.fetchAll()).isEmpty)
+        #expect(documentStorage.deletedDocuments.contains(document.id))
+        #expect((try await keychain.exists(forKey: "vittora.onboardingComplete")) == false)
+        #expect((try await keychain.exists(forKey: "vittora.appLockEnabled")) == false)
+        #expect((try await keychain.exists(forKey: "vittora.passcodeFallback")) == false)
+        #expect((try await keychain.exists(forKey: "vittora.userName")) == false)
+        #expect((try await keychain.exists(forKey: "com.vittora.encryption.key")) == false)
+        #expect((try await keychain.exists(forKey: "com.vittora.encryption.key.se_wrapped")) == false)
     }
 }

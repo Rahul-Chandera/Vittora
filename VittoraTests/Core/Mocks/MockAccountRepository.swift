@@ -12,6 +12,11 @@ final class MockAccountRepository: AccountRepository {
         return accounts.sorted { $0.name < $1.name }
     }
 
+    func fetchActive() async throws -> [AccountEntity] {
+        if shouldThrowError { throw throwError }
+        return accounts.filter { !$0.isArchived }.sorted { $0.name < $1.name }
+    }
+
     func fetchByID(_ id: UUID) async throws -> AccountEntity? {
         if shouldThrowError { throw throwError }
         return accounts.first { $0.id == id }

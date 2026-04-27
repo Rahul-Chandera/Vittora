@@ -18,13 +18,8 @@ struct DeleteAccountUseCase: Sendable {
             throw VittoraError.notFound("Account not found")
         }
 
-        // Check if account has any transactions
-        let allTransactions = try await transactionRepository.fetchAll(filter: nil)
-        let hasTransactions = allTransactions.contains { transaction in
-            transaction.accountID == id || transaction.destinationAccountID == id
-        }
-
-        if hasTransactions {
+        // Check if account has any transactions without loading the full history.
+        if try await transactionRepository.hasTransactions(forAccountID: id) {
             throw VittoraError.validationFailed("Cannot delete account with transactions. Archive it instead.")
         }
 

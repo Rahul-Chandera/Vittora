@@ -3,11 +3,13 @@ import SwiftData
 
 @Model
 final class SDAccount {
-    var id: UUID = UUID()
+    #Index<SDAccount>([\.typeRawValue], [\.isArchived])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var name: String = ""
     var typeRawValue: String = AccountType.bank.rawValue
     var balance: Decimal = 0
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
     var icon: String = "building.columns.fill"
     var isArchived: Bool = false
     var createdAt: Date = Date.now
@@ -20,7 +22,7 @@ final class SDAccount {
         name: String,
         type: AccountType,
         balance: Decimal = 0,
-        currencyCode: String = "USD",
+        currencyCode: String = CurrencyDefaults.code,
         icon: String = "building.columns.fill",
         isArchived: Bool = false,
         createdAt: Date = .now,

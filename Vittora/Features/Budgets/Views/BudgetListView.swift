@@ -2,13 +2,10 @@ import SwiftUI
 
 struct BudgetListView: View {
     @Environment(\.dependencies) var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: BudgetListViewModel?
     @State private var showAddBudget = false
     @State private var navigationPath = NavigationPath()
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -16,8 +13,8 @@ struct BudgetListView: View {
                 if let viewModel = viewModel, viewModel.budgets.isEmpty && !viewModel.isLoading {
                     VEmptyState(
                         icon: "target",
-                        title: "No Budgets Yet",
-                        subtitle: "Create your first budget to track spending"
+                        title: String(localized: "No Budgets Yet"),
+                        subtitle: String(localized: "Create your first budget to track spending")
                     )
                     .accessibilityIdentifier("budget-empty-state")
                 } else {
@@ -83,7 +80,7 @@ struct BudgetListView: View {
                     #endif
                 }
             }
-            .navigationTitle("Budgets")
+            .navigationTitle(String(localized: "Budgets"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showAddBudget = true }) {

@@ -4,7 +4,7 @@ struct BudgetOverviewCard: View {
     let spent: Decimal
     let budget: Decimal
     let progress: Double
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
 
     var remaining: Decimal {
         budget - spent
@@ -16,7 +16,7 @@ struct BudgetOverviewCard: View {
                 // Header
                 HStack(alignment: .top, spacing: VSpacing.md) {
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        Text("Total Budget")
+                        Text(String(localized: "Total Budget"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                         VAmountText(budget, size: .title2)
@@ -25,7 +25,7 @@ struct BudgetOverviewCard: View {
                     Spacer()
 
                     VStack(alignment: .trailing, spacing: VSpacing.xs) {
-                        Text("Progress")
+                        Text(String(localized: "Progress"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                         Text("\(Int(min(progress * 100, 999)))%")
@@ -45,7 +45,7 @@ struct BudgetOverviewCard: View {
                 // Stats row
                 HStack(spacing: VSpacing.md) {
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        Text("Spent")
+                        Text(String(localized: "Spent"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                         VAmountText(spent, size: .body)
@@ -55,7 +55,7 @@ struct BudgetOverviewCard: View {
                         .frame(height: 32)
 
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        Text("Remaining")
+                        Text(String(localized: "Remaining"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                         VAmountText(remaining, size: .body)
@@ -86,10 +86,7 @@ struct BudgetOverviewCard: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        return formatter.string(from: amount as NSDecimalNumber) ?? amount.formatted(.currency(code: currencyCode))
+        amount.formatted(.currency(code: currencyCode))
     }
 }
 

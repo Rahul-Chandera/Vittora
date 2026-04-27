@@ -3,6 +3,7 @@ import Charts
 
 struct AnnualReportView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: MonthlyOverviewViewModel?
     @State private var selectedYear: Int = Calendar.current.component(.year, from: .now)
 
@@ -21,10 +22,12 @@ struct AnnualReportView: View {
                     if vm.isLoading {
                         ProgressView().tint(VColors.primary)
                             .padding(.top, VSpacing.xxxl)
-                    } else {
+                    } else if hasReportData(vm) {
                         annualSummaryCard(vm)
                         annualChart(vm)
                         monthBreakdownList(vm)
+                    } else {
+                        emptyState
                     }
                 }
             }
@@ -194,10 +197,6 @@ struct AnnualReportView: View {
 
     // MARK: - Helpers
 
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
-
     private func loadData() async {
         guard let repo = dependencies.transactionRepository else { return }
         if vm == nil {
@@ -205,6 +204,19 @@ struct AnnualReportView: View {
             vm = MonthlyOverviewViewModel(useCase: useCase)
         }
         await vm?.load()
+    }
+
+    private func hasReportData(_ vm: MonthlyOverviewViewModel) -> Bool {
+        vm.monthlyData.contains { $0.income != 0 || $0.expense != 0 }
+    }
+
+    private var emptyState: some View {
+        ContentUnavailableView {
+            Label(String(localized: "No annual data yet"), systemImage: "calendar")
+        } description: {
+            Text(String(localized: "Transactions in \(selectedYear) will appear here once you add them."))
+        }
+        .padding(VSpacing.xxxl)
     }
 
     private var annualReportErrorBinding: Binding<String?> {

@@ -2,6 +2,8 @@ import SwiftUI
 
 struct AddGroupExpenseView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.currencySymbol) private var currencySymbol
     @State private var vm: AddGroupExpenseViewModel
 
     let onSaved: () -> Void
@@ -23,10 +25,11 @@ struct AddGroupExpenseView: View {
                     TextField(String(localized: "What was it for?"), text: Bindable(vm).title)
 
                     HStack {
-                        Text("$").foregroundStyle(VColors.textSecondary)
+                        Text(currencySymbol).foregroundStyle(VColors.textSecondary)
                         TextField(String(localized: "Amount"), text: Bindable(vm).amountString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .onChange(of: vm.amountString) { _, _ in vm.recalculate() }
                     }
@@ -71,7 +74,7 @@ struct AddGroupExpenseView: View {
                         let total = vm.allocations.reduce(Decimal(0)) { $0 + $1.calculatedAmount }
                         let diff = abs(total - vm.amount)
                         if diff > 0.005 && vm.amount > 0 {
-                            Text(String(localized: "Remaining: \((vm.amount - total).formatted(.currency(code: "USD")))"))
+                            Text(String(localized: "Remaining: \((vm.amount - total).formatted(.currency(code: currencyCode)))"))
                                 .foregroundStyle(VColors.expense)
                         }
                     }
@@ -85,9 +88,7 @@ struct AddGroupExpenseView: View {
 
                 if let error = vm.error {
                     Section {
-                        Text(error)
-                            .foregroundStyle(VColors.expense)
-                            .font(VTypography.caption1)
+                        VInlineErrorText(error)
                     }
                 }
             }
@@ -113,12 +114,19 @@ struct AddGroupExpenseView: View {
                 }
             }
         }
+        .onChange(of: vm.error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
+            }
+        }
     }
 }
 
 // MARK: - Allocation Row
 
 private struct AllocationRow: View {
+    @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.currencySymbol) private var currencySymbol
     @Binding var row: MemberAllocationRow
     let method: SplitMethod
     let onValueChanged: () -> Void
@@ -133,7 +141,7 @@ private struct AllocationRow: View {
 
             if method == .equal {
                 // Read-only calculated amount
-                Text(row.calculatedAmount.formatted(.currency(code: "USD")))
+                Text(row.calculatedAmount.formatted(.currency(code: currencyCode)))
                     .font(VTypography.body)
                     .foregroundStyle(VColors.textSecondary)
             } else {
@@ -142,16 +150,18 @@ private struct AllocationRow: View {
                         TextField("0", text: $row.inputValue)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .multilineTextAlignment(.trailing)
                             .frame(width: 60)
                             .onChange(of: row.inputValue) { _, _ in onValueChanged() }
                         Text("%").foregroundStyle(VColors.textSecondary)
                     } else if method == .exact {
-                        Text("$").foregroundStyle(VColors.textSecondary)
+                        Text(currencySymbol).foregroundStyle(VColors.textSecondary)
                         TextField("0.00", text: $row.inputValue)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
@@ -160,6 +170,7 @@ private struct AllocationRow: View {
                         TextField("1", text: $row.inputValue)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                             .multilineTextAlignment(.trailing)
                             .frame(width: 40)
@@ -167,7 +178,7 @@ private struct AllocationRow: View {
                         Text(String(localized: "shares")).foregroundStyle(VColors.textSecondary)
                     }
                     Text("=").foregroundStyle(VColors.textSecondary)
-                    Text(row.calculatedAmount.formatted(.currency(code: "USD")))
+                    Text(row.calculatedAmount.formatted(.currency(code: currencyCode)))
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textSecondary)
                         .frame(width: 70, alignment: .trailing)

@@ -3,15 +3,12 @@ import Charts
 
 struct CategoryBreakdownView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: CategoryBreakdownViewModel?
     @State private var selectedCategoryID: UUID?
     @State private var selectedPreset: DateRangePreset = .thisMonth
     @State private var customStart: Date = .now
     @State private var customEnd: Date = .now
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         ScrollView {
@@ -94,7 +91,7 @@ struct CategoryBreakdownView: View {
                             Text(item.category.name)
                                 .font(VTypography.caption2)
                                 .foregroundColor(VColors.textPrimary)
-                                .lineLimit(1)
+                                .adaptiveLineLimit(1)
                             Spacer()
                             Text(String(format: "%.0f%%", item.percentage))
                                 .font(VTypography.caption2Bold)
@@ -124,7 +121,8 @@ struct CategoryBreakdownView: View {
                         amount: item.amount,
                         percentage: item.percentage,
                         color: VColors.categoryColors[index % VColors.categoryColors.count],
-                        count: item.transactionCount
+                        count: item.transactionCount,
+                        currencyCode: currencyCode
                     )
                 }
             }

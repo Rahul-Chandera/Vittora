@@ -3,28 +3,32 @@ import Charts
 
 struct IncomeExpenseBarChart: View {
     let data: [MonthlyData]
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
 
     var body: some View {
         Chart {
             ForEach(data) { item in
                 BarMark(
-                    x: .value("Month", item.month, unit: .month),
-                    y: .value("Income", item.income),
+                    x: .value(String(localized: "Month"), item.month, unit: .month),
+                    y: .value(String(localized: "Income"), item.income),
                     width: .ratio(0.4)
                 )
                 .foregroundStyle(VColors.income)
-                .position(by: .value("Type", "Income"))
+                .position(by: .value(String(localized: "Type"), String(localized: "Income")))
                 .cornerRadius(3)
+                .accessibilityLabel(String(localized: "Income"))
+                .accessibilityValue(item.income.formatted(.currency(code: currencyCode)))
 
                 BarMark(
-                    x: .value("Month", item.month, unit: .month),
-                    y: .value("Expense", item.expense),
+                    x: .value(String(localized: "Month"), item.month, unit: .month),
+                    y: .value(String(localized: "Expense"), item.expense),
                     width: .ratio(0.4)
                 )
                 .foregroundStyle(VColors.expense)
-                .position(by: .value("Type", "Expense"))
+                .position(by: .value(String(localized: "Type"), String(localized: "Expense")))
                 .cornerRadius(3)
+                .accessibilityLabel(String(localized: "Expense"))
+                .accessibilityValue(item.expense.formatted(.currency(code: currencyCode)))
             }
         }
         .chartXAxis {
@@ -78,10 +82,7 @@ struct IncomeExpenseBarChart: View {
     }
 
     private var currencySymbol: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        return formatter.currencySymbol
+        String.currencySymbol(for: currencyCode)
     }
 }
 

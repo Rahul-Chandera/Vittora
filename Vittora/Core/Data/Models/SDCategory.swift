@@ -3,7 +3,9 @@ import SwiftData
 
 @Model
 final class SDCategory {
-    var id: UUID = UUID()
+    #Index<SDCategory>([\.typeRawValue], [\.parentID])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var name: String = ""
     var icon: String = ""
     var colorHex: String = "#007AFF"

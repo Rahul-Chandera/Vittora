@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DebtDetailView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: DebtDetailViewModel?
     @State private var showSettlement = false
     @State private var debtToSettle: DebtEntry?
@@ -115,6 +116,7 @@ struct DebtDetailView: View {
             Image(systemName: entry.direction == .lent ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
                 .foregroundColor(entry.direction == .lent ? VColors.income : VColors.expense)
                 .font(.title3)
+                .accessibilityLabel(entry.direction == .lent ? String(localized: "Lent") : String(localized: "Borrowed"))
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
                 Text(entry.note ?? (entry.direction == .lent ? String(localized: "Lent") : String(localized: "Borrowed")))
@@ -162,10 +164,7 @@ struct DebtDetailView: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 }
 

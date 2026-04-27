@@ -1,21 +1,29 @@
 import SwiftUI
 
+// MARK: - Protocol
+
+@MainActor
+protocol HapticServiceProtocol {
+    func light()
+    func medium()
+    func heavy()
+    func success()
+    func warning()
+    func error()
+    func selection()
+}
+
 // MARK: - Haptic Feedback Service
 
 /// Centralized haptic feedback for consistent tactile responses across the app.
 /// All methods are no-ops on macOS and on devices without haptic engines.
 @MainActor
-final class HapticService {
-
-    // MARK: - Singleton
-
-    static let shared = HapticService()
-    private init() {}
+enum HapticService {
 
     // MARK: - Impact Feedback
 
     /// Light tap — tab selection, minor state changes.
-    func light() {
+    static func light() {
         #if os(iOS)
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
@@ -23,7 +31,7 @@ final class HapticService {
     }
 
     /// Medium tap — row selection, drag actions.
-    func medium() {
+    static func medium() {
         #if os(iOS)
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
@@ -31,7 +39,7 @@ final class HapticService {
     }
 
     /// Heavy tap — destructive gesture, significant action.
-    func heavy() {
+    static func heavy() {
         #if os(iOS)
         let generator = UIImpactFeedbackGenerator(style: .heavy)
         generator.impactOccurred()
@@ -41,7 +49,7 @@ final class HapticService {
     // MARK: - Notification Feedback
 
     /// Success outcome — save completed, sync done, goal achieved.
-    func success() {
+    static func success() {
         #if os(iOS)
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
@@ -49,7 +57,7 @@ final class HapticService {
     }
 
     /// Warning outcome — budget limit reached, low balance.
-    func warning() {
+    static func warning() {
         #if os(iOS)
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.warning)
@@ -57,7 +65,7 @@ final class HapticService {
     }
 
     /// Error outcome — validation failed, network error.
-    func error() {
+    static func error() {
         #if os(iOS)
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.error)
@@ -67,12 +75,25 @@ final class HapticService {
     // MARK: - Selection Feedback
 
     /// Selection change — picker, segmented control, date change.
-    func selection() {
+    static func selection() {
         #if os(iOS)
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
         #endif
     }
+}
+
+// MARK: - Live Implementation
+
+@MainActor
+final class LiveHapticService: HapticServiceProtocol {
+    func light()     { HapticService.light() }
+    func medium()    { HapticService.medium() }
+    func heavy()     { HapticService.heavy() }
+    func success()   { HapticService.success() }
+    func warning()   { HapticService.warning() }
+    func error()     { HapticService.error() }
+    func selection() { HapticService.selection() }
 }
 
 // MARK: - View Extension
@@ -94,13 +115,13 @@ enum HapticStyle {
     @MainActor
     func fire() {
         switch self {
-        case .light:     HapticService.shared.light()
-        case .medium:    HapticService.shared.medium()
-        case .heavy:     HapticService.shared.heavy()
-        case .success:   HapticService.shared.success()
-        case .warning:   HapticService.shared.warning()
-        case .error:     HapticService.shared.error()
-        case .selection: HapticService.shared.selection()
+        case .light:     HapticService.light()
+        case .medium:    HapticService.medium()
+        case .heavy:     HapticService.heavy()
+        case .success:   HapticService.success()
+        case .warning:   HapticService.warning()
+        case .error:     HapticService.error()
+        case .selection: HapticService.selection()
         }
     }
 }

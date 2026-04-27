@@ -1,10 +1,11 @@
 import SwiftUI
 
 struct SubscriptionCard: View {
+    @Environment(\.currencyCode) private var currencyCode
+
     let rule: RecurringRuleEntity
     let monthlyCost: Decimal
     var category: CategoryEntity? = nil
-    var currencyCode: String = "USD"
 
     private var categoryColor: Color {
         if let colorHex = category?.colorHex {
@@ -77,11 +78,11 @@ struct SubscriptionCard: View {
             // Cost breakdown
             HStack(spacing: VSpacing.xl) {
                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                    Text("Per Transaction")
+                    Text(String(localized: "Per Transaction"))
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
 
-                    Text(String(format: "$%.2f", Double(truncating: rule.templateAmount as NSDecimalNumber)))
+                    Text(rule.templateAmount.formatted(currencyCode: currencyCode))
                         .font(VTypography.title3)
                         .foregroundColor(VColors.expense)
                 }
@@ -89,11 +90,11 @@ struct SubscriptionCard: View {
                 Spacer()
 
                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                    Text("Monthly Cost")
+                    Text(String(localized: "Monthly Cost"))
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
 
-                    Text(String(format: "$%.2f", Double(truncating: monthlyCost as NSDecimalNumber)))
+                    Text(monthlyCost.formatted(currencyCode: currencyCode))
                         .font(VTypography.title3)
                         .foregroundColor(VColors.expense)
                 }
@@ -105,7 +106,7 @@ struct SubscriptionCard: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(VColors.textSecondary)
 
-                Text("Next: \(rule.nextDate.formatted(date: .abbreviated, time: .omitted))")
+                Text(String(localized: "Next: \(rule.nextDate.formatted(date: .abbreviated, time: .omitted))"))
                     .font(VTypography.caption2)
                     .foregroundColor(VColors.textSecondary)
 

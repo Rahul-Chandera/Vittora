@@ -5,6 +5,7 @@ struct TransactionRowView: View {
     var category: CategoryEntity?
     var showSelection: Bool = false
     var isSelected: Bool = false
+    @Environment(\.currencyCode) private var currencyCode
 
     var body: some View {
         HStack(spacing: VSpacing.md) {
@@ -33,7 +34,7 @@ struct TransactionRowView: View {
                 Text(transaction.note ?? "Transaction")
                     .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)
-                    .lineLimit(1)
+                    .adaptiveLineLimit(1)
 
                 HStack(spacing: VSpacing.sm) {
                     if let categoryName = category?.name {
@@ -80,9 +81,7 @@ struct TransactionRowView: View {
     }
 
     private func formattedTime(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
+        date.formatted(date: .omitted, time: .shortened)
     }
 
     private func transactionColor(for type: TransactionType) -> Color {
@@ -99,10 +98,7 @@ struct TransactionRowView: View {
     }
 
     private func formatAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 
     private var rowAccessibilityIdentifier: String {

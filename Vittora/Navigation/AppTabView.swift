@@ -2,7 +2,6 @@ import SwiftUI
 
 struct AppTabView: View {
     @Environment(AppState.self) private var appState
-    @Environment(Router.self) private var router
     @State private var showAddTransaction = false
 
     var body: some View {
@@ -85,8 +84,24 @@ struct AppTabView: View {
             }
             .padding(.bottom, 60)
         }
+        #if os(iOS)
+        .fullScreenCover(isPresented: $showAddTransaction) {
+            NavigationStack {
+                TransactionFormView()
+            }
+        }
+        #else
         .sheet(isPresented: $showAddTransaction) {
-            TransactionFormView()
+            NavigationStack {
+                TransactionFormView()
+            }
+        }
+        #endif
+        .onReceive(NotificationCenter.default.publisher(for: .vittoraNewTransaction)) { _ in
+            showAddTransaction = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .vittoraOpenSettings)) { _ in
+            appState.selectedTab = .settings
         }
     }
 }

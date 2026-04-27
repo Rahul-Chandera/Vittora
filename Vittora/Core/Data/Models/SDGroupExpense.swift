@@ -1,9 +1,12 @@
 import Foundation
+import OSLog
 import SwiftData
 
 @Model
 final class SDGroupExpense {
-    var id: UUID = UUID()
+    #Index<SDGroupExpense>([\.groupID], [\.date], [\.isSettled])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var groupID: UUID = UUID()
     var paidByMemberID: UUID = UUID()
     var amount: Decimal = Decimal(0)
@@ -18,6 +21,8 @@ final class SDGroupExpense {
     var isSettled: Bool = false
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
+
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "persistence")
 
     init() {}
 
@@ -62,14 +67,30 @@ final class SDGroupExpense {
     }
 
     private static func encode(_ shares: [SplitShare]) -> String {
-        guard let data = try? JSONEncoder().encode(shares),
-              let str = String(data: data, encoding: .utf8) else { return "[]" }
-        return str
+        do {
+            let data = try JSONEncoder().encode(shares)
+            guard let str = String(data: data, encoding: .utf8) else {
+                logger.error("Failed to encode split shares as UTF-8.")
+                return "[]"
+            }
+            return str
+        } catch {
+            logger.error("Failed to encode split shares: \(error.localizedDescription, privacy: .public)")
+            return "[]"
+        }
     }
 
     private static func decode(_ json: String) -> [SplitShare] {
-        guard let data = json.data(using: .utf8),
-              let shares = try? JSONDecoder().decode([SplitShare].self, from: data) else { return [] }
-        return shares
+        guard let data = json.data(using: .utf8) else {
+            logger.error("Failed to decode split shares JSON as UTF-8.")
+            return []
+        }
+
+        do {
+            return try JSONDecoder().decode([SplitShare].self, from: data)
+        } catch {
+            logger.error("Failed to decode split shares: \(error.localizedDescription, privacy: .public)")
+            return []
+        }
     }
 }

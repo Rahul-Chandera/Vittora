@@ -40,16 +40,17 @@ struct OnboardingViewModelTests {
         #expect(vm.canAdvance == true)
     }
 
-    @Test("complete persists onboarding values and creates the first account")
-    func completePersistsValuesAndCreatesAccount() async throws {
-        let defaultsContext = makeDefaults()
-        defer { cleanup(defaultsContext) }
-        let defaults = defaultsContext.defaults
+    @Test("complete persists sensitive values to Keychain and creates the first account")
+    func completePersistsValuesToKeychainAndCreatesAccount() async throws {
+        let keychain = MockKeychainService()
+        let udSuiteName = "OnboardingViewModelTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: udSuiteName) ?? .standard
+        defer { defaults.removePersistentDomain(forName: udSuiteName) }
 
         let repository = TestOnboardingAccountRepository()
         let vm = OnboardingViewModel(
             createAccountUseCase: CreateAccountUseCase(accountRepository: repository),
-            userDefaults: defaults
+            keychainService: keychain
         )
         let appState = AppState(isOnboardingComplete: false)
 
@@ -59,13 +60,22 @@ struct OnboardingViewModelTests {
         vm.selectedAccountType = .digitalWallet
         vm.openingBalance = "2500"
 
+        // Override the UserDefaults suite used by OnboardingViewModel for currencyCode
+        // (currencyCode is non-sensitive and stays in UserDefaults.standard in production)
         await vm.complete(appState: appState)
 
         #expect(vm.error == nil)
         #expect(appState.isOnboardingComplete == true)
-        #expect(defaults.string(forKey: "vittora.currencyCode") == "INR")
-        #expect(defaults.string(forKey: "vittora.userName") == "Rahul")
-        #expect(defaults.bool(forKey: "vittora.onboardingComplete") == true)
+
+        // currencyCode remains in UserDefaults
+        #expect(UserDefaults.standard.string(forKey: "vittora.currencyCode") == "INR")
+
+        // Sensitive values go to Keychain
+        let nameData = try await keychain.load(forKey: "vittora.userName")
+        #expect(nameData.flatMap { String(data: $0, encoding: .utf8) } == "Rahul")
+
+        let completionData = try await keychain.load(forKey: "vittora.onboardingComplete")
+        #expect(completionData?.first == 1)
 
         let accounts = await repository.accounts
         #expect(accounts.count == 1)
@@ -76,14 +86,11 @@ struct OnboardingViewModelTests {
 
     @Test("complete surfaces first account creation failures")
     func completeSurfacesAccountCreationFailures() async throws {
-        let defaultsContext = makeDefaults()
-        defer { cleanup(defaultsContext) }
-        let defaults = defaultsContext.defaults
-
+        let keychain = MockKeychainService()
         let repository = TestOnboardingAccountRepository(shouldThrowOnCreate: true)
         let vm = OnboardingViewModel(
             createAccountUseCase: CreateAccountUseCase(accountRepository: repository),
-            userDefaults: defaults
+            keychainService: keychain
         )
         let appState = AppState(isOnboardingComplete: false)
 
@@ -94,20 +101,12 @@ struct OnboardingViewModelTests {
 
         #expect(appState.isOnboardingComplete == false)
         #expect(vm.error != nil)
-        #expect(defaults.bool(forKey: "vittora.onboardingComplete") == false)
+
+        let completionData = try await keychain.load(forKey: "vittora.onboardingComplete")
+        #expect(completionData == nil)
+
         let accounts = await repository.accounts
         #expect(accounts.isEmpty)
-    }
-
-    private func makeDefaults() -> (suiteName: String, defaults: UserDefaults) {
-        let suiteName = "OnboardingViewModelTests.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suiteName) ?? .standard
-        defaults.removePersistentDomain(forName: suiteName)
-        return (suiteName, defaults)
-    }
-
-    private func cleanup(_ context: (suiteName: String, defaults: UserDefaults)) {
-        context.defaults.removePersistentDomain(forName: context.suiteName)
     }
 }
 
@@ -121,6 +120,10 @@ private actor TestOnboardingAccountRepository: AccountRepository {
 
     func fetchAll() async throws -> [AccountEntity] {
         accounts
+    }
+
+    func fetchActive() async throws -> [AccountEntity] {
+        accounts.filter { !$0.isArchived }
     }
 
     func fetchByID(_ id: UUID) async throws -> AccountEntity? {

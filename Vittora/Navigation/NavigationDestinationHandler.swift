@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct NavigationDestinationHandler: ViewModifier {
+    @Environment(SettingsViewModel.self) private var settingsVM
+
     func body(content: Content) -> some View {
         content
             .navigationDestination(for: NavigationDestination.self) { destination in
@@ -54,15 +56,14 @@ struct NavigationDestinationHandler: ViewModifier {
 
     @ViewBuilder
     private func settingsView(for section: SettingsSection) -> some View {
-        let vm = SettingsViewModel()
         switch section {
-        case .profile:       ProfileSettingsView(vm: vm)
-        case .security:      SecuritySettingsView(vm: vm)
-        case .sync:          SyncSettingsView(vm: vm)
-        case .notifications: NotificationsSettingsView(vm: vm)
-        case .appearance:    AppearanceSettingsView(vm: vm)
+        case .profile:       ProfileSettingsView(vm: settingsVM)
+        case .security:      SecuritySettingsView(vm: settingsVM)
+        case .sync:          SyncSettingsView(vm: settingsVM)
+        case .notifications: NotificationsSettingsView(vm: settingsVM)
+        case .appearance:    AppearanceSettingsView(vm: settingsVM)
         case .data:          DataSettingsView()
-        case .about:         AboutView(vm: vm)
+        case .about:         AboutView(vm: settingsVM)
         }
     }
 }

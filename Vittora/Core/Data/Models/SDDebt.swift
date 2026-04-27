@@ -3,7 +3,9 @@ import SwiftData
 
 @Model
 final class SDDebt {
-    var id: UUID = UUID()
+    #Index<SDDebt>([\.payeeID], [\.isSettled])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var payeeID: UUID = UUID()
     var amount: Decimal = Decimal(0)
     var settledAmount: Decimal = Decimal(0)

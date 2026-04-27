@@ -56,6 +56,20 @@ struct ExportViewModelTests {
         #expect(viewModel.isExporting == false)
         #expect(viewModel.progressPhase == nil)
     }
+
+    @Test("cleanupExport deletes the generated file and clears exportURL")
+    func cleanupExportDeletesTemporaryFile() async {
+        let url = URL(fileURLWithPath: "/tmp/vittora_export.csv")
+        let exportService = MockExportService(resultURL: url)
+        let viewModel = ExportViewModel(exportService: exportService)
+
+        await viewModel.export()
+        await viewModel.cleanupExport()
+
+        #expect(viewModel.exportURL == nil)
+        let cleanedURLs = await exportService.cleanedURLs
+        #expect(cleanedURLs == [url])
+    }
 }
 
 private actor MockExportService: DataExportServiceProtocol {
@@ -68,6 +82,7 @@ private actor MockExportService: DataExportServiceProtocol {
     let resultURL: URL
     let shouldFail: Bool
     private(set) var lastRequest: Request?
+    private(set) var cleanedURLs: [URL] = []
 
     init(resultURL: URL, shouldFail: Bool = false) {
         self.resultURL = resultURL
@@ -97,5 +112,9 @@ private actor MockExportService: DataExportServiceProtocol {
         summary: TaxSummary?
     ) async throws -> URL {
         resultURL
+    }
+
+    func cleanupTemporaryExport(at url: URL) async {
+        cleanedURLs.append(url)
     }
 }

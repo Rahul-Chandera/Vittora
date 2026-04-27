@@ -23,7 +23,7 @@ struct CategoryRowView: View {
                 Text(category.name)
                     .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)
-                Text(category.type == .expense ? "Expense" : "Income")
+                Text(category.type == .expense ? String(localized: "Expense") : String(localized: "Income"))
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
             }
@@ -31,7 +31,7 @@ struct CategoryRowView: View {
             Spacer()
 
             if category.isDefault {
-                Text("Default")
+                Text(String(localized: "Default"))
                     .font(VTypography.caption2)
                     .foregroundColor(VColors.textTertiary)
                     .padding(.horizontal, VSpacing.xs)

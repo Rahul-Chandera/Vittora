@@ -4,6 +4,7 @@ struct QuickEntryView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: TransactionFormViewModel?
     @State private var categories: [CategoryEntity] = []
     @State private var accounts: [AccountEntity] = []
@@ -17,14 +18,14 @@ struct QuickEntryView: View {
                         // Large amount input
                         AmountInputView(
                             amountString: Bindable(vm).amountString,
-                            currencyCode: "USD",
+                            currencyCode: currencyCode,
                             type: .expense
                         )
                         .padding(VSpacing.lg)
 
                         // Account picker
-                        Picker("Account", selection: Bindable(vm).selectedAccountID) {
-                            Text("Select account").tag(UUID?.none)
+                        Picker(String(localized: "Account"), selection: Bindable(vm).selectedAccountID) {
+                            Text(String(localized: "Select account")).tag(UUID?.none)
                             ForEach(accounts) { account in
                                 Text(account.name).tag(UUID?(account.id))
                             }
@@ -33,7 +34,7 @@ struct QuickEntryView: View {
 
                         // Quick category grid
                         VStack(alignment: .leading, spacing: VSpacing.sm) {
-                            Text("Category")
+                            Text(String(localized: "Category"))
                                 .font(VTypography.caption2)
                                 .foregroundColor(VColors.textSecondary)
                                 .padding(.horizontal, VSpacing.lg)
@@ -55,7 +56,7 @@ struct QuickEntryView: View {
                                             Text(category.name)
                                                 .font(VTypography.caption2)
                                                 .foregroundColor(VColors.textPrimary)
-                                                .lineLimit(1)
+                                                .adaptiveLineLimit(1)
                                         }
                                         .frame(width: 60)
                                         .contentShape(Rectangle())
@@ -92,7 +93,7 @@ struct QuickEntryView: View {
                                 }
                             }
                         } label: {
-                            Text("Save Transaction")
+                            Text(String(localized: "Save Transaction"))
                                 .font(VTypography.body)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -120,7 +121,7 @@ struct QuickEntryView: View {
                 #endif
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
+                        Button(String(localized: "Cancel")) {
                             dismiss()
                         }
                     }
@@ -198,7 +199,8 @@ struct QuickEntryView: View {
             addUseCase: addUseCase,
             updateUseCase: updateUseCase,
             smartCategorizeUseCase: smartCategorizeUseCase,
-            duplicateDetectionUseCase: duplicateDetectionUseCase
+            duplicateDetectionUseCase: duplicateDetectionUseCase,
+            currencyCode: currencyCode
         )
         vm.isQuickEntry = true
         vm.type = .expense

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RecurringListView: View {
     @Environment(\.dependencies) var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: RecurringListViewModel?
     @State private var showAddSheet = false
     @State private var selectedRuleID: UUID? = nil
@@ -11,21 +12,35 @@ struct RecurringListView: View {
             VColors.background.ignoresSafeArea()
 
             if let viewModel = viewModel {
-                VStack(spacing: 0) {
+                if let error = viewModel.error, viewModel.rules.isEmpty {
+                    ContentUnavailableView {
+                        Label(String(localized: "Unable to Load"), systemImage: "exclamationmark.triangle")
+                    } description: {
+                        Text(error)
+                    } actions: {
+                        Button(String(localized: "Try Again")) {
+                            viewModel.error = nil
+                            Task { await viewModel.loadRules() }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(VColors.primary)
+                    }
+                } else {
+                    VStack(spacing: 0) {
                     // Cost Summary Card
                     if let costSummary = viewModel.costSummary {
                         VStack(alignment: .leading, spacing: VSpacing.md) {
-                            Text("Monthly Spend")
+                            Text(String(localized: "Monthly Spend"))
                                 .font(VTypography.callout)
                                 .foregroundColor(VColors.textSecondary)
 
                             HStack(spacing: VSpacing.xl) {
                                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                    Text(String(format: "$%.2f", Double(truncating: costSummary.monthlyCost as NSDecimalNumber)))
+                                    Text(costSummary.monthlyCost.formatted(currencyCode: currencyCode))
                                         .font(VTypography.amountLarge)
                                         .foregroundColor(VColors.expense)
 
-                                    Text("per month")
+                                    Text(String(localized: "per month"))
                                         .font(VTypography.caption2)
                                         .foregroundColor(VColors.textSecondary)
                                 }
@@ -33,11 +48,11 @@ struct RecurringListView: View {
                                 Spacer()
 
                                 VStack(alignment: .trailing, spacing: VSpacing.xs) {
-                                    Text(String(format: "$%.2f", Double(truncating: costSummary.annualCost as NSDecimalNumber)))
+                                    Text(costSummary.annualCost.formatted(currencyCode: currencyCode))
                                         .font(VTypography.bodyBold)
                                         .foregroundColor(VColors.expense)
 
-                                    Text("per year")
+                                    Text(String(localized: "per year"))
                                         .font(VTypography.caption2)
                                         .foregroundColor(VColors.textSecondary)
                                 }
@@ -51,7 +66,7 @@ struct RecurringListView: View {
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(VColors.primary)
 
-                                Text("\(costSummary.ruleCount) active \(costSummary.ruleCount == 1 ? "subscription" : "subscriptions")")
+                                Text(String(localized: "\(costSummary.ruleCount) active \(costSummary.ruleCount == 1 ? "subscription" : "subscriptions")"))
                                     .font(VTypography.caption1)
                                     .foregroundColor(VColors.textSecondary)
 
@@ -65,33 +80,17 @@ struct RecurringListView: View {
                     }
 
                     if viewModel.rules.isEmpty {
-                        VStack(spacing: VSpacing.lg) {
-                            Image(systemName: "repeat.circle")
-                                .font(.system(size: 48))
-                                .foregroundColor(VColors.textSecondary)
-
-                            Text("No Recurring Transactions")
-                                .font(VTypography.title3)
-                                .foregroundColor(VColors.textPrimary)
-
-                            Text("Create your first recurring transaction to get started")
-                                .font(VTypography.callout)
-                                .foregroundColor(VColors.textSecondary)
-                                .multilineTextAlignment(.center)
-
-                            Button(action: { showAddSheet = true }) {
-                                Text("Add Recurring Transaction")
-                                    .font(VTypography.calloutBold)
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(VSpacing.md)
-                                    .background(VColors.primary)
-                                    .cornerRadius(VSpacing.cornerRadiusMD)
+                        ContentUnavailableView {
+                            Label(String(localized: "No Recurring Transactions"), systemImage: "repeat.circle")
+                        } description: {
+                            Text(String(localized: "Create your first recurring transaction to get started"))
+                        } actions: {
+                            Button(String(localized: "Add Recurring Transaction")) {
+                                showAddSheet = true
                             }
-                            .padding(.top, VSpacing.lg)
+                            .buttonStyle(.borderedProminent)
+                            .tint(VColors.primary)
                         }
-                        .frame(maxHeight: .infinity)
-                        .padding(VSpacing.lg)
                     } else {
                         List {
                             ForEach(viewModel.grouped, id: \.label) { group in
@@ -132,33 +131,13 @@ struct RecurringListView: View {
                         .listStyle(.inset)
                         #endif
                     }
-                }
-
-                if let error = viewModel.error {
-                    VStack {
-                        HStack {
-                            Image(systemName: "exclamationmark.circle.fill")
-                                .foregroundColor(.red)
-
-                            Text(error)
-                                .font(VTypography.callout)
-                                .foregroundColor(.red)
-
-                            Spacer()
-                        }
-                        .padding(VSpacing.md)
-                        .background(Color.red.opacity(0.1))
-                        .cornerRadius(VSpacing.cornerRadiusMD)
-                        .padding(VSpacing.lg)
-
-                        Spacer()
                     }
                 }
             } else {
                 ProgressView()
             }
         }
-        .navigationTitle("Recurring Transactions")
+        .navigationTitle(String(localized: "Recurring Transactions"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showAddSheet = true }) {

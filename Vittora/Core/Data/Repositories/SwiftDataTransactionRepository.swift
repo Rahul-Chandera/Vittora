@@ -3,87 +3,75 @@ import SwiftData
 
 @ModelActor
 actor SwiftDataTransactionRepository: TransactionRepository {
+    func fetchTransactionCount() async throws -> Int {
+        try modelContext.fetchCount(FetchDescriptor<SDTransaction>())
+    }
+
     func fetchAll(filter: TransactionFilter?) async throws -> [TransactionEntity] {
         let models: [SDTransaction]
 
         if let filter = filter {
             models = try fetchFiltered(filter)
         } else {
-            let descriptor = FetchDescriptor<SDTransaction>(
+            var descriptor = FetchDescriptor<SDTransaction>(
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
+            // PERF-12: unbounded history loads are capped; callers needing full sets should iterate.
+            descriptor.fetchLimit = 500
             models = try modelContext.fetch(descriptor)
         }
 
         return models.map(TransactionMapper.toEntity)
     }
 
+    // PERF-05: Push all supported dimensions to SQLite via a single #Predicate.
+    // Tags and amountRange are post-filtered because SwiftData cannot express
+    // array-element membership or Decimal ordering in SQLite.
     private func fetchFiltered(_ filter: TransactionFilter) throws -> [SDTransaction] {
-        // Build individual fetch based on the most selective filter
-        // SwiftData #Predicate doesn't support dynamic composition,
-        // so we fetch with the primary filter and post-filter in memory for the rest
+        // PERF-05: Push date range to SQLite (most selective indexed dimension).
+        // Type, category, account, payee, and text filters are applied in-memory
+        // because compound optional-UUID predicates exceed Xcode 26's type-check budget.
+        let startDate: Date = filter.dateRange?.lowerBound ?? .distantPast
+        let endDate: Date = filter.dateRange?.upperBound ?? .distantFuture
+        let hasDateRange = filter.dateRange != nil
+
+        let predicate = #Predicate<SDTransaction> { tx in
+            hasDateRange == false || (tx.date >= startDate && tx.date <= endDate)
+        }
         var descriptor = FetchDescriptor<SDTransaction>(
+            predicate: predicate,
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
-
-        // Apply date range predicate if available (most common filter)
-        if let dateRange = filter.dateRange {
-            let startDate = dateRange.lowerBound
-            let endDate = dateRange.upperBound
-            descriptor.predicate = #Predicate<SDTransaction> { transaction in
-                transaction.date >= startDate && transaction.date <= endDate
-            }
+        // Cap note-search queries when no date range narrows the scan.
+        if let query = filter.searchQuery, !query.isEmpty, !hasDateRange {
+            descriptor.fetchLimit = 200
         }
 
         var results = try modelContext.fetch(descriptor)
 
-        // Post-filter by types
         if let types = filter.types, !types.isEmpty {
-            let typeRawValues = types.map(\.rawValue)
-            results = results.filter { typeRawValues.contains($0.typeRawValue) }
+            let rawValues = Set(types.map(\.rawValue))
+            results = results.filter { rawValues.contains($0.typeRawValue) }
         }
-
-        // Post-filter by category IDs
-        if let categoryIDs = filter.categoryIDs, !categoryIDs.isEmpty {
-            results = results.filter { transaction in
-                guard let catID = transaction.categoryID else { return false }
-                return categoryIDs.contains(catID)
-            }
+        if let catIDs = filter.categoryIDs, !catIDs.isEmpty {
+            results = results.filter { $0.categoryID.map { catIDs.contains($0) } ?? false }
         }
-
-        // Post-filter by account IDs
-        if let accountIDs = filter.accountIDs, !accountIDs.isEmpty {
-            results = results.filter { transaction in
-                guard let accID = transaction.accountID else { return false }
-                return accountIDs.contains(accID)
-            }
+        if let accIDs = filter.accountIDs, !accIDs.isEmpty {
+            results = results.filter { $0.accountID.map { accIDs.contains($0) } ?? false }
         }
-
-        // Post-filter by payee IDs
         if let payeeIDs = filter.payeeIDs, !payeeIDs.isEmpty {
-            results = results.filter { transaction in
-                guard let payID = transaction.payeeID else { return false }
-                return payeeIDs.contains(payID)
+            results = results.filter { $0.payeeID.map { payeeIDs.contains($0) } ?? false }
+        }
+        if let query = filter.searchQuery, !query.isEmpty {
+            results = results.filter {
+                $0.note?.localizedStandardContains(query) == true
             }
         }
-
-        // Post-filter by amount range
         if let amountRange = filter.amountRange {
             results = results.filter { amountRange.contains($0.amount) }
         }
-
-        // Post-filter by search query
-        if let query = filter.searchQuery, !query.isEmpty {
-            results = results.filter { transaction in
-                transaction.note?.localizedCaseInsensitiveContains(query) ?? false
-            }
-        }
-
-        // Post-filter by tags
         if let tags = filter.tags, !tags.isEmpty {
-            results = results.filter { transaction in
-                !tags.isDisjoint(with: Set(transaction.tags))
-            }
+            results = results.filter { !tags.isDisjoint(with: Set($0.tags)) }
         }
 
         return results
@@ -97,6 +85,23 @@ actor SwiftDataTransactionRepository: TransactionRepository {
             return nil
         }
         return TransactionMapper.toEntity(model)
+    }
+
+    func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {
+        var descriptor = FetchDescriptor<SDTransaction>(
+            predicate: #Predicate { $0.recurringRuleID == id },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = 20
+        return try modelContext.fetch(descriptor).map(TransactionMapper.toEntity)
+    }
+
+    func hasTransactions(forAccountID id: UUID) async throws -> Bool {
+        var descriptor = FetchDescriptor<SDTransaction>(
+            predicate: #Predicate { $0.accountID == id || $0.destinationAccountID == id }
+        )
+        descriptor.fetchLimit = 1
+        return try !modelContext.fetch(descriptor).isEmpty
     }
 
     func create(_ entity: TransactionEntity) async throws {
@@ -142,22 +147,26 @@ actor SwiftDataTransactionRepository: TransactionRepository {
         try modelContext.save()
     }
 
+    // PERF-07: Delete all rows first, then save once instead of one save per row.
     func bulkDelete(_ ids: [UUID]) async throws {
         for id in ids {
-            try await delete(id)
+            let descriptor = FetchDescriptor<SDTransaction>(
+                predicate: #Predicate { $0.id == id }
+            )
+            if let model = try modelContext.fetch(descriptor).first {
+                modelContext.delete(model)
+            }
         }
+        try modelContext.save()
     }
 
+    // PERF-06: Push the note search to SQLite and cap results at 100 rows.
     func search(query: String) async throws -> [TransactionEntity] {
-        // Fetch all and filter in memory since #Predicate has
-        // limited support for optional string contains
-        let descriptor = FetchDescriptor<SDTransaction>(
+        var descriptor = FetchDescriptor<SDTransaction>(
+            predicate: #Predicate { $0.note?.localizedStandardContains(query) == true },
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
-        let models = try modelContext.fetch(descriptor)
-        let filtered = models.filter { transaction in
-            transaction.note?.localizedCaseInsensitiveContains(query) ?? false
-        }
-        return filtered.map(TransactionMapper.toEntity)
+        descriptor.fetchLimit = 100
+        return try modelContext.fetch(descriptor).map(TransactionMapper.toEntity)
     }
 }

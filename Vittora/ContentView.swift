@@ -10,7 +10,9 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            if !appState.isUITesting && settingsVM.isAppLockEnabled && appState.isLocked {
+            if !appState.isUITesting &&
+                settingsVM.isAppLockEnabled &&
+                (appState.isLocked || !appState.isAuthenticated) {
                 AppLockView()
             } else {
                 if !appState.isOnboardingComplete {
@@ -31,15 +33,44 @@ struct ContentView: View {
                     #endif
                 }
             }
+
+            if appState.isPrivacyShieldVisible {
+                PrivacyShieldOverlay()
+                    .transition(.opacity)
+                    .zIndex(1)
+            }
         }
         .accessibilityIdentifier("content-root")
+    }
+}
+
+private struct PrivacyShieldOverlay: View {
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea()
+
+            VStack(spacing: VSpacing.md) {
+                Image(systemName: "lock.shield.fill")
+                    .font(.system(size: 36, weight: .semibold))
+                    .foregroundStyle(VColors.primary)
+                    .accessibilityHidden(true)
+
+                Text(String(localized: "Private data hidden"))
+                    .font(VTypography.bodyBold)
+                    .foregroundStyle(VColors.textPrimary)
+            }
+        }
+        .privacySensitive()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(String(localized: "Private financial data is hidden"))
     }
 }
 
 #Preview {
     ContentView()
         .environment(AppState())
-        .environment(Router())
         .environment(SettingsViewModel())
         .environment(SyncStatusService())
 }

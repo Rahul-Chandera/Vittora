@@ -70,7 +70,7 @@ struct TaxDashboardView: View {
             }
         }
         .sheet(isPresented: $showExportSheet, onDismiss: {
-            vm?.clearExportURL()
+            Task { await vm?.cleanupExport() }
         }) {
             if let url = vm?.exportURL {
                 ShareSheet(items: [url])
@@ -239,6 +239,7 @@ struct TaxDashboardView: View {
                 Image(systemName: "chevron.right")
                     .font(.caption)
                     .foregroundStyle(VColors.textSecondary)
+                    .accessibilityHidden(true)
             }
             .padding(VSpacing.cardPadding)
             .background(VColors.secondaryBackground)
@@ -291,8 +292,8 @@ private struct StatTile: View {
             Text(value)
                 .font(VTypography.bodyBold)
                 .foregroundStyle(VColors.textPrimary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .adaptiveLineLimit(1)
+                .adaptiveMinimumScaleFactor(0.8)
             Text(title)
                 .font(VTypography.caption2)
                 .foregroundStyle(VColors.textSecondary)

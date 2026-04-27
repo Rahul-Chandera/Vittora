@@ -29,7 +29,7 @@ struct SyncStatusView: View {
     }
 
     private var needsConflictReview: Bool {
-        syncConflictHandler.hasUnresolvedConflicts && syncService.syncState != .syncing
+        syncConflictHandler.hasActionableConflicts && syncService.syncState != .syncing
     }
 
     private var statusText: String {
@@ -81,10 +81,16 @@ struct SyncDetailView: View {
                     Spacer()
                     Text(syncService.iCloudAccountAvailable
                          ? String(localized: "Connected")
-                         : String(localized: "Unavailable"))
+                         : String(localized: "Not signed in"))
                         .foregroundStyle(syncService.iCloudAccountAvailable
                                          ? VColors.income
-                                         : VColors.expense)
+                                         : VColors.textSecondary)
+                }
+
+                if !syncService.iCloudAccountAvailable {
+                    Text(String(localized: "Your data stays on this device. Sign in to iCloud in Settings to sync across devices."))
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
                 }
             } header: {
                 Text(String(localized: "Status"))
@@ -106,10 +112,10 @@ struct SyncDetailView: View {
 
             Section {
                 VStack(alignment: .leading, spacing: VSpacing.sm) {
-                    Text(String(localized: "Newest update wins automatically"))
+                    Text(String(localized: "CloudKit resolves conflicts automatically"))
                         .font(VTypography.bodyBold)
                         .foregroundStyle(VColors.textPrimary)
-                    Text(String(localized: "When CloudKit reports a merge conflict, Vittora keeps the newest version by timestamp and logs the decision here for review."))
+                    Text(String(localized: "When iCloud detects a merge conflict it applies its own last-writer-wins strategy. Vittora logs each event here. When modification timestamps are close together or unavailable, the outcome is shown as ambiguous."))
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textSecondary)
                 }
@@ -117,7 +123,7 @@ struct SyncDetailView: View {
             } header: {
                 Text(String(localized: "Conflict Handling"))
             } footer: {
-                Text(String(localized: "The conflict log keeps the 20 most recent automatic resolutions so you can audit what happened after sync completes."))
+                Text(String(localized: "The conflict log keeps the 20 most recent events. Conflicts within 60 seconds of each other are flagged as ambiguous due to possible clock skew."))
                     .foregroundStyle(VColors.textSecondary)
             }
 
@@ -138,18 +144,12 @@ struct SyncDetailView: View {
                     }
                     .padding(.vertical, 4)
                 } else {
-                    Text(String(localized: "\(syncConflictHandler.recentConflicts.count) recent sync conflicts were resolved automatically."))
+                    Text(conflictSummaryText)
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textSecondary)
 
                     ForEach(syncConflictHandler.recentConflicts) { conflict in
-                        SyncConflictReviewRow(
-                            conflict: conflict,
-                            resolution: syncConflictHandler.resolveByTimestamp(
-                                localUpdatedAt: conflict.localTimestamp,
-                                remoteUpdatedAt: conflict.remoteTimestamp
-                            )
-                        )
+                        SyncConflictReviewRow(conflict: conflict)
                     }
 
                     Button(role: .destructive) {
@@ -180,11 +180,21 @@ struct SyncDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
     }
+
+    private var conflictSummaryText: String {
+        let actionableCount = syncConflictHandler.actionableConflicts.count
+        let informationalCount = syncConflictHandler.recentConflicts.count - actionableCount
+        if actionableCount > 0 {
+            return String(
+                localized: "\(actionableCount) sync event(s) need review. \(informationalCount) were auto-resolved."
+            )
+        }
+        return String(localized: "\(informationalCount) recent sync events were resolved automatically.")
+    }
 }
 
 private struct SyncConflictReviewRow: View {
     let conflict: SyncConflict
-    let resolution: ConflictResolution
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.sm) {
@@ -217,44 +227,71 @@ private struct SyncConflictReviewRow: View {
 
             VStack(alignment: .leading, spacing: 6) {
                 metadataRow(
-                    title: String(localized: "Local"),
-                    value: conflict.localTimestamp.formatted(date: .abbreviated, time: .shortened),
-                    isHighlighted: resolution == .keepLocal
+                    title: String(localized: "Detected"),
+                    value: conflict.detectedAt.formatted(date: .abbreviated, time: .shortened),
+                    isHighlighted: false
                 )
-                metadataRow(
-                    title: String(localized: "Remote"),
-                    value: conflict.remoteTimestamp.formatted(date: .abbreviated, time: .shortened),
-                    isHighlighted: resolution == .keepRemote
-                )
+                if let local = conflict.localModifiedAt {
+                    metadataRow(
+                        title: String(localized: "Local modified"),
+                        value: local.formatted(date: .abbreviated, time: .shortened),
+                        isHighlighted: conflict.resolution == .keepLocal
+                    )
+                }
+                if let remote = conflict.remoteModifiedAt {
+                    metadataRow(
+                        title: String(localized: "Remote modified"),
+                        value: remote.formatted(date: .abbreviated, time: .shortened),
+                        isHighlighted: conflict.resolution == .keepRemote
+                    )
+                }
             }
         }
         .padding(.vertical, 4)
     }
 
     private var resolutionTitle: String {
-        switch resolution {
+        switch conflict.resolution {
         case .keepLocal:
             String(localized: "Local version kept")
         case .keepRemote:
             String(localized: "Remote version kept")
+        case .ambiguous:
+            String(localized: "System applied LWW (outcome ambiguous)")
+        case .cloudKitAutoResolved:
+            String(localized: "CloudKit merged changes automatically")
+        case .integrityViolation:
+            String(localized: "Integrity check — review this record")
         }
     }
 
     private var resolutionIcon: String {
-        switch resolution {
+        switch conflict.resolution {
         case .keepLocal:
             "iphone.and.arrow.forward"
         case .keepRemote:
             "icloud.and.arrow.down"
+        case .ambiguous:
+            "questionmark.circle"
+        case .cloudKitAutoResolved:
+            "arrow.triangle.merge"
+        case .integrityViolation:
+            "exclamationmark.shield.fill"
         }
     }
 
     private var resolutionColor: Color {
-        switch resolution {
+        switch conflict.resolution {
         case .keepLocal:
             VColors.primary
         case .keepRemote:
             VColors.warning
+        case .ambiguous:
+            VColors.textSecondary
+        case .cloudKitAutoResolved:
+            VColors.warning
+        case .integrityViolation:
+            VColors.expense
         }
     }
 

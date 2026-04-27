@@ -2,6 +2,8 @@ import SwiftUI
 
 struct CustomReportView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.currencySymbol) private var currencySymbol
     @State private var vm: CustomReportViewModel?
     @State private var selectedPreset: DateRangePreset = .thisMonth
     @State private var customStart: Date = .now
@@ -131,7 +133,8 @@ struct CustomReportView: View {
                             amount: row.amount,
                             percentage: row.percentage,
                             color: VColors.categoryColors[index % VColors.categoryColors.count],
-                            count: row.count
+                            count: row.count,
+                            currencyCode: currencyCode
                         )
                     }
                 }
@@ -160,10 +163,7 @@ struct CustomReportView: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 
     private var customReportErrorBinding: Binding<String?> {

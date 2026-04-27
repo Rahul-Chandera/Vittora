@@ -6,30 +6,33 @@ import Foundation
 @MainActor
 struct SyncStatusServiceTests {
 
+    private func makeService() throws -> (SyncStatusService, UserDefaults) {
+        let suiteName = "com.vittora.test.\(UUID().uuidString)"
+        let ud = try #require(UserDefaults(suiteName: suiteName))
+        return (SyncStatusService(isMonitoringEnabled: false, userDefaults: ud), ud)
+    }
+
     @Test("Initial state is synced")
-    func initialStateSynced() {
-        let service = SyncStatusService()
-        // Initial state should be synced until network/CloudKit checks run
-        // We just verify it is one of the valid states
+    func initialStateSynced() throws {
+        let (service, _) = try makeService()
         let validStates: [SyncState] = [.synced, .syncing, .pending, .offline]
         let isValidInitial = validStates.contains(service.syncState) || service.syncState.isError
         #expect(isValidInitial)
     }
 
-    @Test("markSyncing sets state to syncing when account available")
-    func markSyncingUpdatesState() {
-        let service = SyncStatusService()
-        // Simulate available state
-        service.markSynced() // sets synced first
+    /// OFFL-03: sync UI must not block local use; when iCloud is unavailable, `markSyncing` is a no-op.
+    @Test("markSyncing does not switch to syncing when iCloud account unavailable")
+    func markSyncingNoOpWhenICloudUnavailable() throws {
+        let (service, _) = try makeService()
+        #expect(service.iCloudAccountAvailable == false)
+        service.markSynced()
         service.markSyncing()
-        // markSyncing only proceeds if isNetworkAvailable && iCloudAccountAvailable
-        // We can't easily inject those in unit tests without mocking, so just verify no crash
-        #expect(service.syncState == .syncing || service.syncState == .synced)
+        #expect(service.syncState == .synced)
     }
 
     @Test("markSynced updates lastSyncDate")
-    func markSyncedUpdatesDate() {
-        let service = SyncStatusService()
+    func markSyncedUpdatesDate() throws {
+        let (service, _) = try makeService()
         let before = Date.now
         service.markSynced()
         #expect(service.syncState == .synced)
@@ -37,27 +40,27 @@ struct SyncStatusServiceTests {
         #expect(service.lastSyncDate! >= before)
     }
 
-    @Test("markSynced persists date to UserDefaults")
-    func markSyncedPersistsToUserDefaults() {
-        let service = SyncStatusService()
+    @Test("markSynced persists date to injected UserDefaults")
+    func markSyncedPersistsToUserDefaults() throws {
+        let (service, ud) = try makeService()
         service.markSynced()
-        let stored = UserDefaults.standard.object(forKey: "vittora.lastSyncDate") as? Date
+        let stored = ud.object(forKey: "vittora.lastSyncDate") as? Date
         #expect(stored != nil)
     }
 
-    @Test("markPending sets pending state when account available")
-    func markPendingSetsState() {
-        let service = SyncStatusService()
-        service.markSynced() // start from known state
+    /// OFFL-03: pending is only surfaced when sync can run; otherwise state stays unchanged.
+    @Test("markPending does not switch to pending when iCloud account unavailable")
+    func markPendingNoOpWhenICloudUnavailable() throws {
+        let (service, _) = try makeService()
+        #expect(service.iCloudAccountAvailable == false)
+        service.markSynced()
         service.markPending()
-        // pending is set only when network + iCloud available — can be either
-        let isPendingOrSynced = service.syncState == .pending || service.syncState == .synced
-        #expect(isPendingOrSynced)
+        #expect(service.syncState == .synced)
     }
 
     @Test("markError sets error state with message")
-    func markErrorSetsMessage() {
-        let service = SyncStatusService()
+    func markErrorSetsMessage() throws {
+        let (service, _) = try makeService()
         service.markError("Test error")
         if case .error(let msg) = service.syncState {
             #expect(msg == "Test error")
@@ -66,13 +69,9 @@ struct SyncStatusServiceTests {
         }
     }
 
-    @Test("lastSyncFormatted returns Never when no date")
-    func lastSyncFormattedNever() {
-        let service = SyncStatusService()
-        // Clear UserDefaults key to get nil date
-        UserDefaults.standard.removeObject(forKey: "vittora.lastSyncDate")
-        let freshService = SyncStatusService()
-        // If no date was stored, should return "Never"
+    @Test("lastSyncFormatted returns Never when no prior date stored")
+    func lastSyncFormattedNever() throws {
+        let (freshService, _) = try makeService()
         if freshService.lastSyncDate == nil {
             #expect(freshService.lastSyncFormatted == String(localized: "Never"))
         }
@@ -103,6 +102,13 @@ struct SyncStatusServiceTests {
         #expect(SyncState.pending.isError == false)
     }
 
+    /// OFFL-02: missing iCloud is modeled as `.offline`, not `.error`, so the chip stays non-alarming.
+    @Test("offline state is not classified as error for UI")
+    func offlineNotErrorForDisplay() {
+        #expect(!SyncState.offline.isError)
+        #expect(SyncState.offline.displayText == String(localized: "Offline"))
+    }
+
     @Test("SyncState equality")
     func syncStateEquality() {
         #expect(SyncState.synced == .synced)
@@ -113,65 +119,91 @@ struct SyncStatusServiceTests {
     }
 }
 
+private actor RecordingAuditLogger: SecurityAuditLogging {
+    private(set) var events: [SecurityAuditEvent] = []
+    func record(_ event: SecurityAuditEvent) async {
+        events.append(event)
+    }
+}
+
 @Suite("SyncConflictHandler Tests")
 @MainActor
 struct SyncConflictHandlerTests {
 
-    @Test("resolves to keepRemote when remote is newer")
-    func resolvesRemoteWhenNewer() {
+    @Test("resolves to keepRemote when remote is clearly newer (outside skew threshold)")
+    func resolvesRemoteWhenClearlyNewer() {
         let handler = SyncConflictHandler()
-        let local = Date(timeIntervalSinceNow: -100)
+        let local = Date(timeIntervalSinceNow: -200)
         let remote = Date.now
-        let conflict = SyncConflict(
+        let resolution = handler.logConflict(
             entityType: "Transaction",
             entityID: UUID(),
-            localTimestamp: local,
-            remoteTimestamp: remote,
+            localModifiedAt: local,
+            remoteModifiedAt: remote,
             description: "Test conflict"
         )
-        let resolution = handler.resolve(conflict)
         #expect(resolution == .keepRemote)
     }
 
-    @Test("resolves to keepLocal when local is newer")
-    func resolvesLocalWhenNewer() {
+    @Test("resolves to keepLocal when local is clearly newer (outside skew threshold)")
+    func resolvesLocalWhenClearlyNewer() {
         let handler = SyncConflictHandler()
-        let remote = Date(timeIntervalSinceNow: -100)
+        let remote = Date(timeIntervalSinceNow: -200)
         let local = Date.now
-        let conflict = SyncConflict(
+        let resolution = handler.logConflict(
             entityType: "Transaction",
             entityID: UUID(),
-            localTimestamp: local,
-            remoteTimestamp: remote,
+            localModifiedAt: local,
+            remoteModifiedAt: remote,
             description: "Test conflict"
         )
-        let resolution = handler.resolve(conflict)
         #expect(resolution == .keepLocal)
     }
 
-    @Test("resolved conflict is logged")
+    @Test("resolves to ambiguous when timestamps are within clock-skew threshold")
+    func resolvesAmbiguousWithinSkewThreshold() {
+        let handler = SyncConflictHandler()
+        let local = Date(timeIntervalSinceNow: -30)
+        let remote = Date.now
+        let resolution = handler.logConflict(
+            entityType: "Transaction",
+            entityID: UUID(),
+            localModifiedAt: local,
+            remoteModifiedAt: remote,
+            description: "Close timestamps"
+        )
+        #expect(resolution == .ambiguous)
+    }
+
+    @Test("resolves to ambiguous when entity timestamps are unavailable")
+    func resolvesAmbiguousWhenTimestampsAbsent() {
+        let handler = SyncConflictHandler()
+        let resolution = handler.logConflict(
+            entityType: "Import",
+            description: "No entity timestamps from NSPersistentCloudKitContainer event"
+        )
+        #expect(resolution == .ambiguous)
+    }
+
+    @Test("logged conflict is stored")
     func conflictIsLogged() {
         let handler = SyncConflictHandler()
-        let conflict = SyncConflict(
+        handler.logConflict(
             entityType: "Budget",
             entityID: UUID(),
-            localTimestamp: Date(timeIntervalSinceNow: -50),
-            remoteTimestamp: Date.now,
+            localModifiedAt: Date(timeIntervalSinceNow: -200),
+            remoteModifiedAt: .now,
             description: "Budget conflict"
         )
-        handler.resolve(conflict)
         #expect(handler.recentConflicts.count == 1)
-        #expect(handler.hasUnresolvedConflicts)
+        #expect(handler.hasUnresolvedConflicts == false)
     }
 
     @Test("clearLog removes all conflicts")
     func clearLogRemovesAll() {
         let handler = SyncConflictHandler()
         for _ in 0..<5 {
-            let c = SyncConflict(entityType: "X", entityID: UUID(),
-                                 localTimestamp: .now, remoteTimestamp: .now,
-                                 description: "")
-            handler.resolve(c)
+            handler.logConflict(entityType: "X", description: "")
         }
         #expect(handler.recentConflicts.count == 5)
         handler.clearLog()
@@ -179,40 +211,102 @@ struct SyncConflictHandlerTests {
         #expect(!handler.hasUnresolvedConflicts)
     }
 
+    @Test("hasUnresolvedConflicts is true only for actionable conflicts")
+    func unresolvedConflictsReflectActionableOnly() {
+        let handler = SyncConflictHandler()
+        handler.logConflict(
+            entityType: "Transaction",
+            description: "Auto merged",
+            resolutionOverride: .cloudKitAutoResolved
+        )
+        #expect(handler.hasUnresolvedConflicts == false)
+        handler.logConflict(
+            entityType: "Transaction",
+            description: "Ambiguous timing",
+            resolutionOverride: .ambiguous
+        )
+        #expect(handler.hasUnresolvedConflicts)
+        #expect(handler.actionableConflicts.count == 1)
+    }
+
     @Test("log capped at 20 entries")
     func logCappedAt20() {
         let handler = SyncConflictHandler()
         for _ in 0..<25 {
-            let c = SyncConflict(entityType: "X", entityID: UUID(),
-                                 localTimestamp: .now, remoteTimestamp: .now,
-                                 description: "")
-            handler.resolve(c)
+            handler.logConflict(entityType: "X", description: "")
         }
         #expect(handler.recentConflicts.count == 20)
     }
 
-    @Test("resolveByTimestamp convenience method works correctly")
-    func resolveByTimestampConvenience() {
+    @Test("resolveByTimestamp is ambiguous at exactly the skew boundary")
+    func resolveByTimestampSkewBoundary() {
         let handler = SyncConflictHandler()
-        let now = Date.now
-        let past = Date(timeIntervalSinceNow: -60)
+        let base = Date.now
+        let justUnder = base.addingTimeInterval(-SyncConflictHandler.clockSkewThreshold + 1)
+        let justOver  = base.addingTimeInterval(-SyncConflictHandler.clockSkewThreshold - 1)
 
-        #expect(handler.resolveByTimestamp(localUpdatedAt: past, remoteUpdatedAt: now) == .keepRemote)
-        #expect(handler.resolveByTimestamp(localUpdatedAt: now, remoteUpdatedAt: past) == .keepLocal)
+        #expect(handler.resolveByTimestamp(localModifiedAt: justUnder, remoteModifiedAt: base) == .ambiguous)
+        #expect(handler.resolveByTimestamp(localModifiedAt: justOver,  remoteModifiedAt: base) == .keepRemote)
+    }
+
+    @Test("resolveByTimestamp returns ambiguous when either timestamp is nil")
+    func resolveByTimestampNilHandling() {
+        let handler = SyncConflictHandler()
+        #expect(handler.resolveByTimestamp(localModifiedAt: nil,      remoteModifiedAt: .now) == .ambiguous)
+        #expect(handler.resolveByTimestamp(localModifiedAt: .now,     remoteModifiedAt: nil)  == .ambiguous)
+        #expect(handler.resolveByTimestamp(localModifiedAt: nil,      remoteModifiedAt: nil)  == .ambiguous)
     }
 
     @Test("logConflict stores conflict even when entity id is unavailable")
     func logConflictWithoutEntityID() {
         let handler = SyncConflictHandler()
-        let resolution = handler.logConflict(
+        handler.logConflict(
             entityType: "Import",
-            localTimestamp: Date(timeIntervalSinceNow: -30),
-            remoteTimestamp: .now,
             description: "CloudKit import conflict"
         )
-
-        #expect(resolution == .keepRemote)
         #expect(handler.recentConflicts.count == 1)
         #expect(handler.recentConflicts[0].entityID == nil)
+        #expect(handler.recentConflicts[0].resolution == .ambiguous)
+    }
+
+    @Test("logConflict with cloudKitAutoResolved records audit event")
+    func cloudKitAutoResolvedRecordsAudit() async throws {
+        let logger = RecordingAuditLogger()
+        let handler = SyncConflictHandler(auditLogger: logger)
+        _ = handler.logConflict(
+            entityType: "Transaction",
+            description: "merged",
+            resolutionOverride: .cloudKitAutoResolved
+        )
+        try await Task.sleep(for: .milliseconds(200))
+        let events = await logger.events
+        #expect(events.contains { $0.kind == .syncConflictAutoResolved })
+    }
+
+    @Test("logConflict without cloudKitAutoResolved does not record audit")
+    func nonCloudKitConflictSkipsAudit() async throws {
+        let logger = RecordingAuditLogger()
+        let handler = SyncConflictHandler(auditLogger: logger)
+        _ = handler.logConflict(
+            entityType: "Transaction",
+            description: "t",
+            resolutionOverride: .keepLocal
+        )
+        try await Task.sleep(for: .milliseconds(200))
+        let events = await logger.events
+        #expect(events.isEmpty)
+    }
+
+    @Test("logIntegrityViolation records audit and logs conflict")
+    func integrityViolationRecordsAudit() async throws {
+        let logger = RecordingAuditLogger()
+        let handler = SyncConflictHandler(auditLogger: logger)
+        let id = UUID()
+        handler.logIntegrityViolation(entityType: "Transaction", entityID: id, description: "invalid")
+        try await Task.sleep(for: .milliseconds(200))
+        let events = await logger.events
+        #expect(events.contains { $0.kind == .syncIntegrityViolation })
+        #expect(handler.recentConflicts.first?.resolution == .integrityViolation)
+        #expect(handler.recentConflicts.first?.entityID == id)
     }
 }

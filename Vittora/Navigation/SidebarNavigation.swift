@@ -2,7 +2,6 @@ import SwiftUI
 
 struct SidebarNavigation: View {
     @Environment(AppState.self) private var appState
-    @Environment(Router.self) private var router
     @State private var showAddTransaction = false
     @State private var selectedTab: AppState.AppTab? = .dashboard
 
@@ -87,7 +86,6 @@ struct SidebarNavigation: View {
                 Button(action: { showAddTransaction = true }) {
                     Label(String(localized: "New Transaction"), systemImage: "plus")
                 }
-                .keyboardShortcut("n", modifiers: .command)
             }
             ToolbarItem(placement: .status) {
                 SyncStatusView()
@@ -104,7 +102,15 @@ struct SidebarNavigation: View {
             #endif
         }
         .sheet(isPresented: $showAddTransaction) {
-            TransactionFormView()
+            NavigationStack {
+                TransactionFormView()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .vittoraNewTransaction)) { _ in
+            showAddTransaction = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .vittoraOpenSettings)) { _ in
+            appState.selectedTab = .settings
         }
     }
 }

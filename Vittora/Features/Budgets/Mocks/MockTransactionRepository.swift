@@ -1,6 +1,10 @@
 import Foundation
 
 struct MockTransactionRepository: TransactionRepository {
+    func fetchTransactionCount() async throws -> Int {
+        try await fetchAll(filter: nil).count
+    }
+
     func fetchAll(filter: TransactionFilter?) async throws -> [TransactionEntity] {
         let now = Date()
         return [
@@ -36,6 +40,17 @@ struct MockTransactionRepository: TransactionRepository {
             note: "Sample",
             type: .expense
         )
+    }
+
+    func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {
+        try await fetchAll(filter: nil)
+            .filter { $0.recurringRuleID == id }
+            .sorted { $0.date > $1.date }
+    }
+
+    func hasTransactions(forAccountID id: UUID) async throws -> Bool {
+        try await fetchAll(filter: nil)
+            .contains { $0.accountID == id || $0.destinationAccountID == id }
     }
 
     func create(_ entity: TransactionEntity) async throws {}

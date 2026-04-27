@@ -6,7 +6,7 @@ final class AccountFormViewModel {
     var name: String = ""
     var selectedType: AccountType = .bank
     var initialBalance: String = "0"
-    var selectedCurrency: String = "USD"
+    var selectedCurrency: String = CurrencyDefaults.code
     var selectedIcon: String = "building.columns.fill"
     var isEditing = false
     var editingID: UUID?

@@ -99,6 +99,25 @@ struct DataExportServiceTests {
         #expect(content.contains("He said \"\"hello\"\""))
     }
 
+    @Test("spreadsheet formula prefixes are neutralized in exported text fields")
+    func exportNeutralizesFormulaInjection() async throws {
+        let repo = MockTransactionRepository()
+        let tx = TransactionEntity(
+            amount: 5,
+            note: "=cmd|' /c calc'!A1",
+            type: .expense,
+            paymentMethod: .cash,
+            tags: ["+SUM(A1:A2)"]
+        )
+        try await repo.create(tx)
+        let service = DataExportService(transactionRepository: repo)
+        let url = try await service.exportTransactionsCSV(filter: nil)
+        let content = try String(contentsOf: url, encoding: .utf8)
+
+        #expect(content.contains("'=cmd|' /c calc'!A1"))
+        #expect(content.contains("'+SUM(A1:A2)"))
+    }
+
     @Test("export with date range filter returns only matching transactions")
     func exportWithDateFilter() async throws {
         let repo = MockTransactionRepository()

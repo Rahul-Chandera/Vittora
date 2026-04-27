@@ -10,22 +10,39 @@ struct TaxUseCaseTests {
     @MainActor
     @Suite("IndiaTaxCalculator")
     struct IndiaTaxCalculatorTests {
-        @Test("New regime rebate can reduce tax to zero for lower taxable income")
+        @Test("New regime rebate can reduce tax to zero at the FY 2025-26 threshold")
         func newRegimeRebateScenario() {
             let calculator = IndiaTaxCalculator()
             let profile = TaxProfile(
                 country: .india,
-                annualIncome: 700_000,
+                annualIncome: 1_275_000,
                 indiaRegime: .newRegime,
-                financialYear: "2024-25"
+                financialYear: "2025-26"
             )
 
             let estimate = calculator.calculate(profile: profile)
 
             #expect(estimate.standardDeduction == 75_000)
-            #expect(estimate.taxableIncome == 625_000)
+            #expect(estimate.taxableIncome == 1_200_000)
             #expect(estimate.rebate > 0)
             #expect(estimate.finalTax == 0)
+        }
+
+        @Test("New regime marginal relief tapers the FY 2025-26 rebate above 12 lakh")
+        func newRegimeMarginalReliefScenario() {
+            let calculator = IndiaTaxCalculator()
+            let profile = TaxProfile(
+                country: .india,
+                annualIncome: 1_285_000,
+                indiaRegime: .newRegime,
+                financialYear: "2025-26"
+            )
+
+            let estimate = calculator.calculate(profile: profile)
+
+            #expect(estimate.taxableIncome == 1_210_000)
+            #expect(estimate.rebate == 51_500)
+            #expect(estimate.finalTax == 10_400)
         }
 
         @Test("Old regime applies custom deductions")
@@ -39,7 +56,7 @@ struct TaxUseCaseTests {
                     TaxDeduction(name: "PPF", amount: 150_000, section: "80C"),
                     TaxDeduction(name: "Health Insurance", amount: 25_000, section: "80D"),
                 ],
-                financialYear: "2024-25"
+                financialYear: "2025-26"
             )
 
             let estimate = calculator.calculate(profile: profile)
@@ -48,6 +65,40 @@ struct TaxUseCaseTests {
             #expect(estimate.customDeductionsTotal == 175_000)
             #expect(estimate.taxableIncome == 975_000)
             #expect(estimate.finalTax > 0)
+        }
+
+        @Test("Old regime §87A rebate eliminates tax at the 5 lakh threshold")
+        func oldRegimeRebateAtThreshold() {
+            let calculator = IndiaTaxCalculator()
+            let profile = TaxProfile(
+                country: .india,
+                annualIncome: 500_000,
+                indiaRegime: .oldRegime,
+                financialYear: "2024-25",
+                incomeSourceType: .selfEmployed
+            )
+            let estimate = calculator.calculate(profile: profile)
+            #expect(estimate.taxableIncome == 500_000)
+            #expect(estimate.rebate == 12_500)
+            #expect(estimate.finalTax == 0)
+        }
+
+        @Test("Old regime §87A marginal relief caps tax at the excess above 5 lakh")
+        func oldRegimeMarginalRelief() {
+            let calculator = IndiaTaxCalculator()
+            let profile = TaxProfile(
+                country: .india,
+                annualIncome: 510_000,
+                indiaRegime: .oldRegime,
+                financialYear: "2024-25",
+                incomeSourceType: .selfEmployed
+            )
+            let estimate = calculator.calculate(profile: profile)
+            // Basic tax on ₹5.1L: 5% × 2.5L = 12,500 + 20% × 10,000 = 2,000 → 14,500
+            // Marginal relief: rebate = min(14500, 12500, 14500 − 10000) = 4500
+            // taxAfterRebate = 14500 − 4500 = 10000 = excess (₹10,000 above threshold)
+            #expect(estimate.rebate == 4_500)
+            #expect(estimate.finalTax == 10_400) // 10000 × 4% cess = 400
         }
     }
 
@@ -64,13 +115,13 @@ struct TaxUseCaseTests {
                 customDeductions: [
                     TaxDeduction(name: "Mortgage Interest", amount: 10_000),
                 ],
-                financialYear: "2024"
+                financialYear: "2026"
             )
 
             let standardEstimate = calculator.calculate(profile: profile, deductionMode: .standardOnly)
             let itemizedEstimate = calculator.calculate(profile: profile, deductionMode: .itemizedOnly)
 
-            #expect(standardEstimate.standardDeduction == 14_600)
+            #expect(standardEstimate.standardDeduction == 16_100)
             #expect(standardEstimate.customDeductionsTotal == 0)
             #expect(itemizedEstimate.standardDeduction == 0)
             #expect(itemizedEstimate.customDeductionsTotal == 10_000)
@@ -87,7 +138,7 @@ struct TaxUseCaseTests {
                 customDeductions: [
                     TaxDeduction(name: "Mortgage Interest", amount: 20_000),
                 ],
-                financialYear: "2024"
+                financialYear: "2026"
             )
 
             let estimate = calculator.calculate(profile: profile)
@@ -95,6 +146,109 @@ struct TaxUseCaseTests {
             #expect(estimate.standardDeduction == 0)
             #expect(estimate.customDeductionsTotal == 20_000)
             #expect(estimate.taxableIncome == 80_000)
+        }
+
+        @Test("Qualifying surviving spouse uses joint rules")
+        func qualifyingSurvivingSpouseUsesJointRules() {
+            let calculator = USTaxCalculator()
+            let survivingSpouseProfile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 180_000,
+                filingStatus: .qualifyingSurvivingSpouse,
+                financialYear: "2026"
+            )
+            let jointProfile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 180_000,
+                filingStatus: .marriedFilingJointly,
+                financialYear: "2026"
+            )
+
+            let survivingSpouseEstimate = calculator.calculate(profile: survivingSpouseProfile)
+            let jointEstimate = calculator.calculate(profile: jointProfile)
+
+            #expect(survivingSpouseEstimate.standardDeduction == 32_200)
+            #expect(survivingSpouseEstimate.finalTax == jointEstimate.finalTax)
+        }
+
+        @Test("Preferential stacking applies 0% band before 15% band")
+        func preferentialStackingUsesZeroThenFifteen() {
+            let calculator = USTaxCalculator()
+            let profile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 56_100, // TY2026 single -> ordinary taxable 40,000
+                filingStatus: .single,
+                financialYear: "2026",
+                advancedInputs: TaxAdvancedInputs(
+                    usQualifiedDividends: 0,
+                    usLongTermCapitalGains: 20_000,
+                    usShortTermCapitalGains: 0,
+                    usOtherInvestmentIncome: 0
+                )
+            )
+
+            let estimate = calculator.calculate(profile: profile)
+
+            // Ordinary tax: 4,552. Preferential: 10,000 @0% + 10,000 @15% = 1,500.
+            #expect(estimate.finalTax == 6_052)
+        }
+
+        @Test("Preferential stacking transitions from 15% to 20% at threshold")
+        func preferentialStackingUsesFifteenThenTwenty() {
+            let calculator = USTaxCalculator()
+            let baseProfile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 560_100, // TY2026 single -> ordinary taxable 544,000
+                filingStatus: .single,
+                financialYear: "2026"
+            )
+            let gainsProfile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 560_100,
+                filingStatus: .single,
+                financialYear: "2026",
+                advancedInputs: TaxAdvancedInputs(
+                    usQualifiedDividends: 0,
+                    usLongTermCapitalGains: 2_000,
+                    usShortTermCapitalGains: 0,
+                    usOtherInvestmentIncome: 0
+                )
+            )
+
+            let baseEstimate = calculator.calculate(profile: baseProfile)
+            let gainsEstimate = calculator.calculate(profile: gainsProfile)
+
+            // 1,000 @15% + 1,000 @20% + NIIT(2,000 @ 3.8%) = 426 incremental tax.
+            #expect(gainsEstimate.finalTax - baseEstimate.finalTax == 426)
+        }
+
+        @Test("Preferential income above upper threshold is taxed at 20%")
+        func preferentialIncomeAboveUpperThresholdUsesTwentyPercent() {
+            let calculator = USTaxCalculator()
+            let baseProfile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 566_100, // TY2026 single -> ordinary taxable 550,000 (> 545,000 upper)
+                filingStatus: .single,
+                financialYear: "2026"
+            )
+            let gainsProfile = TaxProfile(
+                country: .unitedStates,
+                annualIncome: 566_100,
+                filingStatus: .single,
+                financialYear: "2026",
+                advancedInputs: TaxAdvancedInputs(
+                    usQualifiedDividends: 0,
+                    usLongTermCapitalGains: 1_000,
+                    usShortTermCapitalGains: 0,
+                    usOtherInvestmentIncome: 0
+                )
+            )
+
+            let baseEstimate = calculator.calculate(profile: baseProfile)
+            let gainsEstimate = calculator.calculate(profile: gainsProfile)
+
+            // 1,000 @20% + NIIT(1,000 @ 3.8%) = 238 incremental tax.
+            #expect(gainsEstimate.finalTax - baseEstimate.finalTax == 238)
         }
     }
 
@@ -111,7 +265,7 @@ struct TaxUseCaseTests {
                 customDeductions: [
                     TaxDeduction(name: "PPF", amount: 150_000, section: "80C"),
                 ],
-                financialYear: "2024-25"
+                financialYear: "2025-26"
             )
 
             let comparison = useCase.execute(profile: profile)
@@ -133,7 +287,7 @@ struct TaxUseCaseTests {
                     TaxDeduction(name: "Mortgage Interest", amount: 22_000),
                     TaxDeduction(name: "Charity", amount: 5_000),
                 ],
-                financialYear: "2024"
+                financialYear: "2026"
             )
 
             let comparison = useCase.execute(profile: profile)
@@ -260,5 +414,9 @@ struct TaxUseCaseTests {
 
 private func makeDate(year: Int, month: Int, day: Int) -> Date {
     let calendar = Calendar(identifier: .gregorian)
-    return calendar.date(from: DateComponents(year: year, month: month, day: day)) ?? .now
+    guard let date = calendar.date(from: DateComponents(year: year, month: month, day: day)) else {
+        Issue.record("makeDate failed for \(year)-\(month)-\(day)")
+        return Date(timeIntervalSince1970: 0)
+    }
+    return date
 }

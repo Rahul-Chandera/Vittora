@@ -1,5 +1,7 @@
 import Foundation
 import os.signpost
+import OSLog
+import Security
 
 enum ExportFormat: String, CaseIterable, Sendable {
     case csv = "CSV"
@@ -19,6 +21,7 @@ protocol DataExportServiceProtocol: Sendable {
         endDate: Date?,
         format: ExportFormat
     ) async throws -> URL
+    func cleanupTemporaryExport(at url: URL) async
     func exportTaxReportCSV(
         profile: TaxProfile,
         estimate: TaxEstimate,
@@ -29,21 +32,25 @@ protocol DataExportServiceProtocol: Sendable {
 
 @MainActor
 final class DataExportService: DataExportServiceProtocol, Sendable {
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "export")
     private let transactionRepository: any TransactionRepository
     private let accountRepository: (any AccountRepository)?
     private let categoryRepository: (any CategoryRepository)?
     private let payeeRepository: (any PayeeRepository)?
+    private let auditLogger: (any SecurityAuditLogging)?
 
     init(
         transactionRepository: any TransactionRepository,
         accountRepository: (any AccountRepository)? = nil,
         categoryRepository: (any CategoryRepository)? = nil,
-        payeeRepository: (any PayeeRepository)? = nil
+        payeeRepository: (any PayeeRepository)? = nil,
+        auditLogger: (any SecurityAuditLogging)? = nil
     ) {
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
         self.categoryRepository = categoryRepository
         self.payeeRepository = payeeRepository
+        self.auditLogger = auditLogger
     }
 
     // MARK: - Legacy compatibility
@@ -92,6 +99,16 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
         return try writeToTemp(content: csv, suffix: "tax_report")
     }
 
+    func cleanupTemporaryExport(at url: URL) async {
+        do {
+            try securelyDeleteFile(at: url)
+        } catch {
+            Self.logger.error(
+                "Failed to securely delete temporary export at \(url.path, privacy: .private): \(error.localizedDescription, privacy: .public)"
+            )
+        }
+    }
+
     // MARK: - CSV builder
 
     private func buildCSV(for transactions: [TransactionEntity]) async throws -> String {
@@ -100,16 +117,16 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
         var categoryMap: [UUID: String] = [:]
         var payeeMap: [UUID: String] = [:]
 
-        if let accountRepo = accountRepository,
-           let accounts = try? await accountRepo.fetchAll() {
+        if let accountRepo = accountRepository {
+            let accounts = try await accountRepo.fetchAll()
             accountMap = Dictionary(uniqueKeysWithValues: accounts.map { ($0.id, $0.name) })
         }
-        if let catRepo = categoryRepository,
-           let categories = try? await catRepo.fetchAll() {
+        if let catRepo = categoryRepository {
+            let categories = try await catRepo.fetchAll()
             categoryMap = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.name) })
         }
-        if let payeeRepo = payeeRepository,
-           let payees = try? await payeeRepo.fetchAll() {
+        if let payeeRepo = payeeRepository {
+            let payees = try await payeeRepo.fetchAll()
             payeeMap = Dictionary(uniqueKeysWithValues: payees.map { ($0.id, $0.name) })
         }
 
@@ -128,10 +145,13 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
             let account  = tx.accountID.flatMap  { accountMap[$0]  } ?? ""
             let payee    = tx.payeeID.flatMap     { payeeMap[$0]    } ?? ""
             let method   = tx.paymentMethod.rawValue
-            let note     = (tx.note ?? "").csvEscaped
-            let tags     = tx.tags.joined(separator: ";").csvEscaped
+            let note     = tx.note ?? ""
+            let tags     = tx.tags.joined(separator: ";")
 
-            csv += "\"\(date)\",\"\(amount)\",\"\(type)\",\"\(category)\",\"\(account)\",\"\(payee)\",\"\(method)\",\"\(note)\",\"\(tags)\"\n"
+            appendCSVRow(
+                [date, amount, type, category, account, payee, method, note, tags],
+                to: &csv
+            )
         }
 
         return csv
@@ -276,7 +296,19 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
         }
 
         do {
-            try data.write(to: url)
+            #if os(iOS)
+            try data.write(to: url, options: [.atomic, .completeFileProtection])
+            try FileManager.default.setAttributes(
+                [.protectionKey: FileProtectionType.complete],
+                ofItemAtPath: url.path
+            )
+            #else
+            try data.write(to: url, options: [.atomic])
+            #endif
+            if let auditLogger {
+                let name = url.lastPathComponent
+                Task { await auditLogger.record(SecurityAuditEvent(kind: .exportCreated, detail: name)) }
+            }
             return url
         } catch {
             throw VittoraError.exportFailed(
@@ -284,13 +316,68 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
             )
         }
     }
+
+    private func securelyDeleteFile(at url: URL) throws {
+        guard FileManager.default.fileExists(atPath: url.path) else { return }
+
+        let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+        let fileSize = (attributes[.size] as? NSNumber)?.intValue ?? 0
+
+        if fileSize > 0 {
+            let handle = try FileHandle(forWritingTo: url)
+            defer {
+                do {
+                    try handle.close()
+                } catch {
+                    Self.logger.error(
+                        "Failed to close temporary export file handle for \(url.lastPathComponent, privacy: .public): \(error.localizedDescription, privacy: .public)"
+                    )
+                }
+            }
+
+            try handle.seek(toOffset: 0)
+
+            var remainingBytes = fileSize
+            while remainingBytes > 0 {
+                let chunkSize = min(remainingBytes, 64 * 1024)
+                try handle.write(contentsOf: randomData(count: chunkSize))
+                remainingBytes -= chunkSize
+            }
+
+            try handle.synchronize()
+        }
+
+        try FileManager.default.removeItem(at: url)
+    }
+
+    private func randomData(count: Int) throws -> Data {
+        guard count > 0 else { return Data() }
+
+        var data = Data(count: count)
+        let status = data.withUnsafeMutableBytes { buffer in
+            guard let baseAddress = buffer.baseAddress else {
+                return errSecParam
+            }
+            return SecRandomCopyBytes(kSecRandomDefault, count, baseAddress)
+        }
+
+        guard status == errSecSuccess else {
+            throw VittoraError.exportFailed(
+                String(localized: "Failed to generate secure random bytes for export cleanup.")
+            )
+        }
+
+        return data
+    }
 }
 
 // MARK: - String CSV helper
 
 private extension String {
-    /// Escape double quotes by doubling them (per RFC 4180).
+    /// Escape double quotes and neutralize spreadsheet formula injection.
     var csvEscaped: String {
-        replacingOccurrences(of: "\"", with: "\"\"")
+        let formulaPrefixes = ["=", "+", "-", "@", "\t", "\r", "\n"]
+        let sanitized = formulaPrefixes.contains(where: hasPrefix) ? "'" + self : self
+        return sanitized.replacingOccurrences(of: "\"", with: "\"\"")
     }
 }

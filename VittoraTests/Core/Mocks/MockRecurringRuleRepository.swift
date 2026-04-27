@@ -4,6 +4,7 @@ import Foundation
 actor MockRecurringRuleRepository: RecurringRuleRepository {
     private(set) var rules: [RecurringRuleEntity] = []
     var shouldThrowError: Bool = false
+    var shouldThrowOnUpdate: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
 
     func fetchAll() async throws -> [RecurringRuleEntity] {
@@ -23,6 +24,7 @@ actor MockRecurringRuleRepository: RecurringRuleRepository {
 
     func update(_ entity: RecurringRuleEntity) async throws {
         if shouldThrowError { throw throwError }
+        if shouldThrowOnUpdate { throw throwError }
         if let index = rules.firstIndex(where: { $0.id == entity.id }) {
             rules[index] = entity
         } else {
@@ -53,5 +55,9 @@ actor MockRecurringRuleRepository: RecurringRuleRepository {
 
     func seed(_ entity: RecurringRuleEntity) {
         rules.append(entity)
+    }
+
+    func configureUpdateFailure(_ shouldFail: Bool) {
+        shouldThrowOnUpdate = shouldFail
     }
 }

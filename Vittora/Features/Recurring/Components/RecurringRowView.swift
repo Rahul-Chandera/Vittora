@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct RecurringRowView: View {
+    @Environment(\.currencyCode) private var currencyCode
+
     let rule: RecurringRuleEntity
     var category: CategoryEntity? = nil
 
@@ -58,7 +60,7 @@ struct RecurringRowView: View {
                     Spacer()
 
                     // Amount with bold styling
-                    Text(String(format: "$%.2f", Double(truncating: rule.templateAmount as NSDecimalNumber)))
+                    Text(rule.templateAmount.formatted(currencyCode: currencyCode))
                         .font(VTypography.calloutBold)
                         .foregroundColor(VColors.expense)
                 }

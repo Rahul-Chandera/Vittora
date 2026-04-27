@@ -2,13 +2,10 @@ import SwiftUI
 
 struct SavingsGoalListView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: SavingsGoalListViewModel?
     @State private var showAddGoal = false
     @State private var selectedGoalID: UUID?
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         NavigationStack {
@@ -82,6 +79,7 @@ struct SavingsGoalListView: View {
                     HStack(spacing: VSpacing.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.white)
+                            .accessibilityHidden(true)
                         Text(String(localized: "\(vm.overdueGoals.count) goal(s) past deadline"))
                             .font(VTypography.caption1.bold())
                             .foregroundStyle(.white)

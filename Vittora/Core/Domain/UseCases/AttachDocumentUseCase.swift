@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 #if canImport(UIKit)
 import UIKit
 #elseif canImport(AppKit)
@@ -6,37 +7,40 @@ import AppKit
 #endif
 
 struct AttachDocumentUseCase: Sendable {
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "documents")
     let documentRepository: any DocumentRepository
+    let documentStorageService: any DocumentStorageServiceProtocol
 
     func execute(
         imageData: Data,
         mimeType: String,
         transactionID: UUID?
     ) async throws -> DocumentEntity {
-        let fileName = "\(UUID().uuidString).\(fileExtension(for: mimeType))"
+        let documentID = UUID()
+        let fileName = "\(documentID.uuidString).\(fileExtension(for: mimeType))"
         let thumbnailData = generateThumbnail(from: imageData, mimeType: mimeType)
 
-        try saveFile(data: imageData, fileName: fileName)
-
         let entity = DocumentEntity(
+            id: documentID,
             fileName: fileName,
             mimeType: mimeType,
             thumbnailData: thumbnailData,
             transactionID: transactionID
         )
-        try await documentRepository.create(entity)
-        return entity
-    }
-
-    // MARK: - File storage
-
-    private func saveFile(data: Data, fileName: String) throws {
-        guard let documentsURL = FileManager.default
-            .urls(for: .documentDirectory, in: .userDomainMask).first else {
-            throw DocumentError.storageUnavailable
+        try await documentStorageService.saveDocument(imageData, for: entity)
+        do {
+            try await documentRepository.create(entity)
+        } catch {
+            do {
+                try await documentStorageService.deleteDocument(for: entity)
+            } catch {
+                Self.logger.error(
+                    "Failed to clean up document bytes after metadata save failure: \(error.localizedDescription, privacy: .public)"
+                )
+            }
+            throw error
         }
-        let fileURL = documentsURL.appendingPathComponent(fileName)
-        try data.write(to: fileURL, options: .completeFileProtection)
+        return entity
     }
 
     // MARK: - Thumbnail generation

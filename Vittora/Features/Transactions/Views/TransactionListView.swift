@@ -30,12 +30,6 @@ struct TransactionListView: View {
             guard vm != nil else { return }
             await vm?.loadTransactions()
         }
-        .onAppear {
-            guard vm != nil else { return }
-            Task {
-                await vm?.loadTransactions()
-            }
-        }
         .navigationDestination(item: $navigateDestination) { dest in
             navigationView(for: dest)
         }
@@ -60,7 +54,7 @@ struct TransactionListView: View {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     Task {
-                                        HapticService.shared.warning()
+                                        dependencies.hapticService.warning()
                                         await vm.deleteTransaction(id: transaction.id)
                                     }
                                 } label: {
@@ -147,7 +141,7 @@ struct TransactionListView: View {
 
                         Spacer()
 
-                        Text("\(vm.selectedTransactionIDs.count) selected")
+                        Text(String(localized: "\(vm.selectedTransactionIDs.count) selected"))
                             .font(.caption)
                             .foregroundColor(VColors.textSecondary)
                     }
@@ -181,17 +175,17 @@ struct TransactionListView: View {
                 .font(.system(size: 48))
                 .foregroundColor(VColors.textTertiary)
 
-            Text("No transactions")
+            Text(String(localized: "No transactions"))
                 .font(VTypography.bodyBold)
                 .foregroundColor(VColors.textPrimary)
 
-            Text("Add your first transaction to get started")
+            Text(String(localized: "Add your first transaction to get started"))
                 .font(VTypography.caption1)
                 .foregroundColor(VColors.textSecondary)
                 .multilineTextAlignment(.center)
 
             NavigationLink(value: NavigationDestination.addTransaction) {
-                Text("Add Transaction")
+                Text(String(localized: "Add Transaction"))
                     .font(VTypography.body)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -214,10 +208,10 @@ struct TransactionListView: View {
         let calendar = Calendar.current
 
         if calendar.isDateInToday(date) {
-            Text("Today")
+            Text(String(localized: "Today"))
                 .foregroundColor(VColors.textSecondary)
         } else if calendar.isDateInYesterday(date) {
-            Text("Yesterday")
+            Text(String(localized: "Yesterday"))
                 .foregroundColor(VColors.textSecondary)
         } else {
             Text(date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
@@ -244,7 +238,9 @@ struct TransactionListView: View {
 
     private func createViewModel() async -> TransactionListViewModel? {
         guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository else {
+              let accountRepo = dependencies.accountRepository,
+              let documentRepo = dependencies.documentRepository,
+              let documentStorage = dependencies.documentStorageService else {
             return nil
         }
 
@@ -252,7 +248,9 @@ struct TransactionListView: View {
         let searchUseCase = SearchTransactionsUseCase(transactionRepository: transactionRepo)
         let deleteUseCase = DeleteTransactionUseCase(
             transactionRepository: transactionRepo,
-            accountRepository: accountRepo
+            accountRepository: accountRepo,
+            documentRepository: documentRepo,
+            documentStorageService: documentStorage
         )
         let bulkOpsUseCase = BulkOperationsUseCase(
             transactionRepository: transactionRepo,

@@ -4,7 +4,8 @@ struct HeroSpendingCard: View {
     let monthSpending: Decimal
     let monthIncome: Decimal
     let comparison: MonthComparison?
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
@@ -47,7 +48,7 @@ struct HeroSpendingCard: View {
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
-        .accessibilityElement(children: .ignore)
+        .accessibilityElement(children: .combine)
         .accessibilityLabel(String(localized: "Monthly summary"))
         .accessibilityValue(accessibilitySummary)
     }
@@ -100,7 +101,7 @@ struct HeroSpendingCard: View {
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
                         .fill(rate >= 0.2 ? VColors.income : VColors.warning)
                         .frame(width: geometry.size.width * CGFloat(rate), height: 6)
-                        .animation(.easeOut(duration: VSpacing.animationStandard), value: rate)
+                        .animation(reduceMotion ? .none : .easeOut(duration: VSpacing.animationStandard), value: rate)
                 }
             }
             .frame(height: 6)
@@ -109,10 +110,7 @@ struct HeroSpendingCard: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        return formatter.string(from: amount as NSDecimalNumber) ?? amount.formatted(.currency(code: currencyCode))
+        amount.formatted(.currency(code: currencyCode))
     }
 
     private var accessibilitySummary: String {

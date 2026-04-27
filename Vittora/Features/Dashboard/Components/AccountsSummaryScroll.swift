@@ -51,7 +51,7 @@ private struct AccountMiniCard: View {
                     Text(account.name)
                         .font(VTypography.caption1Bold)
                         .foregroundColor(VColors.textPrimary)
-                        .lineLimit(1)
+                        .adaptiveLineLimit(1)
                 }
 
                 Text(formattedBalance(account.balance))
@@ -74,10 +74,7 @@ private struct AccountMiniCard: View {
     }
 
     private func formattedBalance(_ balance: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = account.currencyCode
-        return formatter.string(from: balance as NSDecimalNumber) ?? balance.formatted(.currency(code: account.currencyCode))
+        balance.formatted(.currency(code: account.currencyCode))
     }
 
     private var accountTypeDescription: String {

@@ -5,7 +5,7 @@ struct PaymentMethodPicker: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Payment Method")
+            Text(String(localized: "Payment Method"))
                 .font(VTypography.caption2)
                 .foregroundColor(VColors.textSecondary)
 
@@ -30,7 +30,7 @@ struct PaymentMethodPicker: View {
                                 .foregroundColor(
                                     selectedMethod == method ? .white : VColors.textPrimary
                                 )
-                                .lineLimit(1)
+                                .adaptiveLineLimit(1)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(VSpacing.md)
@@ -66,19 +66,19 @@ struct PaymentMethodPicker: View {
     private func methodLabel(for method: PaymentMethod) -> String {
         switch method {
         case .cash:
-            return "Cash"
+            return String(localized: "Cash")
         case .creditCard:
-            return "Credit Card"
+            return String(localized: "Credit Card")
         case .debitCard:
-            return "Debit Card"
+            return String(localized: "Debit Card")
         case .bankTransfer:
-            return "Bank Transfer"
+            return String(localized: "Bank Transfer")
         case .upi:
-            return "UPI"
+            return String(localized: "UPI")
         case .wallet:
-            return "Wallet"
+            return String(localized: "Wallet")
         case .other:
-            return "Other"
+            return String(localized: "Other")
         }
     }
 }

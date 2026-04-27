@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RecurringDetailView: View {
     @Environment(\.dependencies) var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     let ruleID: UUID
     @State private var rule: RecurringRuleEntity?
     @State private var category: CategoryEntity?
@@ -35,7 +36,7 @@ struct RecurringDetailView: View {
                                 .frame(width: 52, height: 52)
 
                                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                    Text(category?.name ?? "Uncategorized")
+                                    Text(category?.name ?? String(localized: "Uncategorized"))
                                         .font(VTypography.title2)
                                         .foregroundColor(VColors.textPrimary)
 
@@ -47,11 +48,11 @@ struct RecurringDetailView: View {
                                 Spacer()
 
                                 VStack(alignment: .trailing, spacing: VSpacing.xs) {
-                                    Text(String(format: "$%.2f", Double(truncating: rule.templateAmount as NSDecimalNumber)))
+                                    Text(rule.templateAmount.formatted(currencyCode: currencyCode))
                                         .font(VTypography.amountMedium)
                                         .foregroundColor(VColors.expense)
 
-                                    Text("per transaction")
+                                    Text(String(localized: "per transaction"))
                                         .font(VTypography.caption2)
                                         .foregroundColor(VColors.textSecondary)
                                 }
@@ -62,7 +63,7 @@ struct RecurringDetailView: View {
                             // Status and dates
                             HStack {
                                 Label(
-                                    rule.isActive ? "Active" : "Paused",
+                                    rule.isActive ? String(localized: "Active") : String(localized: "Paused"),
                                     systemImage: rule.isActive ? "checkmark.circle.fill" : "pause.circle.fill"
                                 )
                                 .font(VTypography.callout)
@@ -70,7 +71,7 @@ struct RecurringDetailView: View {
 
                                 Spacer()
 
-                                Text("Next: \(rule.nextDate.formatted(date: .abbreviated, time: .omitted))")
+                                Text(String(localized: "Next: \(rule.nextDate.formatted(date: .abbreviated, time: .omitted))"))
                                     .font(VTypography.callout)
                                     .foregroundColor(VColors.textSecondary)
                             }
@@ -83,7 +84,7 @@ struct RecurringDetailView: View {
                                         .font(.system(size: 14, weight: .semibold))
                                         .foregroundColor(VColors.warning)
 
-                                    Text("Ends: \(endDate.formatted(date: .abbreviated, time: .omitted))")
+                                    Text(String(localized: "Ends: \(endDate.formatted(date: .abbreviated, time: .omitted))"))
                                         .font(VTypography.callout)
                                         .foregroundColor(VColors.textSecondary)
 
@@ -99,7 +100,7 @@ struct RecurringDetailView: View {
                         HStack(spacing: VSpacing.md) {
                             Button(action: togglePause) {
                                 Label(
-                                    rule.isActive ? "Pause" : "Resume",
+                                    rule.isActive ? String(localized: "Pause") : String(localized: "Resume"),
                                     systemImage: rule.isActive ? "pause.circle.fill" : "play.circle.fill"
                                 )
                                 .font(VTypography.calloutBold)
@@ -123,20 +124,20 @@ struct RecurringDetailView: View {
 
                         // Details Section
                         VStack(alignment: .leading, spacing: VSpacing.md) {
-                            Text("Details")
+                            Text(String(localized: "Details"))
                                 .font(VTypography.calloutBold)
                                 .foregroundColor(VColors.textPrimary)
 
                             VStack(spacing: VSpacing.sm) {
-                                DetailRow(label: "Account", value: account?.name ?? "Unknown")
-                                DetailRow(label: "Frequency", value: frequencyLabel(rule.frequency))
+                                DetailRow(label: String(localized: "Account"), value: account?.name ?? "Unknown")
+                                DetailRow(label: String(localized: "Frequency"), value: frequencyLabel(rule.frequency))
 
                                 if let note = rule.templateNote, !note.isEmpty {
-                                    DetailRow(label: "Note", value: note)
+                                    DetailRow(label: String(localized: "Note"), value: note)
                                 }
 
                                 if let payeeName = payee?.name {
-                                    DetailRow(label: "Payee", value: payeeName)
+                                    DetailRow(label: String(localized: "Payee"), value: payeeName)
                                 }
                             }
                         }
@@ -147,7 +148,7 @@ struct RecurringDetailView: View {
                         // Recent Transactions Section
                         if !recentTransactions.isEmpty {
                             VStack(alignment: .leading, spacing: VSpacing.md) {
-                                Text("Recent Generated Transactions")
+                                Text(String(localized: "Recent Generated Transactions"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -168,7 +169,7 @@ struct RecurringDetailView: View {
 
                                             Spacer()
 
-                                            Text(String(format: "$%.2f", Double(truncating: transaction.amount as NSDecimalNumber)))
+                                            Text(transaction.amount.formatted(currencyCode: currencyCode))
                                                 .font(VTypography.calloutBold)
                                                 .foregroundColor(VColors.expense)
                                         }
@@ -191,7 +192,7 @@ struct RecurringDetailView: View {
                         .font(.system(size: 48))
                         .foregroundColor(VColors.textSecondary)
 
-                    Text("Recurring Rule Not Found")
+                    Text(String(localized: "Recurring Rule Not Found"))
                         .font(VTypography.title3)
                         .foregroundColor(VColors.textPrimary)
                 }
@@ -199,7 +200,7 @@ struct RecurringDetailView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("Recurring Details")
+        .navigationTitle(String(localized: "Recurring Details"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -242,10 +243,7 @@ struct RecurringDetailView: View {
 
                 // Fetch recent transactions for this rule
                 if let transactionRepo = dependencies.transactionRepository {
-                    let allTransactions = try await transactionRepo.fetchAll(filter: nil)
-                    recentTransactions = allTransactions
-                        .filter { $0.recurringRuleID == ruleID }
-                        .sorted { $0.date > $1.date }
+                    recentTransactions = try await transactionRepo.fetchForRecurringRule(ruleID)
                 }
             }
         } catch {
@@ -284,19 +282,19 @@ struct RecurringDetailView: View {
     private func frequencyLabel(_ frequency: RecurrenceFrequency) -> String {
         switch frequency {
         case .daily:
-            return "Daily"
+            return String(localized: "Daily")
         case .weekly:
-            return "Weekly"
+            return String(localized: "Weekly")
         case .biweekly:
-            return "Bi-weekly"
+            return String(localized: "Bi-weekly")
         case .monthly:
-            return "Monthly"
+            return String(localized: "Monthly")
         case .quarterly:
-            return "Quarterly"
+            return String(localized: "Quarterly")
         case .yearly:
-            return "Yearly"
+            return String(localized: "Yearly")
         case .custom(let days):
-            return "Every \(days) days"
+            return String(localized: "Every \(days) days")
         }
     }
 }
@@ -316,7 +314,7 @@ struct DetailRow: View {
             Text(value)
                 .font(VTypography.callout)
                 .foregroundColor(VColors.textPrimary)
-                .lineLimit(1)
+                .adaptiveLineLimit(1)
         }
         .padding(VSpacing.md)
         .background(VColors.tertiaryBackground)

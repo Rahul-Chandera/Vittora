@@ -20,16 +20,16 @@ struct CategoryFormView: View {
                 ProgressView()
             }
         }
-        .navigationTitle(editingCategory == nil ? "New Category" : "Edit Category")
+        .navigationTitle(editingCategory == nil ? String(localized: "New Category") : String(localized: "Edit Category"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { dismiss() }
+                Button(String(localized: "Cancel")) { dismiss() }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
+                Button(String(localized: "Save")) {
                     Task { await save() }
                 }
                 .disabled(viewModel?.canSave != true || isSaving)
@@ -37,6 +37,11 @@ struct CategoryFormView: View {
         }
         .task {
             setupViewModel()
+        }
+        .onChange(of: saveError) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
+            }
         }
     }
 
@@ -72,37 +77,37 @@ struct CategoryFormView: View {
                             .foregroundColor(tint)
                     }
                     VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                        Text(vm.name.isEmpty ? "Category Name" : vm.name)
+                        Text(vm.name.isEmpty ? String(localized: "Category Name") : vm.name)
                             .font(VTypography.bodyBold)
                             .foregroundColor(vm.name.isEmpty ? VColors.textTertiary : VColors.textPrimary)
-                        Text(vm.selectedType == .expense ? "Expense" : "Income")
+                        Text(vm.selectedType == .expense ? String(localized: "Expense") : String(localized: "Income"))
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.textSecondary)
                     }
                 }
                 .padding(.vertical, VSpacing.xs)
             } header: {
-                Text("Preview")
+                Text(String(localized: "Preview"))
             }
 
-            Section("Details") {
-                TextField("Category Name", text: Bindable(vm).name)
+            Section(String(localized: "Details")) {
+                TextField(String(localized: "Category Name"), text: Bindable(vm).name)
 
-                Picker("Type", selection: Bindable(vm).selectedType) {
-                    Text("Expense").tag(CategoryType.expense)
-                    Text("Income").tag(CategoryType.income)
+                Picker(String(localized: "Type"), selection: Bindable(vm).selectedType) {
+                    Text(String(localized: "Expense")).tag(CategoryType.expense)
+                    Text(String(localized: "Income")).tag(CategoryType.income)
                 }
                 .pickerStyle(.segmented)
             }
 
-            Section("Appearance") {
+            Section(String(localized: "Appearance")) {
                 let selectedColor = Color(hex: vm.selectedColorHex) ?? .blue
                 NavigationLink(destination: CategoryIconPicker(
                     selectedIcon: Bindable(vm).selectedIcon,
                     selectedColor: selectedColor
                 )) {
                     HStack {
-                        Text("Icon")
+                        Text(String(localized: "Icon"))
                         Spacer()
                         Image(systemName: vm.selectedIcon)
                             .foregroundColor(selectedColor)
@@ -111,7 +116,7 @@ struct CategoryFormView: View {
 
                 NavigationLink(destination: CategoryColorPicker(selectedColorHex: Bindable(vm).selectedColorHex)) {
                     HStack {
-                        Text("Color")
+                        Text(String(localized: "Color"))
                         Spacer()
                         Circle()
                             .fill(selectedColor)
@@ -122,9 +127,7 @@ struct CategoryFormView: View {
 
             if let error = saveError {
                 Section {
-                    Text(error)
-                        .foregroundColor(VColors.expense)
-                        .font(VTypography.caption1)
+                    VInlineErrorText(error)
                 }
             }
         }

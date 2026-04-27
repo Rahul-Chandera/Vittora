@@ -27,16 +27,16 @@ struct AccountFormView: View {
                 ProgressView()
             }
         }
-        .navigationTitle(editingAccount == nil ? "New Account" : "Edit Account")
+        .navigationTitle(editingAccount == nil ? String(localized: "New Account") : String(localized: "Edit Account"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { dismiss() }
+                Button(String(localized: "Cancel")) { dismiss() }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
+                Button(String(localized: "Save")) {
                     Task { await save() }
                 }
                 .disabled(viewModel?.canSave != true || isSaving)
@@ -44,6 +44,11 @@ struct AccountFormView: View {
         }
         .task {
             setupViewModel()
+        }
+        .onChange(of: saveError) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
+            }
         }
     }
 
@@ -66,16 +71,16 @@ struct AccountFormView: View {
     @ViewBuilder
     private func formContent(vm: AccountFormViewModel) -> some View {
         Form {
-            Section("Account Info") {
-                TextField("Account Name", text: Bindable(vm).name)
+            Section(String(localized: "Account Info")) {
+                TextField(String(localized: "Account Name"), text: Bindable(vm).name)
 
-                Picker("Type", selection: Bindable(vm).selectedType) {
+                Picker(String(localized: "Type"), selection: Bindable(vm).selectedType) {
                     ForEach(AccountType.allCases, id: \.self) { type in
                         Text(typeName(type)).tag(type)
                     }
                 }
 
-                Picker("Currency", selection: Bindable(vm).selectedCurrency) {
+                Picker(String(localized: "Currency"), selection: Bindable(vm).selectedCurrency) {
                     ForEach(commonCurrencies, id: \.self) { code in
                         Text(code).tag(code)
                     }
@@ -83,15 +88,16 @@ struct AccountFormView: View {
             }
 
             if !vm.isEditing {
-                Section("Starting Balance") {
-                    TextField("0.00", text: Bindable(vm).initialBalance)
+                Section(String(localized: "Starting Balance")) {
+                    TextField(String(localized: "0.00"), text: Bindable(vm).initialBalance)
                         #if os(iOS)
                         .keyboardType(.decimalPad)
+                        .textContentType(nil)
                         #endif
                 }
             }
 
-            Section("Icon") {
+            Section(String(localized: "Icon")) {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: VSpacing.sm) {
                     ForEach(availableIcons, id: \.self) { iconName in
                         Button {
@@ -114,9 +120,7 @@ struct AccountFormView: View {
 
             if let error = saveError {
                 Section {
-                    Text(error)
-                        .foregroundColor(VColors.expense)
-                        .font(VTypography.caption1)
+                    VInlineErrorText(error)
                 }
             }
         }
@@ -138,14 +142,14 @@ struct AccountFormView: View {
 
     private func typeName(_ type: AccountType) -> String {
         switch type {
-        case .cash: return "Cash"
-        case .bank: return "Bank Account"
-        case .creditCard: return "Credit Card"
-        case .loan: return "Loan"
-        case .digitalWallet: return "Digital Wallet"
-        case .investment: return "Investment"
-        case .receivable: return "Receivable"
-        case .payable: return "Payable"
+        case .cash: return String(localized: "Cash")
+        case .bank: return String(localized: "Bank Account")
+        case .creditCard: return String(localized: "Credit Card")
+        case .loan: return String(localized: "Loan")
+        case .digitalWallet: return String(localized: "Digital Wallet")
+        case .investment: return String(localized: "Investment")
+        case .receivable: return String(localized: "Receivable")
+        case .payable: return String(localized: "Payable")
         }
     }
 }

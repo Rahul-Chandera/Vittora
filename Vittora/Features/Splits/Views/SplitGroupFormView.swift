@@ -62,16 +62,13 @@ struct SplitGroupFormView: View {
                     Text(String(localized: "Members (\(selectedMemberIDs.count) selected)"))
                 } footer: {
                     if selectedMemberIDs.count < 2 {
-                        Text(String(localized: "Select at least 2 members."))
-                            .foregroundStyle(VColors.expense)
+                        VInlineErrorText(String(localized: "Select at least 2 members."))
                     }
                 }
 
                 if let error {
                     Section {
-                        Text(error)
-                            .foregroundStyle(VColors.expense)
-                            .font(VTypography.caption1)
+                        VInlineErrorText(error)
                     }
                 }
             }
@@ -93,10 +90,19 @@ struct SplitGroupFormView: View {
         }
         .task {
             guard let payeeRepo = dependencies.payeeRepository else { return }
-            allPayees = (try? await payeeRepo.fetchAll()) ?? []
+            do {
+                allPayees = try await payeeRepo.fetchAll()
+            } catch {
+                self.error = error.localizedDescription
+            }
             if let existing = existingGroup {
                 groupName = existing.name
                 selectedMemberIDs = Set(existing.memberIDs)
+            }
+        }
+        .onChange(of: error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
             }
         }
     }

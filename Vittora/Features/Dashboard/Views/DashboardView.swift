@@ -2,13 +2,11 @@ import SwiftUI
 
 struct DashboardView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: DashboardViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var showAddBudget = false
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         ZStack {
@@ -170,6 +168,12 @@ struct DashboardView: View {
                         .font(VTypography.caption1)
                         .foregroundColor(VColors.textPrimary)
                     Spacer()
+                    if progress >= 0.75 {
+                        Image(systemName: progress > 1.0 ? "exclamationmark.circle.fill" : "exclamationmark.triangle.fill")
+                            .font(.caption2)
+                            .foregroundColor(progressColor(progress))
+                            .accessibilityHidden(true)
+                    }
                     Text(String(format: "%.0f%%", progress * 100))
                         .font(VTypography.caption1Bold)
                         .foregroundColor(progressColor(progress))
@@ -184,7 +188,7 @@ struct DashboardView: View {
                         RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
                             .fill(progressColor(progress))
                             .frame(width: geometry.size.width * CGFloat(progress), height: 8)
-                            .animation(.easeOut(duration: VSpacing.animationStandard), value: progress)
+                            .animation(reduceMotion ? .none : .easeOut(duration: VSpacing.animationStandard), value: progress)
                     }
                 }
                 .frame(height: 8)
@@ -272,7 +276,8 @@ struct DashboardView: View {
 
         return DashboardViewModel(
             dashboardDataUseCase: dataUseCase,
-            monthComparisonUseCase: comparisonUseCase
+            monthComparisonUseCase: comparisonUseCase,
+            currencyCode: currencyCode
         )
     }
 }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct BudgetFormView: View {
     @Environment(\.dependencies) var dependencies
+    @Environment(\.currencySymbol) private var currencySymbol
     @Binding var isPresented: Bool
     @State private var viewModel: BudgetFormViewModel?
     @State private var showCategoryPicker = false
@@ -13,9 +14,9 @@ struct BudgetFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Amount") {
+                Section(String(localized: "Amount")) {
                     HStack {
-                        Text("$")
+                        Text(currencySymbol)
                             .foregroundColor(VColors.textSecondary)
                         TextField("0.00", text: Binding(
                             get: { viewModel?.amount ?? "" },
@@ -23,18 +24,19 @@ struct BudgetFormView: View {
                         ))
                         #if os(iOS)
                         .keyboardType(.decimalPad)
+                        .textContentType(nil)
                         #endif
                         .accessibilityIdentifier("budget-amount-field")
                     }
                 }
 
-                Section("Period") {
+                Section(String(localized: "Period")) {
                     if let viewModel = viewModel {
                         PeriodSelectorView(selectedPeriod: Bindable(viewModel).selectedPeriod)
                     }
                 }
 
-                Section("Category") {
+                Section(String(localized: "Category")) {
                     NavigationLink(
                         destination: {
                             if let viewModel = viewModel {
@@ -42,7 +44,7 @@ struct BudgetFormView: View {
                                     selectedCategoryID: Bindable(viewModel).selectedCategoryID,
                                     categories: categories,
                                     filterType: .expense,
-                                    title: "Select Expense Category"
+                                    title: String(localized: "Select Expense Category")
                                 )
                                 .onChange(of: viewModel.selectedCategoryID) { _, newID in
                                     selectedCategory = categories.first(where: { $0.id == newID })
@@ -51,7 +53,7 @@ struct BudgetFormView: View {
                         },
                         label: {
                             HStack {
-                                Text("Optional")
+                                Text(String(localized: "Optional"))
                                     .foregroundColor(VColors.textSecondary)
                                 Spacer()
                                 if let category = selectedCategory {
@@ -62,7 +64,7 @@ struct BudgetFormView: View {
                                             .foregroundColor(VColors.textPrimary)
                                     }
                                 } else {
-                                    Text("None")
+                                    Text(String(localized: "None"))
                                         .foregroundColor(VColors.textSecondary)
                                 }
                             }
@@ -70,13 +72,13 @@ struct BudgetFormView: View {
                     )
                 }
 
-                Section("Options") {
+                Section(String(localized: "Options")) {
                     if let viewModel = viewModel {
                         Toggle("Rollover Unused Amount", isOn: Bindable(viewModel).rollover)
                     }
                 }
 
-                Section("Start Date") {
+                Section(String(localized: "Start Date")) {
                     if let viewModel = viewModel {
                         DatePicker(
                             "Date",
@@ -86,19 +88,19 @@ struct BudgetFormView: View {
                     }
                 }
             }
-            .navigationTitle(editingBudget != nil ? "Edit Budget" : "New Budget")
+            .navigationTitle(editingBudget != nil ? String(localized: "Edit Budget") : String(localized: "New Budget"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         isPresented = false
                     }
                     .accessibilityIdentifier("budget-cancel-button")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(String(localized: "Save")) {
                         Task {
                             do {
                                 try await viewModel?.save()

@@ -56,6 +56,11 @@ final class DataManagementViewModel {
 struct DataManagementView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var vm: DataManagementViewModel?
+    @AppStorage("vittora.exportSchedule") private var exportScheduleRaw: String = "off"
+
+    private var exportSchedule: SettingsViewModel.ExportSchedule {
+        get { SettingsViewModel.ExportSchedule(rawValue: exportScheduleRaw) ?? .off }
+    }
 
     var body: some View {
         Group {
@@ -108,11 +113,27 @@ struct DataManagementView: View {
             }
 
             // Export
-            Section(String(localized: "Export")) {
+            Section {
                 NavigationLink {
                     ExportView()
                 } label: {
                     Label(String(localized: "Export as CSV"), systemImage: "square.and.arrow.up")
+                }
+
+                Picker(String(localized: "Automatic Export"), selection: Binding(
+                    get: { exportSchedule },
+                    set: { exportScheduleRaw = $0.rawValue }
+                )) {
+                    ForEach(SettingsViewModel.ExportSchedule.allCases, id: \.self) { schedule in
+                        Text(schedule.displayName).tag(schedule)
+                    }
+                }
+            } header: {
+                Text(String(localized: "Export"))
+            } footer: {
+                if exportSchedule != .off {
+                    Text(String(localized: "Vittora will generate and share a CSV export \(exportSchedule.displayName.lowercased())."))
+                        .foregroundStyle(VColors.textSecondary)
                 }
             }
 
@@ -223,7 +244,12 @@ struct DataManagementView: View {
             debtRepository: debtRepo,
             savingsGoalRepository: goalRepo,
             splitGroupRepository: splitRepo,
-            documentRepository: docRepo
+            documentRepository: docRepo,
+            payeeRepository: dependencies.payeeRepository,
+            recurringRuleRepository: dependencies.recurringRuleRepository,
+            taxProfileRepository: dependencies.taxProfileRepository,
+            documentStorageService: dependencies.documentStorageService,
+            keychainService: dependencies.keychainService ?? KeychainService()
         )
         vm = DataManagementViewModel(service: service)
         Task { await vm?.loadStats() }

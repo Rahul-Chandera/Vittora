@@ -18,8 +18,15 @@ extension String {
 
     /// Check if string is a valid URL.
     var isValidURL: Bool {
-        guard let url = URL(string: self) else { return false }
-        return url.scheme != nil && url.host != nil
+        guard let components = URLComponents(string: self),
+              let scheme = components.scheme?.lowercased(),
+              ["http", "https"].contains(scheme),
+              let host = components.host,
+              !host.isEmpty else {
+            return false
+        }
+
+        return true
     }
 
     /// Check if string contains only alphabetic characters.

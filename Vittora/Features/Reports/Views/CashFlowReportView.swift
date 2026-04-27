@@ -3,6 +3,7 @@ import Charts
 
 struct CashFlowReportView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: MonthlyOverviewViewModel?
 
     var body: some View {
@@ -12,10 +13,12 @@ struct CashFlowReportView: View {
                     if vm.isLoading {
                         ProgressView().tint(VColors.primary)
                             .padding(.top, VSpacing.xxxl)
-                    } else {
+                    } else if hasReportData(vm) {
                         cashFlowSummary(vm)
                         cashFlowChart(vm)
                         cashFlowList(vm)
+                    } else {
+                        emptyState
                     }
                 }
             }
@@ -176,8 +179,17 @@ struct CashFlowReportView: View {
         }
     }
 
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
+    private func hasReportData(_ vm: MonthlyOverviewViewModel) -> Bool {
+        vm.monthlyData.contains { $0.income != 0 || $0.expense != 0 }
+    }
+
+    private var emptyState: some View {
+        ContentUnavailableView {
+            Label(String(localized: "No cash flow yet"), systemImage: "waveform.path.ecg")
+        } description: {
+            Text(String(localized: "Income and expense transactions will create your cash-flow view."))
+        }
+        .padding(VSpacing.xxxl)
     }
 
     private var cashFlowReportErrorBinding: Binding<String?> {

@@ -1,20 +1,24 @@
 import Foundation
 import CoreData
+import CloudKit
 
 @MainActor
 final class CloudKitSyncMonitor {
     private let syncStatusService: SyncStatusService
     private let conflictHandler: SyncConflictHandler
+    private let integrityValidator: (any SyncIntegrityValidating)?
     private let notificationCenter: NotificationCenter
     private var eventObserver: NSObjectProtocol?
 
     init(
         syncStatusService: SyncStatusService,
         conflictHandler: SyncConflictHandler,
+        integrityValidator: (any SyncIntegrityValidating)? = nil,
         notificationCenter: NotificationCenter = .default
     ) {
         self.syncStatusService = syncStatusService
         self.conflictHandler = conflictHandler
+        self.integrityValidator = integrityValidator
         self.notificationCenter = notificationCenter
         startObserving()
     }
@@ -48,17 +52,41 @@ final class CloudKitSyncMonitor {
             return
         }
 
+        // After any completed import, check amount-bearing entities for invariant violations.
+        // NSPersistentCloudKitContainer applies LWW before this fires; the check detects any
+        // records that arrived in an invalid state (e.g. zero amount, empty currency code).
+        if event.type == .import, let validator = integrityValidator {
+            Task { @MainActor [conflictHandler] in
+                let violations = await validator.validateAmountBearingEntities()
+                for violation in violations {
+                    conflictHandler.logIntegrityViolation(
+                        entityType: violation.entityType,
+                        entityID: violation.entityID,
+                        description: violation.description
+                    )
+                }
+                if !violations.isEmpty {
+                    syncStatusService.markError(String(localized: "Data integrity issues detected after sync. Review iCloud Sync for details."))
+                }
+            }
+        }
+
         guard let error = event.error else {
             syncStatusService.markSynced()
             return
         }
 
         if isConflictError(error) {
+            // Entity modification timestamps are not surfaced by NSPersistentCloudKitContainer
+            // events, so resolution is advisory only (.ambiguous). The system has already applied
+            // its own LWW resolution before this handler fires.
             _ = conflictHandler.logConflict(
                 entityType: event.type.vittoraDisplayName,
-                localTimestamp: event.startDate,
-                remoteTimestamp: event.endDate ?? .now,
-                description: conflictDescription(for: event.type, error: error)
+                detectedAt: event.endDate ?? .now,
+                localModifiedAt: nil,
+                remoteModifiedAt: nil,
+                description: conflictDescription(for: event.type, error: error),
+                resolutionOverride: .cloudKitAutoResolved
             )
             PerformanceLogger.Sync.conflict()
             syncStatusService.markError(String(localized: "A sync conflict was resolved automatically. Review iCloud Sync for details."))
@@ -68,19 +96,33 @@ final class CloudKitSyncMonitor {
         syncStatusService.markError(error.localizedDescription)
     }
 
+    /// Returns true when the error chain contains a CKError indicating a record conflict.
     private func isConflictError(_ error: Error) -> Bool {
-        let nsError = error as NSError
-        let detail = [
-            nsError.localizedDescription,
-            nsError.localizedFailureReason,
-            nsError.localizedRecoverySuggestion,
-        ]
-        .compactMap { $0?.lowercased() }
-        .joined(separator: " ")
+        guard let ckError = extractCKError(from: error) else { return false }
+        switch ckError.code {
+        case .serverRecordChanged:
+            return true
+        case .batchRequestFailed, .partialFailure:
+            let partialErrors = ckError.userInfo[CKPartialErrorsByItemIDKey] as? [AnyHashable: Error]
+            return partialErrors?.values.contains {
+                (extractCKError(from: $0)?.code) == .serverRecordChanged
+            } ?? false
+        default:
+            return false
+        }
+    }
 
-        return detail.contains("conflict")
-            || detail.contains("merge")
-            || detail.contains("server record changed")
+    /// Walks the NSError `underlyingErrors` / `NSUnderlyingErrorKey` chain to find a CKError.
+    private func extractCKError(from error: Error) -> CKError? {
+        if let ck = error as? CKError { return ck }
+        let ns = error as NSError
+        if let underlying = ns.userInfo[NSUnderlyingErrorKey] as? Error {
+            return extractCKError(from: underlying)
+        }
+        if let underlyingErrors = ns.userInfo[NSDetailedErrorsKey] as? [Error] {
+            return underlyingErrors.lazy.compactMap { self.extractCKError(from: $0) }.first
+        }
+        return nil
     }
 
     private func conflictDescription(

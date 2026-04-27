@@ -6,6 +6,8 @@ struct ReportSummaryRow: View {
     let percentage: Double
     let color: Color
     let count: Int
+    var currencyCode: String = CurrencyDefaults.code
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: VSpacing.sm) {
@@ -18,7 +20,7 @@ struct ReportSummaryRow: View {
                     Text(label)
                         .font(VTypography.caption1)
                         .foregroundColor(VColors.textPrimary)
-                        .lineLimit(1)
+                        .adaptiveLineLimit(1)
                 }
 
                 Spacer()
@@ -43,7 +45,7 @@ struct ReportSummaryRow: View {
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
                         .fill(color)
                         .frame(width: geometry.size.width * CGFloat(percentage / 100), height: 4)
-                        .animation(.easeOut(duration: VSpacing.animationStandard), value: percentage)
+                        .animation(reduceMotion ? .none : .easeOut(duration: VSpacing.animationStandard), value: percentage)
                 }
             }
             .frame(height: 4)
@@ -51,10 +53,7 @@ struct ReportSummaryRow: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(.currency(code: currencyCode))
     }
 }
 

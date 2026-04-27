@@ -3,13 +3,11 @@ import SwiftUI
 struct BudgetDetailView: View {
     @Environment(\.dependencies) var dependencies
     @Environment(\.dismiss) var dismiss
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: BudgetDetailViewModel?
     @State private var showEdit = false
+    @State private var editRefreshTask: Task<Void, Never>?
     let budgetID: UUID
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         ZStack {
@@ -23,7 +21,7 @@ struct BudgetDetailView: View {
                             }
 
                             VStack(spacing: VSpacing.xs) {
-                                Text(viewModel.category?.name ?? "Budget")
+                                Text(viewModel.category?.name ?? String(localized: "Budget"))
                                     .font(VTypography.bodyBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -41,7 +39,7 @@ struct BudgetDetailView: View {
                                 VStack(spacing: VSpacing.lg) {
                                     HStack {
                                         VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                            Text("Budget Amount")
+                                            Text(String(localized: "Budget Amount"))
                                                 .font(VTypography.caption2)
                                                 .foregroundColor(VColors.textSecondary)
                                             VAmountText(budget.amount, size: .title3)
@@ -53,7 +51,7 @@ struct BudgetDetailView: View {
 
                                     HStack {
                                         VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                            Text("Spent")
+                                            Text(String(localized: "Spent"))
                                                 .font(VTypography.caption2)
                                                 .foregroundColor(VColors.textSecondary)
                                             VAmountText(budget.spent, size: .title3)
@@ -65,7 +63,7 @@ struct BudgetDetailView: View {
 
                                     HStack {
                                         VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                            Text("Remaining")
+                                            Text(String(localized: "Remaining"))
                                                 .font(VTypography.caption2)
                                                 .foregroundColor(VColors.textSecondary)
                                             VAmountText(budget.remaining, size: .title3)
@@ -80,7 +78,7 @@ struct BudgetDetailView: View {
                             VCard {
                                 VStack(spacing: VSpacing.md) {
                                     HStack {
-                                        Text("Period")
+                                        Text(String(localized: "Period"))
                                             .font(VTypography.caption1)
                                             .foregroundColor(VColors.textSecondary)
                                         Spacer()
@@ -92,7 +90,7 @@ struct BudgetDetailView: View {
                                     Divider()
 
                                     HStack {
-                                        Text("Start Date")
+                                        Text(String(localized: "Start Date"))
                                             .font(VTypography.caption1)
                                             .foregroundColor(VColors.textSecondary)
                                         Spacer()
@@ -104,7 +102,7 @@ struct BudgetDetailView: View {
                                     if budget.rollover {
                                         Divider()
                                         HStack {
-                                            Text("Rollover Enabled")
+                                            Text(String(localized: "Rollover Enabled"))
                                                 .font(VTypography.caption1)
                                                 .foregroundColor(VColors.textSecondary)
                                             Spacer()
@@ -129,7 +127,7 @@ struct BudgetDetailView: View {
                             if !viewModel.recentTransactions.isEmpty {
                                 VCard {
                                     VStack(alignment: .leading, spacing: VSpacing.md) {
-                                        Text("Recent Transactions")
+                                        Text(String(localized: "Recent Transactions"))
                                             .font(VTypography.bodyBold)
                                             .foregroundColor(VColors.textPrimary)
 
@@ -167,12 +165,12 @@ struct BudgetDetailView: View {
             } else {
                 VEmptyState(
                     icon: "exclamationmark.triangle",
-                    title: "Budget Not Found",
-                    subtitle: "This budget could not be loaded"
+                    title: String(localized: "Budget Not Found"),
+                    subtitle: String(localized: "This budget could not be loaded")
                 )
             }
         }
-        .navigationTitle("Budget Details")
+        .navigationTitle(String(localized: "Budget Details"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showEdit = true }) {
@@ -187,7 +185,8 @@ struct BudgetDetailView: View {
             if let viewModel = viewModel, let budget = viewModel.budget {
                 BudgetFormView(isPresented: $showEdit, editingBudget: budget)
                     .onDisappear {
-                        Task {
+                        editRefreshTask?.cancel()
+                        editRefreshTask = Task {
                             await viewModel.loadBudget(id: budgetID)
                         }
                     }

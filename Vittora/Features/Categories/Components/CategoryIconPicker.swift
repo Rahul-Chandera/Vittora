@@ -50,7 +50,7 @@ struct CategoryIconPicker: View {
             }
             .padding(VSpacing.md)
         }
-        .navigationTitle("Choose Icon")
+        .navigationTitle(String(localized: "Choose Icon"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

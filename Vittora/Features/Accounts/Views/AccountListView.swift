@@ -2,14 +2,11 @@ import SwiftUI
 
 struct AccountListView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: AccountListViewModel?
     @State private var showAddAccount = false
     @State private var showingDeleteAlert = false
     @State private var accountToDelete: UUID?
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         Group {
@@ -19,7 +16,7 @@ struct AccountListView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("Accounts")
+        .navigationTitle(String(localized: "Accounts"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -41,15 +38,15 @@ struct AccountListView: View {
                 }
             }
         }
-        .alert("Delete Account", isPresented: $showingDeleteAlert) {
-            Button("Delete", role: .destructive) {
+        .alert(String(localized: "Delete Account"), isPresented: $showingDeleteAlert) {
+            Button(String(localized: "Delete"), role: .destructive) {
                 if let id = accountToDelete, let vm = viewModel {
                     Task { await vm.deleteAccount(id: id) }
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel"), role: .cancel) {}
         } message: {
-            Text("Are you sure you want to delete this account? This action cannot be undone.")
+            Text(String(localized: "Are you sure you want to delete this account? This action cannot be undone."))
         }
         .task {
             await setupViewModel()
@@ -96,14 +93,14 @@ struct AccountListView: View {
             Image(systemName: "building.columns.fill")
                 .font(.system(size: 48))
                 .foregroundColor(VColors.textTertiary)
-            Text("No Accounts")
+            Text(String(localized: "No Accounts"))
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
-            Text("Add your first account to start tracking your finances.")
+            Text(String(localized: "Add your first account to start tracking your finances."))
                 .font(VTypography.body)
                 .foregroundColor(VColors.textSecondary)
                 .multilineTextAlignment(.center)
-            Button("Add Account") { showAddAccount = true }
+            Button(String(localized: "Add Account")) { showAddAccount = true }
                 .buttonStyle(.borderedProminent)
         }
         .padding(VSpacing.screenPadding)
@@ -144,12 +141,12 @@ struct AccountListView: View {
                                     accountToDelete = account.id
                                     showingDeleteAlert = true
                                 } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Label(String(localized: "Delete"), systemImage: "trash")
                                 }
                                 Button {
                                     Task { await vm.archiveAccount(id: account.id) }
                                 } label: {
-                                    Label("Archive", systemImage: "archivebox")
+                                    Label(String(localized: "Archive"), systemImage: "archivebox")
                                 }
                                 .tint(.orange)
                             }
@@ -182,14 +179,14 @@ struct AccountListView: View {
 
     private func sectionTitle(for type: AccountType) -> String {
         switch type {
-        case .cash: return "Cash"
-        case .bank: return "Bank Accounts"
-        case .creditCard: return "Credit Cards"
-        case .loan: return "Loans"
-        case .digitalWallet: return "Digital Wallets"
-        case .investment: return "Investments"
-        case .receivable: return "Receivables"
-        case .payable: return "Payables"
+        case .cash: return String(localized: "Cash")
+        case .bank: return String(localized: "Bank Accounts")
+        case .creditCard: return String(localized: "Credit Cards")
+        case .loan: return String(localized: "Loans")
+        case .digitalWallet: return String(localized: "Digital Wallets")
+        case .investment: return String(localized: "Investments")
+        case .receivable: return String(localized: "Receivables")
+        case .payable: return String(localized: "Payables")
         }
     }
 }

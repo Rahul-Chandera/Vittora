@@ -21,7 +21,7 @@ struct UpcomingDatesView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Upcoming Dates")
+            Text(String(localized: "Upcoming Dates"))
                 .font(VTypography.calloutBold)
                 .foregroundColor(VColors.textPrimary)
 
@@ -85,13 +85,13 @@ struct UpcomingDatesView: View {
     private func daysFromNow(_ date: Date) -> String {
         let days = Calendar.current.dateComponents([.day], from: .now, to: date).day ?? 0
         if days == 0 {
-            return "Today"
+            return String(localized: "Today")
         } else if days == 1 {
-            return "Tomorrow"
+            return String(localized: "Tomorrow")
         } else if days > 0 {
-            return "In \(days)d"
+            return String(localized: "In \(days)d")
         } else {
-            return "Overdue"
+            return String(localized: "Overdue")
         }
     }
 }

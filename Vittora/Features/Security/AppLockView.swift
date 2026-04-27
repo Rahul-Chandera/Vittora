@@ -6,6 +6,7 @@ struct AppLockView: View {
 
     @State private var isAuthenticating = false
     @State private var errorMessage: String?
+    @State private var cooldownRemaining: Int = 0
 
     var body: some View {
         ZStack {
@@ -30,7 +31,16 @@ struct AppLockView: View {
                         .padding(.horizontal, VSpacing.xl)
                 }
 
-                if let errorMessage {
+                if cooldownRemaining > 0 {
+                    Label(
+                        String(localized: "Too many attempts — try again in \(cooldownRemaining)s"),
+                        systemImage: "clock"
+                    )
+                    .font(VTypography.caption1)
+                    .foregroundStyle(VColors.expense)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, VSpacing.xl)
+                } else if let errorMessage {
                     Text(errorMessage)
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.expense)
@@ -59,14 +69,23 @@ struct AppLockView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(VColors.primary)
-                .disabled(isAuthenticating)
+                .disabled(isAuthenticating || cooldownRemaining > 0)
                 .accessibilityLabel(String(localized: "Unlock Vittora"))
                 .accessibilityHint(String(localized: "Authenticates using biometrics or passcode"))
+
+                Button(String(localized: "Use Passcode")) {
+                    Task { await authenticateWithPasscode() }
+                }
+                .buttonStyle(.bordered)
+                .disabled(isAuthenticating || cooldownRemaining > 0)
+                .accessibilityHint(String(localized: "Unlocks using your device passcode"))
 
                 Spacer()
             }
         }
+        .privacySensitive()
         .task { await authenticate() }
+        .task { await runCooldownTimer() }
     }
 
     private var biometricIcon: String {
@@ -80,6 +99,20 @@ struct AppLockView: View {
     }
 
     private func authenticate() async {
+        await performAuthentication { lockService in
+            try await lockService.unlock()
+        }
+    }
+
+    private func authenticateWithPasscode() async {
+        await performAuthentication { lockService in
+            try await lockService.unlockWithPasscode()
+        }
+    }
+
+    private func performAuthentication(
+        _ action: @escaping (any AppLockServiceProtocol) async throws -> Bool
+    ) async {
         guard let lockService = dependencies.appLockService else {
             appState.isLocked = false
             return
@@ -89,13 +122,29 @@ struct AppLockView: View {
         defer { isAuthenticating = false }
 
         do {
-            let success = try await lockService.unlock()
+            let success = try await action(lockService)
             if success {
                 appState.isAuthenticated = true
                 appState.isLocked = false
             }
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    /// Polls the lock service every second to keep the on-screen countdown in sync.
+    private func runCooldownTimer() async {
+        while !Task.isCancelled {
+            if let expires = dependencies.appLockService?.cooldownExpiresAt, expires > .now {
+                cooldownRemaining = Int(expires.timeIntervalSince(.now).rounded(.up))
+            } else {
+                cooldownRemaining = 0
+            }
+            do {
+                try await Task.sleep(for: .seconds(1))
+            } catch {
+                break
+            }
         }
     }
 }

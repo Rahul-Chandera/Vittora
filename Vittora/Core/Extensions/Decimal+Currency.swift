@@ -5,22 +5,13 @@ extension Decimal {
     ///
     /// - Parameter currencyCode: ISO 4217 currency code (e.g., "USD", "EUR", "GBP")
     /// - Returns: Formatted currency string
-    func formatted(currencyCode: String = "USD") -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 2
-
-        return formatter.string(from: NSDecimalNumber(decimal: self)) ?? "~"
+    func formatted(currencyCode: String = CurrencyDefaults.code) -> String {
+        formatted(.currency(code: currencyCode))
     }
 
-    /// Format decimal with custom number formatter.
-    ///
-    /// - Parameter formatter: NumberFormatter to use
-    /// - Returns: Formatted string
+    /// Format decimal with custom number formatter (for callers that require legacy NumberFormatter).
     func formatted(with formatter: NumberFormatter) -> String {
-        return formatter.string(from: NSDecimalNumber(decimal: self)) ?? "~"
+        formatter.string(from: NSDecimalNumber(decimal: self)) ?? "~"
     }
 
     /// Absolute value of the decimal.
@@ -43,17 +34,17 @@ extension Decimal {
         return self == 0
     }
 
+    /// True when the value is representable as a finite double (used for sync integrity checks).
+    var isFiniteDecimal: Bool {
+        Double(truncating: NSDecimalNumber(decimal: self)).isFinite
+    }
+
     /// Format as percentage with specified decimal places.
     ///
     /// - Parameter decimalPlaces: Number of decimal places (default: 2)
     /// - Returns: Percentage string (e.g., "25.50%")
     func asPercentage(decimalPlaces: Int = 2) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .percent
-        formatter.minimumFractionDigits = decimalPlaces
-        formatter.maximumFractionDigits = decimalPlaces
-        // NumberFormatter .percent multiplies by 100 internally — pass self directly
-        return formatter.string(from: NSDecimalNumber(decimal: self)) ?? "~%"
+        formatted(.percent.precision(.fractionLength(decimalPlaces)))
     }
 
     /// Round to specified number of decimal places.
@@ -88,7 +79,7 @@ extension Decimal {
             let thousands = absValue / 1_000
             return (self < 0 ? "-" : "") + String(format: "%.1fK", NSDecimalNumber(decimal: thousands).doubleValue)
         } else {
-            return formatted(currencyCode: "USD")
+            return formatted()
         }
     }
 }

@@ -6,6 +6,7 @@ struct AddGroupExpenseUseCase: Sendable {
     enum ExpenseError: LocalizedError {
         case invalidAmount
         case missingPayer
+        case splitGroupHasNoMembers
         case splitDoesNotBalance(Decimal, Decimal)
 
         var errorDescription: String? {
@@ -14,8 +15,11 @@ struct AddGroupExpenseUseCase: Sendable {
                 return String(localized: "Amount must be greater than zero.")
             case .missingPayer:
                 return String(localized: "Please select who paid.")
+            case .splitGroupHasNoMembers:
+                return String(localized: "Split group has no members.")
             case let .splitDoesNotBalance(total, splitSum):
-                return String(localized: "Split amounts (\(splitSum.formatted(.currency(code: "USD")))) must equal the total (\(total.formatted(.currency(code: "USD")))).")
+                let code = CurrencyDefaults.code
+                return String(localized: "Split amounts (\(splitSum.formatted(.currency(code: code)))) must equal the total (\(total.formatted(.currency(code: code)))).")
             }
         }
     }
@@ -74,11 +78,14 @@ struct AddGroupExpenseUseCase: Sendable {
 
         switch method {
         case .equal:
+            guard let lastID = memberIDs.last else {
+                throw ExpenseError.splitGroupHasNoMembers
+            }
             let share = (amount / Decimal(memberIDs.count)).rounded(scale: 2)
             // Last member absorbs rounding remainder
             var shares = memberIDs.dropLast().map { SplitShare(memberID: $0, amount: share) }
             let remainder = amount - share * Decimal(memberIDs.count - 1)
-            shares.append(SplitShare(memberID: memberIDs.last!, amount: remainder))
+            shares.append(SplitShare(memberID: lastID, amount: remainder))
             return shares
 
         case .percentage:
@@ -98,6 +105,9 @@ struct AddGroupExpenseUseCase: Sendable {
             return shares
 
         case .shares:
+            guard let lastID = memberIDs.last else {
+                throw ExpenseError.splitGroupHasNoMembers
+            }
             let totalShares = customValues.values.reduce(Decimal(0), +)
             guard totalShares > 0 else {
                 return memberIDs.map { SplitShare(memberID: $0, amount: 0) }
@@ -108,7 +118,7 @@ struct AddGroupExpenseUseCase: Sendable {
                 shares.append(SplitShare(memberID: id, amount: (amount * weight / totalShares).rounded(scale: 2)))
             }
             let allocated = shares.reduce(Decimal(0)) { $0 + $1.amount }
-            shares.append(SplitShare(memberID: memberIDs.last!, amount: amount - allocated))
+            shares.append(SplitShare(memberID: lastID, amount: amount - allocated))
             return shares
         }
     }

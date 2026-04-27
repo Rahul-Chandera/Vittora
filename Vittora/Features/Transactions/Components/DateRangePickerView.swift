@@ -35,14 +35,14 @@ struct DateRangePickerView: View {
             // Custom date range pickers
             if preset == .custom {
                 VStack(alignment: .leading, spacing: VSpacing.md) {
-                    Text("Custom Range")
+                    Text(String(localized: "Custom Range"))
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
                         .padding(.horizontal, VSpacing.md)
 
                     VStack(spacing: VSpacing.md) {
                         HStack {
-                            Text("From")
+                            Text(String(localized: "From"))
                                 .font(VTypography.body)
                                 .foregroundColor(VColors.textPrimary)
 
@@ -63,7 +63,7 @@ struct DateRangePickerView: View {
                         .cornerRadius(VSpacing.cornerRadiusSM)
 
                         HStack {
-                            Text("To")
+                            Text(String(localized: "To"))
                                 .font(VTypography.body)
                                 .foregroundColor(VColors.textPrimary)
 

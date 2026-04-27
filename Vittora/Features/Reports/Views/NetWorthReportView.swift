@@ -36,11 +36,8 @@ private final class NetWorthViewModel {
 
 struct NetWorthReportView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: NetWorthViewModel?
-
-    private var currencyCode: String {
-        UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? "USD"
-    }
 
     var body: some View {
         ScrollView {

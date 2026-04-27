@@ -11,6 +11,9 @@ struct ProfileSettingsView: View {
         Form {
             Section(String(localized: "Display Name")) {
                 TextField(String(localized: "Your name"), text: $editingName)
+                    #if os(iOS)
+                    .textContentType(.name)
+                    #endif
             }
         }
         .navigationTitle(String(localized: "Profile"))
@@ -92,6 +95,7 @@ struct AppearanceSettingsView: View {
 
 struct SecuritySettingsView: View {
     @Bindable var vm: SettingsViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Form {
@@ -101,11 +105,36 @@ struct SecuritySettingsView: View {
                 Text(String(localized: "Require biometrics or passcode when opening Vittora."))
                     .foregroundStyle(VColors.textSecondary)
             }
+
+            if vm.isAppLockEnabled {
+                Section {
+                    Toggle(String(localized: "Passcode Fallback"), isOn: $vm.allowPasscodeFallback)
+                } footer: {
+                    Text(String(localized: "Allow your device passcode if biometric authentication fails."))
+                        .foregroundStyle(VColors.textSecondary)
+                }
+            }
+
+            if DeviceSecurityAssessment.isLikelyCompromisedEnvironment {
+                Section {
+                    Label {
+                        Text(String(localized: "Modified device environment detected"))
+                            .font(VTypography.caption1)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(VColors.warning)
+                    }
+                } footer: {
+                    Text(String(localized: "For your security, avoid storing highly sensitive data on modified devices. This check is informational only."))
+                        .foregroundStyle(VColors.textSecondary)
+                }
+            }
         }
         .navigationTitle(String(localized: "Security"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .animation(reduceMotion ? nil : .default, value: vm.isAppLockEnabled)
     }
 }
 
@@ -131,6 +160,7 @@ struct DataSettingsView: View {
 
 struct NotificationsSettingsView: View {
     @Bindable var vm: SettingsViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Form {
@@ -140,11 +170,21 @@ struct NotificationsSettingsView: View {
                 Text(String(localized: "Receive reminders for bill due dates, budget limits, and goal milestones."))
                     .foregroundStyle(VColors.textSecondary)
             }
+
+            if vm.isNotificationsEnabled {
+                Section(String(localized: "Reminders")) {
+                    Toggle(String(localized: "Bill & Debt Due Dates"), isOn: $vm.notifyBillsDue)
+                    Toggle(String(localized: "Budget Limit Alerts"), isOn: $vm.notifyBudgetAlerts)
+                    Toggle(String(localized: "Goal Milestones"), isOn: $vm.notifyGoalMilestones)
+                    Toggle(String(localized: "Recurring Transactions"), isOn: $vm.notifyRecurringTransactions)
+                }
+            }
         }
         .navigationTitle(String(localized: "Notifications"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .animation(reduceMotion ? nil : .default, value: vm.isNotificationsEnabled)
     }
 }
 
@@ -166,10 +206,10 @@ struct AboutView: View {
                     Text(String(localized: "Platform"))
                     Spacer()
                     #if os(iOS)
-                    Text("iOS")
+                    Text(String(localized: "iOS"))
                         .foregroundStyle(VColors.textSecondary)
                     #elseif os(macOS)
-                    Text("macOS")
+                    Text(String(localized: "macOS"))
                         .foregroundStyle(VColors.textSecondary)
                     #endif
                 }
@@ -189,6 +229,7 @@ struct AboutView: View {
                     Image(systemName: "indianrupeesign.circle.fill")
                         .font(.system(size: 44))
                         .foregroundStyle(VColors.primary)
+                        .accessibilityHidden(true)
                     Text(String(localized: "Vittora"))
                         .font(VTypography.title3.bold())
                         .foregroundStyle(VColors.textPrimary)

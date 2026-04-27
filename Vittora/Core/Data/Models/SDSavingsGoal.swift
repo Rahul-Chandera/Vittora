@@ -3,7 +3,9 @@ import SwiftData
 
 @Model
 final class SDSavingsGoal {
-    var id: UUID = UUID()
+    #Index<SDSavingsGoal>([\.statusRawValue], [\.linkedAccountID])
+
+    @Attribute(.unique) var id: UUID = UUID()
     var name: String = ""
     var categoryRawValue: String = GoalCategory.other.rawValue
     var targetAmount: Decimal = Decimal(0)

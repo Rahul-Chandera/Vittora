@@ -9,7 +9,7 @@ struct BalanceDataPoint: Identifiable {
 
 struct BalanceChartView: View {
     let dataPoints: [BalanceDataPoint]
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
     var height: CGFloat = 120
 
     private var minBalance: Double {

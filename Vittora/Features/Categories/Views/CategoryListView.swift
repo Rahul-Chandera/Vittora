@@ -15,7 +15,7 @@ struct CategoryListView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("Categories")
+        .navigationTitle(String(localized: "Categories"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -34,15 +34,15 @@ struct CategoryListView: View {
                 }
             }
         }
-        .alert("Delete Category", isPresented: $showingDeleteAlert) {
-            Button("Delete", role: .destructive) {
+        .alert(String(localized: "Delete Category"), isPresented: $showingDeleteAlert) {
+            Button(String(localized: "Delete"), role: .destructive) {
                 if let id = categoryToDelete, let vm = viewModel {
                     Task { await vm.deleteCategory(id: id) }
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel"), role: .cancel) {}
         } message: {
-            Text("Are you sure you want to delete this category?")
+            Text(String(localized: "Are you sure you want to delete this category?"))
         }
         .task {
             await setupViewModel()
@@ -81,14 +81,14 @@ struct CategoryListView: View {
             Image(systemName: "tag.fill")
                 .font(.system(size: 48))
                 .foregroundColor(VColors.textTertiary)
-            Text("No Categories")
+            Text(String(localized: "No Categories"))
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
-            Text("Add categories to organise your transactions.")
+            Text(String(localized: "Add categories to organise your transactions."))
                 .font(VTypography.body)
                 .foregroundColor(VColors.textSecondary)
                 .multilineTextAlignment(.center)
-            Button("Add Category") { showAddCategory = true }
+            Button(String(localized: "Add Category")) { showAddCategory = true }
                 .buttonStyle(.borderedProminent)
         }
         .padding(VSpacing.screenPadding)
@@ -99,7 +99,7 @@ struct CategoryListView: View {
     private func categoryList(vm: CategoryListViewModel) -> some View {
         List {
             if !vm.filteredExpenseCategories.isEmpty {
-                Section("Expense") {
+                Section(String(localized: "Expense")) {
                     ForEach(vm.filteredExpenseCategories) { category in
                         NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
                             CategoryRowView(category: category)
@@ -130,7 +130,7 @@ struct CategoryListView: View {
             }
 
             if !vm.filteredIncomeCategories.isEmpty {
-                Section("Income") {
+                Section(String(localized: "Income")) {
                     ForEach(vm.filteredIncomeCategories) { category in
                         NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
                             CategoryRowView(category: category)

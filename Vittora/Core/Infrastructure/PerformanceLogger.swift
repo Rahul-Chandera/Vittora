@@ -79,4 +79,37 @@ enum PerformanceLogger {
         static func endSync(id: OSSignpostID) { end(syncLog, name: "CloudKitSync", id: id) }
         static func conflict() { event(syncLog, name: "SyncConflict") }
     }
+
+    static let securityLog = OSLog(subsystem: "com.vittora.app", category: "Security")
+
+    struct Security {
+        static func authFailed(consecutiveCount: Int) {
+            event(securityLog, name: "AuthFailed", message: "consecutive=\(consecutiveCount)")
+        }
+        static func cooldownStarted(seconds: Int) {
+            event(securityLog, name: "CooldownStarted", message: "duration=\(seconds)s")
+        }
+        static func cooldownBlocked(remainingSeconds: Int) {
+            event(securityLog, name: "CooldownBlocked", message: "remaining=\(remainingSeconds)s")
+        }
+
+        static func auditWriteFailed(_ message: String) {
+            event(securityLog, name: "AuditWriteFailed", message: message)
+        }
+        static func auditReadFailed(_ message: String) {
+            event(securityLog, name: "AuditReadFailed", message: message)
+        }
+        static func auditDirectorySetupFailed(_ message: String) {
+            event(securityLog, name: "AuditDirSetupFailed", message: message)
+        }
+        static func auditDecodeFailed(_ message: String) {
+            event(securityLog, name: "AuditDecodeFailed", message: message)
+        }
+        static func auditFileProtectionUpdateFailed(_ message: String) {
+            event(securityLog, name: "AuditFileProtectionUpdateFailed", message: message)
+        }
+        static func auditFileHandleCloseFailed(_ message: String) {
+            event(securityLog, name: "AuditFileHandleCloseFailed", message: message)
+        }
+    }
 }

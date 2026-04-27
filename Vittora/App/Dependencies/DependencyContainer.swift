@@ -19,9 +19,12 @@ final class DependencyContainer {
     var biometricService: (any BiometricServiceProtocol)?
     var keychainService: (any KeychainServiceProtocol)?
     var encryptionService: (any EncryptionServiceProtocol)?
+    var documentStorageService: (any DocumentStorageServiceProtocol)?
     var appLockService: (any AppLockServiceProtocol)?
     var exportService: (any DataExportServiceProtocol)?
     var contactsImportService: (any ContactsImportServiceProtocol)?
+    var hapticService: (any HapticServiceProtocol) = LiveHapticService()
+    var securityAuditLogService: SecurityAuditLogService?
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
         let container = DependencyContainer()
@@ -32,24 +35,42 @@ final class DependencyContainer {
         container.payeeRepository = SwiftDataPayeeRepository(modelContainer: modelContainer)
         container.budgetRepository = SwiftDataBudgetRepository(modelContainer: modelContainer)
         container.recurringRuleRepository = SwiftDataRecurringRuleRepository(modelContainer: modelContainer)
-        container.documentRepository = SwiftDataDocumentRepository(modelContainer: modelContainer)
         container.debtRepository = SwiftDataDebtRepository(modelContainer: modelContainer)
         container.splitGroupRepository = SwiftDataSplitGroupRepository(modelContainer: modelContainer)
         container.taxProfileRepository = SwiftDataTaxProfileRepository(modelContainer: modelContainer)
         container.savingsGoalRepository = SwiftDataSavingsGoalRepository(modelContainer: modelContainer)
 
         let keychainService = KeychainService()
+        let biometricService = BiometricService()
+        let encryptionService = EncryptionService(keychainService: keychainService)
+        let auditLogService = SecurityAuditLogService(encryptionService: encryptionService)
+        container.securityAuditLogService = auditLogService
         container.keychainService = keychainService
-        container.biometricService = BiometricService()
-        container.encryptionService = EncryptionService(keychainService: keychainService)
-        container.appLockService = AppLockService(biometricService: BiometricService())
-        container.contactsImportService = SystemContactsImportService()
-        container.exportService = DataExportService(
-            transactionRepository: container.transactionRepository!,
-            accountRepository: container.accountRepository,
-            categoryRepository: container.categoryRepository,
-            payeeRepository: container.payeeRepository
+        container.biometricService = biometricService
+        container.encryptionService = encryptionService
+        container.documentStorageService = EncryptedDocumentStorageService(
+            encryptionService: encryptionService
         )
+        if let documentStorageService = container.documentStorageService {
+            container.documentRepository = EncryptedDocumentRepository(
+                modelContainer: modelContainer,
+                documentStorageService: documentStorageService
+            )
+        }
+        container.appLockService = AppLockService(
+            biometricService: biometricService,
+            auditLogger: auditLogService
+        )
+        container.contactsImportService = SystemContactsImportService()
+        if let transactionRepository = container.transactionRepository {
+            container.exportService = DataExportService(
+                transactionRepository: transactionRepository,
+                accountRepository: container.accountRepository,
+                categoryRepository: container.categoryRepository,
+                payeeRepository: container.payeeRepository,
+                auditLogger: auditLogService
+            )
+        }
 
         return container
     }

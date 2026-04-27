@@ -4,6 +4,7 @@ struct BudgetCardView: View {
     let budget: BudgetEntity
     let progress: BudgetProgress?
     let category: CategoryEntity?
+    @Environment(\.currencyCode) private var currencyCode
 
     var body: some View {
         VCard {
@@ -27,7 +28,7 @@ struct BudgetCardView: View {
                     }
 
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        Text(category?.name ?? "Budget")
+                        Text(category?.name ?? String(localized: "Budget"))
                             .font(VTypography.bodyBold)
                             .foregroundColor(VColors.textPrimary)
 
@@ -40,7 +41,7 @@ struct BudgetCardView: View {
 
                     VStack(alignment: .trailing, spacing: VSpacing.xs) {
                         VAmountText(budget.amount, size: .callout)
-                        Text("Budget")
+                        Text(String(localized: "Budget"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                     }
@@ -57,14 +58,14 @@ struct BudgetCardView: View {
                 // Spent vs Total
                 HStack(spacing: VSpacing.md) {
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        Text("Spent")
+                        Text(String(localized: "Spent"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                         VAmountText(budget.spent, size: .caption)
                     }
 
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        Text("Remaining")
+                        Text(String(localized: "Remaining"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                         VAmountText(budget.remaining, size: .caption)
@@ -74,7 +75,7 @@ struct BudgetCardView: View {
                     Spacer()
 
                     VStack(alignment: .trailing, spacing: VSpacing.xs) {
-                        Text("Progress")
+                        Text(String(localized: "Progress"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                         Text("\(Int(budget.progress * 100))%")
@@ -90,8 +91,8 @@ struct BudgetCardView: View {
 
     private var cardAccessibilityLabel: String {
         let name = category?.name ?? String(localized: "Budget")
-        let spent = budget.spent.formatted(.currency(code: "USD"))
-        let limit = budget.amount.formatted(.currency(code: "USD"))
+        let spent = budget.spent.formatted(.currency(code: currencyCode))
+        let limit = budget.amount.formatted(.currency(code: currencyCode))
         let pct = Int(budget.progress * 100)
         let status = budget.isOverBudget ? String(localized: "over budget") : String(localized: "\(pct)% used")
         return "\(name) budget, \(spent) of \(limit), \(status)"

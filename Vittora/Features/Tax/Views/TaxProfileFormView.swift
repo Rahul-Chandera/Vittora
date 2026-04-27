@@ -38,7 +38,13 @@ struct TaxProfileFormView: View {
                                 try await vm.save()
                                 onSaved()
                                 dismiss()
-                            } catch {}
+                            } catch {
+                                if vm.error == nil {
+                                    vm.error = error.userFacingMessage(
+                                        fallback: String(localized: "We couldn't save this tax profile right now.")
+                                    )
+                                }
+                            }
                         }
                     }
                     .disabled(!(vm?.canSave ?? false) || (vm?.isSaving ?? false))
@@ -59,6 +65,11 @@ struct TaxProfileFormView: View {
                 newVM.populate(from: profile)
             }
         }
+        .onChange(of: vm?.error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
+            }
+        }
     }
 
     @ViewBuilder
@@ -73,7 +84,7 @@ struct TaxProfileFormView: View {
                     }
                 }
                 .onChange(of: vm.country) { _, _ in
-                    vm.financialYear = vm.country == .india ? "2024-25" : "2024"
+                    vm.financialYear = vm.country.defaultFinancialYear
                     vm.recalculateLive()
                 }
             }
@@ -86,6 +97,7 @@ struct TaxProfileFormView: View {
                     TextField(String(localized: "e.g. 1200000"), text: Bindable(vm).incomeString)
                         #if os(iOS)
                         .keyboardType(.numberPad)
+                        .textContentType(nil)
                         #endif
                         .onChange(of: vm.incomeString) { _, _ in vm.recalculateLive() }
                 }
@@ -105,15 +117,59 @@ struct TaxProfileFormView: View {
                     }
                     .pickerStyle(.segmented)
                     .onChange(of: vm.indiaRegime) { _, _ in vm.recalculateLive() }
+
+                    Picker(String(localized: "Income Type"), selection: Bindable(vm).incomeSourceType) {
+                        ForEach(IncomeSourceType.allCases, id: \.self) { t in
+                            Text(t.displayName).tag(t)
+                        }
+                    }
+                    .onChange(of: vm.incomeSourceType) { _, _ in vm.recalculateLive() }
+                }
+
+                if vm.indiaRegime == .oldRegime {
+                    Section {
+                        if let dob = vm.dateOfBirth {
+                            DatePicker(
+                                String(localized: "Date of Birth"),
+                                selection: Binding(
+                                    get: { dob },
+                                    set: { vm.dateOfBirth = $0; vm.recalculateLive() }
+                                ),
+                                in: ...Date.now,
+                                displayedComponents: .date
+                            )
+                            Button(String(localized: "Clear Date of Birth"), role: .destructive) {
+                                vm.dateOfBirth = nil
+                                vm.recalculateLive()
+                            }
+                        } else {
+                            Button(String(localized: "Set Date of Birth")) {
+                                vm.dateOfBirth = Calendar.current.date(byAdding: .year, value: -30, to: .now) ?? .now
+                                vm.recalculateLive()
+                            }
+                        }
+                    } header: {
+                        Text(String(localized: "Age (for senior citizen slabs)"))
+                    } footer: {
+                        Text(String(localized: "Senior citizens (60+) and super-senior citizens (80+) have higher basic exemption limits under the old regime."))
+                    }
                 }
             } else {
-                Section(String(localized: "Filing Status")) {
+                Section {
                     Picker(String(localized: "Status"), selection: Bindable(vm).filingStatus) {
                         ForEach(USFilingStatus.allCases, id: \.self) { s in
                             Text(s.displayName).tag(s)
                         }
                     }
                     .onChange(of: vm.filingStatus) { _, _ in vm.recalculateLive() }
+                } header: {
+                    Text(String(localized: "Filing Status"))
+                } footer: {
+                    if vm.filingStatus == .qualifyingSurvivingSpouse {
+                        Text(
+                            String(localized: "Use this status only during the two tax years after a spouse's death if you still meet IRS eligibility requirements.")
+                        )
+                    }
                 }
             }
 
@@ -178,9 +234,7 @@ struct TaxProfileFormView: View {
 
             if let error = vm.error {
                 Section {
-                    Text(error)
-                        .foregroundStyle(VColors.expense)
-                        .font(VTypography.caption1)
+                    VInlineErrorText(error)
                 }
             }
 
@@ -250,6 +304,7 @@ private struct AddDeductionSheet: View {
                         TextField("0", text: $amountString)
                             #if os(iOS)
                             .keyboardType(.numberPad)
+                            .textContentType(nil)
                             #endif
                     }
                 }

@@ -50,10 +50,10 @@ extension [TaxSlab] {
 }
 
 extension Decimal {
-    nonisolated func rounded(scale: Int) -> Decimal {
+    nonisolated func rounded(scale: Int, mode: NSDecimalNumber.RoundingMode = .plain) -> Decimal {
         var result = Decimal()
         var copy = self
-        NSDecimalRound(&result, &copy, scale, .bankers)
+        NSDecimalRound(&result, &copy, scale, mode)
         return result
     }
 }

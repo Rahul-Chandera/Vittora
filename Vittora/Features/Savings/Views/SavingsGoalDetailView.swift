@@ -11,10 +11,7 @@ struct SavingsGoalDetailView: View {
     private var goalColor: Color { Color(hex: vm?.goal.colorHex ?? initialGoal.colorHex) ?? VColors.primary }
 
     private var currencySymbol: String {
-        let f = NumberFormatter()
-        f.numberStyle = .currency
-        f.currencyCode = currencyCode
-        return f.currencySymbol ?? currencyCode
+        String.currencySymbol(for: currencyCode)
     }
 
     var body: some View {
@@ -55,9 +52,13 @@ struct SavingsGoalDetailView: View {
             if let vm {
                 SavingsGoalFormView(existingGoal: vm.goal) {
                     Task {
-                        guard let repo = dependencies.savingsGoalRepository,
-                              let fresh = try? await repo.fetchByID(vm.goal.id) else { return }
-                        vm.goal = fresh
+                        guard let repo = dependencies.savingsGoalRepository else { return }
+                        do {
+                            guard let fresh = try await repo.fetchByID(vm.goal.id) else { return }
+                            vm.goal = fresh
+                        } catch {
+                            vm.error = error.localizedDescription
+                        }
                     }
                 }
             }
@@ -149,6 +150,7 @@ struct SavingsGoalDetailView: View {
             Image(systemName: days < 0 ? "exclamationmark.triangle.fill" : "calendar.badge.clock")
                 .font(.title2)
                 .foregroundStyle(days < 0 ? VColors.expense : VColors.primary)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(days < 0
@@ -177,6 +179,7 @@ struct SavingsGoalDetailView: View {
             Image(systemName: "arrow.up.circle.fill")
                 .font(.title2)
                 .foregroundStyle(VColors.income)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 Text(String(localized: "Save monthly to hit deadline"))
                     .font(VTypography.caption1)
@@ -205,6 +208,7 @@ struct SavingsGoalDetailView: View {
                     TextField(String(localized: "Amount"), text: Bindable(vm).contributionString)
                         #if os(iOS)
                         .keyboardType(.decimalPad)
+                        .textContentType(nil)
                         #endif
                     Spacer()
                     Button {

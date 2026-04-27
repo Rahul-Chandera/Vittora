@@ -11,12 +11,15 @@ struct CategoryBreakdown: Sendable, Identifiable {
 struct CategoryBreakdownUseCase: Sendable {
     let transactionRepository: any TransactionRepository
     let categoryRepository: any CategoryRepository
+    private static let maxBreakdowns = 25
 
     func execute(
         dateRange: ClosedRange<Date>? = nil,
         type: TransactionType = .expense
     ) async throws -> [CategoryBreakdown] {
-        let filter = TransactionFilter(dateRange: dateRange, types: Set([type]))
+        let calendar = Calendar.current
+        let boundedRange = dateRange ?? Self.defaultDateRange(calendar: calendar)
+        let filter = TransactionFilter(dateRange: boundedRange, types: Set([type]))
 
         async let transactionsTask = transactionRepository.fetchAll(filter: filter)
         async let categoriesTask = categoryRepository.fetchAll()
@@ -34,7 +37,7 @@ struct CategoryBreakdownUseCase: Sendable {
 
         let total = categoryAmounts.values.reduce(Decimal(0)) { $0 + $1.amount }
 
-        return categoryAmounts
+        let breakdowns = categoryAmounts
             .compactMap { (categoryID, data) -> CategoryBreakdown? in
                 guard let category = categories.first(where: { $0.id == categoryID }) else {
                     return nil
@@ -50,5 +53,13 @@ struct CategoryBreakdownUseCase: Sendable {
                 )
             }
             .sorted { $0.amount > $1.amount }
+
+        return Array(breakdowns.prefix(Self.maxBreakdowns))
+    }
+
+    private static func defaultDateRange(calendar: Calendar) -> ClosedRange<Date> {
+        let now = Date.now
+        let start = calendar.date(byAdding: .month, value: -12, to: now) ?? now
+        return start...now
     }
 }

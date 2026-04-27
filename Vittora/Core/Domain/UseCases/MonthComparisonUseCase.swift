@@ -44,10 +44,11 @@ struct MonthComparisonUseCase: Sendable {
             byAdding: .month, value: -1, to: currentMonthStart
         ) ?? now
 
-        let allTransactions = try await transactionRepository.fetchAll(filter: nil)
+        let filter = TransactionFilter(dateRange: lastMonthStart...now)
+        let twoMonthTransactions = try await transactionRepository.fetchAll(filter: filter)
 
-        let currentMonthTransactions = allTransactions.filter { $0.date >= currentMonthStart }
-        let lastMonthTransactions = allTransactions.filter {
+        let currentMonthTransactions = twoMonthTransactions.filter { $0.date >= currentMonthStart }
+        let lastMonthTransactions = twoMonthTransactions.filter {
             $0.date >= lastMonthStart && $0.date < currentMonthStart
         }
 

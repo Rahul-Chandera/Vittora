@@ -3,6 +3,8 @@ import SwiftUI
 struct DebtFormView: View {
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.currencySymbol) private var currencySymbol
     @State private var vm: DebtFormViewModel?
     @State private var payees: [PayeeEntity] = []
     let onSaved: () -> Void
@@ -29,11 +31,12 @@ struct DebtFormView: View {
                         }
 
                         HStack {
-                            Text("$")
+                            Text(currencySymbol)
                                 .foregroundColor(VColors.textSecondary)
                             TextField(String(localized: "Amount"), text: Bindable(vm).amountString)
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
+                                .textContentType(nil)
                                 #endif
                         }
                     }
@@ -84,8 +87,13 @@ struct DebtFormView: View {
             guard vm == nil,
                   let debtRepo = dependencies.debtRepository,
                   let payeeRepo = dependencies.payeeRepository else { return }
-            vm = DebtFormViewModel(createUseCase: CreateDebtEntryUseCase(debtRepository: debtRepo))
-            payees = (try? await payeeRepo.fetchAll()) ?? []
+            let formVM = DebtFormViewModel(createUseCase: CreateDebtEntryUseCase(debtRepository: debtRepo))
+            vm = formVM
+            do {
+                payees = try await payeeRepo.fetchAll()
+            } catch {
+                formVM.error = error.localizedDescription
+            }
         }
     }
 }

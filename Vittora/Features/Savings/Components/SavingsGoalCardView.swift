@@ -24,7 +24,7 @@ struct SavingsGoalCardView: View {
                         Text(goal.name)
                             .font(VTypography.bodyBold)
                             .foregroundStyle(VColors.textPrimary)
-                            .lineLimit(1)
+                            .adaptiveLineLimit(1)
                         Spacer()
                         statusBadge
                     }

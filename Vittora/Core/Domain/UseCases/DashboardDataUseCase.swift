@@ -33,14 +33,17 @@ struct DashboardDataUseCase: Sendable {
             from: calendar.dateComponents([.year, .month], from: now)
         ) ?? now
 
+        // Fetch only the current month's transactions instead of the full history.
+        let monthFilter = TransactionFilter(dateRange: startOfMonth...now)
+
         async let allAccountsTask = accountRepository.fetchAll()
-        async let allTransactionsTask = transactionRepository.fetchAll(filter: nil)
+        async let monthTransactionsTask = transactionRepository.fetchAll(filter: monthFilter)
         async let allCategoriesTask = categoryRepository.fetchAll()
         async let activeBudgetsTask = budgetRepository.fetchActive()
         async let upcomingRulesTask = recurringRuleRepository.fetchActive()
 
-        let (allAccounts, allTransactions, allCategories, activeBudgets, activeRules) =
-            try await (allAccountsTask, allTransactionsTask, allCategoriesTask, activeBudgetsTask, upcomingRulesTask)
+        let (allAccounts, monthTransactions, allCategories, activeBudgets, activeRules) =
+            try await (allAccountsTask, monthTransactionsTask, allCategoriesTask, activeBudgetsTask, upcomingRulesTask)
 
         let activeAccounts = allAccounts.filter { !$0.isArchived }
 
@@ -56,13 +59,12 @@ struct DashboardDataUseCase: Sendable {
         }
         let netWorth = totalAssets - totalLiabilities
 
-        // Today's spending
-        let todaySpending = allTransactions
+        // Today's spending (subset of this month)
+        let todaySpending = monthTransactions
             .filter { $0.type == .expense && $0.date >= startOfToday }
             .reduce(Decimal(0)) { $0 + $1.amount }
 
         // This month's spending and income
-        let monthTransactions = allTransactions.filter { $0.date >= startOfMonth }
         let monthSpending = monthTransactions
             .filter { $0.type == .expense }
             .reduce(Decimal(0)) { $0 + $1.amount }
@@ -70,9 +72,9 @@ struct DashboardDataUseCase: Sendable {
             .filter { $0.type == .income }
             .reduce(Decimal(0)) { $0 + $1.amount }
 
-        // Recent transactions (last 5)
+        // Recent transactions (last 5 within this month)
         let recentTransactions = Array(
-            allTransactions.sorted { $0.date > $1.date }.prefix(5)
+            monthTransactions.sorted { $0.date > $1.date }.prefix(5)
         )
 
         // Top categories by expense spend this month

@@ -3,6 +3,8 @@ import SwiftUI
 struct SettlementFormView: View {
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.currencySymbol) private var currencySymbol
     let debt: DebtEntry
     let onSettled: () -> Void
 
@@ -21,10 +23,11 @@ struct SettlementFormView: View {
             Form {
                 Section(String(localized: "Settlement Amount")) {
                     HStack {
-                        Text("$").foregroundColor(VColors.textSecondary)
+                        Text(currencySymbol).foregroundColor(VColors.textSecondary)
                         TextField(String(localized: "Amount"), text: $amountString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .textContentType(nil)
                             #endif
                     }
                     Button(String(localized: "Settle Full Amount (\(formattedAmount(maxAmount)))")) {
@@ -45,9 +48,7 @@ struct SettlementFormView: View {
 
                 if let errorMessage = error {
                     Section {
-                        Text(errorMessage)
-                            .foregroundColor(VColors.expense)
-                            .font(VTypography.caption1)
+                        VInlineErrorText(errorMessage)
                     }
                 }
             }
@@ -68,7 +69,16 @@ struct SettlementFormView: View {
             }
         }
         .task {
-            accounts = (try? await dependencies.accountRepository?.fetchAll()) ?? []
+            do {
+                accounts = try await dependencies.accountRepository?.fetchAll() ?? []
+            } catch {
+                self.error = error.localizedDescription
+            }
+        }
+        .onChange(of: error) { _, newValue in
+            if let msg = newValue {
+                AccessibilityNotification.Announcement(AttributedString(msg)).post()
+            }
         }
     }
 
@@ -99,9 +109,6 @@ struct SettlementFormView: View {
     }
 
     private func formattedAmount(_ amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: amount as NSDecimalNumber) ?? "$0.00"
+        amount.formatted(currencyCode: currencyCode)
     }
 }

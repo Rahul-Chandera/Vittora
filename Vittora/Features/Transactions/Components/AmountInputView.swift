@@ -2,23 +2,26 @@ import SwiftUI
 
 struct AmountInputView: View {
     @Binding var amountString: String
-    var currencyCode: String = "USD"
+    var currencyCode: String = CurrencyDefaults.code
     var type: TransactionType = .expense
     var textFieldAccessibilityIdentifier: String?
 
     var body: some View {
         VStack(spacing: VSpacing.md) {
             HStack(spacing: VSpacing.xs) {
-                Text(currencySymbol(for: currencyCode))
+                Text(String.currencySymbol(for: currencyCode))
                     .font(.system(size: 32, weight: .semibold))
                     .foregroundColor(transactionColor(for: type))
 
-                TextField("0.00", text: $amountString)
+                TextField(String(localized: "0.00"), text: $amountString)
                     .font(.system(size: 32, weight: .semibold))
                     .foregroundColor(transactionColor(for: type))
                     .accessibilityIdentifier(textFieldAccessibilityIdentifier ?? "")
                     #if os(iOS)
                     .keyboardType(.decimalPad)
+                    .textContentType(nil)
+                    #elseif os(macOS)
+                    .textFieldStyle(.plain)
                     #endif
                     .onChange(of: amountString) { _, newValue in
                         let filtered = newValue.filter { $0.isNumber || $0 == "." }
@@ -40,14 +43,6 @@ struct AmountInputView: View {
             .background(VColors.secondaryBackground)
             .cornerRadius(VSpacing.cornerRadiusSM)
         }
-    }
-
-    private func currencySymbol(for code: String) -> String {
-        let locale = NSLocale(localeIdentifier: "en_US_POSIX")
-        if let symbol = locale.displayName(forKey: NSLocale.Key.currencySymbol, value: code) {
-            return symbol
-        }
-        return "$"
     }
 
     private func transactionColor(for type: TransactionType) -> Color {
