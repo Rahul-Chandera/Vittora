@@ -7,6 +7,9 @@ struct DashboardView: View {
     @State private var vm: DashboardViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var showAddBudget = false
+    @State private var showQuickActionTransactionForm = false
+    @State private var showQuickActionTransferForm = false
+    @State private var quickActionTransactionType: TransactionType = .expense
 
     var body: some View {
         ZStack {
@@ -35,7 +38,52 @@ struct DashboardView: View {
         .sheet(isPresented: $showAddBudget) {
             BudgetFormView(isPresented: $showAddBudget)
         }
+        #if os(iOS)
+        .if(shouldPresentQuickActionsAsSheet) { view in
+            view
+                .sheet(isPresented: $showQuickActionTransactionForm) {
+                    NavigationStack {
+                        TransactionFormView(initialType: quickActionTransactionType)
+                    }
+                }
+                .sheet(isPresented: $showQuickActionTransferForm) {
+                    NavigationStack {
+                        TransferFormView()
+                    }
+                }
+        }
+        .if(!shouldPresentQuickActionsAsSheet) { view in
+            view
+                .fullScreenCover(isPresented: $showQuickActionTransactionForm) {
+                    NavigationStack {
+                        TransactionFormView(initialType: quickActionTransactionType)
+                    }
+                }
+                .fullScreenCover(isPresented: $showQuickActionTransferForm) {
+                    NavigationStack {
+                        TransferFormView()
+                    }
+                }
+        }
+        #else
+        .sheet(isPresented: $showQuickActionTransactionForm) {
+            NavigationStack {
+                TransactionFormView(initialType: quickActionTransactionType)
+            }
+        }
+        .sheet(isPresented: $showQuickActionTransferForm) {
+            NavigationStack {
+                TransferFormView()
+            }
+        }
+        #endif
     }
+
+    #if os(iOS)
+    private var shouldPresentQuickActionsAsSheet: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+    #endif
 
     @ViewBuilder
     private func dashboardContent(_ vm: DashboardViewModel) -> some View {
@@ -71,8 +119,8 @@ struct DashboardView: View {
 
                 budgetProgressSection(progress: data.monthBudgetProgress)
 
-                QuickActionGrid { destination in
-                    navigateDestination = destination
+                QuickActionGrid { destination, transactionType in
+                    handleQuickAction(destination, transactionType: transactionType)
                 }
 
                 RecentTransactionsList(
@@ -116,8 +164,8 @@ struct DashboardView: View {
                 ) {
                     VStack(spacing: VSpacing.sectionSpacing) {
                         budgetProgressSection(progress: data.monthBudgetProgress)
-                        QuickActionGrid { destination in
-                            navigateDestination = destination
+                        QuickActionGrid { destination, transactionType in
+                            handleQuickAction(destination, transactionType: transactionType)
                         }
                         TopCategoriesChart(categories: data.topCategories, currencyCode: currencyCode)
                     }
@@ -238,6 +286,23 @@ struct DashboardView: View {
         }
     }
 
+    private func handleQuickAction(
+        _ destination: NavigationDestination,
+        transactionType: TransactionType?
+    ) {
+        switch destination {
+        case .addTransaction:
+            quickActionTransactionType = transactionType ?? .expense
+            showQuickActionTransactionForm = true
+        case .addTransfer:
+            showQuickActionTransferForm = true
+        case .addBudget:
+            showAddBudget = true
+        default:
+            navigateDestination = destination
+        }
+    }
+
     @ViewBuilder
     private func navigationView(for destination: NavigationDestination) -> some View {
         switch destination {
@@ -249,6 +314,8 @@ struct DashboardView: View {
             TransactionFormView(transactionID: id)
         case .addTransfer:
             TransferFormView()
+        case .addBudget:
+            BudgetFormView(isPresented: .constant(false))
         case .accountDetail(let id):
             AccountDetailView(accountID: id)
         default:
