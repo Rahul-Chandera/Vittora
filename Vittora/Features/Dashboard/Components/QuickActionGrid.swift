@@ -6,13 +6,14 @@ struct QuickAction: Identifiable {
     let icon: String
     let color: Color
     let destination: NavigationDestination
+    let transactionType: TransactionType?
     let accessibilityIdentifier: String
     let accessibilityLabel: String
     let accessibilityHint: String
 }
 
 struct QuickActionGrid: View {
-    let onAction: (NavigationDestination) -> Void
+    let onAction: (NavigationDestination, TransactionType?) -> Void
 
     private let actions: [QuickAction] = [
         QuickAction(
@@ -20,6 +21,7 @@ struct QuickActionGrid: View {
             icon: "arrow.up.circle.fill",
             color: VColors.expense,
             destination: .addTransaction,
+            transactionType: .expense,
             accessibilityIdentifier: "quick-action-expense-button",
             accessibilityLabel: String(localized: "Add expense"),
             accessibilityHint: String(localized: "Opens the expense transaction form")
@@ -29,6 +31,7 @@ struct QuickActionGrid: View {
             icon: "arrow.down.circle.fill",
             color: VColors.income,
             destination: .addTransaction,
+            transactionType: .income,
             accessibilityIdentifier: "quick-action-income-button",
             accessibilityLabel: String(localized: "Add income"),
             accessibilityHint: String(localized: "Opens the income transaction form")
@@ -38,6 +41,7 @@ struct QuickActionGrid: View {
             icon: "arrow.left.arrow.right.circle.fill",
             color: VColors.transfer,
             destination: .addTransfer,
+            transactionType: nil,
             accessibilityIdentifier: "quick-action-transfer-button",
             accessibilityLabel: String(localized: "Transfer funds"),
             accessibilityHint: String(localized: "Opens the transfer form")
@@ -47,6 +51,7 @@ struct QuickActionGrid: View {
             icon: "target",
             color: VColors.primary,
             destination: .addBudget,
+            transactionType: nil,
             accessibilityIdentifier: "quick-action-budget-button",
             accessibilityLabel: String(localized: "Create budget"),
             accessibilityHint: String(localized: "Opens the budget form")
@@ -63,7 +68,7 @@ struct QuickActionGrid: View {
                 HStack(spacing: VSpacing.md) {
                     ForEach(actions) { action in
                         QuickActionButton(action: action) {
-                            onAction(action.destination)
+                            onAction(action.destination, action.transactionType)
                         }
                     }
                 }
@@ -103,6 +108,6 @@ private struct QuickActionButton: View {
 }
 
 #Preview {
-    QuickActionGrid(onAction: { _ in })
+    QuickActionGrid(onAction: { _, _ in })
         .padding()
 }

@@ -15,9 +15,11 @@ struct TransactionFormView: View {
     @State private var showPayeePicker = false
 
     let transactionID: UUID?
+    let initialType: TransactionType?
 
-    init(transactionID: UUID? = nil) {
+    init(transactionID: UUID? = nil, initialType: TransactionType? = nil) {
         self.transactionID = transactionID
+        self.initialType = initialType
     }
 
     var body: some View {
@@ -100,19 +102,34 @@ struct TransactionFormView: View {
                             .tint(VColors.primary)
                     }
                 }
+            } else {
+                ProgressView()
+                    .tint(VColors.primary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .accessibilityIdentifier("transaction-form-root")
         .errorAlert(message: transactionErrorBinding)
-        .task {
+        .task(id: dependencyReadinessKey) {
             if vm == nil {
                 vm = await createViewModel()
-                if let transactionID = transactionID {
-                    await loadTransactionData(vm, transactionID: transactionID)
+                if let vm {
+                    if transactionID == nil, let initialType {
+                        vm.type = initialType
+                    }
+                    if let transactionID = transactionID {
+                        await loadTransactionData(vm, transactionID: transactionID)
+                    }
+                    await loadPickerData()
                 }
-                await loadPickerData()
             }
         }
+    }
+
+    private var dependencyReadinessKey: Bool {
+        dependencies.transactionRepository != nil &&
+        dependencies.accountRepository != nil &&
+        dependencies.categoryRepository != nil
     }
 
     @ViewBuilder
