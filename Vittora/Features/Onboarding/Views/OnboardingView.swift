@@ -21,7 +21,7 @@ struct OnboardingView: View {
                 }
 
                 // Step content
-                TabView(selection: .constant(vm.currentStep)) {
+                TabView(selection: currentStepBinding) {
                     WelcomeStepView()
                         .tag(OnboardingViewModel.Step.welcome)
                     CurrencyStepView(vm: vm)
@@ -101,6 +101,7 @@ struct OnboardingView: View {
             .background(VColors.primary)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD))
+            .opacity((vm.canAdvance && !vm.isSaving) ? 1 : 0.55)
         }
         .disabled(!vm.canAdvance || vm.isSaving)
         .accessibilityIdentifier("onboarding-next-button")
@@ -115,6 +116,13 @@ struct OnboardingView: View {
         case .done:     return String(localized: "Start Tracking")
         }
     }
+
+    private var currentStepBinding: Binding<OnboardingViewModel.Step> {
+        Binding(
+            get: { vm.currentStep },
+            set: { vm.currentStep = $0 }
+        )
+    }
 }
 
 // MARK: - Step Views
@@ -124,10 +132,12 @@ private struct WelcomeStepView: View {
         VStack(spacing: VSpacing.lg) {
             Spacer()
 
-            Image(systemName: "indianrupeesign.circle.fill")
-                .font(.system(size: 88))
-                .foregroundStyle(VColors.primary)
-                .symbolEffect(.pulse)
+            Image("OnboardingAppLogo")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 88, height: 88)
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
             VStack(spacing: VSpacing.sm) {
                 Text(String(localized: "Welcome to Vittora"))
@@ -182,9 +192,14 @@ private struct CurrencyStepView: View {
         VStack(spacing: VSpacing.lg) {
             Spacer()
 
-            Image(systemName: "dollarsign.circle.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(VColors.income)
+            ZStack {
+                Circle()
+                    .fill(VColors.primary)
+                    .frame(width: 76, height: 76)
+                Image(systemName: "dollarsign")
+                    .font(.system(size: 40, weight: .medium))
+                    .foregroundStyle(.white)
+            }
 
             VStack(spacing: VSpacing.sm) {
                 Text(String(localized: "Choose Your Currency"))
@@ -217,9 +232,11 @@ private struct CurrencyStepView: View {
                                         .foregroundStyle(VColors.primary)
                                 }
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(VSpacing.md)
                             .background(vm.selectedCurrencyCode == currency.code
                                         ? VColors.primary.opacity(0.08) : Color.clear)
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("onboarding-currency-\(currency.code)")
@@ -251,7 +268,7 @@ private struct ProfileStepView: View {
                 Text(String(localized: "What should we call you?"))
                     .font(VTypography.title2.bold())
                     .foregroundStyle(VColors.textPrimary)
-                Text(String(localized: "Optional — you can change this in settings anytime."))
+                Text(String(localized: "Enter your name. You can change this in settings anytime."))
                     .font(VTypography.body)
                     .foregroundStyle(VColors.textSecondary)
                     .multilineTextAlignment(.center)
@@ -317,18 +334,6 @@ private struct AccountSetupStepView: View {
                     }
 
                     VStack(alignment: .leading, spacing: VSpacing.sm) {
-                        Text(String(localized: "Account Type"))
-                            .font(VTypography.caption1.bold())
-                            .foregroundStyle(VColors.textSecondary)
-
-                        LazyVGrid(columns: columns, spacing: VSpacing.md) {
-                            ForEach(AccountType.allCases, id: \.self) { type in
-                                accountTypeCard(for: type)
-                            }
-                        }
-                    }
-
-                    VStack(alignment: .leading, spacing: VSpacing.sm) {
                         Text(String(localized: "Opening Balance"))
                             .font(VTypography.caption1.bold())
                             .foregroundStyle(VColors.textSecondary)
@@ -356,6 +361,18 @@ private struct AccountSetupStepView: View {
                         Text(String(localized: "Use a positive amount for what you currently have in this account."))
                             .font(VTypography.caption2)
                             .foregroundStyle(VColors.textSecondary)
+                    }
+
+                    VStack(alignment: .leading, spacing: VSpacing.sm) {
+                        Text(String(localized: "Account Type"))
+                            .font(VTypography.caption1.bold())
+                            .foregroundStyle(VColors.textSecondary)
+
+                        LazyVGrid(columns: columns, spacing: VSpacing.md) {
+                            ForEach(AccountType.allCases, id: \.self) { type in
+                                accountTypeCard(for: type)
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, VSpacing.screenPadding)
@@ -400,10 +417,15 @@ private struct DoneStepView: View {
         VStack(spacing: VSpacing.lg) {
             Spacer()
 
-            Image(systemName: "checkmark.seal.fill")
-                .font(.system(size: 88))
-                .foregroundStyle(VColors.income)
-                .symbolEffect(.bounce)
+            ZStack {
+                Circle()
+                    .fill(VColors.primary)
+                    .frame(width: 88, height: 88)
+                Image(systemName: "checkmark")
+                    .font(.system(size: 44, weight: .bold))
+                    .foregroundStyle(.white)
+            }
+            .symbolEffect(.bounce)
 
             VStack(spacing: VSpacing.sm) {
                 Text(String(localized: "You're all set!"))
