@@ -196,8 +196,8 @@ private struct CurrencyStepView: View {
                 Circle()
                     .fill(VColors.primary)
                     .frame(width: 76, height: 76)
-                Image(systemName: "dollarsign")
-                    .font(.system(size: 40, weight: .medium))
+                Text(selectedCurrencySymbol)
+                    .font(.system(size: 42, weight: .medium, design: .rounded))
                     .foregroundStyle(.white)
             }
 
@@ -250,6 +250,10 @@ private struct CurrencyStepView: View {
 
             Spacer()
         }
+    }
+
+    private var selectedCurrencySymbol: String {
+        CurrencyDefaults.symbol(for: vm.selectedCurrencyCode)
     }
 }
 
