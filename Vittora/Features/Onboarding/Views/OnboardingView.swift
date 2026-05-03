@@ -259,6 +259,7 @@ private struct CurrencyStepView: View {
 
 private struct ProfileStepView: View {
     @Bindable var vm: OnboardingViewModel
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         VStack(spacing: VSpacing.lg) {
@@ -290,14 +291,27 @@ private struct ProfileStepView: View {
                 .cornerRadius(VSpacing.cornerRadiusMD)
                 .padding(.horizontal, VSpacing.xl)
                 .accessibilityIdentifier("onboarding-name-field")
+                .focused($isFocused)
+                .onSubmit { isFocused = false }
 
             Spacer()
         }
+        #if os(iOS)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(String(localized: "Done")) { isFocused = false }
+            }
+        }
+        #endif
     }
 }
 
 private struct AccountSetupStepView: View {
     @Bindable var vm: OnboardingViewModel
+    @FocusState private var focusedField: AccountField?
+
+    private enum AccountField { case name, balance }
 
     private let columns = [
         GridItem(.flexible(), spacing: VSpacing.md),
@@ -335,6 +349,8 @@ private struct AccountSetupStepView: View {
                             .background(VColors.secondaryBackground)
                             .cornerRadius(VSpacing.cornerRadiusMD)
                             .accessibilityIdentifier("onboarding-account-name-field")
+                            .focused($focusedField, equals: .name)
+                            .onSubmit { focusedField = .balance }
                     }
 
                     VStack(alignment: .leading, spacing: VSpacing.sm) {
@@ -357,6 +373,7 @@ private struct AccountSetupStepView: View {
                                 .textContentType(nil)
                                 #endif
                                 .accessibilityIdentifier("onboarding-opening-balance-field")
+                                .focused($focusedField, equals: .balance)
                         }
                         .padding(VSpacing.md)
                         .background(VColors.secondaryBackground)
@@ -384,6 +401,15 @@ private struct AccountSetupStepView: View {
                 Spacer(minLength: VSpacing.xl)
             }
         }
+        #if os(iOS)
+        .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(String(localized: "Done")) { focusedField = nil }
+            }
+        }
+        #endif
     }
 
     @ViewBuilder
