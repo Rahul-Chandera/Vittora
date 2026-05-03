@@ -5,7 +5,7 @@ import SwiftData
 final class SDTransaction {
     #Index<SDTransaction>([\.date], [\.accountID], [\.categoryID], [\.typeRawValue])
 
-    @Attribute(.unique) var id: UUID = UUID()
+    var id: UUID = UUID()
     var amount: Decimal = 0
     var date: Date = Date.now
     var note: String?

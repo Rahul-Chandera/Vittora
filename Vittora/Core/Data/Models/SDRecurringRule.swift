@@ -6,7 +6,7 @@ import SwiftData
 final class SDRecurringRule {
     #Index<SDRecurringRule>([\.nextDate], [\.isActive])
 
-    @Attribute(.unique) var id: UUID = UUID()
+    var id: UUID = UUID()
     var frequencyData: Data = Data()
     var nextDate: Date = Date.now
     var isActive: Bool = true

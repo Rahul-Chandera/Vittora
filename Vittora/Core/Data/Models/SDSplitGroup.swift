@@ -6,7 +6,7 @@ import SwiftData
 final class SDSplitGroup {
     #Index<SDSplitGroup>([\.name], [\.createdAt])
 
-    @Attribute(.unique) var id: UUID = UUID()
+    var id: UUID = UUID()
     var name: String = ""
     /// JSON-encoded [UUID] of member payee IDs
     var memberIDsJSON: String = "[]"
