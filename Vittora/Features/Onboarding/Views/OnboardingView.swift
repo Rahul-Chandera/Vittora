@@ -3,6 +3,9 @@ import SwiftUI
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
     @State private var vm: OnboardingViewModel
 
     init(createAccountUseCase: CreateAccountUseCase? = nil) {
@@ -56,6 +59,12 @@ struct OnboardingView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("onboarding-root")
+        #if os(iOS)
+        .onChange(of: horizontalSizeClass, initial: true) { _, new in
+            vm.isAccountSubStepEnabled = new == .compact
+            if new != .compact { vm.accountSubStep = .type }
+        }
+        #endif
     }
 
     // MARK: - Progress Dots
@@ -112,7 +121,9 @@ struct OnboardingView: View {
         case .welcome:  return String(localized: "Get Started")
         case .currency: return String(localized: "Continue")
         case .profile:  return String(localized: "Set Up Account")
-        case .account:  return String(localized: "Review Setup")
+        case .account:  return (vm.isAccountSubStepEnabled && vm.accountSubStep == .type)
+                            ? String(localized: "Continue")
+                            : String(localized: "Review Setup")
         case .done:     return String(localized: "Start Tracking")
         }
     }
@@ -319,6 +330,28 @@ private struct AccountSetupStepView: View {
     ]
 
     var body: some View {
+        if vm.isAccountSubStepEnabled {
+            ZStack {
+                if vm.accountSubStep == .type {
+                    typeSelectionStep
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .leading),
+                            removal: .move(edge: .leading)
+                        ))
+                } else {
+                    accountDetailsStep
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing),
+                            removal: .move(edge: .trailing)
+                        ))
+                }
+            }
+        } else {
+            combinedStep
+        }
+    }
+
+    private var combinedStep: some View {
         ScrollView {
             VStack(spacing: VSpacing.lg) {
                 Spacer(minLength: VSpacing.xl)
@@ -394,6 +427,118 @@ private struct AccountSetupStepView: View {
                                 accountTypeCard(for: type)
                             }
                         }
+                    }
+                }
+                .padding(.horizontal, VSpacing.screenPadding)
+
+                Spacer(minLength: VSpacing.xl)
+            }
+        }
+        #if os(iOS)
+        .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(String(localized: "Done")) { focusedField = nil }
+            }
+        }
+        #endif
+    }
+
+    private var typeSelectionStep: some View {
+        ScrollView {
+            VStack(spacing: VSpacing.lg) {
+                Spacer(minLength: VSpacing.xl)
+
+                Image(systemName: "wallet.pass.fill")
+                    .font(.system(size: 64))
+                    .foregroundStyle(VColors.primary)
+
+                VStack(spacing: VSpacing.sm) {
+                    Text(String(localized: "Set Up Your First Account"))
+                        .font(VTypography.title2.bold())
+                        .foregroundStyle(VColors.textPrimary)
+                    Text(String(localized: "What type of account would you like to create?"))
+                        .font(VTypography.body)
+                        .foregroundStyle(VColors.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, VSpacing.xl)
+                }
+
+                LazyVGrid(columns: columns, spacing: VSpacing.md) {
+                    ForEach(AccountType.allCases, id: \.self) { type in
+                        accountTypeCard(for: type)
+                    }
+                }
+                .padding(.horizontal, VSpacing.screenPadding)
+
+                Spacer(minLength: VSpacing.xl)
+            }
+        }
+    }
+
+    private var accountDetailsStep: some View {
+        ScrollView {
+            VStack(spacing: VSpacing.lg) {
+                Spacer(minLength: VSpacing.xl)
+
+                AccountTypeIcon(type: vm.selectedAccountType, size: 64)
+
+                VStack(spacing: VSpacing.sm) {
+                    Text(String(localized: "Account Details"))
+                        .font(VTypography.title2.bold())
+                        .foregroundStyle(VColors.textPrimary)
+                    Text(String(localized: "Give your account a name and set your opening balance."))
+                        .font(VTypography.body)
+                        .foregroundStyle(VColors.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, VSpacing.xl)
+                }
+
+                VStack(spacing: VSpacing.md) {
+                    VStack(alignment: .leading, spacing: VSpacing.sm) {
+                        Text(String(localized: "Account Name"))
+                            .font(VTypography.caption1.bold())
+                            .foregroundStyle(VColors.textSecondary)
+
+                        TextField(String(localized: "Main Account"), text: $vm.accountName)
+                            .padding(VSpacing.md)
+                            .background(VColors.secondaryBackground)
+                            .cornerRadius(VSpacing.cornerRadiusMD)
+                            .accessibilityIdentifier("onboarding-account-name-field")
+                            .focused($focusedField, equals: .name)
+                            .onSubmit { focusedField = .balance }
+                    }
+
+                    VStack(alignment: .leading, spacing: VSpacing.sm) {
+                        Text(String(localized: "Opening Balance"))
+                            .font(VTypography.caption1.bold())
+                            .foregroundStyle(VColors.textSecondary)
+
+                        HStack(spacing: VSpacing.sm) {
+                            Text(vm.selectedCurrencyCode)
+                                .font(VTypography.bodyBold)
+                                .foregroundStyle(VColors.primary)
+                                .padding(.horizontal, VSpacing.sm)
+                                .padding(.vertical, VSpacing.xs)
+                                .background(VColors.primary.opacity(0.12))
+                                .cornerRadius(VSpacing.cornerRadiusSM)
+
+                            TextField(String(localized: "0"), text: $vm.openingBalance)
+                                #if os(iOS)
+                                .keyboardType(.decimalPad)
+                                .textContentType(nil)
+                                #endif
+                                .accessibilityIdentifier("onboarding-opening-balance-field")
+                                .focused($focusedField, equals: .balance)
+                        }
+                        .padding(VSpacing.md)
+                        .background(VColors.secondaryBackground)
+                        .cornerRadius(VSpacing.cornerRadiusMD)
+
+                        Text(String(localized: "Use a positive amount for what you currently have in this account."))
+                            .font(VTypography.caption2)
+                            .foregroundStyle(VColors.textSecondary)
                     }
                 }
                 .padding(.horizontal, VSpacing.screenPadding)
