@@ -6,10 +6,7 @@ struct DashboardView: View {
     @Environment(\.currencyCode) private var currencyCode
     @State private var vm: DashboardViewModel?
     @State private var navigateDestination: NavigationDestination?
-    @State private var showAddBudget = false
-    @State private var showQuickActionTransactionForm = false
-    @State private var showQuickActionTransferForm = false
-    @State private var quickActionTransactionType: TransactionType = .expense
+    @State private var activeQuickActionModal: QuickActionModal?
 
     var body: some View {
         ZStack {
@@ -35,46 +32,22 @@ struct DashboardView: View {
         .navigationDestination(item: $navigateDestination) { dest in
             navigationView(for: dest)
         }
-        .sheet(isPresented: $showAddBudget) {
-            BudgetFormView(isPresented: $showAddBudget)
-        }
         #if os(iOS)
         .if(shouldPresentQuickActionsAsSheet) { view in
             view
-                .sheet(isPresented: $showQuickActionTransactionForm) {
-                    NavigationStack {
-                        TransactionFormView(initialType: quickActionTransactionType)
-                    }
-                }
-                .sheet(isPresented: $showQuickActionTransferForm) {
-                    NavigationStack {
-                        TransferFormView()
-                    }
+                .sheet(item: $activeQuickActionModal) { modal in
+                    quickActionModalView(for: modal)
                 }
         }
         .if(!shouldPresentQuickActionsAsSheet) { view in
             view
-                .fullScreenCover(isPresented: $showQuickActionTransactionForm) {
-                    NavigationStack {
-                        TransactionFormView(initialType: quickActionTransactionType)
-                    }
-                }
-                .fullScreenCover(isPresented: $showQuickActionTransferForm) {
-                    NavigationStack {
-                        TransferFormView()
-                    }
+                .fullScreenCover(item: $activeQuickActionModal) { modal in
+                    quickActionModalView(for: modal)
                 }
         }
         #else
-        .sheet(isPresented: $showQuickActionTransactionForm) {
-            NavigationStack {
-                TransactionFormView(initialType: quickActionTransactionType)
-            }
-        }
-        .sheet(isPresented: $showQuickActionTransferForm) {
-            NavigationStack {
-                TransferFormView()
-            }
+        .sheet(item: $activeQuickActionModal) { modal in
+            quickActionModalView(for: modal)
         }
         #endif
     }
@@ -200,7 +173,7 @@ struct DashboardView: View {
                     .foregroundColor(VColors.textSecondary)
                 Spacer()
                 Button {
-                    showAddBudget = true
+                    activeQuickActionModal = .addBudget
                 } label: {
                     Text(String(localized: "Manage"))
                         .font(VTypography.caption1)
@@ -292,15 +265,46 @@ struct DashboardView: View {
     ) {
         switch destination {
         case .addTransaction:
-            quickActionTransactionType = transactionType ?? .expense
-            showQuickActionTransactionForm = true
+            activeQuickActionModal = .addTransaction(type: transactionType ?? .expense)
         case .addTransfer:
-            showQuickActionTransferForm = true
+            activeQuickActionModal = .addTransfer
         case .addBudget:
-            showAddBudget = true
+            activeQuickActionModal = .addBudget
         default:
             navigateDestination = destination
         }
+    }
+
+    @ViewBuilder
+    private func quickActionModalView(for modal: QuickActionModal) -> some View {
+        switch modal {
+        case .addTransaction(let type):
+            NavigationStack {
+                TransactionFormView(initialType: type)
+            }
+        case .addTransfer:
+            NavigationStack {
+                TransferFormView()
+            }
+        case .addBudget:
+            BudgetFormView(isPresented: budgetPresentationBinding)
+        }
+    }
+
+    private var budgetPresentationBinding: Binding<Bool> {
+        Binding(
+            get: {
+                if case .addBudget = activeQuickActionModal {
+                    return true
+                }
+                return false
+            },
+            set: { isPresented in
+                if !isPresented {
+                    activeQuickActionModal = nil
+                }
+            }
+        )
     }
 
     @ViewBuilder
@@ -346,6 +350,23 @@ struct DashboardView: View {
             monthComparisonUseCase: comparisonUseCase,
             currencyCode: currencyCode
         )
+    }
+}
+
+private enum QuickActionModal: Identifiable {
+    case addTransaction(type: TransactionType)
+    case addTransfer
+    case addBudget
+
+    var id: String {
+        switch self {
+        case .addTransaction(let type):
+            return "addTransaction-\(type.rawValue)"
+        case .addTransfer:
+            return "addTransfer"
+        case .addBudget:
+            return "addBudget"
+        }
     }
 }
 
