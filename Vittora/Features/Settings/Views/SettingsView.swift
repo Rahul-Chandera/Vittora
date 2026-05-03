@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(AppState.self) private var appState
     @Environment(SettingsViewModel.self) private var vm
     @Environment(SyncConflictHandler.self) private var syncConflictHandler
     @Environment(\.dependencies) private var dependencies
@@ -191,8 +192,19 @@ struct SettingsView: View {
         isDeletingAllData = false
 
         if didDelete {
+            resetRuntimeStateAfterFactoryReset()
             showDeleteAccountConfirm = false
         }
+    }
+
+    private func resetRuntimeStateAfterFactoryReset() {
+        // Factory reset clears persisted onboarding/security markers.
+        // Reset in-memory state as well so the app immediately returns to onboarding.
+        vm.isAppLockEnabled = false
+        appState.isLocked = false
+        appState.isAuthenticated = true
+        appState.isOnboardingComplete = false
+        appState.selectedTab = .dashboard
     }
 
     private func deleteAllData() async -> Bool {
