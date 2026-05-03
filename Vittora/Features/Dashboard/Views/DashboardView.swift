@@ -7,6 +7,8 @@ struct DashboardView: View {
     @State private var vm: DashboardViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var activeQuickActionModal: QuickActionModal?
+    @State private var isQuickEntryButtonVisible: Bool = true
+    @State private var lastScrollOffsetY: CGFloat = 0
 
     var body: some View {
         ZStack {
@@ -21,6 +23,9 @@ struct DashboardView: View {
                 ProgressView()
                     .tint(VColors.primary)
             }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            quickEntryFloatingButton
         }
         .navigationTitle(String(localized: "Dashboard"))
         .task {
@@ -67,6 +72,11 @@ struct DashboardView: View {
             macLayout(vm)
             #endif
         }
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            geometry.contentOffset.y
+        } action: { oldValue, newValue in
+            updateQuickEntryButtonVisibility(oldOffset: oldValue, newOffset: newValue)
+        }
         .refreshable {
             await vm.refresh()
         }
@@ -74,6 +84,38 @@ struct DashboardView: View {
             if let errorMessage = vm.error {
                 errorBanner(errorMessage)
             }
+        }
+    }
+
+    private var quickEntryFloatingButton: some View {
+        QuickEntryButton {
+            NotificationCenter.default.post(name: .vittoraNewTransaction, object: nil)
+        }
+        .padding(.trailing, VSpacing.lg)
+        .padding(.bottom, VSpacing.lg)
+        .opacity(isQuickEntryButtonVisible ? 1 : 0)
+        .scaleEffect(isQuickEntryButtonVisible ? 1 : 0.85)
+        .offset(y: isQuickEntryButtonVisible ? 0 : 16)
+        .animation(reduceMotion ? nil : .spring(response: 0.32, dampingFraction: 0.85), value: isQuickEntryButtonVisible)
+        .allowsHitTesting(isQuickEntryButtonVisible)
+        .accessibilityHidden(!isQuickEntryButtonVisible)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+    }
+
+    private func updateQuickEntryButtonVisibility(oldOffset: CGFloat, newOffset: CGFloat) {
+        let delta = newOffset - oldOffset
+        let scrollThreshold: CGFloat = 6
+        let topProximity: CGFloat = 16
+
+        if newOffset <= topProximity {
+            if !isQuickEntryButtonVisible { isQuickEntryButtonVisible = true }
+            return
+        }
+
+        if delta > scrollThreshold, isQuickEntryButtonVisible {
+            isQuickEntryButtonVisible = false
+        } else if delta < -scrollThreshold, !isQuickEntryButtonVisible {
+            isQuickEntryButtonVisible = true
         }
     }
 
