@@ -19,7 +19,7 @@ final class OnboardingViewModel {
     var userName = ""
     var accountName = ""
     var selectedAccountType: AccountType = .bank
-    var openingBalance = "0"
+    var openingBalance = ""
     var isSaving = false
     var error: String?
 
@@ -38,11 +38,9 @@ final class OnboardingViewModel {
         switch currentStep {
         case .welcome:   return true
         case .currency:  return !selectedCurrencyCode.isEmpty
-        case .profile:   return true   // name is optional
-        case .account:
-            return !accountName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            normalizedOpeningBalance != nil
-        case .done:      return true
+        case .profile:   return hasValidProfileName
+        case .account:   return hasValidAccountSetup
+        case .done:      return hasValidAccountSetup
         }
     }
 
@@ -67,7 +65,7 @@ final class OnboardingViewModel {
 
     func complete(appState: AppState) async {
         guard !isSaving else { return }
-        guard canAdvance else {
+        guard hasValidAccountSetup else {
             error = String(localized: "Complete your first account setup to continue.")
             return
         }
@@ -108,6 +106,15 @@ final class OnboardingViewModel {
         let trimmed = openingBalance.trimmingCharacters(in: .whitespacesAndNewlines)
         let sanitized = trimmed.replacingOccurrences(of: ",", with: "")
         return Decimal(string: sanitized)
+    }
+
+    private var hasValidAccountSetup: Bool {
+        !accountName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        normalizedOpeningBalance != nil
+    }
+
+    private var hasValidProfileName: Bool {
+        !userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
 

@@ -5,7 +5,7 @@ import SwiftData
 final class SDBudget {
     #Index<SDBudget>([\.categoryID], [\.startDate])
 
-    @Attribute(.unique) var id: UUID = UUID()
+    var id: UUID = UUID()
     var amount: Decimal = 0
     var spent: Decimal = 0
     var periodRawValue: String = BudgetPeriod.monthly.rawValue

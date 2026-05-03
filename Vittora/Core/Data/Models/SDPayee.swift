@@ -5,7 +5,7 @@ import SwiftData
 final class SDPayee {
     #Index<SDPayee>([\.typeRawValue])
 
-    @Attribute(.unique) var id: UUID = UUID()
+    var id: UUID = UUID()
     var name: String = ""
     var typeRawValue: String = PayeeType.business.rawValue
     var phone: String?

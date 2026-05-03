@@ -40,6 +40,20 @@ struct OnboardingViewModelTests {
         #expect(vm.canAdvance == true)
     }
 
+    @Test("profile step requires a non-empty name")
+    func profileStepRequiresName() {
+        let vm = OnboardingViewModel()
+        vm.currentStep = .profile
+
+        #expect(vm.canAdvance == false)
+
+        vm.userName = "   "
+        #expect(vm.canAdvance == false)
+
+        vm.userName = "Rahul"
+        #expect(vm.canAdvance == true)
+    }
+
     @Test("complete persists sensitive values to Keychain and creates the first account")
     func completePersistsValuesToKeychainAndCreatesAccount() async throws {
         let keychain = MockKeychainService()

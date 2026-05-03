@@ -6,7 +6,7 @@ import SwiftData
 final class SDTaxProfile {
     #Index<SDTaxProfile>([\.countryRawValue], [\.financialYear])
 
-    @Attribute(.unique) var id: UUID = UUID()
+    var id: UUID = UUID()
     var countryRawValue: String = TaxCountry.india.rawValue
     var annualIncome: Decimal = Decimal(0)
     var indiaRegimeRawValue: String = IndiaRegime.newRegime.rawValue

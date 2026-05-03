@@ -5,7 +5,7 @@ import SwiftData
 final class SDSavingsGoal {
     #Index<SDSavingsGoal>([\.statusRawValue], [\.linkedAccountID])
 
-    @Attribute(.unique) var id: UUID = UUID()
+    var id: UUID = UUID()
     var name: String = ""
     var categoryRawValue: String = GoalCategory.other.rawValue
     var targetAmount: Decimal = Decimal(0)
