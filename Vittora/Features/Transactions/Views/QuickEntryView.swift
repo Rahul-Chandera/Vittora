@@ -79,7 +79,7 @@ struct QuickEntryView: View {
                             Task {
                                 do {
                                     try await vm.save()
-                                    appState.transactionRefreshVersion += 1
+                                    appState.notifyDataChanged()
                                     #if os(iOS)
                                     let feedback = UIImpactFeedbackGenerator(style: .light)
                                     feedback.impactOccurred()

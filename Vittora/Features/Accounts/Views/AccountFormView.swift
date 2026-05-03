@@ -4,6 +4,7 @@ struct AccountFormView: View {
     var editingAccount: AccountEntity? = nil
     var onSave: (() -> Void)? = nil
 
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: AccountFormViewModel?
@@ -132,6 +133,7 @@ struct AccountFormView: View {
         saveError = nil
         do {
             try await vm.save()
+            appState.notifyDataChanged()
             onSave?()
             dismiss()
         } catch {

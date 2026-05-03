@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RecurringListView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) var dependencies
     @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: RecurringListViewModel?
@@ -116,6 +117,7 @@ struct RecurringListView: View {
                                             Button(role: .destructive) {
                                                 Task {
                                                     await viewModel.deleteRule(id: rule.id)
+                                                    appState.notifyDataChanged()
                                                 }
                                             } label: {
                                                 Label("Delete", systemImage: "trash.fill")
@@ -161,6 +163,10 @@ struct RecurringListView: View {
             Task {
                 await viewModel?.loadRules()
             }
+        }
+        .task(id: appState.dataRefreshVersion) {
+            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+            await viewModel?.loadRules()
         }
     }
 

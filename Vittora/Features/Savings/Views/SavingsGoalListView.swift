@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SavingsGoalListView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.currencyCode) private var currencyCode
     @State private var vm: SavingsGoalListViewModel?
@@ -44,6 +45,10 @@ struct SavingsGoalListView: View {
                 )
                 await vm?.load()
             }
+        }
+        .task(id: appState.dataRefreshVersion) {
+            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+            await vm?.load()
         }
         .sheet(isPresented: $showAddGoal) {
             SavingsGoalFormView {
@@ -150,7 +155,10 @@ struct SavingsGoalListView: View {
                 .buttonStyle(.plain)
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
-                        Task { await vm.delete(id: goal.id) }
+                        Task {
+                            await vm.delete(id: goal.id)
+                            appState.notifyDataChanged()
+                        }
                     } label: {
                         Label(String(localized: "Delete"), systemImage: "trash")
                     }

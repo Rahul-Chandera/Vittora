@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PayeeListView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: PayeeListViewModel?
     @State private var showAddPayee = false
@@ -43,7 +44,10 @@ struct PayeeListView: View {
         .alert(String(localized: "Delete Payee"), isPresented: $showingDeleteAlert) {
             Button(String(localized: "Delete"), role: .destructive) {
                 if let id = payeeToDelete, let vm = viewModel {
-                    Task { await vm.deletePayee(id: id) }
+                    Task {
+                        await vm.deletePayee(id: id)
+                        appState.notifyDataChanged()
+                    }
                 }
             }
             Button(String(localized: "Cancel"), role: .cancel) {}
@@ -69,6 +73,10 @@ struct PayeeListView: View {
         }
         .task {
             await setupViewModel()
+        }
+        .task(id: appState.dataRefreshVersion) {
+            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+            await viewModel?.loadPayees()
         }
     }
 

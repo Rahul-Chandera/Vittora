@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SplitGroupFormView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
 
@@ -122,6 +123,7 @@ struct SplitGroupFormView: View {
             } else {
                 _ = try await useCase.execute(name: groupName, memberIDs: Array(selectedMemberIDs))
             }
+            appState.notifyDataChanged()
             onSaved()
             dismiss()
         } catch {

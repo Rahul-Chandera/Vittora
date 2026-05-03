@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct BudgetListView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) var dependencies
     @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: BudgetListViewModel?
@@ -65,6 +66,7 @@ struct BudgetListView: View {
                                     Button(role: .destructive) {
                                         Task {
                                             await viewModel.deleteBudget(id: budget.id)
+                                            appState.notifyDataChanged()
                                         }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
@@ -128,6 +130,10 @@ struct BudgetListView: View {
                 if let viewModel = viewModel {
                     await viewModel.loadBudgets()
                 }
+            }
+            .task(id: appState.dataRefreshVersion) {
+                guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+                await viewModel?.loadBudgets()
             }
             .accessibilityIdentifier("budget-list-root")
         }

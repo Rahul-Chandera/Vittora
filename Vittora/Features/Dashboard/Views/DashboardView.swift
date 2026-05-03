@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DashboardView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.currencyCode) private var currencyCode
@@ -33,6 +34,10 @@ struct DashboardView: View {
                 vm = createViewModel()
                 await vm?.load()
             }
+        }
+        .task(id: appState.dataRefreshVersion) {
+            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+            await vm?.refresh()
         }
         .navigationDestination(item: $navigateDestination) { dest in
             navigationView(for: dest)

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RecurringFormView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) var dependencies
     @Environment(\.dismiss) var dismiss
     @Environment(\.currencySymbol) private var currencySymbol
@@ -318,6 +319,7 @@ struct RecurringFormView: View {
 
             do {
                 try await viewModel?.save()
+                appState.notifyDataChanged()
                 onDismiss?()
                 dismiss()
             } catch {

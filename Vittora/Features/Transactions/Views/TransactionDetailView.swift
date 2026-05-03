@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TransactionDetailView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
     @Environment(\.currencyCode) private var currencyCode
@@ -143,6 +144,7 @@ struct TransactionDetailView: View {
                                 Task {
                                     do {
                                         try await vm.delete()
+                                        appState.notifyDataChanged()
                                         dismiss()
                                     } catch {
                                         vm.error = error.userFacingMessage(

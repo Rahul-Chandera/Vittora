@@ -4,6 +4,7 @@ struct PayeeFormView: View {
     var editingPayee: PayeeEntity? = nil
     var onSave: (() -> Void)? = nil
 
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: PayeeFormViewModel?
@@ -127,6 +128,7 @@ struct PayeeFormView: View {
         saveError = nil
         do {
             try await vm.save()
+            appState.notifyDataChanged()
             onSave?()
             dismiss()
         } catch {

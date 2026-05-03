@@ -78,7 +78,7 @@ struct TransactionFormView: View {
                             Task {
                                 do {
                                     try await vm.save()
-                                    appState.transactionRefreshVersion += 1
+                                    appState.notifyDataChanged()
                                     dependencies.hapticService.success()
                                     dismiss()
                                 } catch {
