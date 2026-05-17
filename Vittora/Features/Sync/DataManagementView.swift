@@ -258,7 +258,8 @@ struct DataManagementView: View {
             recurringRuleRepository: dependencies.recurringRuleRepository,
             taxProfileRepository: dependencies.taxProfileRepository,
             documentStorageService: dependencies.documentStorageService,
-            keychainService: dependencies.keychainService ?? KeychainService()
+            keychainService: dependencies.keychainService ?? KeychainService(),
+            dataSeeder: dependencies.dataSeeder
         )
         vm = DataManagementViewModel(service: service)
         Task { await vm?.loadStats() }

@@ -232,7 +232,8 @@ struct SettingsView: View {
             recurringRuleRepository: dependencies.recurringRuleRepository,
             taxProfileRepository: dependencies.taxProfileRepository,
             documentStorageService: dependencies.documentStorageService,
-            keychainService: dependencies.keychainService ?? KeychainService()
+            keychainService: dependencies.keychainService ?? KeychainService(),
+            dataSeeder: dependencies.dataSeeder
         )
         do {
             try await service.factoryReset()

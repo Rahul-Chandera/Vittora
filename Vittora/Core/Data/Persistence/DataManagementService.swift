@@ -52,6 +52,7 @@ final class DataManagementService: Sendable {
     private let taxProfileRepository: (any TaxProfileRepository)?
     private let documentStorageService: (any DocumentStorageServiceProtocol)?
     private let keychainService: any KeychainServiceProtocol
+    private let dataSeeder: (any DataSeederProtocol)?
 
     init(
         transactionRepository: any TransactionRepository,
@@ -66,7 +67,8 @@ final class DataManagementService: Sendable {
         recurringRuleRepository: (any RecurringRuleRepository)? = nil,
         taxProfileRepository: (any TaxProfileRepository)? = nil,
         documentStorageService: (any DocumentStorageServiceProtocol)? = nil,
-        keychainService: (any KeychainServiceProtocol)? = nil
+        keychainService: (any KeychainServiceProtocol)? = nil,
+        dataSeeder: (any DataSeederProtocol)? = nil
     ) {
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
@@ -81,6 +83,7 @@ final class DataManagementService: Sendable {
         self.taxProfileRepository = taxProfileRepository
         self.documentStorageService = documentStorageService
         self.keychainService = keychainService ?? KeychainService()
+        self.dataSeeder = dataSeeder
     }
 
     // MARK: - Statistics
@@ -153,6 +156,12 @@ final class DataManagementService: Sendable {
         for account in accounts { try await accountRepository.delete(account.id) }
         let categories = try await categoryRepository.fetchAll()
         for category in categories { try await categoryRepository.delete(category.id) }
+
+        // Restore the out-of-the-box default categories so the app remains
+        // immediately usable post-reset (matches a fresh-install experience).
+        if let dataSeeder {
+            try await dataSeeder.reseedDefaultCategories()
+        }
 
         // Clear sensitive Keychain entries
         try await keychainService.delete(forKey: "vittora.onboardingComplete")

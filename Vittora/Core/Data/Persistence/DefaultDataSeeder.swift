@@ -3,6 +3,11 @@ import SwiftData
 
 protocol DataSeederProtocol: Sendable {
     func seedDefaultCategoriesIfNeeded() async throws
+    /// Force re-seeds the default expense and income categories regardless of the
+    /// "already seeded" gate. Intended for use after a factory reset, where all
+    /// existing categories have just been deleted and we want to restore the
+    /// out-of-the-box defaults so the app remains usable on next launch.
+    func reseedDefaultCategories() async throws
 }
 
 @ModelActor
@@ -19,6 +24,12 @@ actor DefaultDataSeeder: DataSeederProtocol {
         try await seedIncomeCategories()
 
         userDefaults.set(true, forKey: seededKey)
+    }
+
+    func reseedDefaultCategories() async throws {
+        try await seedExpenseCategories()
+        try await seedIncomeCategories()
+        UserDefaults.standard.set(true, forKey: seededKey)
     }
 
     private func seedExpenseCategories() async throws {

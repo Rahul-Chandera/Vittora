@@ -25,6 +25,7 @@ final class DependencyContainer {
     var contactsImportService: (any ContactsImportServiceProtocol)?
     var hapticService: (any HapticServiceProtocol) = LiveHapticService()
     var securityAuditLogService: SecurityAuditLogService?
+    var dataSeeder: (any DataSeederProtocol)?
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
         let container = DependencyContainer()
@@ -39,6 +40,7 @@ final class DependencyContainer {
         container.splitGroupRepository = SwiftDataSplitGroupRepository(modelContainer: modelContainer)
         container.taxProfileRepository = SwiftDataTaxProfileRepository(modelContainer: modelContainer)
         container.savingsGoalRepository = SwiftDataSavingsGoalRepository(modelContainer: modelContainer)
+        container.dataSeeder = DefaultDataSeeder(modelContainer: modelContainer)
 
         let keychainService = KeychainService()
         let biometricService = BiometricService()
