@@ -29,11 +29,14 @@ struct CreateAccountUseCase: Sendable {
             throw VittoraError.validationFailed("An account with this name already exists")
         }
 
-        // Create the account
+        // Create the account. A brand-new account has no transactions yet, so
+        // its opening balance equals its starting balance — this seeds the
+        // reconciliation baseline (DATAINTEGRITY-12).
         let account = AccountEntity(
             name: name.trimmingCharacters(in: .whitespaces),
             type: type,
             balance: balance,
+            openingBalance: balance,
             currencyCode: currencyCode,
             icon: icon,
             isArchived: false

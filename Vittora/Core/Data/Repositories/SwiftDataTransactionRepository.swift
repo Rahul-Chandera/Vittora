@@ -77,6 +77,13 @@ actor SwiftDataTransactionRepository: TransactionRepository {
         return results
     }
 
+    // DATAINTEGRITY-12: reconciliation needs every row, so this path is
+    // deliberately uncapped (the 500-row cap on `fetchAll` would truncate sums).
+    func fetchAllForReconciliation() async throws -> [TransactionEntity] {
+        let descriptor = FetchDescriptor<SDTransaction>()
+        return try modelContext.fetch(descriptor).map(TransactionMapper.toEntity)
+    }
+
     func fetchByID(_ id: UUID) async throws -> TransactionEntity? {
         let descriptor = FetchDescriptor<SDTransaction>(
             predicate: #Predicate { $0.id == id }

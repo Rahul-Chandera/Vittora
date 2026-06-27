@@ -1,6 +1,6 @@
 # Vittora SwiftData Schema Map
 
-Current schema version: `VittoraSchemaV3` (baseline `VittoraSchemaV1`) in `Vittora/Core/Data/Persistence/VittoraMigrationPlan.swift`.
+Current schema version: `VittoraSchemaV4` (baseline `VittoraSchemaV1`) in `Vittora/Core/Data/Persistence/VittoraMigrationPlan.swift`.
 
 ## Schema Versions
 
@@ -13,11 +13,16 @@ Current schema version: `VittoraSchemaV3` (baseline `VittoraSchemaV1`) in `Vitto
   derivable from a single row (DATAINTEGRITY-1, A3). Additive only; the V2→V3
   step is a CloudKit-safe `.lightweight` `MigrationStage`. Legacy transfer legs
   keep `nil` and stay non-derivable.
+- **V4** — adds optional `SDAccount.openingBalance: Decimal?`, the balance before
+  any transaction, used by balance reconciliation (DATAINTEGRITY-12, A7). Additive
+  only; the V3→V4 step is a CloudKit-safe `.lightweight` `MigrationStage`.
+  Legacy rows keep `openingBalance == nil`; reconciliation derives the implied
+  opening (`balance − Σ effects`) on read rather than persisting a baseline.
 
-> **Merge-order versioning:** A3 (`transferDirection`) and A7 (`openingBalance`)
-> both introduce a V3 off the V2 tip on their own branches. Whichever merges into
-> `refactoring` first keeps V3; the second rebases and renumbers to V4. Only one
-> may claim V3 on `refactoring`.
+> **Merge-order versioning (resolved):** A3 (`transferDirection`) merged into
+> `refactoring` first and kept V3; A7 (`openingBalance`) rebased onto that tip and
+> took V4. The two additive changes are independent (V3 → `SDTransaction`, V4 →
+> `SDAccount`).
 
 ## Registered Models
 

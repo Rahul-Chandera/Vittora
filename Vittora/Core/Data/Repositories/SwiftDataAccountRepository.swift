@@ -36,6 +36,7 @@ actor SwiftDataAccountRepository: AccountRepository {
             name: entity.name,
             type: entity.type,
             balance: entity.balance,
+            openingBalance: entity.openingBalance,
             currencyCode: entity.currencyCode,
             icon: entity.icon,
             isArchived: entity.isArchived,

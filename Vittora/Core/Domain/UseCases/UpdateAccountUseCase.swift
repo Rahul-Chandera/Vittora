@@ -37,12 +37,21 @@ struct UpdateAccountUseCase: Sendable {
             throw VittoraError.validationFailed("An account with this name already exists")
         }
 
+        // A manual balance edit re-baselines the opening balance by the same
+        // delta so reconciliation stays consistent (expected == new balance and
+        // no false drift). Legacy accounts (nil opening) stay nil — their
+        // implied opening is derived on read, not pinned here (DATAINTEGRITY-12).
+        let newOpeningBalance: Decimal? = existingAccount.openingBalance.map {
+            $0 + (balance - existingAccount.balance)
+        }
+
         // Update the account
         let updatedAccount = AccountEntity(
             id: id,
             name: name.trimmingCharacters(in: .whitespaces),
             type: type,
             balance: balance,
+            openingBalance: newOpeningBalance,
             currencyCode: currencyCode,
             icon: icon,
             isArchived: existingAccount.isArchived,

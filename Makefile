@@ -54,6 +54,7 @@ test-sync:
 		-destination 'platform=macOS' \
 		-derivedDataPath .build \
 		-only-testing:VittoraTests/SyncConflictHandlerTests \
+		-only-testing:VittoraTests/ReconcileAccountBalanceUseCaseTests \
 		test
 
 test-data:

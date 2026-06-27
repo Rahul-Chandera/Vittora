@@ -34,13 +34,14 @@ struct ModelContainerConfigTests {
         #expect(doc.transactionID == nil)
     }
 
-    @Test("migration plan declares V1, V2 and V3 with lightweight stages")
+    @Test("migration plan declares V1–V4 with lightweight stages")
     func migrationPlanShape() {
-        #expect(VittoraMigrationPlan.schemas.count == 3)
-        #expect(VittoraMigrationPlan.stages.count == 2)
+        #expect(VittoraMigrationPlan.schemas.count == 4)
+        #expect(VittoraMigrationPlan.stages.count == 3)
         #expect(VittoraSchemaV1.versionIdentifier == Schema.Version(1, 0, 0))
         #expect(VittoraSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
         #expect(VittoraSchemaV3.versionIdentifier == Schema.Version(3, 0, 0))
+        #expect(VittoraSchemaV4.versionIdentifier == Schema.Version(4, 0, 0))
     }
 
     // NOTE: This is a persistence round-trip at the current (V2) schema — it
@@ -121,7 +122,7 @@ struct ModelContainerConfigTests {
         let plainID = UUID()
 
         do {
-            let schema = Schema(VittoraSchemaV3.models)
+            let schema = Schema(VittoraSchemaV4.models)
             let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
             let container = try ModelContainer(
                 for: schema,
@@ -141,7 +142,7 @@ struct ModelContainerConfigTests {
             try ctx.save()
         }
 
-        let schema = Schema(VittoraSchemaV3.models)
+        let schema = Schema(VittoraSchemaV4.models)
         let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
         let container = try ModelContainer(
             for: schema,
@@ -155,5 +156,48 @@ struct ModelContainerConfigTests {
         #expect(rows.first { $0.id == debitID }?.transferDirection == .debit)
         #expect(rows.first { $0.id == creditID }?.transferDirection == .credit)
         #expect(rows.first { $0.id == plainID }?.transferDirection == nil)
+    }
+
+    // Schema V4 (DATAINTEGRITY-12, A7): persistence round-trip at the current
+    // schema for the additive optional `openingBalance` — a set value and a nil
+    // value must both survive a close/reopen of an on-disk store.
+    @Test("on-disk store round-trips account openingBalance (set and nil)")
+    func onDiskStoreRoundTripsOpeningBalance() throws {
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let storeURL = dir.appendingPathComponent("vittora-opening-roundtrip.store")
+
+        let withOpeningID = UUID()
+        let legacyID = UUID()
+
+        do {
+            let schema = Schema(VittoraSchemaV4.models)
+            let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+            let container = try ModelContainer(
+                for: schema,
+                migrationPlan: VittoraMigrationPlan.self,
+                configurations: [config]
+            )
+            let ctx = ModelContext(container)
+            ctx.insert(SDAccount(id: withOpeningID, name: "Seeded", type: .bank, balance: 500, openingBalance: 1000))
+            ctx.insert(SDAccount(id: legacyID, name: "Legacy", type: .bank, balance: 500, openingBalance: nil))
+            try ctx.save()
+        }
+
+        let schema = Schema(VittoraSchemaV4.models)
+        let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let ctx = ModelContext(container)
+        let rows = try ctx.fetch(FetchDescriptor<SDAccount>())
+
+        #expect(rows.count == 2)
+        #expect(rows.first { $0.id == withOpeningID }?.openingBalance == 1000)
+        #expect(rows.first { $0.id == legacyID }?.openingBalance == nil)
     }
 }
