@@ -18,6 +18,10 @@ final class DependencyContainer {
 
     var ledgerWriteStore: LedgerWriteStore?
 
+    /// Shared serializer for recurring generation so app-launch and background
+    /// runs funnel through one in-flight run (DATAINTEGRITY-4).
+    var recurringGenerationCoordinator: RecurringGenerationCoordinator?
+
     var biometricService: (any BiometricServiceProtocol)?
     var keychainService: (any KeychainServiceProtocol)?
     var encryptionService: (any EncryptionServiceProtocol)?
@@ -42,8 +46,21 @@ final class DependencyContainer {
         container.splitGroupRepository = SwiftDataSplitGroupRepository(modelContainer: modelContainer)
         container.taxProfileRepository = SwiftDataTaxProfileRepository(modelContainer: modelContainer)
         container.savingsGoalRepository = SwiftDataSavingsGoalRepository(modelContainer: modelContainer)
-        container.ledgerWriteStore = LedgerWriteStore(modelContainer: modelContainer)
+        let ledgerWriteStore = LedgerWriteStore(modelContainer: modelContainer)
+        container.ledgerWriteStore = ledgerWriteStore
         container.dataSeeder = DefaultDataSeeder(modelContainer: modelContainer)
+
+        if let recurringRuleRepository = container.recurringRuleRepository,
+           let transactionRepository = container.transactionRepository,
+           let accountRepository = container.accountRepository {
+            let generateUseCase = GenerateRecurringTransactionsUseCase(
+                ruleRepository: recurringRuleRepository,
+                transactionRepository: transactionRepository,
+                accountRepository: accountRepository,
+                ledgerWriting: ledgerWriteStore
+            )
+            container.recurringGenerationCoordinator = RecurringGenerationCoordinator(useCase: generateUseCase)
+        }
 
         let keychainService = KeychainService()
         let biometricService = BiometricService()

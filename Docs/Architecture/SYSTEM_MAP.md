@@ -62,6 +62,7 @@ This map helps agents find the right files quickly.
 ## Recurring Transactions
 
 - Generation use case: `Vittora/Core/Domain/UseCases/GenerateRecurringTransactionsUseCase.swift`
+- Serializer: `Vittora/Core/Domain/UseCases/RecurringGenerationCoordinator.swift` (coalesces launch + BGTask runs)
 - Rule repository: `Vittora/Core/Data/Repositories/SwiftDataRecurringRuleRepository.swift`
 - Background scheduler: `Vittora/Core/Infrastructure/BackgroundTaskScheduler.swift`
 - Feature UI: `Vittora/Features/Recurring/`

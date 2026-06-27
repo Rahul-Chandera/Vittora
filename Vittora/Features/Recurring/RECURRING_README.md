@@ -96,14 +96,25 @@ try await pauseResumeUseCase.resume(id: ruleID)    // Resume
 ```
 
 ### Generate Transactions
+
+Generation is funneled through `RecurringGenerationCoordinator` so app-launch and
+background runs can't overlap. The use case catches up every missed occurrence
+since each rule's `nextDate`, is idempotent per `(rule, calendar day)`, and writes
+each transaction + balance atomically via `LedgerWriting.performAdd`.
+
 ```swift
 let generateUseCase = GenerateRecurringTransactionsUseCase(
     ruleRepository: recurringRepo,
     transactionRepository: transactionRepo,
-    accountRepository: accountRepo
+    accountRepository: accountRepo,
+    ledgerWriting: ledgerWriteStore
 )
-let count = try await generateUseCase.execute()
+let coordinator = RecurringGenerationCoordinator(useCase: generateUseCase)
+let count = try await coordinator.generate()
 ```
+
+In practice, use the shared instance:
+`dependencies.recurringGenerationCoordinator`.
 
 ### Calculate Costs
 ```swift
@@ -188,14 +199,8 @@ let categoryRepo = dependencies.categoryRepository
 Register the background task in your app initialization:
 ```swift
 #if os(iOS)
-let generateUseCase = GenerateRecurringTransactionsUseCase(
-    ruleRepository: recurringRepo,
-    transactionRepository: transactionRepo,
-    accountRepository: accountRepo
-)
 BackgroundTaskScheduler.register(
-    modelContainer: modelContainer,
-    generateUseCase: generateUseCase
+    coordinator: dependencies.recurringGenerationCoordinator
 )
 BackgroundTaskScheduler.scheduleNextRefresh()
 #endif
