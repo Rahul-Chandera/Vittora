@@ -42,13 +42,17 @@ struct ModelContainerConfigTests {
         #expect(VittoraSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
     }
 
-    @Test("on-disk store reopens through the migration plan preserving data and transferPairID")
-    func migrationV1toV2RoundTrip() throws {
+    // NOTE: This is a persistence round-trip at the current (V2) schema — it
+    // closes and reopens an on-disk store — not a V1→V2 migration test. A
+    // faithful V1→V2 migration test (frozen V1 snapshot without transferPairID)
+    // is tracked under I4; see EXECUTION_PLAN.md.
+    @Test("on-disk store round-trips transactions including transferPairID")
+    func onDiskStoreRoundTripsTransferPairID() throws {
         let dir = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: dir) }
-        let storeURL = dir.appendingPathComponent("vittora-migration-test.store")
+        let storeURL = dir.appendingPathComponent("vittora-roundtrip-test.store")
 
         let pairID = UUID()
         let transferLegID = UUID()
@@ -79,7 +83,7 @@ struct ModelContainerConfigTests {
             try ctx.save()
         }
 
-        // Second open: reopen the same store through the migration plan.
+        // Second open: reopen the same on-disk store (migration plan attached).
         let schema = Schema(VittoraSchemaV2.models)
         let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
         let container = try ModelContainer(
