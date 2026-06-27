@@ -129,6 +129,14 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 - **Acceptance:** concurrent `execute()` produces no duplicates; a 3-months-stale rule generates all missed periods; a Jan-31 monthly rule does not drift.
 - **Tests:** `RecurringUseCaseTests` — `concurrentExecuteNoDuplicates`, `staleRuleCatchesUp`, `monthEndAnchorStable`.
 - **Verify:** `make test-recurring`
+- **Implemented (A8 — branch `fix/A8-recurring-idempotency`, off `refactoring` post-A6 merge):**
+  - **Serialization (no schema change):** new `RecurringGenerationCoordinator` actor holds a single in-flight `Task`; a second caller arriving during a run awaits the same run (coalesce) instead of starting its own. Built once in `DependencyContainer` and shared by both entry points (app-launch `seedDefault…` path in `VittoraApp` and `BackgroundTaskScheduler`), so launch + BGTask can't interleave their check-then-create windows. Chose lock/serialization over a unique constraint to stay schema-independent (avoids V3/V4 collision with A3/A7).
+  - **Atomic write:** generation routes create+balance through the merged A6 `LedgerWriting.performAdd` (one save, rollback on failure). The use case now takes a REQUIRED `any LedgerWriting`; the old manual `accountRepository.update` + best-effort rollback block is gone.
+  - **Idempotency:** keyed by `(recurringRuleID, calendar day)` via `calendar.startOfDay`, matched against existing rule transactions and the in-run created set — matches by day, not exact `Date`. A failure between the atomic `performAdd` and the separate rule-pointer `update` is self-healed on the next run (skip + advance), never double-charging.
+  - **Catch-up:** per due rule, loop while `occurrence <= now` (and `<= endDate`), generating each missed occurrence; advance the persisted `nextDate` once at the end. Safety break if a frequency fails to advance (e.g. `custom(days: 0)`).
+  - **Month-end anchor:** `addMonths` preserves an end-of-month anchor — a date that is the last day of its month maps to the last day of the target month (Jan-31 → Feb-28 → Mar-31), other days clamp only when the target is shorter. **Known limitation (no schema field):** a non-last-day day > 28 (e.g. the 30th) that gets clamped in February then sticks to month-end thereafter; a fully faithful per-rule anchor would need an additive `anchorDay` field, deliberately deferred to avoid a schema-version collision with A3/A7.
+  - **Testability:** injected `calendar` (gregorian default) + `nowProvider` so catch-up/anchor are deterministic.
+  - **Test name mapping:** `concurrentExecuteNoDuplicates`→`recurringCoordinatorCoalescesConcurrentRuns`; `staleRuleCatchesUp`→`generateRecurringTransactionsCatchesUpStaleRule`; `monthEndAnchorStable`→`generateRecurringTransactionsKeepsMonthEndAnchor`; plus `…MatchesExistingByCalendarDay` and `…SelfHealsRuleUpdateFailure`.
 
 ### A9 — Centralized locale-aware money parser
 - **Finding:** DATAINTEGRITY-5 / CODEQUALITY-2

@@ -31,7 +31,7 @@ struct VittoraApp: App {
     private let seedsTransfersForUITesting: Bool
     private let startupErrorMessage: String?
     private let startupFailureMessage: String?
-    private let recurringGenerationUseCase: GenerateRecurringTransactionsUseCase?
+    private let recurringGenerationCoordinator: RecurringGenerationCoordinator?
 
     init() {
         let launchArguments = ProcessInfo.processInfo.arguments
@@ -85,21 +85,11 @@ struct VittoraApp: App {
             )
         )
 
-        if let recurringRuleRepository = dependencyContainer.recurringRuleRepository,
-           let transactionRepository = dependencyContainer.transactionRepository,
-           let accountRepository = dependencyContainer.accountRepository {
-            recurringGenerationUseCase = GenerateRecurringTransactionsUseCase(
-                ruleRepository: recurringRuleRepository,
-                transactionRepository: transactionRepository,
-                accountRepository: accountRepository
-            )
-        } else {
-            recurringGenerationUseCase = nil
-        }
+        recurringGenerationCoordinator = dependencyContainer.recurringGenerationCoordinator
 
         #if os(iOS)
-        if !isRunningAutomatedTests, let recurringGenerationUseCase {
-            BackgroundTaskScheduler.register(generateUseCase: recurringGenerationUseCase)
+        if !isRunningAutomatedTests, let recurringGenerationCoordinator {
+            BackgroundTaskScheduler.register(coordinator: recurringGenerationCoordinator)
         }
         #endif
     }
@@ -228,9 +218,9 @@ struct VittoraApp: App {
             Self.logger.error("Failed to seed default categories: \(error.localizedDescription, privacy: .public)")
         }
 
-        guard let recurringGenerationUseCase else { return }
+        guard let recurringGenerationCoordinator else { return }
         do {
-            _ = try await recurringGenerationUseCase.execute()
+            _ = try await recurringGenerationCoordinator.generate()
         } catch {
             Self.logger.error("Failed to generate recurring transactions on launch: \(error.localizedDescription, privacy: .public)")
         }

@@ -8,7 +8,7 @@ import Foundation
 struct MockLedgerWriting: LedgerWriting {
     let transactionRepository: any TransactionRepository
     let accountRepository: any AccountRepository
-    var debtRepository: (any DebtRepository)?
+    var debtRepository: (any DebtRepository)? = nil
 
     func performTransfer(
         sourceAccountID: UUID,
