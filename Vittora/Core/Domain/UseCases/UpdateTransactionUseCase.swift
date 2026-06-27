@@ -2,58 +2,39 @@ import Foundation
 
 struct UpdateTransactionUseCase: Sendable {
     let transactionRepository: any TransactionRepository
-    let accountRepository: any AccountRepository
+    /// REQUIRED, non-optional: a transaction edit reverses one balance effect and
+    /// applies another, so it must persist atomically through the ledger store
+    /// (one save, rollback on failure). There is no non-atomic repository fallback
+    /// (DATAINTEGRITY-3, A4).
+    let ledgerWriting: any LedgerWriting
 
     init(
         transactionRepository: any TransactionRepository,
-        accountRepository: any AccountRepository
+        ledgerWriting: any LedgerWriting
     ) {
         self.transactionRepository = transactionRepository
-        self.accountRepository = accountRepository
+        self.ledgerWriting = ledgerWriting
     }
 
     func execute(_ entity: TransactionEntity) async throws {
-        // Fetch the existing transaction so we can reverse its *original* effect
-        // against its *original* account (DATAINTEGRITY-3).
+        // Fetch the existing transaction so we can both guard transfers and let
+        // the store reverse its *original* effect against its *original* account.
         guard let existingTransaction = try await transactionRepository.fetchByID(entity.id) else {
             throw VittoraError.notFound(String(localized: "Transaction not found"))
         }
 
-        // Canonical signed effect (handles expense/income/adjustment and, for
-        // transfer legs, direction-signed amounts). A4 completes both-leg
-        // transfer reversal; here we reverse the original leg's own effect and
-        // apply the new one against the (possibly changed) account.
-        let oldDelta = existingTransaction.signedBalanceEffect
-        let newDelta = entity.signedBalanceEffect
-        let oldAccountID = existingTransaction.accountID
-        let newAccountID = entity.accountID
-
-        var updatedTransaction = entity
-        updatedTransaction.updatedAt = .now
-        try await transactionRepository.update(updatedTransaction)
-
-        if oldAccountID == newAccountID {
-            // Same account: net the two effects in a single update.
-            guard let accountID = newAccountID else { return }
-            try await adjustBalance(accountID: accountID, by: newDelta - oldDelta)
-        } else {
-            // Account changed: reverse the old effect on the OLD account and
-            // apply the new effect on the NEW account.
-            if let oldAccountID {
-                try await adjustBalance(accountID: oldAccountID, by: -oldDelta)
-            }
-            if let newAccountID {
-                try await adjustBalance(accountID: newAccountID, by: newDelta)
-            }
+        // GUARD (Option B, A4): the generic edit path must NOT touch transfers. A
+        // transfer is two paired legs; editing one through this single-leg form
+        // would drop its `transferPairID`/direction and desync balances. Transfer
+        // edits go through the dedicated transfer flow (`performUpdateTransfer`).
+        guard existingTransaction.type != .transfer, entity.type != .transfer else {
+            throw VittoraError.validationFailed(
+                String(localized: "Transfers can't be edited here. Edit them from the transfer screen.")
+            )
         }
-    }
 
-    private func adjustBalance(accountID: UUID, by delta: Decimal) async throws {
-        guard var account = try await accountRepository.fetchByID(accountID) else {
-            throw VittoraError.notFound(String(localized: "Account not found"))
-        }
-        account.balance += delta
-        account.updatedAt = .now
-        try await accountRepository.update(account)
+        // Atomic reverse-old / apply-new (handles same-account netting and
+        // account changes) inside one ledger-store save.
+        try await ledgerWriting.performUpdate(entity)
     }
 }

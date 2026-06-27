@@ -238,9 +238,9 @@ struct TransactionListView: View {
 
     private func createViewModel() async -> TransactionListViewModel? {
         guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository,
               let documentRepo = dependencies.documentRepository,
-              let documentStorage = dependencies.documentStorageService else {
+              let documentStorage = dependencies.documentStorageService,
+              let ledgerWriteStore = dependencies.ledgerWriteStore else {
             return nil
         }
 
@@ -248,13 +248,12 @@ struct TransactionListView: View {
         let searchUseCase = SearchTransactionsUseCase(transactionRepository: transactionRepo)
         let deleteUseCase = DeleteTransactionUseCase(
             transactionRepository: transactionRepo,
-            accountRepository: accountRepo,
             documentRepository: documentRepo,
-            documentStorageService: documentStorage
+            documentStorageService: documentStorage,
+            ledgerWriting: ledgerWriteStore
         )
         let bulkOpsUseCase = BulkOperationsUseCase(
-            transactionRepository: transactionRepo,
-            accountRepository: accountRepo
+            transactionRepository: transactionRepo
         )
 
         return TransactionListViewModel(

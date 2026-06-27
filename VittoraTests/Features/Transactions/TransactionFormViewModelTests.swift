@@ -21,7 +21,10 @@ struct TransactionFormViewModelTests {
             ),
             updateUseCase: UpdateTransactionUseCase(
                 transactionRepository: txRepo,
-                accountRepository: accountRepo
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: txRepo,
+                    accountRepository: accountRepo
+                )
             ),
             smartCategorizeUseCase: SmartCategorizeUseCase(transactionRepository: txRepo),
             duplicateDetectionUseCase: DuplicateDetectionUseCase(transactionRepository: txRepo)
