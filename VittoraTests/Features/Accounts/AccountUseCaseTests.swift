@@ -244,6 +244,87 @@ struct AccountUseCaseTests {
         }
     }
 
+    // MARK: - UpdateTransferUseCase (A4)
+
+    // A4 (DATAINTEGRITY-1): dedicated transfer-edit flow — reverses both old legs
+    // and re-applies both new legs atomically via the real `LedgerWriteStore`.
+    @MainActor
+    @Suite("UpdateTransferUseCase")
+    struct UpdateTransferUseCaseTests {
+        private struct Env {
+            let accounts: SwiftDataAccountRepository
+            let transactions: SwiftDataTransactionRepository
+            let store: LedgerWriteStore
+            let transfer: TransferFundsUseCase
+            let updateTransfer: UpdateTransferUseCase
+        }
+
+        private func makeEnv() throws -> Env {
+            let container = try ModelContainerConfig.makePreviewContainer()
+            let accounts = SwiftDataAccountRepository(modelContainer: container)
+            let transactions = SwiftDataTransactionRepository(modelContainer: container)
+            let store = LedgerWriteStore(modelContainer: container)
+            return Env(
+                accounts: accounts,
+                transactions: transactions,
+                store: store,
+                transfer: TransferFundsUseCase(accountRepository: accounts, ledgerWriteStore: store),
+                updateTransfer: UpdateTransferUseCase(accountRepository: accounts, ledgerWriting: store)
+            )
+        }
+
+        @Test("Editing a transfer's amount reverses both old legs and applies both new legs")
+        func editAmountReversesAndReapplies() async throws {
+            let env = try makeEnv()
+            let aID = UUID()
+            let bID = UUID()
+            try await env.accounts.create(AccountEntity(id: aID, name: "A", type: .bank, balance: 1000))
+            try await env.accounts.create(AccountEntity(id: bID, name: "B", type: .bank, balance: 0))
+
+            try await env.transfer.execute(sourceAccountID: aID, destinationAccountID: bID, amount: 250)
+            let pairID = try #require(
+                try await env.transactions.fetchAll(filter: nil).compactMap { $0.transferPairID }.first
+            )
+
+            try await env.updateTransfer.execute(
+                transferPairID: pairID,
+                sourceAccountID: aID,
+                destinationAccountID: bID,
+                amount: 400
+            )
+
+            let a = try #require(try await env.accounts.fetchByID(aID))
+            let b = try #require(try await env.accounts.fetchByID(bID))
+            #expect(a.balance == 600)
+            #expect(b.balance == 400)
+            let legs = try await env.transactions.fetchAll(filter: nil)
+            #expect(legs.count == 2)
+            #expect(legs.allSatisfy { $0.amount == 400 })
+        }
+
+        @Test("Rejects editing a transfer onto the same account")
+        func rejectsSameAccount() async throws {
+            let env = try makeEnv()
+            let aID = UUID()
+            let bID = UUID()
+            try await env.accounts.create(AccountEntity(id: aID, name: "A", type: .bank, balance: 1000))
+            try await env.accounts.create(AccountEntity(id: bID, name: "B", type: .bank, balance: 0))
+            try await env.transfer.execute(sourceAccountID: aID, destinationAccountID: bID, amount: 100)
+            let pairID = try #require(
+                try await env.transactions.fetchAll(filter: nil).compactMap { $0.transferPairID }.first
+            )
+
+            await #expect(throws: (any Error).self) {
+                try await env.updateTransfer.execute(
+                    transferPairID: pairID,
+                    sourceAccountID: aID,
+                    destinationAccountID: aID,
+                    amount: 100
+                )
+            }
+        }
+    }
+
     // MARK: - DeleteAccountUseCase
 
     @MainActor

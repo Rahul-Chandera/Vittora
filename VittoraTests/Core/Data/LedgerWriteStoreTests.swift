@@ -79,28 +79,6 @@ struct LedgerWriteStoreTests {
         #expect(rows.first?.amount == 42)
     }
 
-    @Test("not-yet-wired operation entry points throw until their task lands")
-    func seededEntryPointsNotImplemented() async throws {
-        let container = try makeContainer()
-        let store = LedgerWriteStore(modelContainer: container)
-
-        // performAdd/performSettle are wired in A6; performTransfer (A3) and
-        // performDelete (A4) remain stubs and must still surface notImplemented.
-        await #expect(throws: LedgerWriteError.self) {
-            try await store.performDelete(transactionID: UUID())
-        }
-        await #expect(throws: LedgerWriteError.self) {
-            try await store.performTransfer(
-                sourceAccountID: UUID(),
-                destinationAccountID: UUID(),
-                amount: 10,
-                date: .now,
-                note: "",
-                currencyCode: "USD"
-            )
-        }
-    }
-
     // MARK: - A6: performAdd / performSettle atomicity (real container)
 
     private func seedAccount(_ container: ModelContainer, balance: Decimal) throws -> UUID {
@@ -210,5 +188,174 @@ struct LedgerWriteStoreTests {
 
         let saveCount = await store.saveCount
         #expect(saveCount == 0)
+    }
+
+    // MARK: - A4: performDelete / performUpdate / performUpdateTransfer (real container)
+
+    @Test("performDelete reverses a non-transfer effect and removes the row in one save")
+    func performDeleteReversesNonTransfer() async throws {
+        let container = try makeContainer()
+        let accountID = try seedAccount(container, balance: 1000)
+        let store = LedgerWriteStore(modelContainer: container)
+
+        let tx = TransactionEntity(amount: 200, type: .expense, accountID: accountID)
+        try await store.performAdd(tx) // balance -> 800
+
+        let before = await store.saveCount
+        try await store.performDelete(transactionID: tx.id)
+        let after = await store.saveCount
+        #expect(after - before == 1)
+
+        let verify = ModelContext(container)
+        #expect(try verify.fetch(FetchDescriptor<SDTransaction>()).isEmpty)
+        #expect(try verify.fetch(FetchDescriptor<SDAccount>()).first?.balance == 1000)
+    }
+
+    @Test("performDelete removes BOTH transfer legs and reverses both balances in one save")
+    func performDeleteReversesBothTransferLegs() async throws {
+        let container = try makeContainer()
+        let sourceID = try seedAccount(container, balance: 1000)
+        let destID = try seedAccount(container, balance: 0)
+        let store = LedgerWriteStore(modelContainer: container)
+
+        try await store.performTransfer(
+            sourceAccountID: sourceID, destinationAccountID: destID,
+            amount: 250, date: .now, note: "", currencyCode: "USD"
+        ) // source 750, dest 250, two legs
+
+        let seed = ModelContext(container)
+        let oneLegID = try #require(try seed.fetch(FetchDescriptor<SDTransaction>()).first?.id)
+
+        try await store.performDelete(transactionID: oneLegID)
+
+        let verify = ModelContext(container)
+        #expect(try verify.fetch(FetchDescriptor<SDTransaction>()).isEmpty)
+        let accounts = try verify.fetch(FetchDescriptor<SDAccount>())
+        #expect(accounts.first { $0.id == sourceID }?.balance == 1000)
+        #expect(accounts.first { $0.id == destID }?.balance == 0)
+    }
+
+    @Test("performDelete throws and persists nothing when the transaction is missing")
+    func performDeleteThrowsWhenMissing() async throws {
+        let container = try makeContainer()
+        let store = LedgerWriteStore(modelContainer: container)
+
+        await #expect(throws: VittoraError.self) {
+            try await store.performDelete(transactionID: UUID())
+        }
+        let saveCount = await store.saveCount
+        #expect(saveCount == 0)
+    }
+
+    @Test("performUpdate nets the effect on the same account in one save")
+    func performUpdateNetsSameAccount() async throws {
+        let container = try makeContainer()
+        let accountID = try seedAccount(container, balance: 1000)
+        let store = LedgerWriteStore(modelContainer: container)
+
+        var tx = TransactionEntity(amount: 200, type: .expense, accountID: accountID)
+        try await store.performAdd(tx) // -> 800
+        tx.amount = 100
+        try await store.performUpdate(tx) // reverse 200, apply 100 -> 900
+
+        let verify = ModelContext(container)
+        #expect(try verify.fetch(FetchDescriptor<SDAccount>()).first?.balance == 900)
+        let stored = try verify.fetch(FetchDescriptor<SDTransaction>()).first
+        #expect(stored?.amount == 100)
+    }
+
+    @Test("performUpdate moves the effect when the account changes")
+    func performUpdateMovesAccount() async throws {
+        let container = try makeContainer()
+        let oldID = try seedAccount(container, balance: 1000)
+        let newID = try seedAccount(container, balance: 500)
+        let store = LedgerWriteStore(modelContainer: container)
+
+        var tx = TransactionEntity(amount: 200, type: .expense, accountID: oldID)
+        try await store.performAdd(tx) // old -> 800
+        tx.accountID = newID
+        try await store.performUpdate(tx) // old +200 -> 1000, new -200 -> 300
+
+        let verify = ModelContext(container)
+        let accounts = try verify.fetch(FetchDescriptor<SDAccount>())
+        #expect(accounts.first { $0.id == oldID }?.balance == 1000)
+        #expect(accounts.first { $0.id == newID }?.balance == 300)
+    }
+
+    @Test("performUpdate rejects a transfer and rolls back")
+    func performUpdateRejectsTransfer() async throws {
+        let container = try makeContainer()
+        let store = LedgerWriteStore(modelContainer: container)
+
+        let transfer = TransactionEntity(amount: 100, type: .transfer, accountID: UUID())
+        await #expect(throws: LedgerWriteError.self) {
+            try await store.performUpdate(transfer)
+        }
+        let saveCount = await store.saveCount
+        #expect(saveCount == 0)
+    }
+
+    @Test("performUpdateTransfer re-amounts both legs atomically and stays balance-neutral")
+    func performUpdateTransferReamountsBothLegs() async throws {
+        let container = try makeContainer()
+        let sourceID = try seedAccount(container, balance: 1000)
+        let destID = try seedAccount(container, balance: 0)
+        let store = LedgerWriteStore(modelContainer: container)
+
+        try await store.performTransfer(
+            sourceAccountID: sourceID, destinationAccountID: destID,
+            amount: 250, date: .now, note: "", currencyCode: "USD"
+        ) // source 750, dest 250
+
+        let seed = ModelContext(container)
+        let pairID = try #require(try seed.fetch(FetchDescriptor<SDTransaction>()).first?.transferPairID)
+
+        // Raise the transfer to 400: source -> 600, dest -> 400.
+        try await store.performUpdateTransfer(
+            transferPairID: pairID,
+            sourceAccountID: sourceID, destinationAccountID: destID,
+            amount: 400, date: .now, note: "rent", currencyCode: "USD"
+        )
+
+        let verify = ModelContext(container)
+        let accounts = try verify.fetch(FetchDescriptor<SDAccount>())
+        #expect(accounts.first { $0.id == sourceID }?.balance == 600)
+        #expect(accounts.first { $0.id == destID }?.balance == 400)
+        // Σ balances unchanged from the original 1000 total.
+        let total = accounts.reduce(Decimal(0)) { $0 + $1.balance }
+        #expect(total == 1000)
+        let legs = try verify.fetch(FetchDescriptor<SDTransaction>())
+        #expect(legs.count == 2)
+        #expect(legs.allSatisfy { $0.amount == 400 })
+    }
+
+    @Test("performUpdateTransfer re-points legs to new accounts and reverses the old ones")
+    func performUpdateTransferMovesAccounts() async throws {
+        let container = try makeContainer()
+        let sourceID = try seedAccount(container, balance: 1000)
+        let destID = try seedAccount(container, balance: 0)
+        let newDestID = try seedAccount(container, balance: 0)
+        let store = LedgerWriteStore(modelContainer: container)
+
+        try await store.performTransfer(
+            sourceAccountID: sourceID, destinationAccountID: destID,
+            amount: 250, date: .now, note: "", currencyCode: "USD"
+        ) // source 750, dest 250
+
+        let seed = ModelContext(container)
+        let pairID = try #require(try seed.fetch(FetchDescriptor<SDTransaction>()).first?.transferPairID)
+
+        // Move the destination to a different account, same amount.
+        try await store.performUpdateTransfer(
+            transferPairID: pairID,
+            sourceAccountID: sourceID, destinationAccountID: newDestID,
+            amount: 250, date: .now, note: "", currencyCode: "USD"
+        )
+
+        let verify = ModelContext(container)
+        let accounts = try verify.fetch(FetchDescriptor<SDAccount>())
+        #expect(accounts.first { $0.id == sourceID }?.balance == 750)   // unchanged net
+        #expect(accounts.first { $0.id == destID }?.balance == 0)        // old dest reversed
+        #expect(accounts.first { $0.id == newDestID }?.balance == 250)   // new dest credited
     }
 }

@@ -28,6 +28,26 @@ protocol LedgerWriting: Sendable {
     /// Insert a transaction and apply its balance effect to its account in one save.
     func performAdd(_ transaction: TransactionEntity) async throws
 
+    /// Update a NON-transfer transaction and reconcile balances atomically:
+    /// reverse the original leg's effect on its original account and apply the new
+    /// effect on the (possibly changed) account — all in one save. Rejects
+    /// `.transfer` (edit transfers via `performUpdateTransfer`).
+    func performUpdate(_ transaction: TransactionEntity) async throws
+
+    /// Edit BOTH legs of a paired transfer atomically (A4): reverse both old legs'
+    /// balance effects, re-point/re-amount both legs, and apply both new effects —
+    /// one save. Identified by the shared `transferPairID`. Only A3 direction-
+    /// carrying pairs are supported; legacy nil-direction transfers are not editable.
+    func performUpdateTransfer(
+        transferPairID: UUID,
+        sourceAccountID: UUID,
+        destinationAccountID: UUID,
+        amount: Decimal,
+        date: Date,
+        note: String,
+        currencyCode: String
+    ) async throws
+
     /// Apply a debt settlement: bump the debt's settled amount and, when a
     /// linked transaction is supplied, insert it and adjust the account — all
     /// in one save. Pass `transaction == nil` to settle without a cash leg.

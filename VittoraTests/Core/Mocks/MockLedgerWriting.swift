@@ -30,6 +30,109 @@ struct MockLedgerWriting: LedgerWriting {
         try await accountRepository.update(account)
     }
 
+    func performUpdate(_ transaction: TransactionEntity) async throws {
+        guard transaction.type != .transfer else {
+            throw LedgerWriteError.transferNotSupported
+        }
+        guard let existing = try await transactionRepository.fetchByID(transaction.id) else {
+            throw VittoraError.notFound("Transaction not found")
+        }
+        guard existing.type != .transfer else {
+            throw LedgerWriteError.transferNotSupported
+        }
+        let oldDelta = existing.signedBalanceEffect
+        let newDelta = transaction.signedBalanceEffect
+        var updated = transaction
+        updated.updatedAt = .now
+        try await transactionRepository.update(updated)
+
+        if existing.accountID == transaction.accountID {
+            if let accountID = transaction.accountID {
+                try await adjust(accountID, by: newDelta - oldDelta)
+            }
+        } else {
+            if let oldAccountID = existing.accountID {
+                try await adjust(oldAccountID, by: -oldDelta)
+            }
+            if let newAccountID = transaction.accountID {
+                try await adjust(newAccountID, by: newDelta)
+            }
+        }
+    }
+
+    func performUpdateTransfer(
+        transferPairID: UUID,
+        sourceAccountID: UUID,
+        destinationAccountID: UUID,
+        amount: Decimal,
+        date: Date,
+        note: String,
+        currencyCode: String
+    ) async throws {
+        let legs = try await transactionRepository.fetchAll(filter: nil)
+            .filter { $0.transferPairID == transferPairID }
+        guard !legs.isEmpty else { throw VittoraError.notFound("Transfer not found") }
+        guard let debit = legs.first(where: { $0.transferDirection == .debit }),
+              let credit = legs.first(where: { $0.transferDirection == .credit }) else {
+            throw LedgerWriteError.transferNotSupported
+        }
+        for leg in legs {
+            if let accountID = leg.accountID {
+                try await adjust(accountID, by: -leg.signedBalanceEffect)
+            }
+        }
+        var newDebit = debit
+        newDebit.amount = amount
+        newDebit.date = date
+        newDebit.note = note.isEmpty ? nil : note
+        newDebit.currencyCode = currencyCode
+        newDebit.accountID = sourceAccountID
+        newDebit.destinationAccountID = destinationAccountID
+        newDebit.updatedAt = .now
+        try await transactionRepository.update(newDebit)
+
+        var newCredit = credit
+        newCredit.amount = amount
+        newCredit.date = date
+        newCredit.note = note.isEmpty ? nil : note
+        newCredit.currencyCode = currencyCode
+        newCredit.accountID = destinationAccountID
+        newCredit.destinationAccountID = sourceAccountID
+        newCredit.updatedAt = .now
+        try await transactionRepository.update(newCredit)
+
+        try await adjust(sourceAccountID, by: -amount)
+        try await adjust(destinationAccountID, by: amount)
+    }
+
+    func performDelete(transactionID: UUID) async throws {
+        guard let tx = try await transactionRepository.fetchByID(transactionID) else {
+            throw VittoraError.notFound("Transaction not found")
+        }
+        var legs = [tx]
+        if tx.type == .transfer, let pairID = tx.transferPairID {
+            let paired = try await transactionRepository.fetchAll(filter: nil)
+                .filter { $0.transferPairID == pairID }
+            if !paired.isEmpty { legs = paired }
+        }
+        for leg in legs {
+            if let accountID = leg.accountID,
+               try await accountRepository.fetchByID(accountID) != nil {
+                try await adjust(accountID, by: -leg.signedBalanceEffect)
+            }
+            try await transactionRepository.delete(leg.id)
+        }
+    }
+
+    private func adjust(_ accountID: UUID, by delta: Decimal) async throws {
+        guard var account = try await accountRepository.fetchByID(accountID) else {
+            throw VittoraError.notFound("Account not found")
+        }
+        account.balance += delta
+        account.updatedAt = .now
+        try await accountRepository.update(account)
+    }
+
     func performSettle(debtID: UUID, settlementAmount: Decimal, transaction: TransactionEntity?) async throws {
         guard let debtRepository, var debt = try await debtRepository.fetchByID(debtID) else {
             throw VittoraError.notFound("Debt entry not found")
@@ -43,9 +146,5 @@ struct MockLedgerWriting: LedgerWriting {
             debt.linkedTransactionID = transaction.id
         }
         try await debtRepository.update(debt)
-    }
-
-    func performDelete(transactionID: UUID) async throws {
-        throw VittoraError.unknown("MockLedgerWriting.performDelete not supported")
     }
 }

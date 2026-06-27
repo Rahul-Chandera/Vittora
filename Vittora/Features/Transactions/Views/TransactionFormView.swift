@@ -339,7 +339,7 @@ struct TransactionFormView: View {
         )
         let updateUseCase = UpdateTransactionUseCase(
             transactionRepository: transactionRepo,
-            accountRepository: accountRepo
+            ledgerWriting: ledgerWriteStore
         )
         let smartCategorizeUseCase = SmartCategorizeUseCase(transactionRepository: transactionRepo)
         let duplicateDetectionUseCase = DuplicateDetectionUseCase(transactionRepository: transactionRepo)

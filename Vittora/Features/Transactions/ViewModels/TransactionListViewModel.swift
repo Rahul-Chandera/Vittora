@@ -106,7 +106,9 @@ import Foundation
         defer { isLoading = false }
 
         do {
-            try await bulkOpsUseCase.bulkDelete(transactionIDs: ids)
+            // Atomic, transfer-aware bulk delete: each id reverses its effect(s)
+            // and removes its row(s) through the ledger store (A4).
+            try await deleteUseCase.executeBulk(ids: ids)
             selectedTransactionIDs.removeAll()
             isMultiSelectMode = false
             await loadTransactions()
