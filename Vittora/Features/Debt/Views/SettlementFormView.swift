@@ -15,7 +15,7 @@ struct SettlementFormView: View {
     @State private var isLoading = false
     @State private var error: String?
 
-    private var amount: Decimal? { Decimal(string: amountString) }
+    private var amount: Decimal? { Decimal(localizedAmount: amountString) }
     private var maxAmount: Decimal { debt.remainingAmount }
     private var canSettle: Bool { (amount ?? 0) > 0 && (amount ?? 0) <= maxAmount }
 

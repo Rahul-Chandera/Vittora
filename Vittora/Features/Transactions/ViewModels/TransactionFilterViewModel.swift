@@ -46,14 +46,14 @@ import Foundation
         let amountRange: ClosedRange<Decimal>?
         if let minStr = amountMin.isEmpty ? nil : amountMin,
            let maxStr = amountMax.isEmpty ? nil : amountMax,
-           let min = Decimal(string: minStr),
-           let max = Decimal(string: maxStr) {
+           let min = Decimal(localizedAmount: minStr),
+           let max = Decimal(localizedAmount: maxStr) {
             amountRange = min...max
         } else if let minStr = amountMin.isEmpty ? nil : amountMin,
-                  let min = Decimal(string: minStr) {
+                  let min = Decimal(localizedAmount: minStr) {
             amountRange = min...Decimal(999999)
         } else if let maxStr = amountMax.isEmpty ? nil : amountMax,
-                  let max = Decimal(string: maxStr) {
+                  let max = Decimal(localizedAmount: maxStr) {
             amountRange = Decimal(0)...max
         } else {
             amountRange = nil

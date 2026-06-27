@@ -25,8 +25,12 @@ final class TaxProfileFormViewModel {
     var error: String?
     private var loadedProfile: TaxProfile?
 
-    var income: Decimal { Decimal(string: incomeString.replacingOccurrences(of: ",", with: "")) ?? 0 }
-    var canSave: Bool { income > 0 }
+    private var parsedIncome: Decimal? {
+        Decimal(localizedAmount: incomeString)
+    }
+
+    var income: Decimal { parsedIncome ?? 0 }
+    var canSave: Bool { (parsedIncome ?? 0) > 0 }
 
     init(
         saveUseCase: SaveTaxProfileUseCase,
@@ -77,6 +81,9 @@ final class TaxProfileFormViewModel {
     }
 
     func save() async throws {
+        guard let parsedIncome = parsedIncome, parsedIncome > 0 else {
+            throw VittoraError.validationFailed(String(localized: "Please enter a valid annual income."))
+        }
         isSaving = true
         error = nil
         do {

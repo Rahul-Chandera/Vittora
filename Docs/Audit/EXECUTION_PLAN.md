@@ -159,6 +159,12 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 - **Acceptance:** "1,000" / "1.000,50" / "1,5" parse correctly per locale; unparseable → validation error, never silent 0.
 - **Tests:** new `VittoraTests/Extensions/MoneyParsingTests.swift` across `en_US`, `de_DE`, `fr_FR`.
 - **Verify (gate):** `grep -rn "Decimal(string:" Vittora/Features --include='*.swift'` returns no money-input sites.
+- **Implemented (A9 — branch `fix/A9-locale-money-parser`, off `refactoring` post-A4 merge):**
+  - **Parser:** new `Decimal+Parsing.swift` with failable `Decimal(localizedAmount:locale:)` using `NumberFormatter` (`.decimal` style, locale-aware grouping/decimal separators). Returns `nil` for empty/unparseable/non-finite — never silent zero.
+  - **Replaced all money-input `Decimal(string:)` sites** in the listed Features view models/views: `TransactionFormViewModel`, `TransferViewModel`, `AccountFormViewModel`, `DebtFormViewModel`, `BudgetFormViewModel`, `OnboardingViewModel`, `TransactionFilterViewModel`, `AddGroupExpenseViewModel`, `SavingsGoalFormView`, `SavingsGoalDetailViewModel`, `TaxProfileFormViewModel`, `TaxProfileFormView` (AddDeductionSheet), `SettlementFormView`, `ReceiptReviewViewModel`, `RecurringFormViewModel`; preview literals in `RecurringRowView`/`SubscriptionCard` use `en_US_POSIX`.
+  - **Validation:** forms now gate `canSave`/`save()` on successful parse (`parsedAmount != nil`) and throw/show localized errors instead of coercing to `0`. `AddGroupExpenseViewModel` keeps a display-only `amount` for live split math but persists via `parsedAmount`.
+  - **Tests:** `MoneyParsingTests` (en_US/de_DE/fr_FR + reject-unparseable + zero-valid); `TransactionFormViewModelTests` updated for no-silent-zero behavior.
+  - **Gate:** `grep -rn "Decimal(string:" Vittora/Features --include='*.swift'` → empty ✅.
 
 ### A10 — Delete cascade/nullify for category & recurring rule
 - **Finding:** DATAINTEGRITY-6 / ARCHITECTURE-05

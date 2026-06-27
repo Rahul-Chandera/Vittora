@@ -14,7 +14,7 @@ final class AccountFormViewModel {
 
     var canSave: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty &&
-        (Decimal(string: initialBalance) != nil)
+        (Decimal(localizedAmount: initialBalance) != nil)
     }
 
     private let createUseCase: CreateAccountUseCase
@@ -43,7 +43,11 @@ final class AccountFormViewModel {
 
     func save() async throws {
         validationErrors = []
-        let balance = Decimal(string: initialBalance) ?? 0
+        guard let balance = Decimal(localizedAmount: initialBalance) else {
+            throw VittoraError.validationFailed(
+                String(localized: "Please enter a valid opening balance.")
+            )
+        }
 
         if isEditing, let id = editingID {
             try await updateUseCase.execute(

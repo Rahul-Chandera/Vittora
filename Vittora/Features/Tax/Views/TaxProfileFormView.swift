@@ -281,8 +281,11 @@ private struct AddDeductionSheet: View {
     @State private var amountString = ""
     @State private var section = ""
 
-    private var amount: Decimal { Decimal(string: amountString) ?? 0 }
-    private var canAdd: Bool { !name.isEmpty && amount > 0 }
+    private var parsedAmount: Decimal? { Decimal(localizedAmount: amountString) }
+    private var canAdd: Bool {
+        guard let parsedAmount, parsedAmount > 0 else { return false }
+        return !name.isEmpty
+    }
 
     private var indiaSections: [String] { ["80C", "80D", "80E", "80G", "HRA", "LTA", "Other"] }
 
@@ -321,7 +324,9 @@ private struct AddDeductionSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
-                        onAdd(name, amount, section.isEmpty ? nil : section)
+                        if let parsedAmount {
+                            onAdd(name, parsedAmount, section.isEmpty ? nil : section)
+                        }
                     }
                     .disabled(!canAdd)
                 }

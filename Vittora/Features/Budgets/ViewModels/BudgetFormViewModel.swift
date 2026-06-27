@@ -24,7 +24,7 @@ final class BudgetFormViewModel {
     }
 
     var canSave: Bool {
-        guard let decimalAmount = Decimal(string: amount) else { return false }
+        guard let decimalAmount = Decimal(localizedAmount: amount) else { return false }
         return decimalAmount > 0
     }
 
@@ -39,8 +39,8 @@ final class BudgetFormViewModel {
     }
 
     func save() async throws {
-        guard let decimalAmount = Decimal(string: amount), decimalAmount > 0 else {
-            throw VittoraError.validationFailed("Please enter a valid amount")
+        guard let decimalAmount = Decimal(localizedAmount: amount), decimalAmount > 0 else {
+            throw VittoraError.validationFailed(String(localized: "Please enter a valid amount"))
         }
 
         if isEditing, let id = editingID {
