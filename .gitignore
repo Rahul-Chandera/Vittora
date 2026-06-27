@@ -68,3 +68,5 @@ fastlane/test_output
 /.build-sim-crash-fix
 /.build-ios
 /.build-macos
+/.build-audit-test
+/.build-audit
