@@ -54,12 +54,12 @@ struct TransferFormView: View {
         guard viewModel == nil else { return }
         let deps = dependencies
         guard let accountRepo = deps.accountRepository,
-              let transactionRepo = deps.transactionRepository else { return }
+              let ledgerWriteStore = deps.ledgerWriteStore else { return }
 
         let vm = TransferViewModel(
             transferUseCase: TransferFundsUseCase(
-                transactionRepository: transactionRepo,
-                accountRepository: accountRepo
+                accountRepository: accountRepo,
+                ledgerWriteStore: ledgerWriteStore
             ),
             fetchUseCase: FetchAccountsUseCase(accountRepository: accountRepo)
         )

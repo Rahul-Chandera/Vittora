@@ -122,29 +122,33 @@ struct TransactionUseCaseTests {
             #expect(updatedAccount?.balance == 150)
         }
 
-        @Test("Transfer leg inserts a row without moving the source balance")
-        func testTransferDoesNotChangeBalance() async throws {
+        @Test("Generic add rejects transfers — they must use performTransfer")
+        func testRejectsTransferThroughGenericAdd() async throws {
             let env = try makeEnv()
             let account = makeAccount(balance: 1000)
             try await env.accountRepo.create(account)
 
-            _ = try await env.useCase.execute(
-                amount: 200,
-                type: .transfer,
-                date: .now,
-                categoryID: nil,
-                accountID: account.id,
-                payeeID: nil,
-                note: nil,
-                tags: [],
-                paymentMethod: .bankTransfer,
-                currencyCode: "USD"
-            )
+            // A transfer routed through the single-leg add path would apply a
+            // one-sided balance change; performAdd rejects it (DATAINTEGRITY-1).
+            await #expect(throws: LedgerWriteError.self) {
+                _ = try await env.useCase.execute(
+                    amount: 200,
+                    type: .transfer,
+                    date: .now,
+                    categoryID: nil,
+                    accountID: account.id,
+                    payeeID: nil,
+                    note: nil,
+                    tags: [],
+                    paymentMethod: .bankTransfer,
+                    currencyCode: "USD"
+                )
+            }
 
             let updatedAccount = try await env.accountRepo.fetchByID(account.id)
             #expect(updatedAccount?.balance == 1000)
             let savedTransactions = try await env.txRepo.fetchAll(filter: nil)
-            #expect(savedTransactions.count == 1)
+            #expect(savedTransactions.isEmpty)
         }
 
         @Test("Throws validation error for zero amount")

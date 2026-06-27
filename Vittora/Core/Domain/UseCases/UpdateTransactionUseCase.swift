@@ -19,8 +19,12 @@ struct UpdateTransactionUseCase: Sendable {
             throw VittoraError.notFound(String(localized: "Transaction not found"))
         }
 
-        let oldDelta = Self.balanceEffect(type: existingTransaction.type, amount: existingTransaction.amount)
-        let newDelta = Self.balanceEffect(type: entity.type, amount: entity.amount)
+        // Canonical signed effect (handles expense/income/adjustment and, for
+        // transfer legs, direction-signed amounts). A4 completes both-leg
+        // transfer reversal; here we reverse the original leg's own effect and
+        // apply the new one against the (possibly changed) account.
+        let oldDelta = existingTransaction.signedBalanceEffect
+        let newDelta = entity.signedBalanceEffect
         let oldAccountID = existingTransaction.accountID
         let newAccountID = entity.accountID
 
@@ -51,17 +55,5 @@ struct UpdateTransactionUseCase: Sendable {
         account.balance += delta
         account.updatedAt = .now
         try await accountRepository.update(account)
-    }
-
-    /// Signed balance change a transaction applies to its account when present.
-    /// Reversing an effect is the negation of this value. Transfers are netted
-    /// via their paired leg, so they contribute nothing here.
-    private static func balanceEffect(type: TransactionType, amount: Decimal) -> Decimal {
-        switch type {
-        case .expense: -amount
-        case .income: amount
-        case .adjustment: amount
-        case .transfer: 0
-        }
     }
 }

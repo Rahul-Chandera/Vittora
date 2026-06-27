@@ -1,6 +1,6 @@
 # Vittora SwiftData Schema Map
 
-Current schema version: `VittoraSchemaV2` (baseline `VittoraSchemaV1`) in `Vittora/Core/Data/Persistence/VittoraMigrationPlan.swift`.
+Current schema version: `VittoraSchemaV3` (baseline `VittoraSchemaV1`) in `Vittora/Core/Data/Persistence/VittoraMigrationPlan.swift`.
 
 ## Schema Versions
 
@@ -8,6 +8,16 @@ Current schema version: `VittoraSchemaV2` (baseline `VittoraSchemaV1`) in `Vitto
 - **V2** — adds optional `SDTransaction.transferPairID: UUID?` linking the two
   legs of a transfer (DATAINTEGRITY-1). Additive only; the V1→V2 step is a
   CloudKit-safe `.lightweight` `MigrationStage`.
+- **V3** — adds optional `SDTransaction.transferDirectionRawValue: String?`
+  (`TransferDirection` .debit/.credit) so a transfer leg's balance effect is
+  derivable from a single row (DATAINTEGRITY-1, A3). Additive only; the V2→V3
+  step is a CloudKit-safe `.lightweight` `MigrationStage`. Legacy transfer legs
+  keep `nil` and stay non-derivable.
+
+> **Merge-order versioning:** A3 (`transferDirection`) and A7 (`openingBalance`)
+> both introduce a V3 off the V2 tip on their own branches. Whichever merges into
+> `refactoring` first keeps V3; the second rebases and renumbers to V4. Only one
+> may claim V3 on `refactoring`.
 
 ## Registered Models
 

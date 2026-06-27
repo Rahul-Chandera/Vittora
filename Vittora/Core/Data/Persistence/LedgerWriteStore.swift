@@ -4,13 +4,24 @@ import SwiftData
 /// Errors surfaced by the ledger write Unit-of-Work.
 enum LedgerWriteError: LocalizedError, Sendable {
     /// An operation entry point exists but its body has not been wired yet.
-    /// Used only as scaffolding while Epic A tasks A3–A6 fill in the bodies.
+    /// Used only as scaffolding while Epic A tasks fill in the bodies (A4 delete).
     case notImplemented(String)
+    /// A referenced account could not be found in the store's context. Thrown
+    /// mid-operation so `commit` rolls back and nothing is persisted. This is the
+    /// single account-not-found convention for *every* store operation.
+    case accountNotFound(UUID)
+    /// A `.transfer` was routed through a single-leg path (`performAdd`). Transfers
+    /// must go through `performTransfer`, which writes both paired legs atomically.
+    case transferNotSupported
 
     var errorDescription: String? {
         switch self {
         case .notImplemented(let detail):
             String(localized: "Operation not available: \(detail)")
+        case .accountNotFound:
+            String(localized: "The account for this operation could not be found.")
+        case .transferNotSupported:
+            String(localized: "Transfers must be made through the transfer flow.")
         }
     }
 }
@@ -25,8 +36,11 @@ enum LedgerWriteError: LocalizedError, Sendable {
 /// applied state. This is the root fix for the non-atomic, multi-context money
 /// writes called out by DATAINTEGRITY-2 / ARCHITECTURE-01.
 ///
-/// Operation bodies for the seeded entry points are filled in by the
-/// dependent tasks (A3 transfer, A4 delete/update, A6 add/settle).
+/// `performTransfer` (A3), `performAdd`/`performSettle` (A6) are wired;
+/// `performDelete` (A4) is still seeded as a stub.
+///
+/// Balance math has a single source of truth: `TransactionEntity.signedBalanceEffect`.
+/// The store never redefines its own effect mapping.
 @ModelActor
 actor LedgerWriteStore: LedgerWriting {
     /// Number of successful `save()` calls performed by `commit`. Exposed so
@@ -54,12 +68,15 @@ actor LedgerWriteStore: LedgerWriting {
 
     // MARK: - Operation entry points
     //
-    // Signatures are seeded here so the Unit-of-Work surface is stable for the
-    // dependent tasks. Each body routes its full set of mutations through
-    // `commit(_:)` so the operation persists atomically.
+    // Each body routes its full set of mutations through `commit(_:)` so the
+    // operation persists atomically.
 
-    /// Move funds between two accounts as a paired, balance-neutral operation.
-    /// Body added in A3 (atomic transfer with leg pairing).
+    /// Move funds between two accounts as a paired, balance-neutral operation
+    /// (A3, DATAINTEGRITY-1/2). Inserts two `.transfer` legs sharing one
+    /// `transferPairID` — a `.debit` leg on the source and a `.credit` leg on the
+    /// destination — and applies both balance adjustments, all in one `save()`.
+    /// If anything fails the whole operation rolls back (no ghost leg, no
+    /// one-sided balance change).
     func performTransfer(
         sourceAccountID: UUID,
         destinationAccountID: UUID,
@@ -68,30 +85,79 @@ actor LedgerWriteStore: LedgerWriting {
         note: String,
         currencyCode: String
     ) throws {
-        throw LedgerWriteError.notImplemented("performTransfer")
+        try commit { context in
+            guard let source = try Self.fetchAccount(sourceAccountID, in: context) else {
+                throw LedgerWriteError.accountNotFound(sourceAccountID)
+            }
+            guard let destination = try Self.fetchAccount(destinationAccountID, in: context) else {
+                throw LedgerWriteError.accountNotFound(destinationAccountID)
+            }
+
+            let pairID = UUID()
+            let noteValue = note.isEmpty ? nil : note
+
+            let debitLeg = SDTransaction(
+                amount: amount,
+                date: date,
+                note: noteValue,
+                type: .transfer,
+                paymentMethod: .bankTransfer,
+                currencyCode: currencyCode,
+                accountID: sourceAccountID,
+                destinationAccountID: destinationAccountID,
+                transferPairID: pairID,
+                transferDirection: .debit
+            )
+            let creditLeg = SDTransaction(
+                amount: amount,
+                date: date,
+                note: noteValue,
+                type: .transfer,
+                paymentMethod: .bankTransfer,
+                currencyCode: currencyCode,
+                accountID: destinationAccountID,
+                destinationAccountID: sourceAccountID,
+                transferPairID: pairID,
+                transferDirection: .credit
+            )
+
+            context.insert(debitLeg)
+            context.insert(creditLeg)
+
+            source.balance -= amount
+            source.updatedAt = .now
+            destination.balance += amount
+            destination.updatedAt = .now
+        }
     }
 
-    /// Create a transaction and adjust its account balance atomically.
+    /// Create a transaction and adjust its account balance atomically (A6).
     ///
     /// The transaction is inserted first; the account is then fetched *in this
-    /// context* and mutated. If the account id does not resolve, the throw
-    /// rolls back the pending insert so nothing is persisted (DATAINTEGRITY-2).
+    /// context* and mutated by `signedBalanceEffect`. If the account id does not
+    /// resolve, the throw rolls back the pending insert so nothing is persisted
+    /// (DATAINTEGRITY-2). Transfers are rejected — they must use
+    /// `performTransfer` so both paired legs are written together.
     func performAdd(_ transaction: TransactionEntity) throws {
+        guard transaction.type != .transfer else {
+            throw LedgerWriteError.transferNotSupported
+        }
         try commit { ctx in
             ctx.insert(Self.makeTransactionModel(from: transaction))
             guard let accountID = transaction.accountID else { return }
             guard let account = try Self.fetchAccount(accountID, in: ctx) else {
-                throw VittoraError.notFound(String(localized: "Account not found"))
+                throw LedgerWriteError.accountNotFound(accountID)
             }
-            account.balance += Self.balanceEffect(type: transaction.type, amount: transaction.amount)
+            account.balance += transaction.signedBalanceEffect
             account.updatedAt = .now
         }
     }
 
-    /// Apply a debt settlement atomically: bump the debt's settled amount and,
-    /// when a linked transaction is supplied, insert it and adjust the account —
-    /// all in one save. Any failure (missing debt or account) rolls back the
-    /// whole operation so the debt, transaction, and balance never diverge.
+    /// Apply a debt settlement atomically (A6): bump the debt's settled amount
+    /// and, when a linked transaction is supplied, insert it and adjust the
+    /// account — all in one save. Any failure (missing debt or account) rolls
+    /// back the whole operation so the debt, transaction, and balance never
+    /// diverge.
     func performSettle(debtID: UUID, settlementAmount: Decimal, transaction: TransactionEntity?) throws {
         try commit { ctx in
             guard let debt = try Self.fetchDebt(debtID, in: ctx) else {
@@ -107,9 +173,9 @@ actor LedgerWriteStore: LedgerWriting {
             ctx.insert(Self.makeTransactionModel(from: transaction))
             if let accountID = transaction.accountID {
                 guard let account = try Self.fetchAccount(accountID, in: ctx) else {
-                    throw VittoraError.notFound(String(localized: "Account not found"))
+                    throw LedgerWriteError.accountNotFound(accountID)
                 }
-                account.balance += Self.balanceEffect(type: transaction.type, amount: transaction.amount)
+                account.balance += transaction.signedBalanceEffect
                 account.updatedAt = .now
             }
             debt.linkedTransactionID = transaction.id
@@ -125,21 +191,9 @@ actor LedgerWriteStore: LedgerWriting {
 
     // MARK: - Helpers
 
-    /// Signed balance delta a transaction applies to its account. Reversing an
-    /// effect is the negation of this value. Transfers net out via their paired
-    /// leg, so they contribute nothing here. Mirrors `UpdateTransactionUseCase`.
-    private static func balanceEffect(type: TransactionType, amount: Decimal) -> Decimal {
-        switch type {
-        case .expense: -amount
-        case .income: amount
-        case .transfer: 0
-        case .adjustment: amount
-        }
-    }
-
     /// Build a fresh `SDTransaction` from a domain entity. Matches
     /// `SwiftDataTransactionRepository.create` so the store and repo agree on
-    /// how an entity becomes a row (id preserved, V2 `transferPairID` carried).
+    /// how an entity becomes a row (id preserved, transfer pairing/direction carried).
     private static func makeTransactionModel(from entity: TransactionEntity) -> SDTransaction {
         SDTransaction(
             id: entity.id,
@@ -155,15 +209,21 @@ actor LedgerWriteStore: LedgerWriting {
             payeeID: entity.payeeID,
             destinationAccountID: entity.destinationAccountID,
             recurringRuleID: entity.recurringRuleID,
-            transferPairID: entity.transferPairID
+            transferPairID: entity.transferPairID,
+            transferDirection: entity.transferDirection
         )
     }
 
+    /// Fetch a single account model by id within the given context.
     private static func fetchAccount(_ id: UUID, in context: ModelContext) throws -> SDAccount? {
-        try context.fetch(FetchDescriptor<SDAccount>(predicate: #Predicate { $0.id == id })).first
+        var descriptor = FetchDescriptor<SDAccount>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first
     }
 
     private static func fetchDebt(_ id: UUID, in context: ModelContext) throws -> SDDebt? {
-        try context.fetch(FetchDescriptor<SDDebt>(predicate: #Predicate { $0.id == id })).first
+        var descriptor = FetchDescriptor<SDDebt>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first
     }
 }
