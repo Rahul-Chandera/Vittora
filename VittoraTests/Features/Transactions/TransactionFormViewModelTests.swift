@@ -12,9 +12,12 @@ struct TransactionFormViewModelTests {
         let categoryRepo = MockCategoryRepository()
         let vm = TransactionFormViewModel(
             addUseCase: AddTransactionUseCase(
-                transactionRepository: txRepo,
                 accountRepository: accountRepo,
-                categoryRepository: categoryRepo
+                categoryRepository: categoryRepo,
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: txRepo,
+                    accountRepository: accountRepo
+                )
             ),
             updateUseCase: UpdateTransactionUseCase(
                 transactionRepository: txRepo,

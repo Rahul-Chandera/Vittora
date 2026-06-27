@@ -5,15 +5,18 @@ final class UITestDataSeeder {
     private let accountRepository: any AccountRepository
     private let categoryRepository: any CategoryRepository
     private let transactionRepository: any TransactionRepository
+    private let ledgerWriting: any LedgerWriting
 
     init(
         accountRepository: any AccountRepository,
         categoryRepository: any CategoryRepository,
-        transactionRepository: any TransactionRepository
+        transactionRepository: any TransactionRepository,
+        ledgerWriting: any LedgerWriting
     ) {
         self.accountRepository = accountRepository
         self.categoryRepository = categoryRepository
         self.transactionRepository = transactionRepository
+        self.ledgerWriting = ledgerWriting
     }
 
     func seedTransactionScenarioIfNeeded() async throws {
@@ -56,9 +59,9 @@ final class UITestDataSeeder {
         try await categoryRepository.create(salaryCategory)
 
         let addTransactionUseCase = AddTransactionUseCase(
-            transactionRepository: transactionRepository,
             accountRepository: accountRepository,
-            categoryRepository: categoryRepository
+            categoryRepository: categoryRepository,
+            ledgerWriting: ledgerWriting
         )
 
         _ = try await addTransactionUseCase.execute(

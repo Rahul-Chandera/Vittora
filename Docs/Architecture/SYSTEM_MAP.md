@@ -33,6 +33,7 @@ This map helps agents find the right files quickly.
 - Data management/reset: `Vittora/Core/Data/Persistence/DataManagementService.swift`
 - Export: `Vittora/Core/Data/Persistence/DataExportService.swift`
 - Write Unit-of-Work (atomic compound ledger writes): `Vittora/Core/Data/Persistence/LedgerWriteStore.swift`
+- Atomic write seam (protocol use cases depend on): `Vittora/Core/Data/Persistence/LedgerWriting.swift`
 
 ## Sync
 

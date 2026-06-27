@@ -239,14 +239,16 @@ struct VittoraApp: App {
     private func seedUITestTransactionsIfNeeded() async {
         guard let accountRepository = dependencies.accountRepository,
               let categoryRepository = dependencies.categoryRepository,
-              let transactionRepository = dependencies.transactionRepository else {
+              let transactionRepository = dependencies.transactionRepository,
+              let ledgerWriteStore = dependencies.ledgerWriteStore else {
             return
         }
 
         let seeder = UITestDataSeeder(
             accountRepository: accountRepository,
             categoryRepository: categoryRepository,
-            transactionRepository: transactionRepository
+            transactionRepository: transactionRepository,
+            ledgerWriting: ledgerWriteStore
         )
 
         do {
@@ -259,14 +261,16 @@ struct VittoraApp: App {
     private func seedUITestTransferScenarioIfNeeded() async {
         guard let accountRepository = dependencies.accountRepository,
               let categoryRepository = dependencies.categoryRepository,
-              let transactionRepository = dependencies.transactionRepository else {
+              let transactionRepository = dependencies.transactionRepository,
+              let ledgerWriteStore = dependencies.ledgerWriteStore else {
             return
         }
 
         let seeder = UITestDataSeeder(
             accountRepository: accountRepository,
             categoryRepository: categoryRepository,
-            transactionRepository: transactionRepository
+            transactionRepository: transactionRepository,
+            ledgerWriting: ledgerWriteStore
         )
 
         do {

@@ -1,18 +1,20 @@
 import Foundation
 
 struct AddTransactionUseCase: Sendable {
-    let transactionRepository: any TransactionRepository
     let accountRepository: any AccountRepository
     let categoryRepository: any CategoryRepository
+    /// Required atomic write surface — no repository fallback. The insert and
+    /// the balance adjustment must land in one save (DATAINTEGRITY-2).
+    let ledgerWriting: any LedgerWriting
 
     init(
-        transactionRepository: any TransactionRepository,
         accountRepository: any AccountRepository,
-        categoryRepository: any CategoryRepository
+        categoryRepository: any CategoryRepository,
+        ledgerWriting: any LedgerWriting
     ) {
-        self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
         self.categoryRepository = categoryRepository
+        self.ledgerWriting = ledgerWriting
     }
 
     func execute(
@@ -62,26 +64,9 @@ struct AddTransactionUseCase: Sendable {
             payeeID: payeeID
         )
 
-        // Save transaction
-        try await transactionRepository.create(transaction)
-
-        // Adjust account balance
-        var updatedAccount = account
-        updatedAccount.updatedAt = .now
-
-        switch type {
-        case .expense:
-            updatedAccount.balance -= amount
-        case .income:
-            updatedAccount.balance += amount
-        case .transfer:
-            // Transfer balance effects handled by destinationAccountID
-            break
-        case .adjustment:
-            updatedAccount.balance += amount
-        }
-
-        try await accountRepository.update(updatedAccount)
+        // Insert the transaction and adjust the account balance atomically.
+        // The store applies the type-specific balance effect in one save.
+        try await ledgerWriting.performAdd(transaction)
 
         return transaction
     }

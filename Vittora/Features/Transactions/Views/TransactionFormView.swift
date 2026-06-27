@@ -327,14 +327,15 @@ struct TransactionFormView: View {
     private func createViewModel() async -> TransactionFormViewModel? {
         guard let transactionRepo = dependencies.transactionRepository,
               let accountRepo = dependencies.accountRepository,
-              let categoryRepo = dependencies.categoryRepository else {
+              let categoryRepo = dependencies.categoryRepository,
+              let ledgerWriteStore = dependencies.ledgerWriteStore else {
             return nil
         }
 
         let addUseCase = AddTransactionUseCase(
-            transactionRepository: transactionRepo,
             accountRepository: accountRepo,
-            categoryRepository: categoryRepo
+            categoryRepository: categoryRepo,
+            ledgerWriting: ledgerWriteStore
         )
         let updateUseCase = UpdateTransactionUseCase(
             transactionRepository: transactionRepo,
