@@ -26,22 +26,37 @@ struct TransactionUseCaseTests {
     @Suite("AddTransactionUseCase")
     struct AddTransactionUseCaseTests {
 
+        // A6: the use case writes through a real LedgerWriteStore, so these
+        // tests exercise the real persistence path (account create via repo,
+        // insert + balance adjust via the store) on one in-memory container.
+        private struct Env {
+            let accountRepo: SwiftDataAccountRepository
+            let categoryRepo: SwiftDataCategoryRepository
+            let txRepo: SwiftDataTransactionRepository
+            let useCase: AddTransactionUseCase
+        }
+
+        private func makeEnv() throws -> Env {
+            let container = try ModelContainerConfig.makeContainer(inMemory: true)
+            let accountRepo = SwiftDataAccountRepository(modelContainer: container)
+            let categoryRepo = SwiftDataCategoryRepository(modelContainer: container)
+            let txRepo = SwiftDataTransactionRepository(modelContainer: container)
+            let store = LedgerWriteStore(modelContainer: container)
+            let useCase = AddTransactionUseCase(
+                accountRepository: accountRepo,
+                categoryRepository: categoryRepo,
+                ledgerWriting: store
+            )
+            return Env(accountRepo: accountRepo, categoryRepo: categoryRepo, txRepo: txRepo, useCase: useCase)
+        }
+
         @Test("Creates a transaction and adjusts account balance for expense")
         func testExpenseDeductsBalance() async throws {
-            let accountRepo = MockAccountRepository()
-            let transactionRepo = MockTransactionRepository()
-            let categoryRepo = MockCategoryRepository()
-
+            let env = try makeEnv()
             let account = makeAccount(balance: 1000)
-            await accountRepo.seed(account)
+            try await env.accountRepo.create(account)
 
-            let useCase = AddTransactionUseCase(
-                transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
-                categoryRepository: categoryRepo
-            )
-
-            let transaction = try await useCase.execute(
+            let transaction = try await env.useCase.execute(
                 amount: 200,
                 type: .expense,
                 date: .now,
@@ -54,29 +69,20 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
             #expect(updatedAccount?.balance == 800)
-            let savedTransactions = await transactionRepo.transactions
+            let savedTransactions = try await env.txRepo.fetchAll(filter: nil)
             #expect(savedTransactions.count == 1)
-            #expect(savedTransactions[0].id == transaction.id)
+            #expect(savedTransactions.first?.id == transaction.id)
         }
 
         @Test("Creates a transaction and increases account balance for income")
         func testIncomeAddsBalance() async throws {
-            let accountRepo = MockAccountRepository()
-            let transactionRepo = MockTransactionRepository()
-            let categoryRepo = MockCategoryRepository()
-
+            let env = try makeEnv()
             let account = makeAccount(balance: 500)
-            await accountRepo.seed(account)
+            try await env.accountRepo.create(account)
 
-            let useCase = AddTransactionUseCase(
-                transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
-                categoryRepository: categoryRepo
-            )
-
-            _ = try await useCase.execute(
+            _ = try await env.useCase.execute(
                 amount: 300,
                 type: .income,
                 date: .now,
@@ -89,26 +95,17 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
             #expect(updatedAccount?.balance == 800)
         }
 
         @Test("Adjustment adds to balance")
         func testAdjustmentAddsBalance() async throws {
-            let accountRepo = MockAccountRepository()
-            let transactionRepo = MockTransactionRepository()
-            let categoryRepo = MockCategoryRepository()
-
+            let env = try makeEnv()
             let account = makeAccount(balance: 100)
-            await accountRepo.seed(account)
+            try await env.accountRepo.create(account)
 
-            let useCase = AddTransactionUseCase(
-                transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
-                categoryRepository: categoryRepo
-            )
-
-            _ = try await useCase.execute(
+            _ = try await env.useCase.execute(
                 amount: 50,
                 type: .adjustment,
                 date: .now,
@@ -121,26 +118,17 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
             #expect(updatedAccount?.balance == 150)
         }
 
-        @Test("Transfer does not adjust balance")
+        @Test("Transfer leg inserts a row without moving the source balance")
         func testTransferDoesNotChangeBalance() async throws {
-            let accountRepo = MockAccountRepository()
-            let transactionRepo = MockTransactionRepository()
-            let categoryRepo = MockCategoryRepository()
-
+            let env = try makeEnv()
             let account = makeAccount(balance: 1000)
-            await accountRepo.seed(account)
+            try await env.accountRepo.create(account)
 
-            let useCase = AddTransactionUseCase(
-                transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
-                categoryRepository: categoryRepo
-            )
-
-            _ = try await useCase.execute(
+            _ = try await env.useCase.execute(
                 amount: 200,
                 type: .transfer,
                 date: .now,
@@ -153,24 +141,20 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
             #expect(updatedAccount?.balance == 1000)
+            let savedTransactions = try await env.txRepo.fetchAll(filter: nil)
+            #expect(savedTransactions.count == 1)
         }
 
         @Test("Throws validation error for zero amount")
         func testThrowsForZeroAmount() async throws {
-            let accountRepo = MockAccountRepository()
+            let env = try makeEnv()
             let account = makeAccount()
-            await accountRepo.seed(account)
-
-            let useCase = AddTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: accountRepo,
-                categoryRepository: MockCategoryRepository()
-            )
+            try await env.accountRepo.create(account)
 
             await #expect(throws: (any Error).self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     amount: 0,
                     type: .expense,
                     date: .now,
@@ -187,14 +171,10 @@ struct TransactionUseCaseTests {
 
         @Test("Throws when account does not exist")
         func testThrowsWhenAccountMissing() async throws {
-            let useCase = AddTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: MockAccountRepository(),
-                categoryRepository: MockCategoryRepository()
-            )
+            let env = try makeEnv()
 
             await #expect(throws: (any Error).self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     amount: 100,
                     type: .expense,
                     date: .now,
@@ -211,18 +191,12 @@ struct TransactionUseCaseTests {
 
         @Test("Throws when account is archived")
         func testThrowsForArchivedAccount() async throws {
-            let accountRepo = MockAccountRepository()
+            let env = try makeEnv()
             let account = makeAccount(isArchived: true)
-            await accountRepo.seed(account)
-
-            let useCase = AddTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: accountRepo,
-                categoryRepository: MockCategoryRepository()
-            )
+            try await env.accountRepo.create(account)
 
             await #expect(throws: (any Error).self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     amount: 100,
                     type: .expense,
                     date: .now,
@@ -239,18 +213,12 @@ struct TransactionUseCaseTests {
 
         @Test("Throws when category does not exist")
         func testThrowsWhenCategoryMissing() async throws {
-            let accountRepo = MockAccountRepository()
+            let env = try makeEnv()
             let account = makeAccount()
-            await accountRepo.seed(account)
-
-            let useCase = AddTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: accountRepo,
-                categoryRepository: MockCategoryRepository()
-            )
+            try await env.accountRepo.create(account)
 
             await #expect(throws: (any Error).self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     amount: 100,
                     type: .expense,
                     date: .now,
@@ -267,21 +235,13 @@ struct TransactionUseCaseTests {
 
         @Test("Validates category exists when provided")
         func testAcceptsValidCategory() async throws {
-            let accountRepo = MockAccountRepository()
-            let categoryRepo = MockCategoryRepository()
-
+            let env = try makeEnv()
             let account = makeAccount()
             let category = makeCategory()
-            await accountRepo.seed(account)
-            await categoryRepo.seed(category)
+            try await env.accountRepo.create(account)
+            try await env.categoryRepo.create(category)
 
-            let useCase = AddTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: accountRepo,
-                categoryRepository: categoryRepo
-            )
-
-            let result = try await useCase.execute(
+            let result = try await env.useCase.execute(
                 amount: 50,
                 type: .expense,
                 date: .now,

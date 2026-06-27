@@ -28,7 +28,7 @@ enum LedgerWriteError: LocalizedError, Sendable {
 /// Operation bodies for the seeded entry points are filled in by the
 /// dependent tasks (A3 transfer, A4 delete/update, A6 add/settle).
 @ModelActor
-actor LedgerWriteStore {
+actor LedgerWriteStore: LedgerWriting {
     /// Number of successful `save()` calls performed by `commit`. Exposed so
     /// tests can assert that a compound operation persists with exactly one
     /// save and that a rolled-back operation performs none.
@@ -72,16 +72,48 @@ actor LedgerWriteStore {
     }
 
     /// Create a transaction and adjust its account balance atomically.
-    /// Body added in A6 (atomic add/settle writes).
+    ///
+    /// The transaction is inserted first; the account is then fetched *in this
+    /// context* and mutated. If the account id does not resolve, the throw
+    /// rolls back the pending insert so nothing is persisted (DATAINTEGRITY-2).
     func performAdd(_ transaction: TransactionEntity) throws {
-        throw LedgerWriteError.notImplemented("performAdd")
+        try commit { ctx in
+            ctx.insert(Self.makeTransactionModel(from: transaction))
+            guard let accountID = transaction.accountID else { return }
+            guard let account = try Self.fetchAccount(accountID, in: ctx) else {
+                throw VittoraError.notFound(String(localized: "Account not found"))
+            }
+            account.balance += Self.balanceEffect(type: transaction.type, amount: transaction.amount)
+            account.updatedAt = .now
+        }
     }
 
-    /// Record a debt settlement: create a transaction, adjust the account
-    /// balance, and update the debt in one save.
-    /// Body added in A6 (atomic add/settle writes).
-    func performSettle(debtID: UUID, transaction: TransactionEntity) throws {
-        throw LedgerWriteError.notImplemented("performSettle")
+    /// Apply a debt settlement atomically: bump the debt's settled amount and,
+    /// when a linked transaction is supplied, insert it and adjust the account —
+    /// all in one save. Any failure (missing debt or account) rolls back the
+    /// whole operation so the debt, transaction, and balance never diverge.
+    func performSettle(debtID: UUID, settlementAmount: Decimal, transaction: TransactionEntity?) throws {
+        try commit { ctx in
+            guard let debt = try Self.fetchDebt(debtID, in: ctx) else {
+                throw VittoraError.notFound(String(localized: "Debt entry not found"))
+            }
+            debt.settledAmount += settlementAmount
+            if debt.settledAmount >= debt.amount {
+                debt.isSettled = true
+            }
+            debt.updatedAt = .now
+
+            guard let transaction else { return }
+            ctx.insert(Self.makeTransactionModel(from: transaction))
+            if let accountID = transaction.accountID {
+                guard let account = try Self.fetchAccount(accountID, in: ctx) else {
+                    throw VittoraError.notFound(String(localized: "Account not found"))
+                }
+                account.balance += Self.balanceEffect(type: transaction.type, amount: transaction.amount)
+                account.updatedAt = .now
+            }
+            debt.linkedTransactionID = transaction.id
+        }
     }
 
     /// Delete a transaction and reverse its balance effects (both legs for a
@@ -89,5 +121,49 @@ actor LedgerWriteStore {
     /// Body added in A4 (delete/update handling of transfers).
     func performDelete(transactionID: UUID) throws {
         throw LedgerWriteError.notImplemented("performDelete")
+    }
+
+    // MARK: - Helpers
+
+    /// Signed balance delta a transaction applies to its account. Reversing an
+    /// effect is the negation of this value. Transfers net out via their paired
+    /// leg, so they contribute nothing here. Mirrors `UpdateTransactionUseCase`.
+    private static func balanceEffect(type: TransactionType, amount: Decimal) -> Decimal {
+        switch type {
+        case .expense: -amount
+        case .income: amount
+        case .transfer: 0
+        case .adjustment: amount
+        }
+    }
+
+    /// Build a fresh `SDTransaction` from a domain entity. Matches
+    /// `SwiftDataTransactionRepository.create` so the store and repo agree on
+    /// how an entity becomes a row (id preserved, V2 `transferPairID` carried).
+    private static func makeTransactionModel(from entity: TransactionEntity) -> SDTransaction {
+        SDTransaction(
+            id: entity.id,
+            amount: entity.amount,
+            date: entity.date,
+            note: entity.note,
+            type: entity.type,
+            paymentMethod: entity.paymentMethod,
+            currencyCode: entity.currencyCode,
+            tags: entity.tags,
+            categoryID: entity.categoryID,
+            accountID: entity.accountID,
+            payeeID: entity.payeeID,
+            destinationAccountID: entity.destinationAccountID,
+            recurringRuleID: entity.recurringRuleID,
+            transferPairID: entity.transferPairID
+        )
+    }
+
+    private static func fetchAccount(_ id: UUID, in context: ModelContext) throws -> SDAccount? {
+        try context.fetch(FetchDescriptor<SDAccount>(predicate: #Predicate { $0.id == id })).first
+    }
+
+    private static func fetchDebt(_ id: UUID, in context: ModelContext) throws -> SDDebt? {
+        try context.fetch(FetchDescriptor<SDDebt>(predicate: #Predicate { $0.id == id })).first
     }
 }

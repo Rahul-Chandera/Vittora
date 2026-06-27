@@ -86,14 +86,14 @@ struct SettlementFormView: View {
     private func settle() async {
         guard let amount,
               let debtRepo = dependencies.debtRepository,
-              let txRepo = dependencies.transactionRepository,
-              let accRepo = dependencies.accountRepository else { return }
+              let accRepo = dependencies.accountRepository,
+              let ledgerWriteStore = dependencies.ledgerWriteStore else { return }
         isLoading = true
         error = nil
         let useCase = SettleDebtUseCase(
             debtRepository: debtRepo,
-            transactionRepository: txRepo,
-            accountRepository: accRepo
+            accountRepository: accRepo,
+            ledgerWriting: ledgerWriteStore
         )
         do {
             try await useCase.execute(
