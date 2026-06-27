@@ -32,6 +32,10 @@ struct MockTransactionRepository: TransactionRepository {
         ]
     }
 
+    func fetchAllForReconciliation() async throws -> [TransactionEntity] {
+        try await fetchAll(filter: nil)
+    }
+
     func fetchByID(_ id: UUID) async throws -> TransactionEntity? {
         return TransactionEntity(
             id: id,

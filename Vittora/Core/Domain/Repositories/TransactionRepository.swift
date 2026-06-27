@@ -4,6 +4,10 @@ protocol TransactionRepository: Sendable {
     /// Total persisted rows (not subject to fetch limits).
     func fetchTransactionCount() async throws -> Int
     func fetchAll(filter: TransactionFilter?) async throws -> [TransactionEntity]
+    /// All rows with NO fetch cap, for the balance-reconciliation pass
+    /// (DATAINTEGRITY-12). Unlike `fetchAll`, this must not silently truncate,
+    /// or reconciliation would reason over partial sums.
+    func fetchAllForReconciliation() async throws -> [TransactionEntity]
     func fetchByID(_ id: UUID) async throws -> TransactionEntity?
     func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity]
     func hasTransactions(forAccountID id: UUID) async throws -> Bool

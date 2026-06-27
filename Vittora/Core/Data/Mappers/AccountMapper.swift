@@ -8,6 +8,7 @@ enum AccountMapper {
             name: model.name,
             type: model.type,
             balance: model.balance,
+            openingBalance: model.openingBalance,
             currencyCode: model.currencyCode,
             icon: model.icon,
             isArchived: model.isArchived,
@@ -20,6 +21,7 @@ enum AccountMapper {
         model.name = entity.name
         model.type = entity.type
         model.balance = entity.balance
+        model.openingBalance = entity.openingBalance
         model.currencyCode = entity.currencyCode
         model.icon = entity.icon
         model.isArchived = entity.isArchived

@@ -37,6 +37,11 @@ actor MockTransactionRepository: TransactionRepository {
         return results.sorted { $0.date > $1.date }
     }
 
+    func fetchAllForReconciliation() async throws -> [TransactionEntity] {
+        if shouldThrowError { throw throwError }
+        return transactions
+    }
+
     func fetchByID(_ id: UUID) async throws -> TransactionEntity? {
         if shouldThrowError { throw throwError }
         return transactions.first { $0.id == id }

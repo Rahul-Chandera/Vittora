@@ -41,6 +41,7 @@ This map helps agents find the right files quickly.
 - CloudKit event monitor: `Vittora/Core/Sync/CloudKitSyncMonitor.swift`
 - Conflict semantics: `Vittora/Core/Sync/SyncConflictHandler.swift`
 - Integrity checks: `Vittora/Core/Sync/SyncIntegrityValidator.swift`
+- Balance reconciliation/repair (DATAINTEGRITY-12): `Vittora/Core/Domain/UseCases/ReconcileAccountBalanceUseCase.swift`
 - UI surfaces: `Vittora/Features/Sync/SyncStatusView.swift`, `Vittora/Features/Sync/DataManagementView.swift`
 
 ## Tax

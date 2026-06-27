@@ -72,12 +72,12 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 - **Decisions (implemented — Option A, two legs + explicit direction):**
   1. Additive optional `TransferDirection` (.debit/.credit) on `TransactionEntity`/`SDTransaction` (+mapper/repo) → **Schema V3** (`transferDirectionRawValue`) + `.lightweight` V2→V3 + round-trip test. Preserves the one-row-one-account invariant (rejected single-signed-record and defer options).
   2. `performTransfer` (atomic via `LedgerWriteStore`): both legs share one `transferPairID`; source=.debit, dest=.credit; both balances applied; one save; rollback on missing account.
-  3. **Canonical `TransactionEntity.signedBalanceEffect`** (direction-signed for `.transfer`, replacing `balanceEffect(.transfer)==0`); adopted in `LedgerWriteStore` + `UpdateTransactionUseCase` (resolves the A6 duplicated-`balanceEffect` nit). A6 `MockLedgerWriting` and A7 `ReconcileAccountBalanceUseCase` adopt it on rebase.
+  3. **Canonical `TransactionEntity.signedBalanceEffect`** (direction-signed for `.transfer`, replacing `balanceEffect(.transfer)==0`); adopted in `LedgerWriteStore` + `UpdateTransactionUseCase` + `MockLedgerWriting` + A7 `ReconcileAccountBalanceUseCase` (resolves the A6 duplicated-`balanceEffect` nit; all copies deleted).
   4. `TransferFundsUseCase` depends on a REQUIRED concrete `LedgerWriteStore` (no repo fallback; drops `transactionRepository`). Switch to `any LedgerWriting` once A6's seam merges.
-- **Schema-version collision:** A3 (`transferDirection`) and A7 (`openingBalance`) both claim V3 off the V2 tip. **Later-merged rebases its schema to V4** off the new `refactoring` tip — only one may be V3. Carry the I4 caveat: migration tests aren't fully faithful until a frozen per-version snapshot exists.
-- **Follow-ups for rebasing branches (from A6 review):** A6's `performAdd` MUST reject `.transfer` (transfers may only flow through `performTransfer`); A7 may then include transfers that carry a direction (count once via `transferPairID` + sign), legacy nil-direction legs stay reconciliation-skipped.
+- **Schema-version collision (resolved):** A3 (`transferDirection`) merged first → V3; A7 (`openingBalance`) rebased → V4. Carry the I4 caveat: migration tests aren't fully faithful until a frozen per-version snapshot exists.
+- **Follow-ups (done on rebase):** A6's `performAdd` rejects `.transfer` (`LedgerWriteError.transferNotSupported`); A7 now includes direction-carrying transfers (each leg's `signedBalanceEffect` on its `accountID`), only legacy nil-direction legs stay skipped.
 - **Acceptance:** after a transfer, `Σ(all account balances)` is unchanged; partial failure leaves *all* balances and transactions unchanged. ✅
-- **Tests:** `AccountUseCaseTests.TransferFundsUseCase` — `transferIsBalanceNeutral`, `transferRollsBackOnPartialFailure` (+ paired debit/credit legs/one-save, rejects-same-account); `ModelContainerConfigTests.onDiskStoreRoundTripsTransferDirection` + `migrationPlanShape` (V3). On a real in-memory container + real `LedgerWriteStore`.
+- **Tests:** `AccountUseCaseTests.TransferFundsUseCase` — `transferIsBalanceNeutral`, `transferRollsBackOnPartialFailure` (+ paired debit/credit legs/one-save, rejects-same-account); `ModelContainerConfigTests.onDiskStoreRoundTripsTransferDirection` + `migrationPlanShape` (V3/V4). On a real in-memory container + real `LedgerWriteStore`.
 - **Verify:** `xcodebuild ... -only-testing:VittoraTests/AccountUseCaseTests test` ✅ (build-ios/build-macos ✅).
 
 ### A4 — Handle `.transfer` in Delete/Update/Bulk (reverse BOTH legs)
@@ -111,18 +111,19 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 ### A7 — Balance reconciliation + repair
 - **Finding:** DATAINTEGRITY-12 / ARCHITECTURE-07
 - **Deps:** none (independent safety net; valuable even before A1)
-- **Files:** `Core/Sync/SyncIntegrityValidator.swift`; new `Core/Domain/UseCases/ReconcileAccountBalanceUseCase.swift`; `Features/Sync/SyncStatusView.swift`
-- **Steps:**
-  1. Confirm whether `AccountEntity` has an initial/opening balance; if not, add one (additive migration; default = current balance at migration).
-  2. Add a check: `expected = openingBalance + Σ(signed transaction effects)`; flag accounts where `stored != expected`.
-  3. Remove/​paginate the 500-row cap for this pass; add a user-facing "Repair balances" action.
-- **Acceptance:** seeded drift is detected and repaired to the transaction-derived value.
-- **Tests:** `SyncStatusServiceTests` (or new `SyncIntegrityValidatorTests`) — drift detected + repaired; large-dataset pass not capped.
-- **Verify:** `make test-sync`
+- **Files:** new `Core/Domain/UseCases/ReconcileAccountBalanceUseCase.swift`; `Features/Sync/SyncStatusView.swift`; `Core/Domain/Entities/AccountEntity.swift`, `Core/Data/Models/SDAccount.swift`, `AccountMapper.swift`, `SwiftDataAccountRepository.swift`, `CreateAccountUseCase.swift`, `UpdateAccountUseCase.swift`, `VittoraMigrationPlan.swift`, `ModelContainerConfig.swift`, `Core/Domain/Repositories/TransactionRepository.swift` (+ impls/mocks).
+- **Decisions (implemented; rebased onto A3):**
+  1. **Opening balance** = additive optional `openingBalance: Decimal?` on `SDAccount`/`AccountEntity` → **Schema V4** `.lightweight` (V3→V4; renumbered off A3's V3). New accounts seed `openingBalance = balance`; manual balance edits in `UpdateAccountUseCase` re-baseline opening by the delta (so repair won't revert them). **Legacy `nil`-opening accounts:** implied opening (`balance − Σ effects`) is derived **on read** and treated as reconciled — **never auto-persisted** (CloudKit txns may be unsynced; pinning a baseline would lock in a wrong value).
+  2. **Check:** `expected = openingBalance + Σ(signedBalanceEffect)` using the canonical `TransactionEntity.signedBalanceEffect` (A7's local `balanceEffect` deleted); flag accounts where `stored != expected`. Repair writes `balance = expected` (opening untouched), idempotent.
+  3. **Transfers (A3 enables; transfer TODO closed):** direction-carrying transfer legs are now reconciled — each leg's `signedBalanceEffect` (`.debit` −, `.credit` +) is replayed on its own `accountID`. Only **LEGACY `nil`-direction** transfer legs remain non-derivable; any account touched by one is SKIPPED (never flagged/repaired) so repair can't wipe a real transfer effect.
+  4. **Uncapped pass:** added `TransactionRepository.fetchAllForReconciliation()` (no 500-row cap). "Repair Account Balances" action wired into `SyncDetailView`.
+- **Acceptance:** seeded drift is detected and repaired to the transaction-derived value (incl. direction-carrying transfers); legacy `nil`-direction-transfer-touched and legacy `nil`-opening accounts are skipped; the pass replays >500 rows.
+- **Tests:** `ReconcileAccountBalanceUseCaseTests` — detect+repair (idempotent), reconciled-not-flagged, legacy-nil-opening-skipped, legacy-nil-direction-transfer-skipped, **direction-carrying-transfer-reconciled**, uncapped(>500); `ModelContainerConfigTests.onDiskStoreRoundTripsOpeningBalance` + `migrationPlanShape` (V4).
+- **Verify:** `make test-sync` (runs `ReconcileAccountBalanceUseCaseTests` + `SyncConflictHandlerTests`).
 
 ### A8 — Recurring generation idempotency + catch-up
 - **Finding:** DATAINTEGRITY-4, DATAINTEGRITY-10
-- **Deps:** A2 (if adding a unique constraint, do it as a Schema V3 stage)
+- **Deps:** A2 (if adding a unique constraint, do it as a Schema V5 stage — V3 is A3's `transferDirection`, V4 is A7's `openingBalance`)
 - **Files:** `Core/Domain/UseCases/GenerateRecurringTransactionsUseCase.swift`, `Core/Infrastructure/BackgroundTaskScheduler.swift`, `VittoraApp.swift`
 - **Steps:** serialize generation behind a single actor/lock so launch + BGTask cannot overlap; add an idempotency key `(recurringRuleID, occurrenceDay)` (unique attr or pre-create existence check inside the serialized critical section); loop `advanceRule` while `nextDate <= now` to catch up; anchor monthly recurrence to the rule's original day-of-month; match existing by calendar-day not exact `Date`.
 - **Acceptance:** concurrent `execute()` produces no duplicates; a 3-months-stale rule generates all missed periods; a Jan-31 monthly rule does not drift.

@@ -39,11 +39,6 @@ enum VittoraSchemaV2: VersionedSchema {
 /// additive (a new optional attribute, no default required), so the V2→V3 step
 /// is a CloudKit-safe lightweight migration. Legacy transfer legs keep
 /// `transferDirection == nil` and remain non-derivable.
-///
-/// NOTE (merge-order versioning): A3 (`transferDirection`) and A7
-/// (`openingBalance`) both bump the schema off the V2 tip. Whichever merges into
-/// `refactoring` first keeps V3; the second must rebase and renumber its schema
-/// to V4 off the new tip. Do not let both claim V3.
 enum VittoraSchemaV3: VersionedSchema {
     static let versionIdentifier = Schema.Version(3, 0, 0)
 
@@ -52,9 +47,26 @@ enum VittoraSchemaV3: VersionedSchema {
     }
 }
 
+/// Schema V4 (DATAINTEGRITY-12, A7): adds the optional `SDAccount.openingBalance`
+/// used by balance reconciliation. Purely additive (a new optional attribute,
+/// no default required), so the V3→V4 step is a CloudKit-safe lightweight
+/// migration. Legacy rows keep `openingBalance == nil`; reconciliation derives
+/// the implied opening on read instead of pinning a baseline at migrate time.
+///
+/// NOTE (merge-order versioning): A3 (`transferDirection`) merged first and kept
+/// V3; A7 (`openingBalance`) rebased onto that tip and took V4. The two additive
+/// changes are independent — V3 touches `SDTransaction`, V4 touches `SDAccount`.
+enum VittoraSchemaV4: VersionedSchema {
+    static let versionIdentifier = Schema.Version(4, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        VittoraSchemaV3.models
+    }
+}
+
 enum VittoraMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [VittoraSchemaV1.self, VittoraSchemaV2.self, VittoraSchemaV3.self]
+        [VittoraSchemaV1.self, VittoraSchemaV2.self, VittoraSchemaV3.self, VittoraSchemaV4.self]
     }
 
     static var stages: [MigrationStage] {
@@ -66,6 +78,10 @@ enum VittoraMigrationPlan: SchemaMigrationPlan {
             .lightweight(
                 fromVersion: VittoraSchemaV2.self,
                 toVersion: VittoraSchemaV3.self
+            ),
+            .lightweight(
+                fromVersion: VittoraSchemaV3.self,
+                toVersion: VittoraSchemaV4.self
             )
         ]
     }

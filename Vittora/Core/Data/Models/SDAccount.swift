@@ -9,6 +9,11 @@ final class SDAccount {
     var name: String = ""
     var typeRawValue: String = AccountType.bank.rawValue
     var balance: Decimal = 0
+    /// Balance before any transaction was applied (Schema V3, DATAINTEGRITY-12).
+    /// Optional for CloudKit additive compatibility: `nil` on pre-V3 rows, where
+    /// reconciliation derives the implied opening (`balance − Σ effects`) on read
+    /// instead of pinning a possibly-unsynced baseline.
+    var openingBalance: Decimal?
     var currencyCode: String = CurrencyDefaults.code
     var icon: String = "building.columns.fill"
     var isArchived: Bool = false
@@ -22,6 +27,7 @@ final class SDAccount {
         name: String,
         type: AccountType,
         balance: Decimal = 0,
+        openingBalance: Decimal? = nil,
         currencyCode: String = CurrencyDefaults.code,
         icon: String = "building.columns.fill",
         isArchived: Bool = false,
@@ -32,6 +38,7 @@ final class SDAccount {
         self.name = name
         self.typeRawValue = type.rawValue
         self.balance = balance
+        self.openingBalance = openingBalance
         self.currencyCode = currencyCode
         self.icon = icon
         self.isArchived = isArchived

@@ -16,6 +16,10 @@ struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
     var name: String
     var type: AccountType
     var balance: Decimal
+    /// Balance before any transaction (DATAINTEGRITY-12). `nil` for legacy
+    /// accounts created before Schema V3; reconciliation derives the implied
+    /// opening on read for those rather than persisting a baseline.
+    var openingBalance: Decimal?
     var currencyCode: String
     var icon: String
     var isArchived: Bool
@@ -27,6 +31,7 @@ struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
         name: String,
         type: AccountType,
         balance: Decimal = 0,
+        openingBalance: Decimal? = nil,
         currencyCode: String = CurrencyDefaults.code,
         icon: String = "building.columns.fill",
         isArchived: Bool = false,
@@ -37,6 +42,7 @@ struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
         self.name = name
         self.type = type
         self.balance = balance
+        self.openingBalance = openingBalance
         self.currencyCode = currencyCode
         self.icon = icon
         self.isArchived = isArchived
