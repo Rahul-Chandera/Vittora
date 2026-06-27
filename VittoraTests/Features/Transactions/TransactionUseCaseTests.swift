@@ -598,6 +598,74 @@ struct TransactionUseCaseTests {
             #expect(finalAccount?.balance == 1500)
         }
 
+        @Test("Editing an expense to a different account adjusts both balances")
+        func editChangingAccountUpdatesBothBalances() async throws {
+            let accountRepo = MockAccountRepository()
+            let transactionRepo = MockTransactionRepository()
+
+            // Old account already reflects the original 200 expense (1000 - 200).
+            let oldAccount = AccountEntity(name: "Old", type: .bank, balance: Decimal(800))
+            let newAccount = AccountEntity(name: "New", type: .bank, balance: Decimal(500))
+            await accountRepo.seed(oldAccount)
+            await accountRepo.seed(newAccount)
+
+            let original = TransactionEntity(
+                amount: 200,
+                type: .expense,
+                accountID: oldAccount.id
+            )
+            await transactionRepo.seed(original)
+
+            // Move the same expense to the new account.
+            var moved = original
+            moved.accountID = newAccount.id
+
+            let useCase = UpdateTransactionUseCase(
+                transactionRepository: transactionRepo,
+                accountRepository: accountRepo
+            )
+            try await useCase.execute(moved)
+
+            let finalOld = accountRepo.accounts.first { $0.id == oldAccount.id }
+            let finalNew = accountRepo.accounts.first { $0.id == newAccount.id }
+            // Old account: expense reversed (+200) -> 1000. New account: expense applied (-200) -> 300.
+            #expect(finalOld?.balance == 1000)
+            #expect(finalNew?.balance == 300)
+        }
+
+        @Test("Editing income to a different account moves the credit")
+        func editChangingAccountMovesIncome() async throws {
+            let accountRepo = MockAccountRepository()
+            let transactionRepo = MockTransactionRepository()
+
+            let oldAccount = AccountEntity(name: "Old", type: .bank, balance: Decimal(1300))
+            let newAccount = AccountEntity(name: "New", type: .bank, balance: Decimal(1000))
+            await accountRepo.seed(oldAccount)
+            await accountRepo.seed(newAccount)
+
+            let original = TransactionEntity(
+                amount: 300,
+                type: .income,
+                accountID: oldAccount.id
+            )
+            await transactionRepo.seed(original)
+
+            var moved = original
+            moved.accountID = newAccount.id
+
+            let useCase = UpdateTransactionUseCase(
+                transactionRepository: transactionRepo,
+                accountRepository: accountRepo
+            )
+            try await useCase.execute(moved)
+
+            let finalOld = accountRepo.accounts.first { $0.id == oldAccount.id }
+            let finalNew = accountRepo.accounts.first { $0.id == newAccount.id }
+            // Old account: income reversed (-300) -> 1000. New account: income applied (+300) -> 1300.
+            #expect(finalOld?.balance == 1000)
+            #expect(finalNew?.balance == 1300)
+        }
+
         @Test("Throws when transaction does not exist")
         func testThrowsWhenTransactionMissing() async throws {
             let accountRepo = MockAccountRepository()
