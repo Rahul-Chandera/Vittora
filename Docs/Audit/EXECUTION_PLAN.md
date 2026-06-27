@@ -137,6 +137,10 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
   - **Month-end anchor:** `addMonths` preserves an end-of-month anchor — a date that is the last day of its month maps to the last day of the target month (Jan-31 → Feb-28 → Mar-31), other days clamp only when the target is shorter. **Known limitation (no schema field):** a non-last-day day > 28 (e.g. the 30th) that gets clamped in February then sticks to month-end thereafter; a fully faithful per-rule anchor would need an additive `anchorDay` field, deliberately deferred to avoid a schema-version collision with A3/A7.
   - **Testability:** injected `calendar` (gregorian default) + `nowProvider` so catch-up/anchor are deterministic.
   - **Test name mapping:** `concurrentExecuteNoDuplicates`→`recurringCoordinatorCoalescesConcurrentRuns`; `staleRuleCatchesUp`→`generateRecurringTransactionsCatchesUpStaleRule`; `monthEndAnchorStable`→`generateRecurringTransactionsKeepsMonthEndAnchor`; plus `…MatchesExistingByCalendarDay` and `…SelfHealsRuleUpdateFailure`.
+- **Status:** MERGED into `refactoring` (reviewer-approved, Epic A gate).
+- **Approved follow-ups (non-blocking):**
+  - **F-A8a — original-day-of-month anchor:** anchor monthly recurrence to the rule's ORIGINAL day-of-month so day-29/30 rules don't permanently promote to month-ends after a February clamp. Needs an additive `anchorDay` (or derive from the rule's start date) — schedule as the next schema bump after the current V4 tip. Add a `Jan30→Feb28→Mar30` regression test.
+  - **F-A8b — recurring income/salary:** recurring generation is currently expense-only (no template transaction type), so recurring income/salary is unsupported. Track as a separate feature (template carries `type`/category), out of the audit-remediation scope.
 
 ### A9 — Centralized locale-aware money parser
 - **Finding:** DATAINTEGRITY-5 / CODEQUALITY-2
