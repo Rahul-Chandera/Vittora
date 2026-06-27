@@ -32,6 +32,7 @@ This map helps agents find the right files quickly.
 - Mapping layer: `Vittora/Core/Data/Mappers/`
 - Data management/reset: `Vittora/Core/Data/Persistence/DataManagementService.swift`
 - Export: `Vittora/Core/Data/Persistence/DataExportService.swift`
+- Write Unit-of-Work (atomic compound ledger writes): `Vittora/Core/Data/Persistence/LedgerWriteStore.swift`
 
 ## Sync
 

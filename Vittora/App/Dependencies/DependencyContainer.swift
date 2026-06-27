@@ -16,6 +16,8 @@ final class DependencyContainer {
     var taxProfileRepository: (any TaxProfileRepository)?
     var savingsGoalRepository: (any SavingsGoalRepository)?
 
+    var ledgerWriteStore: LedgerWriteStore?
+
     var biometricService: (any BiometricServiceProtocol)?
     var keychainService: (any KeychainServiceProtocol)?
     var encryptionService: (any EncryptionServiceProtocol)?
@@ -40,6 +42,7 @@ final class DependencyContainer {
         container.splitGroupRepository = SwiftDataSplitGroupRepository(modelContainer: modelContainer)
         container.taxProfileRepository = SwiftDataTaxProfileRepository(modelContainer: modelContainer)
         container.savingsGoalRepository = SwiftDataSavingsGoalRepository(modelContainer: modelContainer)
+        container.ledgerWriteStore = LedgerWriteStore(modelContainer: modelContainer)
         container.dataSeeder = DefaultDataSeeder(modelContainer: modelContainer)
 
         let keychainService = KeychainService()
