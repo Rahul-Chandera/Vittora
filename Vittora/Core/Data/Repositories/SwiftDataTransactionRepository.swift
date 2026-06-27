@@ -118,7 +118,8 @@ actor SwiftDataTransactionRepository: TransactionRepository {
             accountID: entity.accountID,
             payeeID: entity.payeeID,
             destinationAccountID: entity.destinationAccountID,
-            recurringRuleID: entity.recurringRuleID
+            recurringRuleID: entity.recurringRuleID,
+            transferPairID: entity.transferPairID
         )
         modelContext.insert(model)
         try modelContext.save()

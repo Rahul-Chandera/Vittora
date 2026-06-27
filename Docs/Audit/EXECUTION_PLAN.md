@@ -282,6 +282,8 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | I2 | ARCHITECTURE-03 | `project.pbxproj` | `SWIFT_VERSION = 6.0` (or `SWIFT_STRICT_CONCURRENCY = complete`); resolve diagnostics; update docs. | Builds in Swift 6/strict; docs match. | M |
 | I3 | ARCHITECTURE-08 / CODEQUALITY-13 | `VittoraApp.swift`, `AppState.swift`, `AppTabView`, `SidebarNavigation`, `DashboardView` | Replace `.vittoraNewTransaction`/`.vittoraOpenSettings` NotificationCenter with typed `AppState` presentation enum. | No custom `Notification.Name` for navigation. | M |
 | I4 | ARCHITECTURE-09 / DATAINTEGRITY-11 | `VittoraMigrationPlan.swift`, tests | Freeze V1; establish V2 + stage convention; add forward-migration test (overlaps A2). | Migration test exists; additive-only policy documented. | M |
+
+> **I4 follow-up (from A2 review):** A2's `VittoraSchemaV2.models` currently just *aliases* `VittoraSchemaV1.models` (both reference the live model types), so there is no real V1↔V2 schema snapshot difference and only additive/lightweight changes are safe. I4 must add a **faithful V1→V2 migration test** that seeds an on-disk store using a **frozen `SDTransactionV1` snapshot** (no `transferPairID`) referenced *only* by `VittoraSchemaV1`, then opens it as V2 and asserts the column is added and data preserved. Establish per-version frozen snapshots before any **non-additive** schema change.
 | I-ALT | (root alt) | ledger layer | *Optional later:* fully derive `balance` from transactions (additive CloudKit merges). Supersedes parts of A7/ARCH-07/-11. | Balance computed on read + cached; not required for beta. | L |
 
 ---
