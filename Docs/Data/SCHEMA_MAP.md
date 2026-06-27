@@ -1,6 +1,13 @@
 # Vittora SwiftData Schema Map
 
-Current schema baseline: `VittoraSchemaV1` in `Vittora/Core/Data/Persistence/VittoraMigrationPlan.swift`.
+Current schema version: `VittoraSchemaV2` (baseline `VittoraSchemaV1`) in `Vittora/Core/Data/Persistence/VittoraMigrationPlan.swift`.
+
+## Schema Versions
+
+- **V1** — initial baseline.
+- **V2** — adds optional `SDTransaction.transferPairID: UUID?` linking the two
+  legs of a transfer (DATAINTEGRITY-1). Additive only; the V1→V2 step is a
+  CloudKit-safe `.lightweight` `MigrationStage`.
 
 ## Registered Models
 

@@ -1,0 +1,10 @@
+# Audit Remediation Progress
+
+One row per task. See `EXECUTION_PLAN.md` for task definitions and `CURSOR_HANDOFF.md` for the working agreement.
+
+> Branching note: per the current working instruction, task branches are cut off `refactoring` (not `develop`). Never commit directly to `refactoring`/`develop`/`main`. Because each task branches independently off `refactoring`, this file is maintained cumulatively per branch; resolve any merge overlap at integration time.
+
+| Task | Branch/PR | Status | Tests added | Verify result | Notes/assumptions |
+|------|-----------|--------|-------------|---------------|-------------------|
+| A1 | fix/A1-ledger-write-store | Ready for review (push/PR pending — no `gh`/git creds in env) | LedgerWriteStoreTests (4 cases: one-save, rollback, recovery, seeded-stub) | build-ios✅ build-macos✅ test-data✅ LedgerWriteStoreTests✅ | `@ModelActor LedgerWriteStore` with `commit(_:)` Unit-of-Work (one `save()`, `rollback()` on failure) + `saveCount` test hook. Operation entry points (`performTransfer/Add/Settle/Delete`) seeded as stubs that throw `LedgerWriteError.notImplemented`; bodies land in A3/A4/A6. Registered in `DependencyContainer`. |
+| A2 | fix/A2-transfer-pair-id | Ready for review (push/PR pending — no `gh`/git creds in env) | ModelContainerConfigTests.migrationV1toV2RoundTrip + migrationPlanV1toV2Shape; TransactionMapperTests transferPairID assertions | build-ios✅ build-macos✅ test-data✅ ModelContainerConfigTests✅ | Added optional `transferPairID: UUID?` to `TransactionEntity`/`SDTransaction` + both mapper directions + repo `create`. Defined `VittoraSchemaV2` (additive) + `.lightweight` V1→V2 `MigrationStage`; `allModels` now `VittoraSchemaV2.models`. **Deviation:** versioned schemas reference live model types (existing repo convention); a fully frozen V1 snapshot is deferred to I4. **Out of scope (NOT fixed):** `TransactionMapperTests.testToEntityMapsDefaults` hardcodes `currencyCode == "USD"` and fails in non-USD locales (this machine = INR); pre-existing, unrelated to A2. |

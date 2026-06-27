@@ -18,6 +18,9 @@ final class SDTransaction {
     var payeeID: UUID?
     var destinationAccountID: UUID?
     var recurringRuleID: UUID?
+    /// Links the two legs of a transfer (Schema V2, DATAINTEGRITY-1). Optional
+    /// for CloudKit additive compatibility; nil on all pre-V2 and non-transfer rows.
+    var transferPairID: UUID?
     var externalID: String = ""
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
@@ -38,6 +41,7 @@ final class SDTransaction {
         payeeID: UUID? = nil,
         destinationAccountID: UUID? = nil,
         recurringRuleID: UUID? = nil,
+        transferPairID: UUID? = nil,
         externalID: String = UUID().uuidString,
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -55,6 +59,7 @@ final class SDTransaction {
         self.payeeID = payeeID
         self.destinationAccountID = destinationAccountID
         self.recurringRuleID = recurringRuleID
+        self.transferPairID = transferPairID
         self.externalID = externalID
         self.createdAt = createdAt
         self.updatedAt = updatedAt

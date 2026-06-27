@@ -17,6 +17,7 @@ enum TransactionMapper {
             payeeID: model.payeeID,
             destinationAccountID: model.destinationAccountID,
             recurringRuleID: model.recurringRuleID,
+            transferPairID: model.transferPairID,
             documentIDs: [],
             createdAt: model.createdAt,
             updatedAt: model.updatedAt
@@ -36,6 +37,7 @@ enum TransactionMapper {
         model.payeeID = entity.payeeID
         model.destinationAccountID = entity.destinationAccountID
         model.recurringRuleID = entity.recurringRuleID
+        model.transferPairID = entity.transferPairID
         model.updatedAt = .now
     }
 }

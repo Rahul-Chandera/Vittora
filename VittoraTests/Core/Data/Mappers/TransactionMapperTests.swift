@@ -17,6 +17,7 @@ struct TransactionMapperTests {
         let payeeID = UUID()
         let destinationAccountID = UUID()
         let recurringRuleID = UUID()
+        let transferPairID = UUID()
         let tags = ["tag1", "tag2"]
         let createdAt = Date()
         let updatedAt = Date()
@@ -35,6 +36,7 @@ struct TransactionMapperTests {
             payeeID: payeeID,
             destinationAccountID: destinationAccountID,
             recurringRuleID: recurringRuleID,
+            transferPairID: transferPairID,
             createdAt: createdAt,
             updatedAt: updatedAt
         )
@@ -54,6 +56,7 @@ struct TransactionMapperTests {
         #expect(entity.payeeID == payeeID)
         #expect(entity.destinationAccountID == destinationAccountID)
         #expect(entity.recurringRuleID == recurringRuleID)
+        #expect(entity.transferPairID == transferPairID)
         #expect(entity.createdAt == createdAt)
         #expect(entity.updatedAt == updatedAt)
     }
@@ -110,7 +113,8 @@ struct TransactionMapperTests {
             accountID: UUID(),
             payeeID: UUID(),
             destinationAccountID: UUID(),
-            recurringRuleID: UUID()
+            recurringRuleID: UUID(),
+            transferPairID: UUID()
         )
 
         TransactionMapper.updateModel(model, from: entity)
@@ -127,6 +131,7 @@ struct TransactionMapperTests {
         #expect(model.payeeID == entity.payeeID)
         #expect(model.destinationAccountID == entity.destinationAccountID)
         #expect(model.recurringRuleID == entity.recurringRuleID)
+        #expect(model.transferPairID == entity.transferPairID)
         #expect(model.createdAt == originalCreatedAt)
         #expect(model.updatedAt > originalCreatedAt)
     }

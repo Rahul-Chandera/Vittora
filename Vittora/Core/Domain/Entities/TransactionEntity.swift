@@ -22,6 +22,9 @@ struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
     nonisolated var payeeID: UUID?
     nonisolated var destinationAccountID: UUID?
     nonisolated var recurringRuleID: UUID?
+    /// Shared identifier linking the two legs of a transfer so both can be
+    /// reversed/edited together (DATAINTEGRITY-1). Nil for non-transfer rows.
+    nonisolated var transferPairID: UUID?
     nonisolated var documentIDs: [UUID]
     nonisolated var createdAt: Date
     nonisolated var updatedAt: Date
@@ -40,6 +43,7 @@ struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
         payeeID: UUID? = nil,
         destinationAccountID: UUID? = nil,
         recurringRuleID: UUID? = nil,
+        transferPairID: UUID? = nil,
         documentIDs: [UUID] = [],
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -57,6 +61,7 @@ struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
         self.payeeID = payeeID
         self.destinationAccountID = destinationAccountID
         self.recurringRuleID = recurringRuleID
+        self.transferPairID = transferPairID
         self.documentIDs = documentIDs
         self.createdAt = createdAt
         self.updatedAt = updatedAt
