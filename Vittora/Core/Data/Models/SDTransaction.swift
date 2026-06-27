@@ -21,6 +21,9 @@ final class SDTransaction {
     /// Links the two legs of a transfer (Schema V2, DATAINTEGRITY-1). Optional
     /// for CloudKit additive compatibility; nil on all pre-V2 and non-transfer rows.
     var transferPairID: UUID?
+    /// Raw value of the transfer leg's `TransferDirection` (Schema V3, A3). Optional
+    /// for CloudKit additive compatibility; nil on non-transfer and legacy rows.
+    var transferDirectionRawValue: String?
     var externalID: String = ""
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
@@ -42,6 +45,7 @@ final class SDTransaction {
         destinationAccountID: UUID? = nil,
         recurringRuleID: UUID? = nil,
         transferPairID: UUID? = nil,
+        transferDirection: TransferDirection? = nil,
         externalID: String = UUID().uuidString,
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -60,6 +64,7 @@ final class SDTransaction {
         self.destinationAccountID = destinationAccountID
         self.recurringRuleID = recurringRuleID
         self.transferPairID = transferPairID
+        self.transferDirectionRawValue = transferDirection?.rawValue
         self.externalID = externalID
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -73,5 +78,10 @@ final class SDTransaction {
     var paymentMethod: PaymentMethod {
         get { PaymentMethod(rawValue: paymentMethodRawValue) ?? .cash }
         set { paymentMethodRawValue = newValue.rawValue }
+    }
+
+    var transferDirection: TransferDirection? {
+        get { transferDirectionRawValue.flatMap(TransferDirection.init(rawValue:)) }
+        set { transferDirectionRawValue = newValue?.rawValue }
     }
 }

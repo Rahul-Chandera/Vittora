@@ -142,7 +142,7 @@ struct LedgerWriteStoreTests {
         let container = try makeContainer()
         let store = LedgerWriteStore(modelContainer: container)
 
-        await #expect(throws: VittoraError.self) {
+        await #expect(throws: LedgerWriteError.self) {
             try await store.performAdd(TransactionEntity(amount: 200, type: .expense, accountID: UUID()))
         }
 
@@ -184,7 +184,7 @@ struct LedgerWriteStoreTests {
         let store = LedgerWriteStore(modelContainer: container)
 
         let leg = TransactionEntity(amount: 300, type: .income, accountID: UUID())
-        await #expect(throws: VittoraError.self) {
+        await #expect(throws: LedgerWriteError.self) {
             try await store.performSettle(debtID: debtID, settlementAmount: 300, transaction: leg)
         }
 

@@ -65,14 +65,20 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 - **Tests:** `VittoraTests/Core/Data/ModelContainerConfigTests.swift` — add a V1→V2 migration round-trip (seed V1 store, open as V2, assert data preserved).
 - **Verify:** `make test-data`
 
-### A3 — Rewrite `TransferFundsUseCase` (atomic + paired legs)
+### A3 — Rewrite `TransferFundsUseCase` (atomic + paired legs) — DONE (held)
 - **Finding:** DATAINTEGRITY-1/2
 - **Deps:** A1, A2
-- **Files:** `Core/Domain/UseCases/TransferFundsUseCase.swift`
-- **Steps:** generate one shared `transferPairID`, set on both legs; route the two creates + two balance updates through `LedgerWriteStore.performTransfer` (one save).
-- **Acceptance:** after a transfer, `Σ(all account balances)` is unchanged vs before; partial failure leaves *all* balances and transactions unchanged.
-- **Tests:** `AccountUseCaseTests` — `transferIsBalanceNeutral`, `transferRollsBackOnPartialFailure`.
-- **Verify:** `xcodebuild ... -only-testing:VittoraTests/AccountUseCaseTests test`
+- **Files:** `TransferFundsUseCase.swift`, `LedgerWriteStore.swift`, `TransactionEntity.swift`, `SDTransaction.swift`, `TransactionMapper.swift`, `SwiftDataTransactionRepository.swift`, `UpdateTransactionUseCase.swift`, `VittoraMigrationPlan.swift`, `ModelContainerConfig.swift`, `Features/Accounts/Views/TransferFormView.swift`.
+- **Decisions (implemented — Option A, two legs + explicit direction):**
+  1. Additive optional `TransferDirection` (.debit/.credit) on `TransactionEntity`/`SDTransaction` (+mapper/repo) → **Schema V3** (`transferDirectionRawValue`) + `.lightweight` V2→V3 + round-trip test. Preserves the one-row-one-account invariant (rejected single-signed-record and defer options).
+  2. `performTransfer` (atomic via `LedgerWriteStore`): both legs share one `transferPairID`; source=.debit, dest=.credit; both balances applied; one save; rollback on missing account.
+  3. **Canonical `TransactionEntity.signedBalanceEffect`** (direction-signed for `.transfer`, replacing `balanceEffect(.transfer)==0`); adopted in `LedgerWriteStore` + `UpdateTransactionUseCase` (resolves the A6 duplicated-`balanceEffect` nit). A6 `MockLedgerWriting` and A7 `ReconcileAccountBalanceUseCase` adopt it on rebase.
+  4. `TransferFundsUseCase` depends on a REQUIRED concrete `LedgerWriteStore` (no repo fallback; drops `transactionRepository`). Switch to `any LedgerWriting` once A6's seam merges.
+- **Schema-version collision:** A3 (`transferDirection`) and A7 (`openingBalance`) both claim V3 off the V2 tip. **Later-merged rebases its schema to V4** off the new `refactoring` tip — only one may be V3. Carry the I4 caveat: migration tests aren't fully faithful until a frozen per-version snapshot exists.
+- **Follow-ups for rebasing branches (from A6 review):** A6's `performAdd` MUST reject `.transfer` (transfers may only flow through `performTransfer`); A7 may then include transfers that carry a direction (count once via `transferPairID` + sign), legacy nil-direction legs stay reconciliation-skipped.
+- **Acceptance:** after a transfer, `Σ(all account balances)` is unchanged; partial failure leaves *all* balances and transactions unchanged. ✅
+- **Tests:** `AccountUseCaseTests.TransferFundsUseCase` — `transferIsBalanceNeutral`, `transferRollsBackOnPartialFailure` (+ paired debit/credit legs/one-save, rejects-same-account); `ModelContainerConfigTests.onDiskStoreRoundTripsTransferDirection` + `migrationPlanShape` (V3). On a real in-memory container + real `LedgerWriteStore`.
+- **Verify:** `xcodebuild ... -only-testing:VittoraTests/AccountUseCaseTests test` ✅ (build-ios/build-macos ✅).
 
 ### A4 — Handle `.transfer` in Delete/Update/Bulk (reverse BOTH legs)
 - **Finding:** DATAINTEGRITY-1
@@ -97,7 +103,8 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 - **Deps:** A1
 - **Files:** `Core/Domain/UseCases/AddTransactionUseCase.swift`, `SettleDebtUseCase.swift`
 - **Steps:** route create-tx + update-account (Add) and create-tx + update-account + update-debt (Settle) through `LedgerWriteStore`.
-- **Acceptance:** partial failure leaves balances/debt unchanged.
+- **A3 follow-up (REQUIRED on rebase):** `performAdd` MUST reject `.transfer` (throw) — transfers may only flow through `performTransfer`. Also adopt the canonical `TransactionEntity.signedBalanceEffect` in the store and `MockLedgerWriting` instead of a local `balanceEffect`.
+- **Acceptance:** partial failure leaves balances/debt unchanged; adding a `.transfer` via `performAdd` is rejected.
 - **Tests:** `TransactionUseCaseTests`, `DebtUseCaseTests` — partial-failure rollback cases.
 - **Verify:** `make test-data`
 

@@ -18,6 +18,7 @@ enum TransactionMapper {
             destinationAccountID: model.destinationAccountID,
             recurringRuleID: model.recurringRuleID,
             transferPairID: model.transferPairID,
+            transferDirection: model.transferDirection,
             documentIDs: [],
             createdAt: model.createdAt,
             updatedAt: model.updatedAt
@@ -38,6 +39,7 @@ enum TransactionMapper {
         model.destinationAccountID = entity.destinationAccountID
         model.recurringRuleID = entity.recurringRuleID
         model.transferPairID = entity.transferPairID
+        model.transferDirection = entity.transferDirection
         model.updatedAt = .now
     }
 }

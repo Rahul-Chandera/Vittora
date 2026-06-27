@@ -25,7 +25,7 @@ struct MockLedgerWriting: LedgerWriting {
         try await transactionRepository.create(transaction)
         guard let accountID = transaction.accountID,
               var account = try await accountRepository.fetchByID(accountID) else { return }
-        account.balance += Self.balanceEffect(type: transaction.type, amount: transaction.amount)
+        account.balance += transaction.signedBalanceEffect
         account.updatedAt = .now
         try await accountRepository.update(account)
     }
@@ -47,14 +47,5 @@ struct MockLedgerWriting: LedgerWriting {
 
     func performDelete(transactionID: UUID) async throws {
         throw VittoraError.unknown("MockLedgerWriting.performDelete not supported")
-    }
-
-    private static func balanceEffect(type: TransactionType, amount: Decimal) -> Decimal {
-        switch type {
-        case .expense: -amount
-        case .income: amount
-        case .transfer: 0
-        case .adjustment: amount
-        }
     }
 }

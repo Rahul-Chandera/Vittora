@@ -34,12 +34,13 @@ struct ModelContainerConfigTests {
         #expect(doc.transactionID == nil)
     }
 
-    @Test("migration plan declares V1 and V2 with a lightweight stage")
-    func migrationPlanV1toV2Shape() {
-        #expect(VittoraMigrationPlan.schemas.count == 2)
-        #expect(VittoraMigrationPlan.stages.count == 1)
+    @Test("migration plan declares V1, V2 and V3 with lightweight stages")
+    func migrationPlanShape() {
+        #expect(VittoraMigrationPlan.schemas.count == 3)
+        #expect(VittoraMigrationPlan.stages.count == 2)
         #expect(VittoraSchemaV1.versionIdentifier == Schema.Version(1, 0, 0))
         #expect(VittoraSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
+        #expect(VittoraSchemaV3.versionIdentifier == Schema.Version(3, 0, 0))
     }
 
     // NOTE: This is a persistence round-trip at the current (V2) schema — it
@@ -101,5 +102,58 @@ struct ModelContainerConfigTests {
         #expect(reloadedLeg?.transferPairID == pairID)
         #expect(reloadedPlain?.amount == 50)
         #expect(reloadedPlain?.transferPairID == nil)
+    }
+
+    // Schema V3 (DATAINTEGRITY-1, A3): persistence round-trip at the current
+    // schema for the additive optional `transferDirection` — debit, credit, and
+    // nil (non-transfer/legacy) must all survive a close/reopen of an on-disk store.
+    @Test("on-disk store round-trips transfer leg direction (debit/credit/nil)")
+    func onDiskStoreRoundTripsTransferDirection() throws {
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let storeURL = dir.appendingPathComponent("vittora-direction-roundtrip.store")
+
+        let pairID = UUID()
+        let debitID = UUID()
+        let creditID = UUID()
+        let plainID = UUID()
+
+        do {
+            let schema = Schema(VittoraSchemaV3.models)
+            let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+            let container = try ModelContainer(
+                for: schema,
+                migrationPlan: VittoraMigrationPlan.self,
+                configurations: [config]
+            )
+            let ctx = ModelContext(container)
+            ctx.insert(SDTransaction(
+                id: debitID, amount: 100, type: .transfer,
+                transferPairID: pairID, transferDirection: .debit, externalID: UUID().uuidString
+            ))
+            ctx.insert(SDTransaction(
+                id: creditID, amount: 100, type: .transfer,
+                transferPairID: pairID, transferDirection: .credit, externalID: UUID().uuidString
+            ))
+            ctx.insert(SDTransaction(id: plainID, amount: 50, externalID: UUID().uuidString))
+            try ctx.save()
+        }
+
+        let schema = Schema(VittoraSchemaV3.models)
+        let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let ctx = ModelContext(container)
+        let rows = try ctx.fetch(FetchDescriptor<SDTransaction>())
+
+        #expect(rows.count == 3)
+        #expect(rows.first { $0.id == debitID }?.transferDirection == .debit)
+        #expect(rows.first { $0.id == creditID }?.transferDirection == .credit)
+        #expect(rows.first { $0.id == plainID }?.transferDirection == nil)
     }
 }
