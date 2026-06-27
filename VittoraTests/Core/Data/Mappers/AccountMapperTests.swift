@@ -53,7 +53,7 @@ struct AccountMapperTests {
         #expect(entity.name == "My Account")
         #expect(entity.type == .bank)
         #expect(entity.balance == Decimal(0))
-        #expect(entity.currencyCode == "USD")
+        #expect(entity.currencyCode == CurrencyDefaults.code)
         #expect(entity.icon == "building.columns.fill")
         #expect(entity.isArchived == false)
     }
