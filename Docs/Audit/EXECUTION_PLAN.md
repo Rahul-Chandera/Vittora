@@ -165,6 +165,11 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
   - **Validation:** forms now gate `canSave`/`save()` on successful parse (`parsedAmount != nil`) and throw/show localized errors instead of coercing to `0`. `AddGroupExpenseViewModel` keeps a display-only `amount` for live split math but persists via `parsedAmount`.
   - **Tests:** `MoneyParsingTests` (en_US/de_DE/fr_FR + reject-unparseable + zero-valid); `TransactionFormViewModelTests` updated for no-silent-zero behavior.
   - **Gate:** `grep -rn "Decimal(string:" Vittora/Features --include='*.swift'` → empty ✅.
+- **Status:** MERGED into `refactoring` (reviewer-approved). Amended to drop accidentally committed `.build-integration` artifacts; added `/.build-*` to `.gitignore`.
+- **Approved follow-ups (non-blocking):**
+  - **F-A9a — OCR receipt amounts:** `ReceiptParserService.swift:69,123` still uses `Decimal(string:)` for regex-extracted OCR amounts (same locale issue). Fold into OCR/receipt work (**FUNCTIONAL-15**); user-editable path already uses `Decimal(localizedAmount:)` via `ReceiptReviewViewModel`.
+  - **F-A9b — AmountInputView keyboard filter:** `AmountInputView` still filters to `.` only; locale parsing handles pasted/external-keyboard input; wiring the filter to locale decimal separator is a separate UI polish.
+  - **AddGroupExpenseViewModel.amount:** NOT dead — `AddGroupExpenseView` footer (exact-split “Remaining:” diff, lines 76–78) reads `vm.amount` for live UI math; persistence uses `parsedAmount` so unparseable input never saves as zero.
 
 ### A10 — Delete cascade/nullify for category & recurring rule
 - **Finding:** DATAINTEGRITY-6 / ARCHITECTURE-05
