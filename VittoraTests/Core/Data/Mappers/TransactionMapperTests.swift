@@ -71,7 +71,7 @@ struct TransactionMapperTests {
         #expect(entity.amount == Decimal(50.0))
         #expect(entity.type == .expense)
         #expect(entity.paymentMethod == .cash)
-        #expect(entity.currencyCode == "USD")
+        #expect(entity.currencyCode == CurrencyDefaults.code)
         #expect(entity.tags == [])
         #expect(entity.categoryID == nil)
         #expect(entity.accountID == nil)

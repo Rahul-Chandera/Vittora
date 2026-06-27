@@ -17,7 +17,7 @@ struct TransactionEntityTests {
         #expect(entity.note == nil)
         #expect(entity.type == .expense)
         #expect(entity.paymentMethod == .cash)
-        #expect(entity.currencyCode == "USD")
+        #expect(entity.currencyCode == CurrencyDefaults.code)
         #expect(entity.tags == [])
         #expect(entity.categoryID == nil)
         #expect(entity.accountID == nil)
