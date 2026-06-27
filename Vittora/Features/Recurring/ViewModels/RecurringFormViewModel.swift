@@ -16,9 +16,13 @@ final class RecurringFormViewModel {
     var isEditing = false
     var editingID: UUID?
 
+    private var parsedAmount: Decimal? {
+        Decimal(localizedAmount: amount)
+    }
+
     var canSave: Bool {
         !amount.trimmingCharacters(in: .whitespaces).isEmpty &&
-        (Decimal(string: amount) ?? 0) > 0 &&
+        (parsedAmount ?? 0) > 0 &&
         selectedAccountID != nil
     }
 
@@ -51,8 +55,8 @@ final class RecurringFormViewModel {
     }
 
     func save() async throws {
-        guard let amountDecimal = Decimal(string: amount) else {
-            throw VittoraError.validationFailed("Invalid amount")
+        guard let amountDecimal = Decimal(localizedAmount: amount), amountDecimal > 0 else {
+            throw VittoraError.validationFailed(String(localized: "Invalid amount"))
         }
 
         if isEditing, let id = editingID {

@@ -13,7 +13,7 @@ final class DebtFormViewModel {
     var isLoading = false
     var error: String?
 
-    var amount: Decimal? { Decimal(string: amountString) }
+    var amount: Decimal? { Decimal(localizedAmount: amountString) }
     var canSave: Bool {
         selectedPayeeID != nil && (amount ?? 0) > 0
     }

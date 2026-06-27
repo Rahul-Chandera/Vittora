@@ -70,3 +70,4 @@ fastlane/test_output
 /.build-macos
 /.build-audit-test
 /.build-audit
+/.build-*

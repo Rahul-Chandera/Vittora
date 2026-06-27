@@ -102,7 +102,7 @@ struct RecurringRowView: View {
     let sampleRule = RecurringRuleEntity(
         frequency: .monthly,
         nextDate: Date.now,
-        templateAmount: Decimal(string: "29.99") ?? 29.99
+        templateAmount: Decimal(localizedAmount: "29.99", locale: Locale(identifier: "en_US_POSIX")) ?? 0
     )
     let sampleCategory = CategoryEntity(
         name: "Subscriptions",

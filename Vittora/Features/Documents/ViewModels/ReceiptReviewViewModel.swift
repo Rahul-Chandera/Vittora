@@ -16,7 +16,7 @@ final class ReceiptReviewViewModel {
     var dateString: String
     var rawText: String
 
-    var amount: Decimal? { Decimal(string: amountString) }
+    var amount: Decimal? { Decimal(localizedAmount: amountString) }
 
     var date: Date? {
         Self.receiptDateFormatter.date(from: dateString)

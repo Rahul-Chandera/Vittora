@@ -114,9 +114,7 @@ final class OnboardingViewModel {
     }
 
     private var normalizedOpeningBalance: Decimal? {
-        let trimmed = openingBalance.trimmingCharacters(in: .whitespacesAndNewlines)
-        let sanitized = trimmed.replacingOccurrences(of: ",", with: "")
-        return Decimal(string: sanitized)
+        Decimal(localizedAmount: openingBalance)
     }
 
     private var hasValidAccountSetup: Bool {

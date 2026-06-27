@@ -66,20 +66,22 @@ struct TransactionFormViewModelTests {
         #expect(vm.canSave == true)
     }
 
-    // MARK: - amount computed property
+    // MARK: - localized amount parsing
 
-    @Test("amount parses valid decimal string")
-    func amountParsesDecimalString() {
+    @Test("canSave accepts a locale-valid decimal string")
+    func canSaveWithValidAmount() {
         let (vm, _, _, _) = makeViewModel()
         vm.amountString = "123.45"
-        #expect(vm.amount == Decimal(string: "123.45")!)
+        vm.selectedAccountID = UUID()
+        #expect(vm.canSave == true)
     }
 
-    @Test("amount returns zero for invalid string")
-    func amountZeroForInvalidString() {
+    @Test("canSave rejects unparseable amount instead of silently coercing to zero")
+    func canSaveFalseForInvalidString() {
         let (vm, _, _, _) = makeViewModel()
         vm.amountString = "abc"
-        #expect(vm.amount == 0)
+        vm.selectedAccountID = UUID()
+        #expect(vm.canSave == false)
     }
 
     // MARK: - loadTransaction
