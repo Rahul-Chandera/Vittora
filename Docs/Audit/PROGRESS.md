@@ -1,9 +1,10 @@
 # Audit Remediation Progress
 
-One row per task. See `EXECUTION_PLAN.md` for task definitions and `CURSOR_HANDOFF.md` for the working agreement.
+Running log — one row per task. See `EXECUTION_PLAN.md` for task definitions and `CURSOR_HANDOFF.md` → *Branching, pushing & review* for the working agreement.
 
-> Branching note: per the current working instruction, task branches are cut off `refactoring` (not `develop`). Never commit directly to `refactoring`/`develop`/`main`.
+> Branching: every task branches off `refactoring` (or its real parent when stacked); self-verified tasks are merged into `refactoring` to advance the base. Local commits only — no push/PR. The reviewer reviews read-only via refs (`git diff <base>...<branch>`).
 
-| Task | Branch/PR | Status | Tests added | Verify result | Notes/assumptions |
-|------|-----------|--------|-------------|---------------|-------------------|
-| A1 | fix/A1-ledger-write-store | Ready for review | LedgerWriteStoreTests (4 cases: one-save, rollback, recovery, seeded-stub) | build-ios✅ build-macos✅ test-data✅ LedgerWriteStoreTests✅ | `@ModelActor LedgerWriteStore` with `commit(_:)` Unit-of-Work (one `save()`, `rollback()` on failure) + `saveCount` test hook. Operation entry points (`performTransfer/Add/Settle/Delete`) seeded as stubs that throw `LedgerWriteError.notImplemented`; bodies land in A3/A4/A6. Registered in `DependencyContainer`. |
+| Task | Branch | Base | Status | Tests added | Verify result | Notes/assumptions |
+|------|--------|------|--------|-------------|---------------|-------------------|
+| A1 | fix/A1-ledger-write-store | refactoring | Merged into refactoring | LedgerWriteStoreTests (one-save, rollback, recovery, seeded-stub) | build-ios✅ build-macos✅ test-data✅ LedgerWriteStoreTests✅ | `@ModelActor LedgerWriteStore` + `commit(_:)` Unit-of-Work (one `save()`, `rollback()` on failure) + `saveCount` test hook. Operation entry points (`performTransfer/Add/Settle/Delete`) seeded as stubs throwing `LedgerWriteError.notImplemented`; bodies land in A3/A4/A6. Registered in `DependencyContainer`. |
+| A2 | fix/A2-transfer-pair-id | refactoring | Under review (HELD — merge after sign-off) | ModelContainerConfigTests.migrationV1toV2RoundTrip + migrationPlanV1toV2Shape; TransactionMapperTests transferPairID assertions | build-ios✅ build-macos✅ test-data✅ ModelContainerConfigTests✅ | Optional `transferPairID: UUID?` on `TransactionEntity`/`SDTransaction` + both mapper directions + repo `create`. `VittoraSchemaV2` (additive) + `.lightweight` V1→V2 stage; `allModels`→V2. Deviation: versioned schemas reference live model types (existing convention); frozen V1 snapshot deferred to I4. Out of scope (NOT fixed): `TransactionMapperTests.testToEntityMapsDefaults` hardcodes `currencyCode=="USD"`, fails in non-USD locale (this machine=INR); pre-existing. |

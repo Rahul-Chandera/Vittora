@@ -9,7 +9,7 @@ You (Cursor) are implementing the remediation defined by this repo's pre-launch 
 4. `Docs/Architecture/SYSTEM_MAP.md`, `Docs/Data/SCHEMA_MAP.md`, `Docs/Tax/RULE_COVERAGE.md` — orientation for sync, schema, and tax work.
 
 ## Golden rules (non-negotiable)
-- **Branch per task** off `develop`: `fix/<task-id>-<slug>` (e.g. `fix/A2-transfer-pair-id`). **Never** commit to `develop` or `main`.
+- **Branch per task** off `refactoring` (the integration base, itself branched off `develop`): `fix/<task-id>-<slug>` (e.g. `fix/A2-transfer-pair-id`). **Leave `develop` and `main` untouched.** See *Branching, pushing & review* for stacking + how tasks land on `refactoring`.
 - **One task = one branch = one PR.** Keep diffs focused; do not bundle unrelated tasks. (You may combine two tightly-coupled tasks only if the plan lists one as a hard `Dep:` of the other and they're trivial — note it in the PR.)
 - **Both builds + tests must be green before you mark a task done:** `make build-ios`, `make build-macos`, and the task's test command.
 - **No force-unwraps** in production code. **All user-facing text via `String(localized:)`.** **No new third-party dependencies** (Apple frameworks only). Preserve **offline-first** behavior. Treat financial data as sensitive.
@@ -17,6 +17,22 @@ You (Cursor) are implementing the remediation defined by this repo's pre-launch 
 - **Schema changes are CloudKit-backed and additive-only.** New SwiftData properties must be optional or have defaults; bump the versioned schema and add a `MigrationStage` (lightweight where possible) and a migration round-trip test. Never rename/remove a property without a custom migration.
 - **Stay in scope.** Do not refactor beyond the task. If you spot something else, note it in the PR "Out of scope observed" section — don't fix it.
 - **Update any doc your change invalidates** (`SYSTEM_MAP.md`, `SCHEMA_MAP.md`, `RULE_COVERAGE.md`, `RELEASE_CHECKLIST.md`, `DECISION_LOG.md`).
+
+## Branching, pushing & review (this setup — read carefully)
+**Base everything on `refactoring`** (a branch off `develop`). `develop` and `main` stay untouched. `refactoring` is BOTH the integration base and the review baseline.
+
+**Dependent tasks stack — don't force every task off `refactoring`.** Branch each task off its *real* parent so each diff stays focused:
+- `A1` off `refactoring`; `A2` off `refactoring` (A2 is independent of A1).
+- After A1 and A2 are self-verified (build+test green), **merge them into `refactoring`** so the base advances and dependents get a clean base.
+- `A3` off `refactoring` (now contains A1+A2); **`A4` off `A3`** (chain — A4 needs A3's pairing) until A3 is merged. `A5`, `A6`, `A7`, `A8` off `refactoring` (parallel — they need only A1/A2, and A7 nothing).
+- **Keep moving:** don't wait for the reviewer to start the next task. Merge each self-verified task into `refactoring` so the base keeps advancing; if a prerequisite isn't merged yet, stack the dependent on the parent branch.
+- Each branch stays a **focused diff vs its base**. **Record each branch's base/parent in `PROGRESS.md`** so the reviewer diffs against the right ref.
+
+**No push and no `gh` required.** The reviewer works in the **same local repo** and reviews via git refs. So:
+- Create **clean local commits on local branches** (one task per branch, descriptive messages). Do **not** push or open GitHub PRs.
+- Put the "PR description" content (template below) into the **commit message body** AND into `Docs/Audit/PROGRESS.md`.
+- The reviewer reviews **read-only via refs** (`git diff refactoring...<branch>`, or `git diff <parent>...<branch>` for stacked tasks; `git show <branch>:<path>`) and will **not** checkout or edit your branches — so it won't collide with your working tree. You own the working tree; don't leave it mid-edit when you pause a task.
+- The human pushes to GitHub later if/when they want; not required for review.
 
 ## Work order
 Follow the plan's critical path. Do these **in order**, respecting each task's `Deps:`:
@@ -53,12 +69,12 @@ For each task `X`:
 - [ ] PR opened + `Docs/Audit/PROGRESS.md` updated.
 
 ## Review handoff format (so the reviewer can move fast)
-Maintain a running log and write a tight PR per task.
+Maintain a running log. Since there are no GitHub PRs in this setup (see *Branching, pushing & review*), put the template content in each task's **commit message body** and in `Docs/Audit/PROGRESS.md`.
 
 **1) `Docs/Audit/PROGRESS.md`** — append a row per task:
 ```
-| Task | Branch/PR | Status | Tests added | Verify result | Notes/assumptions |
-| A2 | fix/A2-transfer-pair-id (#NN) | Ready for review | ModelContainerConfigTests.migrationV1toV2 | build-ios✅ build-macos✅ test-data✅ | Schema V2 lightweight stage; transferPairID optional |
+| Task | Branch | Base | Status | Tests added | Verify result | Notes/assumptions |
+| A2 | fix/A2-transfer-pair-id | refactoring | Ready for review | ModelContainerConfigTests.migrationV1toV2 | build-ios✅ build-macos✅ test-data✅ | Schema V2 lightweight stage; transferPairID optional |
 ```
 
 **2) PR description template:**

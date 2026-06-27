@@ -15,7 +15,7 @@
 
 ### Global conventions (Definition of Done for every task)
 
-1. **Branch:** `fix/<task-id>-<slug>` off `develop` (never commit to `develop`/`main` directly).
+1. **Branch:** `fix/<task-id>-<slug>` off `refactoring` (the integration base, itself off `develop`). Leave `develop`/`main` untouched. See `CURSOR_HANDOFF.md` for stacking + merge-into-`refactoring` rules.
 2. **Builds:** `make build-ios` **and** `make build-macos` succeed.
 3. **Tests:** `make test` green (or the targeted `-only-testing:` subset named in the task, plus no regressions in related suites).
 4. **No new warnings**; no force-unwraps; all user-facing strings via `String(localized:)`.
