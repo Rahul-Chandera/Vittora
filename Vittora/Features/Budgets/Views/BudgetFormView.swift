@@ -108,7 +108,7 @@ struct BudgetFormView: View {
                                 if viewModel?.isEditing != true {
                                     await dependencies.conversionEventRecorder?.afterBudgetCreated()
                                 }
-                                appState.notifyDataChanged()
+                                appState.notifyChanged(.budgets)
                                 isPresented = false
                             } catch {
                                 viewModel?.error = error.localizedDescription

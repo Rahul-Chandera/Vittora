@@ -102,7 +102,7 @@ struct SettlementFormView: View {
                 accountID: selectedAccountID
             )
             await dependencies.refreshRecurringAndDebtReminders()
-            appState.notifyDataChanged()
+            appState.notifyChanged([.debt, .transactions, .accounts])
             onSettled()
             dismiss()
         } catch {

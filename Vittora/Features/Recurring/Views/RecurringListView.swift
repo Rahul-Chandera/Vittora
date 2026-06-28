@@ -119,7 +119,7 @@ struct RecurringListView: View {
                                                 Task {
                                                     await viewModel.deleteRule(id: rule.id)
                                                     await dependencies.refreshRecurringAndDebtReminders()
-                                                    appState.notifyDataChanged()
+                                                    appState.notifyChanged(.recurring)
                                                 }
                                             } label: {
                                                 Label("Delete", systemImage: "trash.fill")
@@ -166,8 +166,8 @@ struct RecurringListView: View {
                 await viewModel?.loadRules()
             }
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .recurring)) {
+            guard viewModel != nil, appState.refreshVersion(for: .recurring) > 0 else { return }
             await viewModel?.loadRules()
         }
     }

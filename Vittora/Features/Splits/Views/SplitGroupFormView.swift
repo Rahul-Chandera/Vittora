@@ -123,7 +123,7 @@ struct SplitGroupFormView: View {
             } else {
                 _ = try await useCase.execute(name: groupName, memberIDs: Array(selectedMemberIDs))
             }
-            appState.notifyDataChanged()
+            appState.notifyChanged(.splits)
             onSaved()
             dismiss()
         } catch {

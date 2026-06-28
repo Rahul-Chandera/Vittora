@@ -44,7 +44,7 @@ struct AccountListView: View {
                 if let id = accountToDelete, let vm = viewModel {
                     Task {
                         await vm.deleteAccount(id: id)
-                        appState.notifyDataChanged()
+                        appState.notifyChanged(.accounts)
                     }
                 }
             }
@@ -55,8 +55,8 @@ struct AccountListView: View {
         .task {
             await setupViewModel()
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .accounts)) {
+            guard viewModel != nil, appState.refreshVersion(for: .accounts) > 0 else { return }
             await viewModel?.loadAccounts()
         }
     }
@@ -154,7 +154,7 @@ struct AccountListView: View {
                                 Button {
                                     Task {
                                         await vm.archiveAccount(id: account.id)
-                                        appState.notifyDataChanged()
+                                        appState.notifyChanged(.accounts)
                                     }
                                 } label: {
                                     Label(String(localized: "Archive"), systemImage: "archivebox")

@@ -162,7 +162,7 @@ struct AccountFormView: View {
                 await dependencies.conversionEventRecorder?.afterAccountCreated()
             }
             await dependencies.refreshCreditCardDueReminders()
-            appState.notifyDataChanged()
+            appState.notifyChanged(.accounts)
             onSave?()
             dismiss()
         } catch {

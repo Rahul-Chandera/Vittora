@@ -194,7 +194,7 @@ struct SavingsGoalFormView: View {
                     colorHex: selectedColor
                 )
             }
-            appState.notifyDataChanged()
+            appState.notifyChanged(.savings)
             onSaved()
             dismiss()
         } catch {

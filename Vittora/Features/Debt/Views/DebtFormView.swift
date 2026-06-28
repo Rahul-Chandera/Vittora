@@ -74,7 +74,7 @@ struct DebtFormView: View {
                             do {
                                 try await vm.save()
                                 await dependencies.refreshRecurringAndDebtReminders()
-                                appState.notifyDataChanged()
+                                appState.notifyChanged(.debt)
                                 onSaved()
                                 dismiss()
                             } catch {

@@ -46,8 +46,8 @@ struct SavingsGoalListView: View {
                 await vm?.load()
             }
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .savings)) {
+            guard vm != nil, appState.refreshVersion(for: .savings) > 0 else { return }
             await vm?.load()
         }
         .sheet(isPresented: $showAddGoal) {
@@ -157,7 +157,7 @@ struct SavingsGoalListView: View {
                     Button(role: .destructive) {
                         Task {
                             await vm.delete(id: goal.id)
-                            appState.notifyDataChanged()
+                            appState.notifyChanged(.savings)
                         }
                     } label: {
                         Label(String(localized: "Delete"), systemImage: "trash")

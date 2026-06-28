@@ -144,7 +144,7 @@ struct TransactionDetailView: View {
                                 Task {
                                     do {
                                         try await vm.delete()
-                                        appState.notifyDataChanged()
+                                        appState.notifyChanged([.transactions, .accounts, .budgets])
                                         dismiss()
                                     } catch {
                                         vm.error = error.userFacingMessage(

@@ -46,7 +46,7 @@ struct PayeeListView: View {
                 if let id = payeeToDelete, let vm = viewModel {
                     Task {
                         await vm.deletePayee(id: id)
-                        appState.notifyDataChanged()
+                        appState.notifyChanged(.payees)
                     }
                 }
             }
@@ -74,8 +74,8 @@ struct PayeeListView: View {
         .task {
             await setupViewModel()
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .payees)) {
+            guard viewModel != nil, appState.refreshVersion(for: .payees) > 0 else { return }
             await viewModel?.loadPayees()
         }
     }

@@ -40,7 +40,7 @@ struct CategoryListView: View {
                 if let id = categoryToDelete, let vm = viewModel {
                     Task {
                         await vm.deleteCategory(id: id)
-                        appState.notifyDataChanged()
+                        appState.notifyChanged(.categories)
                     }
                 }
             }
@@ -51,8 +51,8 @@ struct CategoryListView: View {
         .task {
             await setupViewModel()
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .categories)) {
+            guard viewModel != nil, appState.refreshVersion(for: .categories) > 0 else { return }
             await viewModel?.loadCategories()
         }
     }

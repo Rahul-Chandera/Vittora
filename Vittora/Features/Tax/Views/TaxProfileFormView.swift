@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct TaxProfileFormView: View {
-    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @State private var vm: TaxProfileFormViewModel?
@@ -37,7 +36,6 @@ struct TaxProfileFormView: View {
                             guard let vm else { return }
                             do {
                                 try await vm.save()
-                                appState.notifyDataChanged()
                                 onSaved()
                                 dismiss()
                             } catch {

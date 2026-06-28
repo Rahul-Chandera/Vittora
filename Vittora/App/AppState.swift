@@ -9,9 +9,8 @@ final class AppState {
     var selectedTab: AppTab
     var isLoading: Bool
     var isUITesting: Bool
-    /// Monotonic counter bumped whenever any persisted data changes.
-    /// Views that need to refetch on data mutations should observe this via `.task(id:)`.
-    var dataRefreshVersion: Int
+    /// Monotonic per-domain counters bumped when persisted data in that domain changes.
+    private var refreshVersions: [DataRefreshDomain: Int] = [:]
     var isPrivacyShieldVisible: Bool
     /// Set when the user opens the app from a local notification tap (C1).
     var pendingNotificationDeepLink: VittoraNotificationDeepLink?
@@ -23,7 +22,6 @@ final class AppState {
         selectedTab: AppTab = .dashboard,
         isLoading: Bool = false,
         isUITesting: Bool = false,
-        dataRefreshVersion: Int = 0,
         isPrivacyShieldVisible: Bool = false,
         pendingNotificationDeepLink: VittoraNotificationDeepLink? = nil
     ) {
@@ -33,9 +31,36 @@ final class AppState {
         self.selectedTab = selectedTab
         self.isLoading = isLoading
         self.isUITesting = isUITesting
-        self.dataRefreshVersion = dataRefreshVersion
         self.isPrivacyShieldVisible = isPrivacyShieldVisible
         self.pendingNotificationDeepLink = pendingNotificationDeepLink
+    }
+
+    func refreshVersion(for domain: DataRefreshDomain) -> Int {
+        refreshVersions[domain, default: 0]
+    }
+
+    /// Combined token for dashboard aggregates (transactions, accounts, budgets, recurring).
+    var dashboardRefreshToken: DashboardRefreshToken {
+        DashboardRefreshToken(
+            transactions: refreshVersion(for: .transactions),
+            accounts: refreshVersion(for: .accounts),
+            budgets: refreshVersion(for: .budgets),
+            recurring: refreshVersion(for: .recurring)
+        )
+    }
+
+    func notifyChanged(_ domain: DataRefreshDomain) {
+        refreshVersions[domain, default: 0] &+= 1
+    }
+
+    func notifyChanged(_ domains: some Sequence<DataRefreshDomain>) {
+        for domain in domains {
+            notifyChanged(domain)
+        }
+    }
+
+    func hasAnyRefresh(in domains: some Sequence<DataRefreshDomain>) -> Bool {
+        domains.contains { refreshVersion(for: $0) > 0 }
     }
 
     /// Routes the user to the tab/feature associated with a notification deep link.
@@ -53,12 +78,6 @@ final class AppState {
         case .savings:
             selectedTab = .savings
         }
-    }
-
-    /// Notifies all observers that some piece of persisted data has changed.
-    /// Call this from any save/edit/delete flow on the user's behalf.
-    func notifyDataChanged() {
-        dataRefreshVersion &+= 1
     }
 
     enum AppTab: String, CaseIterable, Identifiable, Sendable {

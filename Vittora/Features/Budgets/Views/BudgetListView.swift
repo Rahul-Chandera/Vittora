@@ -66,7 +66,7 @@ struct BudgetListView: View {
                                     Button(role: .destructive) {
                                         Task {
                                             await viewModel.deleteBudget(id: budget.id)
-                                            appState.notifyDataChanged()
+                                            appState.notifyChanged(.budgets)
                                         }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
@@ -131,8 +131,8 @@ struct BudgetListView: View {
                     await viewModel.loadBudgets()
                 }
             }
-            .task(id: appState.dataRefreshVersion) {
-                guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+            .task(id: appState.refreshVersion(for: .budgets)) {
+                guard viewModel != nil, appState.refreshVersion(for: .budgets) > 0 else { return }
                 await viewModel?.loadBudgets()
             }
             .accessibilityIdentifier("budget-list-root")
