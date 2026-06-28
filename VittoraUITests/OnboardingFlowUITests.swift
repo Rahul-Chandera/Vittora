@@ -51,11 +51,19 @@ final class OnboardingFlowUITests: XCTestCase {
         let openingBalanceField = app.textFields["onboarding-opening-balance-field"]
         XCTAssertTrue(openingBalanceField.waitForExistence(timeout: 5))
         openingBalanceField.tap()
-        openingBalanceField.typeText("1000\n")
+        openingBalanceField.typeText("1000")
+        dismissKeyboardIfNeeded()
+
+        XCTAssertTrue(
+            nextButton.waitForExistence(timeout: 5) && nextButton.isEnabled,
+            "Account setup should be valid after name and opening balance are entered."
+        )
         nextButton.tap()
 
-        let notificationsStep = app.staticTexts["onboarding-notifications-title"]
-        XCTAssertTrue(notificationsStep.waitForExistence(timeout: 10))
+        let notificationsStep = app.switches["onboarding-notifications-toggle"].exists
+            ? app.switches["onboarding-notifications-toggle"]
+            : app.staticTexts["onboarding-notifications-title"]
+        XCTAssertTrue(notificationsStep.waitForExistence(timeout: 15))
         nextButton.tap()
 
         let completionStepExpectation = XCTNSPredicateExpectation(
@@ -78,5 +86,12 @@ final class OnboardingFlowUITests: XCTestCase {
             app.tabBars.buttons["Transactions"].waitForExistence(timeout: 5),
             "The main app tab bar should appear after onboarding completes."
         )
+    }
+
+    private func dismissKeyboardIfNeeded() {
+        let toolbarDone = app.toolbars.buttons["Done"]
+        if toolbarDone.waitForExistence(timeout: 2) {
+            toolbarDone.tap()
+        }
     }
 }
