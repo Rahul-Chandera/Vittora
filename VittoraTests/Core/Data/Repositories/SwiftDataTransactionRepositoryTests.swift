@@ -249,6 +249,65 @@ struct SwiftDataTransactionRepositoryTests {
         #expect(results.isEmpty)
     }
 
+    @Test("search finds match beyond 200-row list window")
+    func testSearchBeyondListCap() async throws {
+        let repo = try makeRepo()
+        let oldestID = UUID()
+        let marker = "ancient-grocery-run"
+
+        for index in 0..<201 {
+            let date = Date(timeIntervalSince1970: Double(20_000_000 + index * 1_000))
+            try await repo.create(TransactionEntity(
+                id: index == 0 ? oldestID : UUID(),
+                amount: Decimal(index + 1),
+                date: date,
+                note: index == 0 ? marker : "recent-\(index)",
+                type: .expense,
+                paymentMethod: .cash,
+                currencyCode: "USD",
+                createdAt: date,
+                updatedAt: date
+            ))
+        }
+
+        let results = try await repo.search(query: "ancient")
+
+        #expect(results.count == 1)
+        #expect(results.first?.id == oldestID)
+        #expect(results.first?.note == marker)
+    }
+
+    @Test("fetchAll with single category filter and no date range")
+    func testFetchAllWithCategoryOnlyFilter() async throws {
+        let repo = try makeRepo()
+        let targetCategory = UUID()
+        let otherCategory = UUID()
+        let targetID = UUID()
+
+        for index in 0..<201 {
+            let date = Date(timeIntervalSince1970: Double(21_000_000 + index * 1_000))
+            try await repo.create(TransactionEntity(
+                id: index == 0 ? targetID : UUID(),
+                amount: Decimal(index + 1),
+                date: date,
+                note: "row-\(index)",
+                type: .expense,
+                paymentMethod: .cash,
+                currencyCode: "USD",
+                categoryID: index == 0 ? targetCategory : otherCategory,
+                createdAt: date,
+                updatedAt: date
+            ))
+        }
+
+        let filter = TransactionFilter(categoryIDs: [targetCategory])
+        let results = try await repo.fetchAll(filter: filter)
+
+        #expect(results.count == 1)
+        #expect(results.first?.id == targetID)
+        #expect(results.first?.categoryID == targetCategory)
+    }
+
     // MARK: - fetchAll with filter
 
     @Test("fetchAll with date range filter returns matching transactions")

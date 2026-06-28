@@ -56,7 +56,7 @@ final class SyncStatusService: Sendable {
         AppUserDefaults.migrateLastSyncDateIfNeeded()
         let store = userDefaults ?? AppUserDefaults.sync
         self.userDefaults = store
-        self.lastSyncDate = store.object(forKey: "vittora.lastSyncDate") as? Date
+        self.lastSyncDate = store.object(forKey: AppUserDefaults.SyncKey.lastSyncDate) as? Date
         if isMonitoringEnabled {
             let monitor = NWPathMonitor()
             pathMonitor = monitor
@@ -147,7 +147,7 @@ final class SyncStatusService: Sendable {
     func markSynced() {
         let now = Date.now
         lastSyncDate = now
-        userDefaults.set(now, forKey: "vittora.lastSyncDate")
+        userDefaults.set(now, forKey: AppUserDefaults.SyncKey.lastSyncDate)
         syncState = .synced
     }
 

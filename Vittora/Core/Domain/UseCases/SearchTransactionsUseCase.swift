@@ -14,8 +14,6 @@ struct SearchTransactionsUseCase: Sendable {
         }
 
         let trimmedQuery = query.trimmingCharacters(in: .whitespaces)
-        let filter = TransactionFilter(searchQuery: trimmedQuery)
-
-        return try await transactionRepository.fetchAll(filter: filter)
+        return try await transactionRepository.search(query: trimmedQuery)
     }
 }

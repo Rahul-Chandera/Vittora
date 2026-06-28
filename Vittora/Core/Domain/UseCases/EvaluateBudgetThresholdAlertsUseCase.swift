@@ -1,8 +1,8 @@
 import Foundation
 
 struct EvaluateBudgetThresholdAlertsUseCase: Sendable {
-    private static let notificationsEnabledKey = "vittora.notificationsEnabled"
-    private static let notifyBudgetAlertsKey = "vittora.notifyBudgetAlerts"
+    private static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled
+    private static let notifyBudgetAlertsKey = AppUserDefaults.StandardKey.notifyBudgetAlerts
 
     let budgetFetcher: any ActiveBudgetFetching
     let checkThresholdUseCase: CheckBudgetThresholdUseCase

@@ -20,16 +20,23 @@ enum AppUserDefaults {
         static let exportSchedule = "vittora.exportSchedule"
         static let cloudSyncEnabled = "vittora.cloudSyncEnabled"
         static let appLockTimeout = "vittora.appLockTimeout"
+        /// Legacy UserDefaults location for app-lock intent before keychain migration (B1).
+        /// Intentionally matches `KeychainKey.appLockEnabled` so reads can migrate UD → keychain.
         static let appLockEnabledLegacy = "vittora.appLockEnabled"
+        /// Legacy UserDefaults location; matches `KeychainKey.passcodeFallback`.
         static let passcodeFallbackLegacy = "vittora.passcodeFallback"
+        /// Legacy UserDefaults location; matches `KeychainKey.userName`.
         static let userNameLegacy = "vittora.userName"
+        static let budgetThresholdFired = "vittora.budgetThresholdFired"
     }
 
     enum KeychainKey {
+        /// Keychain location for app-lock intent (migrated from `StandardKey.appLockEnabledLegacy`).
         static let appLockEnabled = "vittora.appLockEnabled"
         static let passcodeFallback = "vittora.passcodeFallback"
         static let userName = "vittora.userName"
         static let onboardingComplete = "vittora.onboardingComplete"
+        static let appLockCooldown = "vittora.appLockCooldown"
     }
 
     enum SyncKey {

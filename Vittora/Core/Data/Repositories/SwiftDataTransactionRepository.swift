@@ -61,6 +61,8 @@ actor SwiftDataTransactionRepository: TransactionRepository {
         let singleAccountID = filter.accountIDs.flatMap { $0.count == 1 ? $0.first : nil }
         let singleCategoryID = filter.categoryIDs.flatMap { $0.count == 1 ? $0.first : nil }
         let singleTypeRaw = filter.types.flatMap { $0.count == 1 ? $0.first?.rawValue : nil }
+        let trimmedSearchQuery = filter.searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasSearchQuery = trimmedSearchQuery.map { !$0.isEmpty } ?? false
 
         var results: [SDTransaction]
         var needsInMemoryPagination = false
@@ -70,6 +72,16 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 descriptor.fetchOffset = offset
                 descriptor.fetchLimit = pageLimit
             }
+        }
+
+        func needsInMemoryPostFilter(_ filter: TransactionFilter) -> Bool {
+            if let types = filter.types, types.count != 1 { return true }
+            if let categoryIDs = filter.categoryIDs, categoryIDs.count != 1 { return true }
+            if let accountIDs = filter.accountIDs, accountIDs.count != 1 { return true }
+            if let payeeIDs = filter.payeeIDs, !payeeIDs.isEmpty { return true }
+            if let tags = filter.tags, !tags.isEmpty { return true }
+            if filter.amountRange != nil { return true }
+            return false
         }
 
         if let accountID = singleAccountID, let typeRaw = singleTypeRaw, hasDateRange {
@@ -126,6 +138,20 @@ actor SwiftDataTransactionRepository: TransactionRepository {
             )
             applyPagination(to: &descriptor)
             results = try modelContext.fetch(descriptor)
+        } else if let categoryID = singleCategoryID {
+            let capturedCategoryID = categoryID
+            let predicate = #Predicate<SDTransaction> { tx in
+                tx.categoryID == capturedCategoryID
+            }
+            var descriptor = FetchDescriptor<SDTransaction>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            applyPagination(to: &descriptor)
+            if pageLimit == nil {
+                descriptor.fetchLimit = Self.defaultFilteredFetchLimit
+            }
+            results = try modelContext.fetch(descriptor)
         } else if let typeRaw = singleTypeRaw, hasDateRange {
             let predicate = #Predicate<SDTransaction> { tx in
                 tx.typeRawValue == typeRaw
@@ -151,6 +177,16 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 descriptor.fetchLimit = Self.defaultFilteredFetchLimit
             }
             results = try modelContext.fetch(descriptor)
+        } else if hasSearchQuery, let query = trimmedSearchQuery {
+            let predicate = #Predicate<SDTransaction> { tx in
+                tx.note?.localizedStandardContains(query) == true
+            }
+            var descriptor = FetchDescriptor<SDTransaction>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            applyPagination(to: &descriptor)
+            results = try modelContext.fetch(descriptor)
         } else if hasDateRange {
             let predicate = #Predicate<SDTransaction> { tx in
                 tx.date >= startDate && tx.date <= endDate
@@ -166,7 +202,7 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
             applyPagination(to: &descriptor)
-            if pageLimit == nil {
+            if pageLimit == nil, !needsInMemoryPostFilter(filter) {
                 descriptor.fetchLimit = Self.unscopedFilteredFetchLimit
             }
             results = try modelContext.fetch(descriptor)
@@ -192,7 +228,15 @@ actor SwiftDataTransactionRepository: TransactionRepository {
             needsInMemoryPagination = true
             results = results.filter { $0.payeeID.map { payeeIDs.contains($0) } ?? false }
         }
-        if let query = filter.searchQuery, !query.isEmpty {
+        let searchCombinedWithOtherFilters = hasSearchQuery
+            && (hasDateRange
+                || filter.types != nil
+                || filter.categoryIDs != nil
+                || filter.accountIDs != nil
+                || filter.payeeIDs != nil
+                || filter.tags != nil
+                || filter.amountRange != nil)
+        if searchCombinedWithOtherFilters, let query = trimmedSearchQuery {
             needsInMemoryPagination = true
             results = results.filter {
                 $0.note?.localizedStandardContains(query) == true
@@ -320,13 +364,12 @@ actor SwiftDataTransactionRepository: TransactionRepository {
         try modelContext.save()
     }
 
-    // PERF-06: Push the note search to SQLite and cap results at 100 rows.
+    // PERF-06: Push note search to SQLite (uncapped — predicate bounds the scan).
     func search(query: String) async throws -> [TransactionEntity] {
-        var descriptor = FetchDescriptor<SDTransaction>(
+        let descriptor = FetchDescriptor<SDTransaction>(
             predicate: #Predicate { $0.note?.localizedStandardContains(query) == true },
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
-        descriptor.fetchLimit = 100
         return try modelContext.fetch(descriptor).map(TransactionMapper.toEntity)
     }
 }

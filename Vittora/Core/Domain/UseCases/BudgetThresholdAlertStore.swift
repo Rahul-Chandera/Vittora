@@ -13,7 +13,7 @@ enum BudgetThresholdAlertStore {
 
 final class UserDefaultsBudgetThresholdAlertStore: BudgetThresholdAlertStoring, @unchecked Sendable {
     private let userDefaults: UserDefaults
-    private let storageKey = "vittora.budgetThresholdFired"
+    private let storageKey = AppUserDefaults.StandardKey.budgetThresholdFired
     private let lock = NSLock()
 
     init(userDefaults: UserDefaults = .standard) {

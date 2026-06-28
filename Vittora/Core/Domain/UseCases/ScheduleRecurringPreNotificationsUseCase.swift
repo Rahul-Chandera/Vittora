@@ -1,8 +1,8 @@
 import Foundation
 
 struct ScheduleRecurringPreNotificationsUseCase: Sendable {
-    private static let notificationsEnabledKey = "vittora.notificationsEnabled"
-    private static let notifyRecurringKey = "vittora.notifyRecurring"
+    private static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled
+    private static let notifyRecurringKey = AppUserDefaults.StandardKey.notifyRecurring
     static let leadDays = 1
 
     let ruleRepository: any RecurringRuleRepository

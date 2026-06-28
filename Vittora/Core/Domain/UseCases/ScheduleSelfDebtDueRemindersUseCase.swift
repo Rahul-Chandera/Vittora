@@ -1,8 +1,8 @@
 import Foundation
 
 struct ScheduleSelfDebtDueRemindersUseCase: Sendable {
-    private static let notificationsEnabledKey = "vittora.notificationsEnabled"
-    private static let notifyBillsDueKey = "vittora.notifyBillsDue"
+    private static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled
+    private static let notifyBillsDueKey = AppUserDefaults.StandardKey.notifyBillsDue
     static let leadDays = 3
 
     let debtRepository: any DebtRepository

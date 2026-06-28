@@ -579,6 +579,31 @@ struct TransactionUseCaseTests {
             #expect(result.count == 1)
             #expect(result[0].note == "Coffee")
         }
+
+        @Test("finds oldest match beyond list cap via repository search")
+        func testFindsOldestMatchBeyondListCap() async throws {
+            let container = try ModelContainerConfig.makePreviewContainer()
+            let repo = SwiftDataTransactionRepository(modelContainer: container)
+            let oldestID = UUID()
+            let marker = "ancient-coffee-stop"
+
+            for index in 0..<201 {
+                let date = Date(timeIntervalSince1970: Double(22_000_000 + index * 1_000))
+                try await repo.create(TransactionEntity(
+                    id: index == 0 ? oldestID : UUID(),
+                    amount: Decimal(index + 1),
+                    date: date,
+                    note: index == 0 ? marker : "recent-\(index)",
+                    type: .expense
+                ))
+            }
+
+            let useCase = SearchTransactionsUseCase(transactionRepository: repo)
+            let result = try await useCase.execute(query: "ancient")
+
+            #expect(result.count == 1)
+            #expect(result.first?.id == oldestID)
+        }
     }
 
     // MARK: - UpdateTransactionUseCase

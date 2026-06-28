@@ -18,7 +18,7 @@ final class AppState {
     init(
         isAuthenticated: Bool = false,
         isLocked: Bool = false,
-        isOnboardingComplete: Bool = KeychainService.syncLoadBool(forKey: "vittora.onboardingComplete"),
+        isOnboardingComplete: Bool = KeychainService.syncLoadBool(forKey: AppUserDefaults.KeychainKey.onboardingComplete),
         selectedTab: AppTab = .dashboard,
         isLoading: Bool = false,
         isUITesting: Bool = false,
