@@ -54,9 +54,10 @@ struct CustomReportUseCase: Sendable {
         switch grouping {
         case .category:
             let categories = try await categoryRepository.fetchAll()
+            let categoryNames = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.name) })
             for t in transactions {
                 let name = t.categoryID
-                    .flatMap { id in categories.first(where: { $0.id == id })?.name }
+                    .flatMap { categoryNames[$0] }
                     ?? String(localized: "Uncategorized")
                 var entry = groups[name] ?? (amount: Decimal(0), count: 0)
                 entry.amount += t.amount
@@ -66,9 +67,10 @@ struct CustomReportUseCase: Sendable {
 
         case .account:
             let accounts = try await accountRepository.fetchAll()
+            let accountNames = Dictionary(uniqueKeysWithValues: accounts.map { ($0.id, $0.name) })
             for t in transactions {
                 let name = t.accountID
-                    .flatMap { id in accounts.first(where: { $0.id == id })?.name }
+                    .flatMap { accountNames[$0] }
                     ?? String(localized: "Unknown Account")
                 var entry = groups[name] ?? (amount: Decimal(0), count: 0)
                 entry.amount += t.amount
@@ -78,9 +80,10 @@ struct CustomReportUseCase: Sendable {
 
         case .payee:
             let payees = try await payeeRepository.fetchAll()
+            let payeeNames = Dictionary(uniqueKeysWithValues: payees.map { ($0.id, $0.name) })
             for t in transactions {
                 let name = t.payeeID
-                    .flatMap { id in payees.first(where: { $0.id == id })?.name }
+                    .flatMap { payeeNames[$0] }
                     ?? String(localized: "Unknown Payee")
                 var entry = groups[name] ?? (amount: Decimal(0), count: 0)
                 entry.amount += t.amount

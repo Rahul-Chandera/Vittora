@@ -5,6 +5,8 @@ import Foundation
     var activeFilter: TransactionFilter = TransactionFilter()
     var searchQuery: String = ""
     var isLoading = false
+    var isLoadingMore = false
+    var hasMorePages = true
     var error: String?
     var selectedTransactionIDs: Set<UUID> = []
     var isMultiSelectMode = false
@@ -13,6 +15,7 @@ import Foundation
     private let searchUseCase: SearchTransactionsUseCase
     private let deleteUseCase: DeleteTransactionUseCase
     private let bulkOpsUseCase: BulkOperationsUseCase
+    private var loadedOffset = 0
 
     init(
         fetchUseCase: FetchTransactionsUseCase,
@@ -36,14 +39,26 @@ import Foundation
         activeFilter.amountRange != nil
     }
 
+    var lastLoadedTransactionID: UUID? {
+        groupedTransactions.last?.transactions.last?.id
+    }
+
+    private var isSearching: Bool {
+        !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     func loadTransactions() async {
         isLoading = true
         error = nil
+        loadedOffset = 0
+        hasMorePages = true
         defer { isLoading = false }
 
         do {
-            let filter = searchQuery.trimmingCharacters(in: .whitespaces).isEmpty ? activeFilter : nil
-            groupedTransactions = try await fetchUseCase.executeGroupedByDate(filter: filter)
+            let page = try await fetchUseCase.executePage(filter: activeFilter, offset: 0)
+            groupedTransactions = FetchTransactionsUseCase.groupByDate(page)
+            loadedOffset = page.count
+            hasMorePages = page.count == FetchTransactionsUseCase.listPageSize
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load transactions right now.")
@@ -51,10 +66,47 @@ import Foundation
         }
     }
 
+    func loadNextPageIfNeeded(currentTransactionID: UUID) async {
+        guard !isSearching,
+              hasMorePages,
+              !isLoading,
+              !isLoadingMore,
+              currentTransactionID == lastLoadedTransactionID else {
+            return
+        }
+        await loadNextPage()
+    }
+
+    private func loadNextPage() async {
+        isLoadingMore = true
+        defer { isLoadingMore = false }
+
+        do {
+            let page = try await fetchUseCase.executePage(
+                filter: activeFilter,
+                offset: loadedOffset
+            )
+            guard !page.isEmpty else {
+                hasMorePages = false
+                return
+            }
+            groupedTransactions = FetchTransactionsUseCase.mergeGrouped(
+                groupedTransactions,
+                with: page
+            )
+            loadedOffset += page.count
+            hasMorePages = page.count == FetchTransactionsUseCase.listPageSize
+        } catch {
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load more transactions.")
+            )
+        }
+    }
+
     func search(_ query: String) async {
-        searchQuery = query
         isLoading = true
         error = nil
+        hasMorePages = false
         defer { isLoading = false }
 
         do {
@@ -62,13 +114,7 @@ import Foundation
                 await loadTransactions()
             } else {
                 let results = try await searchUseCase.execute(query: query)
-                let grouped = Dictionary(grouping: results) { transaction in
-                    Calendar.current.startOfDay(for: transaction.date)
-                }
-                let sortedDates = grouped.keys.sorted(by: >)
-                groupedTransactions = sortedDates.map { date in
-                    (date: date, transactions: grouped[date] ?? [])
-                }
+                groupedTransactions = FetchTransactionsUseCase.groupByDate(results)
             }
         } catch {
             self.error = error.userFacingMessage(
@@ -106,8 +152,6 @@ import Foundation
         defer { isLoading = false }
 
         do {
-            // Atomic, transfer-aware bulk delete: each id reverses its effect(s)
-            // and removes its row(s) through the ledger store (A4).
             try await deleteUseCase.executeBulk(ids: ids)
             selectedTransactionIDs.removeAll()
             isMultiSelectMode = false

@@ -3,6 +3,7 @@ import SwiftUI
 struct TransactionListView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies: DependencyContainer
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: TransactionListViewModel?
     @State private var showFilterSheet = false
     @State private var filterVM: TransactionFilterViewModel?
@@ -38,6 +39,7 @@ struct TransactionListView: View {
 
     @ViewBuilder
     private func listView(_ vm: TransactionListViewModel) -> some View {
+        @Bindable var vm = vm
         List {
             ForEach(vm.groupedTransactions, id: \.date) { dateGroup in
                 Section(header: sectionHeader(for: dateGroup.date)) {
@@ -51,11 +53,17 @@ struct TransactionListView: View {
                         } label: {
                             TransactionRowView(
                                 transaction: transaction,
+                                currencyCode: currencyCode,
                                 showSelection: vm.isMultiSelectMode,
                                 isSelected: vm.selectedTransactionIDs.contains(transaction.id)
                             )
                         }
                         .buttonStyle(.plain)
+                        .onAppear {
+                            Task {
+                                await vm.loadNextPageIfNeeded(currentTransactionID: transaction.id)
+                            }
+                        }
                         .accessibilityAction(named: String(localized: "Select")) {
                             if !vm.isMultiSelectMode {
                                 vm.isMultiSelectMode = true
@@ -93,9 +101,15 @@ struct TransactionListView: View {
         .listStyle(.inset)
         #endif
         .searchable(text: Bindable(vm).searchQuery, prompt: String(localized: "Search transactions"))
-        .onChange(of: vm.searchQuery) { oldValue, newValue in
-            Task {
-                await vm.search(newValue)
+        .task(id: vm.searchQuery) {
+            let query = vm.searchQuery
+            try? await Task.sleep(for: .milliseconds(250))
+            guard !Task.isCancelled else { return }
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                await vm.loadTransactions()
+            } else {
+                await vm.search(trimmed)
             }
         }
         .toolbar {
@@ -176,6 +190,12 @@ struct TransactionListView: View {
             view.overlay {
                 ProgressView()
                     .tint(VColors.primary)
+            }
+        }
+        .overlay(alignment: .bottom) {
+            if vm.isLoadingMore {
+                ProgressView()
+                    .padding(VSpacing.md)
             }
         }
     }

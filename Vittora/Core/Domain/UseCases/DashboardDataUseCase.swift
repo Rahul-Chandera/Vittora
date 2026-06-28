@@ -45,6 +45,8 @@ struct DashboardDataUseCase: Sendable {
         let (allAccounts, monthTransactions, allCategories, activeBudgets, activeRules) =
             try await (allAccountsTask, monthTransactionsTask, allCategoriesTask, activeBudgetsTask, upcomingRulesTask)
 
+        let categoryByID = Dictionary(uniqueKeysWithValues: allCategories.map { ($0.id, $0) })
+
         let activeAccounts = allAccounts.filter { !$0.isArchived }
 
         // Net worth
@@ -88,7 +90,7 @@ struct DashboardDataUseCase: Sendable {
             .sorted { $0.value > $1.value }
             .prefix(5)
             .compactMap { (categoryID, amount) -> CategorySpend? in
-                guard let category = allCategories.first(where: { $0.id == categoryID }) else {
+                guard let category = categoryByID[categoryID] else {
                     return nil
                 }
                 return CategorySpend(category: category, amount: amount)

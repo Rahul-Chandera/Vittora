@@ -12,12 +12,21 @@ struct BalanceChartView: View {
     var currencyCode: String = CurrencyDefaults.code
     var height: CGFloat = 120
 
-    private var minBalance: Double {
-        dataPoints.map { Double(truncating: $0.balance as NSDecimalNumber) }.min() ?? 0
-    }
+    private let minBalance: Double
+    private let maxBalance: Double
 
-    private var maxBalance: Double {
-        dataPoints.map { Double(truncating: $0.balance as NSDecimalNumber) }.max() ?? 1
+    init(
+        dataPoints: [BalanceDataPoint],
+        currencyCode: String = CurrencyDefaults.code,
+        height: CGFloat = 120
+    ) {
+        self.dataPoints = dataPoints
+        self.currencyCode = currencyCode
+        self.height = height
+
+        let balances = dataPoints.map { Double(truncating: $0.balance as NSDecimalNumber) }
+        minBalance = balances.min() ?? 0
+        maxBalance = balances.max() ?? 1
     }
 
     var body: some View {

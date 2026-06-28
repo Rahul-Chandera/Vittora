@@ -47,6 +47,18 @@ actor MockTransactionRepository: TransactionRepository {
         return sorted
     }
 
+    func fetchPage(filter: TransactionFilter?, offset: Int, limit: Int) async throws -> [TransactionEntity] {
+        if shouldThrowError { throw throwError }
+        let savedLimit = fetchAllLimit
+        fetchAllLimit = nil
+        defer { fetchAllLimit = savedLimit }
+        let all = try await fetchAll(filter: filter)
+        let start = min(max(0, offset), all.count)
+        let end = min(start + max(1, limit), all.count)
+        guard start < end else { return [] }
+        return Array(all[start..<end])
+    }
+
     func fetchAllForReconciliation() async throws -> [TransactionEntity] {
         if shouldThrowError { throw throwError }
         return transactions
@@ -55,6 +67,13 @@ actor MockTransactionRepository: TransactionRepository {
     func fetchByID(_ id: UUID) async throws -> TransactionEntity? {
         if shouldThrowError { throw throwError }
         return transactions.first { $0.id == id }
+    }
+
+    func fetchForAccount(id: UUID, limit: Int) async throws -> [TransactionEntity] {
+        if shouldThrowError { throw throwError }
+        let filter = TransactionFilter(accountIDs: [id])
+        let results = try await fetchAll(filter: filter)
+        return Array(results.prefix(max(1, limit)))
     }
 
     func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {
