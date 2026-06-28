@@ -128,7 +128,7 @@ struct PayeeFormView: View {
         saveError = nil
         do {
             try await vm.save()
-            appState.notifyDataChanged()
+            appState.notifyChanged(.payees)
             onSave?()
             dismiss()
         } catch {

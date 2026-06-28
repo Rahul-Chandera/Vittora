@@ -81,7 +81,7 @@ struct QuickEntryView: View {
                                     try await vm.save()
                                     await dependencies.conversionEventRecorder?.afterTransactionCreated()
                                     await dependencies.refreshBudgetThresholdAlerts()
-                                    appState.notifyDataChanged()
+                                    appState.notifyChanged([.transactions, .accounts, .budgets])
                                     #if os(iOS)
                                     let feedback = UIImpactFeedbackGenerator(style: .light)
                                     feedback.impactOccurred()

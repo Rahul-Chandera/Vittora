@@ -35,8 +35,8 @@ struct DashboardView: View {
                 await vm?.load()
             }
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.dashboardRefreshToken) {
+            guard vm != nil, appState.hasAnyRefresh(in: [.transactions, .accounts, .budgets, .recurring]) else { return }
             await vm?.refresh()
         }
         .navigationDestination(item: $navigateDestination) { dest in

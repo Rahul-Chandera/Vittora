@@ -180,7 +180,7 @@ struct TransferFormView: View {
         isTransferring = true
         do {
             try await vm.transfer()
-            appState.notifyDataChanged()
+            appState.notifyChanged([.transactions, .accounts])
             onSave?()
             dismiss()
         } catch {

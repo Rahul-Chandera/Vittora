@@ -140,7 +140,7 @@ struct CategoryFormView: View {
         saveError = nil
         do {
             try await vm.save()
-            appState.notifyDataChanged()
+            appState.notifyChanged(.categories)
             onSave?()
             dismiss()
         } catch {

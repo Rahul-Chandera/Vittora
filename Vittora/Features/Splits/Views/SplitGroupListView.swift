@@ -63,8 +63,8 @@ struct SplitGroupListView: View {
                 await vm?.load()
             }
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .splits)) {
+            guard vm != nil, appState.refreshVersion(for: .splits) > 0 else { return }
             await vm?.load()
         }
         .sheet(isPresented: $showAddGroup) {

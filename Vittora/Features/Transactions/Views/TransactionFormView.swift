@@ -82,7 +82,7 @@ struct TransactionFormView: View {
                                         await dependencies.conversionEventRecorder?.afterTransactionCreated()
                                     }
                                     await dependencies.refreshBudgetThresholdAlerts()
-                                    appState.notifyDataChanged()
+                                    appState.notifyChanged([.transactions, .accounts, .budgets])
                                     dependencies.hapticService.success()
                                     dismiss()
                                 } catch {
