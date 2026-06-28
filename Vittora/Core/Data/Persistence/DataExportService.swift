@@ -33,6 +33,7 @@ protocol DataExportServiceProtocol: Sendable {
 @MainActor
 final class DataExportService: DataExportServiceProtocol, Sendable {
     private static let logger = Logger(subsystem: "com.vittora.app", category: "export")
+    private static let exportPageSize = 500
     private let transactionRepository: any TransactionRepository
     private let accountRepository: (any AccountRepository)?
     private let categoryRepository: (any CategoryRepository)?
@@ -58,9 +59,7 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
     func exportTransactionsCSV(filter: TransactionFilter?) async throws -> URL {
         let signpostID = PerformanceLogger.Export.beginCSV()
         defer { PerformanceLogger.Export.endCSV(id: signpostID) }
-        let transactions = try await transactionRepository.fetchAll(filter: filter)
-        let csv = try await buildCSV(for: transactions)
-        return try writeToTemp(content: csv, suffix: "transactions")
+        return try await writeStreamedTransactionCSV(filter: filter, suffix: "transactions")
     }
 
     // MARK: - Full export with date range
@@ -75,12 +74,9 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
             return start <= end ? start...end : end...start
         }()
         let filter = TransactionFilter(dateRange: dateRange)
-        let transactions = try await transactionRepository.fetchAll(filter: filter)
-
         switch format {
         case .csv:
-            let csv = try await buildCSV(for: transactions)
-            return try writeToTemp(content: csv, suffix: "transactions")
+            return try await writeStreamedTransactionCSV(filter: filter, suffix: "transactions")
         }
     }
 
@@ -111,50 +107,131 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
 
     // MARK: - CSV builder
 
-    private func buildCSV(for transactions: [TransactionEntity]) async throws -> String {
-        // Build lookup maps for human-readable names
+    private struct CSVLookupMaps {
         var accountMap: [UUID: String] = [:]
         var categoryMap: [UUID: String] = [:]
         var payeeMap: [UUID: String] = [:]
+    }
 
-        if let accountRepo = accountRepository {
-            let accounts = try await accountRepo.fetchAll()
-            accountMap = Dictionary(uniqueKeysWithValues: accounts.map { ($0.id, $0.name) })
-        }
-        if let catRepo = categoryRepository {
-            let categories = try await catRepo.fetchAll()
-            categoryMap = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.name) })
-        }
-        if let payeeRepo = payeeRepository {
-            let payees = try await payeeRepo.fetchAll()
-            payeeMap = Dictionary(uniqueKeysWithValues: payees.map { ($0.id, $0.name) })
-        }
-
+    private func writeStreamedTransactionCSV(filter: TransactionFilter?, suffix: String) async throws -> URL {
+        let url = makeTempFileURL(suffix: suffix)
+        let maps = try await loadCSVLookupMaps()
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [.withFullDate]
 
-        // UTF-8 BOM for Excel compatibility
-        var csv = "\u{FEFF}"
-        csv += "Date,Amount,Type,Category,Account,Payee,Payment Method,Notes,Tags\n"
+        var csv = "\u{FEFF}Date,Amount,Type,Category,Account,Payee,Payment Method,Notes,Tags\n"
+        try appendCSV(to: url, content: csv)
 
-        for tx in transactions {
-            let date = dateFormatter.string(from: tx.date)
-            let amount = "\(tx.amount)"
-            let type = tx.type.rawValue.capitalized
-            let category = tx.categoryID.flatMap { categoryMap[$0] } ?? ""
-            let account  = tx.accountID.flatMap  { accountMap[$0]  } ?? ""
-            let payee    = tx.payeeID.flatMap     { payeeMap[$0]    } ?? ""
-            let method   = tx.paymentMethod.rawValue
-            let note     = tx.note ?? ""
-            let tags     = tx.tags.joined(separator: ";")
-
-            appendCSVRow(
-                [date, amount, type, category, account, payee, method, note, tags],
-                to: &csv
+        var offset = 0
+        while true {
+            let page = try await transactionRepository.fetchPage(
+                filter: filter,
+                offset: offset,
+                limit: Self.exportPageSize
             )
+            guard !page.isEmpty else { break }
+
+            var chunk = ""
+            for tx in page {
+                appendTransactionRow(
+                    tx,
+                    maps: maps,
+                    dateFormatter: dateFormatter,
+                    to: &chunk
+                )
+            }
+            try appendCSV(to: url, content: chunk)
+
+            if page.count < Self.exportPageSize { break }
+            offset += page.count
         }
 
-        return csv
+        if let auditLogger {
+            let name = url.lastPathComponent
+            Task { await auditLogger.record(SecurityAuditEvent(kind: .exportCreated, detail: name)) }
+        }
+
+        return url
+    }
+
+    private func loadCSVLookupMaps() async throws -> CSVLookupMaps {
+        var maps = CSVLookupMaps()
+
+        if let accountRepo = accountRepository {
+            let accounts = try await accountRepo.fetchAll()
+            maps.accountMap = Dictionary(uniqueKeysWithValues: accounts.map { ($0.id, $0.name) })
+        }
+        if let catRepo = categoryRepository {
+            let categories = try await catRepo.fetchAll()
+            maps.categoryMap = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.name) })
+        }
+        if let payeeRepo = payeeRepository {
+            let payees = try await payeeRepo.fetchAll()
+            maps.payeeMap = Dictionary(uniqueKeysWithValues: payees.map { ($0.id, $0.name) })
+        }
+
+        return maps
+    }
+
+    private func appendTransactionRow(
+        _ tx: TransactionEntity,
+        maps: CSVLookupMaps,
+        dateFormatter: ISO8601DateFormatter,
+        to csv: inout String
+    ) {
+        let date = dateFormatter.string(from: tx.date)
+        let amount = "\(tx.amount)"
+        let type = tx.type.rawValue.capitalized
+        let category = tx.categoryID.flatMap { maps.categoryMap[$0] } ?? ""
+        let account = tx.accountID.flatMap { maps.accountMap[$0] } ?? ""
+        let payee = tx.payeeID.flatMap { maps.payeeMap[$0] } ?? ""
+        let method = tx.paymentMethod.rawValue
+        let note = tx.note ?? ""
+        let tags = tx.tags.joined(separator: ";")
+
+        appendCSVRow(
+            [date, amount, type, category, account, payee, method, note, tags],
+            to: &csv
+        )
+    }
+
+    private func makeTempFileURL(suffix: String) -> URL {
+        let dateStr = ISO8601DateFormatter().string(from: .now)
+            .prefix(10)
+        let unique = UUID().uuidString.prefix(8)
+        let fileName = "vittora_\(suffix)_\(dateStr)_\(unique).csv"
+        return FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+    }
+
+    private func appendCSV(to url: URL, content: String) throws {
+        guard let data = content.data(using: .utf8) else {
+            throw VittoraError.exportFailed(String(localized: "Failed to encode CSV as UTF-8"))
+        }
+
+        if FileManager.default.fileExists(atPath: url.path) {
+            let handle = try FileHandle(forWritingTo: url)
+            defer {
+                do {
+                    try handle.close()
+                } catch {
+                    Self.logger.error(
+                        "Failed to close export file handle for \(url.lastPathComponent, privacy: .public): \(error.localizedDescription, privacy: .public)"
+                    )
+                }
+            }
+            try handle.seekToEnd()
+            try handle.write(contentsOf: data)
+        } else {
+            #if os(iOS)
+            try data.write(to: url, options: [.atomic, .completeFileProtection])
+            try FileManager.default.setAttributes(
+                [.protectionKey: FileProtectionType.complete],
+                ofItemAtPath: url.path
+            )
+            #else
+            try data.write(to: url, options: [.atomic])
+            #endif
+        }
     }
 
     private func buildTaxReportCSV(

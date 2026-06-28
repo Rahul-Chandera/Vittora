@@ -5,6 +5,7 @@ import SwiftData
 actor SwiftDataTransactionRepository: TransactionRepository {
     private static let defaultFilteredFetchLimit = 500
     private static let unscopedFilteredFetchLimit = 200
+    static let exportPageSize = 500
 
     func fetchTransactionCount() async throws -> Int {
         try modelContext.fetchCount(FetchDescriptor<SDTransaction>())
@@ -27,10 +28,33 @@ actor SwiftDataTransactionRepository: TransactionRepository {
         return models.map(TransactionMapper.toEntity)
     }
 
+    func fetchPage(filter: TransactionFilter?, offset: Int, limit: Int) async throws -> [TransactionEntity] {
+        let clampedOffset = max(0, offset)
+        let clampedLimit = max(1, limit)
+        let models: [SDTransaction]
+
+        if let filter {
+            models = try fetchFiltered(filter, offset: clampedOffset, pageLimit: clampedLimit)
+        } else {
+            var descriptor = FetchDescriptor<SDTransaction>(
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            descriptor.fetchOffset = clampedOffset
+            descriptor.fetchLimit = clampedLimit
+            models = try modelContext.fetch(descriptor)
+        }
+
+        return models.map(TransactionMapper.toEntity)
+    }
+
     // PERF-05: Push supported dimensions to SQLite where the predicate type-checker allows.
     // Tags and amountRange are post-filtered because SwiftData cannot express
     // array-element membership or Decimal ordering in SQLite.
-    private func fetchFiltered(_ filter: TransactionFilter) throws -> [SDTransaction] {
+    private func fetchFiltered(
+        _ filter: TransactionFilter,
+        offset: Int = 0,
+        pageLimit: Int? = nil
+    ) throws -> [SDTransaction] {
         let startDate = filter.dateRange?.lowerBound ?? .distantPast
         let endDate = filter.dateRange?.upperBound ?? .distantFuture
         let hasDateRange = filter.dateRange != nil
@@ -39,6 +63,14 @@ actor SwiftDataTransactionRepository: TransactionRepository {
         let singleTypeRaw = filter.types.flatMap { $0.count == 1 ? $0.first?.rawValue : nil }
 
         var results: [SDTransaction]
+        var needsInMemoryPagination = false
+
+        func applyPagination(to descriptor: inout FetchDescriptor<SDTransaction>) {
+            if let pageLimit {
+                descriptor.fetchOffset = offset
+                descriptor.fetchLimit = pageLimit
+            }
+        }
 
         if let accountID = singleAccountID, let typeRaw = singleTypeRaw, hasDateRange {
             let capturedAccountID = accountID
@@ -52,6 +84,7 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 predicate: predicate,
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
+            applyPagination(to: &descriptor)
             results = try modelContext.fetch(descriptor)
         } else if let accountID = singleAccountID, hasDateRange {
             let capturedAccountID = accountID
@@ -64,6 +97,7 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 predicate: predicate,
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
+            applyPagination(to: &descriptor)
             results = try modelContext.fetch(descriptor)
         } else if let accountID = singleAccountID {
             let capturedAccountID = accountID
@@ -74,7 +108,10 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 predicate: predicate,
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
-            descriptor.fetchLimit = Self.defaultFilteredFetchLimit
+            applyPagination(to: &descriptor)
+            if pageLimit == nil {
+                descriptor.fetchLimit = Self.defaultFilteredFetchLimit
+            }
             results = try modelContext.fetch(descriptor)
         } else if let categoryID = singleCategoryID, hasDateRange {
             let capturedCategoryID = categoryID
@@ -87,6 +124,7 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 predicate: predicate,
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
+            applyPagination(to: &descriptor)
             results = try modelContext.fetch(descriptor)
         } else if let typeRaw = singleTypeRaw, hasDateRange {
             let predicate = #Predicate<SDTransaction> { tx in
@@ -98,6 +136,7 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 predicate: predicate,
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
+            applyPagination(to: &descriptor)
             results = try modelContext.fetch(descriptor)
         } else if let typeRaw = singleTypeRaw {
             let predicate = #Predicate<SDTransaction> { tx in
@@ -107,7 +146,10 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 predicate: predicate,
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
-            descriptor.fetchLimit = Self.defaultFilteredFetchLimit
+            applyPagination(to: &descriptor)
+            if pageLimit == nil {
+                descriptor.fetchLimit = Self.defaultFilteredFetchLimit
+            }
             results = try modelContext.fetch(descriptor)
         } else if hasDateRange {
             let predicate = #Predicate<SDTransaction> { tx in
@@ -117,41 +159,58 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 predicate: predicate,
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
+            applyPagination(to: &descriptor)
             results = try modelContext.fetch(descriptor)
         } else {
             var descriptor = FetchDescriptor<SDTransaction>(
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
-            descriptor.fetchLimit = Self.unscopedFilteredFetchLimit
+            applyPagination(to: &descriptor)
+            if pageLimit == nil {
+                descriptor.fetchLimit = Self.unscopedFilteredFetchLimit
+            }
             results = try modelContext.fetch(descriptor)
         }
 
         if let types = filter.types, types.count != 1 {
+            needsInMemoryPagination = true
             let rawValues = Set(types.map(\.rawValue))
             results = results.filter { rawValues.contains($0.typeRawValue) }
         }
         if let catIDs = filter.categoryIDs, catIDs.count != 1 {
+            needsInMemoryPagination = true
             results = results.filter { $0.categoryID.map { catIDs.contains($0) } ?? false }
         }
         if let accIDs = filter.accountIDs, accIDs.count != 1 {
+            needsInMemoryPagination = true
             results = results.filter {
                 $0.accountID.map { accIDs.contains($0) } == true
                     || $0.destinationAccountID.map { accIDs.contains($0) } == true
             }
         }
         if let payeeIDs = filter.payeeIDs, !payeeIDs.isEmpty {
+            needsInMemoryPagination = true
             results = results.filter { $0.payeeID.map { payeeIDs.contains($0) } ?? false }
         }
         if let query = filter.searchQuery, !query.isEmpty {
+            needsInMemoryPagination = true
             results = results.filter {
                 $0.note?.localizedStandardContains(query) == true
             }
         }
         if let amountRange = filter.amountRange {
+            needsInMemoryPagination = true
             results = results.filter { amountRange.contains($0.amount) }
         }
         if let tags = filter.tags, !tags.isEmpty {
+            needsInMemoryPagination = true
             results = results.filter { !tags.isDisjoint(with: Set($0.tags)) }
+        }
+
+        if let pageLimit, needsInMemoryPagination {
+            let start = min(max(0, offset), results.count)
+            let end = min(start + pageLimit, results.count)
+            results = Array(results[start..<end])
         }
 
         return results

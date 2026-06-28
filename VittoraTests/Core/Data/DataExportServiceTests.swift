@@ -159,6 +159,28 @@ struct DataExportServiceTests {
         #expect(lines.count == 6) // header + 5
     }
 
+    @Test("paged export includes rows beyond fetchAll cap")
+    func pagedExportBeyondFetchAllCap() async throws {
+        let repo = MockTransactionRepository()
+        await repo.setFetchAllLimit(500)
+        for i in 0..<600 {
+            let tx = TransactionEntity(
+                amount: Decimal(i + 1),
+                note: "TX \(i)",
+                type: .expense,
+                paymentMethod: .cash
+            )
+            try await repo.create(tx)
+        }
+
+        let service = DataExportService(transactionRepository: repo)
+        let url = try await service.exportTransactionsCSV(filter: nil)
+        let content = try String(contentsOf: url, encoding: .utf8)
+        let lines = content.components(separatedBy: "\n").filter { !$0.isEmpty }
+
+        #expect(lines.count == 601)
+    }
+
     @Test("exported file has .csv extension")
     func exportedFileExtension() async throws {
         let (service, _) = makeService()

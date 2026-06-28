@@ -5,12 +5,47 @@ struct TransactionRowView: View {
     var category: CategoryEntity?
     var showSelection: Bool = false
     var isSelected: Bool = false
-    @Environment(\.currencyCode) private var currencyCode
+
+    private let formattedAmount: String
+    private let amountColor: Color
+    private let formattedTimeText: String
+    private let typeLabel: String
+    private let accessibilityText: String
+    private let rowAccessibilityIdentifier: String
+
     @ScaledMetric(relativeTo: .body) private var categoryIconSize: CGFloat = 40
+
+    init(
+        transaction: TransactionEntity,
+        category: CategoryEntity? = nil,
+        currencyCode: String = CurrencyDefaults.code,
+        showSelection: Bool = false,
+        isSelected: Bool = false
+    ) {
+        self.transaction = transaction
+        self.category = category
+        self.showSelection = showSelection
+        self.isSelected = isSelected
+
+        formattedAmount = CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode)
+        amountColor = Self.color(for: transaction.type)
+        formattedTimeText = transaction.date.formatted(date: .omitted, time: .shortened)
+        typeLabel = transaction.type.displayName
+
+        let note = transaction.note ?? String(localized: "Transaction")
+        let cat = category.map { ", \($0.name)" } ?? ""
+        var description = "\(note)\(cat), \(typeLabel), \(formattedTimeText), \(formattedAmount)"
+        if showSelection {
+            description += isSelected
+                ? ", \(String(localized: "Selected"))"
+                : ", \(String(localized: "Not selected"))"
+        }
+        accessibilityText = description
+        rowAccessibilityIdentifier = Self.makeAccessibilityIdentifier(for: transaction)
+    }
 
     var body: some View {
         HStack(spacing: VSpacing.md) {
-            // Selection checkbox
             if showSelection {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.body)
@@ -18,7 +53,6 @@ struct TransactionRowView: View {
                     .accessibilityHidden(true)
             }
 
-            // Category icon circle
             ZStack {
                 Circle()
                     .fill(
@@ -32,7 +66,6 @@ struct TransactionRowView: View {
             }
             .accessibilityHidden(true)
 
-            // Transaction details
             VStack(alignment: .leading, spacing: VSpacing.xs) {
                 Text(transaction.note ?? "Transaction")
                     .font(VTypography.body)
@@ -46,7 +79,7 @@ struct TransactionRowView: View {
                             .foregroundColor(VColors.textSecondary)
                     }
 
-                    Text(formattedTime(transaction.date))
+                    Text(formattedTimeText)
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textTertiary)
                 }
@@ -54,15 +87,13 @@ struct TransactionRowView: View {
 
             Spacer()
 
-            // Amount
             VStack(alignment: .trailing, spacing: VSpacing.xs) {
-                let amountColor = transactionColor(for: transaction.type)
-                Text(CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode))
+                Text(formattedAmount)
                     .font(VTypography.body)
                     .fontWeight(.semibold)
                     .foregroundColor(amountColor)
 
-                Text(transaction.type.displayName)
+                Text(typeLabel)
                     .font(VTypography.caption2)
                     .foregroundColor(amountColor)
                     .opacity(0.7)
@@ -71,30 +102,11 @@ struct TransactionRowView: View {
         .padding(VSpacing.md)
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityDescription)
+        .accessibilityLabel(accessibilityText)
         .accessibilityIdentifier(rowAccessibilityIdentifier)
     }
 
-    private var accessibilityDescription: String {
-        let note = transaction.note ?? String(localized: "Transaction")
-        let amount = CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode)
-        let type = transaction.type.displayName
-        let time = formattedTime(transaction.date)
-        let cat = category.map { ", \($0.name)" } ?? ""
-        var description = "\(note)\(cat), \(type), \(time), \(amount)"
-        if showSelection {
-            description += isSelected
-                ? ", \(String(localized: "Selected"))"
-                : ", \(String(localized: "Not selected"))"
-        }
-        return description
-    }
-
-    private func formattedTime(_ date: Date) -> String {
-        date.formatted(date: .omitted, time: .shortened)
-    }
-
-    private func transactionColor(for type: TransactionType) -> Color {
+    private static func color(for type: TransactionType) -> Color {
         switch type {
         case .expense:
             return VColors.expense
@@ -107,7 +119,7 @@ struct TransactionRowView: View {
         }
     }
 
-    private var rowAccessibilityIdentifier: String {
+    private static func makeAccessibilityIdentifier(for transaction: TransactionEntity) -> String {
         let base = transaction.note?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
         let normalized = base
             .replacingOccurrences(of: "[^a-z0-9]+", with: "-", options: .regularExpression)

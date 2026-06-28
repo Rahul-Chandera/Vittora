@@ -32,6 +32,14 @@ struct MockTransactionRepository: TransactionRepository {
         ]
     }
 
+    func fetchPage(filter: TransactionFilter?, offset: Int, limit: Int) async throws -> [TransactionEntity] {
+        let all = try await fetchAll(filter: filter)
+        let start = min(max(0, offset), all.count)
+        let end = min(start + max(1, limit), all.count)
+        guard start < end else { return [] }
+        return Array(all[start..<end])
+    }
+
     func fetchAllForReconciliation() async throws -> [TransactionEntity] {
         try await fetchAll(filter: nil)
     }

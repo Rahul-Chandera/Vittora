@@ -47,6 +47,18 @@ actor MockTransactionRepository: TransactionRepository {
         return sorted
     }
 
+    func fetchPage(filter: TransactionFilter?, offset: Int, limit: Int) async throws -> [TransactionEntity] {
+        if shouldThrowError { throw throwError }
+        let savedLimit = fetchAllLimit
+        fetchAllLimit = nil
+        defer { fetchAllLimit = savedLimit }
+        let all = try await fetchAll(filter: filter)
+        let start = min(max(0, offset), all.count)
+        let end = min(start + max(1, limit), all.count)
+        guard start < end else { return [] }
+        return Array(all[start..<end])
+    }
+
     func fetchAllForReconciliation() async throws -> [TransactionEntity] {
         if shouldThrowError { throw throwError }
         return transactions
