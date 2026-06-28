@@ -1,6 +1,9 @@
 import Foundation
 
 enum CloudKitRuntimeSupport {
+    /// iCloud sync is a free baseline feature (DEC-008). Do not gate on subscription tier.
+    static let isFreeBaselineFeature = true
+
     static var isEnabled: Bool {
         #if targetEnvironment(simulator)
         false

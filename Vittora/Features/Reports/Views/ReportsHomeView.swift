@@ -62,6 +62,7 @@ struct ReportsHomeView: View {
                 )
                 await vm?.load()
             }
+            dependencies.conversionEventRecorder?.afterReportOpened()
         }
         .errorAlert(message: reportsHomeErrorBinding)
     }

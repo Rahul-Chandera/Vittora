@@ -6,9 +6,20 @@ enum AppUserDefaults {
     /// Suite name for sync timestamps and sync-related preferences.
     static let syncSuiteName = "com.vittora.app.sync"
 
+    /// Suite for on-device conversion milestones (excluded from iCloud backup via suite isolation).
+    static let conversionSuiteName = "com.vittora.app.conversion"
+
     /// Returns the sync suite, falling back to standard only if the suite cannot be created.
     static var sync: UserDefaults {
         if let suite = UserDefaults(suiteName: syncSuiteName) {
+            return suite
+        }
+        return .standard
+    }
+
+    /// Returns the conversion-event suite, falling back to standard only if the suite cannot be created.
+    static var conversion: UserDefaults {
+        if let suite = UserDefaults(suiteName: conversionSuiteName) {
             return suite
         }
         return .standard

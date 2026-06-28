@@ -38,6 +38,7 @@ Use this checklist before TestFlight/App Store submission.
 - [ ] `ITSAppUsesNonExemptEncryption=false` is intentional: financial/document data uses Apple-provided encryption (Keychain, Secure Enclave, AES-GCM via CryptoKit) only — standard exempt encryption, no custom proprietary crypto.
 - [ ] In-app legal docs (`Vittora/Resources/Legal/`) reviewed.
 - [ ] App Store metadata (`Vittora/Resources/AppStoreMetadata/`) matches shipped platform and feature scope.
+- [ ] Monetization: v1 launches free (DEC-008); no StoreKit/IAP until post-PMF fast-follow. Conversion milestones instrumented locally (F5).
 
 ## 6) Final smoke checks
 

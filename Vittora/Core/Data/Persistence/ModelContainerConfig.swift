@@ -13,6 +13,7 @@ enum ModelContainerConfig {
         let schema = Schema(allModels)
         let cloudKitDatabase: ModelConfiguration.CloudKitDatabase =
             inMemory || !CloudKitRuntimeSupport.isEnabled ? .none : .automatic
+        // CloudKit sync is intentionally free for all users (DEC-008 / F0 Option A).
         let config = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: inMemory,

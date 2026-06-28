@@ -158,6 +158,9 @@ struct AccountFormView: View {
         saveError = nil
         do {
             try await vm.save()
+            if !vm.isEditing {
+                await dependencies.conversionEventRecorder?.afterAccountCreated()
+            }
             await dependencies.refreshCreditCardDueReminders()
             appState.notifyDataChanged()
             onSave?()

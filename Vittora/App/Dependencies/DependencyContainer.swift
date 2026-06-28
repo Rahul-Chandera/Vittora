@@ -35,6 +35,8 @@ final class DependencyContainer {
     var scheduleCreditCardDueRemindersUseCase: ScheduleCreditCardDueRemindersUseCase?
     var scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase?
     var scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase?
+    var conversionEventTracker: any ConversionEventTracking = UserDefaultsConversionEventTracker()
+    var conversionEventRecorder: ConversionEventRecorder?
     var securityAuditLogService: SecurityAuditLogService?
     var dataSeeder: (any DataSeederProtocol)?
 
@@ -135,6 +137,17 @@ final class DependencyContainer {
                 categoryRepository: container.categoryRepository,
                 payeeRepository: container.payeeRepository,
                 auditLogger: auditLogService
+            )
+        }
+
+        if let transactionRepository = container.transactionRepository,
+           let accountRepository = container.accountRepository,
+           let budgetRepository = container.budgetRepository {
+            container.conversionEventRecorder = ConversionEventRecorder(
+                tracker: container.conversionEventTracker,
+                transactionRepository: transactionRepository,
+                accountRepository: accountRepository,
+                budgetRepository: budgetRepository
             )
         }
 

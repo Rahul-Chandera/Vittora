@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AddGroupExpenseView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @Environment(\.currencyCode) private var currencyCode
     @Environment(\.currencySymbol) private var currencySymbol
@@ -106,6 +107,7 @@ struct AddGroupExpenseView: View {
                         Task {
                             let saved = await vm.save()
                             if saved {
+                                dependencies.conversionEventRecorder?.afterSplitExpenseCreated()
                                 appState.notifyDataChanged()
                                 onSaved()
                                 dismiss()

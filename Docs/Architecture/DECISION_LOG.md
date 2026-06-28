@@ -50,3 +50,13 @@ Lightweight ADR-style history for major architectural decisions.
 - Decision: Standardize build/test entry points through repo `Makefile`.
 - Why: Faster, repeatable local and AI-agent workflows.
 - Impact: Agents should prefer `make` targets for compile and targeted test suites.
+
+## DEC-008: Launch free; defer StoreKit to post-PMF fast-follow (F0)
+
+- Status: Accepted (2026-06-28)
+- Decision: First public release ships **without IAP**. iCloud sync remains a **free baseline** for all users. Instrument conversion milestones on-device (F5) to learn willingness-to-pay before building a single paid tier.
+- Why: Monetization is not on the beta critical path; pre-PMF learning outweighs launch revenue; avoids subscription App Store review risk at v1; aligns with privacy-first positioning.
+- Trial strategy (when monetizing): 7-day intro free trial on annual (payment on file) + value-event paywall; reject 15-day unrestricted trial (unenforceable offline, abuse-prone).
+- Paid value (fast-follow): tax planning, unlimited OCR, advanced reports/PDF. Do not gate sync. No Watch/Widget/Siri marketing until shipped.
+- Build impact: F5 conversion tracker + sync-free documentation now; defer F1–F4 StoreKit/paywall/gating; minimal F6 (no subscription clauses until IAP ships).
+- Revisit: after retention/PMF data from conversion milestones.

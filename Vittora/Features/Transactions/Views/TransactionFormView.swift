@@ -78,6 +78,9 @@ struct TransactionFormView: View {
                             Task {
                                 do {
                                     try await vm.save()
+                                    if !vm.isEditing {
+                                        await dependencies.conversionEventRecorder?.afterTransactionCreated()
+                                    }
                                     await dependencies.refreshBudgetThresholdAlerts()
                                     appState.notifyDataChanged()
                                     dependencies.hapticService.success()
