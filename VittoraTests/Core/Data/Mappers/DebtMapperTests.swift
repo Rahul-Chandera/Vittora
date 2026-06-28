@@ -114,6 +114,7 @@ struct DebtMapperTests {
         #expect(model.note == "Dinner split")
         #expect(model.isSettled == false)
         #expect(model.linkedTransactionIDs == linkedIDs)
+        #expect(model.linkedTransactionIDsJSON != "[]")
         #expect(model.linkedTransactionID == nil)
         #expect(model.updatedAt > originalCreatedAt)
     }

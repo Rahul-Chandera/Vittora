@@ -179,11 +179,13 @@ actor LedgerWriteStore: LedgerWriting {
 
     /// Promote a legacy single link into the array, then append (A11).
     private static func appendLinkedTransaction(_ debt: SDDebt, transactionID: UUID) {
-        if debt.linkedTransactionIDs.isEmpty, let legacy = debt.linkedTransactionID {
-            debt.linkedTransactionIDs = [legacy]
+        var ids = debt.linkedTransactionIDs
+        if ids.isEmpty, let legacy = debt.linkedTransactionID {
+            ids = [legacy]
             debt.linkedTransactionID = nil
         }
-        debt.linkedTransactionIDs.append(transactionID)
+        ids.append(transactionID)
+        debt.linkedTransactionIDs = ids
     }
 
     /// Update a non-transfer transaction and reconcile balances atomically (A4).

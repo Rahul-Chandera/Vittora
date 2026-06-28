@@ -255,7 +255,9 @@ struct ModelContainerConfigTests {
         let rows = try ctx.fetch(FetchDescriptor<SDDebt>())
 
         #expect(rows.count == 2)
-        #expect(rows.first { $0.id == multiLinkID }?.linkedTransactionIDs == [tx1, tx2])
+        let multiRow = try #require(rows.first { $0.id == multiLinkID })
+        #expect(multiRow.linkedTransactionIDs == [tx1, tx2])
+        #expect(multiRow.linkedTransactionIDsJSON != "[]")
         let legacyEntity = DebtMapper.toEntity(try #require(rows.first { $0.id == legacyLinkID }))
         #expect(legacyEntity.linkedTransactionIDs == [legacyTxID])
     }

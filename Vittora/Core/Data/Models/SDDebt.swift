@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 
 @Model
@@ -13,13 +14,16 @@ final class SDDebt {
     var dueDate: Date? = nil
     var note: String? = nil
     var isSettled: Bool = false
-    /// Cash legs from each settlement (Schema V5, A11). Append-only at write time.
-    var linkedTransactionIDs: [UUID] = []
+    /// JSON-encoded `[UUID]` of cash legs from each settlement (Schema V5, A11).
+    /// Stored as String for CloudKit compatibility (same pattern as `SDSplitGroup.memberIDsJSON`).
+    var linkedTransactionIDsJSON: String = "[]"
     /// Legacy single link from pre-V5 rows (DATAINTEGRITY-7). Read-side only —
-    /// `DebtMapper` merges into `linkedTransactionIDs`; new writes use the array.
+    /// `DebtMapper` merges into `linkedTransactionIDs`; new writes use the JSON array.
     var linkedTransactionID: UUID? = nil
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
+
+    private static let logger = Logger(subsystem: "com.vittora.app", category: "persistence")
 
     init() {}
 
@@ -45,7 +49,7 @@ final class SDDebt {
         self.dueDate = dueDate
         self.note = note
         self.isSettled = isSettled
-        self.linkedTransactionIDs = linkedTransactionIDs
+        self.linkedTransactionIDsJSON = Self.encode(linkedTransactionIDs)
         self.linkedTransactionID = linkedTransactionID
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -54,5 +58,38 @@ final class SDDebt {
     var direction: DebtDirection {
         get { DebtDirection(rawValue: directionRawValue) ?? .lent }
         set { directionRawValue = newValue.rawValue }
+    }
+
+    var linkedTransactionIDs: [UUID] {
+        get { Self.decode(linkedTransactionIDsJSON) }
+        set { linkedTransactionIDsJSON = Self.encode(newValue) }
+    }
+
+    private static func encode(_ ids: [UUID]) -> String {
+        do {
+            let data = try JSONEncoder().encode(ids)
+            guard let str = String(data: data, encoding: .utf8) else {
+                logger.error("Failed to encode debt linked transaction IDs as UTF-8.")
+                return "[]"
+            }
+            return str
+        } catch {
+            logger.error("Failed to encode debt linked transaction IDs: \(error.localizedDescription, privacy: .public)")
+            return "[]"
+        }
+    }
+
+    private static func decode(_ json: String) -> [UUID] {
+        guard let data = json.data(using: .utf8) else {
+            logger.error("Failed to decode debt linked transaction IDs JSON as UTF-8.")
+            return []
+        }
+
+        do {
+            return try JSONDecoder().decode([UUID].self, from: data)
+        } catch {
+            logger.error("Failed to decode debt linked transaction IDs: \(error.localizedDescription, privacy: .public)")
+            return []
+        }
     }
 }
