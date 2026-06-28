@@ -104,6 +104,7 @@ struct RecurringListView: View {
                                             Button {
                                                 Task {
                                                     await viewModel.togglePause(id: rule.id)
+                                                    await dependencies.refreshRecurringAndDebtReminders()
                                                 }
                                             } label: {
                                                 Label(
@@ -117,6 +118,7 @@ struct RecurringListView: View {
                                             Button(role: .destructive) {
                                                 Task {
                                                     await viewModel.deleteRule(id: rule.id)
+                                                    await dependencies.refreshRecurringAndDebtReminders()
                                                     appState.notifyDataChanged()
                                                 }
                                             } label: {

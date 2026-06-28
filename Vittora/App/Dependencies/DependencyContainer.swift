@@ -33,6 +33,8 @@ final class DependencyContainer {
     var notificationService: (any NotificationServiceProtocol)?
     var evaluateBudgetThresholdAlertsUseCase: EvaluateBudgetThresholdAlertsUseCase?
     var scheduleCreditCardDueRemindersUseCase: ScheduleCreditCardDueRemindersUseCase?
+    var scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase?
+    var scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase?
     var securityAuditLogService: SecurityAuditLogService?
     var dataSeeder: (any DataSeederProtocol)?
 
@@ -104,6 +106,24 @@ final class DependencyContainer {
            let notificationService = container.notificationService {
             container.scheduleCreditCardDueRemindersUseCase = ScheduleCreditCardDueRemindersUseCase(
                 accountRepository: accountRepository,
+                notificationService: notificationService
+            )
+        }
+        if let recurringRuleRepository = container.recurringRuleRepository,
+           let payeeRepository = container.payeeRepository,
+           let notificationService = container.notificationService {
+            container.scheduleRecurringPreNotificationsUseCase = ScheduleRecurringPreNotificationsUseCase(
+                ruleRepository: recurringRuleRepository,
+                payeeRepository: payeeRepository,
+                notificationService: notificationService
+            )
+        }
+        if let debtRepository = container.debtRepository,
+           let payeeRepository = container.payeeRepository,
+           let notificationService = container.notificationService {
+            container.scheduleSelfDebtDueRemindersUseCase = ScheduleSelfDebtDueRemindersUseCase(
+                debtRepository: debtRepository,
+                payeeRepository: payeeRepository,
                 notificationService: notificationService
             )
         }

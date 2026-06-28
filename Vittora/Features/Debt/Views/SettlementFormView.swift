@@ -101,6 +101,7 @@ struct SettlementFormView: View {
                 settlementAmount: amount,
                 accountID: selectedAccountID
             )
+            await dependencies.refreshRecurringAndDebtReminders()
             appState.notifyDataChanged()
             onSettled()
             dismiss()

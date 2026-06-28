@@ -254,12 +254,16 @@ struct VittoraApp: App {
             Self.logger.error("Failed to seed default categories: \(error.localizedDescription, privacy: .public)")
         }
 
-        guard let recurringGenerationCoordinator else { return }
+        guard let recurringGenerationCoordinator else {
+            await dependencies.refreshRecurringAndDebtReminders()
+            return
+        }
         do {
             _ = try await recurringGenerationCoordinator.generate()
         } catch {
             Self.logger.error("Failed to generate recurring transactions on launch: \(error.localizedDescription, privacy: .public)")
         }
+        await dependencies.refreshRecurringAndDebtReminders()
     }
 
     private func seedUITestTransactionsIfNeeded() async {

@@ -319,6 +319,7 @@ struct RecurringFormView: View {
 
             do {
                 try await viewModel?.save()
+                await dependencies.refreshRecurringAndDebtReminders()
                 appState.notifyDataChanged()
                 onDismiss?()
                 dismiss()

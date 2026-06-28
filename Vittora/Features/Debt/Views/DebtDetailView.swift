@@ -99,7 +99,7 @@ struct DebtDetailView: View {
 
             VStack(spacing: VSpacing.xs) {
                 ForEach(vm.entries) { entry in
-                    entryRow(entry)
+                    entryRow(entry, payeeName: vm.payee?.name)
                     if entry.id != vm.entries.last?.id {
                         Divider().padding(.leading, VSpacing.lg)
                     }
@@ -111,7 +111,7 @@ struct DebtDetailView: View {
     }
 
     @ViewBuilder
-    private func entryRow(_ entry: DebtEntry) -> some View {
+    private func entryRow(_ entry: DebtEntry, payeeName: String?) -> some View {
         HStack(spacing: VSpacing.md) {
             Image(systemName: entry.direction == .lent ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
                 .foregroundColor(entry.direction == .lent ? VColors.income : VColors.expense)
@@ -151,12 +151,29 @@ struct DebtDetailView: View {
                         .foregroundColor(VColors.textSecondary)
                 }
                 if !entry.isSettled {
-                    Button(String(localized: "Settle")) {
-                        debtToSettle = entry
+                    HStack(spacing: VSpacing.sm) {
+                        if entry.direction == .lent {
+                            ShareLink(
+                                item: DebtContactReminderDraft.message(
+                                    payeeName: payeeName ?? String(localized: "there"),
+                                    remainingAmount: entry.remainingAmount,
+                                    dueDate: entry.dueDate,
+                                    currencyCode: currencyCode
+                                )
+                            ) {
+                                Text(String(localized: "Remind"))
+                                    .font(VTypography.caption2)
+                                    .foregroundColor(VColors.primary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        Button(String(localized: "Settle")) {
+                            debtToSettle = entry
+                        }
+                        .font(VTypography.caption2)
+                        .foregroundColor(VColors.primary)
+                        .buttonStyle(.plain)
                     }
-                    .font(VTypography.caption2)
-                    .foregroundColor(VColors.primary)
-                    .buttonStyle(.plain)
                 }
             }
         }

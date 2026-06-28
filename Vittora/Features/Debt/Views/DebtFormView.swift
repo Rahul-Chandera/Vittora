@@ -73,6 +73,7 @@ struct DebtFormView: View {
                             guard let vm else { return }
                             do {
                                 try await vm.save()
+                                await dependencies.refreshRecurringAndDebtReminders()
                                 appState.notifyDataChanged()
                                 onSaved()
                                 dismiss()
