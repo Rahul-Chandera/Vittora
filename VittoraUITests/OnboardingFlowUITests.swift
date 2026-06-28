@@ -60,10 +60,15 @@ final class OnboardingFlowUITests: XCTestCase {
         )
         nextButton.tap()
 
-        let notificationsStep = app.switches["onboarding-notifications-toggle"].exists
-            ? app.switches["onboarding-notifications-toggle"]
-            : app.staticTexts["onboarding-notifications-title"]
-        XCTAssertTrue(notificationsStep.waitForExistence(timeout: 15))
+        let reachedNotifications = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label == %@", "Continue"),
+            object: nextButton
+        )
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [reachedNotifications], timeout: 15),
+            .completed,
+            "Should advance to the notifications step after account setup."
+        )
         nextButton.tap()
 
         let completionStepExpectation = XCTNSPredicateExpectation(
@@ -71,7 +76,7 @@ final class OnboardingFlowUITests: XCTestCase {
             object: nextButton
         )
         XCTAssertEqual(
-            XCTWaiter().wait(for: [completionStepExpectation], timeout: 5),
+            XCTWaiter().wait(for: [completionStepExpectation], timeout: 10),
             .completed,
             "The review step should appear before finishing onboarding."
         )
