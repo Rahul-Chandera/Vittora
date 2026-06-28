@@ -128,10 +128,12 @@ struct AppLockServiceTests {
         biometric.shouldSucceed = false
 
         var cooldownAfterFourth: Date?
-        for i in 1...5 {
+        for i in 1...4 {
             _ = try await service.unlock()
             if i == 4 { cooldownAfterFourth = service.cooldownExpiresAt }
         }
+        service.testing_clearCooldown()
+        _ = try await service.unlock()
 
         let cooldownAfterFifth = service.cooldownExpiresAt
         #expect(cooldownAfterFourth != nil)
@@ -183,18 +185,43 @@ struct AppLockServiceTests {
         #expect(service.cooldownExpiresAt == nil)
     }
 
-    // MARK: - lockTimeout
+    // MARK: - Background timestamp
 
-    @Test("default lockTimeout is 300 seconds")
-    func defaultLockTimeout() {
+    @Test("recordBackgrounded stores the timestamp")
+    func recordBackgroundedStoresTimestamp() {
         let (service, _) = makeService()
-        #expect(service.lockTimeout == 300)
+        let stamp = Date(timeIntervalSince1970: 1_700_000_000)
+        service.recordBackgrounded(at: stamp)
+        #expect(service.lastBackgroundedAt == stamp)
     }
 
-    @Test("lockTimeout setter updates the value")
-    func lockTimeoutSetter() {
-        let (service, _) = makeService()
-        service.lockTimeout = 60
-        #expect(service.lockTimeout == 60)
+    // MARK: - AppLockPolicy.shouldLock
+
+    @Test("shouldLock is false when elapsed time is below timeout")
+    func shouldLockFalseBelowTimeout() {
+        let backgrounded = Date(timeIntervalSince1970: 0)
+        let now = backgrounded.addingTimeInterval(299)
+        #expect(AppLockPolicy.shouldLock(backgroundedAt: backgrounded, now: now, timeout: 300) == false)
+    }
+
+    @Test("shouldLock is true at exactly the timeout boundary")
+    func shouldLockTrueAtBoundary() {
+        let backgrounded = Date(timeIntervalSince1970: 0)
+        let now = backgrounded.addingTimeInterval(300)
+        #expect(AppLockPolicy.shouldLock(backgroundedAt: backgrounded, now: now, timeout: 300) == true)
+    }
+
+    @Test("shouldLock is true immediately when timeout is zero")
+    func shouldLockImmediateTimeout() {
+        let backgrounded = Date(timeIntervalSince1970: 0)
+        let now = backgrounded
+        #expect(AppLockPolicy.shouldLock(backgroundedAt: backgrounded, now: now, timeout: 0) == true)
+    }
+
+    @Test("shouldLock is false when now precedes backgroundedAt")
+    func shouldLockFalseWhenClockSkew() {
+        let backgrounded = Date(timeIntervalSince1970: 100)
+        let now = Date(timeIntervalSince1970: 50)
+        #expect(AppLockPolicy.shouldLock(backgroundedAt: backgrounded, now: now, timeout: 0) == false)
     }
 }

@@ -169,28 +169,53 @@ struct VittoraApp: App {
             let shouldShowPrivacyShield = newPhase == .inactive || newPhase == .background
             appState.isPrivacyShieldVisible = !isRunningAutomatedTests && shouldShowPrivacyShield
 
-            if newPhase == .background && !isRunningAutomatedTests && settingsVM.isAppLockEnabled {
-                appState.isLocked = true
-                appState.isAuthenticated = false
-            }
-            if newPhase == .active {
-                if !isRunningAutomatedTests {
-                    if settingsVM.isAppLockEnabled && !appState.isAuthenticated {
-                        appState.isLocked = true
-                    } else if !settingsVM.isAppLockEnabled {
-                        appState.isLocked = false
-                    }
+            guard !isRunningAutomatedTests else {
+                if newPhase == .active {
+                    appState.isPrivacyShieldVisible = false
                 }
+                return
+            }
+
+            switch newPhase {
+            case .background:
+                if settingsVM.isAppLockEnabled {
+                    dependencies.appLockService?.recordBackgrounded(at: .now)
+                }
+            case .active:
+                applyAppLockPolicyOnBecomeActive()
                 appState.isPrivacyShieldVisible = false
                 PerformanceLogger.App.sceneDidBecomeActive()
-                guard !isRunningAutomatedTests else { return }
                 Task {
                     await syncService.checkiCloudStatus()
                     #if os(iOS)
                     BackgroundTaskScheduler.scheduleNextRefresh()
                     #endif
                 }
+            default:
+                break
             }
+        }
+    }
+
+    /// Re-lock only when background duration meets the configured timeout (B1).
+    private func applyAppLockPolicyOnBecomeActive() {
+        guard settingsVM.isAppLockEnabled else {
+            appState.isLocked = false
+            return
+        }
+
+        if let service = dependencies.appLockService,
+           let backgroundedAt = service.lastBackgroundedAt,
+           AppLockPolicy.shouldLock(
+               backgroundedAt: backgroundedAt,
+               now: .now,
+               timeout: settingsVM.appLockTimeout.timeInterval
+           ) {
+            appState.isLocked = true
+            appState.isAuthenticated = false
+            Task { await service.lock() }
+        } else if !appState.isAuthenticated {
+            appState.isLocked = true
         }
     }
 

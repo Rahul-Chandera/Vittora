@@ -74,6 +74,14 @@ final class SettingsViewModel {
         set { UserDefaults.standard.set(newValue, forKey: "vittora.cloudSyncEnabled") }
     }
 
+    var appLockTimeout: AppLockTimeout {
+        get {
+            AppLockTimeout(rawValue: UserDefaults.standard.string(forKey: "vittora.appLockTimeout") ?? "")
+                ?? .fiveMinutes
+        }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: "vittora.appLockTimeout") }
+    }
+
     enum ExportSchedule: String, CaseIterable, Sendable {
         case off, weekly, monthly
 

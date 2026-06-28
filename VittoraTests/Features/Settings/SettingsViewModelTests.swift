@@ -128,4 +128,20 @@ struct SettingsViewModelTests {
 
         #expect(vm.keychainError != nil)
     }
+
+    @Test("appLockTimeout defaults to five minutes")
+    func appLockTimeoutDefault() {
+        UserDefaults.standard.removeObject(forKey: "vittora.appLockTimeout")
+        let vm = makeViewModel(keychainService: MockKeychainService())
+        #expect(vm.appLockTimeout == AppLockTimeout.fiveMinutes)
+    }
+
+    @Test("appLockTimeout persists to UserDefaults")
+    func appLockTimeoutPersists() {
+        defer { UserDefaults.standard.removeObject(forKey: "vittora.appLockTimeout") }
+        let vm = makeViewModel(keychainService: MockKeychainService())
+        vm.appLockTimeout = AppLockTimeout.oneMinute
+        #expect(vm.appLockTimeout == AppLockTimeout.oneMinute)
+        #expect(UserDefaults.standard.string(forKey: "vittora.appLockTimeout") == AppLockTimeout.oneMinute.rawValue)
+    }
 }

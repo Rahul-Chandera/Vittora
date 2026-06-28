@@ -108,6 +108,30 @@ struct SecuritySettingsView: View {
 
             if vm.isAppLockEnabled {
                 Section {
+                    ForEach(AppLockTimeout.allCases, id: \.self) { timeout in
+                        Button {
+                            vm.appLockTimeout = timeout
+                        } label: {
+                            HStack {
+                                Text(timeout.displayName)
+                                    .foregroundStyle(VColors.textPrimary)
+                                Spacer()
+                                if vm.appLockTimeout == timeout {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(VColors.primary)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                } header: {
+                    Text(String(localized: "Lock After"))
+                } footer: {
+                    Text(String(localized: "Require authentication again after the app has been in the background for this long."))
+                        .foregroundStyle(VColors.textSecondary)
+                }
+
+                Section {
                     Toggle(String(localized: "Passcode Fallback"), isOn: $vm.allowPasscodeFallback)
                 } footer: {
                     Text(String(localized: "Allow your device passcode if biometric authentication fails."))

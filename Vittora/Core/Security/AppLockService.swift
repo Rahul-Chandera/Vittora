@@ -1,11 +1,45 @@
 import Foundation
-import os
+
+/// User-configurable delay before re-authentication after the app was backgrounded.
+enum AppLockTimeout: String, CaseIterable, Sendable {
+    case immediately
+    case oneMinute
+    case fiveMinutes
+
+    var timeInterval: TimeInterval {
+        switch self {
+        case .immediately: return 0
+        case .oneMinute: return 60
+        case .fiveMinutes: return 300
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .immediately: return String(localized: "Immediately")
+        case .oneMinute: return String(localized: "After 1 minute")
+        case .fiveMinutes: return String(localized: "After 5 minutes")
+        }
+    }
+}
+
+/// Pure policy helpers for time-based app lock (testable without biometrics).
+enum AppLockPolicy {
+    /// Returns true when the app was backgrounded long enough to require re-authentication.
+    /// Statutory ordering: compares elapsed time against `timeout` **before** any lock UI is shown on `.active`.
+    nonisolated static func shouldLock(backgroundedAt: Date, now: Date, timeout: TimeInterval) -> Bool {
+        let elapsed = now.timeIntervalSince(backgroundedAt)
+        guard elapsed >= 0 else { return false }
+        return elapsed >= timeout
+    }
+}
 
 protocol AppLockServiceProtocol: Sendable {
     var isLocked: Bool { get }
-    var lockTimeout: TimeInterval { get set }
+    var lastBackgroundedAt: Date? { get }
     /// Non-nil while the app is enforcing a post-failure cooldown.
     var cooldownExpiresAt: Date? { get }
+    func recordBackgrounded(at date: Date)
     func lock() async
     func unlock() async throws -> Bool
     func unlockWithPasscode() async throws -> Bool
@@ -16,9 +50,7 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
     private let biometricService: any BiometricServiceProtocol
     private let auditLogger: (any SecurityAuditLogging)?
     private var _isLocked = false
-    private var lastActivityTime = Date()
-    private var _lockTimeout: TimeInterval = 300
-    private var lockTask: Task<Void, Never>?
+    private(set) var lastBackgroundedAt: Date?
 
     // MARK: - Rate limiting
 
@@ -33,13 +65,6 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
     // MARK: - Protocol properties
 
     var isLocked: Bool { _isLocked }
-    var lockTimeout: TimeInterval {
-        get { _lockTimeout }
-        set {
-            _lockTimeout = newValue
-            resetLockTimer()
-        }
-    }
 
     init(
         biometricService: any BiometricServiceProtocol,
@@ -47,12 +72,14 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
     ) {
         self.biometricService = biometricService
         self.auditLogger = auditLogger
-        resetLockTimer()
+    }
+
+    func recordBackgrounded(at date: Date) {
+        lastBackgroundedAt = date
     }
 
     func lock() async {
         _isLocked = true
-        lockTask?.cancel()
         await auditLogger?.record(SecurityAuditEvent(kind: .appLocked, detail: "session"))
     }
 
@@ -81,8 +108,6 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
             consecutiveFailures = 0
             cooldownExpiresAt = nil
             _isLocked = false
-            lastActivityTime = Date()
-            resetLockTimer()
             await auditLogger?.record(SecurityAuditEvent(
                 kind: .appUnlocked,
                 detail: usingPasscodeFallback ? "passcode" : "biometric"
@@ -114,21 +139,10 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
         PerformanceLogger.Security.cooldownStarted(seconds: Int(duration))
     }
 
-    func recordActivity() {
-        lastActivityTime = Date()
-        resetLockTimer()
+    #if DEBUG
+    /// Test-only: clears an active cooldown so failure-streak tests can continue without waiting.
+    func testing_clearCooldown() {
+        cooldownExpiresAt = nil
     }
-
-    private func resetLockTimer() {
-        lockTask?.cancel()
-        let timeout = _lockTimeout
-        lockTask = Task { [weak self] in
-            do {
-                try await Task.sleep(for: .seconds(timeout))
-            } catch {
-                return
-            }
-            await self?.lock()
-        }
-    }
+    #endif
 }
