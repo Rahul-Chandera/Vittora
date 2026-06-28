@@ -1,6 +1,6 @@
 Version 0.1.0
 
-- Added tax comparison tools for India and the United States
-- Added annual tax activity summaries for tax-relevant spending
+- Local notification reminders for budgets, bills, recurring expenses, and debt due dates
+- Tax comparison tools for India and the United States
 - Improved sync conflict review and recurring transaction reliability
-- Expanded cross-platform stability for iPhone, iPad, and Mac
+- Release configuration aligned to shipped iPhone, iPad, and Mac support

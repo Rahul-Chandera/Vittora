@@ -241,14 +241,14 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 
 | ID | Finding | Pri | Files | Change | Acceptance | Eff |
 |---|---|---|---|---|---|---|
-| D1 | COMPLIANCE-1 | P0 | `Vittora/PrivacyInfo.xcprivacy` | Add `NSPrivacyAccessedAPICategoryUserDefaults` reason `["CA92.1"]`. | Manifest validates; matches the only required-reason API in use. | S |
-| D2 | COMPLIANCE-2/4, SECURITY-9 | P0 | `Info.plist`, `Vittora.entitlements` | Remove `remote-notification` UIBackgroundMode; remove `aps-environment` (no push) **or** set `production` via per-config entitlements; keep `fetch` only if BGAppRefresh needs it. | No unused push capability; release uses production. | S |
-| D3 | COMPLIANCE-3 | P1 | new `Vittora-macOS.entitlements`, `project.pbxproj` | Add `com.apple.security.app-sandbox` + `network.client` (CloudKit), `device.camera`, `personal-information.photos-library`, `...addressbook` for macOS. | macOS build sandboxed; camera/contacts/photos verified on a real Mac. | M |
-| D4 | COMPLIANCE-6 / MULTIPLATFORM-1 | P1 | `project.pbxproj` | Remove `xros xrsimulator` from `SUPPORTED_PLATFORMS` and `7` from `TARGETED_DEVICE_FAMILY` until a real visionOS release is scoped. | Build targets match QA'd platforms. | S |
-| D5 | COMPLIANCE-5 | P1 | `Vittora/Resources/AppStoreMetadata/*` | Restrict description/keywords/screenshots/paywall copy to shipped features (no Watch/Widgets/Siri/Vision). | Metadata = shipped scope. | M |
-| D6 | COMPLIANCE-9 | P1 | `Docs/Architecture/SYSTEM_MAP.md`, `Docs/Runbooks/RELEASE_CHECKLIST.md` | Fix dead paths (`EncryptedDocumentStorageService.swift`, `Privacy_Compliance_Checklist.md`); add checklist items for required-reason APIs + unused-capability audit. | Docs point at real files. | S |
-| D7 | COMPLIANCE-10 | P1 | `Info.plist` | Remove `NSPhotoLibraryUsageDescription` (PhotosPicker needs none) unless direct PHPhotoLibrary access is added. | No over-declared strings. | S |
-| D8 | COMPLIANCE-8 | P1 | `RELEASE_CHECKLIST.md` | Record `ITSAppUsesNonExemptEncryption=false` rationale (Apple AES/SE for user data → exempt). | Decision auditable. | S |
+| D1 | COMPLIANCE-1 | P0 | `Vittora/PrivacyInfo.xcprivacy` | Add `NSPrivacyAccessedAPICategoryUserDefaults` reason `["CA92.1"]`. | Manifest validates; matches the only required-reason API in use. | S | **Merged** |
+| D2 | COMPLIANCE-2/4, SECURITY-9 | P0 | `Info.plist`, `Vittora.entitlements` | Remove `remote-notification` UIBackgroundMode; remove `aps-environment` (no push) **or** set `production` via per-config entitlements; keep `fetch` only if BGAppRefresh needs it. | No unused push capability; release uses production. | S | **Merged** |
+| D3 | COMPLIANCE-3 | P1 | new `Vittora-macOS.entitlements`, `project.pbxproj` | Add `com.apple.security.app-sandbox` + `network.client` (CloudKit), `device.camera`, `personal-information.photos-library`, `...addressbook` for macOS. | macOS build sandboxed; camera/contacts/photos verified on a real Mac. | M | **Merged** |
+| D4 | COMPLIANCE-6 / MULTIPLATFORM-1 | P1 | `project.pbxproj` | Remove `xros xrsimulator` from `SUPPORTED_PLATFORMS` and `7` from `TARGETED_DEVICE_FAMILY` until a real visionOS release is scoped. | Build targets match QA'd platforms. | S | **Merged** |
+| D5 | COMPLIANCE-5 | P1 | `Vittora/Resources/AppStoreMetadata/*` | Restrict description/keywords/screenshots/paywall copy to shipped features (no Watch/Widgets/Siri/Vision). | Metadata = shipped scope. | M | **Merged** |
+| D6 | COMPLIANCE-9 | P1 | `Docs/Architecture/SYSTEM_MAP.md`, `Docs/Runbooks/RELEASE_CHECKLIST.md` | Fix dead paths (`EncryptedDocumentStorageService.swift`, `Privacy_Compliance_Checklist.md`); add checklist items for required-reason APIs + unused-capability audit. | Docs point at real files. | S | **Merged** |
+| D7 | COMPLIANCE-10 | P1 | `Info.plist` | Remove `NSPhotoLibraryUsageDescription` (PhotosPicker needs none) unless direct PHPhotoLibrary access is added. | No over-declared strings. | S | **Merged** |
+| D8 | COMPLIANCE-8 | P1 | `RELEASE_CHECKLIST.md` | Record `ITSAppUsesNonExemptEncryption=false` rationale (Apple AES/SE for user data → exempt). | Decision auditable. | S | **Merged** |
 
 ---
 

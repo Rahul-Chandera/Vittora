@@ -1,13 +1,14 @@
-Vittora is a private personal finance app built for people who want clarity without compromise.
+Vittora is a private personal finance app for iPhone, iPad, and Mac.
 
-Track spending, income, budgets, recurring payments, savings goals, tax estimates, receipts, and reports across iPhone, iPad, and Mac. Your data stays under your control with local-first storage and iCloud sync through your own Apple account.
+Track spending, income, budgets, recurring payments, savings goals, debt, tax estimates, receipts, and reports. Your data stays on your devices with optional iCloud sync through your Apple account — no analytics SDKs or ad trackers.
 
-Why people choose Vittora:
-- Private by design with no analytics SDKs or ad trackers
-- Fast transaction entry with clean categories and account support
-- Budgets, recurring rules, payees, debt tracking, and savings goals
-- Receipt scanning, document attachments, and searchable history
-- Tax estimates for India and the United States with comparison tools
-- Works across Apple devices with a native SwiftUI experience
+Shipped in this release:
+- Accounts, transactions, transfers, and categories
+- Budgets with spending alerts and recurring transaction rules
+- Debt tracking, bill reminders, and local notifications you control
+- Receipt attachments, document storage, and reports
+- Tax estimates for India and the United States
+- App Lock with Face ID / Touch ID and encrypted document storage
+- iCloud sync across your Apple devices
 
 Vittora is designed to feel calm, fast, and trustworthy so you can focus on your money decisions instead of wrestling with your tools.

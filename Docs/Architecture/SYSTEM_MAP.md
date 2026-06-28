@@ -55,7 +55,7 @@ This map helps agents find the right files quickly.
 ## Documents and Receipts
 
 - Metadata repo: `Vittora/Core/Data/Repositories/SwiftDataDocumentRepository.swift`
-- Secure storage service: `Vittora/Core/Data/Infrastructure/EncryptedDocumentStorageService.swift`
+- Secure storage service: `Vittora/Core/Data/Mappers/DocumentMapper.swift` (`EncryptedDocumentStorageService`)
 - Delete orchestration: `Vittora/Core/Domain/UseCases/DeleteDocumentUseCase.swift`
 - Preview/import/list UI: `Vittora/Features/Documents/Views/`
 
