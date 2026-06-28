@@ -17,6 +17,11 @@ protocol EncryptionServiceProtocol: Sendable {
 final class EncryptionService: EncryptionServiceProtocol, Sendable {
     private let keychainService: any KeychainServiceProtocol
 
+    /// In-memory cache after first successful key resolution.
+    private var cachedKey: SymmetricKey?
+    /// Coalesces concurrent first-time key creation (SECURITY-6 / B6).
+    private var keyCreationTask: Task<SymmetricKey, Error>?
+
     /// Keychain item that stores the ECIES-wrapped AES key (device path).
     private let seWrappedKeyID = "com.vittora.encryption.key.se_wrapped"
     /// Keychain item for the raw AES key (simulator path / legacy).
@@ -27,9 +32,27 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
     private let eciesAlgorithm =
         SecKeyAlgorithm.eciesEncryptionCofactorVariableIVX963SHA256AESGCM
 
+    #if DEBUG
+    /// Forces the simulator/legacy key path so unit tests avoid Secure Enclave biometry.
+    private let useLegacyKeyPathForTesting: Bool
+    #endif
+
     init(keychainService: any KeychainServiceProtocol) {
         self.keychainService = keychainService
+        #if DEBUG
+        self.useLegacyKeyPathForTesting = false
+        #endif
     }
+
+    #if DEBUG
+    init(
+        keychainService: any KeychainServiceProtocol,
+        useLegacyKeyPathForTesting: Bool
+    ) {
+        self.keychainService = keychainService
+        self.useLegacyKeyPathForTesting = useLegacyKeyPathForTesting
+    }
+    #endif
 
     // MARK: - Public interface
 
@@ -60,23 +83,58 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
     /// On device the key is wrapped by a Secure Enclave EC key; on the
     /// Simulator it is stored as a biometric-bound Keychain item.
     func generateKey() async throws {
-        #if targetEnvironment(simulator)
-        try await generateLegacyKey()
-        #else
-        let seKey = try getOrCreateSEPrivateKey()
-        let aesKeyData = SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) }
-        let wrapped = try wrapAESKey(aesKeyData, with: seKey)
-        try await keychainService.save(wrapped, forKey: seWrappedKeyID)
-        #endif
+        if let inFlight = keyCreationTask {
+            _ = try? await inFlight.value
+        }
+        cachedKey = nil
+        keyCreationTask = nil
+
+        if usesLegacyKeyPath {
+            try await generateLegacyKey()
+        } else {
+            let seKey = try getOrCreateSEPrivateKey()
+            let aesKeyData = SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) }
+            let wrapped = try wrapAESKey(aesKeyData, with: seKey)
+            try await keychainService.save(wrapped, forKey: seWrappedKeyID)
+            cachedKey = SymmetricKey(data: aesKeyData)
+        }
     }
 
     // MARK: - Key retrieval
 
     private func getOrCreateKey() async throws -> SymmetricKey {
+        if let cachedKey { return cachedKey }
+
+        if let inFlight = keyCreationTask {
+            return try await inFlight.value
+        }
+
+        let task = Task { @MainActor in
+            defer { self.keyCreationTask = nil }
+
+            if let cached = self.cachedKey { return cached }
+
+            let key: SymmetricKey
+            if self.usesLegacyKeyPath {
+                key = try await self.getOrCreateLegacyKey()
+            } else {
+                key = try await self.getOrCreateSEBoundKey()
+            }
+            self.cachedKey = key
+            return key
+        }
+        keyCreationTask = task
+        return try await task.value
+    }
+
+    private var usesLegacyKeyPath: Bool {
+        #if DEBUG
+        if useLegacyKeyPathForTesting { return true }
+        #endif
         #if targetEnvironment(simulator)
-        return try await getOrCreateLegacyKey()
+        return true
         #else
-        return try await getOrCreateSEBoundKey()
+        return false
         #endif
     }
 
@@ -211,6 +269,13 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
     // MARK: - Legacy / simulator path
 
     private func generateLegacyKey() async throws {
+        if let existing = try await keychainService.load(
+            forKey: legacyKeyID,
+            access: .biometricBound
+        ) {
+            cachedKey = SymmetricKey(data: existing)
+            return
+        }
         let newKey = SymmetricKey(size: .bits256)
         try await keychainService.save(
             newKey.withUnsafeBytes { Data($0) },
