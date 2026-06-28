@@ -75,15 +75,11 @@ final class TransactionFlowUITests: XCTestCase {
         XCTAssertTrue(searchField.waitForExistence(timeout: 5))
         searchField.tap()
         searchField.typeText("Coffee")
-        if app.keyboards.buttons["Search"].exists {
-            app.keyboards.buttons["Search"].tap()
-        } else if app.keyboards.count > 0 {
-            app.typeText("\n")
-        }
 
+        // Debounced search (250ms) — wait for filtered results; no keyboard dismiss needed.
         XCTAssertTrue(coffeeRow.waitForExistence(timeout: 5))
         XCTAssertFalse(
-            salaryRow.waitForExistence(timeout: 2),
+            salaryRow.waitForExistence(timeout: 5),
             "Searching should hide transactions whose notes do not match."
         )
 
