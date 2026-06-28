@@ -189,7 +189,7 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 - **Acceptance:** two partial settlements both remain linked and reversible.
 - **Tests:** `DebtUseCaseTests` — `twoPartialSettlementsRetained`.
 - **Verify:** `xcodebuild ... -only-testing:VittoraTests/Features/Debt/DebtUseCaseTests test`
-- **Status:** **HOLD for review** on `fix/A11-debt-settlement-links`. Schema V5 adds `linkedTransactionIDsJSON` (CloudKit-safe); computed `linkedTransactionIDs` accessor; legacy single link merged on read; `performSettle` appends atomically.
+- **Status:** Merged into `refactoring`. Schema V5 adds `linkedTransactionIDsJSON` (CloudKit-safe); computed `linkedTransactionIDs` accessor; legacy single link merged on read; `performSettle` appends atomically.
 
 ### A12 — Split rounding correctness
 - **Finding:** DATAINTEGRITY-9
