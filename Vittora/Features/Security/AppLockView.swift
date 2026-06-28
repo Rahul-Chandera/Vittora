@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AppLockView: View {
     @Environment(AppState.self) private var appState
+    @Environment(SettingsViewModel.self) private var settingsVM
     @Environment(\.dependencies) private var dependencies
 
     @State private var isAuthenticating = false
@@ -10,6 +11,12 @@ struct AppLockView: View {
 
     private var isLockServiceAvailable: Bool {
         dependencies.appLockService != nil
+    }
+
+    private var showsPasscodeButton: Bool {
+        isLockServiceAvailable && AppLockPasscodeFallbackPolicy.showsPasscodeButton(
+            allowPasscodeFallback: settingsVM.allowPasscodeFallback
+        )
     }
 
     var body: some View {
@@ -75,7 +82,7 @@ struct AppLockView: View {
                 .accessibilityLabel(unlockButtonTitle)
                 .accessibilityHint(unlockButtonHint)
 
-                if isLockServiceAvailable {
+                if showsPasscodeButton {
                     Button(String(localized: "Use Passcode")) {
                         Task { await authenticateWithPasscode() }
                     }
@@ -105,10 +112,13 @@ struct AppLockView: View {
     }
 
     private var unlockButtonHint: String {
-        if isLockServiceAvailable {
+        if !isLockServiceAvailable {
+            return String(localized: "Retries App Lock after a service error")
+        }
+        if settingsVM.allowPasscodeFallback {
             return String(localized: "Authenticates using biometrics or passcode")
         }
-        return String(localized: "Retries App Lock after a service error")
+        return String(localized: "Authenticates using biometrics only")
     }
 
     private var biometricIcon: String {
@@ -123,7 +133,7 @@ struct AppLockView: View {
 
     private func authenticate() async {
         await performAuthentication { lockService in
-            try await lockService.unlock()
+            try await lockService.unlock(allowPasscodeFallback: settingsVM.allowPasscodeFallback)
         }
     }
 

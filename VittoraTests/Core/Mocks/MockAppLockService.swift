@@ -17,7 +17,7 @@ final class MockAppLockService: AppLockServiceProtocol, @unchecked Sendable {
         isLocked = true
     }
 
-    func unlock() async throws -> Bool {
+    func unlock(allowPasscodeFallback: Bool) async throws -> Bool {
         if shouldThrow { throw VittoraError.biometricFailed(String(localized: "Mock biometric error")) }
         if unlockResult { isLocked = false }
         return unlockResult

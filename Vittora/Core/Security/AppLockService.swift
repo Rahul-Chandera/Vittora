@@ -46,6 +46,13 @@ enum AppLockUnlockGate {
     }
 }
 
+/// UI policy for the optional passcode fallback button on the lock screen (B4).
+enum AppLockPasscodeFallbackPolicy {
+    nonisolated static func showsPasscodeButton(allowPasscodeFallback: Bool) -> Bool {
+        allowPasscodeFallback
+    }
+}
+
 protocol AppLockServiceProtocol: Sendable {
     var isLocked: Bool { get }
     var lastBackgroundedAt: Date? { get }
@@ -53,7 +60,7 @@ protocol AppLockServiceProtocol: Sendable {
     var cooldownExpiresAt: Date? { get }
     func recordBackgrounded(at date: Date)
     func lock() async
-    func unlock() async throws -> Bool
+    func unlock(allowPasscodeFallback: Bool) async throws -> Bool
     func unlockWithPasscode() async throws -> Bool
 }
 
@@ -95,17 +102,20 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
         await auditLogger?.record(SecurityAuditEvent(kind: .appLocked, detail: "session"))
     }
 
-    func unlock() async throws -> Bool {
-        try await performUnlock(usingPasscodeFallback: false)
+    func unlock(allowPasscodeFallback: Bool) async throws -> Bool {
+        try await performUnlock(usingPasscodeFallback: false, allowPasscodeFallback: allowPasscodeFallback)
     }
 
     func unlockWithPasscode() async throws -> Bool {
-        try await performUnlock(usingPasscodeFallback: true)
+        try await performUnlock(usingPasscodeFallback: true, allowPasscodeFallback: true)
     }
 
     // MARK: - Private helpers
 
-    private func performUnlock(usingPasscodeFallback: Bool) async throws -> Bool {
+    private func performUnlock(
+        usingPasscodeFallback: Bool,
+        allowPasscodeFallback: Bool
+    ) async throws -> Bool {
         try guardCooldown()
 
         let reason = String(localized: "Unlock Vittora to continue")
@@ -113,7 +123,10 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
         if usingPasscodeFallback {
             success = try await biometricService.authenticateWithPasscode(reason: reason)
         } else {
-            success = try await biometricService.authenticate(reason: reason)
+            success = try await biometricService.authenticate(
+                reason: reason,
+                allowPasscodeFallback: allowPasscodeFallback
+            )
         }
 
         if success {

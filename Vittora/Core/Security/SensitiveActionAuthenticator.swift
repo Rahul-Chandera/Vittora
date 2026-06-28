@@ -21,6 +21,9 @@ enum SensitiveActionAuthenticator {
         action: SensitiveAction,
         using biometricService: any BiometricServiceProtocol
     ) async throws -> Bool {
-        try await biometricService.authenticate(reason: action.authenticationReason)
+        try await biometricService.authenticate(
+            reason: action.authenticationReason,
+            allowPasscodeFallback: true
+        )
     }
 }

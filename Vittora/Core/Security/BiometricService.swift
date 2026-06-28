@@ -7,7 +7,7 @@ enum BiometricType: Sendable {
 
 protocol BiometricServiceProtocol: Sendable {
     func canUseBiometrics() -> Bool
-    func authenticate(reason: String) async throws -> Bool
+    func authenticate(reason: String, allowPasscodeFallback: Bool) async throws -> Bool
     func authenticateWithPasscode(reason: String) async throws -> Bool
     var biometricType: BiometricType { get }
 }
@@ -41,18 +41,19 @@ final class BiometricService: BiometricServiceProtocol, Sendable {
         return capabilityContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
     }
 
-    func authenticate(reason: String) async throws -> Bool {
+    func authenticate(reason: String, allowPasscodeFallback: Bool) async throws -> Bool {
         do {
             return try await evaluate(
                 policy: .deviceOwnerAuthenticationWithBiometrics,
                 reason: reason,
-                fallbackTitle: String(localized: "Use Passcode")
+                fallbackTitle: allowPasscodeFallback ? String(localized: "Use Passcode") : ""
             )
         } catch let error as LAError {
             switch error.code {
             case .userCancel, .appCancel, .systemCancel:
                 return false
             case .biometryLockout, .biometryNotAvailable, .biometryNotEnrolled:
+                guard allowPasscodeFallback else { return false }
                 return try await authenticateWithPasscode(reason: reason)
             default:
                 throw VittoraError.biometricFailed(error.localizedDescription)

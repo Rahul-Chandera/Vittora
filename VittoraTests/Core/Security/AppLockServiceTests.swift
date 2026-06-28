@@ -54,7 +54,7 @@ struct AppLockServiceTests {
     func unlockSuccessClears() async throws {
         let (service, _) = makeService(shouldSucceed: true)
         await service.lock()
-        let result = try await service.unlock()
+        let result = try await service.unlock(allowPasscodeFallback: true)
         #expect(result == true)
         #expect(service.isLocked == false)
     }
@@ -64,7 +64,7 @@ struct AppLockServiceTests {
         let (service, biometric) = makeService(shouldSucceed: false)
         biometric.shouldSucceed = false
         await service.lock()
-        let result = try await service.unlock()
+        let result = try await service.unlock(allowPasscodeFallback: true)
         #expect(result == false)
         #expect(service.isLocked == true)
     }
@@ -74,7 +74,7 @@ struct AppLockServiceTests {
         let (service, _) = makeService(shouldThrow: true)
         await service.lock()
         await #expect(throws: VittoraError.self) {
-            _ = try await service.unlock()
+            _ = try await service.unlock(allowPasscodeFallback: true)
         }
     }
 
@@ -106,7 +106,7 @@ struct AppLockServiceTests {
         let (service, biometric) = makeService()
         biometric.shouldSucceed = false
         for _ in 1...3 {
-            _ = try await service.unlock()
+            _ = try await service.unlock(allowPasscodeFallback: true)
         }
         #expect(service.cooldownExpiresAt == nil)
     }
@@ -116,7 +116,7 @@ struct AppLockServiceTests {
         let (service, biometric) = makeService()
         biometric.shouldSucceed = false
         for _ in 1...4 {
-            _ = try await service.unlock()
+            _ = try await service.unlock(allowPasscodeFallback: true)
         }
         #expect(service.cooldownExpiresAt != nil)
         #expect(service.cooldownExpiresAt! > .now)
@@ -129,11 +129,11 @@ struct AppLockServiceTests {
 
         var cooldownAfterFourth: Date?
         for i in 1...4 {
-            _ = try await service.unlock()
+            _ = try await service.unlock(allowPasscodeFallback: true)
             if i == 4 { cooldownAfterFourth = service.cooldownExpiresAt }
         }
         service.testing_clearCooldown()
-        _ = try await service.unlock()
+        _ = try await service.unlock(allowPasscodeFallback: true)
 
         let cooldownAfterFifth = service.cooldownExpiresAt
         #expect(cooldownAfterFourth != nil)
@@ -148,14 +148,14 @@ struct AppLockServiceTests {
 
         // Trigger cooldown (need 4 failures)
         for _ in 1...4 {
-            _ = try await service.unlock()
+            _ = try await service.unlock(allowPasscodeFallback: true)
         }
         #expect(service.cooldownExpiresAt != nil)
 
         // The next attempt should throw, not call biometrics
         let callsBeforeCooldownAttempt = biometric.authenticateCallCount
         await #expect(throws: VittoraError.self) {
-            _ = try await service.unlock()
+            _ = try await service.unlock(allowPasscodeFallback: true)
         }
         #expect(biometric.authenticateCallCount == callsBeforeCooldownAttempt)
     }
@@ -166,12 +166,12 @@ struct AppLockServiceTests {
 
         // Accumulate 2 failures (below cooldown threshold)
         biometric.shouldSucceed = false
-        _ = try await service.unlock()
-        _ = try await service.unlock()
+        _ = try await service.unlock(allowPasscodeFallback: true)
+        _ = try await service.unlock(allowPasscodeFallback: true)
 
         // Succeed — should clear state
         biometric.shouldSucceed = true
-        let result = try await service.unlock()
+        let result = try await service.unlock(allowPasscodeFallback: true)
 
         #expect(result == true)
         #expect(service.cooldownExpiresAt == nil)
@@ -180,7 +180,7 @@ struct AppLockServiceTests {
         // A new failure streak should restart from zero (3 failures → no cooldown again)
         biometric.shouldSucceed = false
         for _ in 1...3 {
-            _ = try await service.unlock()
+            _ = try await service.unlock(allowPasscodeFallback: true)
         }
         #expect(service.cooldownExpiresAt == nil)
     }
@@ -237,5 +237,46 @@ struct AppLockServiceTests {
     @Test("missing service message is non-empty")
     func missingServiceMessageNonEmpty() {
         #expect(AppLockUnlockGate.missingServiceMessage.isEmpty == false)
+    }
+
+    // MARK: - Passcode fallback policy (B4)
+
+    @Test("shows passcode button when fallback is enabled")
+    func showsPasscodeButtonWhenEnabled() {
+        #expect(AppLockPasscodeFallbackPolicy.showsPasscodeButton(allowPasscodeFallback: true) == true)
+    }
+
+    @Test("hides passcode button when fallback is disabled")
+    func hidesPasscodeButtonWhenDisabled() {
+        #expect(AppLockPasscodeFallbackPolicy.showsPasscodeButton(allowPasscodeFallback: false) == false)
+    }
+
+    @Test("unlock forwards allowPasscodeFallback to biometrics")
+    func unlockForwardsFallbackFlag() async throws {
+        let (service, biometric) = makeService()
+        await service.lock()
+        _ = try await service.unlock(allowPasscodeFallback: false)
+        #expect(biometric.lastAllowPasscodeFallback == false)
+    }
+
+    @Test("biometrics-only unlock does not fall back to passcode when unavailable")
+    func biometricsOnlySkipsPasscodeFallback() async throws {
+        let (service, biometric) = makeService()
+        biometric.simulateBiometryUnavailable = true
+        await service.lock()
+        let result = try await service.unlock(allowPasscodeFallback: false)
+        #expect(result == false)
+        #expect(biometric.passcodeAuthenticateCallCount == 0)
+    }
+
+    @Test("unlock falls back to passcode when allowed and biometrics unavailable")
+    func unlockFallsBackWhenAllowed() async throws {
+        let (service, biometric) = makeService()
+        biometric.simulateBiometryUnavailable = true
+        biometric.shouldSucceed = true
+        await service.lock()
+        let result = try await service.unlock(allowPasscodeFallback: true)
+        #expect(result == true)
+        #expect(biometric.passcodeAuthenticateCallCount == 1)
     }
 }
