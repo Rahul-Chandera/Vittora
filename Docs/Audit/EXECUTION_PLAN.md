@@ -194,11 +194,12 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 ### A12 — Split rounding correctness
 - **Finding:** DATAINTEGRITY-9
 - **Deps:** none
-- **Files:** `Core/Domain/UseCases/AddGroupExpenseUseCase.swift`, `SimplifyDebtsUseCase.swift`
+- **Files:** `Core/Domain/UseCases/AddGroupExpenseUseCase.swift`, `SimplifyDebtsUseCase.swift`, `SplitRounding.swift`, `AddGroupExpenseViewModel.swift`
 - **Steps:** validate `Σ percentages == 100` (tolerance); round components before summing so `Σ shares == amount`; clamp last-member remainder `≥ 0` and redistribute; use one shared epsilon in SimplifyDebts and round transfers consistently so they net to zero.
 - **Acceptance:** for equal/percentage/shares, `Σ shares == amount` exactly; simplify transfers net to zero.
 - **Tests:** `SplitGroupUseCaseTests` — property tests over member counts/amounts.
 - **Verify:** `xcodebuild ... -only-testing:VittoraTests/Features/Splits/SplitGroupUseCaseTests test`
+- **Status:** **HOLD for review** on `fix/A12-split-rounding`.
 
 ### A13 — India surcharge marginal relief + capital-gains cap (tax correctness)
 - **Finding:** DATAINTEGRITY-8

@@ -69,41 +69,34 @@ final class AddGroupExpenseViewModel {
             return
         }
 
-        let count = allocations.count
-        switch splitMethod {
-        case .equal:
-            let share = (parsedAmount / Decimal(count)).rounded(scale: 2)
-            for i in allocations.indices {
-                if i < count - 1 {
-                    allocations[i].calculatedAmount = share
-                } else {
-                    allocations[i].calculatedAmount = parsedAmount - share * Decimal(count - 1)
-                }
+        var customValues: [UUID: Decimal] = [:]
+        for row in allocations {
+            switch splitMethod {
+            case .equal:
+                break
+            case .percentage:
+                customValues[row.memberID] = Decimal(localizedAmount: row.inputValue)
+                    ?? (100 / Decimal(allocations.count))
+            case .exact:
+                customValues[row.memberID] = Decimal(localizedAmount: row.inputValue) ?? 0
+            case .shares:
+                customValues[row.memberID] = Decimal(localizedAmount: row.inputValue) ?? 1
             }
+        }
 
-        case .percentage:
-            for i in allocations.indices {
-                let pct = Decimal(localizedAmount: allocations[i].inputValue) ?? (100 / Decimal(count))
-                allocations[i].calculatedAmount = (parsedAmount * pct / 100).rounded(scale: 2)
-            }
+        guard let shares = try? addExpenseUseCase.calculateShares(
+            amount: parsedAmount,
+            method: splitMethod,
+            memberIDs: group.memberIDs,
+            customValues: customValues
+        ) else {
+            for i in allocations.indices { allocations[i].calculatedAmount = 0 }
+            return
+        }
 
-        case .exact:
-            for i in allocations.indices {
-                allocations[i].calculatedAmount = Decimal(localizedAmount: allocations[i].inputValue) ?? 0
-            }
-
-        case .shares:
-            let weights = allocations.map { Decimal(localizedAmount: $0.inputValue) ?? 1 }
-            let total = weights.reduce(Decimal(0), +)
-            guard total > 0 else { return }
-            for i in allocations.indices {
-                if i < count - 1 {
-                    allocations[i].calculatedAmount = (parsedAmount * weights[i] / total).rounded(scale: 2)
-                } else {
-                    let allocated = allocations.dropLast().reduce(Decimal(0)) { $0 + $1.calculatedAmount }
-                    allocations[i].calculatedAmount = parsedAmount - allocated
-                }
-            }
+        let byMember = Dictionary(uniqueKeysWithValues: shares.map { ($0.memberID, $0.amount) })
+        for i in allocations.indices {
+            allocations[i].calculatedAmount = byMember[allocations[i].memberID] ?? 0
         }
     }
 
