@@ -14,6 +14,8 @@ final class AppState {
     var isPrivacyShieldVisible: Bool
     /// Set when the user opens the app from a local notification tap (C1).
     var pendingNotificationDeepLink: VittoraNotificationDeepLink?
+    /// Typed global command requests (keyboard shortcuts, dashboard quick actions).
+    private(set) var pendingCommand: AppCommandRequest?
 
     init(
         isAuthenticated: Bool = false,
@@ -61,6 +63,14 @@ final class AppState {
 
     func hasAnyRefresh(in domains: some Sequence<DataRefreshDomain>) -> Bool {
         domains.contains { refreshVersion(for: $0) > 0 }
+    }
+
+    func request(_ command: AppCommand) {
+        pendingCommand = AppCommandRequest(command: command, id: UUID())
+    }
+
+    func clearPendingCommand() {
+        pendingCommand = nil
     }
 
     /// Routes the user to the tab/feature associated with a notification deep link.
