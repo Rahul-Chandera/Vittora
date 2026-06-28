@@ -244,6 +244,7 @@ struct VittoraApp: App {
         guard !isRunningAutomatedTests else { return }
 
         await configureNotificationService()
+        await dependencies.refreshCreditCardDueReminders()
 
         guard let modelContainer else { return }
         let dataSeeder = dependencies.dataSeeder ?? DefaultDataSeeder(modelContainer: modelContainer)

@@ -30,6 +30,7 @@ struct VittoraNotificationDeepLink: Equatable, Sendable {
     enum Destination: String, Codable, Sendable {
         case budgets
         case budgetDetail
+        case accountDetail
         case debt
         case transactions
         case savings

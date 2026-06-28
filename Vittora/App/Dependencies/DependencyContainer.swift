@@ -32,6 +32,7 @@ final class DependencyContainer {
     var hapticService: (any HapticServiceProtocol) = LiveHapticService()
     var notificationService: (any NotificationServiceProtocol)?
     var evaluateBudgetThresholdAlertsUseCase: EvaluateBudgetThresholdAlertsUseCase?
+    var scheduleCreditCardDueRemindersUseCase: ScheduleCreditCardDueRemindersUseCase?
     var securityAuditLogService: SecurityAuditLogService?
     var dataSeeder: (any DataSeederProtocol)?
 
@@ -96,6 +97,13 @@ final class DependencyContainer {
             container.evaluateBudgetThresholdAlertsUseCase = EvaluateBudgetThresholdAlertsUseCase(
                 budgetFetcher: fetchBudgetsUseCase,
                 alertStore: UserDefaultsBudgetThresholdAlertStore(),
+                notificationService: notificationService
+            )
+        }
+        if let accountRepository = container.accountRepository,
+           let notificationService = container.notificationService {
+            container.scheduleCreditCardDueRemindersUseCase = ScheduleCreditCardDueRemindersUseCase(
+                accountRepository: accountRepository,
                 notificationService: notificationService
             )
         }

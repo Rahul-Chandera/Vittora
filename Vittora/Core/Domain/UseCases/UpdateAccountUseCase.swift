@@ -13,7 +13,9 @@ struct UpdateAccountUseCase: Sendable {
         type: AccountType,
         balance: Decimal,
         currencyCode: String,
-        icon: String
+        icon: String,
+        statementDayOfMonth: Int? = nil,
+        dueDayOfMonth: Int? = nil
     ) async throws {
         // Validate name is not empty
         guard !name.trimmingCharacters(in: .whitespaces).isEmpty else {
@@ -45,6 +47,12 @@ struct UpdateAccountUseCase: Sendable {
             $0 + (balance - existingAccount.balance)
         }
 
+        let billingFields = normalizedBillingFields(
+            type: type,
+            statementDayOfMonth: statementDayOfMonth,
+            dueDayOfMonth: dueDayOfMonth
+        )
+
         // Update the account
         let updatedAccount = AccountEntity(
             id: id,
@@ -56,9 +64,26 @@ struct UpdateAccountUseCase: Sendable {
             icon: icon,
             isArchived: existingAccount.isArchived,
             createdAt: existingAccount.createdAt,
-            updatedAt: .now
+            updatedAt: .now,
+            statementDayOfMonth: billingFields.statement,
+            dueDayOfMonth: billingFields.due
         )
 
         try await accountRepository.update(updatedAccount)
+    }
+
+    private func normalizedBillingFields(
+        type: AccountType,
+        statementDayOfMonth: Int?,
+        dueDayOfMonth: Int?
+    ) -> (statement: Int?, due: Int?) {
+        guard type == .creditCard else { return (nil, nil) }
+        if let statementDayOfMonth, !CreditCardDueDateCalculator.isValidDayOfMonth(statementDayOfMonth) {
+            return (nil, dueDayOfMonth)
+        }
+        if let dueDayOfMonth, !CreditCardDueDateCalculator.isValidDayOfMonth(dueDayOfMonth) {
+            return (statementDayOfMonth, nil)
+        }
+        return (statementDayOfMonth, dueDayOfMonth)
     }
 }

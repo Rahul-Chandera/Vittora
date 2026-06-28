@@ -98,6 +98,46 @@ struct AccountUseCaseTests {
             #expect(all[0].balance == Decimal(1000))
         }
 
+        @Test("Persists credit card billing days")
+        func testCreatesCreditCardWithBillingDays() async throws {
+            let repo = MockAccountRepository()
+            let useCase = CreateAccountUseCase(accountRepository: repo)
+
+            try await useCase.execute(
+                name: "Visa",
+                type: .creditCard,
+                balance: 0,
+                currencyCode: "USD",
+                icon: "creditcard.fill",
+                statementDayOfMonth: 5,
+                dueDayOfMonth: 20
+            )
+
+            let account = try #require(repo.accounts.first)
+            #expect(account.statementDayOfMonth == 5)
+            #expect(account.dueDayOfMonth == 20)
+        }
+
+        @Test("Clears billing days for non-credit-card types")
+        func testClearsBillingDaysForNonCreditCard() async throws {
+            let repo = MockAccountRepository()
+            let useCase = CreateAccountUseCase(accountRepository: repo)
+
+            try await useCase.execute(
+                name: "Checking",
+                type: .bank,
+                balance: 0,
+                currencyCode: "USD",
+                icon: "building.columns.fill",
+                statementDayOfMonth: 5,
+                dueDayOfMonth: 20
+            )
+
+            let account = try #require(repo.accounts.first)
+            #expect(account.statementDayOfMonth == nil)
+            #expect(account.dueDayOfMonth == nil)
+        }
+
         @Test("Throws validation error for empty name")
         func testThrowsForEmptyName() async throws {
             let repo = MockAccountRepository()

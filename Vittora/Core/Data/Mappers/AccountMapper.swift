@@ -13,7 +13,9 @@ enum AccountMapper {
             icon: model.icon,
             isArchived: model.isArchived,
             createdAt: model.createdAt,
-            updatedAt: model.updatedAt
+            updatedAt: model.updatedAt,
+            statementDayOfMonth: model.statementDayOfMonth,
+            dueDayOfMonth: model.dueDayOfMonth
         )
     }
 
@@ -25,6 +27,8 @@ enum AccountMapper {
         model.currencyCode = entity.currencyCode
         model.icon = entity.icon
         model.isArchived = entity.isArchived
+        model.statementDayOfMonth = entity.statementDayOfMonth
+        model.dueDayOfMonth = entity.dueDayOfMonth
         model.updatedAt = .now
     }
 }

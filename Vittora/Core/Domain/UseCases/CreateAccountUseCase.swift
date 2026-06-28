@@ -12,12 +12,20 @@ struct CreateAccountUseCase: Sendable {
         type: AccountType,
         balance: Decimal = 0,
         currencyCode: String = CurrencyDefaults.code,
-        icon: String = "building.columns.fill"
+        icon: String = "building.columns.fill",
+        statementDayOfMonth: Int? = nil,
+        dueDayOfMonth: Int? = nil
     ) async throws {
         // Validate name is not empty
         guard !name.trimmingCharacters(in: .whitespaces).isEmpty else {
             throw VittoraError.validationFailed("Account name cannot be empty")
         }
+
+        let billingFields = normalizedBillingFields(
+            type: type,
+            statementDayOfMonth: statementDayOfMonth,
+            dueDayOfMonth: dueDayOfMonth
+        )
 
         // Check for duplicate name
         let existingAccounts = try await accountRepository.fetchAll()
@@ -39,9 +47,26 @@ struct CreateAccountUseCase: Sendable {
             openingBalance: balance,
             currencyCode: currencyCode,
             icon: icon,
-            isArchived: false
+            isArchived: false,
+            statementDayOfMonth: billingFields.statement,
+            dueDayOfMonth: billingFields.due
         )
 
         try await accountRepository.create(account)
+    }
+
+    private func normalizedBillingFields(
+        type: AccountType,
+        statementDayOfMonth: Int?,
+        dueDayOfMonth: Int?
+    ) -> (statement: Int?, due: Int?) {
+        guard type == .creditCard else { return (nil, nil) }
+        if let statementDayOfMonth, !CreditCardDueDateCalculator.isValidDayOfMonth(statementDayOfMonth) {
+            return (nil, dueDayOfMonth)
+        }
+        if let dueDayOfMonth, !CreditCardDueDateCalculator.isValidDayOfMonth(dueDayOfMonth) {
+            return (statementDayOfMonth, nil)
+        }
+        return (statementDayOfMonth, dueDayOfMonth)
     }
 }

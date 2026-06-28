@@ -98,6 +98,19 @@ struct AccountFormView: View {
                 }
             }
 
+            if vm.selectedType == .creditCard {
+                Section(String(localized: "Billing Cycle")) {
+                    billingDayPicker(
+                        title: String(localized: "Statement Day"),
+                        selection: Bindable(vm).statementDayOfMonth
+                    )
+                    billingDayPicker(
+                        title: String(localized: "Payment Due Day"),
+                        selection: Bindable(vm).dueDayOfMonth
+                    )
+                }
+            }
+
             Section(String(localized: "Icon")) {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: VSpacing.sm) {
                     ForEach(availableIcons, id: \.self) { iconName in
@@ -127,12 +140,22 @@ struct AccountFormView: View {
         }
     }
 
+    private func billingDayPicker(title: String, selection: Binding<Int?>) -> some View {
+        Picker(title, selection: selection) {
+            Text(String(localized: "Not set")).tag(Optional<Int>.none)
+            ForEach(1...31, id: \.self) { day in
+                Text("\(day)").tag(Optional(day))
+            }
+        }
+    }
+
     private func save() async {
         guard let vm = viewModel else { return }
         isSaving = true
         saveError = nil
         do {
             try await vm.save()
+            await dependencies.refreshCreditCardDueReminders()
             appState.notifyDataChanged()
             onSave?()
             dismiss()

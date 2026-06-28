@@ -42,6 +42,21 @@ struct AccountMapperTests {
         #expect(entity.updatedAt == updatedAt)
     }
 
+    @Test("toEntity maps credit card billing days")
+    func testToEntityMapsBillingDays() {
+        let model = SDAccount(
+            name: "Visa",
+            type: .creditCard,
+            statementDayOfMonth: 3,
+            dueDayOfMonth: 18
+        )
+
+        let entity = AccountMapper.toEntity(model)
+
+        #expect(entity.statementDayOfMonth == 3)
+        #expect(entity.dueDayOfMonth == 18)
+    }
+
     @Test("toEntity maps default values correctly")
     func testToEntityMapsDefaults() {
         let model = SDAccount()

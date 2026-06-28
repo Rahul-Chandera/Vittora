@@ -44,6 +44,8 @@ final class AppState {
         switch deepLink.destination {
         case .budgets, .budgetDetail:
             selectedTab = .budgets
+        case .accountDetail:
+            selectedTab = .dashboard
         case .debt:
             selectedTab = .debt
         case .transactions, .recurring:

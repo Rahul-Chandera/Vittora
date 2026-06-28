@@ -43,6 +43,8 @@ actor SwiftDataAccountRepository: AccountRepository {
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt
         )
+        model.statementDayOfMonth = entity.statementDayOfMonth
+        model.dueDayOfMonth = entity.dueDayOfMonth
         modelContext.insert(model)
         try modelContext.save()
     }

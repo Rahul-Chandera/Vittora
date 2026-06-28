@@ -25,6 +25,10 @@ struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
     var isArchived: Bool
     var createdAt: Date
     var updatedAt: Date
+    /// Day of month the statement closes (1–31). Credit cards only (C4).
+    var statementDayOfMonth: Int?
+    /// Day of month payment is due (1–31). Credit cards only (C4).
+    var dueDayOfMonth: Int?
 
     nonisolated init(
         id: UUID = UUID(),
@@ -36,7 +40,9 @@ struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
         icon: String = "building.columns.fill",
         isArchived: Bool = false,
         createdAt: Date = .now,
-        updatedAt: Date = .now
+        updatedAt: Date = .now,
+        statementDayOfMonth: Int? = nil,
+        dueDayOfMonth: Int? = nil
     ) {
         self.id = id
         self.name = name
@@ -48,6 +54,8 @@ struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
         self.isArchived = isArchived
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.statementDayOfMonth = statementDayOfMonth
+        self.dueDayOfMonth = dueDayOfMonth
     }
 
     // MARK: - Equatable & Hashable (identity-based)

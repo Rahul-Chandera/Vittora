@@ -19,6 +19,10 @@ final class SDAccount {
     var isArchived: Bool = false
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
+    /// Statement closing day of month (1–31). Optional; credit cards only (C4).
+    var statementDayOfMonth: Int?
+    /// Payment due day of month (1–31). Optional; credit cards only (C4).
+    var dueDayOfMonth: Int?
 
     init() {}
 
@@ -32,7 +36,9 @@ final class SDAccount {
         icon: String = "building.columns.fill",
         isArchived: Bool = false,
         createdAt: Date = .now,
-        updatedAt: Date = .now
+        updatedAt: Date = .now,
+        statementDayOfMonth: Int? = nil,
+        dueDayOfMonth: Int? = nil
     ) {
         self.id = id
         self.name = name
@@ -44,6 +50,8 @@ final class SDAccount {
         self.isArchived = isArchived
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.statementDayOfMonth = statementDayOfMonth
+        self.dueDayOfMonth = dueDayOfMonth
     }
 
     var type: AccountType {

@@ -77,6 +77,18 @@ enum VittoraSchemaV5: VersionedSchema {
     }
 }
 
+/// Schema V6 (FUNCTIONAL-4, C4): adds optional `SDAccount.statementDayOfMonth` and
+/// `SDAccount.dueDayOfMonth` for credit-card billing reminders. Purely additive
+/// (new optional Int columns), so the V5→V6 step is a CloudKit-safe lightweight
+/// migration.
+enum VittoraSchemaV6: VersionedSchema {
+    static let versionIdentifier = Schema.Version(6, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        VittoraSchemaV5.models
+    }
+}
+
 enum VittoraMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
         [
@@ -85,6 +97,7 @@ enum VittoraMigrationPlan: SchemaMigrationPlan {
             VittoraSchemaV3.self,
             VittoraSchemaV4.self,
             VittoraSchemaV5.self,
+            VittoraSchemaV6.self,
         ]
     }
 
@@ -105,6 +118,10 @@ enum VittoraMigrationPlan: SchemaMigrationPlan {
             .lightweight(
                 fromVersion: VittoraSchemaV4.self,
                 toVersion: VittoraSchemaV5.self
+            ),
+            .lightweight(
+                fromVersion: VittoraSchemaV5.self,
+                toVersion: VittoraSchemaV6.self
             ),
         ]
     }
