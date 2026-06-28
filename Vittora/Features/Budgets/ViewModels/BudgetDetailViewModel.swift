@@ -30,6 +30,7 @@ final class BudgetDetailViewModel {
     func loadBudget(id: UUID) async {
         isLoading = true
         error = nil
+        defer { isLoading = false }
         do {
             guard var loadedBudget = try await budgetRepository.fetchByID(id) else {
                 error = String(localized: "We couldn't find this budget.")
@@ -61,7 +62,6 @@ final class BudgetDetailViewModel {
                 fallback: String(localized: "We couldn't load this budget right now.")
             )
         }
-        isLoading = false
     }
 
     private func calculateDateRange(for period: BudgetPeriod, startingFrom startDate: Date) -> ClosedRange<Date> {
