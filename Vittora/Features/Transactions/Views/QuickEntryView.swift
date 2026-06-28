@@ -79,6 +79,7 @@ struct QuickEntryView: View {
                             Task {
                                 do {
                                     try await vm.save()
+                                    await dependencies.refreshBudgetThresholdAlerts()
                                     appState.notifyDataChanged()
                                     #if os(iOS)
                                     let feedback = UIImpactFeedbackGenerator(style: .light)

@@ -78,6 +78,7 @@ struct TransactionFormView: View {
                             Task {
                                 do {
                                     try await vm.save()
+                                    await dependencies.refreshBudgetThresholdAlerts()
                                     appState.notifyDataChanged()
                                     dependencies.hapticService.success()
                                     dismiss()

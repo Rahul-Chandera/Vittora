@@ -31,6 +31,7 @@ final class DependencyContainer {
     var contactsImportService: (any ContactsImportServiceProtocol)?
     var hapticService: (any HapticServiceProtocol) = LiveHapticService()
     var notificationService: (any NotificationServiceProtocol)?
+    var evaluateBudgetThresholdAlertsUseCase: EvaluateBudgetThresholdAlertsUseCase?
     var securityAuditLogService: SecurityAuditLogService?
     var dataSeeder: (any DataSeederProtocol)?
 
@@ -85,6 +86,19 @@ final class DependencyContainer {
             auditLogger: auditLogService
         )
         container.notificationService = NotificationService()
+        if let budgetRepository = container.budgetRepository,
+           let transactionRepository = container.transactionRepository,
+           let notificationService = container.notificationService {
+            let fetchBudgetsUseCase = FetchBudgetsUseCase(
+                budgetRepository: budgetRepository,
+                transactionRepository: transactionRepository
+            )
+            container.evaluateBudgetThresholdAlertsUseCase = EvaluateBudgetThresholdAlertsUseCase(
+                budgetFetcher: fetchBudgetsUseCase,
+                alertStore: UserDefaultsBudgetThresholdAlertStore(),
+                notificationService: notificationService
+            )
+        }
         container.contactsImportService = SystemContactsImportService()
         if let transactionRepository = container.transactionRepository {
             container.exportService = DataExportService(
