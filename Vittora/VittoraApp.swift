@@ -219,6 +219,14 @@ struct VittoraApp: App {
         }
     }
 
+    private func configureNotificationService() async {
+        guard let notificationService = dependencies.notificationService else { return }
+        notificationService.setDeepLinkHandler { [appState] deepLink in
+            appState.openFromNotification(deepLink)
+        }
+        await notificationService.registerCategories()
+    }
+
     private func performStartupTasksIfNeeded() async {
         guard !hasCompletedStartup else { return }
         hasCompletedStartup = true
@@ -234,6 +242,8 @@ struct VittoraApp: App {
         }
 
         guard !isRunningAutomatedTests else { return }
+
+        await configureNotificationService()
 
         guard let modelContainer else { return }
         let dataSeeder = dependencies.dataSeeder ?? DefaultDataSeeder(modelContainer: modelContainer)

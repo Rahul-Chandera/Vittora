@@ -13,6 +13,8 @@ final class AppState {
     /// Views that need to refetch on data mutations should observe this via `.task(id:)`.
     var dataRefreshVersion: Int
     var isPrivacyShieldVisible: Bool
+    /// Set when the user opens the app from a local notification tap (C1).
+    var pendingNotificationDeepLink: VittoraNotificationDeepLink?
 
     init(
         isAuthenticated: Bool = false,
@@ -22,7 +24,8 @@ final class AppState {
         isLoading: Bool = false,
         isUITesting: Bool = false,
         dataRefreshVersion: Int = 0,
-        isPrivacyShieldVisible: Bool = false
+        isPrivacyShieldVisible: Bool = false,
+        pendingNotificationDeepLink: VittoraNotificationDeepLink? = nil
     ) {
         self.isAuthenticated = isAuthenticated
         self.isLocked = isLocked
@@ -32,6 +35,22 @@ final class AppState {
         self.isUITesting = isUITesting
         self.dataRefreshVersion = dataRefreshVersion
         self.isPrivacyShieldVisible = isPrivacyShieldVisible
+        self.pendingNotificationDeepLink = pendingNotificationDeepLink
+    }
+
+    /// Routes the user to the tab/feature associated with a notification deep link.
+    func openFromNotification(_ deepLink: VittoraNotificationDeepLink) {
+        pendingNotificationDeepLink = deepLink
+        switch deepLink.destination {
+        case .budgets, .budgetDetail:
+            selectedTab = .budgets
+        case .debt:
+            selectedTab = .debt
+        case .transactions, .recurring:
+            selectedTab = .transactions
+        case .savings:
+            selectedTab = .savings
+        }
     }
 
     /// Notifies all observers that some piece of persisted data has changed.

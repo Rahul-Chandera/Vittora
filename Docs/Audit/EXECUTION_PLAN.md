@@ -228,7 +228,7 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 
 | ID | Finding | Files | Change | Acceptance / Test | Eff |
 |---|---|---|---|---|---|
-| C1 | FUNCTIONAL-1 | new `Core/Infrastructure/NotificationService.swift` | Wrap `UNUserNotificationCenter`: auth request, schedule/cancel, register categories, deep-link on tap. | Service unit-tested with a protocol seam + mock center. | M |
+| C1 | FUNCTIONAL-1 | new `Core/Infrastructure/NotificationService.swift` | Wrap `UNUserNotificationCenter`: auth request, schedule/cancel, register categories, deep-link on tap. | Service unit-tested with a protocol seam + mock center. | M | **Merged** |
 | C2 | FUNCTIONAL-21 | `Features/Onboarding/...` | Soft permission-priming step (after value, not first launch); defer the system prompt to feature-enable. | `OnboardingViewModelTests` covers new step. | S |
 | C3 | FUNCTIONAL-2 | `Core/Domain/UseCases/CheckBudgetThresholdUseCase.swift`, transaction-save flow | Invoke threshold check on save/refresh; dedupe per-threshold per-period; dispatch via C1. | `BudgetUseCaseTests`: fires at 50/75/90/100 once each. | M |
 | C4 | FUNCTIONAL-4 | `Features/Accounts/...`, `AccountEntity`/`SDAccount` (+migration) | Add optional `dueDayOfMonth`/`statementDate` to credit cards; schedule pre-due notification. | Field persists; reminder scheduled. | M |

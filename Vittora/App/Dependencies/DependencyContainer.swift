@@ -30,6 +30,7 @@ final class DependencyContainer {
     var exportService: (any DataExportServiceProtocol)?
     var contactsImportService: (any ContactsImportServiceProtocol)?
     var hapticService: (any HapticServiceProtocol) = LiveHapticService()
+    var notificationService: (any NotificationServiceProtocol)?
     var securityAuditLogService: SecurityAuditLogService?
     var dataSeeder: (any DataSeederProtocol)?
 
@@ -83,6 +84,7 @@ final class DependencyContainer {
             biometricService: biometricService,
             auditLogger: auditLogService
         )
+        container.notificationService = NotificationService()
         container.contactsImportService = SystemContactsImportService()
         if let transactionRepository = container.transactionRepository {
             container.exportService = DataExportService(
