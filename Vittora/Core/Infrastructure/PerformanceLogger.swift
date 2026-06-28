@@ -111,5 +111,8 @@ enum PerformanceLogger {
         static func auditFileHandleCloseFailed(_ message: String) {
             event(securityLog, name: "AuditFileHandleCloseFailed", message: message)
         }
+        static func platformFailure(_ message: String) {
+            event(securityLog, name: "PlatformSecurityFailure", message: message)
+        }
     }
 }

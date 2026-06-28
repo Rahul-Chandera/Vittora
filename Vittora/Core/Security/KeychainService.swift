@@ -47,9 +47,7 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
                 .biometryCurrentSet,
                 nil
             ) else {
-                throw VittoraError.encryptionFailed(
-                    String(localized: "Failed to create secure Keychain access control.")
-                )
+                throw SecurityErrorMapper.encryptionFailed(.keychainAccessControl)
             }
             query[kSecAttrAccessControl as String] = accessControl
         }
@@ -58,9 +56,7 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
 
         let status = SecItemAdd(query as CFDictionary, nil)
         guard status == errSecSuccess else {
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to save data to Keychain: \(status)")
-            )
+            throw SecurityErrorMapper.encryptionFailed(.keychainSave, osStatus: status, key: key)
         }
     }
 
@@ -84,17 +80,13 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
         switch status {
         case errSecSuccess:
             guard let data = result as? Data else {
-                throw VittoraError.encryptionFailed(
-                    String(localized: "Invalid data format in Keychain")
-                )
+                throw SecurityErrorMapper.encryptionFailed(.keychainLoad, key: key)
             }
             return data
         case errSecItemNotFound:
             return nil
         default:
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to load data from Keychain: \(status)")
-            )
+            throw SecurityErrorMapper.encryptionFailed(.keychainLoad, osStatus: status, key: key)
         }
     }
 
@@ -107,9 +99,7 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
 
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to delete data from Keychain: \(status)")
-            )
+            throw SecurityErrorMapper.encryptionFailed(.keychainDelete, osStatus: status, key: key)
         }
     }
 

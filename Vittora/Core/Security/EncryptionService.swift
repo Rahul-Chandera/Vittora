@@ -60,9 +60,7 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
         let key = try await getOrCreateKey()
         let sealedBox = try AES.GCM.seal(data, using: key)
         guard let combined = sealedBox.combined else {
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to combine encryption components")
-            )
+            throw SecurityErrorMapper.encryptionFailed(.encrypt)
         }
         return combined
     }
@@ -73,9 +71,7 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
             let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
             return try AES.GCM.open(sealedBox, using: key)
         } catch {
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to decrypt data: \(error.localizedDescription)")
-            )
+            throw SecurityErrorMapper.encryptionFailed(.decrypt, underlying: error)
         }
     }
 
@@ -156,9 +152,7 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
                 access: .biometricBound
             )
         } catch {
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to migrate the legacy encryption key: \(error.localizedDescription)")
-            )
+            throw SecurityErrorMapper.encryptionFailed(.legacyKeyMigration, underlying: error)
         }
 
         if let legacyData {
@@ -208,9 +202,7 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
             [.privateKeyUsage, .biometryCurrentSet],
             nil
         ) else {
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to create Secure Enclave access control.")
-            )
+            throw SecurityErrorMapper.encryptionFailed(.secureEnclaveSetup)
         }
 
         let attributes: [String: Any] = [
@@ -226,9 +218,10 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
 
         var cfError: Unmanaged<CFError>?
         guard let key = SecKeyCreateRandomKey(attributes as CFDictionary, &cfError) else {
-            let msg = cfError.map { String(describing: $0.takeRetainedValue()) }
-                ?? String(localized: "Unknown SE error")
-            throw VittoraError.encryptionFailed(msg)
+            throw SecurityErrorMapper.encryptionFailed(
+                .secureEnclaveSetup,
+                cfError: cfError?.takeRetainedValue()
+            )
         }
         return key
     }
@@ -237,17 +230,16 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
 
     private func wrapAESKey(_ aesKeyData: Data, with sePrivateKey: SecKey) throws -> Data {
         guard let publicKey = SecKeyCopyPublicKey(sePrivateKey) else {
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to derive Secure Enclave public key.")
-            )
+            throw SecurityErrorMapper.encryptionFailed(.secureEnclavePublicKey)
         }
         var cfError: Unmanaged<CFError>?
         guard let wrapped = SecKeyCreateEncryptedData(
             publicKey, eciesAlgorithm, aesKeyData as CFData, &cfError
         ) as Data? else {
-            let msg = cfError.map { String(describing: $0.takeRetainedValue()) }
-                ?? String(localized: "Unknown SE error")
-            throw VittoraError.encryptionFailed(msg)
+            throw SecurityErrorMapper.encryptionFailed(
+                .secureEnclaveWrap,
+                cfError: cfError?.takeRetainedValue()
+            )
         }
         return wrapped
     }
@@ -257,10 +249,9 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
         guard let aesKeyData = SecKeyCreateDecryptedData(
             sePrivateKey, eciesAlgorithm, wrappedData as CFData, &cfError
         ) as Data? else {
-            let msg = cfError.map { String(describing: $0.takeRetainedValue()) }
-                ?? String(localized: "Unknown SE error")
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to unwrap Secure Enclave key: \(msg)")
+            throw SecurityErrorMapper.encryptionFailed(
+                .secureEnclaveUnwrap,
+                cfError: cfError?.takeRetainedValue()
             )
         }
         return SymmetricKey(data: aesKeyData)
@@ -296,9 +287,7 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
             forKey: legacyKeyID,
             access: .biometricBound
         ) else {
-            throw VittoraError.encryptionFailed(
-                String(localized: "Failed to retrieve generated key")
-            )
+            throw SecurityErrorMapper.encryptionFailed(.keyRetrieval)
         }
         return SymmetricKey(data: keyData)
     }
