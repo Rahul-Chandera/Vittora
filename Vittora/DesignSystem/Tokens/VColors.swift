@@ -39,7 +39,7 @@ enum VColors {
 
     // Budget progress
     static let budgetSafe = Color.green
-    static let budgetWarning = Color.orange
+    static let budgetWarning = warning
     static let budgetDanger = Color.red
 
     // Category default colors

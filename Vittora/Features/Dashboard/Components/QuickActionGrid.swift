@@ -63,6 +63,7 @@ struct QuickActionGrid: View {
             Text(String(localized: "Quick Actions"))
                 .font(VTypography.subheadline)
                 .foregroundColor(VColors.textSecondary)
+                .accessibilityAddTraits(.isHeader)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: VSpacing.md) {
@@ -82,14 +83,16 @@ struct QuickActionGrid: View {
 private struct QuickActionButton: View {
     let action: QuickAction
     let onTap: () -> Void
+    @ScaledMetric(relativeTo: .title) private var iconSize: CGFloat = 28
+    @ScaledMetric(relativeTo: .title) private var iconFrame: CGFloat = 56
 
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: VSpacing.sm) {
                 Image(systemName: action.icon)
-                    .font(.system(size: 28))
+                    .font(.system(size: iconSize))
                     .foregroundColor(action.color)
-                    .frame(width: 56, height: 56)
+                    .frame(width: iconFrame, height: iconFrame)
                     .background(action.color.opacity(0.12))
                     .clipShape(Circle())
                     .accessibilityHidden(true)

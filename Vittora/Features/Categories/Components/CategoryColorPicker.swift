@@ -53,6 +53,7 @@ struct CategoryColorPicker: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(colorItem.name)
+                    .accessibilityAddTraits(selectedColorHex == colorItem.hex ? .isSelected : [])
                 }
             }
             .padding(.horizontal, VSpacing.md)

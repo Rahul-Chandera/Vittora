@@ -254,6 +254,8 @@ private struct CurrencyStepView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("\(currency.name), \(currency.code)")
+                        .accessibilityAddTraits(vm.selectedCurrencyCode == currency.code ? .isSelected : [])
                         .accessibilityIdentifier("onboarding-currency-\(currency.code)")
                         Divider()
                     }
@@ -585,6 +587,8 @@ private struct AccountSetupStepView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(type.onboardingDisplayName)
+        .accessibilityAddTraits(vm.selectedAccountType == type ? .isSelected : [])
         .accessibilityIdentifier("onboarding-account-type-\(type.rawValue)")
     }
 }
@@ -652,20 +656,26 @@ private struct NotificationsStepView: View {
 
 private struct DoneStepView: View {
     let vm: OnboardingViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: VSpacing.lg) {
             Spacer()
 
-            ZStack {
-                Circle()
-                    .fill(VColors.primary)
-                    .frame(width: 88, height: 88)
-                Image(systemName: "checkmark")
-                    .font(.system(size: 44, weight: .bold))
-                    .foregroundStyle(.white)
+            Group {
+                ZStack {
+                    Circle()
+                        .fill(VColors.primary)
+                        .frame(width: 88, height: 88)
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 44, weight: .bold))
+                        .foregroundStyle(.white)
+                }
             }
-            .symbolEffect(.bounce)
+            .if(!reduceMotion) { view in
+                view.symbolEffect(.bounce)
+            }
+            .accessibilityHidden(true)
 
             VStack(spacing: VSpacing.sm) {
                 Text(String(localized: "You're all set!"))

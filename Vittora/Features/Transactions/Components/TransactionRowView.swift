@@ -6,6 +6,7 @@ struct TransactionRowView: View {
     var showSelection: Bool = false
     var isSelected: Bool = false
     @Environment(\.currencyCode) private var currencyCode
+    @ScaledMetric(relativeTo: .body) private var categoryIconSize: CGFloat = 40
 
     var body: some View {
         HStack(spacing: VSpacing.md) {
@@ -14,6 +15,7 @@ struct TransactionRowView: View {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.body)
                     .foregroundColor(isSelected ? VColors.primary : VColors.textTertiary)
+                    .accessibilityHidden(true)
             }
 
             // Category icon circle
@@ -22,12 +24,13 @@ struct TransactionRowView: View {
                     .fill(
                         Color(hex: category?.colorHex ?? "#007AFF") ?? .blue
                     )
-                    .frame(width: 40, height: 40)
+                    .frame(width: categoryIconSize, height: categoryIconSize)
 
                 Image(systemName: category?.icon ?? "circle")
                     .font(.body)
                     .foregroundColor(.white)
             }
+            .accessibilityHidden(true)
 
             // Transaction details
             VStack(alignment: .leading, spacing: VSpacing.xs) {
@@ -67,7 +70,7 @@ struct TransactionRowView: View {
         }
         .padding(VSpacing.md)
         .contentShape(Rectangle())
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityDescription)
         .accessibilityIdentifier(rowAccessibilityIdentifier)
     }
@@ -76,8 +79,15 @@ struct TransactionRowView: View {
         let note = transaction.note ?? String(localized: "Transaction")
         let amount = formatAmount(transaction.amount)
         let type = transaction.type.rawValue.capitalized
+        let time = formattedTime(transaction.date)
         let cat = category.map { ", \($0.name)" } ?? ""
-        return "\(note)\(cat), \(type), \(amount)"
+        var description = "\(note)\(cat), \(type), \(time), \(amount)"
+        if showSelection {
+            description += isSelected
+                ? ", \(String(localized: "Selected"))"
+                : ", \(String(localized: "Not selected"))"
+        }
+        return description
     }
 
     private func formattedTime(_ date: Date) -> String {

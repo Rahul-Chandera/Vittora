@@ -10,12 +10,15 @@ struct AmountInputView: View {
         VStack(spacing: VSpacing.md) {
             HStack(spacing: VSpacing.xs) {
                 Text(String.currencySymbol(for: currencyCode))
-                    .font(.system(size: 32, weight: .semibold))
+                    .font(VTypography.amountLarge)
                     .foregroundColor(transactionColor(for: type))
+                    .accessibilityHidden(true)
 
                 TextField(String(localized: "0.00"), text: $amountString)
-                    .font(.system(size: 32, weight: .semibold))
+                    .font(VTypography.amountLarge)
                     .foregroundColor(transactionColor(for: type))
+                    .accessibilityLabel(String(localized: "Amount"))
+                    .accessibilityValue(amountAccessibilityValue)
                     .accessibilityIdentifier(textFieldAccessibilityIdentifier ?? "")
                     #if os(iOS)
                     .keyboardType(.decimalPad)
@@ -43,6 +46,13 @@ struct AmountInputView: View {
             .background(VColors.secondaryBackground)
             .cornerRadius(VSpacing.cornerRadiusSM)
         }
+    }
+
+    private var amountAccessibilityValue: String {
+        if amountString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return String(localized: "Empty")
+        }
+        return amountString
     }
 
     private func transactionColor(for type: TransactionType) -> Color {

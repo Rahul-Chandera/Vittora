@@ -127,6 +127,9 @@ struct AccountFormView: View {
                             }
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel(String(localized: "Account icon"))
+                        .accessibilityValue(iconName)
+                        .accessibilityAddTraits(vm.selectedIcon == iconName ? .isSelected : [])
                     }
                 }
                 .padding(.vertical, VSpacing.xs)

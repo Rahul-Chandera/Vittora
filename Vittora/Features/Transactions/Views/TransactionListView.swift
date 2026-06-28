@@ -42,16 +42,27 @@ struct TransactionListView: View {
             ForEach(vm.groupedTransactions, id: \.date) { dateGroup in
                 Section(header: sectionHeader(for: dateGroup.date)) {
                     ForEach(dateGroup.transactions) { transaction in
-                        TransactionRowView(transaction: transaction, showSelection: vm.isMultiSelectMode)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                if vm.isMultiSelectMode {
-                                    vm.toggleSelection(transaction.id)
-                                } else {
-                                    navigateDestination = .transactionDetail(id: transaction.id)
-                                }
+                        Button {
+                            if vm.isMultiSelectMode {
+                                vm.toggleSelection(transaction.id)
+                            } else {
+                                navigateDestination = .transactionDetail(id: transaction.id)
                             }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        } label: {
+                            TransactionRowView(
+                                transaction: transaction,
+                                showSelection: vm.isMultiSelectMode,
+                                isSelected: vm.selectedTransactionIDs.contains(transaction.id)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityAction(named: String(localized: "Select")) {
+                            if !vm.isMultiSelectMode {
+                                vm.isMultiSelectMode = true
+                            }
+                            vm.toggleSelection(transaction.id)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     Task {
                                         dependencies.hapticService.warning()
@@ -206,17 +217,19 @@ struct TransactionListView: View {
     @ViewBuilder
     private func sectionHeader(for date: Date) -> some View {
         let calendar = Calendar.current
+        let title: String = {
+            if calendar.isDateInToday(date) {
+                return String(localized: "Today")
+            } else if calendar.isDateInYesterday(date) {
+                return String(localized: "Yesterday")
+            } else {
+                return date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+            }
+        }()
 
-        if calendar.isDateInToday(date) {
-            Text(String(localized: "Today"))
-                .foregroundColor(VColors.textSecondary)
-        } else if calendar.isDateInYesterday(date) {
-            Text(String(localized: "Yesterday"))
-                .foregroundColor(VColors.textSecondary)
-        } else {
-            Text(date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
-                .foregroundColor(VColors.textSecondary)
-        }
+        Text(title)
+            .foregroundColor(VColors.textSecondary)
+            .accessibilityAddTraits(.isHeader)
     }
 
     @ViewBuilder
