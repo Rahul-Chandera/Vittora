@@ -233,7 +233,7 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | C3 | FUNCTIONAL-2 | `Core/Domain/UseCases/CheckBudgetThresholdUseCase.swift`, transaction-save flow | Invoke threshold check on save/refresh; dedupe per-threshold per-period; dispatch via C1. | `BudgetUseCaseTests`: fires at 50/75/90/100 once each. | M | **Merged** |
 | C4 | FUNCTIONAL-4 | `Features/Accounts/...`, `AccountEntity`/`SDAccount` (+migration) | Add optional `dueDayOfMonth`/`statementDate` to credit cards; schedule pre-due notification. | Field persists; reminder scheduled. | M | **Merged** |
 | C5 | FUNCTIONAL-16, M1.4.3 | `GenerateRecurringTransactionsUseCase`, `Debt` use cases | Recurring pre-notification + self debt reminders (contact reminder = ShareLink/message draft, never silent send). | Scheduling tested. | M | **Merged** |
-| C6 | UX-4 | `NotificationsSettingsView.swift`, `SettingsViewModel.swift` | Wire toggles to real scheduling; master toggle triggers system permission prompt. | Toggling reflects in scheduled requests. | S |
+| C6 | UX-4 | `NotificationsSettingsView.swift`, `SettingsViewModel.swift` | Wire toggles to real scheduling; master toggle triggers system permission prompt. | Toggling reflects in scheduled requests. | S | **Merged** |
 
 ---
 

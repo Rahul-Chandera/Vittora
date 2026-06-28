@@ -211,12 +211,24 @@ struct DataSettingsView: View {
 
 struct NotificationsSettingsView: View {
     @Bindable var vm: SettingsViewModel
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isApplyingMasterToggle = false
+    @State private var permissionDeniedMessage: String?
 
     var body: some View {
         Form {
             Section {
-                Toggle(String(localized: "Enable Notifications"), isOn: $vm.isNotificationsEnabled)
+                Toggle(
+                    String(localized: "Enable Notifications"),
+                    isOn: Binding(
+                        get: { vm.isNotificationsEnabled },
+                        set: { newValue in
+                            Task { await handleMasterToggle(enabled: newValue) }
+                        }
+                    )
+                )
+                .disabled(isApplyingMasterToggle)
             } footer: {
                 Text(String(localized: "Receive reminders for bill due dates, budget limits, and goal milestones."))
                     .foregroundStyle(VColors.textSecondary)
@@ -225,9 +237,21 @@ struct NotificationsSettingsView: View {
             if vm.isNotificationsEnabled {
                 Section(String(localized: "Reminders")) {
                     Toggle(String(localized: "Bill & Debt Due Dates"), isOn: $vm.notifyBillsDue)
+                        .onChange(of: vm.notifyBillsDue) { _, _ in
+                            Task { await applySubToggleChange() }
+                        }
                     Toggle(String(localized: "Budget Limit Alerts"), isOn: $vm.notifyBudgetAlerts)
+                        .onChange(of: vm.notifyBudgetAlerts) { _, _ in
+                            Task { await applySubToggleChange() }
+                        }
                     Toggle(String(localized: "Goal Milestones"), isOn: $vm.notifyGoalMilestones)
+                        .onChange(of: vm.notifyGoalMilestones) { _, _ in
+                            Task { await applySubToggleChange() }
+                        }
                     Toggle(String(localized: "Recurring Transactions"), isOn: $vm.notifyRecurringTransactions)
+                        .onChange(of: vm.notifyRecurringTransactions) { _, _ in
+                            Task { await applySubToggleChange() }
+                        }
                 }
             }
         }
@@ -236,6 +260,65 @@ struct NotificationsSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .animation(reduceMotion ? nil : .default, value: vm.isNotificationsEnabled)
+        .alert(
+            String(localized: "Notifications Unavailable"),
+            isPresented: Binding(
+                get: { permissionDeniedMessage != nil },
+                set: { if !$0 { permissionDeniedMessage = nil } }
+            )
+        ) {
+            Button(String(localized: "OK"), role: .cancel) {
+                permissionDeniedMessage = nil
+            }
+        } message: {
+            if let permissionDeniedMessage {
+                Text(permissionDeniedMessage)
+            }
+        }
+    }
+
+    private func notificationPreferencesUseCase() -> ApplyNotificationPreferencesUseCase? {
+        guard let notificationService = dependencies.notificationService else { return nil }
+        return ApplyNotificationPreferencesUseCase(
+            notificationService: notificationService,
+            refreshAllSchedules: { @MainActor in
+                await dependencies.refreshAllNotificationSchedules()
+            }
+        )
+    }
+
+    @MainActor
+    private func handleMasterToggle(enabled: Bool) async {
+        guard let useCase = notificationPreferencesUseCase() else {
+            vm.isNotificationsEnabled = enabled
+            return
+        }
+
+        isApplyingMasterToggle = true
+        defer { isApplyingMasterToggle = false }
+
+        if enabled {
+            do {
+                let granted = try await useCase.enableNotifications()
+                vm.isNotificationsEnabled = granted
+                if !granted {
+                    permissionDeniedMessage = String(
+                        localized: "Notification permission was denied. Enable notifications in System Settings to receive reminders."
+                    )
+                }
+            } catch {
+                vm.isNotificationsEnabled = false
+                permissionDeniedMessage = error.localizedDescription
+            }
+        } else {
+            await useCase.disableNotifications()
+            vm.isNotificationsEnabled = false
+        }
+    }
+
+    @MainActor
+    private func applySubToggleChange() async {
+        await notificationPreferencesUseCase()?.applySubToggleChange()
     }
 }
 
