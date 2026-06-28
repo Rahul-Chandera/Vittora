@@ -43,6 +43,10 @@ final class OnboardingFlowUITests: XCTestCase {
         accountNameField.typeText("Daily Checking\n")
         nextButton.tap()
 
+        let notificationsStep = app.otherElements["onboarding-notifications-step"]
+        XCTAssertTrue(notificationsStep.waitForExistence(timeout: 5))
+        nextButton.tap()
+
         let completionStepExpectation = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "label == %@", "Start Tracking"),
             object: nextButton

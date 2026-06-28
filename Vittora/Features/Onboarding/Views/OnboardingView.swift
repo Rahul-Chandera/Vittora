@@ -33,6 +33,8 @@ struct OnboardingView: View {
                         .tag(OnboardingViewModel.Step.profile)
                     AccountSetupStepView(vm: vm)
                         .tag(OnboardingViewModel.Step.account)
+                    NotificationsStepView(vm: vm)
+                        .tag(OnboardingViewModel.Step.notifications)
                     DoneStepView(vm: vm)
                         .tag(OnboardingViewModel.Step.done)
                 }
@@ -124,6 +126,8 @@ struct OnboardingView: View {
         case .account:  return (vm.isAccountSubStepEnabled && vm.accountSubStep == .type)
                             ? String(localized: "Continue")
                             : String(localized: "Review Setup")
+        case .notifications:
+            return String(localized: "Continue")
         case .done:     return String(localized: "Start Tracking")
         }
     }
@@ -582,6 +586,67 @@ private struct AccountSetupStepView: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("onboarding-account-type-\(type.rawValue)")
+    }
+}
+
+private struct NotificationsStepView: View {
+    @Bindable var vm: OnboardingViewModel
+
+    var body: some View {
+        VStack(spacing: VSpacing.lg) {
+            Spacer()
+
+            Image(systemName: "bell.badge.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(VColors.primary)
+                .accessibilityHidden(true)
+
+            VStack(spacing: VSpacing.sm) {
+                Text(String(localized: "Stay on top of your money"))
+                    .font(VTypography.title2.bold())
+                    .foregroundStyle(VColors.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .accessibilityIdentifier("onboarding-notifications-title")
+
+                Text(String(localized: "Get gentle reminders for budgets, bills, and goals — only when you want them."))
+                    .font(VTypography.body)
+                    .foregroundStyle(VColors.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, VSpacing.xl)
+            }
+
+            VStack(alignment: .leading, spacing: VSpacing.md) {
+                FeatureRow(icon: "target", color: .orange, text: String(localized: "Budget limit alerts"))
+                FeatureRow(icon: "calendar.badge.clock", color: .blue, text: String(localized: "Bill and debt due dates"))
+                FeatureRow(icon: "arrow.triangle.2.circlepath", color: .purple, text: String(localized: "Upcoming recurring transactions"))
+            }
+            .padding(.horizontal, VSpacing.xl)
+
+            Toggle(isOn: $vm.wantsNotifications) {
+                VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                    Text(String(localized: "Enable reminders"))
+                        .font(VTypography.bodyBold)
+                        .foregroundStyle(VColors.textPrimary)
+                    Text(String(localized: "You can change this anytime in Settings."))
+                        .font(VTypography.caption2)
+                        .foregroundStyle(VColors.textSecondary)
+                }
+            }
+            .padding(VSpacing.cardPadding)
+            .background(VColors.secondaryBackground)
+            .cornerRadius(VSpacing.cornerRadiusCard)
+            .padding(.horizontal, VSpacing.screenPadding)
+            .accessibilityIdentifier("onboarding-notifications-toggle")
+
+            Text(String(localized: "Vittora will ask for notification permission when you turn reminders on in Settings."))
+                .font(VTypography.caption2)
+                .foregroundStyle(VColors.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, VSpacing.xl)
+
+            Spacer()
+        }
+        .accessibilityIdentifier("onboarding-notifications-step")
     }
 }
 
