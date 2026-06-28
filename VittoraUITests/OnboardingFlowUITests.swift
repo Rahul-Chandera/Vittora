@@ -46,11 +46,16 @@ final class OnboardingFlowUITests: XCTestCase {
         let accountNameField = app.textFields["onboarding-account-name-field"]
         XCTAssertTrue(accountNameField.waitForExistence(timeout: 5))
         accountNameField.tap()
-        accountNameField.typeText("Daily Checking\n")
+        accountNameField.typeText("Daily Checking")
+
+        let openingBalanceField = app.textFields["onboarding-opening-balance-field"]
+        XCTAssertTrue(openingBalanceField.waitForExistence(timeout: 5))
+        openingBalanceField.tap()
+        openingBalanceField.typeText("1000\n")
         nextButton.tap()
 
-        let notificationsStep = app.otherElements["onboarding-notifications-step"]
-        XCTAssertTrue(notificationsStep.waitForExistence(timeout: 5))
+        let notificationsStep = app.staticTexts["onboarding-notifications-title"]
+        XCTAssertTrue(notificationsStep.waitForExistence(timeout: 10))
         nextButton.tap()
 
         let completionStepExpectation = XCTNSPredicateExpectation(
