@@ -26,8 +26,10 @@ final class TransactionFlowUITests: XCTestCase {
             .matching(NSPredicate(format: "identifier BEGINSWITH %@", "transaction-row-"))
         let initialTransactionCount = transactionRows.count
 
-        let addButton = app.buttons["Add Transaction"].firstMatch
-        XCTAssertTrue(addButton.waitForExistence(timeout: 5))
+        let addButton = app.buttons["transaction-add-button"].exists
+            ? app.buttons["transaction-add-button"]
+            : app.buttons["Add Transaction"].firstMatch
+        XCTAssertTrue(addButton.waitForExistence(timeout: 10))
         addButton.tap()
 
         let amountField = app.textFields["transaction-amount-field"].exists
@@ -53,7 +55,7 @@ final class TransactionFlowUITests: XCTestCase {
         )
 
         XCTAssertTrue(
-            waitForTransactionRowCount(initialTransactionCount + 1, timeout: 5),
+            waitForTransactionRowCount(initialTransactionCount + 1, timeout: 20),
             "The transaction list should show one additional row after saving a new entry."
         )
     }

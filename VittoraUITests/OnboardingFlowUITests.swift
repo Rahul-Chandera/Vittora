@@ -37,6 +37,12 @@ final class OnboardingFlowUITests: XCTestCase {
         nameField.typeText("Taylor\n")
         nextButton.tap()
 
+        let bankAccountType = app.buttons["onboarding-account-type-bank"]
+        if bankAccountType.waitForExistence(timeout: 3) {
+            bankAccountType.tap()
+            nextButton.tap()
+        }
+
         let accountNameField = app.textFields["onboarding-account-name-field"]
         XCTAssertTrue(accountNameField.waitForExistence(timeout: 5))
         accountNameField.tap()

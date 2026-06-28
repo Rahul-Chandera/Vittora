@@ -11,6 +11,13 @@ IOS_SIM_DEST ?= platform=iOS Simulator,name=iPhone 16
 # no device Secure Enclave; real SE encryption paths remain manual/device-gated (L5).
 IOS_TEST_SIGN_FLAGS := CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=-
 
+# Serial UI testing on CI avoids parallel simulator clone instability.
+ifeq ($(GITHUB_ACTIONS),true)
+IOS_UI_PARALLEL_FLAGS := -parallel-testing-enabled NO -maximum-parallel-testing-workers 1
+else
+IOS_UI_PARALLEL_FLAGS :=
+endif
+
 help:
 	@echo "Vittora developer commands"
 	@echo ""
@@ -72,6 +79,7 @@ test-ios-ui:
 		-resultBundlePath '$(TEST_DERIVED)/Test-iOS-UI.xcresult' \
 		-only-testing:VittoraUITests \
 		$(IOS_TEST_SIGN_FLAGS) \
+		$(IOS_UI_PARALLEL_FLAGS) \
 		test
 
 test-tax:
