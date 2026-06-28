@@ -118,6 +118,24 @@ final class SettingsViewModel {
         }
     }
 
+    /// Disables App Lock only after successful device authentication (SECURITY-3).
+    func disableAppLockIfAuthenticated(using biometricService: any BiometricServiceProtocol) async -> Bool {
+        guard isAppLockEnabled else { return true }
+        do {
+            guard try await SensitiveActionAuthenticator.confirm(
+                action: .disableAppLock,
+                using: biometricService
+            ) else {
+                return false
+            }
+            isAppLockEnabled = false
+            return true
+        } catch {
+            keychainError = error.localizedDescription
+            return false
+        }
+    }
+
     @ObservationIgnored private var _userName: String
     var userName: String {
         get {

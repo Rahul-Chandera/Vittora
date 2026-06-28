@@ -187,10 +187,27 @@ struct SettingsView: View {
     }
 
     private func confirmDeleteAllData() async {
-        isDeletingAllData = true
-        let didDelete = await deleteAllData()
-        isDeletingAllData = false
+        guard let biometricService = dependencies.biometricService else {
+            vm.keychainError = AppLockUnlockGate.missingServiceMessage
+            return
+        }
 
+        isDeletingAllData = true
+        defer { isDeletingAllData = false }
+
+        do {
+            guard try await SensitiveActionAuthenticator.confirm(
+                action: .factoryReset,
+                using: biometricService
+            ) else {
+                return
+            }
+        } catch {
+            vm.keychainError = error.localizedDescription
+            return
+        }
+
+        let didDelete = await deleteAllData()
         if didDelete {
             resetRuntimeStateAfterFactoryReset()
             showDeleteAccountConfirm = false

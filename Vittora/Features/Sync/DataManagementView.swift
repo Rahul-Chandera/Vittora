@@ -53,6 +53,22 @@ final class DataManagementViewModel {
             return false
         }
     }
+
+    /// Factory reset gated by device authentication; aborts on cancel or failure (SECURITY-3).
+    func factoryReset(confirmWith biometricService: any BiometricServiceProtocol) async -> Bool {
+        do {
+            guard try await SensitiveActionAuthenticator.confirm(
+                action: .factoryReset,
+                using: biometricService
+            ) else {
+                return false
+            }
+        } catch {
+            self.error = error.localizedDescription
+            return false
+        }
+        return await factoryReset()
+    }
 }
 
 struct DataManagementView: View {
@@ -210,7 +226,11 @@ struct DataManagementView: View {
         ) {
             Button(String(localized: "Reset Everything"), role: .destructive) {
                 Task {
-                    let didReset = await vm.factoryReset()
+                    guard let biometricService = dependencies.biometricService else {
+                        vm.error = AppLockUnlockGate.missingServiceMessage
+                        return
+                    }
+                    let didReset = await vm.factoryReset(confirmWith: biometricService)
                     if didReset {
                         resetRuntimeStateAfterFactoryReset()
                     }

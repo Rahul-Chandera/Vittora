@@ -95,12 +95,28 @@ struct AppearanceSettingsView: View {
 
 struct SecuritySettingsView: View {
     @Bindable var vm: SettingsViewModel
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isDisablingAppLock = false
+
+    private var appLockBinding: Binding<Bool> {
+        Binding(
+            get: { vm.isAppLockEnabled },
+            set: { newValue in
+                if newValue {
+                    vm.isAppLockEnabled = true
+                } else {
+                    Task { await disableAppLockIfNeeded() }
+                }
+            }
+        )
+    }
 
     var body: some View {
         Form {
             Section {
-                Toggle(String(localized: "App Lock"), isOn: $vm.isAppLockEnabled)
+                Toggle(String(localized: "App Lock"), isOn: appLockBinding)
+                    .disabled(isDisablingAppLock)
             } footer: {
                 Text(String(localized: "Require biometrics or passcode when opening Vittora."))
                     .foregroundStyle(VColors.textSecondary)
@@ -159,6 +175,17 @@ struct SecuritySettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .animation(reduceMotion ? nil : .default, value: vm.isAppLockEnabled)
+    }
+
+    private func disableAppLockIfNeeded() async {
+        guard vm.isAppLockEnabled else { return }
+        guard let biometricService = dependencies.biometricService else {
+            vm.keychainError = AppLockUnlockGate.missingServiceMessage
+            return
+        }
+        isDisablingAppLock = true
+        defer { isDisablingAppLock = false }
+        _ = await vm.disableAppLockIfAuthenticated(using: biometricService)
     }
 }
 

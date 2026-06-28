@@ -144,4 +144,34 @@ struct SettingsViewModelTests {
         #expect(vm.appLockTimeout == AppLockTimeout.oneMinute)
         #expect(UserDefaults.standard.string(forKey: "vittora.appLockTimeout") == AppLockTimeout.oneMinute.rawValue)
     }
+
+    @Test("disableAppLockIfAuthenticated aborts when user cancels")
+    func disableAppLockCancelled() async throws {
+        let vm = makeViewModel(keychainService: MockKeychainService())
+        vm.isAppLockEnabled = true
+        try await Task.sleep(nanoseconds: 100_000_000)
+        #expect(vm.isAppLockEnabled == true)
+
+        let biometric = MockBiometricService()
+        biometric.shouldSucceed = false
+        let disabled = await vm.disableAppLockIfAuthenticated(using: biometric)
+
+        #expect(disabled == false)
+        #expect(vm.isAppLockEnabled == true)
+    }
+
+    @Test("disableAppLockIfAuthenticated disables when user authenticates")
+    func disableAppLockSuccess() async throws {
+        let vm = makeViewModel(keychainService: MockKeychainService())
+        vm.isAppLockEnabled = true
+        try await Task.sleep(nanoseconds: 100_000_000)
+        #expect(vm.isAppLockEnabled == true)
+
+        let biometric = MockBiometricService()
+        biometric.shouldSucceed = true
+        let disabled = await vm.disableAppLockIfAuthenticated(using: biometric)
+
+        #expect(disabled == true)
+        #expect(vm.isAppLockEnabled == false)
+    }
 }
