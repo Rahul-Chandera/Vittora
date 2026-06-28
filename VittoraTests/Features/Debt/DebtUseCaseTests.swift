@@ -192,12 +192,46 @@ struct DebtUseCaseTests {
             #expect(savedTransactions.count == 1)
 
             let updatedEntry = try await env.debtRepo.fetchByID(entry.id)
-            #expect(updatedEntry?.linkedTransactionID != nil)
+            #expect(updatedEntry?.linkedTransactionIDs.count == 1)
             #expect(updatedEntry?.isSettled == true)
 
             // Lent debt repaid -> income -> account balance increases.
             let updatedAccount = try await env.accountRepo.fetchByID(account.id)
             #expect(updatedAccount?.balance == 1300)
+        }
+
+        @Test("two partial settlements retain both linked transactions")
+        @MainActor
+        func twoPartialSettlementsRetained() async throws {
+            let env = try makeEnv()
+            let entry = DebtEntry(payeeID: UUID(), amount: 1000, direction: .lent)
+            try await env.debtRepo.create(entry)
+
+            let account = AccountEntity(name: "Wallet", type: .cash, balance: 1000)
+            try await env.accountRepo.create(account)
+
+            try await env.useCase.execute(
+                debtID: entry.id,
+                settlementAmount: 300,
+                accountID: account.id
+            )
+            try await env.useCase.execute(
+                debtID: entry.id,
+                settlementAmount: 200,
+                accountID: account.id
+            )
+
+            let savedTransactions = try await env.txRepo.fetchAll(filter: nil)
+            #expect(savedTransactions.count == 2)
+
+            let updatedEntry = try await env.debtRepo.fetchByID(entry.id)
+            #expect(updatedEntry?.settledAmount == 500)
+            #expect(updatedEntry?.linkedTransactionIDs.count == 2)
+            #expect(Set(updatedEntry?.linkedTransactionIDs ?? []) == Set(savedTransactions.map(\.id)))
+            #expect(updatedEntry?.isSettled == false)
+
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
+            #expect(updatedAccount?.balance == 1500)
         }
     }
 

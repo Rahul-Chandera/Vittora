@@ -34,14 +34,15 @@ struct ModelContainerConfigTests {
         #expect(doc.transactionID == nil)
     }
 
-    @Test("migration plan declares V1–V4 with lightweight stages")
+    @Test("migration plan declares V1–V5 with lightweight stages")
     func migrationPlanShape() {
-        #expect(VittoraMigrationPlan.schemas.count == 4)
-        #expect(VittoraMigrationPlan.stages.count == 3)
+        #expect(VittoraMigrationPlan.schemas.count == 5)
+        #expect(VittoraMigrationPlan.stages.count == 4)
         #expect(VittoraSchemaV1.versionIdentifier == Schema.Version(1, 0, 0))
         #expect(VittoraSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
         #expect(VittoraSchemaV3.versionIdentifier == Schema.Version(3, 0, 0))
         #expect(VittoraSchemaV4.versionIdentifier == Schema.Version(4, 0, 0))
+        #expect(VittoraSchemaV5.versionIdentifier == Schema.Version(5, 0, 0))
     }
 
     // NOTE: This is a persistence round-trip at the current (V2) schema — it
@@ -199,5 +200,63 @@ struct ModelContainerConfigTests {
         #expect(rows.count == 2)
         #expect(rows.first { $0.id == withOpeningID }?.openingBalance == 1000)
         #expect(rows.first { $0.id == legacyID }?.openingBalance == nil)
+    }
+
+    // Schema V5 (DATAINTEGRITY-7, A11): persistence round-trip for the additive
+    // `linkedTransactionIDs` array and legacy single-link merge on read.
+    @Test("on-disk store round-trips debt linkedTransactionIDs")
+    func onDiskStoreRoundTripsLinkedTransactionIDs() throws {
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let storeURL = dir.appendingPathComponent("vittora-debt-links-roundtrip.store")
+
+        let multiLinkID = UUID()
+        let legacyLinkID = UUID()
+        let legacyTxID = UUID()
+        let tx1 = UUID()
+        let tx2 = UUID()
+
+        do {
+            let schema = Schema(VittoraSchemaV5.models)
+            let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+            let container = try ModelContainer(
+                for: schema,
+                migrationPlan: VittoraMigrationPlan.self,
+                configurations: [config]
+            )
+            let ctx = ModelContext(container)
+            ctx.insert(SDDebt(
+                id: multiLinkID,
+                payeeID: UUID(),
+                amount: 1000,
+                direction: .lent,
+                linkedTransactionIDs: [tx1, tx2]
+            ))
+            ctx.insert(SDDebt(
+                id: legacyLinkID,
+                payeeID: UUID(),
+                amount: 500,
+                direction: .borrowed,
+                linkedTransactionID: legacyTxID
+            ))
+            try ctx.save()
+        }
+
+        let schema = Schema(VittoraSchemaV5.models)
+        let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let ctx = ModelContext(container)
+        let rows = try ctx.fetch(FetchDescriptor<SDDebt>())
+
+        #expect(rows.count == 2)
+        #expect(rows.first { $0.id == multiLinkID }?.linkedTransactionIDs == [tx1, tx2])
+        let legacyEntity = DebtMapper.toEntity(try #require(rows.first { $0.id == legacyLinkID }))
+        #expect(legacyEntity.linkedTransactionIDs == [legacyTxID])
     }
 }

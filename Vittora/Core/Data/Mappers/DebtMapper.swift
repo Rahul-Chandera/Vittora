@@ -2,6 +2,18 @@ import Foundation
 import SwiftData
 
 enum DebtMapper {
+    /// Merges the V5 `linkedTransactionIDs` array with the legacy single
+    /// `linkedTransactionID` so pre-migration rows still surface all links.
+    nonisolated static func linkedTransactionIDs(from model: SDDebt) -> [UUID] {
+        if !model.linkedTransactionIDs.isEmpty {
+            return model.linkedTransactionIDs
+        }
+        if let legacy = model.linkedTransactionID {
+            return [legacy]
+        }
+        return []
+    }
+
     nonisolated static func toEntity(_ model: SDDebt) -> DebtEntry {
         DebtEntry(
             id: model.id,
@@ -12,7 +24,7 @@ enum DebtMapper {
             dueDate: model.dueDate,
             note: model.note,
             isSettled: model.isSettled,
-            linkedTransactionID: model.linkedTransactionID,
+            linkedTransactionIDs: linkedTransactionIDs(from: model),
             createdAt: model.createdAt,
             updatedAt: model.updatedAt
         )
@@ -26,7 +38,8 @@ enum DebtMapper {
         model.dueDate = entity.dueDate
         model.note = entity.note
         model.isSettled = entity.isSettled
-        model.linkedTransactionID = entity.linkedTransactionID
+        model.linkedTransactionIDs = entity.linkedTransactionIDs
+        model.linkedTransactionID = nil
         model.updatedAt = .now
     }
 }

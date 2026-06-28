@@ -23,7 +23,9 @@ struct DebtEntry: Identifiable, Hashable, Equatable, Sendable {
     var dueDate: Date?
     var note: String?
     var isSettled: Bool
-    var linkedTransactionID: UUID?
+    /// Cash legs created by each partial/full settlement (A11, DATAINTEGRITY-7).
+    /// Append-only — never overwrite on a subsequent settlement.
+    var linkedTransactionIDs: [UUID]
     var createdAt: Date
     var updatedAt: Date
 
@@ -43,7 +45,7 @@ struct DebtEntry: Identifiable, Hashable, Equatable, Sendable {
         dueDate: Date? = nil,
         note: String? = nil,
         isSettled: Bool = false,
-        linkedTransactionID: UUID? = nil,
+        linkedTransactionIDs: [UUID] = [],
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -55,7 +57,7 @@ struct DebtEntry: Identifiable, Hashable, Equatable, Sendable {
         self.dueDate = dueDate
         self.note = note
         self.isSettled = isSettled
-        self.linkedTransactionID = linkedTransactionID
+        self.linkedTransactionIDs = linkedTransactionIDs
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

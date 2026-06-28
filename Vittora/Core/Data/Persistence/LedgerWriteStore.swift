@@ -173,8 +173,17 @@ actor LedgerWriteStore: LedgerWriting {
                 account.balance += transaction.signedBalanceEffect
                 account.updatedAt = .now
             }
-            debt.linkedTransactionID = transaction.id
+            Self.appendLinkedTransaction(debt, transactionID: transaction.id)
         }
+    }
+
+    /// Promote a legacy single link into the array, then append (A11).
+    private static func appendLinkedTransaction(_ debt: SDDebt, transactionID: UUID) {
+        if debt.linkedTransactionIDs.isEmpty, let legacy = debt.linkedTransactionID {
+            debt.linkedTransactionIDs = [legacy]
+            debt.linkedTransactionID = nil
+        }
+        debt.linkedTransactionIDs.append(transactionID)
     }
 
     /// Update a non-transfer transaction and reconcile balances atomically (A4).

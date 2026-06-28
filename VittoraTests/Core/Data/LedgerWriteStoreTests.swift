@@ -148,7 +148,7 @@ struct LedgerWriteStoreTests {
         let debt = try verify.fetch(FetchDescriptor<SDDebt>()).first
         #expect(debt?.settledAmount == 300)
         #expect(debt?.isSettled == true)
-        #expect(debt?.linkedTransactionID == leg.id)
+        #expect(debt?.linkedTransactionIDs == [leg.id])
         let account = try verify.fetch(FetchDescriptor<SDAccount>()).first
         #expect(account?.balance == 1300)
         let txs = try verify.fetch(FetchDescriptor<SDTransaction>())
@@ -172,7 +172,7 @@ struct LedgerWriteStoreTests {
         let debt = try verify.fetch(FetchDescriptor<SDDebt>()).first
         #expect(debt?.settledAmount == 0)
         #expect(debt?.isSettled == false)
-        #expect(debt?.linkedTransactionID == nil)
+        #expect(debt?.linkedTransactionIDs.isEmpty == true)
         let txs = try verify.fetch(FetchDescriptor<SDTransaction>())
         #expect(txs.isEmpty)
     }

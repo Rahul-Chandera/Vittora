@@ -64,9 +64,28 @@ enum VittoraSchemaV4: VersionedSchema {
     }
 }
 
+/// Schema V5 (DATAINTEGRITY-7, A11): adds `SDDebt.linkedTransactionIDs` so
+/// repeated partial settlements retain every cash leg instead of overwriting a
+/// single `linkedTransactionID`. Purely additive (new array attribute defaults
+/// to empty; legacy column kept for read-side merge), so the V4→V5 step is a
+/// CloudKit-safe lightweight migration.
+enum VittoraSchemaV5: VersionedSchema {
+    static let versionIdentifier = Schema.Version(5, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        VittoraSchemaV4.models
+    }
+}
+
 enum VittoraMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [VittoraSchemaV1.self, VittoraSchemaV2.self, VittoraSchemaV3.self, VittoraSchemaV4.self]
+        [
+            VittoraSchemaV1.self,
+            VittoraSchemaV2.self,
+            VittoraSchemaV3.self,
+            VittoraSchemaV4.self,
+            VittoraSchemaV5.self,
+        ]
     }
 
     static var stages: [MigrationStage] {
@@ -82,7 +101,11 @@ enum VittoraMigrationPlan: SchemaMigrationPlan {
             .lightweight(
                 fromVersion: VittoraSchemaV3.self,
                 toVersion: VittoraSchemaV4.self
-            )
+            ),
+            .lightweight(
+                fromVersion: VittoraSchemaV4.self,
+                toVersion: VittoraSchemaV5.self
+            ),
         ]
     }
 }

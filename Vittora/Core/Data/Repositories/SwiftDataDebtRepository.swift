@@ -27,7 +27,7 @@ actor SwiftDataDebtRepository: DebtRepository {
             dueDate: entity.dueDate,
             note: entity.note,
             isSettled: entity.isSettled,
-            linkedTransactionID: entity.linkedTransactionID,
+            linkedTransactionIDs: entity.linkedTransactionIDs,
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt
         )

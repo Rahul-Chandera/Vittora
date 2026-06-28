@@ -145,7 +145,7 @@ struct MockLedgerWriting: LedgerWriting {
         }
         if let transaction {
             try await performAdd(transaction)
-            debt.linkedTransactionID = transaction.id
+            debt.linkedTransactionIDs.append(transaction.id)
         }
         try await debtRepository.update(debt)
     }

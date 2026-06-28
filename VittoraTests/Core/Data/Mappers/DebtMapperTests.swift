@@ -17,7 +17,7 @@ struct DebtMapperTests {
         let dueDate = Date(timeIntervalSince1970: 1_720_000_000)
         let note = "Personal loan repayment"
         let isSettled = false
-        let linkedTransactionID = UUID()
+        let linkedIDs = [UUID(), UUID()]
         let createdAt = Date(timeIntervalSince1970: 1_700_000_000)
         let updatedAt = Date(timeIntervalSince1970: 1_700_001_000)
 
@@ -30,7 +30,7 @@ struct DebtMapperTests {
             dueDate: dueDate,
             note: note,
             isSettled: isSettled,
-            linkedTransactionID: linkedTransactionID,
+            linkedTransactionIDs: linkedIDs,
             createdAt: createdAt,
             updatedAt: updatedAt
         )
@@ -45,9 +45,24 @@ struct DebtMapperTests {
         #expect(entity.dueDate == dueDate)
         #expect(entity.note == note)
         #expect(entity.isSettled == isSettled)
-        #expect(entity.linkedTransactionID == linkedTransactionID)
+        #expect(entity.linkedTransactionIDs == linkedIDs)
         #expect(entity.createdAt == createdAt)
         #expect(entity.updatedAt == updatedAt)
+    }
+
+    @Test("toEntity merges legacy linkedTransactionID into the array")
+    func testToEntityMergesLegacyLinkedTransactionID() {
+        let legacyID = UUID()
+        let model = SDDebt(
+            payeeID: UUID(),
+            amount: Decimal(200),
+            direction: .lent,
+            linkedTransactionID: legacyID
+        )
+
+        let entity = DebtMapper.toEntity(model)
+
+        #expect(entity.linkedTransactionIDs == [legacyID])
     }
 
     @Test("toEntity maps optional fields as nil when absent")
@@ -63,7 +78,7 @@ struct DebtMapperTests {
 
         #expect(entity.dueDate == nil)
         #expect(entity.note == nil)
-        #expect(entity.linkedTransactionID == nil)
+        #expect(entity.linkedTransactionIDs.isEmpty)
         #expect(entity.isSettled == false)
     }
 
@@ -75,7 +90,7 @@ struct DebtMapperTests {
 
         let payeeID = UUID()
         let dueDate = Date(timeIntervalSince1970: 1_730_000_000)
-        let linkedTransactionID = UUID()
+        let linkedIDs = [UUID(), UUID()]
         let entity = DebtEntry(
             payeeID: payeeID,
             amount: Decimal(7500.0),
@@ -84,7 +99,7 @@ struct DebtMapperTests {
             dueDate: dueDate,
             note: "Dinner split",
             isSettled: false,
-            linkedTransactionID: linkedTransactionID
+            linkedTransactionIDs: linkedIDs
         )
 
         DebtMapper.updateModel(model, from: entity)
@@ -98,7 +113,8 @@ struct DebtMapperTests {
         #expect(model.dueDate == dueDate)
         #expect(model.note == "Dinner split")
         #expect(model.isSettled == false)
-        #expect(model.linkedTransactionID == linkedTransactionID)
+        #expect(model.linkedTransactionIDs == linkedIDs)
+        #expect(model.linkedTransactionID == nil)
         #expect(model.updatedAt > originalCreatedAt)
     }
 
@@ -107,7 +123,7 @@ struct DebtMapperTests {
         let id = UUID()
         let payeeID = UUID()
         let dueDate = Date(timeIntervalSince1970: 1_710_000_000)
-        let linkedTransactionID = UUID()
+        let linkedIDs = [UUID()]
         let createdAt = Date(timeIntervalSince1970: 1_695_000_000)
         let updatedAt = Date(timeIntervalSince1970: 1_695_001_000)
 
@@ -120,7 +136,7 @@ struct DebtMapperTests {
             dueDate: dueDate,
             note: "Car repair",
             isSettled: false,
-            linkedTransactionID: linkedTransactionID,
+            linkedTransactionIDs: linkedIDs,
             createdAt: createdAt,
             updatedAt: updatedAt
         )
@@ -136,7 +152,7 @@ struct DebtMapperTests {
         #expect(model.dueDate == dueDate)
         #expect(model.note == "Car repair")
         #expect(model.isSettled == false)
-        #expect(model.linkedTransactionID == linkedTransactionID)
+        #expect(model.linkedTransactionIDs == linkedIDs)
         #expect(model.createdAt == createdAt)
     }
 
