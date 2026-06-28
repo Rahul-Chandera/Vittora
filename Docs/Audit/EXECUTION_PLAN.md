@@ -199,7 +199,7 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 - **Acceptance:** for equal/percentage/shares, `Σ shares == amount` exactly; simplify transfers net to zero.
 - **Tests:** `SplitGroupUseCaseTests` — property tests over member counts/amounts.
 - **Verify:** `xcodebuild ... -only-testing:VittoraTests/Features/Splits/SplitGroupUseCaseTests test`
-- **Status:** **HOLD for review** on `fix/A12-split-rounding`.
+- **Status:** Merged into `refactoring`.
 
 ### A13 — India surcharge marginal relief + capital-gains cap (tax correctness)
 - **Finding:** DATAINTEGRITY-8
