@@ -273,7 +273,7 @@ struct DashboardView: View {
                 Text(String(localized: "Net Worth"))
                     .font(VTypography.subheadline)
                     .foregroundColor(VColors.textSecondary)
-                Text(vm?.formattedAmount(netWorth) ?? "$0.00")
+                Text(CurrencyFormatter.format(netWorth, currencyCode: currencyCode))
                     .font(VTypography.amountMedium)
                     .foregroundColor(netWorth >= 0 ? VColors.income : VColors.expense)
             }
@@ -284,7 +284,7 @@ struct DashboardView: View {
         .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "Net worth"))
-        .accessibilityValue(vm?.formattedAmount(netWorth) ?? netWorth.formatted(.currency(code: currencyCode)))
+        .accessibilityValue(CurrencyFormatter.format(netWorth, currencyCode: currencyCode))
     }
 
     private func progressColor(_ progress: Double) -> Color {
@@ -394,8 +394,7 @@ struct DashboardView: View {
 
         return DashboardViewModel(
             dashboardDataUseCase: dataUseCase,
-            monthComparisonUseCase: comparisonUseCase,
-            currencyCode: currencyCode
+            monthComparisonUseCase: comparisonUseCase
         )
     }
 }

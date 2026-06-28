@@ -57,12 +57,12 @@ struct TransactionRowView: View {
             // Amount
             VStack(alignment: .trailing, spacing: VSpacing.xs) {
                 let amountColor = transactionColor(for: transaction.type)
-                Text(formatAmount(transaction.amount))
+                Text(CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode))
                     .font(VTypography.body)
                     .fontWeight(.semibold)
                     .foregroundColor(amountColor)
 
-                Text(transaction.type.rawValue.capitalized)
+                Text(transaction.type.displayName)
                     .font(VTypography.caption2)
                     .foregroundColor(amountColor)
                     .opacity(0.7)
@@ -77,8 +77,8 @@ struct TransactionRowView: View {
 
     private var accessibilityDescription: String {
         let note = transaction.note ?? String(localized: "Transaction")
-        let amount = formatAmount(transaction.amount)
-        let type = transaction.type.rawValue.capitalized
+        let amount = CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode)
+        let type = transaction.type.displayName
         let time = formattedTime(transaction.date)
         let cat = category.map { ", \($0.name)" } ?? ""
         var description = "\(note)\(cat), \(type), \(time), \(amount)"
@@ -105,10 +105,6 @@ struct TransactionRowView: View {
         case .adjustment:
             return VColors.primary
         }
-    }
-
-    private func formatAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
     }
 
     private var rowAccessibilityIdentifier: String {

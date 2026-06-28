@@ -3,6 +3,19 @@ import Foundation
 enum AccountType: String, Sendable, Hashable, CaseIterable, Codable {
     case cash, bank, creditCard, loan, digitalWallet, investment, receivable, payable
 
+    var displayName: String {
+        switch self {
+        case .cash: String(localized: "Cash")
+        case .bank: String(localized: "Bank")
+        case .creditCard: String(localized: "Credit Card")
+        case .loan: String(localized: "Loan")
+        case .digitalWallet: String(localized: "Digital Wallet")
+        case .investment: String(localized: "Investment")
+        case .receivable: String(localized: "Receivable")
+        case .payable: String(localized: "Payable")
+        }
+    }
+
     var isAsset: Bool {
         switch self {
         case .cash, .bank, .digitalWallet, .investment, .receivable: return true

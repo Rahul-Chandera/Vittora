@@ -570,7 +570,7 @@ private struct AccountSetupStepView: View {
         } label: {
             VStack(spacing: VSpacing.sm) {
                 AccountTypeIcon(type: type, size: 40)
-                Text(type.onboardingDisplayName)
+                Text(type.displayName)
                     .font(VTypography.caption1.bold())
                     .foregroundStyle(VColors.textPrimary)
                     .multilineTextAlignment(.center)
@@ -587,7 +587,7 @@ private struct AccountSetupStepView: View {
             )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(type.onboardingDisplayName)
+        .accessibilityLabel(type.displayName)
         .accessibilityAddTraits(vm.selectedAccountType == type ? .isSelected : [])
         .accessibilityIdentifier("onboarding-account-type-\(type.rawValue)")
     }
@@ -700,7 +700,7 @@ private struct DoneStepView: View {
                 )
                 onboardingSummaryRow(
                     title: String(localized: "Account Type"),
-                    value: vm.selectedAccountType.onboardingDisplayName
+                    value: vm.selectedAccountType.displayName
                 )
             }
             .padding(VSpacing.cardPadding)
@@ -723,29 +723,6 @@ private struct DoneStepView: View {
             Text(value)
                 .font(VTypography.bodyBold)
                 .foregroundStyle(VColors.textPrimary)
-        }
-    }
-}
-
-private extension AccountType {
-    var onboardingDisplayName: String {
-        switch self {
-        case .cash:
-            String(localized: "Cash")
-        case .bank:
-            String(localized: "Bank")
-        case .creditCard:
-            String(localized: "Credit Card")
-        case .loan:
-            String(localized: "Loan")
-        case .digitalWallet:
-            String(localized: "Digital Wallet")
-        case .investment:
-            String(localized: "Investment")
-        case .receivable:
-            String(localized: "Receivable")
-        case .payable:
-            String(localized: "Payable")
         }
     }
 }

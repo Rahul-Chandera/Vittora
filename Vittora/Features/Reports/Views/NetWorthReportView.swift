@@ -185,7 +185,7 @@ struct NetWorthReportView: View {
                             Text(account.name)
                                 .font(VTypography.body)
                                 .foregroundStyle(VColors.textPrimary)
-                            Text(account.type.rawValue.capitalized)
+                            Text(account.type.displayName)
                                 .font(VTypography.caption2)
                                 .foregroundStyle(VColors.textTertiary)
                         }

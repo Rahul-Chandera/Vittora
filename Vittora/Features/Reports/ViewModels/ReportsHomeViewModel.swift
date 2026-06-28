@@ -10,14 +10,9 @@ final class ReportsHomeViewModel {
     var error: String?
 
     private let transactionRepository: any TransactionRepository
-    private let currencyCode: String
 
-    init(
-        transactionRepository: any TransactionRepository,
-        currencyCode: String = CurrencyDefaults.code
-    ) {
+    init(transactionRepository: any TransactionRepository) {
         self.transactionRepository = transactionRepository
-        self.currencyCode = currencyCode
     }
 
     func load() async {
@@ -46,9 +41,5 @@ final class ReportsHomeViewModel {
             )
         }
         isLoading = false
-    }
-
-    func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
     }
 }

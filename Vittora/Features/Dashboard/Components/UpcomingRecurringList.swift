@@ -62,7 +62,7 @@ private struct UpcomingRuleRow: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: VSpacing.xxs) {
-                Text(formattedAmount(rule.templateAmount))
+                Text(CurrencyFormatter.format(rule.templateAmount, currencyCode: currencyCode))
                     .font(VTypography.amountCaption)
                     .foregroundColor(VColors.textPrimary)
 
@@ -100,10 +100,6 @@ private struct UpcomingRuleRow: View {
     private func isDueSoon(_ date: Date) -> Bool {
         let threeDays = Date.now.addingTimeInterval(3 * 86400)
         return date <= threeDays
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
     }
 }
 

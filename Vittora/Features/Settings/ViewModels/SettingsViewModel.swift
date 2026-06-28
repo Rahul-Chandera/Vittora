@@ -5,43 +5,46 @@ import SwiftUI
 @MainActor
 final class SettingsViewModel {
     private let keychainService: any KeychainServiceProtocol
+    private let keychainWriter: KeychainSettingsWriter
 
     // Non-sensitive preferences remain in UserDefaults
     var selectedCurrencyCode: String {
-        get { UserDefaults.standard.string(forKey: "vittora.currencyCode") ?? CurrencyDefaults.code }
-        set { UserDefaults.standard.set(newValue, forKey: "vittora.currencyCode") }
+        get { UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.currencyCode) ?? CurrencyDefaults.code }
+        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.currencyCode) }
     }
 
     var appearanceMode: AppearanceMode {
         get {
-            AppearanceMode(rawValue: UserDefaults.standard.string(forKey: "vittora.appearanceMode") ?? "") ?? .system
+            AppearanceMode(
+                rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.appearanceMode) ?? ""
+            ) ?? .system
         }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: "vittora.appearanceMode") }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appearanceMode) }
     }
 
     var isNotificationsEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: "vittora.notificationsEnabled") }
-        set { UserDefaults.standard.set(newValue, forKey: "vittora.notificationsEnabled") }
+        get { UserDefaults.standard.bool(forKey: AppUserDefaults.StandardKey.notificationsEnabled) }
+        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notificationsEnabled) }
     }
 
     var notifyBillsDue: Bool {
-        get { UserDefaults.standard.object(forKey: "vittora.notifyBillsDue") as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: "vittora.notifyBillsDue") }
+        get { UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyBillsDue) as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyBillsDue) }
     }
 
     var notifyBudgetAlerts: Bool {
-        get { UserDefaults.standard.object(forKey: "vittora.notifyBudgetAlerts") as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: "vittora.notifyBudgetAlerts") }
+        get { UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyBudgetAlerts) as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyBudgetAlerts) }
     }
 
     var notifyGoalMilestones: Bool {
-        get { UserDefaults.standard.object(forKey: "vittora.notifyGoalMilestones") as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: "vittora.notifyGoalMilestones") }
+        get { UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyGoalMilestones) as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyGoalMilestones) }
     }
 
     var notifyRecurringTransactions: Bool {
-        get { UserDefaults.standard.object(forKey: "vittora.notifyRecurring") as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: "vittora.notifyRecurring") }
+        get { UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyRecurring) as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyRecurring) }
     }
 
     @ObservationIgnored private var _allowPasscodeFallback: Bool
@@ -50,36 +53,29 @@ final class SettingsViewModel {
             access(keyPath: \.allowPasscodeFallback)
             return _allowPasscodeFallback
         }
-        set {
-            withMutation(keyPath: \.allowPasscodeFallback) {
-                _allowPasscodeFallback = newValue
-            }
-            Task { [keychainService] in
-                do {
-                    try await keychainService.save(Data([newValue ? 1 : 0]), forKey: "vittora.passcodeFallback")
-                } catch {
-                    keychainError = error.localizedDescription
-                }
-            }
-        }
     }
 
     var exportSchedule: ExportSchedule {
-        get { ExportSchedule(rawValue: UserDefaults.standard.string(forKey: "vittora.exportSchedule") ?? "") ?? .off }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: "vittora.exportSchedule") }
+        get {
+            ExportSchedule(
+                rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.exportSchedule) ?? ""
+            ) ?? .off
+        }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.exportSchedule) }
     }
 
     var isCloudSyncEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: "vittora.cloudSyncEnabled") }
-        set { UserDefaults.standard.set(newValue, forKey: "vittora.cloudSyncEnabled") }
+        get { UserDefaults.standard.bool(forKey: AppUserDefaults.StandardKey.cloudSyncEnabled) }
+        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.cloudSyncEnabled) }
     }
 
     var appLockTimeout: AppLockTimeout {
         get {
-            AppLockTimeout(rawValue: UserDefaults.standard.string(forKey: "vittora.appLockTimeout") ?? "")
-                ?? .fiveMinutes
+            AppLockTimeout(
+                rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.appLockTimeout) ?? ""
+            ) ?? .fiveMinutes
         }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: "vittora.appLockTimeout") }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appLockTimeout) }
     }
 
     enum ExportSchedule: String, CaseIterable, Sendable {
@@ -104,17 +100,23 @@ final class SettingsViewModel {
             access(keyPath: \.isAppLockEnabled)
             return _isAppLockEnabled
         }
-        set {
+    }
+
+    func updateAppLockEnabled(_ newValue: Bool) async {
+        let previous = _isAppLockEnabled
+        withMutation(keyPath: \.isAppLockEnabled) {
+            _isAppLockEnabled = newValue
+        }
+        keychainError = nil
+        do {
+            try await keychainWriter.saveAppLockEnabled(newValue)
+        } catch {
             withMutation(keyPath: \.isAppLockEnabled) {
-                _isAppLockEnabled = newValue
+                _isAppLockEnabled = previous
             }
-            Task { [keychainService] in
-                do {
-                    try await keychainService.save(Data([newValue ? 1 : 0]), forKey: "vittora.appLockEnabled")
-                } catch {
-                    keychainError = error.localizedDescription
-                }
-            }
+            keychainError = error.userFacingMessage(
+                fallback: String(localized: "We couldn't save your security settings.")
+            )
         }
     }
 
@@ -128,11 +130,31 @@ final class SettingsViewModel {
             ) else {
                 return false
             }
-            isAppLockEnabled = false
-            return true
+            await updateAppLockEnabled(false)
+            return !isAppLockEnabled
         } catch {
-            keychainError = error.localizedDescription
+            keychainError = error.userFacingMessage(
+                fallback: String(localized: "We couldn't update your security settings.")
+            )
             return false
+        }
+    }
+
+    func updateAllowPasscodeFallback(_ newValue: Bool) async {
+        let previous = _allowPasscodeFallback
+        withMutation(keyPath: \.allowPasscodeFallback) {
+            _allowPasscodeFallback = newValue
+        }
+        keychainError = nil
+        do {
+            try await keychainWriter.savePasscodeFallback(newValue)
+        } catch {
+            withMutation(keyPath: \.allowPasscodeFallback) {
+                _allowPasscodeFallback = previous
+            }
+            keychainError = error.userFacingMessage(
+                fallback: String(localized: "We couldn't save your security settings.")
+            )
         }
     }
 
@@ -142,21 +164,35 @@ final class SettingsViewModel {
             access(keyPath: \.userName)
             return _userName
         }
-        set {
+    }
+
+    func updateUserName(_ newValue: String) async {
+        let previous = _userName
+        withMutation(keyPath: \.userName) {
+            _userName = newValue
+        }
+        keychainError = nil
+        do {
+            try await keychainWriter.saveUserName(newValue)
+        } catch {
             withMutation(keyPath: \.userName) {
-                _userName = newValue
+                _userName = previous
             }
-            Task { [keychainService] in
-                do {
-                    if newValue.isEmpty {
-                        try await keychainService.delete(forKey: "vittora.userName")
-                    } else if let data = newValue.data(using: .utf8) {
-                        try await keychainService.save(data, forKey: "vittora.userName")
-                    }
-                } catch {
-                    keychainError = error.localizedDescription
-                }
-            }
+            keychainError = error.userFacingMessage(
+                fallback: String(localized: "We couldn't save your profile name.")
+            )
+        }
+    }
+
+    func resetKeychainBackedPreferencesInMemory() {
+        withMutation(keyPath: \.isAppLockEnabled) {
+            _isAppLockEnabled = false
+        }
+        withMutation(keyPath: \.allowPasscodeFallback) {
+            _allowPasscodeFallback = true
+        }
+        withMutation(keyPath: \.userName) {
+            _userName = ""
         }
     }
 
@@ -182,39 +218,44 @@ final class SettingsViewModel {
 
     /// Pass `nil` to use the default `KeychainService` (production path).
     init(keychainService: (any KeychainServiceProtocol)? = nil) {
-        self.keychainService = keychainService ?? KeychainService()
+        let service = keychainService ?? KeychainService()
+        self.keychainService = service
+        self.keychainWriter = KeychainSettingsWriter(service: service)
 
-        // appLockEnabled: read from Keychain; migrate from UserDefaults on first upgrade
-        if let data = KeychainService.syncLoad(forKey: "vittora.appLockEnabled") {
+        if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.appLockEnabled) {
             _isAppLockEnabled = data.first == 1
         } else {
-            let udValue = UserDefaults.standard.bool(forKey: "vittora.appLockEnabled")
+            let udValue = UserDefaults.standard.bool(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
             _isAppLockEnabled = udValue
-            KeychainService.syncSave(Data([udValue ? 1 : 0]), forKey: "vittora.appLockEnabled")
-            UserDefaults.standard.removeObject(forKey: "vittora.appLockEnabled")
+            KeychainService.syncSave(
+                Data([udValue ? 1 : 0]),
+                forKey: AppUserDefaults.KeychainKey.appLockEnabled
+            )
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
         }
 
-        // passcodeFallback: read from Keychain; migrate from UserDefaults on first upgrade
-        if let data = KeychainService.syncLoad(forKey: "vittora.passcodeFallback") {
+        if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.passcodeFallback) {
             _allowPasscodeFallback = data.first == 1
         } else {
-            let udValue = UserDefaults.standard.object(forKey: "vittora.passcodeFallback") as? Bool ?? true
+            let udValue = UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.passcodeFallbackLegacy) as? Bool ?? true
             _allowPasscodeFallback = udValue
-            KeychainService.syncSave(Data([udValue ? 1 : 0]), forKey: "vittora.passcodeFallback")
-            UserDefaults.standard.removeObject(forKey: "vittora.passcodeFallback")
+            KeychainService.syncSave(
+                Data([udValue ? 1 : 0]),
+                forKey: AppUserDefaults.KeychainKey.passcodeFallback
+            )
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.passcodeFallbackLegacy)
         }
 
-        // userName: read from Keychain; migrate from UserDefaults on first upgrade
-        if let data = KeychainService.syncLoad(forKey: "vittora.userName"),
+        if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.userName),
            let name = String(data: data, encoding: .utf8) {
             _userName = name
         } else {
-            let udValue = UserDefaults.standard.string(forKey: "vittora.userName") ?? ""
+            let udValue = UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.userNameLegacy) ?? ""
             _userName = udValue
             if !udValue.isEmpty, let data = udValue.data(using: .utf8) {
-                KeychainService.syncSave(data, forKey: "vittora.userName")
+                KeychainService.syncSave(data, forKey: AppUserDefaults.KeychainKey.userName)
             }
-            UserDefaults.standard.removeObject(forKey: "vittora.userName")
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.userNameLegacy)
         }
     }
 
@@ -235,6 +276,36 @@ final class SettingsViewModel {
             case .light:  return .light
             case .dark:   return .dark
             }
+        }
+    }
+}
+
+private actor KeychainSettingsWriter {
+    private let service: any KeychainServiceProtocol
+
+    init(service: any KeychainServiceProtocol) {
+        self.service = service
+    }
+
+    func saveAppLockEnabled(_ enabled: Bool) async throws {
+        try await service.save(
+            Data([enabled ? 1 : 0]),
+            forKey: AppUserDefaults.KeychainKey.appLockEnabled
+        )
+    }
+
+    func savePasscodeFallback(_ allowed: Bool) async throws {
+        try await service.save(
+            Data([allowed ? 1 : 0]),
+            forKey: AppUserDefaults.KeychainKey.passcodeFallback
+        )
+    }
+
+    func saveUserName(_ name: String) async throws {
+        if name.isEmpty {
+            try await service.delete(forKey: AppUserDefaults.KeychainKey.userName)
+        } else if let data = name.data(using: .utf8) {
+            try await service.save(data, forKey: AppUserDefaults.KeychainKey.userName)
         }
     }
 }

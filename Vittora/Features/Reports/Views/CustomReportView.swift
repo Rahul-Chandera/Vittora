@@ -153,17 +153,13 @@ struct CustomReportView: View {
                 .font(VTypography.bodyBold)
                 .foregroundColor(VColors.textPrimary)
             Spacer()
-            Text(formattedAmount(total))
+            Text(CurrencyFormatter.format(total, currencyCode: currencyCode))
                 .font(VTypography.amountSmall)
                 .foregroundColor(VColors.textPrimary)
         }
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
     }
 
     private var customReportErrorBinding: Binding<String?> {

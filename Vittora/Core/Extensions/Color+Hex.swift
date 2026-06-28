@@ -1,5 +1,11 @@
 import SwiftUI
 
+#if os(iOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
+
 extension Color {
     /// Initialize a Color from a hex string.
     ///
@@ -8,7 +14,6 @@ extension Color {
         var hexSanitized = hex.trimmingCharacters(in: .whitespaces)
         hexSanitized = hexSanitized.hasPrefix("#") ? String(hexSanitized.dropFirst()) : hexSanitized
 
-        // Check for valid hex length
         guard hexSanitized.count == 6 else { return nil }
 
         let scanner = Scanner(string: hexSanitized)
@@ -27,23 +32,8 @@ extension Color {
     ///
     /// - Returns: Hex color string in format "#RRGGBB"
     var hexString: String? {
-        #if os(macOS)
-        guard let rgbColor = self.cgColor else { return nil }
-        let components = rgbColor.components ?? [0, 0, 0]
-        let r = Int(components[0] * 255)
-        let g = Int(components[1] * 255)
-        let b = Int(components[2] * 255)
-        return String(format: "#%02X%02X%02X", r, g, b)
-        #else
-        guard let components = self.cgColor?.components else { return nil }
-        guard components.count >= 3 else { return nil }
-
-        let r = Int(components[0] * 255)
-        let g = Int(components[1] * 255)
-        let b = Int(components[2] * 255)
-
-        return String(format: "#%02X%02X%02X", r, g, b)
-        #endif
+        guard let components = Self.rgbByteComponents(for: self) else { return nil }
+        return String(format: "#%02X%02X%02X", components.r, components.g, components.b)
     }
 
     /// Lighten or darken the color by a specified percentage.
@@ -51,18 +41,13 @@ extension Color {
     /// - Parameter percentage: Percentage change (-100 to 100)
     /// - Returns: Modified color
     func adjusted(by percentage: CGFloat) -> Color {
-        #if os(macOS)
-        return self
-        #else
-        guard let components = self.cgColor?.components else { return self }
-        guard components.count >= 3 else { return self }
+        guard let components = Self.normalizedRGBComponents(for: self) else { return self }
 
-        let r = max(0, min(1, components[0] + (percentage / 100)))
-        let g = max(0, min(1, components[1] + (percentage / 100)))
-        let b = max(0, min(1, components[2] + (percentage / 100)))
+        let r = max(0, min(1, components.r + (percentage / 100)))
+        let g = max(0, min(1, components.g + (percentage / 100)))
+        let b = max(0, min(1, components.b + (percentage / 100)))
 
         return Color(red: r, green: g, blue: b)
-        #endif
     }
 
     /// Get a lighter version of this color.
@@ -78,5 +63,48 @@ extension Color {
     /// Apply opacity to the color.
     func withOpacity(_ opacity: Double) -> Color {
         self.opacity(opacity)
+    }
+
+    private static func rgbByteComponents(for color: Color) -> (r: Int, g: Int, b: Int)? {
+        guard let components = normalizedRGBComponents(for: color) else { return nil }
+        return (
+            Int((components.r * 255).rounded()),
+            Int((components.g * 255).rounded()),
+            Int((components.b * 255).rounded())
+        )
+    }
+
+    private static func normalizedRGBComponents(for color: Color) -> (r: CGFloat, g: CGFloat, b: CGFloat)? {
+        #if os(iOS)
+        let platformColor = UIColor(color)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+
+        if platformColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+            return (red, green, blue)
+        }
+
+        var white: CGFloat = 0
+        guard platformColor.getWhite(&white, alpha: &alpha) else { return nil }
+        return (white, white, white)
+        #elseif os(macOS)
+        guard let platformColor = NSColor(color).usingColorSpace(.sRGB) else { return nil }
+
+        if platformColor.colorSpace.colorSpaceModel == .gray {
+            var white: CGFloat = 0
+            var alpha: CGFloat = 0
+            platformColor.getWhite(&white, alpha: &alpha)
+            return (white, white, white)
+        }
+
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        platformColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        return (red, green, blue)
+        #endif
     }
 }

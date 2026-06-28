@@ -11,6 +11,10 @@ struct FetchTransactionsUseCase: Sendable {
         return try await transactionRepository.fetchAll(filter: filter)
     }
 
+    func execute(id: UUID) async throws -> TransactionEntity? {
+        try await transactionRepository.fetchByID(id)
+    }
+
     func executeGroupedByDate(filter: TransactionFilter?) async throws -> [(date: Date, transactions: [TransactionEntity])] {
         let transactions = try await transactionRepository.fetchAll(filter: filter)
 

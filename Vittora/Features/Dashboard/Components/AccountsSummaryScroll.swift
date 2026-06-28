@@ -58,7 +58,7 @@ private struct AccountMiniCard: View {
                     .font(VTypography.amountSmall)
                     .foregroundColor(account.type.isAsset ? VColors.textPrimary : VColors.expense)
 
-                Text(account.type.rawValue.capitalized)
+                Text(account.type.displayName)
                     .font(VTypography.caption2)
                     .foregroundColor(VColors.textSecondary)
             }

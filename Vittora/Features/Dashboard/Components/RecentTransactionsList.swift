@@ -77,7 +77,7 @@ private struct RecentTransactionRow: View {
 
                 Spacer()
 
-                Text(formattedAmount(transaction.amount, type: transaction.type))
+                Text(CurrencyFormatter.formatSigned(transaction.amount, type: transaction.type, currencyCode: currencyCode))
                     .font(VTypography.amountCaption)
                     .foregroundColor(typeColor(for: transaction.type))
             }
@@ -102,15 +102,6 @@ private struct RecentTransactionRow: View {
         case .income: return "arrow.down"
         case .transfer: return "arrow.left.arrow.right"
         case .adjustment: return "equal"
-        }
-    }
-
-    private func formattedAmount(_ amount: Decimal, type: TransactionType) -> String {
-        let formatted = amount.formatted(.currency(code: currencyCode))
-        switch type {
-        case .expense: return "-\(formatted)"
-        case .income: return "+\(formatted)"
-        default: return formatted
         }
     }
 }

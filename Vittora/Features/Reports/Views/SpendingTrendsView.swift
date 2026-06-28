@@ -79,7 +79,7 @@ struct SpendingTrendsView: View {
             Text(label)
                 .font(VTypography.caption2)
                 .foregroundColor(VColors.textSecondary)
-            Text(formattedAmount(amount))
+            Text(CurrencyFormatter.formatCompact(amount, currencyCode: currencyCode))
                 .font(VTypography.amountSmall)
                 .foregroundColor(VColors.textPrimary)
         }
@@ -119,10 +119,6 @@ struct SpendingTrendsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(VSpacing.xxxl)
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode).precision(.fractionLength(0)))
     }
 
     private var spendingTrendsErrorBinding: Binding<String?> {
