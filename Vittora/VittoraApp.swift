@@ -153,13 +153,13 @@ struct VittoraApp: App {
         .commands {
             CommandGroup(after: .newItem) {
                 Button(String(localized: "New Transaction")) {
-                    NotificationCenter.default.post(name: .vittoraNewTransaction, object: nil)
+                    appState.request(.presentNewTransaction)
                 }
                 .keyboardShortcut("n", modifiers: .command)
             }
             CommandGroup(after: .appSettings) {
                 Button(String(localized: "Settings")) {
-                    NotificationCenter.default.post(name: .vittoraOpenSettings, object: nil)
+                    appState.request(.openSettings)
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }

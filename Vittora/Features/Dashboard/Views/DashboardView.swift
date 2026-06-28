@@ -94,7 +94,7 @@ struct DashboardView: View {
 
     private var quickEntryFloatingButton: some View {
         QuickEntryButton {
-            NotificationCenter.default.post(name: .vittoraNewTransaction, object: nil)
+            appState.request(.presentNewTransaction)
         }
         .padding(.trailing, VSpacing.lg)
         .padding(.bottom, VSpacing.lg)
