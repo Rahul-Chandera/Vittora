@@ -323,4 +323,40 @@ struct SwiftDataTransactionRepositoryTests {
 
         #expect(all.count == 3)
     }
+
+    @Test("fetchForAccount returns recent rows for the account only")
+    func testFetchForAccount() async throws {
+        let repo = try makeRepo()
+        let accountID = UUID()
+        let otherAccountID = UUID()
+        let recentID = UUID()
+        let olderID = UUID()
+
+        try await repo.create(TransactionEntity(
+            id: recentID,
+            amount: 10,
+            date: Date(timeIntervalSince1970: 13_000_000),
+            type: .expense,
+            accountID: accountID
+        ))
+        try await repo.create(TransactionEntity(
+            id: olderID,
+            amount: 20,
+            date: Date(timeIntervalSince1970: 12_000_000),
+            type: .expense,
+            accountID: accountID
+        ))
+        try await repo.create(TransactionEntity(
+            id: UUID(),
+            amount: 30,
+            date: Date(timeIntervalSince1970: 13_500_000),
+            type: .expense,
+            accountID: otherAccountID
+        ))
+
+        let results = try await repo.fetchForAccount(id: accountID, limit: 1)
+
+        #expect(results.count == 1)
+        #expect(results.first?.id == recentID)
+    }
 }

@@ -52,7 +52,6 @@ import Foundation
     }
 
     func search(_ query: String) async {
-        searchQuery = query
         isLoading = true
         error = nil
         defer { isLoading = false }

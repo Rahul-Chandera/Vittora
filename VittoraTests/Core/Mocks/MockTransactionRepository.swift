@@ -57,6 +57,13 @@ actor MockTransactionRepository: TransactionRepository {
         return transactions.first { $0.id == id }
     }
 
+    func fetchForAccount(id: UUID, limit: Int) async throws -> [TransactionEntity] {
+        if shouldThrowError { throw throwError }
+        let filter = TransactionFilter(accountIDs: [id])
+        let results = try await fetchAll(filter: filter)
+        return Array(results.prefix(max(1, limit)))
+    }
+
     func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {
         if shouldThrowError { throw throwError }
         return transactions

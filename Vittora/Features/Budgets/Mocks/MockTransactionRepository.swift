@@ -46,6 +46,11 @@ struct MockTransactionRepository: TransactionRepository {
         )
     }
 
+    func fetchForAccount(id: UUID, limit: Int) async throws -> [TransactionEntity] {
+        let all = try await fetchAll(filter: TransactionFilter(accountIDs: [id]))
+        return Array(all.prefix(max(1, limit)))
+    }
+
     func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {
         try await fetchAll(filter: nil)
             .filter { $0.recurringRuleID == id }

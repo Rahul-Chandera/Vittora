@@ -93,9 +93,15 @@ struct TransactionListView: View {
         .listStyle(.inset)
         #endif
         .searchable(text: Bindable(vm).searchQuery, prompt: String(localized: "Search transactions"))
-        .onChange(of: vm.searchQuery) { oldValue, newValue in
-            Task {
-                await vm.search(newValue)
+        .task(id: vm.searchQuery) {
+            let query = vm.searchQuery
+            try? await Task.sleep(for: .milliseconds(250))
+            guard !Task.isCancelled else { return }
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                await vm.loadTransactions()
+            } else {
+                await vm.search(trimmed)
             }
         }
         .toolbar {

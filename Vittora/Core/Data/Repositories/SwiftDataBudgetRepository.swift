@@ -64,12 +64,16 @@ actor SwiftDataBudgetRepository: BudgetRepository {
         let now = Date()
         let descriptor = FetchDescriptor<SDBudget>(
             predicate: #Predicate { budget in
-                budget.startDate <= now && (budget.periodRawValue != "" || true)
+                budget.startDate <= now
             },
             sortBy: [SortDescriptor(\.startDate, order: .reverse)]
         )
         let models = try modelContext.fetch(descriptor)
-        return models.map(BudgetMapper.toEntity)
+        return models
+            .map(BudgetMapper.toEntity)
+            .filter { budget in
+                budget.period.dateRange(startingFrom: budget.startDate).contains(now)
+            }
     }
 
     func fetchForCategory(_ categoryID: UUID, period: BudgetPeriod) async throws -> BudgetEntity? {

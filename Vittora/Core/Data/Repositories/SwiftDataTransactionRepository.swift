@@ -3,6 +3,9 @@ import SwiftData
 
 @ModelActor
 actor SwiftDataTransactionRepository: TransactionRepository {
+    private static let defaultFilteredFetchLimit = 500
+    private static let unscopedFilteredFetchLimit = 200
+
     func fetchTransactionCount() async throws -> Int {
         try modelContext.fetchCount(FetchDescriptor<SDTransaction>())
     }
@@ -17,47 +20,124 @@ actor SwiftDataTransactionRepository: TransactionRepository {
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
             // PERF-12: unbounded history loads are capped; callers needing full sets should iterate.
-            descriptor.fetchLimit = 500
+            descriptor.fetchLimit = Self.defaultFilteredFetchLimit
             models = try modelContext.fetch(descriptor)
         }
 
         return models.map(TransactionMapper.toEntity)
     }
 
-    // PERF-05: Push all supported dimensions to SQLite via a single #Predicate.
+    // PERF-05: Push supported dimensions to SQLite where the predicate type-checker allows.
     // Tags and amountRange are post-filtered because SwiftData cannot express
     // array-element membership or Decimal ordering in SQLite.
     private func fetchFiltered(_ filter: TransactionFilter) throws -> [SDTransaction] {
-        // PERF-05: Push date range to SQLite (most selective indexed dimension).
-        // Type, category, account, payee, and text filters are applied in-memory
-        // because compound optional-UUID predicates exceed Xcode 26's type-check budget.
-        let startDate: Date = filter.dateRange?.lowerBound ?? .distantPast
-        let endDate: Date = filter.dateRange?.upperBound ?? .distantFuture
+        let startDate = filter.dateRange?.lowerBound ?? .distantPast
+        let endDate = filter.dateRange?.upperBound ?? .distantFuture
         let hasDateRange = filter.dateRange != nil
+        let singleAccountID = filter.accountIDs.flatMap { $0.count == 1 ? $0.first : nil }
+        let singleCategoryID = filter.categoryIDs.flatMap { $0.count == 1 ? $0.first : nil }
+        let singleTypeRaw = filter.types.flatMap { $0.count == 1 ? $0.first?.rawValue : nil }
 
-        let predicate = #Predicate<SDTransaction> { tx in
-            hasDateRange == false || (tx.date >= startDate && tx.date <= endDate)
+        var results: [SDTransaction]
+
+        if let accountID = singleAccountID, let typeRaw = singleTypeRaw, hasDateRange {
+            let capturedAccountID = accountID
+            let predicate = #Predicate<SDTransaction> { tx in
+                (tx.accountID == capturedAccountID || tx.destinationAccountID == capturedAccountID)
+                    && tx.typeRawValue == typeRaw
+                    && tx.date >= startDate
+                    && tx.date <= endDate
+            }
+            var descriptor = FetchDescriptor<SDTransaction>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            results = try modelContext.fetch(descriptor)
+        } else if let accountID = singleAccountID, hasDateRange {
+            let capturedAccountID = accountID
+            let predicate = #Predicate<SDTransaction> { tx in
+                (tx.accountID == capturedAccountID || tx.destinationAccountID == capturedAccountID)
+                    && tx.date >= startDate
+                    && tx.date <= endDate
+            }
+            var descriptor = FetchDescriptor<SDTransaction>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            results = try modelContext.fetch(descriptor)
+        } else if let accountID = singleAccountID {
+            let capturedAccountID = accountID
+            let predicate = #Predicate<SDTransaction> { tx in
+                tx.accountID == capturedAccountID || tx.destinationAccountID == capturedAccountID
+            }
+            var descriptor = FetchDescriptor<SDTransaction>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            descriptor.fetchLimit = Self.defaultFilteredFetchLimit
+            results = try modelContext.fetch(descriptor)
+        } else if let categoryID = singleCategoryID, hasDateRange {
+            let capturedCategoryID = categoryID
+            let predicate = #Predicate<SDTransaction> { tx in
+                tx.categoryID == capturedCategoryID
+                    && tx.date >= startDate
+                    && tx.date <= endDate
+            }
+            var descriptor = FetchDescriptor<SDTransaction>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            results = try modelContext.fetch(descriptor)
+        } else if let typeRaw = singleTypeRaw, hasDateRange {
+            let predicate = #Predicate<SDTransaction> { tx in
+                tx.typeRawValue == typeRaw
+                    && tx.date >= startDate
+                    && tx.date <= endDate
+            }
+            var descriptor = FetchDescriptor<SDTransaction>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            results = try modelContext.fetch(descriptor)
+        } else if let typeRaw = singleTypeRaw {
+            let predicate = #Predicate<SDTransaction> { tx in
+                tx.typeRawValue == typeRaw
+            }
+            var descriptor = FetchDescriptor<SDTransaction>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            descriptor.fetchLimit = Self.defaultFilteredFetchLimit
+            results = try modelContext.fetch(descriptor)
+        } else if hasDateRange {
+            let predicate = #Predicate<SDTransaction> { tx in
+                tx.date >= startDate && tx.date <= endDate
+            }
+            var descriptor = FetchDescriptor<SDTransaction>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            results = try modelContext.fetch(descriptor)
+        } else {
+            var descriptor = FetchDescriptor<SDTransaction>(
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            descriptor.fetchLimit = Self.unscopedFilteredFetchLimit
+            results = try modelContext.fetch(descriptor)
         }
-        var descriptor = FetchDescriptor<SDTransaction>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.date, order: .reverse)]
-        )
-        // Cap note-search queries when no date range narrows the scan.
-        if let query = filter.searchQuery, !query.isEmpty, !hasDateRange {
-            descriptor.fetchLimit = 200
-        }
 
-        var results = try modelContext.fetch(descriptor)
-
-        if let types = filter.types, !types.isEmpty {
+        if let types = filter.types, types.count != 1 {
             let rawValues = Set(types.map(\.rawValue))
             results = results.filter { rawValues.contains($0.typeRawValue) }
         }
-        if let catIDs = filter.categoryIDs, !catIDs.isEmpty {
+        if let catIDs = filter.categoryIDs, catIDs.count != 1 {
             results = results.filter { $0.categoryID.map { catIDs.contains($0) } ?? false }
         }
-        if let accIDs = filter.accountIDs, !accIDs.isEmpty {
-            results = results.filter { $0.accountID.map { accIDs.contains($0) } ?? false }
+        if let accIDs = filter.accountIDs, accIDs.count != 1 {
+            results = results.filter {
+                $0.accountID.map { accIDs.contains($0) } == true
+                    || $0.destinationAccountID.map { accIDs.contains($0) } == true
+            }
         }
         if let payeeIDs = filter.payeeIDs, !payeeIDs.isEmpty {
             results = results.filter { $0.payeeID.map { payeeIDs.contains($0) } ?? false }
@@ -92,6 +172,18 @@ actor SwiftDataTransactionRepository: TransactionRepository {
             return nil
         }
         return TransactionMapper.toEntity(model)
+    }
+
+    func fetchForAccount(id: UUID, limit: Int) async throws -> [TransactionEntity] {
+        let accountID = id
+        var descriptor = FetchDescriptor<SDTransaction>(
+            predicate: #Predicate { tx in
+                tx.accountID == accountID || tx.destinationAccountID == accountID
+            },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = max(1, limit)
+        return try modelContext.fetch(descriptor).map(TransactionMapper.toEntity)
     }
 
     func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {

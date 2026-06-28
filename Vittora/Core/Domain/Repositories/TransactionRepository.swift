@@ -9,6 +9,7 @@ protocol TransactionRepository: Sendable {
     /// or reconciliation would reason over partial sums.
     func fetchAllForReconciliation() async throws -> [TransactionEntity]
     func fetchByID(_ id: UUID) async throws -> TransactionEntity?
+    func fetchForAccount(id: UUID, limit: Int) async throws -> [TransactionEntity]
     func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity]
     func hasTransactions(forAccountID id: UUID) async throws -> Bool
     func create(_ entity: TransactionEntity) async throws
