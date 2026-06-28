@@ -7,8 +7,8 @@ TEST_DERIVED := .build-ci
 # Override in CI after Scripts/ci/resolve-ios-simulator-destination.sh
 IOS_SIM_DEST ?= platform=iOS Simulator,name=iPhone 16
 
-# Ad-hoc signing on the runner exercises real Keychain/Secure Enclave paths for the app
-# under test while remaining CI-friendly (no Apple ID secret required for Simulator).
+# Ad-hoc signing for Simulator installs (no Apple ID secret on CI). The Simulator has
+# no device Secure Enclave; real SE encryption paths remain manual/device-gated (L5).
 IOS_TEST_SIGN_FLAGS := CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=-
 
 help:
@@ -44,7 +44,7 @@ build-macos:
 ci-clean:
 	rm -rf $(TEST_DERIVED)
 
-test: test-macos test-ios-ui
+test: ci-clean test-macos test-ios-ui
 
 test-macos:
 	@mkdir -p $(TEST_DERIVED)
