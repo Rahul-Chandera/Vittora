@@ -109,6 +109,7 @@ test-data:
 		-destination 'platform=macOS' \
 		-derivedDataPath .build \
 		-only-testing:VittoraTests/DataManagementServiceTests \
+		-only-testing:VittoraTests/ModelContainerConfigTests \
 		-only-testing:VittoraTests/SwiftDataDocumentRepositoryTests \
 		test
 

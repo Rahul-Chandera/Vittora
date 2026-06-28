@@ -1,23 +1,29 @@
 import SwiftData
 
+// MARK: - Shared model sets
+
+private enum VittoraSchemaModels {
+    /// Models unchanged across V1–V6 transaction migrations (non-transaction entities).
+    static let sharedBaseline: [any PersistentModel.Type] = [
+        SDAccount.self,
+        SDCategory.self,
+        SDBudget.self,
+        SDPayee.self,
+        SDRecurringRule.self,
+        SDDocument.self,
+        SDDebt.self,
+        SDSplitGroup.self,
+        SDGroupExpense.self,
+        SDTaxProfile.self,
+        SDSavingsGoal.self,
+    ]
+}
+
 enum VittoraSchemaV1: VersionedSchema {
     static let versionIdentifier = Schema.Version(1, 0, 0)
 
     static var models: [any PersistentModel.Type] {
-        [
-            SDTransaction.self,
-            SDAccount.self,
-            SDCategory.self,
-            SDBudget.self,
-            SDPayee.self,
-            SDRecurringRule.self,
-            SDDocument.self,
-            SDDebt.self,
-            SDSplitGroup.self,
-            SDGroupExpense.self,
-            SDTaxProfile.self,
-            SDSavingsGoal.self,
-        ]
+        [VittoraSchemaV1.SDTransaction.self] + VittoraSchemaModels.sharedBaseline
     }
 }
 
@@ -29,7 +35,7 @@ enum VittoraSchemaV2: VersionedSchema {
     static let versionIdentifier = Schema.Version(2, 0, 0)
 
     static var models: [any PersistentModel.Type] {
-        VittoraSchemaV1.models
+        [VittoraSchemaV2.SDTransaction.self] + VittoraSchemaModels.sharedBaseline
     }
 }
 
@@ -43,7 +49,7 @@ enum VittoraSchemaV3: VersionedSchema {
     static let versionIdentifier = Schema.Version(3, 0, 0)
 
     static var models: [any PersistentModel.Type] {
-        VittoraSchemaV2.models
+        [SDTransaction.self] + VittoraSchemaModels.sharedBaseline
     }
 }
 

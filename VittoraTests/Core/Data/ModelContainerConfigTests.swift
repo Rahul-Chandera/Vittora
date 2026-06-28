@@ -46,10 +46,91 @@ struct ModelContainerConfigTests {
         #expect(VittoraSchemaV6.versionIdentifier == Schema.Version(6, 0, 0))
     }
 
-    // NOTE: This is a persistence round-trip at the current (V2) schema — it
-    // closes and reopens an on-disk store — not a V1→V2 migration test. A
-    // faithful V1→V2 migration test (frozen V1 snapshot without transferPairID)
-    // is tracked under I4; see EXECUTION_PLAN.md.
+    @Test("schema snapshots differ between V1, V2, and V3")
+    func schemaTransactionSnapshotsDifferByVersion() {
+        #expect(VittoraSchemaV1.models.contains(where: { $0 == VittoraSchemaV1.SDTransaction.self }))
+        #expect(VittoraSchemaV2.models.contains(where: { $0 == VittoraSchemaV2.SDTransaction.self }))
+        #expect(VittoraSchemaV3.models.contains(where: { $0 == SDTransaction.self }))
+        #expect(!VittoraSchemaV1.models.contains(where: { $0 == SDTransaction.self }))
+        #expect(!VittoraSchemaV2.models.contains(where: { $0 == SDTransaction.self }))
+    }
+
+    /// Seeds an on-disk store at **Schema V1** (nested snapshot without `transferPairID`),
+    /// reopens at Schema V2 with `VittoraMigrationPlan`, and asserts legacy rows survive
+    /// with `transferPairID == nil` until explicitly set post-migrate.
+    @Test("on-disk V1 store migrates to V2 preserving transaction data")
+    func onDiskStoreMigratesV1ToV2() throws {
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let storeURL = dir.appendingPathComponent("vittora-v1-migration.store")
+
+        let txID = UUID()
+        let accountID = UUID()
+        let amount: Decimal = 125.50
+        let note = "pre-V2 row"
+        let externalID = UUID().uuidString
+        let seededAt = Date(timeIntervalSince1970: 1_700_000_000)
+
+        // Phase 1: create a fresh on-disk store at Schema V1 (no migration plan).
+        do {
+            let v1Schema = Schema(VittoraSchemaV1.models)
+            let config = ModelConfiguration(schema: v1Schema, url: storeURL, cloudKitDatabase: .none)
+            let container = try ModelContainer(for: v1Schema, configurations: [config])
+            let ctx = ModelContext(container)
+            ctx.insert(VittoraSchemaV1.SDTransaction(
+                id: txID,
+                amount: amount,
+                date: seededAt,
+                note: note,
+                type: .expense,
+                accountID: accountID,
+                externalID: externalID
+            ))
+            try ctx.save()
+        }
+
+        // Phase 2: reopen at Schema V2; the lightweight V1→V2 stage runs on open.
+        let v2Schema = Schema(VittoraSchemaV2.models)
+        let config = ModelConfiguration(schema: v2Schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: v2Schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let ctx = ModelContext(container)
+        let rows = try ctx.fetch(FetchDescriptor<VittoraSchemaV2.SDTransaction>())
+        let migrated = try #require(rows.first { $0.id == txID })
+
+        #expect(rows.count == 1)
+        #expect(migrated.amount == amount)
+        #expect(migrated.note == note)
+        #expect(migrated.accountID == accountID)
+        #expect(migrated.externalID == externalID)
+        #expect(migrated.date == seededAt)
+        #expect(migrated.transferPairID == nil)
+
+        let pairID = UUID()
+        migrated.type = .transfer
+        migrated.transferPairID = pairID
+        try ctx.save()
+
+        // Phase 3: round-trip at V2 to confirm the new column persists.
+        let reopened = try ModelContainer(
+            for: v2Schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let reloadCtx = ModelContext(reopened)
+        let reloaded = try #require(
+            try reloadCtx.fetch(FetchDescriptor<VittoraSchemaV2.SDTransaction>()).first { $0.id == txID }
+        )
+        #expect(reloaded.transferPairID == pairID)
+    }
+
+    // Persistence round-trip at Schema V2 — not a V1→V2 migration test (see
+    // `onDiskStoreMigratesV1ToV2` for the forward migration fixture).
     @Test("on-disk store round-trips transactions including transferPairID")
     func onDiskStoreRoundTripsTransferPairID() throws {
         let dir = URL(fileURLWithPath: NSTemporaryDirectory())
@@ -72,14 +153,14 @@ struct ModelContainerConfigTests {
                 configurations: [config]
             )
             let ctx = ModelContext(container)
-            ctx.insert(SDTransaction(
+            ctx.insert(VittoraSchemaV2.SDTransaction(
                 id: transferLegID,
                 amount: 100,
                 type: .transfer,
                 transferPairID: pairID,
                 externalID: UUID().uuidString
             ))
-            ctx.insert(SDTransaction(
+            ctx.insert(VittoraSchemaV2.SDTransaction(
                 id: plainTxID,
                 amount: 50,
                 externalID: UUID().uuidString
@@ -96,7 +177,7 @@ struct ModelContainerConfigTests {
             configurations: [config]
         )
         let ctx = ModelContext(container)
-        let rows = try ctx.fetch(FetchDescriptor<SDTransaction>())
+        let rows = try ctx.fetch(FetchDescriptor<VittoraSchemaV2.SDTransaction>())
 
         #expect(rows.count == 2)
         let reloadedLeg = rows.first { $0.id == transferLegID }
