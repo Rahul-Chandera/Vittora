@@ -23,8 +23,7 @@ import Foundation
         defer { isLoading = false }
 
         do {
-            let transactions = try await fetchUseCase.execute(filter: nil)
-            guard let found = transactions.first(where: { $0.id == id }) else {
+            guard let found = try await fetchUseCase.execute(id: id) else {
                 error = String(localized: "We couldn't find this transaction.")
                 return
             }

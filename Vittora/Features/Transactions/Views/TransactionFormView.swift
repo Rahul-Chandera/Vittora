@@ -226,7 +226,7 @@ struct TransactionFormView: View {
 
             Picker(String(localized: "Payment Method"), selection: Bindable(vm).paymentMethod) {
                 ForEach(PaymentMethod.allCases, id: \.self) { method in
-                    Text(method.rawValue.capitalized).tag(method)
+                    Text(method.displayName).tag(method)
                 }
             }
         }
@@ -257,8 +257,7 @@ struct TransactionFormView: View {
 
         let fetchUseCase = FetchTransactionsUseCase(transactionRepository: transactionRepo)
         do {
-            let transactions = try await fetchUseCase.execute(filter: nil)
-            if let transaction = transactions.first(where: { $0.id == transactionID }) {
+            if let transaction = try await fetchUseCase.execute(id: transactionID) {
                 vm.loadTransaction(transaction)
             } else {
                 vm.error = String(localized: "We couldn't find this transaction.")

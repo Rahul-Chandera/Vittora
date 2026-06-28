@@ -18,7 +18,7 @@ struct TransactionDetailView: View {
                         VStack(spacing: VSpacing.sm) {
                             let amountColor = transactionColor(for: transaction.type)
                             HStack(spacing: VSpacing.sm) {
-                                Text(formatAmount(transaction.amount))
+                                Text(CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode))
                                     .font(VTypography.title1)
                                     .foregroundColor(amountColor)
 
@@ -28,7 +28,7 @@ struct TransactionDetailView: View {
                             }
 
                             HStack(spacing: VSpacing.md) {
-                                Text(transaction.type.rawValue.capitalized)
+                                Text(transaction.type.displayName)
                                     .font(VTypography.caption2)
                                     .foregroundColor(.white)
                                     .padding(.horizontal, VSpacing.md)
@@ -51,7 +51,7 @@ struct TransactionDetailView: View {
                         .accessibilityLabel(String(localized: "Transaction summary"))
                         .accessibilityValue(
                             String(
-                                localized: "\(transaction.type.rawValue.capitalized), \(formatAmount(transaction.amount)), \(formatDate(transaction.date))"
+                                localized: "\(transaction.type.displayName), \(CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode)), \(formatDate(transaction.date))"
                             )
                         )
 
@@ -82,7 +82,7 @@ struct TransactionDetailView: View {
                                 }
                             }
 
-                            detailRow(label: String(localized: "Payment Method"), value: transaction.paymentMethod.rawValue.capitalized)
+                            detailRow(label: String(localized: "Payment Method"), value: transaction.paymentMethod.displayName)
                         }
                         .padding(VSpacing.lg)
 
@@ -109,7 +109,7 @@ struct TransactionDetailView: View {
 
                                                 Spacer()
 
-                                                Text(formatAmount(related.amount))
+                                                Text(CurrencyFormatter.format(related.amount, currencyCode: currencyCode))
                                                     .font(VTypography.caption1)
                                                     .foregroundColor(transactionColor(for: related.type))
                                             }
@@ -204,10 +204,6 @@ struct TransactionDetailView: View {
                 .font(VTypography.body)
                 .foregroundColor(VColors.textPrimary)
         }
-    }
-
-    private func formatAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
     }
 
     private func formatDate(_ date: Date) -> String {

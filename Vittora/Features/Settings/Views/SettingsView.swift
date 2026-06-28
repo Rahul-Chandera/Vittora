@@ -217,7 +217,7 @@ struct SettingsView: View {
     private func resetRuntimeStateAfterFactoryReset() {
         // Factory reset clears persisted onboarding/security markers.
         // Reset in-memory state as well so the app immediately returns to onboarding.
-        vm.isAppLockEnabled = false
+        vm.resetKeychainBackedPreferencesInMemory()
         appState.isLocked = false
         appState.isAuthenticated = true
         appState.isOnboardingComplete = false

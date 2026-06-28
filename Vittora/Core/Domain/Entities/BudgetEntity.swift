@@ -3,6 +3,15 @@ import Foundation
 enum BudgetPeriod: String, Sendable, Hashable, CaseIterable, Codable {
     case weekly, monthly, quarterly, yearly
 
+    var displayName: String {
+        switch self {
+        case .weekly: String(localized: "Weekly")
+        case .monthly: String(localized: "Monthly")
+        case .quarterly: String(localized: "Quarterly")
+        case .yearly: String(localized: "Yearly")
+        }
+    }
+
     func dateRange(startingFrom startDate: Date) -> ClosedRange<Date> {
         let calendar = Calendar.current
         let endDate: Date

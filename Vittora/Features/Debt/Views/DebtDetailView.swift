@@ -68,7 +68,7 @@ struct DebtDetailView: View {
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
                 Spacer()
-                Text(formattedAmount(vm.netBalance))
+                Text(CurrencyFormatter.format(vm.netBalance, currencyCode: currencyCode))
                     .font(VTypography.amountSmall)
                     .foregroundColor(vm.netBalance >= 0 ? VColors.income : VColors.expense)
             }
@@ -80,7 +80,7 @@ struct DebtDetailView: View {
 
     private func balanceColumn(_ title: String, _ amount: Decimal, _ color: Color) -> some View {
         VStack(spacing: VSpacing.xs) {
-            Text(formattedAmount(amount))
+            Text(CurrencyFormatter.format(amount, currencyCode: currencyCode))
                 .font(VTypography.amountMedium)
                 .foregroundColor(color)
             Text(title)
@@ -142,11 +142,11 @@ struct DebtDetailView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: VSpacing.xxs) {
-                Text(formattedAmount(entry.amount))
+                Text(CurrencyFormatter.format(entry.amount, currencyCode: currencyCode))
                     .font(VTypography.amountCaption)
                     .foregroundColor(VColors.textPrimary)
                 if !entry.isSettled && entry.settledAmount > 0 {
-                    Text(String(localized: "\(formattedAmount(entry.remainingAmount)) left"))
+                    Text(String(localized: "\(CurrencyFormatter.format(entry.remainingAmount, currencyCode: currencyCode)) left"))
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
                 }
@@ -178,10 +178,6 @@ struct DebtDetailView: View {
             }
         }
         .padding(VSpacing.md)
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
     }
 }
 

@@ -5,6 +5,12 @@ actor MockTransactionRepository: TransactionRepository {
     private(set) var transactions: [TransactionEntity] = []
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    /// When set, simulates repository list caps (e.g. SwiftDataTransactionRepository's 500-row limit).
+    var fetchAllLimit: Int?
+
+    func setFetchAllLimit(_ limit: Int?) {
+        fetchAllLimit = limit
+    }
 
     func fetchTransactionCount() async throws -> Int {
         if shouldThrowError { throw throwError }
@@ -34,7 +40,11 @@ actor MockTransactionRepository: TransactionRepository {
                 results = results.filter { amountRange.contains($0.amount) }
             }
         }
-        return results.sorted { $0.date > $1.date }
+        let sorted = results.sorted { $0.date > $1.date }
+        if let fetchAllLimit {
+            return Array(sorted.prefix(fetchAllLimit))
+        }
+        return sorted
     }
 
     func fetchAllForReconciliation() async throws -> [TransactionEntity] {

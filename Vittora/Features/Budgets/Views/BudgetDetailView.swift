@@ -25,7 +25,7 @@ struct BudgetDetailView: View {
                                     .font(VTypography.bodyBold)
                                     .foregroundColor(VColors.textPrimary)
 
-                                Text(budget.period.rawValue.capitalized)
+                                Text(budget.period.displayName)
                                     .font(VTypography.caption1)
                                     .foregroundColor(VColors.textSecondary)
                             }
@@ -82,7 +82,7 @@ struct BudgetDetailView: View {
                                             .font(VTypography.caption1)
                                             .foregroundColor(VColors.textSecondary)
                                         Spacer()
-                                        Text(budget.period.rawValue.capitalized)
+                                        Text(budget.period.displayName)
                                             .font(VTypography.body)
                                             .foregroundColor(VColors.textPrimary)
                                     }

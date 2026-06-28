@@ -7,7 +7,7 @@ struct PeriodSelectorView: View {
         #if os(iOS)
         Picker(String(localized: "Period"), selection: $selectedPeriod) {
             ForEach(BudgetPeriod.allCases, id: \.self) { period in
-                Text(period.rawValue.capitalized).tag(period)
+                Text(period.displayName).tag(period)
             }
         }
         .pickerStyle(.segmented)
@@ -15,7 +15,7 @@ struct PeriodSelectorView: View {
         HStack(spacing: VSpacing.md) {
             ForEach(BudgetPeriod.allCases, id: \.self) { period in
                 Button(action: { selectedPeriod = period }) {
-                    Text(period.rawValue.capitalized)
+                    Text(period.displayName)
                         .font(VTypography.caption1)
                         .foregroundColor(selectedPeriod == period ? VColors.primary : VColors.textSecondary)
                         .frame(maxWidth: .infinity)

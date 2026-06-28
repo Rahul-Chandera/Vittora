@@ -511,6 +511,32 @@ struct TransactionUseCaseTests {
             #expect(result.count == 1)
             #expect(result[0].type == .expense)
         }
+
+        @Test("execute(id:) finds a transaction outside the fetchAll list window")
+        func testFetchByIDBeyondListWindow() async throws {
+            let repo = MockTransactionRepository()
+            await repo.setFetchAllLimit(500)
+            let calendar = Calendar.current
+            let oldestDate = calendar.date(byAdding: .day, value: -600, to: .now) ?? .now
+            let oldest = TransactionEntity(amount: 1, date: oldestDate, note: "Oldest", type: .expense)
+            await repo.seed(oldest)
+
+            for dayOffset in 0..<500 {
+                let date = calendar.date(byAdding: .day, value: -dayOffset, to: .now) ?? .now
+                await repo.seed(
+                    TransactionEntity(amount: Decimal(dayOffset + 2), date: date, type: .expense)
+                )
+            }
+
+            let useCase = FetchTransactionsUseCase(transactionRepository: repo)
+            let listed = try await useCase.execute(filter: nil)
+            #expect(listed.count == 500)
+            #expect(listed.contains(where: { $0.id == oldest.id }) == false)
+
+            let found = try await useCase.execute(id: oldest.id)
+            #expect(found?.id == oldest.id)
+            #expect(found?.note == "Oldest")
+        }
     }
 
     // MARK: - SearchTransactionsUseCase

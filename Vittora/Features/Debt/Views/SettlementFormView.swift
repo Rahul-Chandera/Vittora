@@ -31,7 +31,7 @@ struct SettlementFormView: View {
                             .textContentType(nil)
                             #endif
                     }
-                    Button(String(localized: "Settle Full Amount (\(formattedAmount(maxAmount)))")) {
+                    Button(String(localized: "Settle Full Amount (\(CurrencyFormatter.format(maxAmount, currencyCode: currencyCode)))")) {
                         amountString = "\(maxAmount)"
                     }
                     .font(VTypography.caption1)
@@ -109,9 +109,5 @@ struct SettlementFormView: View {
             self.error = error.localizedDescription
         }
         isLoading = false
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(currencyCode: currencyCode)
     }
 }

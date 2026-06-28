@@ -48,7 +48,7 @@ struct AccountTypeIcon: View {
         ForEach(AccountType.allCases, id: \.self) { type in
             HStack {
                 AccountTypeIcon(type: type)
-                Text(type.rawValue.capitalized)
+                Text(type.displayName)
                     .font(VTypography.body)
                 Spacer()
             }

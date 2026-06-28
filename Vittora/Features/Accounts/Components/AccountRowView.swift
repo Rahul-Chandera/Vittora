@@ -11,7 +11,7 @@ struct AccountRowView: View {
                 Text(account.name)
                     .font(VTypography.bodyBold)
                     .foregroundColor(VColors.textPrimary)
-                Text(account.type.rawValue.capitalized.replacingOccurrences(of: "Creditcard", with: "Credit Card").replacingOccurrences(of: "Digitalwallet", with: "Digital Wallet"))
+                Text(account.type.displayName)
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
             }

@@ -21,7 +21,9 @@ struct ProfileSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .onAppear { editingName = vm.userName }
-        .onChange(of: editingName) { _, new in vm.userName = new }
+        .onChange(of: editingName) { _, new in
+            Task { await vm.updateUserName(new) }
+        }
     }
 }
 
@@ -104,10 +106,19 @@ struct SecuritySettingsView: View {
             get: { vm.isAppLockEnabled },
             set: { newValue in
                 if newValue {
-                    vm.isAppLockEnabled = true
+                    Task { await vm.updateAppLockEnabled(true) }
                 } else {
                     Task { await disableAppLockIfNeeded() }
                 }
+            }
+        )
+    }
+
+    private var passcodeFallbackBinding: Binding<Bool> {
+        Binding(
+            get: { vm.allowPasscodeFallback },
+            set: { newValue in
+                Task { await vm.updateAllowPasscodeFallback(newValue) }
             }
         )
     }
@@ -148,7 +159,7 @@ struct SecuritySettingsView: View {
                 }
 
                 Section {
-                    Toggle(String(localized: "Passcode Fallback"), isOn: $vm.allowPasscodeFallback)
+                    Toggle(String(localized: "Passcode Fallback"), isOn: passcodeFallbackBinding)
                 } footer: {
                     Text(String(localized: "Allow your device passcode if biometric authentication fails."))
                         .foregroundStyle(VColors.textSecondary)

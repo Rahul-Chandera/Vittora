@@ -54,7 +54,7 @@ struct MonthlyOverviewView: View {
                 .font(VTypography.caption2)
                 .foregroundColor(VColors.textSecondary)
                 .adaptiveLineLimit(1)
-            Text(formattedAmount(amount))
+            Text(CurrencyFormatter.formatCompact(amount, currencyCode: currencyCode))
                 .font(VTypography.amountSmall)
                 .foregroundColor(color)
         }
@@ -95,12 +95,12 @@ struct MonthlyOverviewView: View {
 
                         Spacer()
 
-                        Text(formattedAmount(item.income))
+                        Text(CurrencyFormatter.formatCompact(item.income, currencyCode: currencyCode))
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.income)
                             .frame(width: 80, alignment: .trailing)
 
-                        Text(formattedAmount(item.expense))
+                        Text(CurrencyFormatter.formatCompact(item.expense, currencyCode: currencyCode))
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.expense)
                             .frame(width: 80, alignment: .trailing)
@@ -115,10 +115,6 @@ struct MonthlyOverviewView: View {
             .background(VColors.secondaryBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode).precision(.fractionLength(0)))
     }
 
     private func hasReportData(_ vm: MonthlyOverviewViewModel) -> Bool {

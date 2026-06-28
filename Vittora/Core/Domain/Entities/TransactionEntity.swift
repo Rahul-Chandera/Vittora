@@ -2,10 +2,31 @@ import Foundation
 
 enum TransactionType: String, Sendable, Hashable, CaseIterable, Codable {
     case expense, income, transfer, adjustment
+
+    var displayName: String {
+        switch self {
+        case .expense: String(localized: "Expense")
+        case .income: String(localized: "Income")
+        case .transfer: String(localized: "Transfer")
+        case .adjustment: String(localized: "Adjustment")
+        }
+    }
 }
 
 enum PaymentMethod: String, Sendable, Hashable, CaseIterable, Codable {
     case cash, creditCard, debitCard, bankTransfer, upi, wallet, other
+
+    var displayName: String {
+        switch self {
+        case .cash: String(localized: "Cash")
+        case .creditCard: String(localized: "Credit Card")
+        case .debitCard: String(localized: "Debit Card")
+        case .bankTransfer: String(localized: "Bank Transfer")
+        case .upi: String(localized: "UPI")
+        case .wallet: String(localized: "Wallet")
+        case .other: String(localized: "Other")
+        }
+    }
 }
 
 /// Direction a `.transfer` leg moves money relative to its own `accountID`

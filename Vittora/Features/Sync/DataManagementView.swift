@@ -76,7 +76,7 @@ struct DataManagementView: View {
     @Environment(SettingsViewModel.self) private var settingsVM
     @Environment(\.dependencies) private var dependencies
     @State private var vm: DataManagementViewModel?
-    @AppStorage("vittora.exportSchedule") private var exportScheduleRaw: String = "off"
+    @AppStorage(AppUserDefaults.StandardKey.exportSchedule) private var exportScheduleRaw: String = "off"
 
     private var exportSchedule: SettingsViewModel.ExportSchedule {
         get { SettingsViewModel.ExportSchedule(rawValue: exportScheduleRaw) ?? .off }
@@ -286,7 +286,7 @@ struct DataManagementView: View {
     }
 
     private func resetRuntimeStateAfterFactoryReset() {
-        settingsVM.isAppLockEnabled = false
+        settingsVM.resetKeychainBackedPreferencesInMemory()
         appState.isLocked = false
         appState.isAuthenticated = true
         appState.isOnboardingComplete = false

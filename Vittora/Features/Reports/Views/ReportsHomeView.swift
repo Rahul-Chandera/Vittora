@@ -56,10 +56,7 @@ struct ReportsHomeView: View {
         .task {
             if vm == nil {
                 guard let transactionRepo = dependencies.transactionRepository else { return }
-                vm = ReportsHomeViewModel(
-                    transactionRepository: transactionRepo,
-                    currencyCode: currencyCode
-                )
+                vm = ReportsHomeViewModel(transactionRepository: transactionRepo)
                 await vm?.load()
             }
             dependencies.conversionEventRecorder?.afterReportOpened()
@@ -74,7 +71,7 @@ struct ReportsHomeView: View {
                 Text(String(localized: "This Month"))
                     .font(VTypography.caption2)
                     .foregroundColor(VColors.textSecondary)
-                Text(vm.formattedAmount(vm.monthSpending))
+                Text(CurrencyFormatter.format(vm.monthSpending, currencyCode: currencyCode))
                     .font(VTypography.amountMedium)
                     .foregroundColor(VColors.expense)
                 Text(String(localized: "Spent"))
@@ -88,7 +85,7 @@ struct ReportsHomeView: View {
                 Text(String(localized: "This Month"))
                     .font(VTypography.caption2)
                     .foregroundColor(VColors.textSecondary)
-                Text(vm.formattedAmount(vm.monthIncome))
+                Text(CurrencyFormatter.format(vm.monthIncome, currencyCode: currencyCode))
                     .font(VTypography.amountMedium)
                     .foregroundColor(VColors.income)
                 Text(String(localized: "Earned"))

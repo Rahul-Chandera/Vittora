@@ -48,7 +48,7 @@ struct TransactionFilterSheet: View {
 
                 Section(String(localized: "Transaction Type")) {
                     ForEach(TransactionType.allCases, id: \.self) { type in
-                        Toggle(type.rawValue.capitalized, isOn: $localVM.selectedTypes.contains(type))
+                        Toggle(type.displayName, isOn: $localVM.selectedTypes.contains(type))
                             .accessibilityIdentifier("transaction-filter-type-\(type.rawValue)")
                     }
                 }
