@@ -50,16 +50,7 @@ struct SplitGroupListView: View {
         }
         .task {
             if vm == nil {
-                guard let splitRepo = dependencies.splitGroupRepository,
-                      let payeeRepo = dependencies.payeeRepository else { return }
-                vm = SplitGroupListViewModel(
-                    fetchGroupsUseCase: FetchSplitGroupsUseCase(
-                        splitGroupRepository: splitRepo,
-                        payeeRepository: payeeRepo
-                    ),
-                    createGroupUseCase: CreateSplitGroupUseCase(splitGroupRepository: splitRepo),
-                    splitGroupRepository: splitRepo
-                )
+                vm = dependencies.makeSplitGroupListViewModel()
                 await vm?.load()
             }
         }

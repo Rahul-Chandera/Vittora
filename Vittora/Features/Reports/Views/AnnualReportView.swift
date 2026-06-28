@@ -198,9 +198,8 @@ struct AnnualReportView: View {
     // MARK: - Helpers
 
     private func loadData() async {
-        guard let repo = dependencies.transactionRepository else { return }
         if vm == nil {
-            let useCase = MonthlyOverviewUseCase(transactionRepository: repo)
+            let useCase = MonthlyOverviewUseCase(transactionRepository: dependencies.transactionRepository)
             vm = MonthlyOverviewViewModel(useCase: useCase)
         }
         await vm?.load()

@@ -30,8 +30,7 @@ struct MonthlyOverviewView: View {
         #endif
         .task {
             if vm == nil {
-                guard let repo = dependencies.transactionRepository else { return }
-                let useCase = MonthlyOverviewUseCase(transactionRepository: repo)
+                let useCase = MonthlyOverviewUseCase(transactionRepository: dependencies.transactionRepository)
                 vm = MonthlyOverviewViewModel(useCase: useCase)
                 await vm?.load()
             }

@@ -87,13 +87,13 @@ struct DebtFormView: View {
             }
         }
         .task {
-            guard vm == nil,
-                  let debtRepo = dependencies.debtRepository,
-                  let payeeRepo = dependencies.payeeRepository else { return }
-            let formVM = DebtFormViewModel(createUseCase: CreateDebtEntryUseCase(debtRepository: debtRepo))
+            guard vm == nil else { return }
+            let formVM = DebtFormViewModel(
+                createUseCase: CreateDebtEntryUseCase(debtRepository: dependencies.debtRepository)
+            )
             vm = formVM
             do {
-                payees = try await payeeRepo.fetchAll()
+                payees = try await dependencies.payeeRepository.fetchAll()
             } catch {
                 formVM.error = error.localizedDescription
             }

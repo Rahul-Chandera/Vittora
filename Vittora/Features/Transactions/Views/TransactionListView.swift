@@ -23,7 +23,7 @@ struct TransactionListView: View {
         .accessibilityIdentifier("transaction-list-root")
         .task {
             if vm == nil {
-                vm = await createViewModel()
+                vm = createViewModel()
                 await vm?.loadTransactions()
             }
         }
@@ -269,32 +269,8 @@ struct TransactionListView: View {
         }
     }
 
-    private func createViewModel() async -> TransactionListViewModel? {
-        guard let transactionRepo = dependencies.transactionRepository,
-              let documentRepo = dependencies.documentRepository,
-              let documentStorage = dependencies.documentStorageService,
-              let ledgerWriteStore = dependencies.ledgerWriteStore else {
-            return nil
-        }
-
-        let fetchUseCase = FetchTransactionsUseCase(transactionRepository: transactionRepo)
-        let searchUseCase = SearchTransactionsUseCase(transactionRepository: transactionRepo)
-        let deleteUseCase = DeleteTransactionUseCase(
-            transactionRepository: transactionRepo,
-            documentRepository: documentRepo,
-            documentStorageService: documentStorage,
-            ledgerWriting: ledgerWriteStore
-        )
-        let bulkOpsUseCase = BulkOperationsUseCase(
-            transactionRepository: transactionRepo
-        )
-
-        return TransactionListViewModel(
-            fetchUseCase: fetchUseCase,
-            searchUseCase: searchUseCase,
-            deleteUseCase: deleteUseCase,
-            bulkOpsUseCase: bulkOpsUseCase
-        )
+    private func createViewModel() -> TransactionListViewModel {
+        dependencies.makeTransactionListViewModel()
     }
 
     private var transactionListErrorBinding: Binding<String?> {

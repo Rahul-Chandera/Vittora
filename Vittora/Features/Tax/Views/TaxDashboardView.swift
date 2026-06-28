@@ -34,25 +34,15 @@ struct TaxDashboardView: View {
         }
         .task {
             if vm == nil {
-                guard let taxRepo = dependencies.taxProfileRepository else { return }
-                let summaryUseCase: GenerateTaxSummaryUseCase? = {
-                    guard
-                        let transactionRepo = dependencies.transactionRepository,
-                        let categoryRepo = dependencies.categoryRepository
-                    else {
-                        return nil
-                    }
-
-                    return GenerateTaxSummaryUseCase(
-                        transactionRepository: transactionRepo,
-                        fetchTaxCategoriesUseCase: FetchTaxCategoriesUseCase(repository: categoryRepo)
-                    )
-                }()
+                let summaryUseCase = GenerateTaxSummaryUseCase(
+                    transactionRepository: dependencies.transactionRepository,
+                    fetchTaxCategoriesUseCase: FetchTaxCategoriesUseCase(repository: dependencies.categoryRepository)
+                )
 
                 vm = TaxEstimateViewModel(
                     estimateUseCase: EstimateTaxUseCase(),
                     compareUseCase: CompareTaxRegimesUseCase(),
-                    saveUseCase: SaveTaxProfileUseCase(taxProfileRepository: taxRepo),
+                    saveUseCase: SaveTaxProfileUseCase(taxProfileRepository: dependencies.taxProfileRepository),
                     summaryUseCase: summaryUseCase,
                     exportService: dependencies.exportService
                 )

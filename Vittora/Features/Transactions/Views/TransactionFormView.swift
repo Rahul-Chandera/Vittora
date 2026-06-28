@@ -79,7 +79,7 @@ struct TransactionFormView: View {
                                 do {
                                     try await vm.save()
                                     if !vm.isEditing {
-                                        await dependencies.conversionEventRecorder?.afterTransactionCreated()
+                                        await dependencies.conversionEventRecorder.afterTransactionCreated()
                                     }
                                     await dependencies.refreshBudgetThresholdAlerts()
                                     appState.notifyChanged([.transactions, .accounts, .budgets])
@@ -116,7 +116,7 @@ struct TransactionFormView: View {
         .errorAlert(message: transactionErrorBinding)
         .task(id: dependencyReadinessKey) {
             if vm == nil {
-                vm = await createViewModel()
+                vm = createViewModel()
                 if let vm {
                     if transactionID == nil, let initialType {
                         vm.type = initialType
@@ -247,15 +247,14 @@ struct TransactionFormView: View {
     }
 
     private func loadTransactionData(_ vm: TransactionFormViewModel?, transactionID: UUID) async {
-        guard let vm = vm,
-              let transactionRepo = dependencies.transactionRepository else {
+        guard let vm = vm else {
             return
         }
 
         isLoadingData = true
         defer { isLoadingData = false }
 
-        let fetchUseCase = FetchTransactionsUseCase(transactionRepository: transactionRepo)
+        let fetchUseCase = FetchTransactionsUseCase(transactionRepository: dependencies.transactionRepository)
         do {
             if let transaction = try await fetchUseCase.execute(id: transactionID) {
                 vm.loadTransaction(transaction)
@@ -273,15 +272,9 @@ struct TransactionFormView: View {
         isLoadingData = true
         defer { isLoadingData = false }
 
-        guard let accountRepo = dependencies.accountRepository,
-              let categoryRepo = dependencies.categoryRepository,
-              let payeeRepo = dependencies.payeeRepository else {
-            return
-        }
-
-        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: accountRepo)
-        let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: categoryRepo)
-        let fetchPayeesUseCase = FetchPayeesUseCase(repository: payeeRepo)
+        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: dependencies.accountRepository)
+        let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: dependencies.categoryRepository)
+        let fetchPayeesUseCase = FetchPayeesUseCase(repository: dependencies.payeeRepository)
         var didFailToLoadPickerData = false
 
         do {
@@ -327,33 +320,8 @@ struct TransactionFormView: View {
         }
     }
 
-    private func createViewModel() async -> TransactionFormViewModel? {
-        guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository,
-              let categoryRepo = dependencies.categoryRepository,
-              let ledgerWriteStore = dependencies.ledgerWriteStore else {
-            return nil
-        }
-
-        let addUseCase = AddTransactionUseCase(
-            accountRepository: accountRepo,
-            categoryRepository: categoryRepo,
-            ledgerWriting: ledgerWriteStore
-        )
-        let updateUseCase = UpdateTransactionUseCase(
-            transactionRepository: transactionRepo,
-            ledgerWriting: ledgerWriteStore
-        )
-        let smartCategorizeUseCase = SmartCategorizeUseCase(transactionRepository: transactionRepo)
-        let duplicateDetectionUseCase = DuplicateDetectionUseCase(transactionRepository: transactionRepo)
-
-        return TransactionFormViewModel(
-            addUseCase: addUseCase,
-            updateUseCase: updateUseCase,
-            smartCategorizeUseCase: smartCategorizeUseCase,
-            duplicateDetectionUseCase: duplicateDetectionUseCase,
-            currencyCode: currencyCode
-        )
+    private func createViewModel() -> TransactionFormViewModel {
+        dependencies.makeTransactionFormViewModel(currencyCode: currencyCode)
     }
 
     private var transactionErrorBinding: Binding<String?> {

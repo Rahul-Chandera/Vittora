@@ -79,7 +79,7 @@ struct QuickEntryView: View {
                             Task {
                                 do {
                                     try await vm.save()
-                                    await dependencies.conversionEventRecorder?.afterTransactionCreated()
+                                    await dependencies.conversionEventRecorder.afterTransactionCreated()
                                     await dependencies.refreshBudgetThresholdAlerts()
                                     appState.notifyChanged([.transactions, .accounts, .budgets])
                                     #if os(iOS)
@@ -133,7 +133,7 @@ struct QuickEntryView: View {
         .errorAlert(message: quickEntryErrorBinding)
         .task {
             if vm == nil {
-                vm = await createViewModel()
+                vm = createViewModel()
                 await loadCategories()
             }
         }
@@ -143,13 +143,8 @@ struct QuickEntryView: View {
         isLoading = true
         defer { isLoading = false }
 
-        guard let categoryRepo = dependencies.categoryRepository,
-              let accountRepo = dependencies.accountRepository else {
-            return
-        }
-
-        let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: categoryRepo)
-        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: accountRepo)
+        let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: dependencies.categoryRepository)
+        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: dependencies.accountRepository)
         var didFailToLoadOptions = false
 
         do {
@@ -178,37 +173,8 @@ struct QuickEntryView: View {
         }
     }
 
-    private func createViewModel() async -> TransactionFormViewModel? {
-        guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository,
-              let categoryRepo = dependencies.categoryRepository,
-              let ledgerWriteStore = dependencies.ledgerWriteStore else {
-            return nil
-        }
-
-        let addUseCase = AddTransactionUseCase(
-            accountRepository: accountRepo,
-            categoryRepository: categoryRepo,
-            ledgerWriting: ledgerWriteStore
-        )
-        let updateUseCase = UpdateTransactionUseCase(
-            transactionRepository: transactionRepo,
-            ledgerWriting: ledgerWriteStore
-        )
-        let smartCategorizeUseCase = SmartCategorizeUseCase(transactionRepository: transactionRepo)
-        let duplicateDetectionUseCase = DuplicateDetectionUseCase(transactionRepository: transactionRepo)
-
-        let vm = TransactionFormViewModel(
-            addUseCase: addUseCase,
-            updateUseCase: updateUseCase,
-            smartCategorizeUseCase: smartCategorizeUseCase,
-            duplicateDetectionUseCase: duplicateDetectionUseCase,
-            currencyCode: currencyCode
-        )
-        vm.isQuickEntry = true
-        vm.type = .expense
-
-        return vm
+    private func createViewModel() -> TransactionFormViewModel {
+        dependencies.makeQuickEntryViewModel(currencyCode: currencyCode)
     }
 
     private var quickEntryErrorBinding: Binding<String?> {

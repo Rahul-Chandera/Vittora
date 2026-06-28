@@ -226,11 +226,7 @@ struct DataManagementView: View {
         ) {
             Button(String(localized: "Reset Everything"), role: .destructive) {
                 Task {
-                    guard let biometricService = dependencies.biometricService else {
-                        vm.error = AppLockUnlockGate.missingServiceMessage
-                        return
-                    }
-                    let didReset = await vm.factoryReset(confirmWith: biometricService)
+                    let didReset = await vm.factoryReset(confirmWith: dependencies.biometricService)
                     if didReset {
                         resetRuntimeStateAfterFactoryReset()
                     }
@@ -256,32 +252,7 @@ struct DataManagementView: View {
     }
 
     private func setupVM() {
-        guard let txRepo = dependencies.transactionRepository,
-              let accRepo = dependencies.accountRepository,
-              let catRepo = dependencies.categoryRepository,
-              let budRepo = dependencies.budgetRepository,
-              let debtRepo = dependencies.debtRepository,
-              let goalRepo = dependencies.savingsGoalRepository,
-              let splitRepo = dependencies.splitGroupRepository,
-              let docRepo = dependencies.documentRepository else { return }
-
-        let service = DataManagementService(
-            transactionRepository: txRepo,
-            accountRepository: accRepo,
-            categoryRepository: catRepo,
-            budgetRepository: budRepo,
-            debtRepository: debtRepo,
-            savingsGoalRepository: goalRepo,
-            splitGroupRepository: splitRepo,
-            documentRepository: docRepo,
-            payeeRepository: dependencies.payeeRepository,
-            recurringRuleRepository: dependencies.recurringRuleRepository,
-            taxProfileRepository: dependencies.taxProfileRepository,
-            documentStorageService: dependencies.documentStorageService,
-            keychainService: dependencies.keychainService ?? KeychainService(),
-            dataSeeder: dependencies.dataSeeder
-        )
-        vm = DataManagementViewModel(service: service)
+        vm = DataManagementViewModel(service: dependencies.makeDataManagementService())
         Task { await vm?.loadStats() }
     }
 

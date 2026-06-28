@@ -374,28 +374,8 @@ struct DashboardView: View {
         }
     }
 
-    private func createViewModel() -> DashboardViewModel? {
-        guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository,
-              let categoryRepo = dependencies.categoryRepository,
-              let budgetRepo = dependencies.budgetRepository,
-              let recurringRepo = dependencies.recurringRuleRepository else {
-            return nil
-        }
-
-        let dataUseCase = DashboardDataUseCase(
-            transactionRepository: transactionRepo,
-            accountRepository: accountRepo,
-            categoryRepository: categoryRepo,
-            budgetRepository: budgetRepo,
-            recurringRuleRepository: recurringRepo
-        )
-        let comparisonUseCase = MonthComparisonUseCase(transactionRepository: transactionRepo)
-
-        return DashboardViewModel(
-            dashboardDataUseCase: dataUseCase,
-            monthComparisonUseCase: comparisonUseCase
-        )
+    private func createViewModel() -> DashboardViewModel {
+        dependencies.makeDashboardViewModel()
     }
 }
 

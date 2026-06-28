@@ -111,20 +111,7 @@ struct BudgetListView: View {
             }
             .task {
                 if viewModel == nil {
-                    let fetchUseCase = FetchBudgetsUseCase(
-                        budgetRepository: dependencies.budgetRepository ?? MockBudgetRepository(),
-                        transactionRepository: dependencies.transactionRepository ?? MockTransactionRepository()
-                    )
-                    let deleteUseCase = DeleteBudgetUseCase(
-                        budgetRepository: dependencies.budgetRepository ?? MockBudgetRepository()
-                    )
-                    let calculateProgressUseCase = CalculateBudgetProgressUseCase()
-
-                    viewModel = BudgetListViewModel(
-                        fetchUseCase: fetchUseCase,
-                        deleteUseCase: deleteUseCase,
-                        calculateProgressUseCase: calculateProgressUseCase
-                    )
+                    viewModel = dependencies.makeBudgetListViewModel()
                 }
 
                 if let viewModel = viewModel {
@@ -142,5 +129,5 @@ struct BudgetListView: View {
 
 #Preview {
     BudgetListView()
-        .environment(\.dependencies, DependencyContainer())
+        .environment(\.dependencies, DependencyContainer.preview())
 }

@@ -30,25 +30,21 @@ struct DocumentListView: View {
         }
         .task {
             if vm == nil {
-                guard let docRepo = dependencies.documentRepository,
-                      let documentStorageService = dependencies.documentStorageService else {
-                    return
-                }
-                let fetchUseCase = FetchDocumentsUseCase(documentRepository: docRepo)
+                let fetchUseCase = FetchDocumentsUseCase(documentRepository: dependencies.documentRepository)
                 let attachUseCase = AttachDocumentUseCase(
-                    documentRepository: docRepo,
-                    documentStorageService: documentStorageService
+                    documentRepository: dependencies.documentRepository,
+                    documentStorageService: dependencies.documentStorageService
                 )
                 let deleteUseCase = DeleteDocumentUseCase(
-                    documentRepository: docRepo,
-                    documentStorageService: documentStorageService
+                    documentRepository: dependencies.documentRepository,
+                    documentStorageService: dependencies.documentStorageService
                 )
                 vm = DocumentListViewModel(
                     transactionID: transactionID,
                     fetchUseCase: fetchUseCase,
                     attachUseCase: attachUseCase,
                     deleteUseCase: deleteUseCase,
-                    documentStorageService: documentStorageService
+                    documentStorageService: dependencies.documentStorageService
                 )
                 await vm?.load()
             }

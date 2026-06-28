@@ -48,23 +48,20 @@ struct SplitGroupDetailView: View {
         }
         .task {
             if vm == nil {
-                guard let splitRepo = dependencies.splitGroupRepository,
-                      let payeeRepo = dependencies.payeeRepository else { return }
                 vm = SplitGroupDetailViewModel(
                     group: group,
-                    splitGroupRepository: splitRepo,
-                    payeeRepository: payeeRepo
+                    splitGroupRepository: dependencies.splitGroupRepository,
+                    payeeRepository: dependencies.payeeRepository
                 )
             }
             await vm?.load()
         }
         .sheet(isPresented: $showAddExpense) {
-            if let vm,
-               let splitRepo = dependencies.splitGroupRepository {
+            if let vm {
                 AddGroupExpenseView(
                     group: vm.group,
                     memberNames: vm.memberNames,
-                    splitGroupRepository: splitRepo
+                    splitGroupRepository: dependencies.splitGroupRepository
                 ) {
                     Task { await vm.load() }
                 }

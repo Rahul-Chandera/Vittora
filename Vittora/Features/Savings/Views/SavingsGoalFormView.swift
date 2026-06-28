@@ -157,7 +157,6 @@ struct SavingsGoalFormView: View {
     }
 
     private func save() async {
-        guard let repo = dependencies.savingsGoalRepository else { return }
         guard let parsedTarget, parsedTarget > 0 else {
             error = String(localized: "Please enter a valid target amount.")
             return
@@ -170,7 +169,7 @@ struct SavingsGoalFormView: View {
         let currentAmount = parsedCurrent ?? 0
         isSaving = true
         error = nil
-        let useCase = SaveSavingsGoalUseCase(savingsGoalRepository: repo)
+        let useCase = SaveSavingsGoalUseCase(savingsGoalRepository: dependencies.savingsGoalRepository)
         do {
             if let existing = existingGoal {
                 var updated = existing

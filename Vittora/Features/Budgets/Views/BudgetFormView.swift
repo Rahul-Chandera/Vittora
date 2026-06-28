@@ -106,7 +106,7 @@ struct BudgetFormView: View {
                             do {
                                 try await viewModel?.save()
                                 if viewModel?.isEditing != true {
-                                    await dependencies.conversionEventRecorder?.afterBudgetCreated()
+                                    await dependencies.conversionEventRecorder.afterBudgetCreated()
                                 }
                                 appState.notifyChanged(.budgets)
                                 isPresented = false
@@ -124,10 +124,10 @@ struct BudgetFormView: View {
         .task {
             if viewModel == nil {
                 let createUseCase = CreateBudgetUseCase(
-                    budgetRepository: dependencies.budgetRepository ?? MockBudgetRepository()
+                    budgetRepository: dependencies.budgetRepository
                 )
                 let updateUseCase = UpdateBudgetUseCase(
-                    budgetRepository: dependencies.budgetRepository ?? MockBudgetRepository()
+                    budgetRepository: dependencies.budgetRepository
                 )
                 viewModel = BudgetFormViewModel(
                     createUseCase: createUseCase,
@@ -137,7 +137,7 @@ struct BudgetFormView: View {
 
             // Load categories
             do {
-                categories = try await (dependencies.categoryRepository ?? MockCategoryRepository()).fetchAll()
+                categories = try await dependencies.categoryRepository.fetchAll()
             } catch {
                 // Silent failure
             }
@@ -153,5 +153,5 @@ struct BudgetFormView: View {
 
 #Preview {
     BudgetFormView(isPresented: .constant(true))
-        .environment(\.dependencies, DependencyContainer())
+        .environment(\.dependencies, DependencyContainer.preview())
 }

@@ -213,21 +213,12 @@ struct SyncDetailView: View {
     }
 
     private func reconcileBalances() async {
-        guard
-            let accountRepository = dependencies.accountRepository,
-            let transactionRepository = dependencies.transactionRepository
-        else {
-            reconcileMessage = String(localized: "Reconciliation is unavailable right now.")
-            showReconcileResult = true
-            return
-        }
-
         isReconciling = true
         defer { isReconciling = false }
 
         let useCase = ReconcileAccountBalanceUseCase(
-            accountRepository: accountRepository,
-            transactionRepository: transactionRepository
+            accountRepository: dependencies.accountRepository,
+            transactionRepository: dependencies.transactionRepository
         )
         do {
             let repaired = try await useCase.repair()

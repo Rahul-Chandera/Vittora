@@ -9,9 +9,7 @@ struct AppLockView: View {
     @State private var errorMessage: String?
     @State private var cooldownRemaining: Int = 0
 
-    private var isLockServiceAvailable: Bool {
-        dependencies.appLockService != nil
-    }
+    private var isLockServiceAvailable: Bool { true }
 
     private var showsPasscodeButton: Bool {
         isLockServiceAvailable && AppLockPasscodeFallbackPolicy.showsPasscodeButton(
@@ -122,8 +120,7 @@ struct AppLockView: View {
     }
 
     private var biometricIcon: String {
-        guard let service = dependencies.biometricService else { return "faceid" }
-        switch service.biometricType {
+        switch dependencies.biometricService.biometricType {
         case .faceID:   return "faceid"
         case .touchID:  return "touchid"
         case .opticID:  return "eye"
@@ -153,10 +150,7 @@ struct AppLockView: View {
     private func performAuthentication(
         _ action: @escaping (any AppLockServiceProtocol) async throws -> Bool
     ) async {
-        guard let lockService = dependencies.appLockService else {
-            applyMissingServiceFailClosed()
-            return
-        }
+        let lockService = dependencies.appLockService
         isAuthenticating = true
         errorMessage = nil
         defer { isAuthenticating = false }
@@ -175,7 +169,7 @@ struct AppLockView: View {
     /// Polls the lock service every second to keep the on-screen countdown in sync.
     private func runCooldownTimer() async {
         while !Task.isCancelled {
-            if let expires = dependencies.appLockService?.cooldownExpiresAt, expires > .now {
+            if let expires = dependencies.appLockService.cooldownExpiresAt, expires > .now {
                 cooldownRemaining = Int(expires.timeIntervalSince(.now).rounded(.up))
             } else {
                 cooldownRemaining = 0

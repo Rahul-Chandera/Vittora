@@ -42,19 +42,18 @@ struct SavingsGoalDetailView: View {
             }
         }
         .task {
-            guard vm == nil, let repo = dependencies.savingsGoalRepository else { return }
+            guard vm == nil else { return }
             vm = SavingsGoalDetailViewModel(
                 goal: initialGoal,
-                saveUseCase: SaveSavingsGoalUseCase(savingsGoalRepository: repo)
+                saveUseCase: SaveSavingsGoalUseCase(savingsGoalRepository: dependencies.savingsGoalRepository)
             )
         }
         .sheet(isPresented: $showEditForm) {
             if let vm {
                 SavingsGoalFormView(existingGoal: vm.goal) {
                     Task {
-                        guard let repo = dependencies.savingsGoalRepository else { return }
                         do {
-                            guard let fresh = try await repo.fetchByID(vm.goal.id) else { return }
+                            guard let fresh = try await dependencies.savingsGoalRepository.fetchByID(vm.goal.id) else { return }
                             vm.goal = fresh
                         } catch {
                             vm.error = error.localizedDescription

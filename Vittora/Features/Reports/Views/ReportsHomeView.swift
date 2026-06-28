@@ -55,11 +55,10 @@ struct ReportsHomeView: View {
         }
         .task {
             if vm == nil {
-                guard let transactionRepo = dependencies.transactionRepository else { return }
-                vm = ReportsHomeViewModel(transactionRepository: transactionRepo)
+                vm = ReportsHomeViewModel(transactionRepository: dependencies.transactionRepository)
                 await vm?.load()
             }
-            dependencies.conversionEventRecorder?.afterReportOpened()
+            dependencies.conversionEventRecorder.afterReportOpened()
         }
         .errorAlert(message: reportsHomeErrorBinding)
     }

@@ -71,7 +71,7 @@ struct SettlementFormView: View {
         }
         .task {
             do {
-                accounts = try await dependencies.accountRepository?.fetchAll() ?? []
+                accounts = try await dependencies.accountRepository.fetchAll()
             } catch {
                 self.error = error.localizedDescription
             }
@@ -84,16 +84,13 @@ struct SettlementFormView: View {
     }
 
     private func settle() async {
-        guard let amount,
-              let debtRepo = dependencies.debtRepository,
-              let accRepo = dependencies.accountRepository,
-              let ledgerWriteStore = dependencies.ledgerWriteStore else { return }
+        guard let amount else { return }
         isLoading = true
         error = nil
         let useCase = SettleDebtUseCase(
-            debtRepository: debtRepo,
-            accountRepository: accRepo,
-            ledgerWriting: ledgerWriteStore
+            debtRepository: dependencies.debtRepository,
+            accountRepository: dependencies.accountRepository,
+            ledgerWriting: dependencies.ledgerWriteStore
         )
         do {
             try await useCase.execute(

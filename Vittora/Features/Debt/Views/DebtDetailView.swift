@@ -29,19 +29,15 @@ struct DebtDetailView: View {
         #endif
         .task {
             if vm == nil {
-                guard let debtRepo = dependencies.debtRepository,
-                      let payeeRepo = dependencies.payeeRepository,
-                      let accRepo = dependencies.accountRepository,
-                      let ledgerWriteStore = dependencies.ledgerWriteStore else { return }
                 let settleUC = SettleDebtUseCase(
-                    debtRepository: debtRepo,
-                    accountRepository: accRepo,
-                    ledgerWriting: ledgerWriteStore
+                    debtRepository: dependencies.debtRepository,
+                    accountRepository: dependencies.accountRepository,
+                    ledgerWriting: dependencies.ledgerWriteStore
                 )
                 vm = DebtDetailViewModel(
                     payeeID: payeeID,
-                    debtRepository: debtRepo,
-                    payeeRepository: payeeRepo,
+                    debtRepository: dependencies.debtRepository,
+                    payeeRepository: dependencies.payeeRepository,
                     settleUseCase: settleUC
                 )
                 await vm?.load()

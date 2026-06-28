@@ -52,8 +52,8 @@ struct TaxProfileFormView: View {
             }
         }
         .task {
-            guard vm == nil, let taxRepo = dependencies.taxProfileRepository else { return }
-            let saveUseCase = SaveTaxProfileUseCase(taxProfileRepository: taxRepo)
+            guard vm == nil else { return }
+            let saveUseCase = SaveTaxProfileUseCase(taxProfileRepository: dependencies.taxProfileRepository)
             let estimateUseCase = EstimateTaxUseCase()
             let newVM = TaxProfileFormViewModel(
                 saveUseCase: saveUseCase,

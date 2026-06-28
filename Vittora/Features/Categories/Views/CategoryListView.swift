@@ -60,18 +60,7 @@ struct CategoryListView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let categoryRepo = deps.categoryRepository,
-              let ledgerWriteStore = deps.ledgerWriteStore else { return }
-
-        let vm = CategoryListViewModel(
-            fetchUseCase: FetchCategoriesUseCase(repository: categoryRepo),
-            deleteUseCase: DeleteCategoryUseCase(
-                categoryRepository: categoryRepo,
-                ledgerWriting: ledgerWriteStore
-            ),
-            reorderUseCase: ReorderCategoriesUseCase(repository: categoryRepo)
-        )
+        let vm = dependencies.makeCategoryListViewModel()
         viewModel = vm
         await vm.loadCategories()
     }
