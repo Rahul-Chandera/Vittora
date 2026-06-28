@@ -68,6 +68,7 @@ protocol AppLockServiceProtocol: Sendable {
 final class AppLockService: AppLockServiceProtocol, Sendable {
     private let biometricService: any BiometricServiceProtocol
     private let auditLogger: (any SecurityAuditLogging)?
+    private let cooldownStore: any AppLockCooldownStoring
     private var _isLocked = false
     private(set) var lastBackgroundedAt: Date?
 
@@ -87,10 +88,15 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
 
     init(
         biometricService: any BiometricServiceProtocol,
-        auditLogger: (any SecurityAuditLogging)? = nil
+        auditLogger: (any SecurityAuditLogging)? = nil,
+        cooldownStore: (any AppLockCooldownStoring)? = nil
     ) {
         self.biometricService = biometricService
         self.auditLogger = auditLogger
+        self.cooldownStore = cooldownStore ?? KeychainAppLockCooldownStore()
+        let restored = self.cooldownStore.load()
+        consecutiveFailures = restored.consecutiveFailures
+        cooldownExpiresAt = restored.cooldownExpiresAt
     }
 
     func recordBackgrounded(at date: Date) {
@@ -132,6 +138,7 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
         if success {
             consecutiveFailures = 0
             cooldownExpiresAt = nil
+            persistCooldownState()
             _isLocked = false
             await auditLogger?.record(SecurityAuditEvent(
                 kind: .appUnlocked,
@@ -157,17 +164,29 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
         consecutiveFailures += 1
         PerformanceLogger.Security.authFailed(consecutiveCount: consecutiveFailures)
         let excess = consecutiveFailures - Self.cooldownThreshold
-        guard excess > 0 else { return }
+        guard excess > 0 else {
+            persistCooldownState()
+            return
+        }
         let index = min(excess - 1, Self.cooldownDurations.count - 1)
         let duration = Self.cooldownDurations[index]
         cooldownExpiresAt = Date.now.addingTimeInterval(duration)
         PerformanceLogger.Security.cooldownStarted(seconds: Int(duration))
+        persistCooldownState()
+    }
+
+    private func persistCooldownState() {
+        cooldownStore.save(AppLockCooldownState(
+            consecutiveFailures: consecutiveFailures,
+            cooldownExpiresAt: cooldownExpiresAt
+        ))
     }
 
     #if DEBUG
     /// Test-only: clears an active cooldown so failure-streak tests can continue without waiting.
     func testing_clearCooldown() {
         cooldownExpiresAt = nil
+        persistCooldownState()
     }
     #endif
 }

@@ -218,7 +218,7 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | B2 | SECURITY-5 | `Features/Security/AppLockView.swift` | Nil `appLockService` → stay **locked** + error/retry (fail-closed). | `AppLockServiceTests`: nil-service path does not unlock. | S | **Merged** |
 | B3 | SECURITY-3 | `Features/Settings/Views/SettingsSectionViews.swift`, `Features/Sync/DataManagementView.swift` | Require `BiometricService.authenticate()` before disabling App Lock and before factory reset; abort on failure. | Manual + VM test: cancel → action aborted. | M | **Merged** |
 | B4 | SECURITY-2 | `AppLockView.swift`, `Core/Security/BiometricService.swift` | Consume `allowPasscodeFallback`: hide "Use Passcode" and use biometrics-only policy when disabled. | Test both toggle states. | S | **Merged** |
-| B5 | SECURITY-4 | `Core/Security/AppLockService.swift`, `KeychainService.swift` | Persist `consecutiveFailures`/`cooldownExpiresAt` to Keychain; re-arm on init. | Test: cooldown survives relaunch. | M |
+| B5 | SECURITY-4 | `Core/Security/AppLockService.swift`, `KeychainService.swift` | Persist `consecutiveFailures`/`cooldownExpiresAt` to Keychain; re-arm on init. | Test: cooldown survives relaunch. | M | **Merged** |
 | B6 | SECURITY-6 | `Core/Security/EncryptionService.swift` | Single-flight `Task<SymmetricKey,Error>?` cache for key get-or-create; idempotent re-check after exclusivity. | Concurrency test: parallel `encrypt()` on fresh keychain creates one key. | M |
 | B7 | SECURITY-12 | `KeychainService.swift`, `EncryptionService.swift` | Map OSStatus/CFError to localized non-diagnostic UI messages; keep raw codes in `os.Logger` only. | No raw SE CFError reaches the lock screen. | S |
 

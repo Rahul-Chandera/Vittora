@@ -166,6 +166,7 @@ final class DataManagementService: Sendable {
         // Clear sensitive Keychain entries
         try await keychainService.delete(forKey: "vittora.onboardingComplete")
         try await keychainService.delete(forKey: "vittora.appLockEnabled")
+        try await keychainService.delete(forKey: KeychainAppLockCooldownStore.keychainKey)
         try await keychainService.delete(forKey: "vittora.passcodeFallback")
         try await keychainService.delete(forKey: "vittora.userName")
         try await keychainService.delete(forKey: "com.vittora.encryption.key")
