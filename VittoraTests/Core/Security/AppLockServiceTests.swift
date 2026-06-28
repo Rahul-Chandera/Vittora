@@ -224,4 +224,18 @@ struct AppLockServiceTests {
         let now = Date(timeIntervalSince1970: 50)
         #expect(AppLockPolicy.shouldLock(backgroundedAt: backgrounded, now: now, timeout: 0) == false)
     }
+
+    // MARK: - AppLockUnlockGate (fail-closed, SECURITY-5)
+
+    @Test("missing app lock service stays fail-closed")
+    func missingServiceStaysFailClosed() {
+        let update = AppLockUnlockGate.sessionUpdateAfterMissingService()
+        #expect(update.isAuthenticated == false)
+        #expect(update.isLocked == true)
+    }
+
+    @Test("missing service message is non-empty")
+    func missingServiceMessageNonEmpty() {
+        #expect(AppLockUnlockGate.missingServiceMessage.isEmpty == false)
+    }
 }

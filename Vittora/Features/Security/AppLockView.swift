@@ -8,6 +8,10 @@ struct AppLockView: View {
     @State private var errorMessage: String?
     @State private var cooldownRemaining: Int = 0
 
+    private var isLockServiceAvailable: Bool {
+        dependencies.appLockService != nil
+    }
+
     var body: some View {
         ZStack {
             VColors.background.ignoresSafeArea()
@@ -57,11 +61,9 @@ struct AppLockView: View {
                                 .tint(.white)
                                 .scaleEffect(0.85)
                         } else {
-                            Image(systemName: biometricIcon)
+                            Image(systemName: isLockServiceAvailable ? biometricIcon : "arrow.clockwise")
                         }
-                        Text(isAuthenticating
-                             ? String(localized: "Authenticating…")
-                             : String(localized: "Unlock"))
+                        Text(unlockButtonTitle)
                             .font(VTypography.bodyBold)
                     }
                     .frame(maxWidth: 260)
@@ -70,22 +72,43 @@ struct AppLockView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(VColors.primary)
                 .disabled(isAuthenticating || cooldownRemaining > 0)
-                .accessibilityLabel(String(localized: "Unlock Vittora"))
-                .accessibilityHint(String(localized: "Authenticates using biometrics or passcode"))
+                .accessibilityLabel(unlockButtonTitle)
+                .accessibilityHint(unlockButtonHint)
 
-                Button(String(localized: "Use Passcode")) {
-                    Task { await authenticateWithPasscode() }
+                if isLockServiceAvailable {
+                    Button(String(localized: "Use Passcode")) {
+                        Task { await authenticateWithPasscode() }
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(isAuthenticating || cooldownRemaining > 0)
+                    .accessibilityHint(String(localized: "Unlocks using your device passcode"))
                 }
-                .buttonStyle(.bordered)
-                .disabled(isAuthenticating || cooldownRemaining > 0)
-                .accessibilityHint(String(localized: "Unlocks using your device passcode"))
 
                 Spacer()
             }
         }
         .privacySensitive()
-        .task { await authenticate() }
+        .task {
+            guard isLockServiceAvailable else {
+                applyMissingServiceFailClosed()
+                return
+            }
+            await authenticate()
+        }
         .task { await runCooldownTimer() }
+    }
+
+    private var unlockButtonTitle: String {
+        if isAuthenticating { return String(localized: "Authenticating…") }
+        if isLockServiceAvailable { return String(localized: "Unlock") }
+        return String(localized: "Retry")
+    }
+
+    private var unlockButtonHint: String {
+        if isLockServiceAvailable {
+            return String(localized: "Authenticates using biometrics or passcode")
+        }
+        return String(localized: "Retries App Lock after a service error")
     }
 
     private var biometricIcon: String {
@@ -110,11 +133,18 @@ struct AppLockView: View {
         }
     }
 
+    private func applyMissingServiceFailClosed() {
+        let update = AppLockUnlockGate.sessionUpdateAfterMissingService()
+        appState.isAuthenticated = update.isAuthenticated
+        appState.isLocked = update.isLocked
+        errorMessage = AppLockUnlockGate.missingServiceMessage
+    }
+
     private func performAuthentication(
         _ action: @escaping (any AppLockServiceProtocol) async throws -> Bool
     ) async {
         guard let lockService = dependencies.appLockService else {
-            appState.isLocked = false
+            applyMissingServiceFailClosed()
             return
         }
         isAuthenticating = true

@@ -34,6 +34,18 @@ enum AppLockPolicy {
     }
 }
 
+/// Unlock gate when the lock service is absent — fail-closed (SECURITY-5 / B2).
+enum AppLockUnlockGate {
+    nonisolated static var missingServiceMessage: String {
+        String(localized: "App Lock is unavailable. Please restart the app and try again.")
+    }
+
+    /// Session flags after an unlock attempt with no `AppLockService` — never opens the app.
+    nonisolated static func sessionUpdateAfterMissingService() -> (isAuthenticated: Bool, isLocked: Bool) {
+        (false, true)
+    }
+}
+
 protocol AppLockServiceProtocol: Sendable {
     var isLocked: Bool { get }
     var lastBackgroundedAt: Date? { get }

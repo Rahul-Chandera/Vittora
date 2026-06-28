@@ -215,7 +215,7 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | ID | Finding | Files | Change | Acceptance / Test | Eff |
 |---|---|---|---|---|---|
 | B1 | SECURITY-1 | `VittoraApp.swift`, `Core/Security/AppLockService.swift` | Store `lastBackgrounded`; on `.active` lock if `now-lastBackgrounded ≥ lockTimeout`; expose timeout setting (Immediately/1m/5m); make the dead inactivity timer live **or** delete it. | App re-locks after timeout; not before. Extract `shouldLock(backgroundedAt:now:timeout:)` pure fn + unit test boundaries. | M | **Merged** |
-| B2 | SECURITY-5 | `Features/Security/AppLockView.swift` | Nil `appLockService` → stay **locked** + error/retry (fail-closed). | `AppLockServiceTests`: nil-service path does not unlock. | S |
+| B2 | SECURITY-5 | `Features/Security/AppLockView.swift` | Nil `appLockService` → stay **locked** + error/retry (fail-closed). | `AppLockServiceTests`: nil-service path does not unlock. | S | **Merged** |
 | B3 | SECURITY-3 | `Features/Settings/Views/SettingsSectionViews.swift`, `Features/Sync/DataManagementView.swift` | Require `BiometricService.authenticate()` before disabling App Lock and before factory reset; abort on failure. | Manual + VM test: cancel → action aborted. | M |
 | B4 | SECURITY-2 | `AppLockView.swift`, `Core/Security/BiometricService.swift` | Consume `allowPasscodeFallback`: hide "Use Passcode" and use biometrics-only policy when disabled. | Test both toggle states. | S |
 | B5 | SECURITY-4 | `Core/Security/AppLockService.swift`, `KeychainService.swift` | Persist `consecutiveFailures`/`cooldownExpiresAt` to Keychain; re-arm on init. | Test: cooldown survives relaunch. | M |
