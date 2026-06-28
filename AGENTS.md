@@ -53,7 +53,7 @@ Use `Makefile` targets for consistency:
 
 GitHub Actions workflow **CI / build-and-test** runs on push/PR to `refactoring` and `develop`:
 
-- `make build-ios`, `make build-macos`, `make test` (macOS unit + iOS Simulator UI tests)
+- `make build-ios`, `make build-macos`, `make test` (unit + UI on iOS Simulator; see `.github/BRANCH_PROTECTION.md`)
 - Uploads `.build-ci/*.xcresult` artifacts; US locale pinned on the runner
 
 See `.github/BRANCH_PROTECTION.md` to require the check before merging.

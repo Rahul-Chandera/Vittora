@@ -1,4 +1,4 @@
-.PHONY: help build-ios build-macos test test-macos test-ios-ui test-tax test-sync test-data test-recurring ci-clean
+.PHONY: help build-ios build-macos test test-unit test-ios-ui test-tax test-sync test-data test-recurring ci-clean
 
 SCHEME := Vittora
 CONFIG := Debug
@@ -16,14 +16,18 @@ help:
 	@echo ""
 	@echo "  make build-ios        Compile iOS target (no signing)"
 	@echo "  make build-macos      Compile macOS target (no signing)"
-	@echo "  make test             Run macOS unit tests + iOS Simulator UI tests"
-	@echo "  make test-macos       Run VittoraTests on macOS only"
+	@echo "  make test             Run unit + UI tests on iOS Simulator (CI default)"
+	@echo "  make test-unit        Run VittoraTests on iOS Simulator"
 	@echo "  make test-ios-ui      Run VittoraUITests on iOS Simulator"
-	@echo "  make test-tax         Run US tax calculator tests"
-	@echo "  make test-sync        Run sync conflict tests"
-	@echo "  make test-data        Run data/document repository tests"
-	@echo "  make test-recurring   Run recurring use case tests"
+	@echo "  make test-tax         Run US tax calculator tests (macOS host; needs macOS 26+)"
+	@echo "  make test-sync        Run sync conflict tests (macOS host; needs macOS 26+)"
+	@echo "  make test-data        Run data/document repository tests (macOS host; needs macOS 26+)"
+	@echo "  make test-recurring   Run recurring use case tests (macOS host; needs macOS 26+)"
 	@echo "  make ci-clean         Remove CI test result bundles"
+	@echo ""
+	@echo "Note: make test runs on the iOS Simulator so GitHub macos-15 runners can execute"
+	@echo "      against iOS 26.x. macOS-host-specific tests (#if os(macOS)) need a self-hosted"
+	@echo "      macOS 26 runner or Xcode Cloud for full macOS coverage."
 
 build-ios:
 	xcodebuild \
@@ -44,17 +48,18 @@ build-macos:
 ci-clean:
 	rm -rf $(TEST_DERIVED)
 
-test: ci-clean test-macos test-ios-ui
+test: ci-clean test-unit test-ios-ui
 
-test-macos:
+test-unit:
 	@mkdir -p $(TEST_DERIVED)
 	xcodebuild \
 		-scheme $(SCHEME) \
 		-configuration $(CONFIG) \
-		-destination 'platform=macOS' \
-		-derivedDataPath $(TEST_DERIVED)/DerivedData-macos \
-		-resultBundlePath '$(TEST_DERIVED)/Test-macOS.xcresult' \
-		-skip-testing:VittoraUITests \
+		-destination '$(IOS_SIM_DEST)' \
+		-derivedDataPath $(TEST_DERIVED)/DerivedData-unit \
+		-resultBundlePath '$(TEST_DERIVED)/Test-Unit.xcresult' \
+		-only-testing:VittoraTests \
+		$(IOS_TEST_SIGN_FLAGS) \
 		test
 
 test-ios-ui:
@@ -63,7 +68,7 @@ test-ios-ui:
 		-scheme $(SCHEME) \
 		-configuration $(CONFIG) \
 		-destination '$(IOS_SIM_DEST)' \
-		-derivedDataPath $(TEST_DERIVED)/DerivedData-ios \
+		-derivedDataPath $(TEST_DERIVED)/DerivedData-ios-ui \
 		-resultBundlePath '$(TEST_DERIVED)/Test-iOS-UI.xcresult' \
 		-only-testing:VittoraUITests \
 		$(IOS_TEST_SIGN_FLAGS) \

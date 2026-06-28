@@ -17,12 +17,12 @@ On every push/PR to `refactoring` or `develop`:
 
 - `make build-ios`
 - `make build-macos`
-- `make test` (macOS unit tests + iOS Simulator UI tests)
+- `make test` (VittoraTests + VittoraUITests on iOS Simulator — GitHub `macos-15` has no macOS 26 host)
 - Uploads `.build-ci/*.xcresult` artifacts on completion (pass or fail)
 
 US locale is pinned on the runner (`en_US`); tests remain locale-independent in code.
 
 ## Notes
 
-- Requires a macOS runner with **Xcode matching the project deployment target** (currently iOS/macOS 26.x). If GitHub-hosted images lag, use a self-hosted Mac or Xcode Cloud with the same `Makefile` targets.
+- Requires a macOS runner with **Xcode matching the project deployment target** (currently iOS/macOS 26.x). GitHub **`macos-15` hosts macOS 15.x**, so `make test` runs **VittoraTests + VittoraUITests on an iOS 26 Simulator** instead of `platform=macOS`. That drops macOS-host-specific coverage (`#if os(macOS)` file protection, macOS sandbox paths). For full macOS test coverage, add a **self-hosted macOS 26** runner or **Xcode Cloud** running the same `Makefile` targets with `-destination 'platform=macOS'`.
 - UI tests need a current **iOS Simulator** runtime; local hosts with outdated CoreSimulator should rely on CI for `VittoraUITests`.

@@ -73,7 +73,7 @@ jobs:
         with:
           name: xcresult-${{ github.run_id }}
           path: |
-            .build-ci/Test-macOS.xcresult
+            .build-ci/Test-Unit.xcresult
             .build-ci/Test-iOS-UI.xcresult
           if-no-files-found: warn
           retention-days: 14
