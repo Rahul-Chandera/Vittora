@@ -358,4 +358,94 @@ struct LedgerWriteStoreTests {
         #expect(accounts.first { $0.id == destID }?.balance == 0)        // old dest reversed
         #expect(accounts.first { $0.id == newDestID }?.balance == 250)   // new dest credited
     }
+
+    // MARK: - A10: performDeleteCategory / performDeleteRecurringRule (real container)
+
+    @Test("performDeleteCategory nullifies all dependents and deletes the row in one save")
+    func performDeleteCategoryNullifiesDependents() async throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+
+        let category = SDCategory(name: "Food", icon: "fork.knife", isDefault: false)
+        context.insert(category)
+        let child = SDCategory(name: "Groceries", icon: "cart", parentID: category.id)
+        context.insert(child)
+        let accountID = UUID()
+        context.insert(SDAccount(id: accountID, name: "Cash", type: .cash, balance: 100))
+        context.insert(
+            SDTransaction(amount: 25, categoryID: category.id, accountID: accountID)
+        )
+        context.insert(SDBudget(amount: 500, categoryID: category.id))
+        context.insert(
+            SDRecurringRule(
+                frequency: .monthly,
+                nextDate: .now,
+                templateAmount: 10,
+                templateCategoryID: category.id,
+                templateAccountID: accountID
+            )
+        )
+        context.insert(
+            SDGroupExpense(
+                groupID: UUID(),
+                paidByMemberID: UUID(),
+                amount: 40,
+                title: "Dinner",
+                categoryID: category.id
+            )
+        )
+        try context.save()
+
+        let store = LedgerWriteStore(modelContainer: container)
+        let before = await store.saveCount
+        try await store.performDeleteCategory(categoryID: category.id)
+        let after = await store.saveCount
+        #expect(after - before == 1)
+
+        let verify = ModelContext(container)
+        let categories = try verify.fetch(FetchDescriptor<SDCategory>())
+        #expect(categories.count == 1)
+        #expect(categories.first?.id == child.id)
+        #expect(categories.first?.parentID == nil)
+        let tx = try #require(try verify.fetch(FetchDescriptor<SDTransaction>()).first)
+        #expect(tx.categoryID == nil)
+        let budget = try #require(try verify.fetch(FetchDescriptor<SDBudget>()).first)
+        #expect(budget.categoryID == nil)
+        let rule = try #require(try verify.fetch(FetchDescriptor<SDRecurringRule>()).first)
+        #expect(rule.templateCategoryID == nil)
+        let expense = try #require(try verify.fetch(FetchDescriptor<SDGroupExpense>()).first)
+        #expect(expense.categoryID == nil)
+    }
+
+    @Test("performDeleteRecurringRule nullifies recurringRuleID on generated transactions in one save")
+    func performDeleteRecurringRuleNullifiesTransactions() async throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+
+        let rule = SDRecurringRule(
+            frequency: .monthly,
+            nextDate: .now,
+            templateAmount: 50
+        )
+        context.insert(rule)
+        context.insert(
+            SDTransaction(amount: 50, recurringRuleID: rule.id)
+        )
+        context.insert(
+            SDTransaction(amount: 50, recurringRuleID: rule.id)
+        )
+        try context.save()
+
+        let store = LedgerWriteStore(modelContainer: container)
+        let before = await store.saveCount
+        try await store.performDeleteRecurringRule(ruleID: rule.id)
+        let after = await store.saveCount
+        #expect(after - before == 1)
+
+        let verify = ModelContext(container)
+        #expect(try verify.fetch(FetchDescriptor<SDRecurringRule>()).isEmpty)
+        let txs = try verify.fetch(FetchDescriptor<SDTransaction>())
+        #expect(txs.count == 2)
+        #expect(txs.allSatisfy { $0.recurringRuleID == nil })
+    }
 }

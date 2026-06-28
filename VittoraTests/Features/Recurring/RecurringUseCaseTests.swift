@@ -407,6 +407,38 @@ struct RecurringUseCaseTests {
         #expect(summary.monthlyCost == 100)
         #expect(summary.annualCost == 1_200)
     }
+
+    @Test("Delete recurring rule nullifies recurringRuleID on generated transactions")
+    func deleteRecurringRuleNullifiesLinkedTransactions() async throws {
+        let ruleRepository = MockRecurringRuleRepository()
+        let transactionRepository = MockTransactionRepository()
+        let accountRepository = MockAccountRepository()
+
+        let rule = RecurringRuleEntity(
+            frequency: .monthly,
+            nextDate: makeRecurringDate(year: 2026, month: 1, day: 1),
+            templateAmount: 100
+        )
+        await ruleRepository.seed(rule)
+        try await transactionRepository.create(
+            TransactionEntity(amount: 100, type: .expense, recurringRuleID: rule.id)
+        )
+
+        let useCase = DeleteRecurringRuleUseCase(
+            repository: ruleRepository,
+            ledgerWriting: MockLedgerWriting(
+                transactionRepository: transactionRepository,
+                accountRepository: accountRepository,
+                recurringRuleRepository: ruleRepository
+            )
+        )
+        try await useCase.execute(id: rule.id)
+
+        let txs = await transactionRepository.transactions
+        #expect(txs.first?.recurringRuleID == nil)
+        let rules = await ruleRepository.rules
+        #expect(rules.isEmpty)
+    }
 }
 
 @MainActor

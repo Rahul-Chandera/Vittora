@@ -174,11 +174,12 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 ### A10 — Delete cascade/nullify for category & recurring rule
 - **Finding:** DATAINTEGRITY-6 / ARCHITECTURE-05
 - **Deps:** A1
-- **Files:** `Core/Domain/UseCases/DeleteCategoryUseCase.swift`, `DeleteRecurringRuleUseCase.swift`
+- **Files:** `Core/Domain/UseCases/DeleteCategoryUseCase.swift`, `DeleteRecurringRuleUseCase.swift`, `LedgerWriting.swift`, `LedgerWriteStore.swift`, `CategoryListView.swift`, `RecurringListView.swift`
 - **Steps:** before deleting a category, either block when dependents exist (like accounts/payees) **or** nullify `categoryID` on dependent transactions/budgets/recurring templates atomically; for recurring rule deletion, nullify `recurringRuleID` on generated transactions.
 - **Acceptance:** no dangling `categoryID`/`recurringRuleID` after deletion.
-- **Tests:** `CategoryUseCaseTests`, `RecurringUseCaseTests` — cascade assertions.
+- **Tests:** `CategoryUseCaseTests`, `RecurringUseCaseTests`, `LedgerWriteStoreTests` — cascade assertions.
 - **Verify:** `make test`
+- **Status:** Approved; committed on `fix/A10-delete-cascade`. Implemented nullify path via `performDeleteCategory` / `performDeleteRecurringRule` (one save); use cases + list views wired through `any LedgerWriting`.
 
 ### A11 — Debt partial-settlement one-to-many link
 - **Finding:** DATAINTEGRITY-7

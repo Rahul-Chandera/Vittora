@@ -319,6 +319,59 @@ actor LedgerWriteStore: LedgerWriting {
         }
     }
 
+    /// Nullify every reference to a category and delete it atomically (A10).
+    func performDeleteCategory(categoryID: UUID) throws {
+        try commit { ctx in
+            guard let category = try Self.fetchCategory(categoryID, in: ctx) else {
+                throw VittoraError.notFound(String(localized: "Category not found"))
+            }
+            guard !category.isDefault else {
+                throw VittoraError.validationFailed(
+                    String(localized: "Cannot delete a default category.")
+                )
+            }
+
+            for tx in try Self.fetchTransactions(categoryID: categoryID, in: ctx) {
+                tx.categoryID = nil
+                tx.updatedAt = .now
+            }
+            for budget in try Self.fetchBudgets(categoryID: categoryID, in: ctx) {
+                budget.categoryID = nil
+                budget.updatedAt = .now
+            }
+            for rule in try Self.fetchRecurringRules(templateCategoryID: categoryID, in: ctx) {
+                rule.templateCategoryID = nil
+                rule.updatedAt = .now
+            }
+            for expense in try Self.fetchGroupExpenses(categoryID: categoryID, in: ctx) {
+                expense.categoryID = nil
+                expense.updatedAt = .now
+            }
+            for child in try Self.fetchChildCategories(parentID: categoryID, in: ctx) {
+                child.parentID = nil
+                child.updatedAt = .now
+            }
+
+            ctx.delete(category)
+        }
+    }
+
+    /// Nullify `recurringRuleID` on generated transactions and delete the rule (A10).
+    func performDeleteRecurringRule(ruleID: UUID) throws {
+        try commit { ctx in
+            guard let rule = try Self.fetchRecurringRule(ruleID, in: ctx) else {
+                throw VittoraError.notFound(String(localized: "Recurring rule not found"))
+            }
+
+            for tx in try Self.fetchTransactions(recurringRuleID: ruleID, in: ctx) {
+                tx.recurringRuleID = nil
+                tx.updatedAt = .now
+            }
+
+            ctx.delete(rule)
+        }
+    }
+
     // MARK: - Helpers
 
     /// Apply a signed delta to an account's balance within the given context,
@@ -380,5 +433,59 @@ actor LedgerWriteStore: LedgerWriting {
         var descriptor = FetchDescriptor<SDDebt>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
         return try context.fetch(descriptor).first
+    }
+
+    private static func fetchCategory(_ id: UUID, in context: ModelContext) throws -> SDCategory? {
+        var descriptor = FetchDescriptor<SDCategory>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first
+    }
+
+    private static func fetchRecurringRule(_ id: UUID, in context: ModelContext) throws -> SDRecurringRule? {
+        var descriptor = FetchDescriptor<SDRecurringRule>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first
+    }
+
+    private static func fetchTransactions(categoryID: UUID, in context: ModelContext) throws -> [SDTransaction] {
+        let descriptor = FetchDescriptor<SDTransaction>(
+            predicate: #Predicate { $0.categoryID == categoryID }
+        )
+        return try context.fetch(descriptor)
+    }
+
+    private static func fetchTransactions(recurringRuleID: UUID, in context: ModelContext) throws -> [SDTransaction] {
+        let descriptor = FetchDescriptor<SDTransaction>(
+            predicate: #Predicate { $0.recurringRuleID == recurringRuleID }
+        )
+        return try context.fetch(descriptor)
+    }
+
+    private static func fetchBudgets(categoryID: UUID, in context: ModelContext) throws -> [SDBudget] {
+        let descriptor = FetchDescriptor<SDBudget>(
+            predicate: #Predicate { $0.categoryID == categoryID }
+        )
+        return try context.fetch(descriptor)
+    }
+
+    private static func fetchRecurringRules(templateCategoryID: UUID, in context: ModelContext) throws -> [SDRecurringRule] {
+        let descriptor = FetchDescriptor<SDRecurringRule>(
+            predicate: #Predicate { $0.templateCategoryID == templateCategoryID }
+        )
+        return try context.fetch(descriptor)
+    }
+
+    private static func fetchGroupExpenses(categoryID: UUID, in context: ModelContext) throws -> [SDGroupExpense] {
+        let descriptor = FetchDescriptor<SDGroupExpense>(
+            predicate: #Predicate { $0.categoryID == categoryID }
+        )
+        return try context.fetch(descriptor)
+    }
+
+    private static func fetchChildCategories(parentID: UUID, in context: ModelContext) throws -> [SDCategory] {
+        let descriptor = FetchDescriptor<SDCategory>(
+            predicate: #Predicate { $0.parentID == parentID }
+        )
+        return try context.fetch(descriptor)
     }
 }

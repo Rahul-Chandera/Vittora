@@ -9,6 +9,8 @@ struct MockLedgerWriting: LedgerWriting {
     let transactionRepository: any TransactionRepository
     let accountRepository: any AccountRepository
     var debtRepository: (any DebtRepository)? = nil
+    var categoryRepository: (any CategoryRepository)? = nil
+    var recurringRuleRepository: (any RecurringRuleRepository)? = nil
 
     func performTransfer(
         sourceAccountID: UUID,
@@ -146,5 +148,32 @@ struct MockLedgerWriting: LedgerWriting {
             debt.linkedTransactionID = transaction.id
         }
         try await debtRepository.update(debt)
+    }
+
+    func performDeleteCategory(categoryID: UUID) async throws {
+        let filter = TransactionFilter(categoryIDs: [categoryID])
+        let linked = try await transactionRepository.fetchAll(filter: filter)
+        for var tx in linked {
+            tx.categoryID = nil
+            tx.updatedAt = .now
+            try await transactionRepository.update(tx)
+        }
+        guard let categoryRepository else {
+            throw VittoraError.unknown(String(localized: "Mock category delete not configured"))
+        }
+        try await categoryRepository.delete(categoryID)
+    }
+
+    func performDeleteRecurringRule(ruleID: UUID) async throws {
+        let linked = try await transactionRepository.fetchForRecurringRule(ruleID)
+        for var tx in linked {
+            tx.recurringRuleID = nil
+            tx.updatedAt = .now
+            try await transactionRepository.update(tx)
+        }
+        guard let recurringRuleRepository else {
+            throw VittoraError.unknown(String(localized: "Mock recurring rule delete not configured"))
+        }
+        try await recurringRuleRepository.delete(ruleID)
     }
 }

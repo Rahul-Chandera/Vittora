@@ -60,4 +60,15 @@ protocol LedgerWriting: Sendable {
     /// Delete a transaction and reverse its balance effects atomically.
     /// (Body lands in A4.)
     func performDelete(transactionID: UUID) async throws
+
+    /// Delete a category after nullifying all references to it (A10,
+    /// DATAINTEGRITY-6): clears `categoryID` on transactions, budgets, recurring
+    /// rule templates, and split group expenses; clears `parentID` on child
+    /// categories — then deletes the category row. No balance effects; one save.
+    func performDeleteCategory(categoryID: UUID) async throws
+
+    /// Delete a recurring rule after nullifying `recurringRuleID` on every
+    /// generated transaction that references it (A10) — then deletes the rule.
+    /// No balance effects; one save.
+    func performDeleteRecurringRule(ruleID: UUID) async throws
 }

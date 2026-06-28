@@ -171,10 +171,14 @@ struct RecurringListView: View {
     }
 
     private func setupViewModel() {
-        guard let recurringRepo = dependencies.recurringRuleRepository else { return }
+        guard let recurringRepo = dependencies.recurringRuleRepository,
+              let ledgerWriteStore = dependencies.ledgerWriteStore else { return }
 
         let fetchUseCase = FetchRecurringRulesUseCase(repository: recurringRepo)
-        let deleteUseCase = DeleteRecurringRuleUseCase(repository: recurringRepo)
+        let deleteUseCase = DeleteRecurringRuleUseCase(
+            repository: recurringRepo,
+            ledgerWriting: ledgerWriteStore
+        )
         let pauseResumeUseCase = PauseResumeRuleUseCase(repository: recurringRepo)
         let calculateCostUseCase = CalculateSubscriptionCostUseCase()
 
