@@ -7,6 +7,7 @@ Use this checklist before TestFlight/App Store submission.
 - [ ] `make build-ios` succeeds.
 - [ ] `make build-macos` succeeds.
 - [ ] `make test` succeeds (or approved targeted waiver).
+- [ ] GitHub Actions **CI / build-and-test** green on the release branch (see `.github/BRANCH_PROTECTION.md`).
 
 ## 2) Security and privacy gates
 

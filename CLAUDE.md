@@ -29,6 +29,10 @@ Use `AGENTS.md` as the canonical version.
 - `make test-data`
 - `make test-recurring`
 
+## CI (Epic L1)
+
+GitHub Actions **CI / build-and-test** on push/PR to `refactoring` and `develop`: `make build-ios`, `make build-macos`, `make test`. See `.github/BRANCH_PROTECTION.md`.
+
 ## Architecture/Runbook Docs
 
 - `Docs/Architecture/SYSTEM_MAP.md`
