@@ -1,3 +1,4 @@
+
 import Foundation
 import Testing
 import SwiftData
@@ -7,6 +8,7 @@ import SwiftData
 /// store. Repositories are intentionally "dumb" here (they persist what they are
 /// given without adjusting balances), so a deliberately wrong stored balance
 /// models real-world drift that the use case must detect and repair.
+@MainActor
 @Suite("ReconcileAccountBalanceUseCase Tests")
 struct ReconcileAccountBalanceUseCaseTests {
 

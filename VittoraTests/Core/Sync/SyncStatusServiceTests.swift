@@ -126,6 +126,19 @@ private actor RecordingAuditLogger: SecurityAuditLogging {
     }
 }
 
+private func waitForAuditEvents(
+    on logger: RecordingAuditLogger,
+    count: Int,
+    timeoutMs: Int = 2_000
+) async throws {
+    let attempts = max(1, timeoutMs / 20)
+    for _ in 0..<attempts {
+        if await logger.events.count >= count { return }
+        try await Task.sleep(for: .milliseconds(20))
+    }
+    Issue.record("Timed out waiting for \(count) audit event(s)")
+}
+
 @Suite("SyncConflictHandler Tests")
 @MainActor
 struct SyncConflictHandlerTests {
@@ -278,7 +291,7 @@ struct SyncConflictHandlerTests {
             description: "merged",
             resolutionOverride: .cloudKitAutoResolved
         )
-        try await Task.sleep(for: .milliseconds(200))
+        try await waitForAuditEvents(on: logger, count: 1)
         let events = await logger.events
         #expect(events.contains { $0.kind == .syncConflictAutoResolved })
     }
@@ -292,7 +305,7 @@ struct SyncConflictHandlerTests {
             description: "t",
             resolutionOverride: .keepLocal
         )
-        try await Task.sleep(for: .milliseconds(200))
+        try await Task.sleep(for: .milliseconds(100))
         let events = await logger.events
         #expect(events.isEmpty)
     }
@@ -303,7 +316,7 @@ struct SyncConflictHandlerTests {
         let handler = SyncConflictHandler(auditLogger: logger)
         let id = UUID()
         handler.logIntegrityViolation(entityType: "Transaction", entityID: id, description: "invalid")
-        try await Task.sleep(for: .milliseconds(200))
+        try await waitForAuditEvents(on: logger, count: 1)
         let events = await logger.events
         #expect(events.contains { $0.kind == .syncIntegrityViolation })
         #expect(handler.recentConflicts.first?.resolution == .integrityViolation)

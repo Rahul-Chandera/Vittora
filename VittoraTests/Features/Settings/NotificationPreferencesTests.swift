@@ -5,6 +5,10 @@ import Testing
 @MainActor
 @Suite("ApplyNotificationPreferencesUseCase Tests")
 struct ApplyNotificationPreferencesUseCaseTests {
+    private final class RefreshCounter: @unchecked Sendable {
+        var count = 0
+    }
+
     private func isolatedDefaults() -> UserDefaults {
         UserDefaults(suiteName: "ApplyNotificationPreferencesTests.\(UUID().uuidString)") ?? .standard
     }
@@ -14,10 +18,10 @@ struct ApplyNotificationPreferencesUseCaseTests {
         let notifications = MockNotificationService()
         notifications.requestAuthorizationResult = true
         let defaults = isolatedDefaults()
-        var refreshCount = 0
+        let refreshCounter = RefreshCounter()
         let useCase = ApplyNotificationPreferencesUseCase(
             notificationService: notifications,
-            refreshAllSchedules: { refreshCount += 1 },
+            refreshAllSchedules: { refreshCounter.count += 1 },
             userDefaults: defaults
         )
 
@@ -26,7 +30,7 @@ struct ApplyNotificationPreferencesUseCaseTests {
         #expect(granted == true)
         #expect(notifications.requestAuthorizationCallCount == 1)
         #expect(defaults.bool(forKey: ApplyNotificationPreferencesUseCase.notificationsEnabledKey))
-        #expect(refreshCount == 1)
+        #expect(refreshCounter.count == 1)
     }
 
     @Test("enable clears schedules when authorization is denied")
@@ -34,10 +38,10 @@ struct ApplyNotificationPreferencesUseCaseTests {
         let notifications = MockNotificationService()
         notifications.requestAuthorizationResult = false
         let defaults = isolatedDefaults()
-        var refreshCount = 0
+        let refreshCounter = RefreshCounter()
         let useCase = ApplyNotificationPreferencesUseCase(
             notificationService: notifications,
-            refreshAllSchedules: { refreshCount += 1 },
+            refreshAllSchedules: { refreshCounter.count += 1 },
             userDefaults: defaults
         )
 
@@ -46,7 +50,7 @@ struct ApplyNotificationPreferencesUseCaseTests {
         #expect(granted == false)
         #expect(defaults.bool(forKey: ApplyNotificationPreferencesUseCase.notificationsEnabledKey) == false)
         #expect(notifications.cancelAllPendingCallCount == 1)
-        #expect(refreshCount == 0)
+        #expect(refreshCounter.count == 0)
     }
 
     @Test("disable cancels pending notifications")
@@ -71,32 +75,32 @@ struct ApplyNotificationPreferencesUseCaseTests {
         let notifications = MockNotificationService()
         let defaults = isolatedDefaults()
         defaults.set(true, forKey: ApplyNotificationPreferencesUseCase.notificationsEnabledKey)
-        var refreshCount = 0
+        let refreshCounter = RefreshCounter()
         let useCase = ApplyNotificationPreferencesUseCase(
             notificationService: notifications,
-            refreshAllSchedules: { refreshCount += 1 },
+            refreshAllSchedules: { refreshCounter.count += 1 },
             userDefaults: defaults
         )
 
         await useCase.applySubToggleChange()
 
-        #expect(refreshCount == 1)
+        #expect(refreshCounter.count == 1)
     }
 
     @Test("sub-toggle change is ignored when master is disabled")
     func subToggleIgnoredWhenDisabled() async {
         let notifications = MockNotificationService()
         let defaults = isolatedDefaults()
-        var refreshCount = 0
+        let refreshCounter = RefreshCounter()
         let useCase = ApplyNotificationPreferencesUseCase(
             notificationService: notifications,
-            refreshAllSchedules: { refreshCount += 1 },
+            refreshAllSchedules: { refreshCounter.count += 1 },
             userDefaults: defaults
         )
 
         await useCase.applySubToggleChange()
 
-        #expect(refreshCount == 0)
+        #expect(refreshCounter.count == 0)
     }
 
     @Test("disabling budget alerts cancels budget schedules on refresh")

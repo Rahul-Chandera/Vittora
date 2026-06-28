@@ -10,7 +10,7 @@ struct TransferFundsUseCase: Sendable {
     /// Post-A6 follow-up: switch this to `any LedgerWriting` once that seam lands.
     let ledgerWriteStore: LedgerWriteStore
 
-    init(
+    nonisolated init(
         accountRepository: any AccountRepository,
         ledgerWriteStore: LedgerWriteStore
     ) {

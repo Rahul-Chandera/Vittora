@@ -1,8 +1,10 @@
+
 import Foundation
 import Testing
 import SwiftData
 @testable import Vittora
 
+@MainActor
 @Suite("SwiftDataSavingsGoalRepository Tests")
 struct SwiftDataSavingsGoalRepositoryTests {
 

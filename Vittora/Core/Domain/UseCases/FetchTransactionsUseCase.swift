@@ -5,7 +5,7 @@ struct FetchTransactionsUseCase: Sendable {
 
     let transactionRepository: any TransactionRepository
 
-    init(transactionRepository: any TransactionRepository) {
+    nonisolated init(transactionRepository: any TransactionRepository) {
         self.transactionRepository = transactionRepository
     }
 

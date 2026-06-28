@@ -3,7 +3,7 @@ import Foundation
 /// User-initiated reminder copy for debts others owe you (C5 / M1.4.3).
 /// Never sent automatically — only surfaced through ShareLink / share UI.
 enum DebtContactReminderDraft {
-    static func message(
+    nonisolated static func message(
         payeeName: String,
         remainingAmount: Decimal,
         dueDate: Date?,

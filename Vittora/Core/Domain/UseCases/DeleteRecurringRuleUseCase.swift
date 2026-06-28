@@ -6,7 +6,7 @@ struct DeleteRecurringRuleUseCase: Sendable {
     /// deleting the rule must persist atomically (A10, DATAINTEGRITY-6).
     let ledgerWriting: any LedgerWriting
 
-    init(
+    nonisolated init(
         repository: any RecurringRuleRepository,
         ledgerWriting: any LedgerWriting
     ) {

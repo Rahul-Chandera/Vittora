@@ -4,47 +4,47 @@ import Foundation
 /// See production review SEC-08.
 enum AppUserDefaults {
     /// Suite name for sync timestamps and sync-related preferences.
-    static let syncSuiteName = "com.vittora.app.sync"
+    nonisolated static let syncSuiteName = "com.vittora.app.sync"
 
     /// Suite for on-device conversion milestones (excluded from iCloud backup via suite isolation).
-    static let conversionSuiteName = "com.vittora.app.conversion"
+    nonisolated static let conversionSuiteName = "com.vittora.app.conversion"
 
     enum StandardKey {
-        static let currencyCode = "vittora.currencyCode"
-        static let appearanceMode = "vittora.appearanceMode"
-        static let notificationsEnabled = "vittora.notificationsEnabled"
-        static let notifyBillsDue = "vittora.notifyBillsDue"
-        static let notifyBudgetAlerts = "vittora.notifyBudgetAlerts"
-        static let notifyGoalMilestones = "vittora.notifyGoalMilestones"
-        static let notifyRecurring = "vittora.notifyRecurring"
-        static let exportSchedule = "vittora.exportSchedule"
-        static let cloudSyncEnabled = "vittora.cloudSyncEnabled"
-        static let appLockTimeout = "vittora.appLockTimeout"
+        nonisolated static let currencyCode = "vittora.currencyCode"
+        nonisolated static let appearanceMode = "vittora.appearanceMode"
+        nonisolated static let notificationsEnabled = "vittora.notificationsEnabled"
+        nonisolated static let notifyBillsDue = "vittora.notifyBillsDue"
+        nonisolated static let notifyBudgetAlerts = "vittora.notifyBudgetAlerts"
+        nonisolated static let notifyGoalMilestones = "vittora.notifyGoalMilestones"
+        nonisolated static let notifyRecurring = "vittora.notifyRecurring"
+        nonisolated static let exportSchedule = "vittora.exportSchedule"
+        nonisolated static let cloudSyncEnabled = "vittora.cloudSyncEnabled"
+        nonisolated static let appLockTimeout = "vittora.appLockTimeout"
         /// Legacy UserDefaults location for app-lock intent before keychain migration (B1).
         /// Intentionally matches `KeychainKey.appLockEnabled` so reads can migrate UD → keychain.
-        static let appLockEnabledLegacy = "vittora.appLockEnabled"
+        nonisolated static let appLockEnabledLegacy = "vittora.appLockEnabled"
         /// Legacy UserDefaults location; matches `KeychainKey.passcodeFallback`.
-        static let passcodeFallbackLegacy = "vittora.passcodeFallback"
+        nonisolated static let passcodeFallbackLegacy = "vittora.passcodeFallback"
         /// Legacy UserDefaults location; matches `KeychainKey.userName`.
-        static let userNameLegacy = "vittora.userName"
-        static let budgetThresholdFired = "vittora.budgetThresholdFired"
+        nonisolated static let userNameLegacy = "vittora.userName"
+        nonisolated static let budgetThresholdFired = "vittora.budgetThresholdFired"
     }
 
     enum KeychainKey {
         /// Keychain location for app-lock intent (migrated from `StandardKey.appLockEnabledLegacy`).
-        static let appLockEnabled = "vittora.appLockEnabled"
-        static let passcodeFallback = "vittora.passcodeFallback"
-        static let userName = "vittora.userName"
-        static let onboardingComplete = "vittora.onboardingComplete"
-        static let appLockCooldown = "vittora.appLockCooldown"
+        nonisolated static let appLockEnabled = "vittora.appLockEnabled"
+        nonisolated static let passcodeFallback = "vittora.passcodeFallback"
+        nonisolated static let userName = "vittora.userName"
+        nonisolated static let onboardingComplete = "vittora.onboardingComplete"
+        nonisolated static let appLockCooldown = "vittora.appLockCooldown"
     }
 
     enum SyncKey {
-        static let lastSyncDate = "vittora.lastSyncDate"
+        nonisolated static let lastSyncDate = "vittora.lastSyncDate"
     }
 
     /// Returns the sync suite, falling back to standard only if the suite cannot be created.
-    static var sync: UserDefaults {
+    nonisolated static var sync: UserDefaults {
         if let suite = UserDefaults(suiteName: syncSuiteName) {
             return suite
         }
@@ -52,7 +52,7 @@ enum AppUserDefaults {
     }
 
     /// Returns the conversion-event suite, falling back to standard only if the suite cannot be created.
-    static var conversion: UserDefaults {
+    nonisolated static var conversion: UserDefaults {
         if let suite = UserDefaults(suiteName: conversionSuiteName) {
             return suite
         }

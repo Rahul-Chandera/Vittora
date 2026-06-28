@@ -24,7 +24,7 @@ struct ImportContactsUseCase: Sendable {
     private let repository: any PayeeRepository
     private let contactsService: any ContactsImportServiceProtocol
 
-    init(
+    nonisolated init(
         repository: any PayeeRepository,
         contactsService: any ContactsImportServiceProtocol
     ) {

@@ -2,13 +2,13 @@ import Foundation
 
 /// Applies notification preference changes from Settings (UX-4 / C6).
 struct ApplyNotificationPreferencesUseCase: Sendable {
-    static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled
+    nonisolated static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled
 
-    let notificationService: any NotificationServiceProtocol
-    let refreshAllSchedules: @Sendable () async -> Void
-    let userDefaults: UserDefaults
+    nonisolated(unsafe) let notificationService: any NotificationServiceProtocol
+    nonisolated(unsafe) let refreshAllSchedules: @Sendable () async -> Void
+    nonisolated(unsafe) let userDefaults: UserDefaults
 
-    init(
+    nonisolated init(
         notificationService: any NotificationServiceProtocol,
         refreshAllSchedules: @escaping @Sendable () async -> Void,
         userDefaults: UserDefaults = .standard

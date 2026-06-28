@@ -3,7 +3,7 @@ import Foundation
 struct CreateCategoryUseCase: Sendable {
     private let repository: any CategoryRepository
 
-    init(repository: any CategoryRepository) {
+    nonisolated init(repository: any CategoryRepository) {
         self.repository = repository
     }
 

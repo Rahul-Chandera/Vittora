@@ -1,12 +1,31 @@
 import Foundation
 
-struct AppLockCooldownState: Codable, Equatable, Sendable {
+struct AppLockCooldownState: Equatable, Sendable {
     var consecutiveFailures: Int
     var cooldownExpiresAt: Date?
 
-    init(consecutiveFailures: Int = 0, cooldownExpiresAt: Date? = nil) {
+    nonisolated init(consecutiveFailures: Int = 0, cooldownExpiresAt: Date? = nil) {
         self.consecutiveFailures = consecutiveFailures
         self.cooldownExpiresAt = cooldownExpiresAt
+    }
+}
+
+extension AppLockCooldownState: Codable {
+    enum CodingKeys: String, CodingKey {
+        case consecutiveFailures
+        case cooldownExpiresAt
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        consecutiveFailures = try container.decode(Int.self, forKey: .consecutiveFailures)
+        cooldownExpiresAt = try container.decodeIfPresent(Date.self, forKey: .cooldownExpiresAt)
+    }
+
+    nonisolated func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(consecutiveFailures, forKey: .consecutiveFailures)
+        try container.encodeIfPresent(cooldownExpiresAt, forKey: .cooldownExpiresAt)
     }
 }
 

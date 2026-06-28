@@ -5,7 +5,7 @@ struct GenerateTaxSummaryUseCase: Sendable {
     private let fetchTaxCategoriesUseCase: FetchTaxCategoriesUseCase
     private let calendar: Calendar
 
-    init(
+    nonisolated init(
         transactionRepository: any TransactionRepository,
         fetchTaxCategoriesUseCase: FetchTaxCategoriesUseCase,
         calendar: Calendar = Calendar(identifier: .gregorian)

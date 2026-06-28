@@ -7,7 +7,7 @@ struct AddTransactionUseCase: Sendable {
     /// the balance adjustment must land in one save (DATAINTEGRITY-2).
     let ledgerWriting: any LedgerWriting
 
-    init(
+    nonisolated init(
         accountRepository: any AccountRepository,
         categoryRepository: any CategoryRepository,
         ledgerWriting: any LedgerWriting

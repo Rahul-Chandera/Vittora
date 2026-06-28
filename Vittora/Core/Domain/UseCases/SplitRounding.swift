@@ -2,13 +2,13 @@ import Foundation
 
 /// Shared money/percentage tolerances and allocation helpers for split expenses (A12).
 enum SplitRounding {
-    static let moneyScale = 2
+    nonisolated static let moneyScale = 2
     /// Half-cent threshold for treating a balance as settled.
-    static let moneyEpsilon: Decimal = Decimal(sign: .plus, exponent: -3, significand: 5)
+    nonisolated static let moneyEpsilon: Decimal = Decimal(sign: .plus, exponent: -3, significand: 5)
     /// Exact-split validation tolerance (one cent).
-    static let moneyTolerance: Decimal = Decimal(sign: .plus, exponent: -2, significand: 1)
+    nonisolated static let moneyTolerance: Decimal = Decimal(sign: .plus, exponent: -2, significand: 1)
     /// Allowed deviation when percentage inputs must sum to 100.
-    static let percentageTolerance: Decimal = Decimal(sign: .plus, exponent: -2, significand: 1)
+    nonisolated static let percentageTolerance: Decimal = Decimal(sign: .plus, exponent: -2, significand: 1)
 
     /// Allocates `amount` across members from ideal (unrounded) part amounts.
     /// Rounds all but the last share; the last absorbs the remainder. If that

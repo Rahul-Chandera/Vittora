@@ -4,12 +4,12 @@ import os
 
 enum ModelContainerConfig {
     /// All SwiftData model types registered in the app (current schema version).
-    static var allModels: [any PersistentModel.Type] {
+    nonisolated static var allModels: [any PersistentModel.Type] {
         VittoraSchemaV6.models
     }
 
     /// Create the shared model container using a versioned schema baseline.
-    static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
+    nonisolated static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
         let schema = Schema(allModels)
         let cloudKitDatabase: ModelConfiguration.CloudKitDatabase =
             inMemory || !CloudKitRuntimeSupport.isEnabled ? .none : .automatic
@@ -31,18 +31,18 @@ enum ModelContainerConfig {
     }
 
     /// In-memory container for previews and tests
-    static func makePreviewContainer() throws -> ModelContainer {
+    nonisolated static func makePreviewContainer() throws -> ModelContainer {
         try makeContainer(inMemory: true)
     }
 
     // MARK: - Store file hardening
 
-    private static let logger = Logger(subsystem: "com.vittora.app", category: "Persistence")
+    nonisolated(unsafe) private static let logger = Logger(subsystem: "com.vittora.app", category: "Persistence")
 
     /// Applies .completeUnlessOpen file protection and excludes the store from iCloud
     /// backups (data is already in iCloud via CloudKit sync).
     /// Called on every launch so existing stores are upgraded on first run after update.
-    private static func applyStoreFileAttributes(to container: ModelContainer) {
+    nonisolated private static func applyStoreFileAttributes(to container: ModelContainer) {
         let fm = FileManager.default
         for configuration in container.configurations {
             let storeURL = configuration.url

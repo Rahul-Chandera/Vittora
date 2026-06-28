@@ -91,9 +91,9 @@ final class AppState {
         case savings
         case settings
 
-        var id: String { rawValue }
+        nonisolated var id: String { rawValue }
 
-        var title: String {
+        nonisolated var title: String {
             switch self {
             case .dashboard:    String(localized: "Dashboard")
             case .transactions: String(localized: "Transactions")
@@ -107,7 +107,7 @@ final class AppState {
             }
         }
 
-        var systemImage: String {
+        nonisolated var systemImage: String {
             switch self {
             case .dashboard:    "chart.pie.fill"
             case .transactions: "list.bullet.rectangle.fill"

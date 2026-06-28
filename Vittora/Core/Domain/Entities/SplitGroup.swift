@@ -21,35 +21,46 @@ enum SplitMethod: String, Sendable, Hashable, CaseIterable, Codable {
 // MARK: - Split Share
 
 /// Per-member allocation for a single group expense
-struct SplitShare: Identifiable, Hashable, Equatable, Sendable, Codable {
-    var id: UUID { memberID }
-    let memberID: UUID
-    var amount: Decimal
+struct SplitShare: Identifiable, Sendable, Codable {
+    nonisolated var id: UUID { memberID }
+    nonisolated let memberID: UUID
+    nonisolated var amount: Decimal
 
-    init(memberID: UUID, amount: Decimal = 0) {
+    nonisolated init(memberID: UUID, amount: Decimal = 0) {
         self.memberID = memberID
         self.amount = amount
+    }
+}
+
+extension SplitShare: Hashable {
+    nonisolated static func == (lhs: SplitShare, rhs: SplitShare) -> Bool {
+        lhs.memberID == rhs.memberID && lhs.amount == rhs.amount
+    }
+
+    nonisolated func hash(into hasher: inout Hasher) {
+        hasher.combine(memberID)
+        hasher.combine(amount)
     }
 }
 
 // MARK: - Group Expense
 
 struct GroupExpense: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var groupID: UUID
+    nonisolated let id: UUID
+    nonisolated var groupID: UUID
     /// The member (payee) who paid the full amount upfront
-    var paidByMemberID: UUID
-    var amount: Decimal
-    var title: String
-    var date: Date
-    var splitMethod: SplitMethod
+    nonisolated var paidByMemberID: UUID
+    nonisolated var amount: Decimal
+    nonisolated var title: String
+    nonisolated var date: Date
+    nonisolated var splitMethod: SplitMethod
     /// Per-member share amounts (all shares should sum to `amount`)
-    var shares: [SplitShare]
-    var categoryID: UUID?
-    var note: String?
-    var isSettled: Bool
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated var shares: [SplitShare]
+    nonisolated var categoryID: UUID?
+    nonisolated var note: String?
+    nonisolated var isSettled: Bool
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
 
     nonisolated init(
         id: UUID = UUID(),
@@ -85,12 +96,12 @@ struct GroupExpense: Identifiable, Hashable, Equatable, Sendable {
 // MARK: - Split Group
 
 struct SplitGroup: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var name: String
+    nonisolated let id: UUID
+    nonisolated var name: String
     /// Ordered list of payee UUIDs who are members of this group
-    var memberIDs: [UUID]
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated var memberIDs: [UUID]
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
 
     nonisolated init(
         id: UUID = UUID(),
@@ -111,9 +122,15 @@ struct SplitGroup: Identifiable, Hashable, Equatable, Sendable {
 
 /// Net balance between two members — `fromMemberID` owes `toMemberID` the amount
 struct MemberBalance: Sendable, Hashable, Equatable {
-    let fromMemberID: UUID
-    let toMemberID: UUID
-    var amount: Decimal
+    nonisolated let fromMemberID: UUID
+    nonisolated let toMemberID: UUID
+    nonisolated var amount: Decimal
+
+    nonisolated init(fromMemberID: UUID, toMemberID: UUID, amount: Decimal) {
+        self.fromMemberID = fromMemberID
+        self.toMemberID = toMemberID
+        self.amount = amount
+    }
 }
 
 /// Aggregated view of a group's financial state

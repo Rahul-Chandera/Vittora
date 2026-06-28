@@ -1,11 +1,11 @@
 import Foundation
 
 struct CategoryBreakdown: Sendable, Identifiable {
-    var id: UUID { category.id }
-    let category: CategoryEntity
-    let amount: Decimal
-    let percentage: Double
-    let transactionCount: Int
+    nonisolated var id: UUID { category.id }
+    nonisolated let category: CategoryEntity
+    nonisolated let amount: Decimal
+    nonisolated let percentage: Double
+    nonisolated let transactionCount: Int
 }
 
 struct CategoryBreakdownUseCase: Sendable {

@@ -5,7 +5,7 @@ struct CompareTaxRegimesUseCase: Sendable {
     private let estimateUseCase: EstimateTaxUseCase
     private let usTaxCalculator: USTaxCalculator
 
-    init(
+    nonisolated init(
         estimateUseCase: EstimateTaxUseCase = EstimateTaxUseCase(),
         usTaxCalculator: USTaxCalculator = USTaxCalculator()
     ) {

@@ -8,9 +8,9 @@ struct EvaluateBudgetThresholdAlertsUseCase: Sendable {
     let checkThresholdUseCase: CheckBudgetThresholdUseCase
     let alertStore: any BudgetThresholdAlertStoring
     let notificationService: any NotificationServiceProtocol
-    let userDefaults: UserDefaults
+    nonisolated(unsafe) let userDefaults: UserDefaults
 
-    init(
+    nonisolated init(
         budgetFetcher: any ActiveBudgetFetching,
         checkThresholdUseCase: CheckBudgetThresholdUseCase = CheckBudgetThresholdUseCase(),
         alertStore: any BudgetThresholdAlertStoring,

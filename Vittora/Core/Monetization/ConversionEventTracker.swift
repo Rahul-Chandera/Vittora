@@ -10,23 +10,23 @@ protocol ConversionEventTracking: Sendable {
 }
 
 final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchecked Sendable {
-    private let defaults: UserDefaults
-    private let calendar: Calendar
-    private let nowProvider: @Sendable () -> Date
-    private let lock = NSLock()
+    private nonisolated(unsafe) let defaults: UserDefaults
+    private nonisolated(unsafe) let calendar: Calendar
+    private nonisolated(unsafe) let nowProvider: @Sendable () -> Date
+    private nonisolated(unsafe) let lock = NSLock()
 
     private enum Keys {
-        static let prefix = "vittora.conversion."
-        static let lastPaywallPresented = prefix + "lastPaywallPresented"
-        static let ocrMonthBucket = prefix + "ocrMonthBucket"
-        static let ocrMonthCount = prefix + "ocrMonthCount"
+        nonisolated static let prefix = "vittora.conversion."
+        nonisolated static let lastPaywallPresented = prefix + "lastPaywallPresented"
+        nonisolated static let ocrMonthBucket = prefix + "ocrMonthBucket"
+        nonisolated static let ocrMonthCount = prefix + "ocrMonthCount"
 
-        static func milestone(_ milestone: ConversionMilestone) -> String {
+        nonisolated static func milestone(_ milestone: ConversionMilestone) -> String {
             prefix + "milestone." + milestone.rawValue
         }
     }
 
-    init(
+    nonisolated init(
         defaults: UserDefaults = AppUserDefaults.conversion,
         calendar: Calendar = .current,
         nowProvider: @escaping @Sendable () -> Date = { Date.now }
@@ -36,7 +36,7 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         self.nowProvider = nowProvider
     }
 
-    func record(_ milestone: ConversionMilestone) -> ConversionEventResult {
+    nonisolated func record(_ milestone: ConversionMilestone) -> ConversionEventResult {
         lock.lock()
         defer { lock.unlock() }
 
@@ -57,7 +57,7 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         )
     }
 
-    func shouldPresentPaywall(for milestone: ConversionMilestone) -> Bool {
+    nonisolated func shouldPresentPaywall(for milestone: ConversionMilestone) -> Bool {
         lock.lock()
         defer { lock.unlock() }
 
@@ -65,19 +65,19 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         return evaluatePaywallPresentation(milestone: milestone, isFirstTime: isFirstTime)
     }
 
-    func markPaywallPresented(for milestone: ConversionMilestone) {
+    nonisolated func markPaywallPresented(for milestone: ConversionMilestone) {
         lock.lock()
         defer { lock.unlock() }
         defaults.set(nowProvider(), forKey: Keys.lastPaywallPresented)
     }
 
-    func hasRecorded(_ milestone: ConversionMilestone) -> Bool {
+    nonisolated func hasRecorded(_ milestone: ConversionMilestone) -> Bool {
         lock.lock()
         defer { lock.unlock() }
         return defaults.bool(forKey: Keys.milestone(milestone))
     }
 
-    func recordOCRScan() -> ConversionEventResult {
+    nonisolated func recordOCRScan() -> ConversionEventResult {
         lock.lock()
         incrementOCRCountLocked()
         lock.unlock()
@@ -90,13 +90,13 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         return firstScan
     }
 
-    func ocrScansThisMonth() -> Int {
+    nonisolated func ocrScansThisMonth() -> Int {
         lock.lock()
         defer { lock.unlock() }
         return currentOCRCountLocked()
     }
 
-    private func evaluatePaywallPresentation(
+    nonisolated private func evaluatePaywallPresentation(
         milestone: ConversionMilestone,
         isFirstTime: Bool
     ) -> Bool {
@@ -112,7 +112,7 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         return true
     }
 
-    private func incrementOCRCountLocked() {
+    nonisolated private func incrementOCRCountLocked() {
         let bucket = monthBucket(for: nowProvider())
         let storedBucket = defaults.string(forKey: Keys.ocrMonthBucket)
         if storedBucket != bucket {
@@ -124,13 +124,13 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         }
     }
 
-    private func currentOCRCountLocked() -> Int {
+    nonisolated private func currentOCRCountLocked() -> Int {
         let bucket = monthBucket(for: nowProvider())
         guard defaults.string(forKey: Keys.ocrMonthBucket) == bucket else { return 0 }
         return defaults.integer(forKey: Keys.ocrMonthCount)
     }
 
-    private func monthBucket(for date: Date) -> String {
+    nonisolated private func monthBucket(for date: Date) -> String {
         let components = calendar.dateComponents([.year, .month], from: date)
         let year = components.year ?? 0
         let month = components.month ?? 0

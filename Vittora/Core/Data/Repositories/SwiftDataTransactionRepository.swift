@@ -3,9 +3,9 @@ import SwiftData
 
 @ModelActor
 actor SwiftDataTransactionRepository: TransactionRepository {
-    private static let defaultFilteredFetchLimit = 500
-    private static let unscopedFilteredFetchLimit = 200
-    static let exportPageSize = 500
+    nonisolated private static let defaultFilteredFetchLimit = 500
+    nonisolated private static let unscopedFilteredFetchLimit = 200
+    nonisolated static let exportPageSize = 500
 
     func fetchTransactionCount() async throws -> Int {
         try modelContext.fetchCount(FetchDescriptor<SDTransaction>())

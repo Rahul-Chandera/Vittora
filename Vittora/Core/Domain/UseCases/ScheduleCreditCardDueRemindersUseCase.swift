@@ -8,9 +8,9 @@ struct ScheduleCreditCardDueRemindersUseCase: Sendable {
     let notificationService: any NotificationServiceProtocol
     let calendar: Calendar
     let nowProvider: @Sendable () -> Date
-    let userDefaults: UserDefaults
+    nonisolated(unsafe) let userDefaults: UserDefaults
 
-    init(
+    nonisolated init(
         accountRepository: any AccountRepository,
         notificationService: any NotificationServiceProtocol,
         calendar: Calendar = .current,

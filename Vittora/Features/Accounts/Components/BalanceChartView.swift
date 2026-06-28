@@ -1,10 +1,10 @@
 import SwiftUI
 import Charts
 
-struct BalanceDataPoint: Identifiable {
-    let id = UUID()
-    let date: Date
-    let balance: Decimal
+struct BalanceDataPoint: Identifiable, Sendable {
+    nonisolated let id = UUID()
+    nonisolated let date: Date
+    nonisolated let balance: Decimal
 }
 
 struct BalanceChartView: View {

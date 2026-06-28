@@ -2,8 +2,8 @@ import Foundation
 import OSLog
 
 struct ReceiptParserService: Sendable {
-    private static let logger = Logger(subsystem: "com.vittora.app", category: "receipt_parser")
-    private static let amountRegexes = compileRegexes(
+    private nonisolated(unsafe) static let logger = Logger(subsystem: "com.vittora.app", category: "receipt_parser")
+    private nonisolated(unsafe) static let amountRegexes = compileRegexes(
         [
             #"\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)"#,
             #"(?:Rs\.?|INR)\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)"#,
@@ -11,7 +11,7 @@ struct ReceiptParserService: Sendable {
         ],
         options: .caseInsensitive
     )
-    private static let dateRegexes = compileDateRegexes(
+    private nonisolated(unsafe) static let dateRegexes = compileDateRegexes(
         [
             (#"\d{2}/\d{2}/\d{4}"#, "MM/dd/yyyy"),
             (#"\d{2}-\d{2}-\d{4}"#, "dd-MM-yyyy"),
@@ -20,7 +20,7 @@ struct ReceiptParserService: Sendable {
         ],
         options: .caseInsensitive
     )
-    private static let lineItemRegex = compileRegex(
+    private nonisolated(unsafe) static let lineItemRegex = compileRegex(
         #"^(.+?)\s+\$?\s*(\d+\.\d{2})\s*$"#
     )
 
@@ -128,14 +128,14 @@ struct ReceiptParserService: Sendable {
         return items
     }
 
-    private static func compileRegexes(
+    private nonisolated static func compileRegexes(
         _ patterns: [String],
         options: NSRegularExpression.Options = []
     ) -> [NSRegularExpression] {
         patterns.compactMap { compileRegex($0, options: options) }
     }
 
-    private static func compileDateRegexes(
+    private nonisolated static func compileDateRegexes(
         _ rules: [(pattern: String, format: String)],
         options: NSRegularExpression.Options = []
     ) -> [(regex: NSRegularExpression, format: String)] {
@@ -144,7 +144,7 @@ struct ReceiptParserService: Sendable {
         }
     }
 
-    private static func compileRegex(
+    private nonisolated static func compileRegex(
         _ pattern: String,
         options: NSRegularExpression.Options = []
     ) -> NSRegularExpression? {

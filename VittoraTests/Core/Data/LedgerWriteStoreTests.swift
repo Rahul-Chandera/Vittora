@@ -6,6 +6,7 @@ import Foundation
 /// Verifies the single-context write Unit-of-Work guarantees from A1:
 /// a compound operation persists with exactly one `save()`, and an
 /// operation that fails mid-way rolls back and persists nothing.
+@MainActor
 @Suite("LedgerWriteStore Unit-of-Work")
 struct LedgerWriteStoreTests {
 

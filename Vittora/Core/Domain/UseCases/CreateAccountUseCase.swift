@@ -3,7 +3,7 @@ import Foundation
 struct CreateAccountUseCase: Sendable {
     let accountRepository: any AccountRepository
 
-    init(accountRepository: any AccountRepository) {
+    nonisolated init(accountRepository: any AccountRepository) {
         self.accountRepository = accountRepository
     }
 

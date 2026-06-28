@@ -50,7 +50,7 @@ actor LedgerWriteStore: LedgerWriting {
     /// discarding every pending insert/update/delete from `work`, and the error
     /// is rethrown so the caller can surface it. The store is never left with a
     /// half-applied operation.
-    func commit(_ work: (ModelContext) throws -> Void) throws {
+    func commit(_ work: @Sendable (ModelContext) throws -> Void) throws {
         do {
             try work(modelContext)
             try modelContext.save()
@@ -178,7 +178,7 @@ actor LedgerWriteStore: LedgerWriting {
     }
 
     /// Promote a legacy single link into the array, then append (A11).
-    private static func appendLinkedTransaction(_ debt: SDDebt, transactionID: UUID) {
+    nonisolated private static func appendLinkedTransaction(_ debt: SDDebt, transactionID: UUID) {
         var ids = debt.linkedTransactionIDs
         if ids.isEmpty, let legacy = debt.linkedTransactionID {
             ids = [legacy]
@@ -387,7 +387,7 @@ actor LedgerWriteStore: LedgerWriting {
 
     /// Apply a signed delta to an account's balance within the given context,
     /// throwing `accountNotFound` (so `commit` rolls back) if it cannot be resolved.
-    private static func adjustAccount(_ id: UUID, by delta: Decimal, in context: ModelContext) throws {
+    nonisolated private static func adjustAccount(_ id: UUID, by delta: Decimal, in context: ModelContext) throws {
         guard let account = try fetchAccount(id, in: context) else {
             throw LedgerWriteError.accountNotFound(id)
         }
@@ -396,14 +396,14 @@ actor LedgerWriteStore: LedgerWriting {
     }
 
     /// Fetch a single transaction model by id within the given context.
-    private static func fetchTransaction(_ id: UUID, in context: ModelContext) throws -> SDTransaction? {
+    nonisolated private static func fetchTransaction(_ id: UUID, in context: ModelContext) throws -> SDTransaction? {
         var descriptor = FetchDescriptor<SDTransaction>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
         return try context.fetch(descriptor).first
     }
 
     /// Fetch all transfer legs sharing a `transferPairID` within the given context.
-    private static func fetchTransferLegs(pairID: UUID, in context: ModelContext) throws -> [SDTransaction] {
+    nonisolated private static func fetchTransferLegs(pairID: UUID, in context: ModelContext) throws -> [SDTransaction] {
         let descriptor = FetchDescriptor<SDTransaction>(
             predicate: #Predicate { $0.transferPairID == pairID }
         )
@@ -413,7 +413,7 @@ actor LedgerWriteStore: LedgerWriting {
     /// Build a fresh `SDTransaction` from a domain entity. Matches
     /// `SwiftDataTransactionRepository.create` so the store and repo agree on
     /// how an entity becomes a row (id preserved, transfer pairing/direction carried).
-    private static func makeTransactionModel(from entity: TransactionEntity) -> SDTransaction {
+    nonisolated private static func makeTransactionModel(from entity: TransactionEntity) -> SDTransaction {
         SDTransaction(
             id: entity.id,
             amount: entity.amount,
@@ -434,66 +434,66 @@ actor LedgerWriteStore: LedgerWriting {
     }
 
     /// Fetch a single account model by id within the given context.
-    private static func fetchAccount(_ id: UUID, in context: ModelContext) throws -> SDAccount? {
+    nonisolated private static func fetchAccount(_ id: UUID, in context: ModelContext) throws -> SDAccount? {
         var descriptor = FetchDescriptor<SDAccount>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
         return try context.fetch(descriptor).first
     }
 
-    private static func fetchDebt(_ id: UUID, in context: ModelContext) throws -> SDDebt? {
+    nonisolated private static func fetchDebt(_ id: UUID, in context: ModelContext) throws -> SDDebt? {
         var descriptor = FetchDescriptor<SDDebt>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
         return try context.fetch(descriptor).first
     }
 
-    private static func fetchCategory(_ id: UUID, in context: ModelContext) throws -> SDCategory? {
+    nonisolated private static func fetchCategory(_ id: UUID, in context: ModelContext) throws -> SDCategory? {
         var descriptor = FetchDescriptor<SDCategory>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
         return try context.fetch(descriptor).first
     }
 
-    private static func fetchRecurringRule(_ id: UUID, in context: ModelContext) throws -> SDRecurringRule? {
+    nonisolated private static func fetchRecurringRule(_ id: UUID, in context: ModelContext) throws -> SDRecurringRule? {
         var descriptor = FetchDescriptor<SDRecurringRule>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
         return try context.fetch(descriptor).first
     }
 
-    private static func fetchTransactions(categoryID: UUID, in context: ModelContext) throws -> [SDTransaction] {
+    nonisolated private static func fetchTransactions(categoryID: UUID, in context: ModelContext) throws -> [SDTransaction] {
         let descriptor = FetchDescriptor<SDTransaction>(
             predicate: #Predicate { $0.categoryID == categoryID }
         )
         return try context.fetch(descriptor)
     }
 
-    private static func fetchTransactions(recurringRuleID: UUID, in context: ModelContext) throws -> [SDTransaction] {
+    nonisolated private static func fetchTransactions(recurringRuleID: UUID, in context: ModelContext) throws -> [SDTransaction] {
         let descriptor = FetchDescriptor<SDTransaction>(
             predicate: #Predicate { $0.recurringRuleID == recurringRuleID }
         )
         return try context.fetch(descriptor)
     }
 
-    private static func fetchBudgets(categoryID: UUID, in context: ModelContext) throws -> [SDBudget] {
+    nonisolated private static func fetchBudgets(categoryID: UUID, in context: ModelContext) throws -> [SDBudget] {
         let descriptor = FetchDescriptor<SDBudget>(
             predicate: #Predicate { $0.categoryID == categoryID }
         )
         return try context.fetch(descriptor)
     }
 
-    private static func fetchRecurringRules(templateCategoryID: UUID, in context: ModelContext) throws -> [SDRecurringRule] {
+    nonisolated private static func fetchRecurringRules(templateCategoryID: UUID, in context: ModelContext) throws -> [SDRecurringRule] {
         let descriptor = FetchDescriptor<SDRecurringRule>(
             predicate: #Predicate { $0.templateCategoryID == templateCategoryID }
         )
         return try context.fetch(descriptor)
     }
 
-    private static func fetchGroupExpenses(categoryID: UUID, in context: ModelContext) throws -> [SDGroupExpense] {
+    nonisolated private static func fetchGroupExpenses(categoryID: UUID, in context: ModelContext) throws -> [SDGroupExpense] {
         let descriptor = FetchDescriptor<SDGroupExpense>(
             predicate: #Predicate { $0.categoryID == categoryID }
         )
         return try context.fetch(descriptor)
     }
 
-    private static func fetchChildCategories(parentID: UUID, in context: ModelContext) throws -> [SDCategory] {
+    nonisolated private static func fetchChildCategories(parentID: UUID, in context: ModelContext) throws -> [SDCategory] {
         let descriptor = FetchDescriptor<SDCategory>(
             predicate: #Predicate { $0.parentID == parentID }
         )
