@@ -26,6 +26,8 @@ struct CategoryBreakdownUseCase: Sendable {
 
         let (transactions, categories) = try await (transactionsTask, categoriesTask)
 
+        let categoryByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+
         var categoryAmounts: [UUID: (amount: Decimal, count: Int)] = [:]
         for transaction in transactions {
             guard let catID = transaction.categoryID else { continue }
@@ -39,7 +41,7 @@ struct CategoryBreakdownUseCase: Sendable {
 
         let breakdowns = categoryAmounts
             .compactMap { (categoryID, data) -> CategoryBreakdown? in
-                guard let category = categories.first(where: { $0.id == categoryID }) else {
+                guard let category = categoryByID[categoryID] else {
                     return nil
                 }
                 let percentage = total > 0
