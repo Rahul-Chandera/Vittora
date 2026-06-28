@@ -181,6 +181,112 @@ struct TaxCalculatorRegressionTests {
         }
     }
 
+    // MARK: - India FY 2025-26 Surcharge Marginal Relief (A13)
+
+    @Suite("India FY 2025-26 Surcharge Marginal Relief")
+    struct IndiaFY2025SurchargeMarginalRelief {
+        let calc = IndiaTaxCalculator()
+
+        private func profile(
+            income: Decimal,
+            advanced: TaxAdvancedInputs = TaxAdvancedInputs()
+        ) -> TaxProfile {
+            TaxProfile(
+                country: .india,
+                annualIncome: income,
+                indiaRegime: .newRegime,
+                financialYear: "2025-26",
+                incomeSourceType: .salaried,
+                advancedInputs: advanced
+            )
+        }
+
+        @Test("₹50L – no surcharge at threshold")
+        func fiftyLakhNoSurcharge() {
+            // taxable ₹49,25,000 → basicTax ₹10,57,500; cess ₹42,300 → finalTax ₹10,99,800
+            let result = calc.calculate(profile: profile(income: 50_00_000))
+            #expect(result.basicTax  == 10_57_500)
+            #expect(result.surcharge == 0)
+            #expect(result.cess      == 42_300)
+            #expect(result.finalTax  == 10_99_800)
+        }
+
+        @Test("₹51L – 10% surcharge band marginal relief")
+        func fiftyOneLakhMarginalRelief() {
+            // pre-cess at ₹50L = ₹10,57,500; cap = ₹11,57,500 → surcharge ₹70,000 (not 10% of ₹51L tax)
+            // cess = ₹11,57,500 × 4% = ₹46,300 → finalTax = ₹12,03,800 (incometax.gov.in FY2025-26)
+            let result = calc.calculate(profile: profile(income: 51_00_000))
+            #expect(result.surcharge == 70_000)
+            #expect(result.cess      == 46_300)
+            #expect(result.finalTax  == 12_03_800)
+        }
+
+        @Test("₹1Cr – 10% surcharge at band ceiling")
+        func oneCroreTenPercentSurcharge() {
+            // taxable ₹99,25,000 → basicTax ₹25,57,500; surcharge 10% ₹2,55,750; cess ₹1,12,530
+            let result = calc.calculate(profile: profile(income: 1_00_00_000))
+            #expect(result.basicTax  == 25_57_500)
+            #expect(result.surcharge == 2_55_750)
+            #expect(result.cess      == 1_12_530)
+            #expect(result.finalTax  == 29_25_780)
+        }
+
+        @Test("₹1.01Cr – 15% surcharge band marginal relief")
+        func oneCroreOneLakhMarginalRelief() {
+            // cap = ₹29,13,250 → surcharge ₹3,25,750; cess ₹1,16,530 → finalTax ₹30,29,780
+            let result = calc.calculate(profile: profile(income: 1_01_00_000))
+            #expect(result.surcharge == 3_25_750)
+            #expect(result.cess      == 1_16_530)
+            #expect(result.finalTax  == 30_29_780)
+        }
+
+        @Test("₹2Cr – 15% surcharge at band ceiling")
+        func twoCroreFifteenPercentSurcharge() {
+            let result = calc.calculate(profile: profile(income: 2_00_00_000))
+            #expect(result.surcharge == 8_33_625)
+            #expect(result.finalTax  == 66_46_770)
+        }
+
+        @Test("₹2.01Cr – 25% surcharge band marginal relief")
+        func twoCroreOneLakhMarginalRelief() {
+            // cap = ₹64,91,125 → surcharge ₹9,03,625; cess ₹2,59,645 → finalTax ₹67,50,770
+            let result = calc.calculate(profile: profile(income: 2_01_00_000))
+            #expect(result.surcharge == 9_03_625)
+            #expect(result.cess      == 2_59_645)
+            #expect(result.finalTax  == 67_50_770)
+        }
+
+        @Test("₹5Cr – 25% new-regime surcharge at band ceiling")
+        func fiveCroreTwentyFivePercentSurcharge() {
+            let result = calc.calculate(profile: profile(income: 5_00_00_000))
+            #expect(result.surcharge == 36_39_375)
+            #expect(result.finalTax  == 1_89_24_750)
+        }
+
+        @Test("₹5.01Cr – incremental tax above ₹5Cr threshold")
+        func fiveCroreOneLakhMarginalRelief() {
+            let result = calc.calculate(profile: profile(income: 5_01_00_000))
+            // Below marginal-relief cap (tax at ₹5Cr + ₹1L) because slab increment is modest
+            #expect(result.finalTax == 1_89_63_750)
+        }
+
+        @Test("equity STCG surcharge capped at 15% above ₹1Cr")
+        func equitySTCGSurchargeCap() {
+            var advanced = TaxAdvancedInputs()
+            advanced.indiaEquitySTCG = 50_00_000
+            let highBand = calc.calculate(profile: profile(income: 2_10_00_000, advanced: advanced))
+            let ordinaryTax = highBand.basicTax - highBand.rebate
+            let stcgTax: Decimal = 10_00_000
+            let uncappedSurcharge = (ordinaryTax * 25 / 100).rounded(scale: 2)
+                + (stcgTax * 25 / 100).rounded(scale: 2)
+            let cappedSurcharge = (ordinaryTax * 25 / 100).rounded(scale: 2)
+                + (stcgTax * 15 / 100).rounded(scale: 2)
+            #expect(highBand.surcharge <= cappedSurcharge)
+            #expect(highBand.surcharge < uncappedSurcharge)
+            #expect(highBand.warnings.isEmpty == false)
+        }
+    }
+
     // MARK: - India Old Regime
 
     @Suite("India Old Regime")

@@ -208,9 +208,7 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 - **Steps:** implement surcharge marginal relief (cap incremental surcharge at income-above-threshold) mirroring the existing rebate relief; cap the surcharge rate at 15% on the equity LTCG/STCG (111A/112A) portion; update RULE_COVERAGE.
 - **Acceptance:** boundary vectors at ₹50L/₹1Cr/₹2Cr/₹5Cr match official calculator within ₹1.
 - **Tests:** `TaxCalculatorRegressionTests` — add the four boundary vectors.
-- **Verify:** `make test-tax`
-
----
+- **Status:** Self-verified on `fix/A13-india-surcharge-relief` — hold for review.
 
 # EPIC B — Security / App Lock (P0) 🔴
 

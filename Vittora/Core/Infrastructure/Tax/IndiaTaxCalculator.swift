@@ -5,91 +5,108 @@ import Foundation
 struct IndiaTaxCalculator: TaxCalculatorProtocol {
     let country: TaxCountry = .india
 
+    private static let stcgRate = Decimal(sign: .plus, exponent: -1, significand: 2)
+    private static let ltcgRate = Decimal(sign: .plus, exponent: -3, significand: 125)
+    private static let ltcgExemption: Decimal = 125_000
+    private static let cessRate = Decimal(sign: .plus, exponent: -2, significand: 4)
+    private static let maxSpecialSurchargeRate = Decimal(15)
+    private static let surchargeThresholds: [Decimal] = [
+        50_00_000,
+        1_00_00_000,
+        2_00_00_000,
+        5_00_00_000,
+    ]
+
+    private struct TaxComputationInput: Sendable {
+        let gross: Decimal
+        let advancedInputs: TaxAdvancedInputs
+        let regime: IndiaRegime
+        let financialYear: FinancialYear
+        let incomeSourceType: IncomeSourceType
+        let dateOfBirth: Date?
+        let customDeductions: [TaxDeduction]
+    }
+
+    private struct TaxCoreAmounts: Sendable {
+        let standardDeduction: Decimal
+        let customDeductionsTotal: Decimal
+        let taxableIncome: Decimal
+        let bracketResults: [TaxBracketResult]
+        let basicTax: Decimal
+        let rebate: Decimal
+        let ltcgTax: Decimal
+        let stcgTax: Decimal
+
+        var ordinaryTax: Decimal { max(0, basicTax - rebate) }
+        var specialRateTax: Decimal { ltcgTax + stcgTax }
+        var taxAfterRebate: Decimal { ordinaryTax + specialRateTax }
+        var marginalRate: Decimal { bracketResults.last?.ratePercent ?? 0 }
+    }
+
     func calculate(profile: TaxProfile) -> TaxEstimate {
-        let regime = profile.indiaRegime
-        let gross = profile.annualIncome
-        let adv = profile.advancedInputs
-        let financialYear = Self.supportedFinancialYear(for: profile)
-        let ruleSetID = "IN_FY\(financialYear == .fy2025 ? "2025_26" : "2024_25")"
-        let rulesLastUpdated = Self.rulesLastUpdated
+        let input = Self.input(from: profile)
+        let core = computeCoreAmounts(input: input)
+        let totalGrossForSurcharge = input.gross + input.advancedInputs.indiaEquityLTCG + input.advancedInputs.indiaEquitySTCG
 
-        let standardDeduction = standardDeduction(for: regime, incomeSourceType: profile.incomeSourceType, financialYear: financialYear)
-        let customDeductionsTotal: Decimal = regime == .oldRegime
-            ? profile.customDeductions.reduce(0) { $0 + $1.amount }
-            : 0
-
-        let taxableIncome = max(0, gross - standardDeduction - customDeductionsTotal)
-        let ageCat = Self.ageCategory(dateOfBirth: profile.dateOfBirth, financialYear: financialYear)
-        let slabs = slabs(for: regime, financialYear: financialYear, ageCategory: ageCat)
-        let bracketResults = slabs.apply(to: taxableIncome)
-        let basicTax = bracketResults.reduce(Decimal(0)) { $0 + $1.taxAmount }
-
-        let rebate = calculateRebate(
-            basicTax: basicTax,
-            taxableIncome: taxableIncome,
-            regime: regime,
-            financialYear: financialYear
-        )
-
-        let ltcgTax = Self.equityLongTermCapitalGainsTax(amount: adv.indiaEquityLTCG)
-        let stcgTax = (adv.indiaEquitySTCG * (Decimal(string: "0.20") ?? 0)).rounded(scale: 2)
-
-        let taxAfterRebate = max(0, basicTax - rebate) + ltcgTax + stcgTax
-        let totalGrossForSurcharge = gross + adv.indiaEquityLTCG + adv.indiaEquitySTCG
         let surcharge = calculateSurcharge(
-            taxAfterRebate: taxAfterRebate,
+            core: core,
             grossIncome: totalGrossForSurcharge,
-            regime: regime
+            regime: input.regime,
+            profile: profile
         )
-        let cess = ((taxAfterRebate + surcharge) * 4 / 100).rounded(scale: 2)
+        let cess = ((core.taxAfterRebate + surcharge) * Self.cessRate).rounded(scale: 2)
 
-        let finalTax = (taxAfterRebate + surcharge + cess).rounded(scale: 2)
+        let finalTax = (core.taxAfterRebate + surcharge + cess).rounded(scale: 2)
         let denom = totalGrossForSurcharge
         let effectiveRate = denom > 0 ? (finalTax / denom).rounded(scale: 4) : 0
-        let marginalRate = bracketResults.last?.ratePercent ?? 0
+        let financialYear = input.financialYear
+        let ruleSetID = "IN_FY\(financialYear == .fy2025 ? "2025_26" : "2024_25")"
 
         var supplementary: [TaxSupplementaryLine] = []
-        if ltcgTax > 0 {
-            supplementary.append(TaxSupplementaryLine(title: String(localized: "Equity LTCG (Section 112A-style)"), amount: ltcgTax))
+        if core.ltcgTax > 0 {
+            supplementary.append(TaxSupplementaryLine(title: String(localized: "Equity LTCG (Section 112A-style)"), amount: core.ltcgTax))
         }
-        if stcgTax > 0 {
-            supplementary.append(TaxSupplementaryLine(title: String(localized: "Equity STCG (simplified)"), amount: stcgTax))
+        if core.stcgTax > 0 {
+            supplementary.append(TaxSupplementaryLine(title: String(localized: "Equity STCG (simplified)"), amount: core.stcgTax))
         }
 
         var assumptions: [String] = [
             String(localized: "Ordinary income is slab-taxed; equity LTCG/STCG use simplified rates and exemptions.")
         ]
         var warnings: [String] = []
-        if adv.indiaEquityLTCG > 0 || adv.indiaEquitySTCG > 0 {
+        if input.advancedInputs.indiaEquityLTCG > 0 || input.advancedInputs.indiaEquitySTCG > 0 {
             warnings.append(String(localized: "Section 87A rebate applies to ordinary slab tax only, not to special-rate equity gains."))
+            if totalGrossForSurcharge > 1_00_00_000 {
+                warnings.append(String(localized: "Surcharge on equity LTCG/STCG is capped at 15% under Sections 111A/112A-style modeling."))
+            }
         }
 
-        var exclusions: [String] = [
+        let exclusions: [String] = [
             String(localized: "State taxes and cess on surcharges are modeled only at the federal level; verify with a CA.")
         ]
 
         return TaxEstimate(
-            grossIncome: gross,
-            standardDeduction: standardDeduction,
-            customDeductionsTotal: customDeductionsTotal,
-            taxableIncome: taxableIncome,
-            bracketResults: bracketResults,
-            basicTax: basicTax,
-            rebate: rebate,
+            grossIncome: input.gross,
+            standardDeduction: core.standardDeduction,
+            customDeductionsTotal: core.customDeductionsTotal,
+            taxableIncome: core.taxableIncome,
+            bracketResults: core.bracketResults,
+            basicTax: core.basicTax,
+            rebate: core.rebate,
             surcharge: surcharge,
             cess: cess,
             finalTax: finalTax,
             effectiveRate: effectiveRate,
-            marginalRate: marginalRate,
+            marginalRate: core.marginalRate,
             country: .india,
-            regimeLabel: regime.displayName,
+            regimeLabel: input.regime.displayName,
             supplementaryLines: supplementary,
             assumptions: assumptions,
             warnings: warnings,
             exclusions: exclusions,
             disclaimerKey: "tax.disclaimer.in.v1",
             ruleSetID: ruleSetID,
-            rulesLastUpdated: rulesLastUpdated
+            rulesLastUpdated: Self.rulesLastUpdated
         )
     }
 
@@ -97,12 +114,61 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
         Calendar.current.date(from: DateComponents(year: 2026, month: 4, day: 18)) ?? .now
     }()
 
+    private static func input(from profile: TaxProfile) -> TaxComputationInput {
+        TaxComputationInput(
+            gross: profile.annualIncome,
+            advancedInputs: profile.advancedInputs,
+            regime: profile.indiaRegime,
+            financialYear: supportedFinancialYear(for: profile),
+            incomeSourceType: profile.incomeSourceType,
+            dateOfBirth: profile.dateOfBirth,
+            customDeductions: profile.customDeductions
+        )
+    }
+
+    private func computeCoreAmounts(input: TaxComputationInput) -> TaxCoreAmounts {
+        let standardDeduction = standardDeduction(
+            for: input.regime,
+            incomeSourceType: input.incomeSourceType,
+            financialYear: input.financialYear
+        )
+        let customDeductionsTotal: Decimal = input.regime == .oldRegime
+            ? input.customDeductions.reduce(0) { $0 + $1.amount }
+            : 0
+
+        let taxableIncome = max(0, input.gross - standardDeduction - customDeductionsTotal)
+        let ageCat = Self.ageCategory(dateOfBirth: input.dateOfBirth, financialYear: input.financialYear)
+        let bracketResults = slabs(for: input.regime, financialYear: input.financialYear, ageCategory: ageCat)
+            .apply(to: taxableIncome)
+        let basicTax = bracketResults.reduce(Decimal(0)) { $0 + $1.taxAmount }
+
+        let rebate = calculateRebate(
+            basicTax: basicTax,
+            taxableIncome: taxableIncome,
+            regime: input.regime,
+            financialYear: input.financialYear
+        )
+
+        let ltcgTax = Self.equityLongTermCapitalGainsTax(amount: input.advancedInputs.indiaEquityLTCG)
+        let stcgTax = (input.advancedInputs.indiaEquitySTCG * Self.stcgRate).rounded(scale: 2)
+
+        return TaxCoreAmounts(
+            standardDeduction: standardDeduction,
+            customDeductionsTotal: customDeductionsTotal,
+            taxableIncome: taxableIncome,
+            bracketResults: bracketResults,
+            basicTax: basicTax,
+            rebate: rebate,
+            ltcgTax: ltcgTax,
+            stcgTax: stcgTax
+        )
+    }
+
     /// Simplified: 12.5% on amount above ₹1.25L exemption (new regime equity LTCG).
     private static func equityLongTermCapitalGainsTax(amount: Decimal) -> Decimal {
         guard amount > 0 else { return 0 }
-        let exempt: Decimal = 125_000
-        let taxable = max(0, amount - exempt)
-        return (taxable * (Decimal(string: "0.125") ?? 0)).rounded(scale: 2)
+        let taxable = max(0, amount - ltcgExemption)
+        return (taxable * ltcgRate).rounded(scale: 2)
     }
 
     private enum FinancialYear: Int {
@@ -124,7 +190,6 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
         guard incomeSourceType == .salaried else { return 0 }
         switch regime {
         case .newRegime:
-            // ₹75,000 from FY 2024-25; earlier years (FY 2023-24 and before) were ₹50,000
             return financialYear == .fy2024 || financialYear == .fy2025 ? 75_000 : 50_000
         case .oldRegime:
             return 50_000
@@ -205,7 +270,6 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
             if taxableIncome <= threshold {
                 return min(basicTax, cap)
             }
-            // Marginal relief: tax payable should not exceed excess income above threshold
             let excess = taxableIncome - threshold
             return max(0, min(basicTax, cap, basicTax - excess))
 
@@ -231,25 +295,84 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    private func calculateSurcharge(
-        taxAfterRebate: Decimal,
-        grossIncome: Decimal,
-        regime: IndiaRegime
-    ) -> Decimal {
-        let rate: Decimal
+    private func nominalSurchargeRate(grossIncome: Decimal, regime: IndiaRegime) -> Decimal {
         if grossIncome > 5_00_00_000 {
-            rate = regime == .newRegime ? 25 : 37
-        } else if grossIncome > 2_00_00_000 {
-            rate = 25
-        } else if grossIncome > 1_00_00_000 {
-            rate = 15
-        } else if grossIncome > 50_00_000 {
-            rate = 10
-        } else {
-            rate = 0
+            return regime == .newRegime ? 25 : 37
+        }
+        if grossIncome > 2_00_00_000 { return 25 }
+        if grossIncome > 1_00_00_000 { return 15 }
+        if grossIncome > 50_00_000 { return 10 }
+        return 0
+    }
+
+    private func rawSurcharge(core: TaxCoreAmounts, grossIncome: Decimal, regime: IndiaRegime) -> Decimal {
+        let rate = nominalSurchargeRate(grossIncome: grossIncome, regime: regime)
+        guard rate > 0 else { return 0 }
+
+        let specialRate = min(rate, Self.maxSpecialSurchargeRate)
+        let ordinaryPart = (core.ordinaryTax * rate / 100).rounded(scale: 2)
+        let specialPart = (core.specialRateTax * specialRate / 100).rounded(scale: 2)
+        return ordinaryPart + specialPart
+    }
+
+    private func calculateSurcharge(
+        core: TaxCoreAmounts,
+        grossIncome: Decimal,
+        regime: IndiaRegime,
+        profile: TaxProfile
+    ) -> Decimal {
+        let preliminary = rawSurcharge(core: core, grossIncome: grossIncome, regime: regime)
+        return applySurchargeMarginalRelief(
+            core: core,
+            grossIncome: grossIncome,
+            preliminarySurcharge: preliminary,
+            profile: profile
+        )
+    }
+
+    /// Caps incremental (income tax + surcharge) **before cess** at gross income above the
+    /// crossed surcharge threshold — statutory ordering; cess is applied afterward (A13).
+    private func applySurchargeMarginalRelief(
+        core: TaxCoreAmounts,
+        grossIncome: Decimal,
+        preliminarySurcharge: Decimal,
+        profile: TaxProfile
+    ) -> Decimal {
+        guard let threshold = Self.surchargeThresholds.last(where: { grossIncome > $0 }) else {
+            return preliminarySurcharge
         }
 
-        return (taxAfterRebate * rate / 100).rounded(scale: 2)
+        let excess = grossIncome - threshold
+        let preCessAtThreshold = preCessTotal(
+            forGrossIncome: threshold,
+            profile: profile,
+            applySurchargeMarginalRelief: false
+        )
+        let cappedPreCess = preCessAtThreshold + excess
+
+        let actualPreCess = core.taxAfterRebate + preliminarySurcharge
+        guard actualPreCess > cappedPreCess else { return preliminarySurcharge }
+
+        return max(0, cappedPreCess - core.taxAfterRebate).rounded(scale: 2)
+    }
+
+    private func preCessTotal(
+        forGrossIncome gross: Decimal,
+        profile: TaxProfile,
+        applySurchargeMarginalRelief: Bool
+    ) -> Decimal {
+        var adjusted = profile
+        adjusted.annualIncome = gross
+        let input = Self.input(from: adjusted)
+        let core = computeCoreAmounts(input: input)
+        let totalGross = gross + input.advancedInputs.indiaEquityLTCG + input.advancedInputs.indiaEquitySTCG
+        let surcharge: Decimal
+        if applySurchargeMarginalRelief {
+            surcharge = calculateSurcharge(core: core, grossIncome: totalGross, regime: input.regime, profile: adjusted)
+        } else {
+            surcharge = rawSurcharge(core: core, grossIncome: totalGross, regime: input.regime)
+        }
+        return core.taxAfterRebate + surcharge
     }
 
     private static func supportedFinancialYear(for profile: TaxProfile) -> FinancialYear {

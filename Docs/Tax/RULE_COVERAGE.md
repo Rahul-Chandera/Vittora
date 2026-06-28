@@ -12,7 +12,9 @@ This document tracks what is modeled vs intentionally out of scope.
 - New vs Old regime comparisons
 - Standard deduction handling by income source where applicable
 - Rebate handling (including marginal-relief style behavior where modeled)
-- Surcharge/cess pathways in current implementation
+- Surcharge marginal relief at ₹50L / ₹1Cr / ₹2Cr / ₹5Cr gross-income thresholds: caps **income tax + surcharge (pre-cess)** at `[pre-cess at threshold] + gross excess`, then 4% health & education cess is applied on that subtotal (statutory ordering)
+- Surcharge on equity STCG/LTCG (Sections 111A/112A-style simplified model) capped at **15%** even when the nominal surcharge rate is higher (25%/37%)
+- Health and education cess (4%) on tax plus surcharge
 - Financial year-aware logic in calculator paths
 
 ## US Coverage (current)
