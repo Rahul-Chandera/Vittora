@@ -16,6 +16,7 @@ struct SensitiveActionAuthenticatorTests {
         )
         #expect(result == true)
         #expect(biometric.authenticateCallCount == 1)
+        #expect(biometric.lastAllowPasscodeFallback == true)
     }
 
     @Test("confirm returns false when user cancels")

@@ -231,13 +231,16 @@ struct AppLockServiceTests {
 
     @Test("keychain store round-trips active cooldown")
     func keychainStoreRoundTrip() {
-        defer { KeychainService.syncDelete(forKey: KeychainAppLockCooldownStore.keychainKey) }
-        let store = KeychainAppLockCooldownStore()
+        let testKey = "vittora.appLockCooldown.test.\(UUID().uuidString)"
+        defer { KeychainService.syncDelete(forKey: testKey) }
+        let store = KeychainAppLockCooldownStore(key: testKey)
         let expires = Date.now.addingTimeInterval(120)
         store.save(AppLockCooldownState(consecutiveFailures: 4, cooldownExpiresAt: expires))
         let loaded = store.load()
         #expect(loaded.consecutiveFailures == 4)
-        #expect(loaded.cooldownExpiresAt == expires)
+        let loadedExpiry = loaded.cooldownExpiresAt?.timeIntervalSince1970 ?? 0
+        let expectedExpiry = expires.timeIntervalSince1970
+        #expect(abs(loadedExpiry - expectedExpiry) < 0.001)
     }
 
     // MARK: - Background timestamp

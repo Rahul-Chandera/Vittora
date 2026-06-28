@@ -40,8 +40,14 @@ extension AppLockCooldownStoring {
 final class KeychainAppLockCooldownStore: AppLockCooldownStoring, Sendable {
     static let keychainKey = "vittora.appLockCooldown"
 
+    private let key: String
+
+    init(key: String = keychainKey) {
+        self.key = key
+    }
+
     nonisolated func load(now: Date) -> AppLockCooldownState {
-        guard let data = KeychainService.syncLoad(forKey: Self.keychainKey),
+        guard let data = KeychainService.syncLoad(forKey: key),
               let decoded = try? JSONDecoder().decode(AppLockCooldownState.self, from: data)
         else {
             return AppLockCooldownState()
@@ -52,14 +58,14 @@ final class KeychainAppLockCooldownStore: AppLockCooldownStoring, Sendable {
     nonisolated func save(_ state: AppLockCooldownState) {
         let sanitized = AppLockCooldownStateLogic.rearmed(from: state, now: .now)
         if AppLockCooldownStateLogic.isEmpty(sanitized) {
-            KeychainService.syncDelete(forKey: Self.keychainKey)
+            KeychainService.syncDelete(forKey: key)
             return
         }
         guard let data = try? JSONEncoder().encode(sanitized) else { return }
-        KeychainService.syncSave(data, forKey: Self.keychainKey)
+        KeychainService.syncSave(data, forKey: key)
     }
 
     nonisolated func clear() {
-        KeychainService.syncDelete(forKey: Self.keychainKey)
+        KeychainService.syncDelete(forKey: key)
     }
 }
