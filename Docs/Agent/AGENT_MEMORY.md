@@ -37,6 +37,7 @@ This file captures stable context to speed up future AI-agent tasks.
 
 ## Recent Hardening (already landed)
 
+- **Epic J (PR #12):** sidebarAdaptable tabs, NavigationSplitView list/detail, macOS Settings scene, SceneStorage/Handoff, keyboard shortcuts, context menus; `VittoraCore` SPM (108 files — partial J2; see `Packages/VittoraCore/README.md` J2 follow-up).
 - Tax profile save path preserves advanced fields on first save.
 - Tax form save keeps full loaded profile context.
 - Transaction delete cascades linked documents.
