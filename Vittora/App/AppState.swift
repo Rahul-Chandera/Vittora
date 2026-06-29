@@ -11,7 +11,15 @@ final class AppState {
     var isLoading: Bool
     var isUITesting: Bool
     /// Monotonic per-domain counters bumped when persisted data in that domain changes.
-    private var refreshVersions: [DataRefreshDomain: Int] = [:]
+    private(set) var transactionsRefreshVersion = 0
+    private(set) var accountsRefreshVersion = 0
+    private(set) var budgetsRefreshVersion = 0
+    private(set) var categoriesRefreshVersion = 0
+    private(set) var payeesRefreshVersion = 0
+    private(set) var debtRefreshVersion = 0
+    private(set) var recurringRefreshVersion = 0
+    private(set) var splitsRefreshVersion = 0
+    private(set) var savingsRefreshVersion = 0
     var isPrivacyShieldVisible: Bool
     /// Set when the user opens the app from a local notification tap (C1).
     var pendingNotificationDeepLink: VittoraNotificationDeepLink?
@@ -39,21 +47,41 @@ final class AppState {
     }
 
     func refreshVersion(for domain: DataRefreshDomain) -> Int {
-        refreshVersions[domain, default: 0]
+        switch domain {
+        case .transactions: transactionsRefreshVersion
+        case .accounts: accountsRefreshVersion
+        case .budgets: budgetsRefreshVersion
+        case .categories: categoriesRefreshVersion
+        case .payees: payeesRefreshVersion
+        case .debt: debtRefreshVersion
+        case .recurring: recurringRefreshVersion
+        case .splits: splitsRefreshVersion
+        case .savings: savingsRefreshVersion
+        }
     }
 
     /// Combined token for dashboard aggregates (transactions, accounts, budgets, recurring).
     var dashboardRefreshToken: DashboardRefreshToken {
         DashboardRefreshToken(
-            transactions: refreshVersion(for: .transactions),
-            accounts: refreshVersion(for: .accounts),
-            budgets: refreshVersion(for: .budgets),
-            recurring: refreshVersion(for: .recurring)
+            transactions: transactionsRefreshVersion,
+            accounts: accountsRefreshVersion,
+            budgets: budgetsRefreshVersion,
+            recurring: recurringRefreshVersion
         )
     }
 
     func notifyChanged(_ domain: DataRefreshDomain) {
-        refreshVersions[domain, default: 0] &+= 1
+        switch domain {
+        case .transactions: transactionsRefreshVersion &+= 1
+        case .accounts: accountsRefreshVersion &+= 1
+        case .budgets: budgetsRefreshVersion &+= 1
+        case .categories: categoriesRefreshVersion &+= 1
+        case .payees: payeesRefreshVersion &+= 1
+        case .debt: debtRefreshVersion &+= 1
+        case .recurring: recurringRefreshVersion &+= 1
+        case .splits: splitsRefreshVersion &+= 1
+        case .savings: savingsRefreshVersion &+= 1
+        }
     }
 
     func notifyChanged(_ domains: some Sequence<DataRefreshDomain>) {

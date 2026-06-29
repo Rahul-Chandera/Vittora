@@ -8,6 +8,7 @@ final class TransactionFlowUITests: XCTestCase {
         continueAfterFailure = false
         app = XCUIApplication()
         app.launchArguments = ["--uitesting", "--ui-test-seed-transactions"]
+        app.launchEnvironment["UITEST_INITIAL_TAB"] = "transactions"
         app.launch()
     }
 
@@ -17,9 +18,13 @@ final class TransactionFlowUITests: XCTestCase {
 
     @MainActor
     func testCanAddTransactionFromTransactionsTab() throws {
-        let transactionsTab = app.tabBars.buttons["Transactions"]
-        XCTAssertTrue(transactionsTab.waitForExistence(timeout: 5))
-        transactionsTab.tap()
+        navigateToTransactionsTab()
+
+        let coffeeRow = app.descendants(matching: .any)["transaction-row-coffee-run"]
+        XCTAssertTrue(
+            coffeeRow.waitForExistence(timeout: 15),
+            "Seeded transactions should appear before adding a new entry."
+        )
 
         let transactionRows = app
             .descendants(matching: .any)
@@ -50,21 +55,25 @@ final class TransactionFlowUITests: XCTestCase {
         saveButton.tap()
 
         XCTAssertFalse(
-            amountField.waitForExistence(timeout: 1),
+            amountField.waitForExistence(timeout: 3),
             "The transaction form should dismiss after saving."
         )
 
+        let newRow = app.descendants(matching: .any)["transaction-row-ui-test-dinner"]
         XCTAssertTrue(
-            waitForTransactionRowCount(initialTransactionCount + 1, timeout: 20),
+            newRow.waitForExistence(timeout: 20),
+            "The saved transaction row should appear in the list."
+        )
+        XCTAssertEqual(
+            transactionRowCount(),
+            initialTransactionCount + 1,
             "The transaction list should show one additional row after saving a new entry."
         )
     }
 
     @MainActor
     func testCanSearchAndFilterTransactions() throws {
-        let transactionsTab = app.tabBars.buttons["Transactions"]
-        XCTAssertTrue(transactionsTab.waitForExistence(timeout: 5))
-        transactionsTab.tap()
+        navigateToTransactionsTab()
 
         let coffeeRow = app.descendants(matching: .any)["transaction-row-coffee-run"]
         let salaryRow = app.descendants(matching: .any)["transaction-row-monthly-salary"]
@@ -114,23 +123,51 @@ final class TransactionFlowUITests: XCTestCase {
     }
 
     @MainActor
-    private func waitForTransactionRowCount(_ expectedCount: Int, timeout: TimeInterval) -> Bool {
-        let deadline = Date().addingTimeInterval(timeout)
+    private func navigateToTransactionsTab() {
+        XCTAssertTrue(
+            app.otherElements["content-root"].waitForExistence(timeout: 10),
+            "App shell should be visible before opening transactions."
+        )
 
-        while Date() < deadline {
-            let rowCount = app
-                .descendants(matching: .any)
-                .matching(NSPredicate(format: "identifier BEGINSWITH %@", "transaction-row-"))
-                .count
-
-            if rowCount == expectedCount {
-                return true
-            }
-
-            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        if waitForTransactionsList(timeout: 3) {
+            return
         }
 
-        return false
+        let transactionsTab = app.tabBars.buttons["Transactions"]
+        let transactionsButton = app.buttons["Transactions"].firstMatch
+
+        if transactionsTab.waitForExistence(timeout: 5) {
+            transactionsTab.tap()
+        } else if transactionsButton.waitForExistence(timeout: 5) {
+            transactionsButton.tap()
+        } else if app.tabBars.buttons["More"].waitForExistence(timeout: 3) {
+            app.tabBars.buttons["More"].tap()
+            XCTAssertTrue(
+                app.buttons["Transactions"].waitForExistence(timeout: 5),
+                "Transactions should appear in the tab overflow menu."
+            )
+            app.buttons["Transactions"].tap()
+        } else {
+            XCTFail("Could not find the Transactions tab.")
+            return
+        }
+
+        XCTAssertTrue(
+            waitForTransactionsList(timeout: 15),
+            "The transactions list should be visible after selecting the tab."
+        )
+    }
+
+    @MainActor
+    private func waitForTransactionsList(timeout: TimeInterval) -> Bool {
+        app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: timeout)
+    }
+
+    @MainActor
+    private func transactionRowCount() -> Int {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", "transaction-row-"))
+            .count
     }
 
     @MainActor

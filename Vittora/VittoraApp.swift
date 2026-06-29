@@ -82,6 +82,7 @@ struct VittoraApp: App {
                     showsOnboardingForUITesting: showsOnboardingForUITesting,
                     bypassOnboardingForUITesting: bypassOnboardingForUITesting
                 ),
+                selectedTab: Self.initialSelectedTab(isUITesting: isUITesting),
                 isUITesting: isUITesting
             )
         )
@@ -116,6 +117,15 @@ struct VittoraApp: App {
             UserDefaults.standard.removeObject(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
         }
         return udValue
+    }
+
+    private static func initialSelectedTab(isUITesting: Bool) -> AppState.AppTab {
+        guard isUITesting,
+              let rawValue = ProcessInfo.processInfo.environment["UITEST_INITIAL_TAB"],
+              let tab = AppState.AppTab(rawValue: rawValue) else {
+            return .dashboard
+        }
+        return tab
     }
 
     var body: some Scene {
@@ -164,6 +174,17 @@ struct VittoraApp: App {
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
+            CommandMenu(String(localized: "Go to")) {
+                ForEach(Array(AppState.AppTab.allCases.enumerated()), id: \.offset) { index, tab in
+                    Button(tab.title) {
+                        appState.request(.selectTab(tab))
+                    }
+                    .keyboardShortcut(
+                        tabShortcutKey(at: index),
+                        modifiers: .command
+                    )
+                }
+            }
         }
         #endif
         .onChange(of: scenePhase) { _, newPhase in
@@ -196,6 +217,13 @@ struct VittoraApp: App {
                 break
             }
         }
+    }
+
+    private func tabShortcutKey(at index: Int) -> KeyEquivalent {
+        guard let scalar = UnicodeScalar(49 + index) else {
+            return KeyEquivalent(Character("1"))
+        }
+        return KeyEquivalent(Character(scalar))
     }
 
     /// Re-lock only when background duration meets the configured timeout (B1).
@@ -271,6 +299,7 @@ struct VittoraApp: App {
 
         do {
             try await seeder.seedTransactionScenarioIfNeeded()
+            appState.notifyChanged([.transactions, .accounts, .categories])
         } catch {
             Self.logger.error("Failed to seed UI test transaction data: \(error.localizedDescription, privacy: .public)")
         }
@@ -286,6 +315,7 @@ struct VittoraApp: App {
 
         do {
             try await seeder.seedTransferScenarioIfNeeded()
+            appState.notifyChanged(.accounts)
         } catch {
             Self.logger.error("Failed to seed UI test transfer data: \(error.localizedDescription, privacy: .public)")
         }

@@ -16,6 +16,8 @@ extension View {
             case .openSettings:
                 appState.selectedTab = .settings
                 onOpenSettings?()
+            case .selectTab(let tab):
+                appState.selectedTab = tab
             }
             appState.clearPendingCommand()
         }

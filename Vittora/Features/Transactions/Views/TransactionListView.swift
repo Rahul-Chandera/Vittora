@@ -28,6 +28,8 @@ struct TransactionListView: View {
                 } else {
                     listView(vm)
                 }
+            } else {
+                ProgressView()
             }
         }
         .navigationTitle(String(localized: "Transactions"))

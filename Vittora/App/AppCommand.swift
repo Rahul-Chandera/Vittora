@@ -5,6 +5,7 @@ import VittoraCore
 enum AppCommand: Equatable, Sendable {
     case presentNewTransaction
     case openSettings
+    case selectTab(AppState.AppTab)
 }
 
 struct AppCommandRequest: Equatable, Sendable {
