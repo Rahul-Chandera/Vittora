@@ -170,7 +170,21 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
     /// India: equity STCG (simplified flat rate bucket).
     public nonisolated var indiaEquitySTCG: Decimal = 0
 
-    public init() {}
+    public nonisolated init(
+        usQualifiedDividends: Decimal = 0,
+        usLongTermCapitalGains: Decimal = 0,
+        usShortTermCapitalGains: Decimal = 0,
+        usOtherInvestmentIncome: Decimal = 0,
+        indiaEquityLTCG: Decimal = 0,
+        indiaEquitySTCG: Decimal = 0
+    ) {
+        self.usQualifiedDividends = usQualifiedDividends
+        self.usLongTermCapitalGains = usLongTermCapitalGains
+        self.usShortTermCapitalGains = usShortTermCapitalGains
+        self.usOtherInvestmentIncome = usOtherInvestmentIncome
+        self.indiaEquityLTCG = indiaEquityLTCG
+        self.indiaEquitySTCG = indiaEquitySTCG
+    }
 }
 
 extension TaxAdvancedInputs: Codable {

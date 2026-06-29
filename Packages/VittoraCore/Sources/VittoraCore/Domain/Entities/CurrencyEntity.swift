@@ -7,6 +7,13 @@ public struct CurrencyEntity: Identifiable, Hashable, Equatable, Sendable {
     public let name: String
     public let decimalPlaces: Int
 
+    public init(code: String, symbol: String, name: String, decimalPlaces: Int) {
+        self.code = code
+        self.symbol = symbol
+        self.name = name
+        self.decimalPlaces = decimalPlaces
+    }
+
     public static let allCurrencies: [CurrencyEntity] = [
         CurrencyEntity(code: "USD", symbol: "$", name: "US Dollar", decimalPlaces: 2),
         CurrencyEntity(code: "EUR", symbol: "€", name: "Euro", decimalPlaces: 2),
