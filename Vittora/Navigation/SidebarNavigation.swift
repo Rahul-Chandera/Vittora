@@ -90,8 +90,7 @@ struct SidebarNavigation: View {
         }
         .handlesAppCommands(
             appState: appState,
-            showAddTransaction: $showAddTransaction,
-            onOpenSettings: { appState.selectedTab = .settings }
+            showAddTransaction: $showAddTransaction
         )
     }
 }

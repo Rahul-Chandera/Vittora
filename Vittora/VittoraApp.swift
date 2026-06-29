@@ -132,15 +132,18 @@ struct VittoraApp: App {
         WindowGroup {
             if let modelContainer {
                 ContentView()
-                    .environment(appState)
-                    .environment(\.dependencies, dependencies)
-                    .environment(settingsVM)
-                    .environment(syncService)
-                    .environment(syncConflictHandler)
-                    .environment(\.currencyCode, settingsVM.selectedCurrencyCode)
-                    .environment(\.currencySymbol, String.currencySymbol(for: settingsVM.selectedCurrencyCode))
-                    .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
-                    .modelContainer(modelContainer)
+                    .vittoraAppEnvironments(
+                        appState: appState,
+                        dependencies: dependencies,
+                        settingsVM: settingsVM,
+                        syncService: syncService,
+                        syncConflictHandler: syncConflictHandler,
+                        modelContainer: modelContainer
+                    )
+                    .restoresSceneState(appState: appState)
+                    #if os(macOS)
+                    .frame(minWidth: 960, minHeight: 640)
+                    #endif
                     .overlay(alignment: .top) {
                         if let startupErrorMessage {
                             StartupRecoveryBanner(message: startupErrorMessage)
@@ -161,18 +164,13 @@ struct VittoraApp: App {
         }
         #if os(macOS)
         .defaultSize(width: 1200, height: 800)
+        .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(after: .newItem) {
                 Button(String(localized: "New Transaction")) {
                     appState.request(.presentNewTransaction)
                 }
                 .keyboardShortcut("n", modifiers: .command)
-            }
-            CommandGroup(after: .appSettings) {
-                Button(String(localized: "Settings")) {
-                    appState.request(.openSettings)
-                }
-                .keyboardShortcut(",", modifiers: .command)
             }
             CommandMenu(String(localized: "Go to")) {
                 ForEach(Array(AppState.AppTab.allCases.enumerated()), id: \.offset) { index, tab in
@@ -217,6 +215,29 @@ struct VittoraApp: App {
                 break
             }
         }
+
+        #if os(macOS)
+        Settings {
+            if let modelContainer {
+                SettingsView()
+                    .vittoraAppEnvironments(
+                        appState: appState,
+                        dependencies: dependencies,
+                        settingsVM: settingsVM,
+                        syncService: syncService,
+                        syncConflictHandler: syncConflictHandler,
+                        modelContainer: modelContainer
+                    )
+                    .frame(minWidth: 520, minHeight: 480)
+            } else {
+                ContentUnavailableView {
+                    Label(String(localized: "Settings Unavailable"), systemImage: "gearshape")
+                } description: {
+                    Text(String(localized: "Vittora could not open its data store."))
+                }
+            }
+        }
+        #endif
     }
 
     private func tabShortcutKey(at index: Int) -> KeyEquivalent {
