@@ -37,6 +37,18 @@ struct CustomReportView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                if let vm, let result = vm.result, !result.rows.isEmpty {
+                    ReportPDFShareLink(
+                        fileName: "custom-report",
+                        isEnabled: !vm.isLoading
+                    ) {
+                        CustomReportExportDocument(result: result, currencyCode: currencyCode)
+                    }
+                }
+            }
+        }
         .task {
             if vm == nil {
                 let useCase = CustomReportUseCase(

@@ -39,6 +39,26 @@ struct AnnualReportView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                if let vm, hasReportData(vm) {
+                    ReportPDFShareLink(
+                        fileName: "annual-report-\(selectedYear)",
+                        isEnabled: !vm.isLoading
+                    ) {
+                        MonthlyReportExportDocument(
+                            reportTitle: String(localized: "Annual Report"),
+                            subtitle: String(localized: "Year \(selectedYear)"),
+                            monthlyData: vm.monthlyData,
+                            currencyCode: currencyCode,
+                            totalIncome: vm.totalIncome,
+                            totalExpense: vm.totalExpense,
+                            netSavings: vm.netSavings
+                        )
+                    }
+                }
+            }
+        }
         .task {
             await loadData()
         }

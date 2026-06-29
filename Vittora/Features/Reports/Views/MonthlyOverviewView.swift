@@ -29,6 +29,26 @@ struct MonthlyOverviewView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                if let vm, hasReportData(vm) {
+                    ReportPDFShareLink(
+                        fileName: "monthly-overview",
+                        isEnabled: !vm.isLoading
+                    ) {
+                        MonthlyReportExportDocument(
+                            reportTitle: String(localized: "Monthly Overview"),
+                            subtitle: String(localized: "Last 12 months"),
+                            monthlyData: vm.monthlyData,
+                            currencyCode: currencyCode,
+                            totalIncome: vm.totalIncome,
+                            totalExpense: vm.totalExpense,
+                            netSavings: vm.netSavings
+                        )
+                    }
+                }
+            }
+        }
         .task {
             if vm == nil {
                 let useCase = MonthlyOverviewUseCase(transactionRepository: dependencies.transactionRepository)
