@@ -66,6 +66,7 @@ test-unit:
 		-derivedDataPath $(TEST_DERIVED)/DerivedData-unit \
 		-resultBundlePath '$(TEST_DERIVED)/Test-Unit.xcresult' \
 		-only-testing:VittoraTests \
+		-skip-testing:VittoraTests/ModelContainerOnDiskTests \
 		$(IOS_TEST_SIGN_FLAGS) \
 		test
 
@@ -110,6 +111,7 @@ test-data:
 		-derivedDataPath .build \
 		-only-testing:VittoraTests/DataManagementServiceTests \
 		-only-testing:VittoraTests/ModelContainerConfigTests \
+		-only-testing:VittoraTests/ModelContainerOnDiskTests \
 		-only-testing:VittoraTests/SwiftDataDocumentRepositoryTests \
 		test
 
