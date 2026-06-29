@@ -34,6 +34,7 @@ struct MonthlyOverviewView: View {
                 if let vm, hasReportData(vm) {
                     ReportPDFShareLink(
                         fileName: "monthly-overview",
+                        contentVersion: monthlyReportContentVersion(vm),
                         isEnabled: !vm.isLoading
                     ) {
                         MonthlyReportExportDocument(
@@ -139,6 +140,13 @@ struct MonthlyOverviewView: View {
 
     private func hasReportData(_ vm: MonthlyOverviewViewModel) -> Bool {
         vm.monthlyData.contains { $0.income != 0 || $0.expense != 0 }
+    }
+
+    private func monthlyReportContentVersion(_ vm: MonthlyOverviewViewModel) -> String {
+        let monthKeys = vm.monthlyData
+            .map { String($0.month.timeIntervalSince1970) }
+            .joined(separator: ",")
+        return "monthly|\(vm.totalIncome)|\(vm.totalExpense)|\(vm.netSavings)|\(monthKeys)"
     }
 
     private var emptyState: some View {

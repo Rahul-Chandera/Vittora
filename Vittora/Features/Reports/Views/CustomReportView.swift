@@ -42,6 +42,7 @@ struct CustomReportView: View {
                 if let vm, let result = vm.result, !result.rows.isEmpty {
                     ReportPDFShareLink(
                         fileName: "custom-report",
+                        contentVersion: customReportContentVersion(result),
                         isEnabled: !vm.isLoading
                     ) {
                         CustomReportExportDocument(result: result, currencyCode: currencyCode)
@@ -169,6 +170,18 @@ struct CustomReportView: View {
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
+    }
+
+    private func customReportContentVersion(_ result: CustomReportResult) -> String {
+        let rangeKey: String = {
+            guard let range = result.dateRange else { return "all" }
+            return "\(range.lowerBound.timeIntervalSince1970)-\(range.upperBound.timeIntervalSince1970)"
+        }()
+        let rowKey = result.rows
+            .map { "\($0.label):\($0.amount):\($0.count)" }
+            .joined(separator: ",")
+        let typeKey = result.transactionType?.rawValue ?? "all"
+        return "custom|\(result.grouping.rawValue)|\(typeKey)|\(rangeKey)|\(result.total)|\(rowKey)"
     }
 
     private var customReportErrorBinding: Binding<String?> {
