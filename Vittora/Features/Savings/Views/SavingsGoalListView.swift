@@ -38,11 +38,7 @@ struct SavingsGoalListView: View {
         }
         .task {
             if vm == nil {
-                guard let repo = dependencies.savingsGoalRepository else { return }
-                vm = SavingsGoalListViewModel(
-                    fetchUseCase: FetchSavingsGoalsUseCase(savingsGoalRepository: repo),
-                    saveUseCase: SaveSavingsGoalUseCase(savingsGoalRepository: repo)
-                )
+                vm = dependencies.makeSavingsGoalListViewModel()
                 await vm?.load()
             }
         }

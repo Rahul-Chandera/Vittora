@@ -196,9 +196,9 @@ struct BudgetDetailView: View {
             if viewModel == nil {
                 let calculateProgressUseCase = CalculateBudgetProgressUseCase()
                 viewModel = BudgetDetailViewModel(
-                    budgetRepository: dependencies.budgetRepository ?? MockBudgetRepository(),
-                    categoryRepository: dependencies.categoryRepository ?? MockCategoryRepository(),
-                    transactionRepository: dependencies.transactionRepository ?? MockTransactionRepository(),
+                    budgetRepository: dependencies.budgetRepository,
+                    categoryRepository: dependencies.categoryRepository,
+                    transactionRepository: dependencies.transactionRepository,
                     calculateProgressUseCase: calculateProgressUseCase
                 )
             }
@@ -221,5 +221,5 @@ struct BudgetDetailView: View {
 
 #Preview {
     BudgetDetailView(budgetID: UUID())
-        .environment(\.dependencies, DependencyContainer())
+        .environment(\.dependencies, DependencyContainer.preview())
 }

@@ -55,13 +55,11 @@ struct AccountFormView: View {
 
     private func setupViewModel() {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let accountRepo = deps.accountRepository else { return }
 
         let vm = AccountFormViewModel(
-            createUseCase: CreateAccountUseCase(accountRepository: accountRepo),
-            updateUseCase: UpdateAccountUseCase(accountRepository: accountRepo),
-            repository: accountRepo
+            createUseCase: CreateAccountUseCase(accountRepository: dependencies.accountRepository),
+            updateUseCase: UpdateAccountUseCase(accountRepository: dependencies.accountRepository),
+            repository: dependencies.accountRepository
         )
         if let account = editingAccount {
             vm.loadAccount(account)
@@ -159,7 +157,7 @@ struct AccountFormView: View {
         do {
             try await vm.save()
             if !vm.isEditing {
-                await dependencies.conversionEventRecorder?.afterAccountCreated()
+                await dependencies.conversionEventRecorder.afterAccountCreated()
             }
             await dependencies.refreshCreditCardDueReminders()
             appState.notifyChanged(.accounts)

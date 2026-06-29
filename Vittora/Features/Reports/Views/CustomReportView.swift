@@ -38,15 +38,11 @@ struct CustomReportView: View {
         #endif
         .task {
             if vm == nil {
-                guard let txRepo = dependencies.transactionRepository,
-                      let catRepo = dependencies.categoryRepository,
-                      let accRepo = dependencies.accountRepository,
-                      let payeeRepo = dependencies.payeeRepository else { return }
                 let useCase = CustomReportUseCase(
-                    transactionRepository: txRepo,
-                    categoryRepository: catRepo,
-                    accountRepository: accRepo,
-                    payeeRepository: payeeRepo
+                    transactionRepository: dependencies.transactionRepository,
+                    categoryRepository: dependencies.categoryRepository,
+                    accountRepository: dependencies.accountRepository,
+                    payeeRepository: dependencies.payeeRepository
                 )
                 vm = CustomReportViewModel(useCase: useCase)
                 await vm?.generate()

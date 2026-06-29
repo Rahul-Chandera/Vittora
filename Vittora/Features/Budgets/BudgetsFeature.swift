@@ -12,5 +12,5 @@ public struct BudgetsFeature: View {
 
 #Preview {
     BudgetsFeature()
-        .environment(\.dependencies, DependencyContainer())
+        .environment(\.dependencies, DependencyContainer.preview())
 }

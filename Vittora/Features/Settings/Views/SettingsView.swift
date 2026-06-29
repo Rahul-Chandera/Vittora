@@ -187,18 +187,13 @@ struct SettingsView: View {
     }
 
     private func confirmDeleteAllData() async {
-        guard let biometricService = dependencies.biometricService else {
-            vm.keychainError = AppLockUnlockGate.missingServiceMessage
-            return
-        }
-
         isDeletingAllData = true
         defer { isDeletingAllData = false }
 
         do {
             guard try await SensitiveActionAuthenticator.confirm(
                 action: .factoryReset,
-                using: biometricService
+                using: dependencies.biometricService
             ) else {
                 return
             }
@@ -225,33 +220,7 @@ struct SettingsView: View {
     }
 
     private func deleteAllData() async -> Bool {
-        guard let txRepo = dependencies.transactionRepository,
-              let accRepo = dependencies.accountRepository,
-              let catRepo = dependencies.categoryRepository,
-              let budRepo = dependencies.budgetRepository,
-              let debtRepo = dependencies.debtRepository,
-              let goalRepo = dependencies.savingsGoalRepository,
-              let splitRepo = dependencies.splitGroupRepository,
-              let docRepo = dependencies.documentRepository else {
-            vm.keychainError = String(localized: "We couldn't access the data store to delete your data.")
-            return false
-        }
-        let service = DataManagementService(
-            transactionRepository: txRepo,
-            accountRepository: accRepo,
-            categoryRepository: catRepo,
-            budgetRepository: budRepo,
-            debtRepository: debtRepo,
-            savingsGoalRepository: goalRepo,
-            splitGroupRepository: splitRepo,
-            documentRepository: docRepo,
-            payeeRepository: dependencies.payeeRepository,
-            recurringRuleRepository: dependencies.recurringRuleRepository,
-            taxProfileRepository: dependencies.taxProfileRepository,
-            documentStorageService: dependencies.documentStorageService,
-            keychainService: dependencies.keychainService ?? KeychainService(),
-            dataSeeder: dependencies.dataSeeder
-        )
+        let service = dependencies.makeDataManagementService()
         do {
             try await service.factoryReset()
             return true

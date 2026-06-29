@@ -173,23 +173,7 @@ struct RecurringListView: View {
     }
 
     private func setupViewModel() {
-        guard let recurringRepo = dependencies.recurringRuleRepository,
-              let ledgerWriteStore = dependencies.ledgerWriteStore else { return }
-
-        let fetchUseCase = FetchRecurringRulesUseCase(repository: recurringRepo)
-        let deleteUseCase = DeleteRecurringRuleUseCase(
-            repository: recurringRepo,
-            ledgerWriting: ledgerWriteStore
-        )
-        let pauseResumeUseCase = PauseResumeRuleUseCase(repository: recurringRepo)
-        let calculateCostUseCase = CalculateSubscriptionCostUseCase()
-
-        viewModel = RecurringListViewModel(
-            fetchUseCase: fetchUseCase,
-            deleteUseCase: deleteUseCase,
-            pauseResumeUseCase: pauseResumeUseCase,
-            calculateCostUseCase: calculateCostUseCase
-        )
+        viewModel = dependencies.makeRecurringListViewModel()
     }
 }
 

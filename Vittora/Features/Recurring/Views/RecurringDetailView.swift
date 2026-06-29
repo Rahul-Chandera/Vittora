@@ -226,25 +226,22 @@ struct RecurringDetailView: View {
         isLoading = true
 
         do {
-            if let rule = try await dependencies.recurringRuleRepository?.fetchByID(ruleID) {
+            if let rule = try await dependencies.recurringRuleRepository.fetchByID(ruleID) {
                 self.rule = rule
 
                 if let categoryID = rule.templateCategoryID {
-                    category = try await dependencies.categoryRepository?.fetchByID(categoryID)
+                    category = try await dependencies.categoryRepository.fetchByID(categoryID)
                 }
 
                 if let accountID = rule.templateAccountID {
-                    account = try await dependencies.accountRepository?.fetchByID(accountID)
+                    account = try await dependencies.accountRepository.fetchByID(accountID)
                 }
 
                 if let payeeID = rule.templatePayeeID {
-                    payee = try await dependencies.payeeRepository?.fetchByID(payeeID)
+                    payee = try await dependencies.payeeRepository.fetchByID(payeeID)
                 }
 
-                // Fetch recent transactions for this rule
-                if let transactionRepo = dependencies.transactionRepository {
-                    recentTransactions = try await transactionRepo.fetchForRecurringRule(ruleID)
-                }
+                recentTransactions = try await dependencies.transactionRepository.fetchForRecurringRule(ruleID)
             }
         } catch {
             errorMessage = error.userFacingMessage(
@@ -256,8 +253,8 @@ struct RecurringDetailView: View {
     }
 
     private func togglePause() {
-        guard let rule = rule,
-              let repo = dependencies.recurringRuleRepository else { return }
+        guard let rule = rule else { return }
+        let repo = dependencies.recurringRuleRepository
 
         Task {
             do {

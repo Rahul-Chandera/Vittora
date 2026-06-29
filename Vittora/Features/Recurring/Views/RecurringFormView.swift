@@ -278,7 +278,7 @@ struct RecurringFormView: View {
     }
 
     private func setupViewModel() {
-        guard let recurringRepo = dependencies.recurringRuleRepository else { return }
+        let recurringRepo = dependencies.recurringRuleRepository
 
         let createUseCase = CreateRecurringRuleUseCase(repository: recurringRepo)
         let updateUseCase = UpdateRecurringRuleUseCase(repository: recurringRepo)
@@ -292,8 +292,7 @@ struct RecurringFormView: View {
 
     @MainActor
     private func loadAccounts() async {
-        guard let accountRepository = dependencies.accountRepository else { return }
-        let fetchUseCase = FetchAccountsUseCase(accountRepository: accountRepository)
+        let fetchUseCase = FetchAccountsUseCase(accountRepository: dependencies.accountRepository)
         do {
             accounts = try await fetchUseCase.execute()
         } catch {
@@ -303,8 +302,7 @@ struct RecurringFormView: View {
 
     @MainActor
     private func loadPayees() async {
-        guard let payeeRepository = dependencies.payeeRepository else { return }
-        let fetchUseCase = FetchPayeesUseCase(repository: payeeRepository)
+        let fetchUseCase = FetchPayeesUseCase(repository: dependencies.payeeRepository)
         do {
             payees = try await fetchUseCase.execute()
         } catch {
@@ -373,9 +371,8 @@ struct RecurringCategoryPickerView: View {
         }
         .onAppear {
             Task {
-                guard let repo = dependencies.categoryRepository else { return }
                 do {
-                    let allCategories = try await repo.fetchAll()
+                    let allCategories = try await dependencies.categoryRepository.fetchAll()
                     categories = allCategories.filter { $0.type == categoryType }
                 } catch {
                     loadError = error.localizedDescription

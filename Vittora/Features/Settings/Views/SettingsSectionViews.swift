@@ -190,13 +190,9 @@ struct SecuritySettingsView: View {
 
     private func disableAppLockIfNeeded() async {
         guard vm.isAppLockEnabled else { return }
-        guard let biometricService = dependencies.biometricService else {
-            vm.keychainError = AppLockUnlockGate.missingServiceMessage
-            return
-        }
         isDisablingAppLock = true
         defer { isDisablingAppLock = false }
-        _ = await vm.disableAppLockIfAuthenticated(using: biometricService)
+        _ = await vm.disableAppLockIfAuthenticated(using: dependencies.biometricService)
     }
 }
 
@@ -288,10 +284,9 @@ struct NotificationsSettingsView: View {
         }
     }
 
-    private func notificationPreferencesUseCase() -> ApplyNotificationPreferencesUseCase? {
-        guard let notificationService = dependencies.notificationService else { return nil }
-        return ApplyNotificationPreferencesUseCase(
-            notificationService: notificationService,
+    private func notificationPreferencesUseCase() -> ApplyNotificationPreferencesUseCase {
+        ApplyNotificationPreferencesUseCase(
+            notificationService: dependencies.notificationService,
             refreshAllSchedules: { @MainActor in
                 await dependencies.refreshAllNotificationSchedules()
             }
@@ -300,10 +295,7 @@ struct NotificationsSettingsView: View {
 
     @MainActor
     private func handleMasterToggle(enabled: Bool) async {
-        guard let useCase = notificationPreferencesUseCase() else {
-            vm.isNotificationsEnabled = enabled
-            return
-        }
+        let useCase = notificationPreferencesUseCase()
 
         isApplyingMasterToggle = true
         defer { isApplyingMasterToggle = false }
@@ -329,7 +321,7 @@ struct NotificationsSettingsView: View {
 
     @MainActor
     private func applySubToggleChange() async {
-        await notificationPreferencesUseCase()?.applySubToggleChange()
+        await notificationPreferencesUseCase().applySubToggleChange()
     }
 }
 

@@ -48,16 +48,7 @@ struct DebtLedgerView: View {
         }
         .task {
             if vm == nil {
-                guard let debtRepo = dependencies.debtRepository,
-                      let payeeRepo = dependencies.payeeRepository else { return }
-                vm = DebtLedgerViewModel(
-                    fetchLedgerUseCase: FetchDebtLedgerUseCase(
-                        debtRepository: debtRepo,
-                        payeeRepository: payeeRepo
-                    ),
-                    calculateBalanceUseCase: CalculateDebtBalanceUseCase(debtRepository: debtRepo),
-                    fetchOverdueUseCase: FetchOverdueDebtsUseCase(debtRepository: debtRepo)
-                )
+                vm = dependencies.makeDebtLedgerViewModel()
                 await vm?.load()
             }
         }

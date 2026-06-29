@@ -52,16 +52,13 @@ struct TransferFormView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let accountRepo = deps.accountRepository,
-              let ledgerWriteStore = deps.ledgerWriteStore else { return }
 
         let vm = TransferViewModel(
             transferUseCase: TransferFundsUseCase(
-                accountRepository: accountRepo,
-                ledgerWriteStore: ledgerWriteStore
+                accountRepository: dependencies.accountRepository,
+                ledgerWriteStore: dependencies.ledgerWriteStore
             ),
-            fetchUseCase: FetchAccountsUseCase(accountRepository: accountRepo)
+            fetchUseCase: FetchAccountsUseCase(accountRepository: dependencies.accountRepository)
         )
         viewModel = vm
         await vm.loadAccounts()

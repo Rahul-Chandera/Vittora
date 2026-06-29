@@ -112,9 +112,8 @@ struct SubscriptionTrackerView: View {
     }
 
     private func setupViewModel() {
-        guard let repo = dependencies.recurringRuleRepository else { return }
         let fetchUseCase = FetchRecurringRulesUseCase(
-            repository: repo
+            repository: dependencies.recurringRuleRepository
         )
         let calculateCostUseCase = CalculateSubscriptionCostUseCase()
 

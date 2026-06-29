@@ -17,9 +17,9 @@ struct ContentView: View {
             } else {
                 if !appState.isOnboardingComplete {
                     OnboardingView(
-                        createAccountUseCase: dependencies.accountRepository.map {
-                            CreateAccountUseCase(accountRepository: $0)
-                        }
+                        createAccountUseCase: CreateAccountUseCase(
+                            accountRepository: dependencies.accountRepository
+                        )
                     )
                 } else {
                     #if os(macOS)

@@ -42,13 +42,10 @@ struct AccountDetailView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let accountRepo = deps.accountRepository,
-              let transactionRepo = deps.transactionRepository else { return }
 
         let vm = AccountDetailViewModel(
-            accountRepository: accountRepo,
-            transactionRepository: transactionRepo
+            accountRepository: dependencies.accountRepository,
+            transactionRepository: dependencies.transactionRepository
         )
         viewModel = vm
         await vm.loadAccount(id: accountID)

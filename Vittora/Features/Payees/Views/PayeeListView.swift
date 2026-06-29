@@ -83,23 +83,7 @@ struct PayeeListView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let payeeRepo = deps.payeeRepository,
-              let transactionRepo = deps.transactionRepository else { return }
-
-        let vm = PayeeListViewModel(
-            fetchUseCase: FetchPayeesUseCase(repository: payeeRepo),
-            deleteUseCase: DeletePayeeUseCase(
-                repository: payeeRepo,
-                transactionRepository: transactionRepo
-            ),
-            importContactsUseCase: deps.contactsImportService.map {
-                ImportContactsUseCase(
-                    repository: payeeRepo,
-                    contactsService: $0
-                )
-            }
-        )
+        let vm = dependencies.makePayeeListViewModel()
         viewModel = vm
         await vm.loadPayees()
     }

@@ -30,8 +30,8 @@ struct CashFlowReportView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .task {
-            guard vm == nil, let repo = dependencies.transactionRepository else { return }
-            let useCase = MonthlyOverviewUseCase(transactionRepository: repo)
+            guard vm == nil else { return }
+            let useCase = MonthlyOverviewUseCase(transactionRepository: dependencies.transactionRepository)
             vm = MonthlyOverviewViewModel(useCase: useCase)
             await vm?.load()
         }

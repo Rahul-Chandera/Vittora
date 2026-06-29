@@ -107,7 +107,7 @@ struct AddGroupExpenseView: View {
                         Task {
                             let saved = await vm.save()
                             if saved {
-                                dependencies.conversionEventRecorder?.afterSplitExpenseCreated()
+                                dependencies.conversionEventRecorder.afterSplitExpenseCreated()
                                 appState.notifyChanged([.splits, .transactions, .accounts])
                                 onSaved()
                                 dismiss()

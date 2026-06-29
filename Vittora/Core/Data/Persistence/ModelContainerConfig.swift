@@ -35,6 +35,18 @@ enum ModelContainerConfig {
         try makeContainer(inMemory: true)
     }
 
+    /// Ephemeral in-memory container for startup-failure DI wiring only.
+    /// Skips the migration plan so a broken on-disk migration cannot block `StartupFailureView`.
+    static func makeEphemeralWiringContainer() throws -> ModelContainer {
+        let schema = Schema(allModels)
+        let config = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: true,
+            cloudKitDatabase: .none
+        )
+        return try ModelContainer(for: schema, configurations: [config])
+    }
+
     // MARK: - Store file hardening
 
     nonisolated private static let logger = Logger(subsystem: "com.vittora.app", category: "Persistence")

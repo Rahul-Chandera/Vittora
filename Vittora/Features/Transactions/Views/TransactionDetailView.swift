@@ -185,7 +185,7 @@ struct TransactionDetailView: View {
         .errorAlert(message: transactionDetailErrorBinding)
         .task {
             if vm == nil {
-                vm = await createViewModel()
+                vm = createViewModel()
                 await vm?.loadTransaction(id: transactionID)
             }
         }
@@ -250,26 +250,8 @@ struct TransactionDetailView: View {
         }
     }
 
-    private func createViewModel() async -> TransactionDetailViewModel? {
-        guard let transactionRepo = dependencies.transactionRepository,
-              let documentRepo = dependencies.documentRepository,
-              let documentStorage = dependencies.documentStorageService,
-              let ledgerWriteStore = dependencies.ledgerWriteStore else {
-            return nil
-        }
-
-        let fetchUseCase = FetchTransactionsUseCase(transactionRepository: transactionRepo)
-        let deleteUseCase = DeleteTransactionUseCase(
-            transactionRepository: transactionRepo,
-            documentRepository: documentRepo,
-            documentStorageService: documentStorage,
-            ledgerWriting: ledgerWriteStore
-        )
-
-        return TransactionDetailViewModel(
-            fetchUseCase: fetchUseCase,
-            deleteUseCase: deleteUseCase
-        )
+    private func createViewModel() -> TransactionDetailViewModel {
+        dependencies.makeTransactionDetailViewModel()
     }
 
     private var transactionDetailErrorBinding: Binding<String?> {

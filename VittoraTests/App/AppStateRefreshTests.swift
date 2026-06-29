@@ -38,4 +38,28 @@ struct AppStateRefreshTests {
         #expect(state.dashboardRefreshToken != initial)
         #expect(state.hasAnyRefresh(in: [.transactions, .accounts, .budgets, .recurring]))
     }
+
+    @Test("request stores a typed pending command")
+    func pendingCommandRequest() {
+        let state = AppState()
+
+        state.request(.presentNewTransaction)
+
+        #expect(state.pendingCommand?.command == .presentNewTransaction)
+        state.clearPendingCommand()
+        #expect(state.pendingCommand == nil)
+    }
+
+    @Test("repeated requests produce distinct command ids")
+    func repeatedCommandRequests() {
+        let state = AppState()
+
+        state.request(.openSettings)
+        let firstID = state.pendingCommand?.id
+        state.clearPendingCommand()
+        state.request(.openSettings)
+        let secondID = state.pendingCommand?.id
+
+        #expect(firstID != secondID)
+    }
 }

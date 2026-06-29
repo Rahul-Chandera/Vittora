@@ -51,14 +51,14 @@ struct VittoraApp: App {
         if let modelContainer {
             dependencyContainer = DependencyContainer.createDefault(modelContainer: modelContainer)
         } else {
-            dependencyContainer = DependencyContainer()
+            dependencyContainer = DependencyContainer.startupFailure()
         }
         let syncStatusService = SyncStatusService(isMonitoringEnabled: !isRunningAutomatedTests)
         let conflictHandler = SyncConflictHandler(
             auditLogger: dependencyContainer.securityAuditLogService
         )
         _dependencies = State(initialValue: dependencyContainer)
-        let keychainService = dependencyContainer.keychainService ?? KeychainService()
+        let keychainService = dependencyContainer.keychainService
         _settingsVM = State(initialValue: SettingsViewModel(keychainService: keychainService))
         _syncService = State(initialValue: syncStatusService)
         _syncConflictHandler = State(initialValue: conflictHandler)
@@ -153,13 +153,13 @@ struct VittoraApp: App {
         .commands {
             CommandGroup(after: .newItem) {
                 Button(String(localized: "New Transaction")) {
-                    NotificationCenter.default.post(name: .vittoraNewTransaction, object: nil)
+                    appState.request(.presentNewTransaction)
                 }
                 .keyboardShortcut("n", modifiers: .command)
             }
             CommandGroup(after: .appSettings) {
                 Button(String(localized: "Settings")) {
-                    NotificationCenter.default.post(name: .vittoraOpenSettings, object: nil)
+                    appState.request(.openSettings)
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
@@ -179,7 +179,7 @@ struct VittoraApp: App {
             switch newPhase {
             case .background:
                 if settingsVM.isAppLockEnabled {
-                    dependencies.appLockService?.recordBackgrounded(at: .now)
+                    dependencies.appLockService.recordBackgrounded(at: .now)
                 }
             case .active:
                 applyAppLockPolicyOnBecomeActive()
@@ -204,8 +204,8 @@ struct VittoraApp: App {
             return
         }
 
-        if let service = dependencies.appLockService,
-           let backgroundedAt = service.lastBackgroundedAt,
+        let service = dependencies.appLockService
+        if let backgroundedAt = service.lastBackgroundedAt,
            AppLockPolicy.shouldLock(
                backgroundedAt: backgroundedAt,
                now: .now,
@@ -220,11 +220,10 @@ struct VittoraApp: App {
     }
 
     private func configureNotificationService() async {
-        guard let notificationService = dependencies.notificationService else { return }
-        notificationService.setDeepLinkHandler { [appState] deepLink in
+        dependencies.notificationService.setDeepLinkHandler { [appState] deepLink in
             appState.openFromNotification(deepLink)
         }
-        await notificationService.registerCategories()
+        await dependencies.notificationService.registerCategories()
     }
 
     private func performStartupTasksIfNeeded() async {
@@ -246,20 +245,15 @@ struct VittoraApp: App {
         await configureNotificationService()
         await dependencies.refreshCreditCardDueReminders()
 
-        guard let modelContainer else { return }
-        let dataSeeder = dependencies.dataSeeder ?? DefaultDataSeeder(modelContainer: modelContainer)
+        guard modelContainer != nil else { return }
         do {
-            try await dataSeeder.seedDefaultCategoriesIfNeeded()
+            try await dependencies.dataSeeder.seedDefaultCategoriesIfNeeded()
         } catch {
             Self.logger.error("Failed to seed default categories: \(error.localizedDescription, privacy: .public)")
         }
 
-        guard let recurringGenerationCoordinator else {
-            await dependencies.refreshRecurringAndDebtReminders()
-            return
-        }
         do {
-            _ = try await recurringGenerationCoordinator.generate()
+            _ = try await dependencies.recurringGenerationCoordinator.generate()
         } catch {
             Self.logger.error("Failed to generate recurring transactions on launch: \(error.localizedDescription, privacy: .public)")
         }
@@ -267,18 +261,11 @@ struct VittoraApp: App {
     }
 
     private func seedUITestTransactionsIfNeeded() async {
-        guard let accountRepository = dependencies.accountRepository,
-              let categoryRepository = dependencies.categoryRepository,
-              let transactionRepository = dependencies.transactionRepository,
-              let ledgerWriteStore = dependencies.ledgerWriteStore else {
-            return
-        }
-
         let seeder = UITestDataSeeder(
-            accountRepository: accountRepository,
-            categoryRepository: categoryRepository,
-            transactionRepository: transactionRepository,
-            ledgerWriting: ledgerWriteStore
+            accountRepository: dependencies.accountRepository,
+            categoryRepository: dependencies.categoryRepository,
+            transactionRepository: dependencies.transactionRepository,
+            ledgerWriting: dependencies.ledgerWriteStore
         )
 
         do {
@@ -289,18 +276,11 @@ struct VittoraApp: App {
     }
 
     private func seedUITestTransferScenarioIfNeeded() async {
-        guard let accountRepository = dependencies.accountRepository,
-              let categoryRepository = dependencies.categoryRepository,
-              let transactionRepository = dependencies.transactionRepository,
-              let ledgerWriteStore = dependencies.ledgerWriteStore else {
-            return
-        }
-
         let seeder = UITestDataSeeder(
-            accountRepository: accountRepository,
-            categoryRepository: categoryRepository,
-            transactionRepository: transactionRepository,
-            ledgerWriting: ledgerWriteStore
+            accountRepository: dependencies.accountRepository,
+            categoryRepository: dependencies.categoryRepository,
+            transactionRepository: dependencies.transactionRepository,
+            ledgerWriting: dependencies.ledgerWriteStore
         )
 
         do {

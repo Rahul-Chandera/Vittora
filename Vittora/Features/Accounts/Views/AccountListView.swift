@@ -64,22 +64,7 @@ struct AccountListView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let accountRepo = deps.accountRepository,
-              let transactionRepo = deps.transactionRepository else { return }
-
-        let fetchUseCase = FetchAccountsUseCase(accountRepository: accountRepo)
-        let calcUseCase = CalculateNetWorthUseCase(accountRepository: accountRepo)
-        let deleteUseCase = DeleteAccountUseCase(
-            accountRepository: accountRepo,
-            transactionRepository: transactionRepo
-        )
-
-        let vm = AccountListViewModel(
-            fetchAccountsUseCase: fetchUseCase,
-            calculateNetWorthUseCase: calcUseCase,
-            deleteAccountUseCase: deleteUseCase
-        )
+        let vm = dependencies.makeAccountListViewModel()
         viewModel = vm
         await vm.loadAccounts()
     }
