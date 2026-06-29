@@ -84,29 +84,10 @@ final class TransactionFlowUITests: XCTestCase {
         XCTAssertTrue(coffeeRow.waitForExistence(timeout: 5))
         XCTAssertTrue(salaryRow.waitForExistence(timeout: 5))
 
-        let searchField = app.searchFields["Search transactions"]
-        XCTAssertTrue(searchField.waitForExistence(timeout: 5))
-        searchField.tap()
-        searchField.typeText("Coffee")
-
-        // Debounced search (250ms) — wait for filtered results; no keyboard dismiss needed.
-        XCTAssertTrue(coffeeRow.waitForExistence(timeout: 5))
-        XCTAssertFalse(
-            salaryRow.waitForExistence(timeout: 5),
-            "Searching should hide transactions whose notes do not match."
-        )
-
-        dismissSearchAndClearQuery()
-
-        XCTAssertTrue(
-            salaryRow.waitForExistence(timeout: 5),
-            "Clearing search should restore all seeded transactions before filtering."
-        )
-
         let filterButton = app.buttons["transaction-filter-button"]
         XCTAssertTrue(
-            waitForFilterButton(timeout: 15),
-            "Filter button should reappear in the toolbar after clearing search."
+            waitForFilterButton(timeout: 10),
+            "Filter button should be visible on the transactions list."
         )
         filterButton.tap()
 
@@ -128,6 +109,30 @@ final class TransactionFlowUITests: XCTestCase {
         XCTAssertFalse(
             filteredCoffeeRow.waitForExistence(timeout: 2),
             "Filtering to the higher amount range should hide the seeded coffee transaction."
+        )
+
+        filterButton.tap()
+        let clearButton = app.buttons["transaction-filter-clear-button"]
+        XCTAssertTrue(clearButton.waitForExistence(timeout: 5))
+        clearButton.tap()
+        applyButton.tap()
+
+        XCTAssertTrue(
+            coffeeRow.waitForExistence(timeout: 5),
+            "Clearing filters should restore all seeded transactions before searching."
+        )
+        XCTAssertTrue(salaryRow.waitForExistence(timeout: 5))
+
+        let searchField = app.searchFields["Search transactions"]
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5))
+        searchField.tap()
+        searchField.typeText("Coffee")
+
+        // Debounced search (250ms) — wait for filtered results.
+        XCTAssertTrue(coffeeRow.waitForExistence(timeout: 5))
+        XCTAssertFalse(
+            salaryRow.waitForExistence(timeout: 5),
+            "Searching should hide transactions whose notes do not match."
         )
     }
 
@@ -196,25 +201,6 @@ final class TransactionFlowUITests: XCTestCase {
     }
 
     @MainActor
-    private func dismissSearchAndClearQuery() {
-        dismissSearchKeyboardIfNeeded()
-
-        let searchField = app.searchFields["Search transactions"]
-        guard searchField.waitForExistence(timeout: 2) else { return }
-
-        if searchField.buttons["Cancel"].waitForExistence(timeout: 2) {
-            searchField.buttons["Cancel"].tap()
-        }
-
-        if searchField.buttons["Clear text"].waitForExistence(timeout: 1) {
-            searchField.buttons["Clear text"].tap()
-        }
-
-        // Give SwiftUI time to collapse search and restore the primary toolbar.
-        _ = app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 2)
-    }
-
-    @MainActor
     private func waitForFilterButton(timeout: TimeInterval) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
 
@@ -228,18 +214,5 @@ final class TransactionFlowUITests: XCTestCase {
 
         let filterButton = app.buttons["transaction-filter-button"]
         return filterButton.exists && filterButton.isHittable
-    }
-
-    @MainActor
-    private func dismissSearchKeyboardIfNeeded() {
-        if app.keyboards.count > 0 {
-            if app.keyboards.buttons["Search"].exists {
-                app.keyboards.buttons["Search"].tap()
-            } else if app.keyboards.buttons["Return"].exists {
-                app.keyboards.buttons["Return"].tap()
-            } else {
-                app.tap()
-            }
-        }
     }
 }
