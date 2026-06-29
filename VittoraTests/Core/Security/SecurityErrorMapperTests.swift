@@ -1,7 +1,7 @@
 import Foundation
 import Security
 import Testing
-@testable import Vittora
+import VittoraCore
 
 @Suite("SecurityErrorMapper Tests")
 struct SecurityErrorMapperTests {

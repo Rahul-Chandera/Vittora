@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Implements the "minimize cash flow" algorithm to reduce the number of
 /// settlement transactions in a group to the theoretical minimum.

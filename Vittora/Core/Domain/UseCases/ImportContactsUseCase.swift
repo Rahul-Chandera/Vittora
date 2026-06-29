@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct ContactsImportResult: Sendable, Equatable {
     let importedCount: Int

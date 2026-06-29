@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 extension Error {
     func userFacingMessage(fallback: String) -> String {

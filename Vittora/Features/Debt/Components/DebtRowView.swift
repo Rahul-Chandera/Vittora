@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct DebtRowView: View {
     @Environment(\.currencyCode) private var currencyCode
@@ -55,6 +56,8 @@ struct DebtRowView: View {
             }
         }
         .padding(.vertical, VSpacing.xs)
+        .contentShape(Rectangle())
+        .vittoraPointerHighlight()
     }
 
     private var avatarColor: Color {

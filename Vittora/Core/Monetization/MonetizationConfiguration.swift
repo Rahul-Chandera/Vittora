@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// F0 launch-model flags. StoreKit and paywalls are deferred until post-PMF fast-follow.
 enum MonetizationConfiguration {

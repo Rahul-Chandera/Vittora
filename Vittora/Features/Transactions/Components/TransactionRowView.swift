@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TransactionRowView: View {
     let transaction: TransactionEntity
@@ -104,6 +105,7 @@ struct TransactionRowView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityText)
         .accessibilityIdentifier(rowAccessibilityIdentifier)
+        .vittoraPointerHighlight()
     }
 
     private static func color(for type: TransactionType) -> Color {

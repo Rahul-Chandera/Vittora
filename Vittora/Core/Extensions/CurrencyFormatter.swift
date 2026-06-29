@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 enum CurrencyFormatter {
     static func format(_ amount: Decimal, currencyCode: String = CurrencyDefaults.code) -> String {

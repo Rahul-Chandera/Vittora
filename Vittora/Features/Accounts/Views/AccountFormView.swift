@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AccountFormView: View {
     var editingAccount: AccountEntity? = nil

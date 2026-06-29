@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct CustomReportView: View {
     @Environment(\.dependencies) private var dependencies

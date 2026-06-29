@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 extension Decimal {
     /// Parses a user-entered monetary amount using the locale's decimal and grouping

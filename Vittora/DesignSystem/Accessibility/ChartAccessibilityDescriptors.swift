@@ -1,6 +1,7 @@
 import Foundation
 import Accessibility
 import SwiftUI
+import VittoraCore
 
 enum ChartAccessibilitySupport {
     nonisolated static func currencyString(for value: Double, currencyCode: String) -> String {

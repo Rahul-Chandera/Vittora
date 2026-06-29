@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 actor MockSavingsGoalRepository: SavingsGoalRepository {

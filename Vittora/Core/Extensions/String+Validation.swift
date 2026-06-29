@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 extension String {
     /// Check if string is a valid email address.

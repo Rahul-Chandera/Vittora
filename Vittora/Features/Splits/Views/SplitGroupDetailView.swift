@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct SplitGroupDetailView: View {
     @Environment(\.dependencies) private var dependencies

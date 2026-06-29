@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// An animated budget progress bar with semantic coloring based on spending thresholds.
 /// Changes color from green (safe) to orange (warning) to red (danger).

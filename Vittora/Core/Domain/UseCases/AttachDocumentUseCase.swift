@@ -4,6 +4,7 @@ import OSLog
 import UIKit
 #elseif canImport(AppKit)
 import AppKit
+import VittoraCore
 #endif
 
 struct AttachDocumentUseCase: Sendable {
@@ -69,20 +70,6 @@ struct AttachDocumentUseCase: Sendable {
         case "image/png":  return "png"
         case "application/pdf": return "pdf"
         default: return "bin"
-        }
-    }
-}
-
-enum DocumentError: LocalizedError {
-    case storageUnavailable
-    case fileNotFound
-    case ocrFailed(String)
-
-    var errorDescription: String? {
-        switch self {
-        case .storageUnavailable: return String(localized: "Document storage is unavailable.")
-        case .fileNotFound:       return String(localized: "Document file not found.")
-        case .ocrFailed(let msg): return String(localized: "OCR failed: \(msg)")
         }
     }
 }

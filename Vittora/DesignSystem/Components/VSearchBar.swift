@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// A styled search input with magnifying glass icon and clear button.
 /// Supports placeholder text and focus state styling.

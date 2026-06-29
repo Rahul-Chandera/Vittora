@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TaxComparisonView: View {
     let comparison: TaxComparison

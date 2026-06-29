@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct ScheduleRecurringPreNotificationsUseCase: Sendable {
     private static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled

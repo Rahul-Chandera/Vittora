@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 enum LegalDocument: String, CaseIterable, Sendable {
     case privacyPolicy = "PrivacyPolicy"

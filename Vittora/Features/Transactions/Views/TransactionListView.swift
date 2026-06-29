@@ -1,13 +1,24 @@
 import SwiftUI
+import VittoraCore
 
 struct TransactionListView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var vm: TransactionListViewModel?
     @State private var showFilterSheet = false
     @State private var filterVM: TransactionFilterViewModel?
     @State private var navigateDestination: NavigationDestination?
+    @State private var selectedTransactionID: UUID?
+
+    private var prefersSplitDetail: Bool {
+        #if os(macOS)
+        true
+        #else
+        horizontalSizeClass == .regular
+        #endif
+    }
 
     var body: some View {
         ZStack {
@@ -17,6 +28,8 @@ struct TransactionListView: View {
                 } else {
                     listView(vm)
                 }
+            } else {
+                ProgressView()
             }
         }
         .navigationTitle(String(localized: "Transactions"))
@@ -39,59 +52,48 @@ struct TransactionListView: View {
 
     @ViewBuilder
     private func listView(_ vm: TransactionListViewModel) -> some View {
-        @Bindable var vm = vm
-        List {
-            ForEach(vm.groupedTransactions, id: \.date) { dateGroup in
-                Section(header: sectionHeader(for: dateGroup.date)) {
-                    ForEach(dateGroup.transactions) { transaction in
-                        Button {
-                            if vm.isMultiSelectMode {
-                                vm.toggleSelection(transaction.id)
-                            } else {
-                                navigateDestination = .transactionDetail(id: transaction.id)
-                            }
-                        } label: {
-                            TransactionRowView(
-                                transaction: transaction,
-                                currencyCode: currencyCode,
-                                showSelection: vm.isMultiSelectMode,
-                                isSelected: vm.selectedTransactionIDs.contains(transaction.id)
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .onAppear {
-                            Task {
-                                await vm.loadNextPageIfNeeded(currentTransactionID: transaction.id)
-                            }
-                        }
-                        .accessibilityAction(named: String(localized: "Select")) {
-                            if !vm.isMultiSelectMode {
-                                vm.isMultiSelectMode = true
-                            }
-                            vm.toggleSelection(transaction.id)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    Task {
-                                        dependencies.hapticService.warning()
-                                        await vm.deleteTransaction(id: transaction.id)
-                                    }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+        if prefersSplitDetail && !vm.isMultiSelectMode {
+            splitDetailView(vm)
+        } else {
+            compactListView(vm)
+        }
+    }
 
-                                NavigationLink(value: NavigationDestination.editTransaction(id: transaction.id)) {
-                                    Label("Edit", systemImage: "pencil")
-                                }
-                                .tint(.blue)
-                            }
-                            .onLongPressGesture {
-                                if !vm.isMultiSelectMode {
-                                    vm.isMultiSelectMode = true
-                                }
-                                vm.toggleSelection(transaction.id)
-                            }
-                    }
+    @ViewBuilder
+    private func splitDetailView(_ vm: TransactionListViewModel) -> some View {
+        NavigationSplitView {
+            transactionList(vm, selection: $selectedTransactionID)
+                .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
+        } detail: {
+            if let selectedTransactionID {
+                TransactionDetailView(transactionID: selectedTransactionID)
+            } else {
+                ContentUnavailableView(
+                    String(localized: "Select a Transaction"),
+                    systemImage: "list.bullet.rectangle",
+                    description: Text(String(localized: "Choose a transaction from the list to view its details."))
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func compactListView(_ vm: TransactionListViewModel) -> some View {
+        transactionList(vm, selection: nil)
+    }
+
+    @ViewBuilder
+    private func transactionList(_ vm: TransactionListViewModel, selection: Binding<UUID?>?) -> some View {
+        @Bindable var vm = vm
+
+        Group {
+            if let selection {
+                List(selection: selection) {
+                    transactionSections(vm, selection: selection)
+                }
+            } else {
+                List {
+                    transactionSections(vm, selection: nil)
                 }
             }
         }
@@ -200,6 +202,60 @@ struct TransactionListView: View {
         }
     }
 
+    @ViewBuilder
+    private func transactionSections(
+        _ vm: TransactionListViewModel,
+        selection: Binding<UUID?>?
+    ) -> some View {
+        ForEach(vm.groupedTransactions, id: \.date) { dateGroup in
+            Section(header: sectionHeader(for: dateGroup.date)) {
+                ForEach(dateGroup.transactions) { transaction in
+                    transactionRow(vm, transaction: transaction, selection: selection)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func transactionRow(
+        _ vm: TransactionListViewModel,
+        transaction: TransactionEntity,
+        selection: Binding<UUID?>?
+    ) -> some View {
+        let row = TransactionRowView(
+            transaction: transaction,
+            currencyCode: currencyCode,
+            showSelection: vm.isMultiSelectMode,
+            isSelected: vm.selectedTransactionIDs.contains(transaction.id)
+        )
+
+        if selection != nil {
+            row
+                .tag(Optional(transaction.id))
+                .transactionRowModifiers(
+                    vm: vm,
+                    transaction: transaction,
+                    onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
+                )
+        } else {
+            Button {
+                if vm.isMultiSelectMode {
+                    vm.toggleSelection(transaction.id)
+                } else {
+                    navigateDestination = .transactionDetail(id: transaction.id)
+                }
+            } label: {
+                row
+            }
+            .buttonStyle(.plain)
+            .transactionRowModifiers(
+                vm: vm,
+                transaction: transaction,
+                onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
+            )
+        }
+    }
+
     private var emptyState: some View {
         VStack(spacing: VSpacing.lg) {
             Image(systemName: "list.dash")
@@ -280,6 +336,76 @@ struct TransactionListView: View {
                 vm?.error = newValue
             }
         )
+    }
+}
+
+private struct TransactionRowModifier: ViewModifier {
+    @Environment(\.dependencies) private var dependencies
+    @Environment(AppState.self) private var appState
+    let vm: TransactionListViewModel
+    let transaction: TransactionEntity
+    let onEdit: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                Task {
+                    await vm.loadNextPageIfNeeded(currentTransactionID: transaction.id)
+                }
+            }
+            .accessibilityAction(named: String(localized: "Select")) {
+                if !vm.isMultiSelectMode {
+                    vm.isMultiSelectMode = true
+                }
+                vm.toggleSelection(transaction.id)
+            }
+            .vittoraRowContextMenu(VittoraRowContextMenuActions(
+                onEdit: onEdit,
+                onDuplicate: transaction.type == .transfer ? nil : {
+                    Task {
+                        await vm.duplicateTransaction(id: transaction.id)
+                        appState.notifyChanged([.transactions, .accounts, .budgets])
+                    }
+                },
+                onDelete: {
+                    Task {
+                        dependencies.hapticService.warning()
+                        await vm.deleteTransaction(id: transaction.id)
+                        appState.notifyChanged([.transactions, .accounts, .budgets])
+                    }
+                }
+            ))
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                Button(role: .destructive) {
+                    Task {
+                        dependencies.hapticService.warning()
+                        await vm.deleteTransaction(id: transaction.id)
+                    }
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+
+                NavigationLink(value: NavigationDestination.editTransaction(id: transaction.id)) {
+                    Label("Edit", systemImage: "pencil")
+                }
+                .tint(.blue)
+            }
+            .onLongPressGesture {
+                if !vm.isMultiSelectMode {
+                    vm.isMultiSelectMode = true
+                }
+                vm.toggleSelection(transaction.id)
+            }
+    }
+}
+
+private extension View {
+    func transactionRowModifiers(
+        vm: TransactionListViewModel,
+        transaction: TransactionEntity,
+        onEdit: @escaping () -> Void
+    ) -> some View {
+        modifier(TransactionRowModifier(vm: vm, transaction: transaction, onEdit: onEdit))
     }
 }
 

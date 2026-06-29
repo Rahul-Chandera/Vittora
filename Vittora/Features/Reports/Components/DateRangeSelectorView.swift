@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 enum DateRangePreset: String, CaseIterable, Sendable {
     case thisMonth, lastMonth, thisQuarter, yearToDate, lastYear, custom

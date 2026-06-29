@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct MonthlyData: Sendable, Identifiable {
     nonisolated var id: Date { month }

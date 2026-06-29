@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct CategoryRowView: View {
     let category: CategoryEntity
@@ -41,6 +42,8 @@ struct CategoryRowView: View {
             }
         }
         .padding(.vertical, VSpacing.xxs)
+        .contentShape(Rectangle())
+        .vittoraPointerHighlight()
     }
 }
 

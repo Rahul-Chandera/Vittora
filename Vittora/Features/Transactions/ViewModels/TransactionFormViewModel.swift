@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @Observable @MainActor final class TransactionFormViewModel {
     var amountString: String = ""

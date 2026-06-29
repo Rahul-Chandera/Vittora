@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct CategoryListView: View {
     @Environment(AppState.self) private var appState
@@ -105,6 +106,19 @@ struct CategoryListView: View {
                         NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
                             CategoryRowView(category: category)
                         }
+                        .contextMenu {
+                            NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
+                                Label(String(localized: "Edit"), systemImage: "pencil")
+                            }
+                            if !category.isDefault {
+                                Button(role: .destructive) {
+                                    categoryToDelete = category.id
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label(String(localized: "Delete"), systemImage: "trash")
+                                }
+                            }
+                        }
                         .swipeActions(edge: .trailing) {
                             if !category.isDefault {
                                 Button(role: .destructive) {
@@ -135,6 +149,19 @@ struct CategoryListView: View {
                     ForEach(vm.filteredIncomeCategories) { category in
                         NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
                             CategoryRowView(category: category)
+                        }
+                        .contextMenu {
+                            NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
+                                Label(String(localized: "Edit"), systemImage: "pencil")
+                            }
+                            if !category.isDefault {
+                                Button(role: .destructive) {
+                                    categoryToDelete = category.id
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label(String(localized: "Delete"), systemImage: "trash")
+                                }
+                            }
                         }
                         .swipeActions(edge: .trailing) {
                             if !category.isDefault {

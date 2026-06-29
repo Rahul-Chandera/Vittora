@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// A loading placeholder modifier with a subtle shimmer animation effect.
 /// Ideal for skeleton loading states while data is being fetched.

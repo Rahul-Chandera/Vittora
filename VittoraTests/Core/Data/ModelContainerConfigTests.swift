@@ -1,6 +1,7 @@
 import Testing
 import SwiftData
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 /// Fast in-memory schema checks — safe in the full CI unit-test batch.

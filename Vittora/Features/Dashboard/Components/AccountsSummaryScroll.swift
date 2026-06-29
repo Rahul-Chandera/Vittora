@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AccountsSummaryScroll: View {
     let accounts: [AccountEntity]

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct DeleteDocumentUseCase: Sendable {
     let documentRepository: any DocumentRepository

@@ -1,6 +1,7 @@
 import Foundation
 import CoreGraphics
 import Observation
+import VittoraCore
 
 @Observable
 @MainActor

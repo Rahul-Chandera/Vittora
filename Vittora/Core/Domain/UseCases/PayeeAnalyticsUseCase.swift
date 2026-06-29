@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct PayeeAnalyticsUseCase: Sendable {
     private let transactionRepository: any TransactionRepository

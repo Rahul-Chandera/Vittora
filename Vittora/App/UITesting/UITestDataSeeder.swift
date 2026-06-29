@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @MainActor
 final class UITestDataSeeder {
@@ -71,7 +72,7 @@ final class UITestDataSeeder {
             categoryID: groceriesCategory.id,
             accountID: checkingAccount.id,
             payeeID: nil,
-            note: String(localized: "Coffee Run"),
+            note: "Coffee Run",
             tags: ["coffee"],
             paymentMethod: .debitCard,
             currencyCode: "USD"
@@ -84,7 +85,7 @@ final class UITestDataSeeder {
             categoryID: salaryCategory.id,
             accountID: checkingAccount.id,
             payeeID: nil,
-            note: String(localized: "Monthly Salary"),
+            note: "Monthly Salary",
             tags: ["income"],
             paymentMethod: .bankTransfer,
             currencyCode: "USD"

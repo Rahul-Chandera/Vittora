@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct DeleteAccountUseCase: Sendable {
     let accountRepository: any AccountRepository

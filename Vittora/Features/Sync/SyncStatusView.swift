@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Compact inline sync indicator — shown in navigation bars.
 struct SyncStatusView: View {

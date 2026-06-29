@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 extension DependencyContainer {
     /// Refreshes recurring pre-notifications and self debt due reminders.

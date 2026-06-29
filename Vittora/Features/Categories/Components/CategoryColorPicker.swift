@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct CategoryColorPicker: View {
     @Binding var selectedColorHex: String

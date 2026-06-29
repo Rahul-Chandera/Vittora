@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 private enum DateFormattingCache {
     private static let customFormatters = NSCache<NSString, DateFormatter>()

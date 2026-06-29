@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct SavingsGoalCardView: View {
     let goal: SavingsGoalEntity

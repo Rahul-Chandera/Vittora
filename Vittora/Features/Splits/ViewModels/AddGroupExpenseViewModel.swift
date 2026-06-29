@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Per-member input row for a split expense form
 struct MemberAllocationRow: Identifiable, Sendable {

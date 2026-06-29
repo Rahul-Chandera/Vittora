@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import OSLog
+import VittoraCore
 
 @main
 struct VittoraApp: App {
@@ -81,6 +82,7 @@ struct VittoraApp: App {
                     showsOnboardingForUITesting: showsOnboardingForUITesting,
                     bypassOnboardingForUITesting: bypassOnboardingForUITesting
                 ),
+                selectedTab: Self.initialSelectedTab(isUITesting: isUITesting),
                 isUITesting: isUITesting
             )
         )
@@ -117,19 +119,31 @@ struct VittoraApp: App {
         return udValue
     }
 
+    private static func initialSelectedTab(isUITesting: Bool) -> AppState.AppTab {
+        guard isUITesting,
+              let rawValue = ProcessInfo.processInfo.environment["UITEST_INITIAL_TAB"],
+              let tab = AppState.AppTab(rawValue: rawValue) else {
+            return .dashboard
+        }
+        return tab
+    }
+
     var body: some Scene {
         WindowGroup {
             if let modelContainer {
                 ContentView()
-                    .environment(appState)
-                    .environment(\.dependencies, dependencies)
-                    .environment(settingsVM)
-                    .environment(syncService)
-                    .environment(syncConflictHandler)
-                    .environment(\.currencyCode, settingsVM.selectedCurrencyCode)
-                    .environment(\.currencySymbol, String.currencySymbol(for: settingsVM.selectedCurrencyCode))
-                    .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
-                    .modelContainer(modelContainer)
+                    .vittoraAppEnvironments(
+                        appState: appState,
+                        dependencies: dependencies,
+                        settingsVM: settingsVM,
+                        syncService: syncService,
+                        syncConflictHandler: syncConflictHandler,
+                        modelContainer: modelContainer
+                    )
+                    .restoresSceneState(appState: appState)
+                    #if os(macOS)
+                    .frame(minWidth: 960, minHeight: 640)
+                    #endif
                     .overlay(alignment: .top) {
                         if let startupErrorMessage {
                             StartupRecoveryBanner(message: startupErrorMessage)
@@ -150,6 +164,7 @@ struct VittoraApp: App {
         }
         #if os(macOS)
         .defaultSize(width: 1200, height: 800)
+        .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(after: .newItem) {
                 Button(String(localized: "New Transaction")) {
@@ -157,11 +172,16 @@ struct VittoraApp: App {
                 }
                 .keyboardShortcut("n", modifiers: .command)
             }
-            CommandGroup(after: .appSettings) {
-                Button(String(localized: "Settings")) {
-                    appState.request(.openSettings)
+            CommandMenu(String(localized: "Go to")) {
+                ForEach(Array(AppState.AppTab.allCases.enumerated()), id: \.offset) { index, tab in
+                    Button(tab.title) {
+                        appState.request(.selectTab(tab))
+                    }
+                    .keyboardShortcut(
+                        tabShortcutKey(at: index),
+                        modifiers: .command
+                    )
                 }
-                .keyboardShortcut(",", modifiers: .command)
             }
         }
         #endif
@@ -195,6 +215,36 @@ struct VittoraApp: App {
                 break
             }
         }
+
+        #if os(macOS)
+        Settings {
+            if let modelContainer {
+                SettingsView()
+                    .vittoraAppEnvironments(
+                        appState: appState,
+                        dependencies: dependencies,
+                        settingsVM: settingsVM,
+                        syncService: syncService,
+                        syncConflictHandler: syncConflictHandler,
+                        modelContainer: modelContainer
+                    )
+                    .frame(minWidth: 520, minHeight: 480)
+            } else {
+                ContentUnavailableView {
+                    Label(String(localized: "Settings Unavailable"), systemImage: "gearshape")
+                } description: {
+                    Text(String(localized: "Vittora could not open its data store."))
+                }
+            }
+        }
+        #endif
+    }
+
+    private func tabShortcutKey(at index: Int) -> KeyEquivalent {
+        guard let scalar = UnicodeScalar(49 + index) else {
+            return KeyEquivalent(Character("1"))
+        }
+        return KeyEquivalent(Character(scalar))
     }
 
     /// Re-lock only when background duration meets the configured timeout (B1).
@@ -270,6 +320,7 @@ struct VittoraApp: App {
 
         do {
             try await seeder.seedTransactionScenarioIfNeeded()
+            appState.notifyChanged([.transactions, .accounts, .categories])
         } catch {
             Self.logger.error("Failed to seed UI test transaction data: \(error.localizedDescription, privacy: .public)")
         }
@@ -285,6 +336,7 @@ struct VittoraApp: App {
 
         do {
             try await seeder.seedTransferScenarioIfNeeded()
+            appState.notifyChanged(.accounts)
         } catch {
             Self.logger.error("Failed to seed UI test transfer data: \(error.localizedDescription, privacy: .public)")
         }

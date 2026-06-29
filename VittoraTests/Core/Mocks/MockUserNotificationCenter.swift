@@ -1,5 +1,6 @@
 import Foundation
 import UserNotifications
+import VittoraCore
 @testable import Vittora
 
 @MainActor

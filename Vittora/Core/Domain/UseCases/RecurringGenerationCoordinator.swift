@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Serializes recurring-transaction generation so the app-launch run and the
 /// background-task run can never overlap (DATAINTEGRITY-4).

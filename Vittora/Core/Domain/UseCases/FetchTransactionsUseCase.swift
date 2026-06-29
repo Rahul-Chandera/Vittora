@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct FetchTransactionsUseCase: Sendable {
     static let listPageSize = 50

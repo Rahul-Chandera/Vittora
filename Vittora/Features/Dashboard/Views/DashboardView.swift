@@ -1,10 +1,14 @@
 import SwiftUI
+import VittoraCore
 
 struct DashboardView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.currencyCode) private var currencyCode
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
     @State private var vm: DashboardViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var activeQuickActionModal: QuickActionModal?
@@ -64,7 +68,7 @@ struct DashboardView: View {
 
     #if os(iOS)
     private var shouldPresentQuickActionsAsSheet: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        horizontalSizeClass == .regular
     }
     #endif
 

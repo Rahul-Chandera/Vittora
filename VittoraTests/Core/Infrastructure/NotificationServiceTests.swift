@@ -1,6 +1,7 @@
 import Foundation
 import UserNotifications
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("NotificationService Tests", .serialized)

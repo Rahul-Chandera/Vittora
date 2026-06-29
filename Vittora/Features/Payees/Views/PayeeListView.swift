@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct PayeeListView: View {
     @Environment(AppState.self) private var appState
@@ -176,6 +177,17 @@ struct PayeeListView: View {
         ForEach(payees) { payee in
             NavigationLink(value: NavigationDestination.payeeDetail(id: payee.id)) {
                 PayeeRowView(payee: payee)
+            }
+            .contextMenu {
+                NavigationLink(value: NavigationDestination.payeeDetail(id: payee.id)) {
+                    Label(String(localized: "Edit"), systemImage: "pencil")
+                }
+                Button(role: .destructive) {
+                    payeeToDelete = payee.id
+                    showingDeleteAlert = true
+                } label: {
+                    Label(String(localized: "Delete"), systemImage: "trash")
+                }
             }
             .swipeActions(edge: .trailing) {
                 Button(role: .destructive) {

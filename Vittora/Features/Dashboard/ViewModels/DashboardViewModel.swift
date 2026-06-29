@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import os.signpost
+import VittoraCore
 
 @Observable
 @MainActor

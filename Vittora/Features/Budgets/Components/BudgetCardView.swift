@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct BudgetCardView: View {
     let budget: BudgetEntity

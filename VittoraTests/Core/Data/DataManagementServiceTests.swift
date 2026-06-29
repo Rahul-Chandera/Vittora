@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 // MARK: - Minimal mock repositories for DataManagementService
@@ -131,7 +132,8 @@ struct DataManagementServiceTests {
             debtRepository: debtRepo,
             savingsGoalRepository: goalRepo,
             splitGroupRepository: splitRepo,
-            documentRepository: docRepo
+            documentRepository: docRepo,
+            keychainService: MockKeychainService()
         )
         return (service, txRepo, accRepo, catRepo, budRepo, debtRepo, goalRepo, splitRepo, docRepo)
     }

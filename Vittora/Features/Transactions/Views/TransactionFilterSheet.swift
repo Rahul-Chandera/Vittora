@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TransactionFilterSheet: View {
     @Environment(\.dismiss) private var dismiss

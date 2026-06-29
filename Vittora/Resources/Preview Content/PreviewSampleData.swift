@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import VittoraCore
 
 /// Provides sample data for SwiftUI previews
 @MainActor

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Inline validation/error text that is announced as one VoiceOver element.
 struct VInlineErrorText: View {

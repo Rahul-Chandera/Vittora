@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 extension DependencyContainer {
     /// Rebuilds all local notification schedules according to current preferences.

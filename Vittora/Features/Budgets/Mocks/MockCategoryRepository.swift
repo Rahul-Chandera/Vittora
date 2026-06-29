@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct MockCategoryRepository: CategoryRepository {
     func fetchAll() async throws -> [CategoryEntity] {

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct HeroSpendingCard: View {
     let monthSpending: Decimal

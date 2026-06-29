@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Main entry point for the Budgets feature module.
 /// Provides the primary list view for budget management.

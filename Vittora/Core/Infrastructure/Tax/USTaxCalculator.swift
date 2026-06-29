@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// US federal income tax calculator with year-aware federal rules.
 /// Supports tax years 2025 and 2026, with a legacy 2024 fallback.

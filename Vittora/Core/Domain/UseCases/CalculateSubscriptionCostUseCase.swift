@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct SubscriptionCostSummary: Sendable {
     let monthlyCost: Decimal

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Vittora
+import VittoraCore
 
 @Suite("EncryptionService Tests", .serialized)
 @MainActor

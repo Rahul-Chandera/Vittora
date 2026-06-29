@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @Observable @MainActor final class TransactionListViewModel {
     var groupedTransactions: [(date: Date, transactions: [TransactionEntity])] = []
@@ -15,18 +16,21 @@ import Foundation
     private let searchUseCase: SearchTransactionsUseCase
     private let deleteUseCase: DeleteTransactionUseCase
     private let bulkOpsUseCase: BulkOperationsUseCase
+    private let addUseCase: AddTransactionUseCase
     private var loadedOffset = 0
 
     init(
         fetchUseCase: FetchTransactionsUseCase,
         searchUseCase: SearchTransactionsUseCase,
         deleteUseCase: DeleteTransactionUseCase,
-        bulkOpsUseCase: BulkOperationsUseCase
+        bulkOpsUseCase: BulkOperationsUseCase,
+        addUseCase: AddTransactionUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.searchUseCase = searchUseCase
         self.deleteUseCase = deleteUseCase
         self.bulkOpsUseCase = bulkOpsUseCase
+        self.addUseCase = addUseCase
     }
 
     var hasActiveFilter: Bool {
@@ -141,6 +145,45 @@ import Foundation
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't delete this transaction.")
+            )
+        }
+    }
+
+    func duplicateTransaction(id: UUID) async {
+        isLoading = true
+        error = nil
+        defer { isLoading = false }
+
+        do {
+            guard let original = try await fetchUseCase.execute(id: id) else {
+                error = String(localized: "We couldn't find this transaction.")
+                return
+            }
+            guard original.type != .transfer else {
+                error = String(localized: "Transfers must be created through the transfer flow.")
+                return
+            }
+            guard let accountID = original.accountID else {
+                error = String(localized: "This transaction isn't linked to an account.")
+                return
+            }
+
+            _ = try await addUseCase.execute(
+                amount: original.amount,
+                type: original.type,
+                date: .now,
+                categoryID: original.categoryID,
+                accountID: accountID,
+                payeeID: original.payeeID,
+                note: original.note,
+                tags: original.tags,
+                paymentMethod: original.paymentMethod,
+                currencyCode: original.currencyCode
+            )
+            await loadTransactions()
+        } catch {
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't duplicate this transaction.")
             )
         }
     }

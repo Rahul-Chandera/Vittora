@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 extension DependencyContainer {
     /// Re-evaluates budget spending thresholds and schedules any newly crossed alerts.

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct BudgetDetailView: View {
     @Environment(\.dependencies) var dependencies

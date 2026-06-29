@@ -1,15 +1,16 @@
 import SwiftUI
+import VittoraCore
 
+#if os(macOS)
 struct SidebarNavigation: View {
     @Environment(AppState.self) private var appState
     @State private var showAddTransaction = false
-    @State private var selectedTab: AppState.AppTab? = .dashboard
 
     var body: some View {
         @Bindable var appState = appState
 
         NavigationSplitView {
-            List(selection: $selectedTab) {
+            List(selection: $appState.selectedTab) {
                 Section(String(localized: "Overview")) {
                     Label(AppState.AppTab.dashboard.title,
                           systemImage: AppState.AppTab.dashboard.systemImage)
@@ -53,15 +54,7 @@ struct SidebarNavigation: View {
                 }
             }
             .navigationTitle("Vittora")
-            #if os(macOS)
             .navigationSplitViewColumnWidth(min: 200, ideal: 220, max: 280)
-            #endif
-            .onChange(of: selectedTab) { _, newValue in
-                if let tab = newValue { appState.selectedTab = tab }
-            }
-            .onChange(of: appState.selectedTab) { _, newValue in
-                selectedTab = newValue
-            }
         } detail: {
             NavigationStack {
                 Group {
@@ -81,7 +74,6 @@ struct SidebarNavigation: View {
             }
         }
         .toolbar {
-            #if os(macOS)
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showAddTransaction = true }) {
                     Label(String(localized: "New Transaction"), systemImage: "plus")
@@ -90,16 +82,6 @@ struct SidebarNavigation: View {
             ToolbarItem(placement: .status) {
                 SyncStatusView()
             }
-            #else
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: { showAddTransaction = true }) {
-                    Label(String(localized: "New Transaction"), systemImage: "plus")
-                }
-            }
-            ToolbarItem(placement: .topBarLeading) {
-                SyncStatusView()
-            }
-            #endif
         }
         .sheet(isPresented: $showAddTransaction) {
             NavigationStack {
@@ -108,8 +90,8 @@ struct SidebarNavigation: View {
         }
         .handlesAppCommands(
             appState: appState,
-            showAddTransaction: $showAddTransaction,
-            onOpenSettings: { selectedTab = .settings }
+            showAddTransaction: $showAddTransaction
         )
     }
 }
+#endif

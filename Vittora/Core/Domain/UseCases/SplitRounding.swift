@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Shared money/percentage tolerances and allocation helpers for split expenses (A12).
 enum SplitRounding {

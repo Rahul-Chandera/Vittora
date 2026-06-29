@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Loads a category by ID and presents its edit form.
 struct CategoryDetailView: View {

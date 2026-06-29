@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Applies notification preference changes from Settings (UX-4 / C6).
 struct ApplyNotificationPreferencesUseCase: Sendable {

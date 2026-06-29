@@ -1,6 +1,7 @@
 import Foundation
 import Vision
 import CoreGraphics
+import VittoraCore
 
 actor OCRService: OCRServiceProtocol {
 

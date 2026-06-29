@@ -1,5 +1,5 @@
 import Foundation
-@testable import Vittora
+import VittoraCore
 
 @MainActor
 final class MockAppLockService: AppLockServiceProtocol, @unchecked Sendable {

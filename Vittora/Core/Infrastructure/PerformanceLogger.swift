@@ -1,5 +1,6 @@
 import os.signpost
 import Foundation
+import VittoraCore
 
 // MARK: - Performance Logger
 

@@ -1,5 +1,6 @@
 import Contacts
 import Foundation
+import VittoraCore
 
 enum ContactsAccessStatus: Sendable, Equatable {
     case notDetermined

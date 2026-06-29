@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Spending milestones that trigger budget alert notifications (FUNCTIONAL-2 / C3).
 enum BudgetThresholdLevel: Int, CaseIterable, Sendable, Comparable {

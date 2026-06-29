@@ -1,9 +1,11 @@
 import Foundation
+import VittoraCore
 
 /// Global app commands routed through `AppState` instead of `NotificationCenter`.
 enum AppCommand: Equatable, Sendable {
     case presentNewTransaction
     case openSettings
+    case selectTab(AppState.AppTab)
 }
 
 struct AppCommandRequest: Equatable, Sendable {

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct QuickAction: Identifiable {
     let id = UUID()

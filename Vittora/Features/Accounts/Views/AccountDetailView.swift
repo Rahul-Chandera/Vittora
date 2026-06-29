@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AccountDetailView: View {
     let accountID: UUID

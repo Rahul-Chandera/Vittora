@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct MonthComparison: Sendable {
     let currentMonthSpending: Decimal

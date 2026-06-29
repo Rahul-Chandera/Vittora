@@ -1,4 +1,5 @@
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("String Validation Tests")

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct UpdateAccountUseCase: Sendable {
     let accountRepository: any AccountRepository

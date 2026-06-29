@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Read-only view of encrypted security audit entries (SEC-18).
 struct SecurityAuditLogView: View {

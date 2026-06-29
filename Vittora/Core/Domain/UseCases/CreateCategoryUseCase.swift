@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct CreateCategoryUseCase: Sendable {
     private let repository: any CategoryRepository

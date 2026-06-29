@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// User-initiated reminder copy for debts others owe you (C5 / M1.4.3).
 /// Never sent automatically — only surfaced through ShareLink / share UI.

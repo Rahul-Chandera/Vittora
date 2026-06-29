@@ -1,5 +1,6 @@
 import SwiftUI
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("Color Hex Conversion Tests")

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct CreatePayeeUseCase: Sendable {
     private let repository: any PayeeRepository

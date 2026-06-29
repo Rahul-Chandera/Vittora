@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Compact tax overview card — shows gross income, deductions, taxable income, final tax and effective rate.
 struct TaxSummaryCard: View {

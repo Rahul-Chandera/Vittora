@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct RecurringDetailView: View {
     @Environment(\.dependencies) var dependencies

@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import VittoraCore
 
 struct IncomeExpenseBarChart: View {
     let data: [MonthlyData]

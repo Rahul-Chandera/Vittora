@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 private enum DependencyContainerEnvironment {
     static let previewContainer: DependencyContainer = DependencyContainer.preview()

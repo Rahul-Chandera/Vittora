@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// A compact stat card displaying a label, value, and optional trend indicator.
 /// Ideal for dashboard grids showing key metrics.
