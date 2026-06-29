@@ -83,6 +83,8 @@ final class TransactionFlowUITests: XCTestCase {
             "Searching should hide transactions whose notes do not match."
         )
 
+        dismissSearchKeyboardIfNeeded()
+
         let filterButton = app.buttons["transaction-filter-button"]
         XCTAssertTrue(filterButton.waitForExistence(timeout: 5))
         filterButton.tap()
@@ -126,5 +128,18 @@ final class TransactionFlowUITests: XCTestCase {
         }
 
         return false
+    }
+
+    @MainActor
+    private func dismissSearchKeyboardIfNeeded() {
+        if app.keyboards.count > 0 {
+            if app.keyboards.buttons["Search"].exists {
+                app.keyboards.buttons["Search"].tap()
+            } else if app.keyboards.buttons["Return"].exists {
+                app.keyboards.buttons["Return"].tap()
+            } else {
+                app.tap()
+            }
+        }
     }
 }
