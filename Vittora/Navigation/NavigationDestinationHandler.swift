@@ -30,6 +30,8 @@ struct NavigationDestinationHandler: ViewModifier {
                     BudgetFormView(isPresented: .constant(false))
                 case .payeeDetail(let id):
                     PayeeDetailView(payeeID: id)
+                case .recurringDetail(let id):
+                    RecurringDetailView(ruleID: id)
                 case .reportDetail(let type):
                     reportView(for: type)
                 case .settingsDetail(let section):

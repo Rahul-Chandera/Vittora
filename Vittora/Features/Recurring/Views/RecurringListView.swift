@@ -7,7 +7,6 @@ struct RecurringListView: View {
     @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: RecurringListViewModel?
     @State private var showAddSheet = false
-    @State private var selectedRuleID: UUID? = nil
 
     var body: some View {
         ZStack {
@@ -98,7 +97,7 @@ struct RecurringListView: View {
                             ForEach(viewModel.grouped, id: \.label) { group in
                                 Section(header: Text(group.label).font(VTypography.calloutBold)) {
                                     ForEach(group.rules, id: \.id) { rule in
-                                        NavigationLink(destination: RecurringDetailView(ruleID: rule.id)) {
+                                        NavigationLink(value: NavigationDestination.recurringDetail(id: rule.id)) {
                                             RecurringRowView(rule: rule)
                                         }
                                         .swipeActions(edge: .leading) {
@@ -181,5 +180,6 @@ struct RecurringListView: View {
 #Preview {
     NavigationStack {
         RecurringListView()
+            .withNavigationDestinations()
     }
 }

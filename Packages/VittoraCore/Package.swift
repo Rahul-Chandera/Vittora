@@ -21,7 +21,6 @@ let package = Package(
             name: "VittoraCore",
             swiftSettings: [
                 .swiftLanguageMode(.v6),
-                .enableUpcomingFeature("StrictConcurrency"),
             ]
         ),
     ]

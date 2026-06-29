@@ -9,44 +9,42 @@ struct SplitGroupListView: View {
     @State private var selectedGroupID: UUID?
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                if let vm {
-                    if vm.isLoading && vm.summaries.isEmpty {
-                        ProgressView().tint(VColors.primary)
-                    } else if let error = vm.error {
-                        ContentUnavailableView {
-                            Label(String(localized: "Unable to Load"), systemImage: "exclamationmark.triangle")
-                        } description: {
-                            Text(error)
-                        } actions: {
-                            Button(String(localized: "Try Again")) {
-                                vm.error = nil
-                                Task { await vm.load() }
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(VColors.primary)
+        ZStack {
+            if let vm {
+                if vm.isLoading && vm.summaries.isEmpty {
+                    ProgressView().tint(VColors.primary)
+                } else if let error = vm.error {
+                    ContentUnavailableView {
+                        Label(String(localized: "Unable to Load"), systemImage: "exclamationmark.triangle")
+                    } description: {
+                        Text(error)
+                    } actions: {
+                        Button(String(localized: "Try Again")) {
+                            vm.error = nil
+                            Task { await vm.load() }
                         }
-                    } else {
-                        listContent(vm)
+                        .buttonStyle(.borderedProminent)
+                        .tint(VColors.primary)
                     }
+                } else {
+                    listContent(vm)
                 }
             }
-            .background(VColors.background)
-            .navigationTitle(String(localized: "Split Expenses"))
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showAddGroup = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
+        }
+        .background(VColors.background)
+        .navigationTitle(String(localized: "Split Expenses"))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showAddGroup = true
+                } label: {
+                    Image(systemName: "plus")
                 }
             }
-            .navigationDestination(item: $selectedGroupID) { groupID in
-                if let summary = vm?.summaries.first(where: { $0.id == groupID }) {
-                    SplitGroupDetailView(group: summary.group)
-                }
+        }
+        .navigationDestination(item: $selectedGroupID) { groupID in
+            if let summary = vm?.summaries.first(where: { $0.id == groupID }) {
+                SplitGroupDetailView(group: summary.group)
             }
         }
         .task {
@@ -163,5 +161,7 @@ private struct GroupRowView: View {
 }
 
 #Preview {
-    SplitGroupListView()
+    NavigationStack {
+        SplitGroupListView()
+    }
 }

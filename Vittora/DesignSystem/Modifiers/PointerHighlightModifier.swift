@@ -13,16 +13,11 @@ extension View {
             }
         }
         #else
-        if #available(iOS 17.0, *) {
-            self.hoverEffect(.highlight)
-        } else {
-            self
-        }
+        self.hoverEffect(.highlight)
         #endif
     }
 }
 
 #if os(macOS)
 import AppKit
-import VittoraCore
 #endif
