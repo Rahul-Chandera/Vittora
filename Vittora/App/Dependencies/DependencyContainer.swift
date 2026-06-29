@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import OSLog
 
 @Observable
 @MainActor
@@ -208,6 +209,29 @@ final class DependencyContainer {
             securityAuditLogService: auditLogService,
             dataSeeder: dataSeeder
         )
+    }
+
+    /// Wiring used when the persistent store fails. The scene shows `StartupFailureView`
+    /// without attaching a `ModelContainer`, so this ephemeral graph is not user-facing data.
+    static func startupFailure() -> DependencyContainer {
+        let containerCreators: [() throws -> ModelContainer] = [
+            { try ModelContainerConfig.makeEphemeralWiringContainer() },
+            { try ModelContainerConfig.makeContainer(inMemory: true) },
+            { try ModelContainerConfig.makePreviewContainer() },
+        ]
+        for create in containerCreators {
+            if let container = try? create() {
+                return createDefault(modelContainer: container)
+            }
+        }
+        #if DEBUG
+        fatalError("DependencyContainer.startupFailure failed")
+        #else
+        Logger(subsystem: "com.vittora.app", category: "startup").fault(
+            "All startupFailure container attempts failed; app cannot wire dependencies."
+        )
+        fatalError("DependencyContainer.startupFailure failed")
+        #endif
     }
 
     /// Preview and SwiftUI environment fallback wiring.

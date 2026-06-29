@@ -51,7 +51,7 @@ struct VittoraApp: App {
         if let modelContainer {
             dependencyContainer = DependencyContainer.createDefault(modelContainer: modelContainer)
         } else {
-            dependencyContainer = DependencyContainer.preview()
+            dependencyContainer = DependencyContainer.startupFailure()
         }
         let syncStatusService = SyncStatusService(isMonitoringEnabled: !isRunningAutomatedTests)
         let conflictHandler = SyncConflictHandler(
