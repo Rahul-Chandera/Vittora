@@ -11,9 +11,9 @@ protocol ConversionEventTracking: Sendable {
 
 final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchecked Sendable {
     private nonisolated(unsafe) let defaults: UserDefaults
-    private nonisolated(unsafe) let calendar: Calendar
-    private nonisolated(unsafe) let nowProvider: @Sendable () -> Date
-    private nonisolated(unsafe) let lock = NSLock()
+    private nonisolated let calendar: Calendar
+    private nonisolated let nowProvider: @Sendable () -> Date
+    private nonisolated let lock = NSLock()
 
     private enum Keys {
         nonisolated static let prefix = "vittora.conversion."

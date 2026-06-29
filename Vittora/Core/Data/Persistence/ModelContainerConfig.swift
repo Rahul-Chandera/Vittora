@@ -37,7 +37,7 @@ enum ModelContainerConfig {
 
     // MARK: - Store file hardening
 
-    nonisolated(unsafe) private static let logger = Logger(subsystem: "com.vittora.app", category: "Persistence")
+    nonisolated private static let logger = Logger(subsystem: "com.vittora.app", category: "Persistence")
 
     /// Applies .completeUnlessOpen file protection and excludes the store from iCloud
     /// backups (data is already in iCloud via CloudKit sync).

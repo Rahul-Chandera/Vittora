@@ -2,8 +2,8 @@ import Foundation
 import OSLog
 
 struct ReceiptParserService: Sendable {
-    private nonisolated(unsafe) static let logger = Logger(subsystem: "com.vittora.app", category: "receipt_parser")
-    private nonisolated(unsafe) static let amountRegexes = compileRegexes(
+    private nonisolated static let logger = Logger(subsystem: "com.vittora.app", category: "receipt_parser")
+    private nonisolated static let amountRegexes = compileRegexes(
         [
             #"\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)"#,
             #"(?:Rs\.?|INR)\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)"#,
@@ -11,7 +11,7 @@ struct ReceiptParserService: Sendable {
         ],
         options: .caseInsensitive
     )
-    private nonisolated(unsafe) static let dateRegexes = compileDateRegexes(
+    private nonisolated static let dateRegexes = compileDateRegexes(
         [
             (#"\d{2}/\d{2}/\d{4}"#, "MM/dd/yyyy"),
             (#"\d{2}-\d{2}-\d{4}"#, "dd-MM-yyyy"),
@@ -20,7 +20,7 @@ struct ReceiptParserService: Sendable {
         ],
         options: .caseInsensitive
     )
-    private nonisolated(unsafe) static let lineItemRegex = compileRegex(
+    private nonisolated static let lineItemRegex = compileRegex(
         #"^(.+?)\s+\$?\s*(\d+\.\d{2})\s*$"#
     )
 

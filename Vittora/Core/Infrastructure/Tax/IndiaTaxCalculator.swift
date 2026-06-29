@@ -70,7 +70,7 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
             supplementary.append(TaxSupplementaryLine(title: String(localized: "Equity STCG (simplified)"), amount: core.stcgTax))
         }
 
-        var assumptions: [String] = [
+        let assumptions: [String] = [
             String(localized: "Ordinary income is slab-taxed; equity LTCG/STCG use simplified rates and exemptions.")
         ]
         var warnings: [String] = []

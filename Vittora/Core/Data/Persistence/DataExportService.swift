@@ -119,7 +119,7 @@ final class DataExportService: DataExportServiceProtocol, Sendable {
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [.withFullDate]
 
-        var csv = "\u{FEFF}Date,Amount,Type,Category,Account,Payee,Payment Method,Notes,Tags\n"
+        let csv = "\u{FEFF}Date,Amount,Type,Category,Account,Payee,Payment Method,Notes,Tags\n"
         try appendCSV(to: url, content: csv)
 
         var offset = 0

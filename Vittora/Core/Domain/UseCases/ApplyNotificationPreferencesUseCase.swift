@@ -4,8 +4,8 @@ import Foundation
 struct ApplyNotificationPreferencesUseCase: Sendable {
     nonisolated static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled
 
-    nonisolated(unsafe) let notificationService: any NotificationServiceProtocol
-    nonisolated(unsafe) let refreshAllSchedules: @Sendable () async -> Void
+    nonisolated let notificationService: any NotificationServiceProtocol
+    nonisolated let refreshAllSchedules: @Sendable () async -> Void
     nonisolated(unsafe) let userDefaults: UserDefaults
 
     nonisolated init(

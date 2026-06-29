@@ -9,11 +9,11 @@ enum PerformanceLogger {
 
     // MARK: - Log Handles
 
-    nonisolated(unsafe) static let appLog     = OSLog(subsystem: "com.vittora.app", category: "App")
-    nonisolated(unsafe) static let dataLog    = OSLog(subsystem: "com.vittora.app", category: "Data")
-    nonisolated(unsafe) static let uiLog      = OSLog(subsystem: "com.vittora.app", category: "UI")
-    nonisolated(unsafe) static let syncLog    = OSLog(subsystem: "com.vittora.app", category: "Sync")
-    nonisolated(unsafe) static let exportLog  = OSLog(subsystem: "com.vittora.app", category: "Export")
+    nonisolated static let appLog     = OSLog(subsystem: "com.vittora.app", category: "App")
+    nonisolated static let dataLog    = OSLog(subsystem: "com.vittora.app", category: "Data")
+    nonisolated static let uiLog      = OSLog(subsystem: "com.vittora.app", category: "UI")
+    nonisolated static let syncLog    = OSLog(subsystem: "com.vittora.app", category: "Sync")
+    nonisolated static let exportLog  = OSLog(subsystem: "com.vittora.app", category: "Export")
 
     // MARK: - Convenience Wrappers
 
@@ -80,7 +80,7 @@ enum PerformanceLogger {
         nonisolated static func conflict() { event(syncLog, name: "SyncConflict") }
     }
 
-    nonisolated(unsafe) static let securityLog = OSLog(subsystem: "com.vittora.app", category: "Security")
+    nonisolated static let securityLog = OSLog(subsystem: "com.vittora.app", category: "Security")
 
     struct Security {
         nonisolated static func authFailed(consecutiveCount: Int) {

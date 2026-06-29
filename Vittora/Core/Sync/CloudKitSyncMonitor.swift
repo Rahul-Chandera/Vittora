@@ -13,7 +13,7 @@ final class CloudKitSyncMonitor {
     private let syncStatusService: SyncStatusService
     private let conflictHandler: SyncConflictHandler
     private let integrityValidator: (any SyncIntegrityValidating)?
-    private nonisolated(unsafe) let notificationCenter: NotificationCenter
+    private nonisolated let notificationCenter: NotificationCenter
     private nonisolated(unsafe) var eventObserver: (any NSObjectProtocol)?
 
     init(
