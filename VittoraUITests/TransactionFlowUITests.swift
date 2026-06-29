@@ -26,10 +26,15 @@ final class TransactionFlowUITests: XCTestCase {
             "Seeded transactions should appear before adding a new entry."
         )
 
-        let transactionRows = app
+        let listRoot = app.descendants(matching: .any)["transaction-list-root"]
+        XCTAssertTrue(
+            listRoot.waitForExistence(timeout: 5),
+            "Transaction list should be visible before counting rows."
+        )
+        let initialTransactionCount = listRoot
             .descendants(matching: .any)
             .matching(NSPredicate(format: "identifier BEGINSWITH %@", "transaction-row-"))
-        let initialTransactionCount = transactionRows.count
+            .count
 
         let addButton = app.buttons["transaction-add-button"].exists
             ? app.buttons["transaction-add-button"]
@@ -64,9 +69,8 @@ final class TransactionFlowUITests: XCTestCase {
             newRow.waitForExistence(timeout: 20),
             "The saved transaction row should appear in the list."
         )
-        XCTAssertEqual(
-            transactionRowCount(),
-            initialTransactionCount + 1,
+        XCTAssertTrue(
+            waitForTransactionRowCount(initialTransactionCount + 1, timeout: 15),
             "The transaction list should show one additional row after saving a new entry."
         )
     }
@@ -165,9 +169,25 @@ final class TransactionFlowUITests: XCTestCase {
 
     @MainActor
     private func transactionRowCount() -> Int {
-        app.descendants(matching: .any)
+        let listRoot = app.descendants(matching: .any)["transaction-list-root"]
+        guard listRoot.exists else { return 0 }
+        return listRoot.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier BEGINSWITH %@", "transaction-row-"))
             .count
+    }
+
+    @MainActor
+    private func waitForTransactionRowCount(_ expectedCount: Int, timeout: TimeInterval) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while Date() < deadline {
+            if transactionRowCount() == expectedCount {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+
+        return transactionRowCount() == expectedCount
     }
 
     @MainActor
