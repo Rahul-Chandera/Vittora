@@ -35,11 +35,6 @@ extension Decimal {
         return self == 0
     }
 
-    /// True when the value is representable as a finite double (used for sync integrity checks).
-    nonisolated var isFiniteDecimal: Bool {
-        Double(truncating: NSDecimalNumber(decimal: self)).isFinite
-    }
-
     /// Format as percentage with specified decimal places.
     ///
     /// - Parameter decimalPlaces: Number of decimal places (default: 2)

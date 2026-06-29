@@ -1,7 +1,6 @@
 import Foundation
 import Testing
 import VittoraCore
-@testable import Vittora
 
 @Suite("BiometricService Tests")
 @MainActor

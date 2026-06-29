@@ -1,10 +1,9 @@
 import Foundation
 import CoreData
 import CloudKit
-import VittoraCore
 
 @MainActor
-final class CloudKitSyncMonitor {
+public final class CloudKitSyncMonitor {
     private struct EventSnapshot: Sendable {
         let endDate: Date?
         let type: NSPersistentCloudKitContainer.EventType
@@ -17,7 +16,7 @@ final class CloudKitSyncMonitor {
     private nonisolated let notificationCenter: NotificationCenter
     private nonisolated(unsafe) var eventObserver: (any NSObjectProtocol)?
 
-    init(
+    public init(
         syncStatusService: SyncStatusService,
         conflictHandler: SyncConflictHandler,
         integrityValidator: (any SyncIntegrityValidating)? = nil,
@@ -100,7 +99,7 @@ final class CloudKitSyncMonitor {
                 description: conflictDescription(for: event.type, error: error),
                 resolutionOverride: .cloudKitAutoResolved
             )
-            PerformanceLogger.Sync.conflict()
+            VittoraCoreLog.sync.info("CloudKit sync conflict auto-resolved")
             syncStatusService.markError(String(localized: "A sync conflict was resolved automatically. Review iCloud Sync for details."))
             return
         }

@@ -1,9 +1,8 @@
 import Foundation
 import Security
-import VittoraCore
 
 /// Context for mapping platform security failures to user-safe messages (SECURITY-12 / B7).
-enum SecurityErrorContext: Sendable {
+public enum SecurityErrorContext: Sendable {
     case keychainSave
     case keychainLoad
     case keychainDelete
@@ -18,8 +17,8 @@ enum SecurityErrorContext: Sendable {
     case encrypt
 }
 
-enum SecurityErrorMapper {
-    nonisolated static func userMessage(for context: SecurityErrorContext) -> String {
+public enum SecurityErrorMapper {
+    public nonisolated static func userMessage(for context: SecurityErrorContext) -> String {
         switch context {
         case .keychainSave, .keychainLoad, .keychainDelete, .keychainAccessControl:
             String(localized: "Unable to access secure storage. Please try again.")
@@ -32,7 +31,7 @@ enum SecurityErrorMapper {
         }
     }
 
-    nonisolated static func encryptionFailed(
+    public nonisolated static func encryptionFailed(
         _ context: SecurityErrorContext,
         osStatus: OSStatus? = nil,
         cfError: CFError? = nil,
@@ -51,27 +50,27 @@ enum SecurityErrorMapper {
         return .encryptionFailed(userMessage(for: context))
     }
 
-    nonisolated static func logOSStatus(
+    public nonisolated static func logOSStatus(
         _ status: OSStatus,
         context: SecurityErrorContext,
         key: String? = nil
     ) {
         var message = "context=\(context) status=\(status)"
         if let key { message += " key=\(key)" }
-        PerformanceLogger.Security.platformFailure(message)
+        VittoraCoreLog.security.error("\(message, privacy: .public)")
     }
 
-    nonisolated static func logCFError(_ error: CFError?, context: SecurityErrorContext) {
+    public nonisolated static func logCFError(_ error: CFError?, context: SecurityErrorContext) {
         let detail: String
         if let error {
             detail = (CFErrorCopyDescription(error) as String?) ?? String(describing: error)
         } else {
             detail = "nil"
         }
-        PerformanceLogger.Security.platformFailure("context=\(context) cfError=\(detail)")
+        VittoraCoreLog.security.error("context=\(String(describing: context), privacy: .public) cfError=\(detail, privacy: .public)")
     }
 
-    nonisolated static func logUnderlying(_ error: Error, context: SecurityErrorContext) {
-        PerformanceLogger.Security.platformFailure("context=\(context) error=\(error.localizedDescription)")
+    public nonisolated static func logUnderlying(_ error: Error, context: SecurityErrorContext) {
+        VittoraCoreLog.security.error("context=\(String(describing: context), privacy: .public) error=\(error.localizedDescription, privacy: .public)")
     }
 }

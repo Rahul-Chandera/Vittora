@@ -1,16 +1,16 @@
 import Foundation
+import Observation
 import Network
 import CloudKit
-import VittoraCore
 
-enum SyncState: Equatable, Sendable {
+public enum SyncState: Equatable, Sendable {
     case synced
     case syncing
     case pending
     case offline
     case error(String)
 
-    var displayText: String {
+    public var displayText: String {
         switch self {
         case .synced:        return String(localized: "Synced")
         case .syncing:       return String(localized: "Syncing…")
@@ -20,7 +20,7 @@ enum SyncState: Equatable, Sendable {
         }
     }
 
-    var systemImage: String {
+    public var systemImage: String {
         switch self {
         case .synced:  return "checkmark.icloud.fill"
         case .syncing: return "arrow.triangle.2.circlepath.icloud.fill"
@@ -30,7 +30,7 @@ enum SyncState: Equatable, Sendable {
         }
     }
 
-    var isError: Bool {
+    public var isError: Bool {
         if case .error = self { return true }
         return false
     }
@@ -43,17 +43,17 @@ enum SyncState: Equatable, Sendable {
 ///   modification timestamp; ambiguous merge events are surfaced in the sync log.
 @Observable
 @MainActor
-final class SyncStatusService: Sendable {
-    private(set) var syncState: SyncState = .synced
-    private(set) var lastSyncDate: Date?
-    private(set) var iCloudAccountAvailable: Bool = false
+public final class SyncStatusService: Sendable {
+    public private(set) var syncState: SyncState = .synced
+    public private(set) var lastSyncDate: Date?
+    public private(set) var iCloudAccountAvailable: Bool = false
 
     private let userDefaults: UserDefaults
     private let pathMonitor: NWPathMonitor?
     private let monitorQueue = DispatchQueue(label: "vittora.network.monitor", qos: .utility)
     private var isNetworkAvailable: Bool = true
 
-    init(isMonitoringEnabled: Bool = true, userDefaults: UserDefaults? = nil) {
+    public init(isMonitoringEnabled: Bool = true, userDefaults: UserDefaults? = nil) {
         AppUserDefaults.migrateLastSyncDateIfNeeded()
         let store = userDefaults ?? AppUserDefaults.sync
         self.userDefaults = store
@@ -92,7 +92,7 @@ final class SyncStatusService: Sendable {
 
     // MARK: - iCloud status
 
-    func checkiCloudStatus() async {
+    public func checkiCloudStatus() async {
         // CKContainer crashes in test environments — skip CloudKit entirely
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else {
             return
@@ -140,31 +140,31 @@ final class SyncStatusService: Sendable {
 
     // MARK: - Manual sync signals
 
-    func markSyncing() {
+    public func markSyncing() {
         guard isNetworkAvailable && iCloudAccountAvailable else { return }
         syncState = .syncing
     }
 
-    func markSynced() {
+    public func markSynced() {
         let now = Date.now
         lastSyncDate = now
         userDefaults.set(now, forKey: AppUserDefaults.SyncKey.lastSyncDate)
         syncState = .synced
     }
 
-    func markPending() {
+    public func markPending() {
         if isNetworkAvailable && iCloudAccountAvailable {
             syncState = .pending
         }
     }
 
-    func markError(_ message: String) {
+    public func markError(_ message: String) {
         syncState = .error(message)
     }
 
     // MARK: - Formatted last sync
 
-    var lastSyncFormatted: String {
+    public var lastSyncFormatted: String {
         guard let date = lastSyncDate else {
             return String(localized: "Never")
         }

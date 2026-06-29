@@ -1,28 +1,17 @@
 import Foundation
 import SwiftData
 import os
-import VittoraCore
-
-struct IntegrityViolation: Sendable {
-    let entityType: String
-    let entityID: UUID?
-    let description: String
-}
-
-protocol SyncIntegrityValidating: Sendable {
-    func validateAmountBearingEntities() async -> [IntegrityViolation]
-}
 
 /// Scans amount-bearing SwiftData models for invariant violations after CloudKit imports.
 /// Violations are returned as advisory notices; the system has already applied its own
 /// last-writer-wins merge before this check runs.
 @ModelActor
-actor SyncIntegrityValidator: SyncIntegrityValidating {
+public actor SyncIntegrityValidator: SyncIntegrityValidating {
 
     nonisolated private static let logger = Logger(subsystem: "com.vittora.app", category: "SyncIntegrity")
     nonisolated private static let maxRecordsPerEntityValidation = 500
 
-    func validateAmountBearingEntities() async -> [IntegrityViolation] {
+    public func validateAmountBearingEntities() async -> [IntegrityViolation] {
         var violations: [IntegrityViolation] = []
         do { violations += try checkTransactions() } catch {
             Self.logger.error("SyncIntegrityValidator: transaction fetch failed: \(error.localizedDescription, privacy: .public)")

@@ -1,6 +1,5 @@
 import Foundation
 import VittoraCore
-@testable import Vittora
 
 @MainActor
 final class MockBiometricService: BiometricServiceProtocol, Sendable {

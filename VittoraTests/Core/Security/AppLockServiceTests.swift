@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 import VittoraCore
-@testable import Vittora
+@testable import VittoraCore
 
 @Suite("AppLockService Tests")
 @MainActor

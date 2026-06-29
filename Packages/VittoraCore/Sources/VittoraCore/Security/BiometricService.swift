@@ -1,23 +1,13 @@
 import Foundation
 import LocalAuthentication
-import VittoraCore
-
-enum BiometricType: Sendable {
-    case faceID, touchID, opticID, none
-}
-
-protocol BiometricServiceProtocol: Sendable {
-    func canUseBiometrics() -> Bool
-    func authenticate(reason: String, allowPasscodeFallback: Bool) async throws -> Bool
-    func authenticateWithPasscode(reason: String) async throws -> Bool
-    var biometricType: BiometricType { get }
-}
 
 @MainActor
-final class BiometricService: BiometricServiceProtocol, Sendable {
+public final class BiometricService: BiometricServiceProtocol, Sendable {
     private let capabilityContext = LAContext()
 
-    var biometricType: BiometricType {
+    public init() {}
+
+    public var biometricType: BiometricType {
         var error: NSError?
         guard capabilityContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
             return .none
@@ -37,12 +27,12 @@ final class BiometricService: BiometricServiceProtocol, Sendable {
         }
     }
 
-    func canUseBiometrics() -> Bool {
+    public func canUseBiometrics() -> Bool {
         var error: NSError?
         return capabilityContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
     }
 
-    func authenticate(reason: String, allowPasscodeFallback: Bool) async throws -> Bool {
+    public func authenticate(reason: String, allowPasscodeFallback: Bool) async throws -> Bool {
         do {
             return try await evaluate(
                 policy: .deviceOwnerAuthenticationWithBiometrics,
@@ -62,7 +52,7 @@ final class BiometricService: BiometricServiceProtocol, Sendable {
         }
     }
 
-    func authenticateWithPasscode(reason: String) async throws -> Bool {
+    public func authenticateWithPasscode(reason: String) async throws -> Bool {
         do {
             return try await evaluate(policy: .deviceOwnerAuthentication, reason: reason)
         } catch let error as LAError {

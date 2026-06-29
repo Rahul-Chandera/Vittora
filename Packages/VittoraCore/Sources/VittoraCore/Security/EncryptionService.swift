@@ -1,7 +1,6 @@
 import Foundation
 import CryptoKit
 import Security
-import VittoraCore
 
 /// AES-256-GCM encryption service.
 ///
@@ -9,7 +8,7 @@ import VittoraCore
 /// the Secure Enclave, so the raw AES bytes never leave hardware. On the
 /// Simulator (no SE) the key falls back to a biometric-bound Keychain item.
 @MainActor
-final class EncryptionService: EncryptionServiceProtocol, Sendable {
+public final class EncryptionService: EncryptionServiceProtocol, Sendable {
     private let keychainService: any KeychainServiceProtocol
 
     /// In-memory cache after first successful key resolution.
@@ -32,7 +31,7 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
     private let useLegacyKeyPathForTesting: Bool
     #endif
 
-    init(keychainService: any KeychainServiceProtocol) {
+    public init(keychainService: any KeychainServiceProtocol) {
         self.keychainService = keychainService
         #if DEBUG
         self.useLegacyKeyPathForTesting = false
@@ -40,7 +39,7 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
     }
 
     #if DEBUG
-    init(
+    public init(
         keychainService: any KeychainServiceProtocol,
         useLegacyKeyPathForTesting: Bool
     ) {
@@ -51,7 +50,7 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
 
     // MARK: - Public interface
 
-    func encrypt(_ data: Data) async throws -> Data {
+    public func encrypt(_ data: Data) async throws -> Data {
         let key = try await getOrCreateKey()
         let sealedBox = try AES.GCM.seal(data, using: key)
         guard let combined = sealedBox.combined else {
@@ -60,7 +59,7 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
         return combined
     }
 
-    func decrypt(_ encryptedData: Data) async throws -> Data {
+    public func decrypt(_ encryptedData: Data) async throws -> Data {
         let key = try await getOrCreateKey()
         do {
             let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
@@ -73,7 +72,7 @@ final class EncryptionService: EncryptionServiceProtocol, Sendable {
     /// Creates a new AES key (replacing any existing one) and persists it.
     /// On device the key is wrapped by a Secure Enclave EC key; on the
     /// Simulator it is stored as a biometric-bound Keychain item.
-    func generateKey() async throws {
+    public func generateKey() async throws {
         if let inFlight = keyCreationTask {
             _ = try? await inFlight.value
         }

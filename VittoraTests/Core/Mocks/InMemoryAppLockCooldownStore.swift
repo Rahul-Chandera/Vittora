@@ -1,6 +1,5 @@
 import Foundation
 import VittoraCore
-@testable import Vittora
 
 /// In-memory cooldown store for tests — simulates Keychain persistence across service re-inits.
 final class InMemoryAppLockCooldownStore: AppLockCooldownStoring, @unchecked Sendable {

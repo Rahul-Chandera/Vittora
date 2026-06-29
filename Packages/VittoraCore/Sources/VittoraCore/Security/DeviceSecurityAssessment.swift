@@ -1,10 +1,9 @@
 import Foundation
-import VittoraCore
 
 /// Informational assessment only (SEC-17). Do not block users — Apple discourages hard blocks.
-enum DeviceSecurityAssessment: Sendable {
+public enum DeviceSecurityAssessment: Sendable {
     /// Heuristic signals that may indicate a jailbroken or modified environment.
-    static var isLikelyCompromisedEnvironment: Bool {
+    public static var isLikelyCompromisedEnvironment: Bool {
         #if targetEnvironment(simulator)
         return false
         #else

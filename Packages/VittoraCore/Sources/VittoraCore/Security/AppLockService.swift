@@ -1,13 +1,12 @@
 import Foundation
-import VittoraCore
 
 /// User-configurable delay before re-authentication after the app was backgrounded.
-enum AppLockTimeout: String, CaseIterable, Sendable {
+public enum AppLockTimeout: String, CaseIterable, Sendable {
     case immediately
     case oneMinute
     case fiveMinutes
 
-    var timeInterval: TimeInterval {
+    public var timeInterval: TimeInterval {
         switch self {
         case .immediately: return 0
         case .oneMinute: return 60
@@ -15,7 +14,7 @@ enum AppLockTimeout: String, CaseIterable, Sendable {
         }
     }
 
-    var displayName: String {
+    public var displayName: String {
         switch self {
         case .immediately: return String(localized: "Immediately")
         case .oneMinute: return String(localized: "After 1 minute")
@@ -25,10 +24,10 @@ enum AppLockTimeout: String, CaseIterable, Sendable {
 }
 
 /// Pure policy helpers for time-based app lock (testable without biometrics).
-enum AppLockPolicy {
+public enum AppLockPolicy {
     /// Returns true when the app was backgrounded long enough to require re-authentication.
     /// Statutory ordering: compares elapsed time against `timeout` **before** any lock UI is shown on `.active`.
-    nonisolated static func shouldLock(backgroundedAt: Date, now: Date, timeout: TimeInterval) -> Bool {
+    public nonisolated static func shouldLock(backgroundedAt: Date, now: Date, timeout: TimeInterval) -> Bool {
         let elapsed = now.timeIntervalSince(backgroundedAt)
         guard elapsed >= 0 else { return false }
         return elapsed >= timeout
@@ -36,42 +35,31 @@ enum AppLockPolicy {
 }
 
 /// Unlock gate when the lock service is absent — fail-closed (SECURITY-5 / B2).
-enum AppLockUnlockGate {
-    nonisolated static var missingServiceMessage: String {
+public enum AppLockUnlockGate {
+    public nonisolated static var missingServiceMessage: String {
         String(localized: "App Lock is unavailable. Please restart the app and try again.")
     }
 
     /// Session flags after an unlock attempt with no `AppLockService` — never opens the app.
-    nonisolated static func sessionUpdateAfterMissingService() -> (isAuthenticated: Bool, isLocked: Bool) {
+    public nonisolated static func sessionUpdateAfterMissingService() -> (isAuthenticated: Bool, isLocked: Bool) {
         (false, true)
     }
 }
 
 /// UI policy for the optional passcode fallback button on the lock screen (B4).
-enum AppLockPasscodeFallbackPolicy {
-    nonisolated static func showsPasscodeButton(allowPasscodeFallback: Bool) -> Bool {
+public enum AppLockPasscodeFallbackPolicy {
+    public nonisolated static func showsPasscodeButton(allowPasscodeFallback: Bool) -> Bool {
         allowPasscodeFallback
     }
 }
 
-protocol AppLockServiceProtocol: Sendable {
-    var isLocked: Bool { get }
-    var lastBackgroundedAt: Date? { get }
-    /// Non-nil while the app is enforcing a post-failure cooldown.
-    var cooldownExpiresAt: Date? { get }
-    func recordBackgrounded(at date: Date)
-    func lock() async
-    func unlock(allowPasscodeFallback: Bool) async throws -> Bool
-    func unlockWithPasscode() async throws -> Bool
-}
-
 @MainActor
-final class AppLockService: AppLockServiceProtocol, Sendable {
+public final class AppLockService: AppLockServiceProtocol, Sendable {
     private let biometricService: any BiometricServiceProtocol
     private let auditLogger: (any SecurityAuditLogging)?
     private let cooldownStore: any AppLockCooldownStoring
     private var _isLocked = false
-    private(set) var lastBackgroundedAt: Date?
+    private(set) public var lastBackgroundedAt: Date?
 
     // MARK: - Rate limiting
 
@@ -81,13 +69,13 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
     private static let cooldownDurations: [TimeInterval] = [30, 60, 120, 300, 300]
 
     private var consecutiveFailures = 0
-    private(set) var cooldownExpiresAt: Date?
+    private(set) public var cooldownExpiresAt: Date?
 
     // MARK: - Protocol properties
 
-    var isLocked: Bool { _isLocked }
+    public var isLocked: Bool { _isLocked }
 
-    init(
+    public init(
         biometricService: any BiometricServiceProtocol,
         auditLogger: (any SecurityAuditLogging)? = nil,
         cooldownStore: (any AppLockCooldownStoring)? = nil
@@ -100,20 +88,20 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
         cooldownExpiresAt = restored.cooldownExpiresAt
     }
 
-    func recordBackgrounded(at date: Date) {
+    public func recordBackgrounded(at date: Date) {
         lastBackgroundedAt = date
     }
 
-    func lock() async {
+    public func lock() async {
         _isLocked = true
         await auditLogger?.record(SecurityAuditEvent(kind: .appLocked, detail: "session"))
     }
 
-    func unlock(allowPasscodeFallback: Bool) async throws -> Bool {
+    public func unlock(allowPasscodeFallback: Bool) async throws -> Bool {
         try await performUnlock(usingPasscodeFallback: false, allowPasscodeFallback: allowPasscodeFallback)
     }
 
-    func unlockWithPasscode() async throws -> Bool {
+    public func unlockWithPasscode() async throws -> Bool {
         try await performUnlock(usingPasscodeFallback: true, allowPasscodeFallback: true)
     }
 
@@ -155,7 +143,7 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
     private func guardCooldown() throws {
         guard let expires = cooldownExpiresAt, expires > .now else { return }
         let remaining = Int(expires.timeIntervalSince(.now).rounded(.up))
-        PerformanceLogger.Security.cooldownBlocked(remainingSeconds: remaining)
+        VittoraCoreLog.security.info("App lock cooldown active: \(remaining, privacy: .public)s remaining")
         throw VittoraError.biometricFailed(
             String(localized: "Too many failed attempts. Try again in \(remaining) seconds.")
         )
@@ -163,7 +151,8 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
 
     private func recordFailure() {
         consecutiveFailures += 1
-        PerformanceLogger.Security.authFailed(consecutiveCount: consecutiveFailures)
+        let failures = consecutiveFailures
+        VittoraCoreLog.security.info("App lock auth failed, consecutive: \(failures, privacy: .public)")
         let excess = consecutiveFailures - Self.cooldownThreshold
         guard excess > 0 else {
             persistCooldownState()
@@ -172,7 +161,7 @@ final class AppLockService: AppLockServiceProtocol, Sendable {
         let index = min(excess - 1, Self.cooldownDurations.count - 1)
         let duration = Self.cooldownDurations[index]
         cooldownExpiresAt = Date.now.addingTimeInterval(duration)
-        PerformanceLogger.Security.cooldownStarted(seconds: Int(duration))
+        VittoraCoreLog.security.info("App lock cooldown started: \(Int(duration), privacy: .public)s")
         persistCooldownState()
     }
 

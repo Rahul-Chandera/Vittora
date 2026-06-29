@@ -1,21 +1,27 @@
 import Foundation
-import VittoraCore
 
 public struct SecurityAuditLogEntry: Codable, Sendable, Identifiable {
     public let id: UUID
     public let recordedAt: Date
     public let kind: SecurityAuditEventKind
     public let detail: String
+
+    public init(id: UUID, recordedAt: Date, kind: SecurityAuditEventKind, detail: String) {
+        self.id = id
+        self.recordedAt = recordedAt
+        self.kind = kind
+        self.detail = detail
+    }
 }
 
 /// Append-only encrypted audit trail (SEC-18). Stored under Application Support with complete file protection.
 @MainActor
-final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
+public final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
     private let encryptionService: any EncryptionServiceProtocol
     private let fileURL: URL
     private static let maxEntriesToRead = 200
 
-    init(encryptionService: any EncryptionServiceProtocol) {
+    public init(encryptionService: any EncryptionServiceProtocol) {
         self.encryptionService = encryptionService
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let dir = base.appendingPathComponent("Security", isDirectory: true)
@@ -26,7 +32,7 @@ final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
                 attributes: [.protectionKey: FileProtectionType.complete]
             )
         } catch {
-            PerformanceLogger.Security.auditDirectorySetupFailed(error.localizedDescription)
+            VittoraCoreLog.security.error("Audit directory setup failed: \(error.localizedDescription, privacy: .public)")
         }
         self.fileURL = dir.appendingPathComponent("audit.log.enc")
         do {
@@ -35,11 +41,11 @@ final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
                 ofItemAtPath: dir.path
             )
         } catch {
-            PerformanceLogger.Security.auditFileProtectionUpdateFailed(error.localizedDescription)
+            VittoraCoreLog.security.error("Audit file protection update failed: \(error.localizedDescription, privacy: .public)")
         }
     }
 
-    func record(_ event: SecurityAuditEvent) async {
+    public func record(_ event: SecurityAuditEvent) async {
         let line = SecurityAuditLogEntry(
             id: UUID(),
             recordedAt: Date.now,
@@ -59,7 +65,7 @@ final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
                     do {
                         try handle.close()
                     } catch {
-                        PerformanceLogger.Security.auditFileHandleCloseFailed(error.localizedDescription)
+                        VittoraCoreLog.security.error("Audit file handle close failed: \(error.localizedDescription, privacy: .public)")
                     }
                 }
                 try handle.seekToEnd()
@@ -71,16 +77,16 @@ final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
                     ofItemAtPath: fileURL.path
                 )
             } catch {
-                PerformanceLogger.Security.auditFileProtectionUpdateFailed(error.localizedDescription)
+                VittoraCoreLog.security.error("Audit file protection update failed: \(error.localizedDescription, privacy: .public)")
             }
         } catch {
             // Avoid throwing from audit path; OSLog only.
-            PerformanceLogger.Security.auditWriteFailed(error.localizedDescription)
+            VittoraCoreLog.security.error("Audit write failed: \(error.localizedDescription, privacy: .public)")
         }
     }
 
     /// Decrypted recent entries, newest last.
-    func recentEntries(limit: Int = 50) async -> [SecurityAuditLogEntry] {
+    public func recentEntries(limit: Int = 50) async -> [SecurityAuditLogEntry] {
         let cap = min(max(limit, 1), Self.maxEntriesToRead)
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             return []
@@ -89,7 +95,7 @@ final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
         do {
             raw = try String(contentsOf: fileURL, encoding: .utf8)
         } catch {
-            PerformanceLogger.Security.auditReadFailed(error.localizedDescription)
+            VittoraCoreLog.security.error("Audit read failed: \(error.localizedDescription, privacy: .public)")
             return []
         }
         let lines = raw.split(separator: "\n", omittingEmptySubsequences: true).suffix(cap)
@@ -102,7 +108,7 @@ final class SecurityAuditLogService: SecurityAuditLogging, Sendable {
                     let entry = try JSONDecoder().decode(SecurityAuditLogEntry.self, from: decrypted)
                     result.append(entry)
                 } catch {
-                    PerformanceLogger.Security.auditDecodeFailed(error.localizedDescription)
+                    VittoraCoreLog.security.error("Audit decode failed: \(error.localizedDescription, privacy: .public)")
                 }
             } catch {
                 continue

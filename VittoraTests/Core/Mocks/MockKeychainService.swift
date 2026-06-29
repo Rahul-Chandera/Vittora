@@ -1,6 +1,5 @@
 import Foundation
 import VittoraCore
-@testable import Vittora
 
 @MainActor
 final class MockKeychainService: KeychainServiceProtocol, Sendable {

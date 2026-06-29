@@ -1,7 +1,6 @@
 import Testing
 import Foundation
 import VittoraCore
-@testable import Vittora
 
 @Suite("SyncStatusService Tests")
 @MainActor

@@ -1,12 +1,13 @@
 import Foundation
 import Security
-import VittoraCore
 
 @MainActor
-final class KeychainService: KeychainServiceProtocol, Sendable {
+public final class KeychainService: KeychainServiceProtocol, Sendable {
     private let serviceName = "com.vittora.keychain"
 
-    func save(_ data: Data, forKey key: String, access: KeychainItemAccess) async throws {
+    public init() {}
+
+    public func save(_ data: Data, forKey key: String, access: KeychainItemAccess) async throws {
         let baseQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: serviceName,
@@ -39,7 +40,7 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
         }
     }
 
-    func load(forKey key: String, access: KeychainItemAccess) async throws -> Data? {
+    public func load(forKey key: String, access: KeychainItemAccess) async throws -> Data? {
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: serviceName,
@@ -69,7 +70,7 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
         }
     }
 
-    func delete(forKey key: String) async throws {
+    public func delete(forKey key: String) async throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: serviceName,
@@ -82,7 +83,7 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
         }
     }
 
-    func exists(forKey key: String) async throws -> Bool {
+    public func exists(forKey key: String) async throws -> Bool {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: serviceName,
@@ -95,7 +96,7 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
 
     // MARK: - Synchronous helpers (for use in init/startup code that cannot be async)
 
-    nonisolated static func syncLoad(
+    public nonisolated static func syncLoad(
         forKey key: String,
         service: String = "com.vittora.keychain"
     ) -> Data? {
@@ -110,7 +111,7 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
         return result as? Data
     }
 
-    nonisolated static func syncSave(
+    public nonisolated static func syncSave(
         _ data: Data,
         forKey key: String,
         service: String = "com.vittora.keychain"
@@ -127,7 +128,7 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
         SecItemAdd(addQuery as CFDictionary, nil)
     }
 
-    nonisolated static func syncDelete(
+    public nonisolated static func syncDelete(
         forKey key: String,
         service: String = "com.vittora.keychain"
     ) {
@@ -139,11 +140,11 @@ final class KeychainService: KeychainServiceProtocol, Sendable {
         SecItemDelete(query as CFDictionary)
     }
 
-    nonisolated static func syncLoadBool(forKey key: String) -> Bool {
+    public nonisolated static func syncLoadBool(forKey key: String) -> Bool {
         syncLoad(forKey: key).map { $0.first == 1 } ?? false
     }
 
-    nonisolated static func syncLoadString(forKey key: String) -> String? {
+    public nonisolated static func syncLoadString(forKey key: String) -> String? {
         syncLoad(forKey: key).flatMap { String(data: $0, encoding: .utf8) }
     }
 }

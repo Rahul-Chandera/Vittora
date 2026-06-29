@@ -1,20 +1,17 @@
 import Foundation
-import VittoraCore
+import Observation
 
 /// Represents a detected sync conflict between a local and remote version of a record.
-struct SyncConflict: Identifiable, Sendable {
-    let id: UUID
-    let entityType: String
-    let entityID: UUID?
-    /// When this conflict was detected during a sync event.
-    let detectedAt: Date
-    /// Last-modified timestamp of the local entity at the time of conflict, if known.
-    let localModifiedAt: Date?
-    /// Last-modified timestamp of the remote entity at the time of conflict, if known.
-    let remoteModifiedAt: Date?
-    let description: String
-    let resolution: ConflictResolution
-    var requiresReview: Bool {
+public struct SyncConflict: Identifiable, Sendable {
+    public let id: UUID
+    public let entityType: String
+    public let entityID: UUID?
+    public let detectedAt: Date
+    public let localModifiedAt: Date?
+    public let remoteModifiedAt: Date?
+    public let description: String
+    public let resolution: ConflictResolution
+    public var requiresReview: Bool {
         switch resolution {
         case .ambiguous, .integrityViolation:
             true
@@ -23,7 +20,7 @@ struct SyncConflict: Identifiable, Sendable {
         }
     }
 
-    init(
+    public init(
         entityType: String,
         entityID: UUID? = nil,
         detectedAt: Date = .now,
@@ -44,7 +41,7 @@ struct SyncConflict: Identifiable, Sendable {
 }
 
 /// Resolution strategy used when a conflict is detected.
-enum ConflictResolution: Sendable {
+public enum ConflictResolution: Sendable {
     case keepLocal
     case keepRemote
     /// Timestamps are within clock-skew threshold or unknown; system applied its own LWW.
@@ -63,16 +60,14 @@ enum ConflictResolution: Sendable {
 /// error) the resolution is `.ambiguous`.
 @Observable
 @MainActor
-final class SyncConflictHandler: Sendable {
-    private(set) var recentConflicts: [SyncConflict] = []
+public final class SyncConflictHandler: Sendable {
+    public private(set) var recentConflicts: [SyncConflict] = []
     private let maxConflictLog = 20
     private let auditLogger: (any SecurityAuditLogging)?
 
-    /// Seconds within which two timestamps are considered potentially skewed rather than
-    /// clearly ordered. Protects against clock manipulation on either device.
-    static let clockSkewThreshold: TimeInterval = 60
+    public static let clockSkewThreshold: TimeInterval = 60
 
-    init(auditLogger: (any SecurityAuditLogging)? = nil) {
+    public init(auditLogger: (any SecurityAuditLogging)? = nil) {
         self.auditLogger = auditLogger
     }
 
@@ -80,7 +75,7 @@ final class SyncConflictHandler: Sendable {
 
     /// Returns an advisory resolution based on entity modification timestamps.
     /// Returns `.ambiguous` when timestamps are absent or within the clock-skew threshold.
-    func resolveByTimestamp(
+    public func resolveByTimestamp(
         localModifiedAt: Date?,
         remoteModifiedAt: Date?
     ) -> ConflictResolution {
@@ -96,7 +91,7 @@ final class SyncConflictHandler: Sendable {
 
     /// Logs a detected conflict with an advisory resolution.
     @discardableResult
-    func logConflict(
+    public func logConflict(
         entityType: String,
         entityID: UUID? = nil,
         detectedAt: Date = .now,
@@ -131,7 +126,7 @@ final class SyncConflictHandler: Sendable {
     }
 
     /// Logs a post-merge integrity issue (rejects silently invalid data for user review).
-    func logIntegrityViolation(
+    public func logIntegrityViolation(
         entityType: String,
         entityID: UUID?,
         description: String
@@ -163,11 +158,11 @@ final class SyncConflictHandler: Sendable {
         }
     }
 
-    func clearLog() {
+    public func clearLog() {
         recentConflicts.removeAll()
     }
 
-    var actionableConflicts: [SyncConflict] { recentConflicts.filter(\.requiresReview) }
-    var hasActionableConflicts: Bool { !actionableConflicts.isEmpty }
-    var hasUnresolvedConflicts: Bool { hasActionableConflicts }
+    public var actionableConflicts: [SyncConflict] { recentConflicts.filter(\.requiresReview) }
+    public var hasActionableConflicts: Bool { !actionableConflicts.isEmpty }
+    public var hasUnresolvedConflicts: Bool { hasActionableConflicts }
 }
