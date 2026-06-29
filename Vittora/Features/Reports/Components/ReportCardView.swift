@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct ReportCardView: View {
     let title: String

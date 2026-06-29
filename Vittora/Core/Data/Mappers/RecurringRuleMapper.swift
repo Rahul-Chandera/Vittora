@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 enum RecurringRuleMapper {
     nonisolated static func toEntity(_ model: SDRecurringRule) -> RecurringRuleEntity {

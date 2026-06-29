@@ -1,6 +1,6 @@
 import Foundation
 
-protocol DebtRepository: Sendable {
+public protocol DebtRepository: Sendable {
     func fetchAll() async throws -> [DebtEntry]
     func fetchOutstanding() async throws -> [DebtEntry]
     func fetchByID(_ id: UUID) async throws -> DebtEntry?

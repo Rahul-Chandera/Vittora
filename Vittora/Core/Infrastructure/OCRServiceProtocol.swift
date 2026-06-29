@@ -1,5 +1,6 @@
 import Foundation
 import CoreGraphics
+import VittoraCore
 
 struct ReceiptData: Sendable {
     let totalAmount: Decimal?

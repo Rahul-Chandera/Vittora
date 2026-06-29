@@ -1,15 +1,15 @@
 import Foundation
 
-struct DocumentEntity: Identifiable, Hashable, Equatable, Sendable {
-    nonisolated let id: UUID
-    nonisolated var fileName: String
-    nonisolated var mimeType: String
-    nonisolated var thumbnailData: Data?
-    nonisolated var transactionID: UUID?
-    nonisolated var createdAt: Date
-    nonisolated var updatedAt: Date
+public struct DocumentEntity: Identifiable, Hashable, Equatable, Sendable {
+    public nonisolated let id: UUID
+    public nonisolated var fileName: String
+    public nonisolated var mimeType: String
+    public nonisolated var thumbnailData: Data?
+    public nonisolated var transactionID: UUID?
+    public nonisolated var createdAt: Date
+    public nonisolated var updatedAt: Date
 
-    nonisolated init(
+    public nonisolated init(
         id: UUID = UUID(),
         fileName: String,
         mimeType: String = "image/jpeg",

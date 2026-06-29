@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import VittoraCore
 
 enum KeychainItemAccess: Sendable, Equatable {
     case standard

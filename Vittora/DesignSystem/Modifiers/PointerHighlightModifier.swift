@@ -24,4 +24,5 @@ extension View {
 
 #if os(macOS)
 import AppKit
+import VittoraCore
 #endif

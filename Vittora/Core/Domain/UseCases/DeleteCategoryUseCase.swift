@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct DeleteCategoryUseCase: Sendable {
     let categoryRepository: any CategoryRepository

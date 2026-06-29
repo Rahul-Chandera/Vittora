@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 enum VSpacing {
     // MARK: - Base Spacing Scale

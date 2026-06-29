@@ -1,9 +1,9 @@
 import Foundation
 
-enum TransactionType: String, Sendable, Hashable, CaseIterable, Codable {
+public enum TransactionType: String, Sendable, Hashable, CaseIterable, Codable {
     case expense, income, transfer, adjustment
 
-    var displayName: String {
+    public var displayName: String {
         switch self {
         case .expense: String(localized: "Expense")
         case .income: String(localized: "Income")
@@ -13,10 +13,10 @@ enum TransactionType: String, Sendable, Hashable, CaseIterable, Codable {
     }
 }
 
-enum PaymentMethod: String, Sendable, Hashable, CaseIterable, Codable {
+public enum PaymentMethod: String, Sendable, Hashable, CaseIterable, Codable {
     case cash, creditCard, debitCard, bankTransfer, upi, wallet, other
 
-    var displayName: String {
+    public var displayName: String {
         switch self {
         case .cash: String(localized: "Cash")
         case .creditCard: String(localized: "Credit Card")
@@ -34,36 +34,36 @@ enum PaymentMethod: String, Sendable, Hashable, CaseIterable, Codable {
 /// enter it. This makes a transfer leg's balance effect *derivable* from a single
 /// row (paired with `transferPairID`), unlike the legacy two-symmetric-positive-
 /// legs model. Optional: legacy legs have `nil` and are treated as not derivable.
-enum TransferDirection: String, Sendable, Hashable, CaseIterable, Codable {
+public enum TransferDirection: String, Sendable, Hashable, CaseIterable, Codable {
     case debit
     case credit
 }
 
-struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
-    nonisolated let id: UUID
-    nonisolated var amount: Decimal
-    nonisolated var date: Date
-    nonisolated var note: String?
-    nonisolated var type: TransactionType
-    nonisolated var paymentMethod: PaymentMethod
-    nonisolated var currencyCode: String
-    nonisolated var tags: [String]
-    nonisolated var categoryID: UUID?
-    nonisolated var accountID: UUID?
-    nonisolated var payeeID: UUID?
-    nonisolated var destinationAccountID: UUID?
-    nonisolated var recurringRuleID: UUID?
+public struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
+    public nonisolated let id: UUID
+    public nonisolated var amount: Decimal
+    public nonisolated var date: Date
+    public nonisolated var note: String?
+    public nonisolated var type: TransactionType
+    public nonisolated var paymentMethod: PaymentMethod
+    public nonisolated var currencyCode: String
+    public nonisolated var tags: [String]
+    public nonisolated var categoryID: UUID?
+    public nonisolated var accountID: UUID?
+    public nonisolated var payeeID: UUID?
+    public nonisolated var destinationAccountID: UUID?
+    public nonisolated var recurringRuleID: UUID?
     /// Shared identifier linking the two legs of a transfer so both can be
     /// reversed/edited together (DATAINTEGRITY-1). Nil for non-transfer rows.
-    nonisolated var transferPairID: UUID?
+    public nonisolated var transferPairID: UUID?
     /// For `.transfer` legs, whether this leg debits or credits its `accountID`
     /// (DATAINTEGRITY-1, A3). Nil for non-transfer rows and legacy transfer legs.
-    nonisolated var transferDirection: TransferDirection?
-    nonisolated var documentIDs: [UUID]
-    nonisolated var createdAt: Date
-    nonisolated var updatedAt: Date
+    public nonisolated var transferDirection: TransferDirection?
+    public nonisolated var documentIDs: [UUID]
+    public nonisolated var createdAt: Date
+    public nonisolated var updatedAt: Date
 
-    nonisolated init(
+    public nonisolated init(
         id: UUID = UUID(),
         amount: Decimal,
         date: Date = .now,
@@ -105,8 +105,8 @@ struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
 
     // MARK: - Equatable & Hashable (identity-based)
 
-    nonisolated static func == (lhs: TransactionEntity, rhs: TransactionEntity) -> Bool { lhs.id == rhs.id }
-    nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    public nonisolated static func == (lhs: TransactionEntity, rhs: TransactionEntity) -> Bool { lhs.id == rhs.id }
+    public nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 extension TransactionEntity {
@@ -121,7 +121,7 @@ extension TransactionEntity {
     ///   A legacy transfer leg with `transferDirection == nil` returns `0` and is
     ///   *not* balance-derivable — callers that need correctness over such legs
     ///   (e.g. reconciliation) must skip accounts that contain them.
-    nonisolated var signedBalanceEffect: Decimal {
+    public nonisolated var signedBalanceEffect: Decimal {
         switch type {
         case .expense:
             return -amount

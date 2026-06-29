@@ -1,6 +1,6 @@
 import Foundation
 
-protocol BudgetRepository: Sendable {
+public protocol BudgetRepository: Sendable {
     func fetchAll() async throws -> [BudgetEntity]
     func fetchByID(_ id: UUID) async throws -> BudgetEntity?
     func create(_ entity: BudgetEntity) async throws

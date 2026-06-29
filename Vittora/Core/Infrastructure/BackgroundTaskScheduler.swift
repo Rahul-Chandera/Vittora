@@ -4,6 +4,7 @@ import SwiftData
 
 #if os(iOS)
 import BackgroundTasks
+import VittoraCore
 #endif
 
 final class BackgroundTaskScheduler: Sendable {

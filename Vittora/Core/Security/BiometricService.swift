@@ -1,5 +1,6 @@
 import Foundation
 import LocalAuthentication
+import VittoraCore
 
 enum BiometricType: Sendable {
     case faceID, touchID, opticID, none

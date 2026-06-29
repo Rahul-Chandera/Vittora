@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct ReorderCategoriesUseCase: Sendable {
     private let repository: any CategoryRepository

@@ -2,6 +2,7 @@ import Foundation
 import os.signpost
 import OSLog
 import Security
+import VittoraCore
 
 enum ExportFormat: String, CaseIterable, Sendable {
     case csv = "CSV"

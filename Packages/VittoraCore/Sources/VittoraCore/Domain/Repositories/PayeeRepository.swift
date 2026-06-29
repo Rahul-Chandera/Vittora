@@ -1,6 +1,6 @@
 import Foundation
 
-protocol PayeeRepository: Sendable {
+public protocol PayeeRepository: Sendable {
     func fetchAll() async throws -> [PayeeEntity]
     func fetchByID(_ id: UUID) async throws -> PayeeEntity?
     func create(_ entity: PayeeEntity) async throws

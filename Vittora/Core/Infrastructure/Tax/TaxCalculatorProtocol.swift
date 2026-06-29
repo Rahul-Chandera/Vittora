@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Pluggable tax estimation engine. Each country/regime gets its own conforming type.
 protocol TaxCalculatorProtocol: Sendable {

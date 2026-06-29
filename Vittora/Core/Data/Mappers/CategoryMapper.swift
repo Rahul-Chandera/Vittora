@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 enum CategoryMapper {
     nonisolated static func toEntity(_ model: SDCategory) -> CategoryEntity {

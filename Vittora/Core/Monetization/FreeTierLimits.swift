@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Planned free-tier caps used for conversion instrumentation (F5).
 /// Not enforced until StoreKit gating ships (F3 fast-follow).

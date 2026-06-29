@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import VittoraCore
 
 struct DocumentListView: View {
     @Environment(\.dependencies) private var dependencies

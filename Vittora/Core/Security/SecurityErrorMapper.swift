@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import VittoraCore
 
 /// Context for mapping platform security failures to user-safe messages (SECURITY-12 / B7).
 enum SecurityErrorContext: Sendable {

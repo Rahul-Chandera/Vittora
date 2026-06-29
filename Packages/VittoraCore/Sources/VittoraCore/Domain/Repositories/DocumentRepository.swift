@@ -1,6 +1,6 @@
 import Foundation
 
-protocol DocumentRepository: Sendable {
+public protocol DocumentRepository: Sendable {
     func fetchAll() async throws -> [DocumentEntity]
     func fetchCount() async throws -> Int
     func fetchByID(_ id: UUID) async throws -> DocumentEntity?
@@ -10,7 +10,7 @@ protocol DocumentRepository: Sendable {
     func fetchForTransaction(_ transactionID: UUID) async throws -> [DocumentEntity]
 }
 
-protocol DocumentStorageServiceProtocol: Sendable {
+public protocol DocumentStorageServiceProtocol: Sendable {
     func saveDocument(_ data: Data, for entity: DocumentEntity) async throws
     func loadDocument(for entity: DocumentEntity) async throws -> Data
     func deleteDocument(for entity: DocumentEntity) async throws

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Destructive or security-downgrade actions that require device authentication (B3).
 enum SensitiveAction: Sendable {

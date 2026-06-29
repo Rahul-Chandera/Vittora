@@ -125,6 +125,7 @@
 			);
 			name = Vittora;
 			packageProductDependencies = (
+				D72FE9022F8B93AA00B6FF9D /* VittoraCore */,
 			);
 			productName = Vittora;
 			productReference = B72FE7E62F8B92F900B6FF9D /* Vittora.app */;
@@ -148,6 +149,7 @@
 			);
 			name = VittoraTests;
 			packageProductDependencies = (
+				D72FE9032F8B93AA00B6FF9D /* VittoraCore */,
 			);
 			productName = VittoraTests;
 			productReference = B72FE7F72F8B92FA00B6FF9D /* VittoraTests.xctest */;
@@ -208,6 +210,9 @@
 			);
 			mainGroup = B72FE7DD2F8B92F900B6FF9D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "VittoraCore" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B72FE7E72F8B92F900B6FF9D /* Products */;
 			projectDirPath = "";
@@ -281,6 +286,26 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "VittoraCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/VittoraCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D72FE9022F8B93AA00B6FF9D /* VittoraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VittoraCore;
+			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "VittoraCore" */;
+		};
+		D72FE9032F8B93AA00B6FF9D /* VittoraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VittoraCore;
+			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "VittoraCore" */;
+		};
+/* End XCSwiftPackageProductDependency section */
+
 /* Begin XCBuildConfiguration section */
 		B72FE80B2F8B92FA00B6FF9D /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -325,8 +350,8 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -375,8 +400,8 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -516,8 +541,8 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vittora.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Vittora";
@@ -543,8 +568,8 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vittora.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Vittora";
@@ -569,8 +594,8 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Vittora;
@@ -595,8 +620,8 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Vittora;

@@ -1,13 +1,13 @@
 import Foundation
 
-struct CurrencyEntity: Identifiable, Hashable, Equatable, Sendable {
-    var id: String { code }
-    let code: String
-    let symbol: String
-    let name: String
-    let decimalPlaces: Int
+public struct CurrencyEntity: Identifiable, Hashable, Equatable, Sendable {
+    public var id: String { code }
+    public let code: String
+    public let symbol: String
+    public let name: String
+    public let decimalPlaces: Int
 
-    static let allCurrencies: [CurrencyEntity] = [
+    public static let allCurrencies: [CurrencyEntity] = [
         CurrencyEntity(code: "USD", symbol: "$", name: "US Dollar", decimalPlaces: 2),
         CurrencyEntity(code: "EUR", symbol: "€", name: "Euro", decimalPlaces: 2),
         CurrencyEntity(code: "GBP", symbol: "£", name: "British Pound", decimalPlaces: 2),

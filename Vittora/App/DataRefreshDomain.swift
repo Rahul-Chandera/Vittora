@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Per-domain refresh tokens so list screens refetch only when their data changes.
 enum DataRefreshDomain: String, CaseIterable, Hashable, Sendable {

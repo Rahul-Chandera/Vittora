@@ -1,9 +1,9 @@
 import Foundation
 
-enum BudgetPeriod: String, Sendable, Hashable, CaseIterable, Codable {
+public enum BudgetPeriod: String, Sendable, Hashable, CaseIterable, Codable {
     case weekly, monthly, quarterly, yearly
 
-    var displayName: String {
+    public var displayName: String {
         switch self {
         case .weekly: String(localized: "Weekly")
         case .monthly: String(localized: "Monthly")
@@ -12,7 +12,7 @@ enum BudgetPeriod: String, Sendable, Hashable, CaseIterable, Codable {
         }
     }
 
-    nonisolated func dateRange(startingFrom startDate: Date) -> ClosedRange<Date> {
+    public nonisolated func dateRange(startingFrom startDate: Date) -> ClosedRange<Date> {
         let calendar = Calendar.current
         let endDate: Date
         switch self {
@@ -29,27 +29,27 @@ enum BudgetPeriod: String, Sendable, Hashable, CaseIterable, Codable {
     }
 }
 
-struct BudgetEntity: Identifiable, Hashable, Equatable, Sendable {
-    nonisolated let id: UUID
-    nonisolated var amount: Decimal
-    nonisolated var spent: Decimal
-    nonisolated var period: BudgetPeriod
-    nonisolated var startDate: Date
-    nonisolated var rollover: Bool
-    nonisolated var categoryID: UUID?
-    nonisolated var createdAt: Date
-    nonisolated var updatedAt: Date
+public struct BudgetEntity: Identifiable, Hashable, Equatable, Sendable {
+    public nonisolated let id: UUID
+    public nonisolated var amount: Decimal
+    public nonisolated var spent: Decimal
+    public nonisolated var period: BudgetPeriod
+    public nonisolated var startDate: Date
+    public nonisolated var rollover: Bool
+    public nonisolated var categoryID: UUID?
+    public nonisolated var createdAt: Date
+    public nonisolated var updatedAt: Date
 
-    var remaining: Decimal { amount - spent }
+    public var remaining: Decimal { amount - spent }
 
-    var progress: Double {
+    public var progress: Double {
         guard amount > 0 else { return 0 }
         return min(Double(truncating: (spent / amount) as NSDecimalNumber), 2.0)
     }
 
-    var isOverBudget: Bool { spent > amount }
+    public var isOverBudget: Bool { spent > amount }
 
-    nonisolated init(
+    public nonisolated init(
         id: UUID = UUID(),
         amount: Decimal,
         spent: Decimal = 0,
@@ -73,6 +73,6 @@ struct BudgetEntity: Identifiable, Hashable, Equatable, Sendable {
 
     // MARK: - Equatable & Hashable (identity-based)
 
-    static func == (lhs: BudgetEntity, rhs: BudgetEntity) -> Bool { lhs.id == rhs.id }
-    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    public static func == (lhs: BudgetEntity, rhs: BudgetEntity) -> Bool { lhs.id == rhs.id }
+    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }

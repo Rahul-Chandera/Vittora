@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 enum DocumentMapper {
     nonisolated static func toEntity(_ model: SDDocument) -> DocumentEntity {

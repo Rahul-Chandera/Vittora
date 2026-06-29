@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Produces a side-by-side tax comparison for the current country.
 struct CompareTaxRegimesUseCase: Sendable {

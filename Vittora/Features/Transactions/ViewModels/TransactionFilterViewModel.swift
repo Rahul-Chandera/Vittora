@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @Observable @MainActor final class TransactionFilterViewModel {
     var startDate: Date?

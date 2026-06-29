@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct QuickEntryView: View {
     @Environment(AppState.self) private var appState

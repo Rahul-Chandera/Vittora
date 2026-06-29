@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 // MARK: - Minimal mock repositories for DataManagementService

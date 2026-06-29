@@ -2,6 +2,7 @@
 import Foundation
 import Testing
 import SwiftData
+import VittoraCore
 @testable import Vittora
 
 @MainActor

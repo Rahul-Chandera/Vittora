@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TaxAnnualSummaryCard: View {
     let summary: TaxSummary

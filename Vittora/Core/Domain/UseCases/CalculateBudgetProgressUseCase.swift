@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Progress metrics for a budget.
 struct BudgetProgress: Sendable {

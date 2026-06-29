@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Bridges app events to conversion milestones for F5 instrumentation.
 struct ConversionEventRecorder: Sendable {

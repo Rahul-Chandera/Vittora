@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// User-configurable delay before re-authentication after the app was backgrounded.
 enum AppLockTimeout: String, CaseIterable, Sendable {

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct RecentTransactionsList: View {
     let transactions: [TransactionEntity]

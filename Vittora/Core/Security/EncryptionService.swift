@@ -1,6 +1,7 @@
 import Foundation
 import CryptoKit
 import Security
+import VittoraCore
 
 protocol EncryptionServiceProtocol: Sendable {
     func encrypt(_ data: Data) async throws -> Data

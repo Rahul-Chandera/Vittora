@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct BulkOperationsUseCase: Sendable {
     let transactionRepository: any TransactionRepository

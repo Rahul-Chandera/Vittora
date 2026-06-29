@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct BudgetOverviewCard: View {
     let spent: Decimal

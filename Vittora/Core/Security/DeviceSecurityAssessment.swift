@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Informational assessment only (SEC-17). Do not block users — Apple discourages hard blocks.
 enum DeviceSecurityAssessment: Sendable {

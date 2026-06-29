@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 enum ExportProgressPhase: Sendable, Equatable {
     case preparing

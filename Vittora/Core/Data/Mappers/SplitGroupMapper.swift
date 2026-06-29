@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 enum SplitGroupMapper {
     nonisolated static func toEntity(_ model: SDSplitGroup) -> SplitGroup {

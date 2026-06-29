@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct AppLockCooldownState: Equatable, Sendable {
     var consecutiveFailures: Int

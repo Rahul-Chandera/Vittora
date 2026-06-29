@@ -1,6 +1,7 @@
 import Testing
 import SwiftData
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 /// Verifies the single-context write Unit-of-Work guarantees from A1:

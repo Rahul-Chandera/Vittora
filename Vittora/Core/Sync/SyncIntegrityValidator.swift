@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import os
+import VittoraCore
 
 struct IntegrityViolation: Sendable {
     let entityType: String

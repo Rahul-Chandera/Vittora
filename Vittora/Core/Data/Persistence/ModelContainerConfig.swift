@@ -1,6 +1,7 @@
 import SwiftData
 import Foundation
 import os
+import VittoraCore
 
 enum ModelContainerConfig {
     /// All SwiftData model types registered in the app (current schema version).

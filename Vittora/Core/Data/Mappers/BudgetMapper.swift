@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 enum BudgetMapper {
     nonisolated static func toEntity(_ model: SDBudget) -> BudgetEntity {

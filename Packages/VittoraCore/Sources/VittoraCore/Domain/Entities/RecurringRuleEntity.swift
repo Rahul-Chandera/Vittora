@@ -1,6 +1,6 @@
 import Foundation
 
-enum RecurrenceFrequency: Sendable, Hashable, Codable {
+public enum RecurrenceFrequency: Sendable, Hashable, Codable {
     case daily
     case weekly
     case biweekly
@@ -13,7 +13,7 @@ enum RecurrenceFrequency: Sendable, Hashable, Codable {
         case daily, weekly, biweekly, monthly, quarterly, yearly, custom
     }
 
-    nonisolated init(from decoder: Decoder) throws {
+    public nonisolated init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         if container.contains(.daily) {
             self = .daily
@@ -38,7 +38,7 @@ enum RecurrenceFrequency: Sendable, Hashable, Codable {
         }
     }
 
-    nonisolated func encode(to encoder: Encoder) throws {
+    public nonisolated func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
         case .daily:
@@ -60,7 +60,7 @@ enum RecurrenceFrequency: Sendable, Hashable, Codable {
 }
 
 extension RecurrenceFrequency {
-    nonisolated static func == (lhs: RecurrenceFrequency, rhs: RecurrenceFrequency) -> Bool {
+    public nonisolated static func == (lhs: RecurrenceFrequency, rhs: RecurrenceFrequency) -> Bool {
         switch (lhs, rhs) {
         case (.daily, .daily), (.weekly, .weekly), (.biweekly, .biweekly),
              (.monthly, .monthly), (.quarterly, .quarterly), (.yearly, .yearly):
@@ -72,7 +72,7 @@ extension RecurrenceFrequency {
         }
     }
 
-    nonisolated func hash(into hasher: inout Hasher) {
+    public nonisolated func hash(into hasher: inout Hasher) {
         switch self {
         case .daily: hasher.combine(0)
         case .weekly: hasher.combine(1)
@@ -87,21 +87,21 @@ extension RecurrenceFrequency {
     }
 }
 
-struct RecurringRuleEntity: Identifiable, Hashable, Equatable, Sendable {
-    nonisolated let id: UUID
-    nonisolated var frequency: RecurrenceFrequency
-    nonisolated var nextDate: Date
-    nonisolated var isActive: Bool
-    nonisolated var endDate: Date?
-    nonisolated var templateAmount: Decimal
-    nonisolated var templateNote: String?
-    nonisolated var templateCategoryID: UUID?
-    nonisolated var templateAccountID: UUID?
-    nonisolated var templatePayeeID: UUID?
-    nonisolated var createdAt: Date
-    nonisolated var updatedAt: Date
+public struct RecurringRuleEntity: Identifiable, Hashable, Equatable, Sendable {
+    public nonisolated let id: UUID
+    public nonisolated var frequency: RecurrenceFrequency
+    public nonisolated var nextDate: Date
+    public nonisolated var isActive: Bool
+    public nonisolated var endDate: Date?
+    public nonisolated var templateAmount: Decimal
+    public nonisolated var templateNote: String?
+    public nonisolated var templateCategoryID: UUID?
+    public nonisolated var templateAccountID: UUID?
+    public nonisolated var templatePayeeID: UUID?
+    public nonisolated var createdAt: Date
+    public nonisolated var updatedAt: Date
 
-    nonisolated init(
+    public nonisolated init(
         id: UUID = UUID(),
         frequency: RecurrenceFrequency,
         nextDate: Date,

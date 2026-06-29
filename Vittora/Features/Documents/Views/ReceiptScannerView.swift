@@ -94,6 +94,7 @@ struct ReceiptScannerView: View {
 import UIKit
 import VisionKit
 import CoreGraphics
+import VittoraCore
 
 struct DataScannerRepresentable: UIViewControllerRepresentable {
     let isProcessing: Bool

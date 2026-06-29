@@ -2,32 +2,32 @@ import Foundation
 
 // MARK: - Country & Regime
 
-enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
+public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
     case india = "IN"
     case unitedStates = "US"
 
-    nonisolated var displayName: String {
+    public nonisolated var displayName: String {
         switch self {
         case .india:         return String(localized: "India")
         case .unitedStates:  return String(localized: "United States")
         }
     }
 
-    var currencyCode: String {
+    public var currencyCode: String {
         switch self {
         case .india:        return "INR"
         case .unitedStates: return "USD"
         }
     }
 
-    var currencySymbol: String {
+    public var currencySymbol: String {
         switch self {
         case .india:        return "₹"
         case .unitedStates: return "$"
         }
     }
 
-    nonisolated var defaultFinancialYear: String {
+    public nonisolated var defaultFinancialYear: String {
         let calendar = Calendar.current
         let currentYear = calendar.component(.year, from: .now)
 
@@ -44,11 +44,11 @@ enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
     }
 }
 
-enum IndiaRegime: String, Sendable, Hashable, CaseIterable, Codable {
+public enum IndiaRegime: String, Sendable, Hashable, CaseIterable, Codable {
     case newRegime
     case oldRegime
 
-    nonisolated var displayName: String {
+    public nonisolated var displayName: String {
         switch self {
         case .newRegime: return String(localized: "New Regime")
         case .oldRegime: return String(localized: "Old Regime")
@@ -56,11 +56,11 @@ enum IndiaRegime: String, Sendable, Hashable, CaseIterable, Codable {
     }
 }
 
-enum IncomeSourceType: String, Sendable, Hashable, CaseIterable, Codable {
+public enum IncomeSourceType: String, Sendable, Hashable, CaseIterable, Codable {
     case salaried
     case selfEmployed
 
-    nonisolated var displayName: String {
+    public nonisolated var displayName: String {
         switch self {
         case .salaried:     return String(localized: "Salaried / Pensioner")
         case .selfEmployed: return String(localized: "Self Employed / Business")
@@ -68,14 +68,14 @@ enum IncomeSourceType: String, Sendable, Hashable, CaseIterable, Codable {
     }
 }
 
-enum USFilingStatus: String, Sendable, Hashable, CaseIterable, Codable {
+public enum USFilingStatus: String, Sendable, Hashable, CaseIterable, Codable {
     case single
     case marriedFilingJointly
     case marriedFilingSeparately
     case headOfHousehold
     case qualifyingSurvivingSpouse
 
-    nonisolated var displayName: String {
+    public nonisolated var displayName: String {
         switch self {
         case .single:                   return String(localized: "Single")
         case .marriedFilingJointly:     return String(localized: "Married Filing Jointly")
@@ -89,14 +89,14 @@ enum USFilingStatus: String, Sendable, Hashable, CaseIterable, Codable {
 
 // MARK: - Tax Deduction
 
-struct TaxDeduction: Identifiable, Hashable, Sendable, Codable {
-    nonisolated let id: UUID
-    nonisolated var name: String
-    nonisolated var amount: Decimal
+public struct TaxDeduction: Identifiable, Hashable, Sendable, Codable {
+    public nonisolated let id: UUID
+    public nonisolated var name: String
+    public nonisolated var amount: Decimal
     /// Section identifier e.g. "80C", "80D", "HRA"
-    nonisolated var section: String?
+    public nonisolated var section: String?
 
-    nonisolated init(id: UUID = UUID(), name: String, amount: Decimal, section: String? = nil) {
+    public nonisolated init(id: UUID = UUID(), name: String, amount: Decimal, section: String? = nil) {
         self.id = id
         self.name = name
         self.amount = amount
@@ -106,26 +106,26 @@ struct TaxDeduction: Identifiable, Hashable, Sendable, Codable {
 
 // MARK: - Tax Profile
 
-struct TaxProfile: Identifiable, Hashable, Sendable {
-    nonisolated let id: UUID
-    nonisolated var country: TaxCountry
-    nonisolated var annualIncome: Decimal
-    nonisolated var indiaRegime: IndiaRegime
-    nonisolated var filingStatus: USFilingStatus
-    nonisolated var customDeductions: [TaxDeduction]
+public struct TaxProfile: Identifiable, Hashable, Sendable {
+    public nonisolated let id: UUID
+    public nonisolated var country: TaxCountry
+    public nonisolated var annualIncome: Decimal
+    public nonisolated var indiaRegime: IndiaRegime
+    public nonisolated var filingStatus: USFilingStatus
+    public nonisolated var customDeductions: [TaxDeduction]
     /// e.g. "2025-26" (India) or "2026" (US)
-    nonisolated var financialYear: String
+    public nonisolated var financialYear: String
     /// Salary/pension vs self-employed; gates India standard deduction
-    nonisolated var incomeSourceType: IncomeSourceType
+    public nonisolated var incomeSourceType: IncomeSourceType
     /// Used for India old-regime senior/super-senior basic exemption tiers
-    nonisolated var dateOfBirth: Date?
-    nonisolated var createdAt: Date
-    nonisolated var updatedAt: Date
+    public nonisolated var dateOfBirth: Date?
+    public nonisolated var createdAt: Date
+    public nonisolated var updatedAt: Date
 
     /// Optional special-rate and payroll inputs (TAX-11 / TAX-12). Persisted as JSON on `SDTaxProfile`.
-    nonisolated var advancedInputs: TaxAdvancedInputs
+    public nonisolated var advancedInputs: TaxAdvancedInputs
 
-    nonisolated init(
+    public nonisolated init(
         id: UUID = UUID(),
         country: TaxCountry = .india,
         annualIncome: Decimal = 0,
@@ -156,19 +156,21 @@ struct TaxProfile: Identifiable, Hashable, Sendable {
 
 // MARK: - Advanced tax inputs (special rates, payroll bases)
 
-struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
+public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
     /// US: qualified dividends (taxed at LTCG rates).
-    nonisolated var usQualifiedDividends: Decimal = 0
+    public nonisolated var usQualifiedDividends: Decimal = 0
     /// US: long-term capital gains (preferential rates).
-    nonisolated var usLongTermCapitalGains: Decimal = 0
+    public nonisolated var usLongTermCapitalGains: Decimal = 0
     /// US: short-term capital gains (generally ordinary rates — included in ordinary base here).
-    nonisolated var usShortTermCapitalGains: Decimal = 0
+    public nonisolated var usShortTermCapitalGains: Decimal = 0
     /// US: other investment income counted toward NIIT net investment income.
-    nonisolated var usOtherInvestmentIncome: Decimal = 0
+    public nonisolated var usOtherInvestmentIncome: Decimal = 0
     /// India: equity LTCG taxed under Section 112A-style simplified model.
-    nonisolated var indiaEquityLTCG: Decimal = 0
+    public nonisolated var indiaEquityLTCG: Decimal = 0
     /// India: equity STCG (simplified flat rate bucket).
-    nonisolated var indiaEquitySTCG: Decimal = 0
+    public nonisolated var indiaEquitySTCG: Decimal = 0
+
+    public init() {}
 }
 
 extension TaxAdvancedInputs: Codable {
@@ -181,7 +183,7 @@ extension TaxAdvancedInputs: Codable {
         case indiaEquitySTCG
     }
 
-    nonisolated init(from decoder: Decoder) throws {
+    public nonisolated init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         usQualifiedDividends = try container.decodeIfPresent(Decimal.self, forKey: .usQualifiedDividends) ?? 0
         usLongTermCapitalGains = try container.decodeIfPresent(Decimal.self, forKey: .usLongTermCapitalGains) ?? 0
@@ -191,7 +193,7 @@ extension TaxAdvancedInputs: Codable {
         indiaEquitySTCG = try container.decodeIfPresent(Decimal.self, forKey: .indiaEquitySTCG) ?? 0
     }
 
-    nonisolated func encode(to encoder: Encoder) throws {
+    public nonisolated func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(usQualifiedDividends, forKey: .usQualifiedDividends)
         try container.encode(usLongTermCapitalGains, forKey: .usLongTermCapitalGains)
@@ -205,16 +207,16 @@ extension TaxAdvancedInputs: Codable {
 // MARK: - Tax Estimate Results
 
 /// One tax slab's contribution to the overall tax
-struct TaxBracketResult: Sendable, Identifiable {
-    nonisolated let id: UUID
+public struct TaxBracketResult: Sendable, Identifiable {
+    public nonisolated let id: UUID
     /// e.g. "₹3L – ₹7L" or "$11,601 – $47,150"
-    nonisolated let label: String
+    public nonisolated let label: String
     /// Rate as a whole number percent e.g. 5, 10, 20, 30
-    nonisolated let ratePercent: Decimal
-    nonisolated let taxableAmount: Decimal
-    nonisolated let taxAmount: Decimal
+    public nonisolated let ratePercent: Decimal
+    public nonisolated let taxableAmount: Decimal
+    public nonisolated let taxAmount: Decimal
 
-    nonisolated init(
+    public nonisolated init(
         id: UUID = UUID(),
         label: String,
         ratePercent: Decimal,
@@ -230,12 +232,12 @@ struct TaxBracketResult: Sendable, Identifiable {
 }
 
 /// Additional line items (FICA, NIIT, special rates, contribution headroom — TAX-12 / TAX-13).
-struct TaxSupplementaryLine: Sendable, Identifiable, Hashable {
-    nonisolated let id: UUID
-    nonisolated let title: String
-    nonisolated let amount: Decimal
+public struct TaxSupplementaryLine: Sendable, Identifiable, Hashable {
+    public nonisolated let id: UUID
+    public nonisolated let title: String
+    public nonisolated let amount: Decimal
 
-    nonisolated init(id: UUID = UUID(), title: String, amount: Decimal) {
+    public nonisolated init(id: UUID = UUID(), title: String, amount: Decimal) {
         self.id = id
         self.title = title
         self.amount = amount
@@ -243,38 +245,38 @@ struct TaxSupplementaryLine: Sendable, Identifiable, Hashable {
 }
 
 /// Computed tax breakdown for a TaxProfile
-struct TaxEstimate: Sendable {
-    nonisolated let grossIncome: Decimal
-    nonisolated let standardDeduction: Decimal
-    nonisolated let customDeductionsTotal: Decimal
-    nonisolated let taxableIncome: Decimal
+public struct TaxEstimate: Sendable {
+    public nonisolated let grossIncome: Decimal
+    public nonisolated let standardDeduction: Decimal
+    public nonisolated let customDeductionsTotal: Decimal
+    public nonisolated let taxableIncome: Decimal
     /// One entry per non-zero bracket
-    nonisolated let bracketResults: [TaxBracketResult]
-    nonisolated let basicTax: Decimal
+    public nonisolated let bracketResults: [TaxBracketResult]
+    public nonisolated let basicTax: Decimal
     /// Section 87A rebate (India) or equivalent
-    nonisolated let rebate: Decimal
-    nonisolated let surcharge: Decimal
+    public nonisolated let rebate: Decimal
+    public nonisolated let surcharge: Decimal
     /// India: 4% health & education cess; US: 0
-    nonisolated let cess: Decimal
-    nonisolated let finalTax: Decimal
-    nonisolated let effectiveRate: Decimal
-    nonisolated let marginalRate: Decimal
-    nonisolated let country: TaxCountry
+    public nonisolated let cess: Decimal
+    public nonisolated let finalTax: Decimal
+    public nonisolated let effectiveRate: Decimal
+    public nonisolated let marginalRate: Decimal
+    public nonisolated let country: TaxCountry
     /// e.g. "New Regime", "Old Regime", "Single"
-    nonisolated let regimeLabel: String
+    public nonisolated let regimeLabel: String
     /// FICA, NIIT, capital gains, contribution advisory lines, etc.
-    nonisolated let supplementaryLines: [TaxSupplementaryLine]
-    nonisolated let assumptions: [String]
-    nonisolated let warnings: [String]
-    nonisolated let exclusions: [String]
-    nonisolated let disclaimerKey: String
+    public nonisolated let supplementaryLines: [TaxSupplementaryLine]
+    public nonisolated let assumptions: [String]
+    public nonisolated let warnings: [String]
+    public nonisolated let exclusions: [String]
+    public nonisolated let disclaimerKey: String
     /// e.g. `US_FEDERAL_TY2026` / `IN_FY2025_26` (TAX-07 / TAX-14)
-    nonisolated let ruleSetID: String
-    nonisolated let rulesLastUpdated: Date
+    public nonisolated let ruleSetID: String
+    public nonisolated let rulesLastUpdated: Date
 
-    nonisolated var totalDeductions: Decimal { standardDeduction + customDeductionsTotal }
+    public nonisolated var totalDeductions: Decimal { standardDeduction + customDeductionsTotal }
 
-    nonisolated init(
+    public nonisolated init(
         grossIncome: Decimal,
         standardDeduction: Decimal,
         customDeductionsTotal: Decimal,
@@ -323,25 +325,25 @@ struct TaxEstimate: Sendable {
 
 // MARK: - Tax Comparison
 
-enum TaxComparisonKind: Sendable, Hashable {
+public enum TaxComparisonKind: Sendable, Hashable {
     case indiaRegimes
     case usDeductionModes
 }
 
-enum TaxComparisonWinner: Sendable, Hashable {
+public enum TaxComparisonWinner: Sendable, Hashable {
     case first
     case second
     case tie
 }
 
-struct TaxComparison: Sendable {
-    let kind: TaxComparisonKind
-    let firstEstimate: TaxEstimate
-    let secondEstimate: TaxEstimate
-    let winner: TaxComparisonWinner
-    let savingsAmount: Decimal
+public struct TaxComparison: Sendable {
+    public let kind: TaxComparisonKind
+    public let firstEstimate: TaxEstimate
+    public let secondEstimate: TaxEstimate
+    public let winner: TaxComparisonWinner
+    public let savingsAmount: Decimal
 
-    var recommendedEstimate: TaxEstimate? {
+    public var recommendedEstimate: TaxEstimate? {
         switch winner {
         case .first:
             firstEstimate
@@ -351,24 +353,60 @@ struct TaxComparison: Sendable {
             nil
         }
     }
+
+    public init(
+        kind: TaxComparisonKind,
+        firstEstimate: TaxEstimate,
+        secondEstimate: TaxEstimate,
+        winner: TaxComparisonWinner,
+        savingsAmount: Decimal
+    ) {
+        self.kind = kind
+        self.firstEstimate = firstEstimate
+        self.secondEstimate = secondEstimate
+        self.winner = winner
+        self.savingsAmount = savingsAmount
+    }
 }
 
 // MARK: - Tax Activity Summary
 
-struct TaxSummaryCategory: Sendable, Identifiable {
-    var id: UUID { category.id }
-    let category: CategoryEntity
-    let totalAmount: Decimal
-    let transactionCount: Int
+public struct TaxSummaryCategory: Sendable, Identifiable {
+    public var id: UUID { category.id }
+    public let category: CategoryEntity
+    public let totalAmount: Decimal
+    public let transactionCount: Int
+
+    public init(category: CategoryEntity, totalAmount: Decimal, transactionCount: Int) {
+        self.category = category
+        self.totalAmount = totalAmount
+        self.transactionCount = transactionCount
+    }
 }
 
-struct TaxSummary: Sendable {
-    let financialYear: String
-    let dateRange: ClosedRange<Date>
-    let totalRelevantAmount: Decimal
-    let transactionCount: Int
-    let taxRelevantCategories: [CategoryEntity]
-    let categoryBreakdown: [TaxSummaryCategory]
+public struct TaxSummary: Sendable {
+    public let financialYear: String
+    public let dateRange: ClosedRange<Date>
+    public let totalRelevantAmount: Decimal
+    public let transactionCount: Int
+    public let taxRelevantCategories: [CategoryEntity]
+    public let categoryBreakdown: [TaxSummaryCategory]
 
-    var matchedCategoryCount: Int { categoryBreakdown.count }
+    public var matchedCategoryCount: Int { categoryBreakdown.count }
+
+    public init(
+        financialYear: String,
+        dateRange: ClosedRange<Date>,
+        totalRelevantAmount: Decimal,
+        transactionCount: Int,
+        taxRelevantCategories: [CategoryEntity],
+        categoryBreakdown: [TaxSummaryCategory]
+    ) {
+        self.financialYear = financialYear
+        self.dateRange = dateRange
+        self.totalRelevantAmount = totalRelevantAmount
+        self.transactionCount = transactionCount
+        self.taxRelevantCategories = taxRelevantCategories
+        self.categoryBreakdown = categoryBreakdown
+    }
 }

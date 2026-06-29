@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 extension DependencyContainer {
     func makeTransactionListViewModel() -> TransactionListViewModel {

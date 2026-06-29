@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 protocol ConversionEventTracking: Sendable {
     func record(_ milestone: ConversionMilestone) -> ConversionEventResult

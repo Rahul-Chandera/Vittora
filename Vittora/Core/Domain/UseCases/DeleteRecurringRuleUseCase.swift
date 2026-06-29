@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct DeleteRecurringRuleUseCase: Sendable {
     let repository: any RecurringRuleRepository

@@ -1,6 +1,7 @@
 import Foundation
 import OSLog
 import SwiftData
+import VittoraCore
 
 @ModelActor
 actor SwiftDataDocumentRepository: DocumentRepository {

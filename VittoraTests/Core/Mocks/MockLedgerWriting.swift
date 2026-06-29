@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 /// Lightweight `LedgerWriting` test double for **view-model** tests that only

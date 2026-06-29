@@ -1,5 +1,6 @@
 import Foundation
 import CoreGraphics
+import VittoraCore
 
 struct ScanReceiptUseCase: Sendable {
     let ocrService: any OCRServiceProtocol

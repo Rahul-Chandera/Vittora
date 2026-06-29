@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 #if os(macOS)
 struct SidebarNavigation: View {

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Routes a TaxProfile to the correct calculator and returns a TaxEstimate.
 struct EstimateTaxUseCase: Sendable {

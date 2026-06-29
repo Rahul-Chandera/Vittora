@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct DuplicateDetectionUseCase: Sendable {
     let transactionRepository: any TransactionRepository

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Isolated `UserDefaults` suite for non-secret sync metadata (not `standard`, which is backed up broadly).
 /// See production review SEC-08.

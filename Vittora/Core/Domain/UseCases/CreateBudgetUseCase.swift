@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct CreateBudgetUseCase: Sendable {
     let budgetRepository: any BudgetRepository

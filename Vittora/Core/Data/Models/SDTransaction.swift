@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 @Model
 final class SDTransaction {

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct PeriodSelectorView: View {
     @Binding var selectedPeriod: BudgetPeriod

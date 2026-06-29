@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 extension Decimal {
     /// Format decimal as currency with specified currency code.

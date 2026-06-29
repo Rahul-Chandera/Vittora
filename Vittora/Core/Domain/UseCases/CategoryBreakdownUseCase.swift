@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct CategoryBreakdown: Sendable, Identifiable {
     nonisolated var id: UUID { category.id }

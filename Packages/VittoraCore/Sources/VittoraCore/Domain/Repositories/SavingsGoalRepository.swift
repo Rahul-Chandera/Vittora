@@ -1,6 +1,6 @@
 import Foundation
 
-protocol SavingsGoalRepository: Sendable {
+public protocol SavingsGoalRepository: Sendable {
     func fetchAll() async throws -> [SavingsGoalEntity]
     func fetchByID(_ id: UUID) async throws -> SavingsGoalEntity?
     func fetchActive() async throws -> [SavingsGoalEntity]

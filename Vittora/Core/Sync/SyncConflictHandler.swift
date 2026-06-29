@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Represents a detected sync conflict between a local and remote version of a record.
 struct SyncConflict: Identifiable, Sendable {

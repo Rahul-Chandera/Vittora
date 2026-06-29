@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct FetchTaxCategoriesUseCase: Sendable {
     private let repository: any CategoryRepository

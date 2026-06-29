@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 @ModelActor
 actor SwiftDataAccountRepository: AccountRepository {

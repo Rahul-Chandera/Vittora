@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AmountInputView: View {
     @Binding var amountString: String

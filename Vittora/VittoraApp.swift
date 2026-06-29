@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import OSLog
+import VittoraCore
 
 @main
 struct VittoraApp: App {

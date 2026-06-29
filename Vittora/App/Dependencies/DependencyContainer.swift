@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import OSLog
+import VittoraCore
 
 @Observable
 @MainActor

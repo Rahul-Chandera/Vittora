@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct MockBudgetRepository: BudgetRepository {
     private static let monthlyBudgetID = UUID(uuidString: "12345678-1234-5678-1234-567812345678") ?? UUID()

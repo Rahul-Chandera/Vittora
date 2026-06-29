@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 enum ReportGrouping: String, CaseIterable, Sendable, Hashable {
     case category, account, payee, period

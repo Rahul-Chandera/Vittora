@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct CategorySpend: Sendable {
     nonisolated let category: CategoryEntity

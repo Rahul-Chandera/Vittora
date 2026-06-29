@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct CategoryPicker: View {
     @Binding var selectedCategoryID: UUID?

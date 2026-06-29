@@ -1,6 +1,7 @@
 import Foundation
 import Network
 import CloudKit
+import VittoraCore
 
 enum SyncState: Equatable, Sendable {
     case synced

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 enum NavigationDestination: Hashable {
     // Accounts

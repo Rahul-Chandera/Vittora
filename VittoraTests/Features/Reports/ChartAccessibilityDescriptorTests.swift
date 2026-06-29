@@ -1,6 +1,7 @@
 import Accessibility
 import Foundation
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("Chart Accessibility Descriptor Tests")

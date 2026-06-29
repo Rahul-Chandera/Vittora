@@ -1,6 +1,6 @@
 import Foundation
 
-protocol SplitGroupRepository: Sendable {
+public protocol SplitGroupRepository: Sendable {
     // MARK: - Group CRUD
     func fetchAllGroups() async throws -> [SplitGroup]
     func fetchGroupByID(_ id: UUID) async throws -> SplitGroup?

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 enum PayeeMapper {
     nonisolated static func toEntity(_ model: SDPayee) -> PayeeEntity {

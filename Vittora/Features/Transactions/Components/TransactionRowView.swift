@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TransactionRowView: View {
     let transaction: TransactionEntity

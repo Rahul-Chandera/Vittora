@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AddGroupExpenseView: View {
     @Environment(AppState.self) private var appState

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct CategoryIconPicker: View {
     @Binding var selectedIcon: String

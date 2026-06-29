@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 enum TransactionMapper {
     nonisolated static func toEntity(_ model: SDTransaction) -> TransactionEntity {

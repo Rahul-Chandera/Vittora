@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// The atomic write surface for compound ledger operations.
 ///

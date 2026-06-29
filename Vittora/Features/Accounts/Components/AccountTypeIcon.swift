@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AccountTypeIcon: View {
     let type: AccountType

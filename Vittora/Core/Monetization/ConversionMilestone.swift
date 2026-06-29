@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 enum ConversionMilestone: String, CaseIterable, Sendable, Codable {
     case tenthTransaction

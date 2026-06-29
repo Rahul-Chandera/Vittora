@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct NetWorthSummary: Sendable {
     let totalAssets: Decimal

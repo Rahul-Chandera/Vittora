@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 protocol DataSeederProtocol: Sendable {
     func seedDefaultCategoriesIfNeeded() async throws

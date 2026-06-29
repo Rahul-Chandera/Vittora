@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct CreateSplitGroupUseCase: Sendable {
     let splitGroupRepository: any SplitGroupRepository

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Circular progress ring with percentage label inside.
 struct SavingsProgressRingView: View {

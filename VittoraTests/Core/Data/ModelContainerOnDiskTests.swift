@@ -1,6 +1,7 @@
 import Testing
 import SwiftData
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 /// On-disk migration and round-trip tests — run via `make test-data` only.

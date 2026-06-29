@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct MockTransactionRepository: TransactionRepository {
     func fetchTransactionCount() async throws -> Int {

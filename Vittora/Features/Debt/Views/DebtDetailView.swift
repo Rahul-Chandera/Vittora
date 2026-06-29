@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct DebtDetailView: View {
     @Environment(\.dependencies) private var dependencies

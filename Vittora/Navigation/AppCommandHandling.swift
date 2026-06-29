@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 extension View {
     /// Presents new-transaction UI and switches to Settings when requested via `AppState`.

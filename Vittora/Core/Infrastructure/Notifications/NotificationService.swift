@@ -1,5 +1,6 @@
 import Foundation
 import UserNotifications
+import VittoraCore
 
 /// Test seam over `UNUserNotificationCenter` (FUNCTIONAL-1 / C1).
 @MainActor

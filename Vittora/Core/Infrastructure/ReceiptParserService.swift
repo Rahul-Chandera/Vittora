@@ -1,5 +1,6 @@
 import Foundation
 import OSLog
+import VittoraCore
 
 struct ReceiptParserService: Sendable {
     private nonisolated static let logger = Logger(subsystem: "com.vittora.app", category: "receipt_parser")

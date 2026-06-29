@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct NavigationDestinationHandler: ViewModifier {
     @Environment(SettingsViewModel.self) private var settingsVM

@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import VittoraCore
 
 struct BalanceDataPoint: Identifiable, Sendable {
     nonisolated let id = UUID()

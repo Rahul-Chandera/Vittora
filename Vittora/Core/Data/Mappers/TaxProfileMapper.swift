@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 enum TaxProfileMapper {
     nonisolated static func toEntity(_ model: SDTaxProfile) -> TaxProfile {

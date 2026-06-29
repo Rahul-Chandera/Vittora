@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct UpcomingRecurringList: View {
     let rules: [RecurringRuleEntity]

@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("SettingsViewModel Tests")

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @MainActor
 final class UITestDataSeeder {

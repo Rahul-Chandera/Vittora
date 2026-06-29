@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct DebtSummaryCard: View {
     @Environment(\.currencyCode) private var currencyCode

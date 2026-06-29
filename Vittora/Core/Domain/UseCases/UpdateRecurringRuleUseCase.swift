@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct UpdateRecurringRuleUseCase: Sendable {
     let repository: any RecurringRuleRepository

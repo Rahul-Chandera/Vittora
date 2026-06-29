@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// India income tax calculator with year-aware resident-individual rules.
 /// Supports FY 2025-26 with a legacy FY 2024-25 fallback.

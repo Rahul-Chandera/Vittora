@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 #if os(iOS)
 struct AppTabView: View {

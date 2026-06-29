@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 enum VTypography {
     // MARK: - Headers

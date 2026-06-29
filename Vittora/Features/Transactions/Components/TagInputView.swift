@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TagInputView: View {
     @Binding var tags: [String]

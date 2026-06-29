@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct ReceiptReviewView: View {
     @Environment(\.dismiss) private var dismiss

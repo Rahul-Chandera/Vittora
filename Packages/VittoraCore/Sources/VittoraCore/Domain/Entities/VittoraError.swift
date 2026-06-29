@@ -1,6 +1,6 @@
 import Foundation
 
-enum VittoraError: LocalizedError, Sendable {
+public enum VittoraError: LocalizedError, Sendable {
     case notFound(String)
     case duplicateEntry(String)
     case validationFailed(String)
@@ -10,7 +10,7 @@ enum VittoraError: LocalizedError, Sendable {
     case exportFailed(String)
     case unknown(String)
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .notFound(let detail):
             String(localized: "Not found: \(detail)")

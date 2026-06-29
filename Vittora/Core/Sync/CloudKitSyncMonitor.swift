@@ -1,6 +1,7 @@
 import Foundation
 import CoreData
 import CloudKit
+import VittoraCore
 
 @MainActor
 final class CloudKitSyncMonitor {

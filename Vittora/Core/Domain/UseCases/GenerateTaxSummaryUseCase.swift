@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct GenerateTaxSummaryUseCase: Sendable {
     private let transactionRepository: any TransactionRepository

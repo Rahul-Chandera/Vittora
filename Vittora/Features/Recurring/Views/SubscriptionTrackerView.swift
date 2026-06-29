@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct SubscriptionTrackerView: View {
     @Environment(\.dependencies) var dependencies

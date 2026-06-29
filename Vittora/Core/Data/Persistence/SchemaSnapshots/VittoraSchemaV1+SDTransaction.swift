@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 extension VittoraSchemaV1 {
     /// Frozen transaction shape for Schema V1 (no transfer columns).

@@ -1,4 +1,5 @@
 import SwiftData
+import VittoraCore
 
 // MARK: - Shared model sets
 

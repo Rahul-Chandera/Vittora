@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 /// Errors surfaced by the ledger write Unit-of-Work.
 enum LedgerWriteError: LocalizedError, Sendable {

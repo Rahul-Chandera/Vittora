@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 enum SavingsGoalMapper {
     nonisolated static func toEntity(_ model: SDSavingsGoal) -> SavingsGoalEntity {

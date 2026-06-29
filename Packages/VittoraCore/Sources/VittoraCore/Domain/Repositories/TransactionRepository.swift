@@ -1,6 +1,6 @@
 import Foundation
 
-protocol TransactionRepository: Sendable {
+public protocol TransactionRepository: Sendable {
     /// Total persisted rows (not subject to fetch limits).
     func fetchTransactionCount() async throws -> Int
     func fetchAll(filter: TransactionFilter?) async throws -> [TransactionEntity]

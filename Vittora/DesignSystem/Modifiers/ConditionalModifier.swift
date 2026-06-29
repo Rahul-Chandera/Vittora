@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// A generic conditional modifier that applies a transformation only when a condition is true.
 /// Allows cleaner conditional modifier chains without if-else logic.

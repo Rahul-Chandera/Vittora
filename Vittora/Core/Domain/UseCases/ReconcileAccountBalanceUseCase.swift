@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// One account whose stored balance disagrees with its reconstructed balance
 /// (opening balance + Σ transaction effects). DATAINTEGRITY-12.

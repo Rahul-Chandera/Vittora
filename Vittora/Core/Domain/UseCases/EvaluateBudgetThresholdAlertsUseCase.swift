@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct EvaluateBudgetThresholdAlertsUseCase: Sendable {
     private static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled

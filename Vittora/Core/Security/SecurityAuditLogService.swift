@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 enum SecurityAuditEventKind: String, Codable, Sendable {
     case appLocked

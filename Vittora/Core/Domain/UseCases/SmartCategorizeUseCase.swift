@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct SmartCategorizeUseCase: Sendable {
     let transactionRepository: any TransactionRepository

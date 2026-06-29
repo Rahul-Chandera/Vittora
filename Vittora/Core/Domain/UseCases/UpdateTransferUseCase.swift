@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Edits an existing paired transfer end-to-end (A4): it validates the new
 /// source/destination/amount and routes the change through

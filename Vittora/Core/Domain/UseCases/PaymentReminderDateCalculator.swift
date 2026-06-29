@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Shared fire-date math for one-shot payment reminders (C4/C5).
 enum PaymentReminderDateCalculator {

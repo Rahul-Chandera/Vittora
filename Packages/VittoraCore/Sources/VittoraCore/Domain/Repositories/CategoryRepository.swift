@@ -1,6 +1,6 @@
 import Foundation
 
-protocol CategoryRepository: Sendable {
+public protocol CategoryRepository: Sendable {
     func fetchAll() async throws -> [CategoryEntity]
     func fetchByID(_ id: UUID) async throws -> CategoryEntity?
     func create(_ entity: CategoryEntity) async throws

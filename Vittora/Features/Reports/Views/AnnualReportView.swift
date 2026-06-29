@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import VittoraCore
 
 struct AnnualReportView: View {
     @Environment(\.dependencies) private var dependencies

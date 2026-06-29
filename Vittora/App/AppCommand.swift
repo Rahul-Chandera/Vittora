@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Global app commands routed through `AppState` instead of `NotificationCenter`.
 enum AppCommand: Equatable, Sendable {

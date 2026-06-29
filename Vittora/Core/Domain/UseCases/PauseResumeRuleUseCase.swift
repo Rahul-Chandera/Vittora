@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct PauseResumeRuleUseCase: Sendable {
     let repository: any RecurringRuleRepository

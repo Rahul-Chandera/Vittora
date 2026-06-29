@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Computes credit-card due dates and pre-due reminder fire times (C4).
 enum CreditCardDueDateCalculator {

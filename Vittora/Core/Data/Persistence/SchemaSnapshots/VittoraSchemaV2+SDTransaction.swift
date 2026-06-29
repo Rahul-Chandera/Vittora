@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 extension VittoraSchemaV2 {
     /// Frozen transaction shape for Schema V2 (adds `transferPairID`).

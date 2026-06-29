@@ -1,6 +1,6 @@
 import Foundation
 
-protocol RecurringRuleRepository: Sendable {
+public protocol RecurringRuleRepository: Sendable {
     func fetchAll() async throws -> [RecurringRuleEntity]
     func fetchByID(_ id: UUID) async throws -> RecurringRuleEntity?
     func create(_ entity: RecurringRuleEntity) async throws

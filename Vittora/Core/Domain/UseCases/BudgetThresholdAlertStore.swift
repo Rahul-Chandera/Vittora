@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 protocol BudgetThresholdAlertStoring: Sendable {
     func firedLevels(forPeriodKey key: String) -> Set<BudgetThresholdLevel>

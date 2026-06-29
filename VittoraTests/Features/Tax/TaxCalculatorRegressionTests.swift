@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 @testable import Vittora
 
 /// Regression suite pinning exact computed values for IndiaTaxCalculator and

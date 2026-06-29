@@ -1,6 +1,6 @@
 import Foundation
 
-protocol AccountRepository: Sendable {
+public protocol AccountRepository: Sendable {
     func fetchAll() async throws -> [AccountEntity]
     func fetchActive() async throws -> [AccountEntity]
     func fetchByID(_ id: UUID) async throws -> AccountEntity?

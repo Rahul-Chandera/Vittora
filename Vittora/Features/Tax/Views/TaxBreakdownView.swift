@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Full bracket-by-bracket tax breakdown sheet.
 struct TaxBreakdownView: View {

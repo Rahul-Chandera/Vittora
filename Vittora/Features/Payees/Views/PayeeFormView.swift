@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct PayeeFormView: View {
     var editingPayee: PayeeEntity? = nil

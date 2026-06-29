@@ -4,6 +4,7 @@ import OSLog
 import UIKit
 #elseif canImport(AppKit)
 import AppKit
+import VittoraCore
 #endif
 
 struct AttachDocumentUseCase: Sendable {

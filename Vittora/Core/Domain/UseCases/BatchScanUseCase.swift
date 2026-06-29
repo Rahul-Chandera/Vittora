@@ -1,5 +1,6 @@
 import Foundation
 import CoreGraphics
+import VittoraCore
 
 struct BatchScanUseCase: Sendable {
     let ocrService: any OCRServiceProtocol

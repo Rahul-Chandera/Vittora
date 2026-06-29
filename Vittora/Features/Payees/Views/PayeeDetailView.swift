@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct PayeeDetailView: View {
     let payeeID: UUID

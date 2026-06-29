@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AccountRowView: View {
     let account: AccountEntity
@@ -34,6 +35,7 @@ struct AccountRowView: View {
             }
         }
         .padding(.vertical, VSpacing.xs)
+        .vittoraPointerHighlight()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
     }

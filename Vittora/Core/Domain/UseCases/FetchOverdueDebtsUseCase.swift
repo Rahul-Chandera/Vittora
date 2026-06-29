@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct FetchOverdueDebtsUseCase: Sendable {
     let debtRepository: any DebtRepository

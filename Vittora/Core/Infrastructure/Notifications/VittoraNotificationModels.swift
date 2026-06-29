@@ -1,5 +1,6 @@
 import Foundation
 import UserNotifications
+import VittoraCore
 
 /// Local notification categories registered with the system (FUNCTIONAL-1 / C1).
 enum VittoraNotificationCategory: String, CaseIterable, Sendable {

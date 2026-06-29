@@ -1,6 +1,7 @@
 import Foundation
 import Security
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("SecurityErrorMapper Tests")

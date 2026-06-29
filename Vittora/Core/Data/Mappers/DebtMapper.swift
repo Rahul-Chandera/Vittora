@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import VittoraCore
 
 enum DebtMapper {
     /// Merges the V5 `linkedTransactionIDs` array with the legacy single

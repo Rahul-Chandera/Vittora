@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 enum TrendGrouping: String, CaseIterable, Sendable, Hashable {
     case daily, weekly, monthly

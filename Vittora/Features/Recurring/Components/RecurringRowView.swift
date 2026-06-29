@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct RecurringRowView: View {
     @Environment(\.currencyCode) private var currencyCode

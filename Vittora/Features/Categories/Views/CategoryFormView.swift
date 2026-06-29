@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct CategoryFormView: View {
     var editingCategory: CategoryEntity? = nil

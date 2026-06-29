@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import VittoraCore
 
 struct SpendingTrendsView: View {
     @Environment(\.dependencies) private var dependencies

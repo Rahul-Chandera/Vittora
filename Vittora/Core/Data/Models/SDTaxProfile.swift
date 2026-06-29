@@ -1,6 +1,7 @@
 import Foundation
 import OSLog
 import SwiftData
+import VittoraCore
 
 @Model
 final class SDTaxProfile {

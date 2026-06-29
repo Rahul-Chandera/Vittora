@@ -2,6 +2,7 @@
 import Foundation
 import Testing
 import SwiftData
+import VittoraCore
 @testable import Vittora
 
 /// DATAINTEGRITY-12 (A7): balance reconciliation + repair over a real in-memory

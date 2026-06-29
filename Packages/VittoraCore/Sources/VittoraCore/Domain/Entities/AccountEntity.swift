@@ -1,9 +1,9 @@
 import Foundation
 
-enum AccountType: String, Sendable, Hashable, CaseIterable, Codable {
+public enum AccountType: String, Sendable, Hashable, CaseIterable, Codable {
     case cash, bank, creditCard, loan, digitalWallet, investment, receivable, payable
 
-    var displayName: String {
+    public var displayName: String {
         switch self {
         case .cash: String(localized: "Cash")
         case .bank: String(localized: "Bank")
@@ -16,7 +16,7 @@ enum AccountType: String, Sendable, Hashable, CaseIterable, Codable {
         }
     }
 
-    nonisolated var isAsset: Bool {
+    public nonisolated var isAsset: Bool {
         switch self {
         case .cash, .bank, .digitalWallet, .investment, .receivable: return true
         case .creditCard, .loan, .payable: return false
@@ -24,26 +24,26 @@ enum AccountType: String, Sendable, Hashable, CaseIterable, Codable {
     }
 }
 
-struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
-    nonisolated let id: UUID
-    nonisolated var name: String
-    nonisolated var type: AccountType
-    nonisolated var balance: Decimal
+public struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
+    public nonisolated let id: UUID
+    public nonisolated var name: String
+    public nonisolated var type: AccountType
+    public nonisolated var balance: Decimal
     /// Balance before any transaction (DATAINTEGRITY-12). `nil` for legacy
     /// accounts created before Schema V3; reconciliation derives the implied
     /// opening on read for those rather than persisting a baseline.
-    nonisolated var openingBalance: Decimal?
-    nonisolated var currencyCode: String
-    nonisolated var icon: String
-    nonisolated var isArchived: Bool
-    nonisolated var createdAt: Date
-    nonisolated var updatedAt: Date
+    public nonisolated var openingBalance: Decimal?
+    public nonisolated var currencyCode: String
+    public nonisolated var icon: String
+    public nonisolated var isArchived: Bool
+    public nonisolated var createdAt: Date
+    public nonisolated var updatedAt: Date
     /// Day of month the statement closes (1–31). Credit cards only (C4).
-    nonisolated var statementDayOfMonth: Int?
+    public nonisolated var statementDayOfMonth: Int?
     /// Day of month payment is due (1–31). Credit cards only (C4).
-    nonisolated var dueDayOfMonth: Int?
+    public nonisolated var dueDayOfMonth: Int?
 
-    nonisolated init(
+    public nonisolated init(
         id: UUID = UUID(),
         name: String,
         type: AccountType,
@@ -73,6 +73,6 @@ struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
 
     // MARK: - Equatable & Hashable (identity-based)
 
-    static func == (lhs: AccountEntity, rhs: AccountEntity) -> Bool { lhs.id == rhs.id }
-    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    public static func == (lhs: AccountEntity, rhs: AccountEntity) -> Bool { lhs.id == rhs.id }
+    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
