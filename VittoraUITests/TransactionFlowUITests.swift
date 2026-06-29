@@ -96,13 +96,18 @@ final class TransactionFlowUITests: XCTestCase {
             "Searching should hide transactions whose notes do not match."
         )
 
-        dismissSearchKeyboardIfNeeded()
-        if searchField.buttons["Cancel"].waitForExistence(timeout: 2) {
-            searchField.buttons["Cancel"].tap()
-        }
+        dismissSearchAndClearQuery()
+
+        XCTAssertTrue(
+            salaryRow.waitForExistence(timeout: 5),
+            "Clearing search should restore all seeded transactions before filtering."
+        )
 
         let filterButton = app.buttons["transaction-filter-button"]
-        XCTAssertTrue(filterButton.waitForExistence(timeout: 10))
+        XCTAssertTrue(
+            waitForFilterButton(timeout: 15),
+            "Filter button should reappear in the toolbar after clearing search."
+        )
         filterButton.tap()
 
         let minAmountField = app.textFields["transaction-filter-min-field"]
@@ -188,6 +193,41 @@ final class TransactionFlowUITests: XCTestCase {
         }
 
         return transactionRowCount() == expectedCount
+    }
+
+    @MainActor
+    private func dismissSearchAndClearQuery() {
+        dismissSearchKeyboardIfNeeded()
+
+        let searchField = app.searchFields["Search transactions"]
+        guard searchField.waitForExistence(timeout: 2) else { return }
+
+        if searchField.buttons["Cancel"].waitForExistence(timeout: 2) {
+            searchField.buttons["Cancel"].tap()
+        }
+
+        if searchField.buttons["Clear text"].waitForExistence(timeout: 1) {
+            searchField.buttons["Clear text"].tap()
+        }
+
+        // Give SwiftUI time to collapse search and restore the primary toolbar.
+        _ = app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 2)
+    }
+
+    @MainActor
+    private func waitForFilterButton(timeout: TimeInterval) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while Date() < deadline {
+            let filterButton = app.buttons["transaction-filter-button"]
+            if filterButton.waitForExistence(timeout: 0.5), filterButton.isHittable {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+
+        let filterButton = app.buttons["transaction-filter-button"]
+        return filterButton.exists && filterButton.isHittable
     }
 
     @MainActor
