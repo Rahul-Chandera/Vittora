@@ -84,25 +84,11 @@ final class TransactionFlowUITests: XCTestCase {
         XCTAssertTrue(coffeeRow.waitForExistence(timeout: 5))
         XCTAssertTrue(salaryRow.waitForExistence(timeout: 5))
 
-        let searchField = app.searchFields["Search transactions"]
-        XCTAssertTrue(searchField.waitForExistence(timeout: 5))
-        searchField.tap()
-        searchField.typeText("Coffee")
-
-        // Debounced search (250ms) — wait for filtered results; no keyboard dismiss needed.
-        XCTAssertTrue(coffeeRow.waitForExistence(timeout: 5))
-        XCTAssertFalse(
-            salaryRow.waitForExistence(timeout: 5),
-            "Searching should hide transactions whose notes do not match."
-        )
-
-        dismissSearchKeyboardIfNeeded()
-        if searchField.buttons["Cancel"].waitForExistence(timeout: 2) {
-            searchField.buttons["Cancel"].tap()
-        }
-
         let filterButton = app.buttons["transaction-filter-button"]
-        XCTAssertTrue(filterButton.waitForExistence(timeout: 10))
+        XCTAssertTrue(
+            waitForFilterButton(timeout: 10),
+            "Filter button should be visible on the transactions list."
+        )
         filterButton.tap()
 
         let minAmountField = app.textFields["transaction-filter-min-field"]
@@ -123,6 +109,30 @@ final class TransactionFlowUITests: XCTestCase {
         XCTAssertFalse(
             filteredCoffeeRow.waitForExistence(timeout: 2),
             "Filtering to the higher amount range should hide the seeded coffee transaction."
+        )
+
+        filterButton.tap()
+        let clearButton = app.buttons["transaction-filter-clear-button"]
+        XCTAssertTrue(clearButton.waitForExistence(timeout: 5))
+        clearButton.tap()
+        applyButton.tap()
+
+        XCTAssertTrue(
+            coffeeRow.waitForExistence(timeout: 5),
+            "Clearing filters should restore all seeded transactions before searching."
+        )
+        XCTAssertTrue(salaryRow.waitForExistence(timeout: 5))
+
+        let searchField = app.searchFields["Search transactions"]
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5))
+        searchField.tap()
+        searchField.typeText("Coffee")
+
+        // Debounced search (250ms) — wait for filtered results.
+        XCTAssertTrue(coffeeRow.waitForExistence(timeout: 5))
+        XCTAssertFalse(
+            salaryRow.waitForExistence(timeout: 5),
+            "Searching should hide transactions whose notes do not match."
         )
     }
 
@@ -191,15 +201,18 @@ final class TransactionFlowUITests: XCTestCase {
     }
 
     @MainActor
-    private func dismissSearchKeyboardIfNeeded() {
-        if app.keyboards.count > 0 {
-            if app.keyboards.buttons["Search"].exists {
-                app.keyboards.buttons["Search"].tap()
-            } else if app.keyboards.buttons["Return"].exists {
-                app.keyboards.buttons["Return"].tap()
-            } else {
-                app.tap()
+    private func waitForFilterButton(timeout: TimeInterval) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while Date() < deadline {
+            let filterButton = app.buttons["transaction-filter-button"]
+            if filterButton.waitForExistence(timeout: 0.5), filterButton.isHittable {
+                return true
             }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
         }
+
+        let filterButton = app.buttons["transaction-filter-button"]
+        return filterButton.exists && filterButton.isHittable
     }
 }

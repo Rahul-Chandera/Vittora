@@ -341,6 +341,8 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | J6 | MULTIPLATFORM-7 | P2 | `VittoraApp.swift` | macOS `Settings { }` scene (drop Cmd-, hack); `windowResizability(.contentMinSize)`/min frame; flesh out menu bar. | Native macOS Settings + min window. | M |
 | J7 | MULTIPLATFORM-8/9/10 | P2 | `VittoraApp.swift`, `DashboardView.swift`, `SidebarNavigation.swift` | `@SceneStorage` for tab/nav path; NSUserActivity for Handoff; size-class not `UIDevice.idiom`; bind sidebar selection directly to `appState.selectedTab`. | State restores; single selection source. | M |
 
+> **Epic J status (merged #12, 2026-06-29):** **J1, J3–J7 done.** **J2 partial** — `VittoraCore` has 108 files (Domain, Data, Security, Sync); app `Core/` still holds use cases + infrastructure; `AttachDocumentUseCase` UIKit import remains. **Follow-up J2-FINISH:** complete Core extraction when Widget/Watch target is planned (move remaining use cases; app-side document thumbnail adapter; drop re-export shim).
+
 ---
 
 # EPIC K — Functional Gaps (P1/P2)
