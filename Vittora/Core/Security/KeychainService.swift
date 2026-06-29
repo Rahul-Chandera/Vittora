@@ -2,28 +2,6 @@ import Foundation
 import Security
 import VittoraCore
 
-enum KeychainItemAccess: Sendable, Equatable {
-    case standard
-    case biometricBound
-}
-
-protocol KeychainServiceProtocol: Sendable {
-    func save(_ data: Data, forKey key: String, access: KeychainItemAccess) async throws
-    func load(forKey key: String, access: KeychainItemAccess) async throws -> Data?
-    func delete(forKey key: String) async throws
-    func exists(forKey key: String) async throws -> Bool
-}
-
-extension KeychainServiceProtocol {
-    func save(_ data: Data, forKey key: String) async throws {
-        try await save(data, forKey: key, access: .standard)
-    }
-
-    func load(forKey key: String) async throws -> Data? {
-        try await load(forKey: key, access: .standard)
-    }
-}
-
 @MainActor
 final class KeychainService: KeychainServiceProtocol, Sendable {
     private let serviceName = "com.vittora.keychain"

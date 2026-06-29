@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B7735C152FF2BFEF000CABD6 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = D72FE9022F8B93AA00B6FF9D /* VittoraCore */; };
+		B7735C162FF2BFEF000CABD6 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = D72FE9032F8B93AA00B6FF9D /* VittoraCore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B72FE7F82F8B92FA00B6FF9D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +70,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B7735C152FF2BFEF000CABD6 /* VittoraCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B7735C162FF2BFEF000CABD6 /* VittoraCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,7 +218,7 @@
 			mainGroup = B72FE7DD2F8B92F900B6FF9D;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "VittoraCore" */,
+				D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "Packages/VittoraCore" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B72FE7E72F8B92F900B6FF9D /* Products */;
@@ -285,26 +292,6 @@
 			targetProxy = B72FE8022F8B92FA00B6FF9D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "VittoraCore" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/VittoraCore;
-		};
-/* End XCLocalSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		D72FE9022F8B93AA00B6FF9D /* VittoraCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = VittoraCore;
-			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "VittoraCore" */;
-		};
-		D72FE9032F8B93AA00B6FF9D /* VittoraCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = VittoraCore;
-			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "VittoraCore" */;
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		B72FE80B2F8B92FA00B6FF9D /* Debug */ = {
@@ -669,6 +656,26 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "Packages/VittoraCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/VittoraCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D72FE9022F8B93AA00B6FF9D /* VittoraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "Packages/VittoraCore" */;
+			productName = VittoraCore;
+		};
+		D72FE9032F8B93AA00B6FF9D /* VittoraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "Packages/VittoraCore" */;
+			productName = VittoraCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B72FE7DE2F8B92F900B6FF9D /* Project object */;
 }

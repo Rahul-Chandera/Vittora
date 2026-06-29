@@ -3,12 +3,6 @@ import CryptoKit
 import Security
 import VittoraCore
 
-protocol EncryptionServiceProtocol: Sendable {
-    func encrypt(_ data: Data) async throws -> Data
-    func decrypt(_ encryptedData: Data) async throws -> Data
-    func generateKey() async throws
-}
-
 /// AES-256-GCM encryption service.
 ///
 /// On real devices the AES key is wrapped with an EC P-256 key that lives in

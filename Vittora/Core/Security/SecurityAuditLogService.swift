@@ -1,29 +1,11 @@
 import Foundation
 import VittoraCore
 
-enum SecurityAuditEventKind: String, Codable, Sendable {
-    case appLocked
-    case appUnlocked
-    case exportCreated
-    case syncConflictAutoResolved
-    case syncIntegrityViolation
-    case encryptionKeyRotated
-}
-
-struct SecurityAuditEvent: Sendable {
-    let kind: SecurityAuditEventKind
-    let detail: String
-}
-
-protocol SecurityAuditLogging: Sendable {
-    func record(_ event: SecurityAuditEvent) async
-}
-
-struct SecurityAuditLogEntry: Codable, Sendable, Identifiable {
-    let id: UUID
-    let recordedAt: Date
-    let kind: SecurityAuditEventKind
-    let detail: String
+public struct SecurityAuditLogEntry: Codable, Sendable, Identifiable {
+    public let id: UUID
+    public let recordedAt: Date
+    public let kind: SecurityAuditEventKind
+    public let detail: String
 }
 
 /// Append-only encrypted audit trail (SEC-18). Stored under Application Support with complete file protection.
