@@ -2,7 +2,7 @@ import Foundation
 
 /// Applies notification preference changes from Settings (UX-4 / C6).
 struct ApplyNotificationPreferencesUseCase: Sendable {
-    static let notificationsEnabledKey = "vittora.notificationsEnabled"
+    static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled
 
     let notificationService: any NotificationServiceProtocol
     let refreshAllSchedules: @Sendable () async -> Void

@@ -1,8 +1,8 @@
 import Foundation
 
 struct ScheduleCreditCardDueRemindersUseCase: Sendable {
-    private static let notificationsEnabledKey = "vittora.notificationsEnabled"
-    private static let notifyBillsDueKey = "vittora.notifyBillsDue"
+    private static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled
+    private static let notifyBillsDueKey = AppUserDefaults.StandardKey.notifyBillsDue
 
     let accountRepository: any AccountRepository
     let notificationService: any NotificationServiceProtocol

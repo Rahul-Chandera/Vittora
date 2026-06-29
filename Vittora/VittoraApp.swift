@@ -99,20 +99,20 @@ struct VittoraApp: App {
         bypassOnboardingForUITesting: Bool
     ) -> Bool {
         if showsOnboardingForUITesting {
-            KeychainService.syncDelete(forKey: "vittora.onboardingComplete")
+            KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
             return false
         }
 
         if bypassOnboardingForUITesting { return true }
 
         // Keychain is authoritative; migrate from UserDefaults on first upgrade
-        if let data = KeychainService.syncLoad(forKey: "vittora.onboardingComplete") {
+        if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.onboardingComplete) {
             return data.first == 1
         }
-        let udValue = UserDefaults.standard.bool(forKey: "vittora.onboardingComplete")
+        let udValue = UserDefaults.standard.bool(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
         if udValue {
-            KeychainService.syncSave(Data([1]), forKey: "vittora.onboardingComplete")
-            UserDefaults.standard.removeObject(forKey: "vittora.onboardingComplete")
+            KeychainService.syncSave(Data([1]), forKey: AppUserDefaults.KeychainKey.onboardingComplete)
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
         }
         return udValue
     }

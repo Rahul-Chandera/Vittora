@@ -38,7 +38,7 @@ extension AppLockCooldownStoring {
 }
 
 final class KeychainAppLockCooldownStore: AppLockCooldownStoring, Sendable {
-    static let keychainKey = "vittora.appLockCooldown"
+    static let keychainKey = AppUserDefaults.KeychainKey.appLockCooldown
 
     private let key: String
 

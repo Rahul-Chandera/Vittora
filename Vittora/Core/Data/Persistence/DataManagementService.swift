@@ -164,16 +164,16 @@ final class DataManagementService: Sendable {
         }
 
         // Clear sensitive Keychain entries
-        try await keychainService.delete(forKey: "vittora.onboardingComplete")
-        try await keychainService.delete(forKey: "vittora.appLockEnabled")
-        try await keychainService.delete(forKey: KeychainAppLockCooldownStore.keychainKey)
-        try await keychainService.delete(forKey: "vittora.passcodeFallback")
-        try await keychainService.delete(forKey: "vittora.userName")
+        try await keychainService.delete(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
+        try await keychainService.delete(forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+        try await keychainService.delete(forKey: AppUserDefaults.KeychainKey.appLockCooldown)
+        try await keychainService.delete(forKey: AppUserDefaults.KeychainKey.passcodeFallback)
+        try await keychainService.delete(forKey: AppUserDefaults.KeychainKey.userName)
         try await keychainService.delete(forKey: "com.vittora.encryption.key")
         try await keychainService.delete(forKey: "com.vittora.encryption.key.se_wrapped")
 
-        UserDefaults.standard.removeObject(forKey: "vittora.lastSyncDate")
-        AppUserDefaults.sync.removeObject(forKey: "vittora.lastSyncDate")
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
+        AppUserDefaults.sync.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
     }
 
     // MARK: - Helpers
