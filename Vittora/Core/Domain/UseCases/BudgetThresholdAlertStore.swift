@@ -12,15 +12,15 @@ enum BudgetThresholdAlertStore {
 }
 
 final class UserDefaultsBudgetThresholdAlertStore: BudgetThresholdAlertStoring, @unchecked Sendable {
-    private let userDefaults: UserDefaults
-    private let storageKey = AppUserDefaults.StandardKey.budgetThresholdFired
-    private let lock = NSLock()
+    nonisolated(unsafe) private let userDefaults: UserDefaults
+    nonisolated private let storageKey = AppUserDefaults.StandardKey.budgetThresholdFired
+    nonisolated private let lock = NSLock()
 
-    init(userDefaults: UserDefaults = .standard) {
+    nonisolated init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
     }
 
-    func firedLevels(forPeriodKey key: String) -> Set<BudgetThresholdLevel> {
+    nonisolated func firedLevels(forPeriodKey key: String) -> Set<BudgetThresholdLevel> {
         lock.lock()
         defer { lock.unlock() }
         guard let map = userDefaults.dictionary(forKey: storageKey) as? [String: [Int]],
@@ -31,7 +31,7 @@ final class UserDefaultsBudgetThresholdAlertStore: BudgetThresholdAlertStoring, 
         return Set(rawValues.compactMap(BudgetThresholdLevel.init))
     }
 
-    func markFired(_ level: BudgetThresholdLevel, forPeriodKey key: String) {
+    nonisolated func markFired(_ level: BudgetThresholdLevel, forPeriodKey key: String) {
         lock.lock()
         defer { lock.unlock() }
         var map = userDefaults.dictionary(forKey: storageKey) as? [String: [Int]] ?? [:]

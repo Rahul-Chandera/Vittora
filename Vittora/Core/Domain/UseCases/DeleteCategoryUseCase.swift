@@ -6,7 +6,7 @@ struct DeleteCategoryUseCase: Sendable {
     /// persist atomically (A10, DATAINTEGRITY-6). No repository-only fallback.
     let ledgerWriting: any LedgerWriting
 
-    init(
+    nonisolated init(
         categoryRepository: any CategoryRepository,
         ledgerWriting: any LedgerWriting
     ) {

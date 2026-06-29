@@ -61,18 +61,23 @@ struct ConversionEventTrackerTests {
 
     @Test("OCR count resets when month bucket changes")
     func ocrCountResetsNextMonth() {
-        var now = Date(timeIntervalSince1970: 1_700_000_000)
+        final class NowBox: @unchecked Sendable {
+            var value: Date
+            init(_ value: Date) { self.value = value }
+        }
+
+        let nowBox = NowBox(Date(timeIntervalSince1970: 1_700_000_000))
         let tracker = UserDefaultsConversionEventTracker(
             defaults: UserDefaults(suiteName: "test.conversion.\(UUID().uuidString)") ?? .standard,
             calendar: Calendar(identifier: .gregorian),
-            nowProvider: { now }
+            nowProvider: { nowBox.value }
         )
 
         _ = tracker.recordOCRScan()
         _ = tracker.recordOCRScan()
         #expect(tracker.ocrScansThisMonth() == 2)
 
-        now = Calendar(identifier: .gregorian).date(byAdding: .month, value: 1, to: now) ?? now
+        nowBox.value = Calendar(identifier: .gregorian).date(byAdding: .month, value: 1, to: nowBox.value) ?? nowBox.value
         #expect(tracker.ocrScansThisMonth() == 0)
     }
 

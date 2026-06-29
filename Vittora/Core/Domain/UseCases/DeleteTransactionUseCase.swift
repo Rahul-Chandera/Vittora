@@ -9,7 +9,7 @@ struct DeleteTransactionUseCase: Sendable {
     /// through the ledger store keeps that atomic (DATAINTEGRITY-1/2, A4).
     let ledgerWriting: any LedgerWriting
 
-    init(
+    nonisolated init(
         transactionRepository: any TransactionRepository,
         documentRepository: any DocumentRepository,
         documentStorageService: any DocumentStorageServiceProtocol,

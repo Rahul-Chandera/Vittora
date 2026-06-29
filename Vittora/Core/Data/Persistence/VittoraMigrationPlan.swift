@@ -3,8 +3,8 @@ import SwiftData
 // MARK: - Shared model sets
 
 private enum VittoraSchemaModels {
-    /// Models unchanged across V1–V6 transaction migrations (non-transaction entities).
-    static let sharedBaseline: [any PersistentModel.Type] = [
+    /// Model types shared across V1–V6; nonisolated so `VersionedSchema.models` stays Sendable-safe.
+    nonisolated(unsafe) static let sharedBaseline: [any PersistentModel.Type] = [
         SDAccount.self,
         SDCategory.self,
         SDBudget.self,

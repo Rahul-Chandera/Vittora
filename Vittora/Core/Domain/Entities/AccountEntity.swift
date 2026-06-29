@@ -16,7 +16,7 @@ enum AccountType: String, Sendable, Hashable, CaseIterable, Codable {
         }
     }
 
-    var isAsset: Bool {
+    nonisolated var isAsset: Bool {
         switch self {
         case .cash, .bank, .digitalWallet, .investment, .receivable: return true
         case .creditCard, .loan, .payable: return false
@@ -25,23 +25,23 @@ enum AccountType: String, Sendable, Hashable, CaseIterable, Codable {
 }
 
 struct AccountEntity: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var name: String
-    var type: AccountType
-    var balance: Decimal
+    nonisolated let id: UUID
+    nonisolated var name: String
+    nonisolated var type: AccountType
+    nonisolated var balance: Decimal
     /// Balance before any transaction (DATAINTEGRITY-12). `nil` for legacy
     /// accounts created before Schema V3; reconciliation derives the implied
     /// opening on read for those rather than persisting a baseline.
-    var openingBalance: Decimal?
-    var currencyCode: String
-    var icon: String
-    var isArchived: Bool
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated var openingBalance: Decimal?
+    nonisolated var currencyCode: String
+    nonisolated var icon: String
+    nonisolated var isArchived: Bool
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
     /// Day of month the statement closes (1–31). Credit cards only (C4).
-    var statementDayOfMonth: Int?
+    nonisolated var statementDayOfMonth: Int?
     /// Day of month payment is due (1–31). Credit cards only (C4).
-    var dueDayOfMonth: Int?
+    nonisolated var dueDayOfMonth: Int?
 
     nonisolated init(
         id: UUID = UUID(),

@@ -59,19 +59,47 @@ enum RecurrenceFrequency: Sendable, Hashable, Codable {
     }
 }
 
+extension RecurrenceFrequency {
+    nonisolated static func == (lhs: RecurrenceFrequency, rhs: RecurrenceFrequency) -> Bool {
+        switch (lhs, rhs) {
+        case (.daily, .daily), (.weekly, .weekly), (.biweekly, .biweekly),
+             (.monthly, .monthly), (.quarterly, .quarterly), (.yearly, .yearly):
+            return true
+        case (.custom(let left), .custom(let right)):
+            return left == right
+        default:
+            return false
+        }
+    }
+
+    nonisolated func hash(into hasher: inout Hasher) {
+        switch self {
+        case .daily: hasher.combine(0)
+        case .weekly: hasher.combine(1)
+        case .biweekly: hasher.combine(2)
+        case .monthly: hasher.combine(3)
+        case .quarterly: hasher.combine(4)
+        case .yearly: hasher.combine(5)
+        case .custom(let days):
+            hasher.combine(6)
+            hasher.combine(days)
+        }
+    }
+}
+
 struct RecurringRuleEntity: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var frequency: RecurrenceFrequency
-    var nextDate: Date
-    var isActive: Bool
-    var endDate: Date?
-    var templateAmount: Decimal
-    var templateNote: String?
-    var templateCategoryID: UUID?
-    var templateAccountID: UUID?
-    var templatePayeeID: UUID?
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated let id: UUID
+    nonisolated var frequency: RecurrenceFrequency
+    nonisolated var nextDate: Date
+    nonisolated var isActive: Bool
+    nonisolated var endDate: Date?
+    nonisolated var templateAmount: Decimal
+    nonisolated var templateNote: String?
+    nonisolated var templateCategoryID: UUID?
+    nonisolated var templateAccountID: UUID?
+    nonisolated var templatePayeeID: UUID?
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
 
     nonisolated init(
         id: UUID = UUID(),

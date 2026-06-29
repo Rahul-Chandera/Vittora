@@ -5,16 +5,16 @@ enum CategoryType: String, Sendable, Hashable, CaseIterable, Codable {
 }
 
 struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var name: String
-    var icon: String
-    var colorHex: String
-    var type: CategoryType
-    var isDefault: Bool
-    var sortOrder: Int
-    var parentID: UUID?
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated let id: UUID
+    nonisolated var name: String
+    nonisolated var icon: String
+    nonisolated var colorHex: String
+    nonisolated var type: CategoryType
+    nonisolated var isDefault: Bool
+    nonisolated var sortOrder: Int
+    nonisolated var parentID: UUID?
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
 
     nonisolated init(
         id: UUID = UUID(),

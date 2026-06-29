@@ -10,9 +10,9 @@ struct ScheduleRecurringPreNotificationsUseCase: Sendable {
     let notificationService: any NotificationServiceProtocol
     let calendar: Calendar
     let nowProvider: @Sendable () -> Date
-    let userDefaults: UserDefaults
+    nonisolated(unsafe) let userDefaults: UserDefaults
 
-    init(
+    nonisolated init(
         ruleRepository: any RecurringRuleRepository,
         payeeRepository: any PayeeRepository,
         notificationService: any NotificationServiceProtocol,

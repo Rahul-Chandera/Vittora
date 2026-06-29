@@ -5,14 +5,14 @@ enum PayeeType: String, Sendable, Hashable, CaseIterable, Codable {
 }
 
 struct PayeeEntity: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var name: String
-    var type: PayeeType
-    var phone: String?
-    var email: String?
-    var notes: String?
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated let id: UUID
+    nonisolated var name: String
+    nonisolated var type: PayeeType
+    nonisolated var phone: String?
+    nonisolated var email: String?
+    nonisolated var notes: String?
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
 
     nonisolated init(
         id: UUID = UUID(),

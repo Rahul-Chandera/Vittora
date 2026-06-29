@@ -18,8 +18,8 @@ protocol SyncIntegrityValidating: Sendable {
 @ModelActor
 actor SyncIntegrityValidator: SyncIntegrityValidating {
 
-    private static let logger = Logger(subsystem: "com.vittora.app", category: "SyncIntegrity")
-    private static let maxRecordsPerEntityValidation = 500
+    nonisolated private static let logger = Logger(subsystem: "com.vittora.app", category: "SyncIntegrity")
+    nonisolated private static let maxRecordsPerEntityValidation = 500
 
     func validateAmountBearingEntities() async -> [IntegrityViolation] {
         var violations: [IntegrityViolation] = []

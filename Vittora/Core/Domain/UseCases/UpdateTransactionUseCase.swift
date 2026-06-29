@@ -8,7 +8,7 @@ struct UpdateTransactionUseCase: Sendable {
     /// (DATAINTEGRITY-3, A4).
     let ledgerWriting: any LedgerWriting
 
-    init(
+    nonisolated init(
         transactionRepository: any TransactionRepository,
         ledgerWriting: any LedgerWriting
     ) {

@@ -16,7 +16,7 @@ struct UpdateTransferUseCase: Sendable {
     /// `LedgerWriteStore`.
     let ledgerWriting: any LedgerWriting
 
-    init(
+    nonisolated init(
         accountRepository: any AccountRepository,
         ledgerWriting: any LedgerWriting
     ) {

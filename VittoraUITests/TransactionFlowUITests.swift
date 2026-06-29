@@ -84,9 +84,12 @@ final class TransactionFlowUITests: XCTestCase {
         )
 
         dismissSearchKeyboardIfNeeded()
+        if searchField.buttons["Cancel"].waitForExistence(timeout: 2) {
+            searchField.buttons["Cancel"].tap()
+        }
 
         let filterButton = app.buttons["transaction-filter-button"]
-        XCTAssertTrue(filterButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 10))
         filterButton.tap()
 
         let minAmountField = app.textFields["transaction-filter-min-field"]

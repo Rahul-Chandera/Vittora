@@ -13,9 +13,9 @@ enum TrendGrouping: String, CaseIterable, Sendable, Hashable {
 }
 
 struct TrendDataPoint: Sendable, Identifiable {
-    let id = UUID()
-    let date: Date
-    let amount: Decimal
+    nonisolated let id = UUID()
+    nonisolated let date: Date
+    nonisolated let amount: Decimal
 }
 
 struct SpendingTrendsUseCase: Sendable {

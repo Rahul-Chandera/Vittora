@@ -12,7 +12,7 @@ enum BudgetPeriod: String, Sendable, Hashable, CaseIterable, Codable {
         }
     }
 
-    func dateRange(startingFrom startDate: Date) -> ClosedRange<Date> {
+    nonisolated func dateRange(startingFrom startDate: Date) -> ClosedRange<Date> {
         let calendar = Calendar.current
         let endDate: Date
         switch self {
@@ -30,15 +30,15 @@ enum BudgetPeriod: String, Sendable, Hashable, CaseIterable, Codable {
 }
 
 struct BudgetEntity: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var amount: Decimal
-    var spent: Decimal
-    var period: BudgetPeriod
-    var startDate: Date
-    var rollover: Bool
-    var categoryID: UUID?
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated let id: UUID
+    nonisolated var amount: Decimal
+    nonisolated var spent: Decimal
+    nonisolated var period: BudgetPeriod
+    nonisolated var startDate: Date
+    nonisolated var rollover: Bool
+    nonisolated var categoryID: UUID?
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
 
     var remaining: Decimal { amount - spent }
 

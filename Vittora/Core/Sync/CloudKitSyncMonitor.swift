@@ -4,11 +4,17 @@ import CloudKit
 
 @MainActor
 final class CloudKitSyncMonitor {
+    private struct EventSnapshot: Sendable {
+        let endDate: Date?
+        let type: NSPersistentCloudKitContainer.EventType
+        let error: NSError?
+    }
+
     private let syncStatusService: SyncStatusService
     private let conflictHandler: SyncConflictHandler
     private let integrityValidator: (any SyncIntegrityValidating)?
-    private let notificationCenter: NotificationCenter
-    private var eventObserver: NSObjectProtocol?
+    private nonisolated let notificationCenter: NotificationCenter
+    private nonisolated(unsafe) var eventObserver: (any NSObjectProtocol)?
 
     init(
         syncStatusService: SyncStatusService,
@@ -33,20 +39,25 @@ final class CloudKitSyncMonitor {
         eventObserver = notificationCenter.addObserver(
             forName: NSPersistentCloudKitContainer.eventChangedNotification,
             object: nil,
-            queue: nil
+            queue: .main
         ) { [weak self] notification in
             guard let event = notification.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey]
                 as? NSPersistentCloudKitContainer.Event else {
                 return
             }
+            let snapshot = EventSnapshot(
+                endDate: event.endDate,
+                type: event.type,
+                error: event.error as NSError?
+            )
 
-            Task { @MainActor [weak self] in
-                self?.handle(event)
+            MainActor.assumeIsolated {
+                self?.handle(snapshot)
             }
         }
     }
 
-    private func handle(_ event: NSPersistentCloudKitContainer.Event) {
+    private func handle(_ event: EventSnapshot) {
         if event.endDate == nil {
             syncStatusService.markSyncing()
             return

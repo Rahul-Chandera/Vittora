@@ -15,19 +15,19 @@ enum DebtDirection: String, Sendable, Hashable, CaseIterable, Codable {
 }
 
 struct DebtEntry: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var payeeID: UUID
-    var amount: Decimal
-    var settledAmount: Decimal
-    var direction: DebtDirection
-    var dueDate: Date?
-    var note: String?
-    var isSettled: Bool
+    nonisolated let id: UUID
+    nonisolated var payeeID: UUID
+    nonisolated var amount: Decimal
+    nonisolated var settledAmount: Decimal
+    nonisolated var direction: DebtDirection
+    nonisolated var dueDate: Date?
+    nonisolated var note: String?
+    nonisolated var isSettled: Bool
     /// Cash legs created by each partial/full settlement (A11, DATAINTEGRITY-7).
     /// Append-only — never overwrite on a subsequent settlement.
-    var linkedTransactionIDs: [UUID]
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated var linkedTransactionIDs: [UUID]
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
 
     var remainingAmount: Decimal { amount - settledAmount }
 

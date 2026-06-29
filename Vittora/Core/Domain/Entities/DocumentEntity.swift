@@ -1,13 +1,13 @@
 import Foundation
 
 struct DocumentEntity: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var fileName: String
-    var mimeType: String
-    var thumbnailData: Data?
-    var transactionID: UUID?
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated let id: UUID
+    nonisolated var fileName: String
+    nonisolated var mimeType: String
+    nonisolated var thumbnailData: Data?
+    nonisolated var transactionID: UUID?
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
 
     nonisolated init(
         id: UUID = UUID(),

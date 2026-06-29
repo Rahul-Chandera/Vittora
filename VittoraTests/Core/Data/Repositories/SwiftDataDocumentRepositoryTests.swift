@@ -3,8 +3,8 @@ import Testing
 import SwiftData
 @testable import Vittora
 
-@Suite("SwiftDataDocumentRepository Tests")
 @MainActor
+@Suite("SwiftDataDocumentRepository Tests")
 struct SwiftDataDocumentRepositoryTests {
 
     private func makeRepo(

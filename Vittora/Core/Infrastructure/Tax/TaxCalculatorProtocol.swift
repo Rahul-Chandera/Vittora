@@ -2,8 +2,8 @@ import Foundation
 
 /// Pluggable tax estimation engine. Each country/regime gets its own conforming type.
 protocol TaxCalculatorProtocol: Sendable {
-    var country: TaxCountry { get }
-    func calculate(profile: TaxProfile) -> TaxEstimate
+    nonisolated var country: TaxCountry { get }
+    nonisolated func calculate(profile: TaxProfile) -> TaxEstimate
 }
 
 // MARK: - Slab Helper

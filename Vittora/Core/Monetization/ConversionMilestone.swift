@@ -11,7 +11,17 @@ enum ConversionMilestone: String, CaseIterable, Sendable, Codable {
 }
 
 struct ConversionEventResult: Sendable, Equatable {
-    let milestone: ConversionMilestone
-    let isFirstTime: Bool
-    let shouldPresentPaywall: Bool
+    nonisolated let milestone: ConversionMilestone
+    nonisolated let isFirstTime: Bool
+    nonisolated let shouldPresentPaywall: Bool
+
+    nonisolated init(
+        milestone: ConversionMilestone,
+        isFirstTime: Bool,
+        shouldPresentPaywall: Bool
+    ) {
+        self.milestone = milestone
+        self.isFirstTime = isFirstTime
+        self.shouldPresentPaywall = shouldPresentPaywall
+    }
 }

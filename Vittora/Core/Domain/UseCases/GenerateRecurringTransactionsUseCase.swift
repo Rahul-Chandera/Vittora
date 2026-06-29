@@ -14,7 +14,7 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
     /// Injectable clock so catch-up generation is testable.
     let nowProvider: @Sendable () -> Date
 
-    init(
+    nonisolated init(
         ruleRepository: any RecurringRuleRepository,
         transactionRepository: any TransactionRepository,
         accountRepository: any AccountRepository,

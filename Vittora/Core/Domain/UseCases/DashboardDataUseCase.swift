@@ -1,8 +1,8 @@
 import Foundation
 
 struct CategorySpend: Sendable {
-    let category: CategoryEntity
-    let amount: Decimal
+    nonisolated let category: CategoryEntity
+    nonisolated let amount: Decimal
 }
 
 struct DashboardData: Sendable {

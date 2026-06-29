@@ -2,12 +2,12 @@ import Foundation
 
 /// Shared fire-date math for one-shot payment reminders (C4/C5).
 enum PaymentReminderDateCalculator {
-    static let defaultReminderHour = 9
-    static let defaultReminderMinute = 0
+    nonisolated static let defaultReminderHour = 9
+    nonisolated static let defaultReminderMinute = 0
 
     /// Returns a local 9:00 reminder `leadDays` before `occurrence`, or the next
     /// 9:00 slot before `occurrence` when the standard lead window has passed.
-    static func preNotificationFireDate(
+    nonisolated static func preNotificationFireDate(
         occurrence: Date,
         leadDays: Int,
         calendar: Calendar,
@@ -25,7 +25,7 @@ enum PaymentReminderDateCalculator {
         return primaryFire
     }
 
-    private static func fallbackFireDate(
+    nonisolated private static func fallbackFireDate(
         before occurrence: Date,
         calendar: Calendar,
         from reference: Date
@@ -43,7 +43,7 @@ enum PaymentReminderDateCalculator {
         return nil
     }
 
-    private static func reminderTime(on day: Date, calendar: Calendar) -> Date? {
+    nonisolated private static func reminderTime(on day: Date, calendar: Calendar) -> Date? {
         var components = calendar.dateComponents([.year, .month, .day], from: day)
         components.hour = defaultReminderHour
         components.minute = defaultReminderMinute

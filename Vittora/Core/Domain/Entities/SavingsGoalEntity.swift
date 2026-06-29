@@ -66,18 +66,18 @@ enum GoalStatus: String, Sendable, Hashable, Codable {
 // MARK: - Savings Goal Entity
 
 struct SavingsGoalEntity: Identifiable, Hashable, Equatable, Sendable {
-    let id: UUID
-    var name: String
-    var category: GoalCategory
-    var targetAmount: Decimal
-    var currentAmount: Decimal
-    var targetDate: Date?
-    var linkedAccountID: UUID?
-    var note: String?
-    var status: GoalStatus
-    var colorHex: String
-    var createdAt: Date
-    var updatedAt: Date
+    nonisolated let id: UUID
+    nonisolated var name: String
+    nonisolated var category: GoalCategory
+    nonisolated var targetAmount: Decimal
+    nonisolated var currentAmount: Decimal
+    nonisolated var targetDate: Date?
+    nonisolated var linkedAccountID: UUID?
+    nonisolated var note: String?
+    nonisolated var status: GoalStatus
+    nonisolated var colorHex: String
+    nonisolated var createdAt: Date
+    nonisolated var updatedAt: Date
 
     // MARK: - Computed
 
@@ -145,12 +145,12 @@ struct SavingsGoalEntity: Identifiable, Hashable, Equatable, Sendable {
 // MARK: - Progress Summary
 
 struct GoalProgressSummary: Sendable {
-    let totalGoals: Int
-    let activeGoals: Int
-    let achievedGoals: Int
-    let totalTargetAmount: Decimal
-    let totalSavedAmount: Decimal
-    var overallProgressFraction: Double {
+    nonisolated let totalGoals: Int
+    nonisolated let activeGoals: Int
+    nonisolated let achievedGoals: Int
+    nonisolated let totalTargetAmount: Decimal
+    nonisolated let totalSavedAmount: Decimal
+    nonisolated var overallProgressFraction: Double {
         guard totalTargetAmount > 0 else { return 0 }
         return min(1.0, (totalSavedAmount as NSDecimalNumber).doubleValue /
                         (totalTargetAmount as NSDecimalNumber).doubleValue)
