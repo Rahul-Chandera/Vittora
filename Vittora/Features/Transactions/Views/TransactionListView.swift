@@ -232,7 +232,11 @@ struct TransactionListView: View {
         if selection != nil {
             row
                 .tag(Optional(transaction.id))
-                .transactionRowModifiers(vm: vm, transaction: transaction)
+                .transactionRowModifiers(
+                    vm: vm,
+                    transaction: transaction,
+                    onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
+                )
         } else {
             Button {
                 if vm.isMultiSelectMode {
@@ -244,7 +248,11 @@ struct TransactionListView: View {
                 row
             }
             .buttonStyle(.plain)
-            .transactionRowModifiers(vm: vm, transaction: transaction)
+            .transactionRowModifiers(
+                vm: vm,
+                transaction: transaction,
+                onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
+            )
         }
     }
 
@@ -333,8 +341,10 @@ struct TransactionListView: View {
 
 private struct TransactionRowModifier: ViewModifier {
     @Environment(\.dependencies) private var dependencies
+    @Environment(AppState.self) private var appState
     let vm: TransactionListViewModel
     let transaction: TransactionEntity
+    let onEdit: () -> Void
 
     func body(content: Content) -> some View {
         content
@@ -349,6 +359,22 @@ private struct TransactionRowModifier: ViewModifier {
                 }
                 vm.toggleSelection(transaction.id)
             }
+            .vittoraRowContextMenu(VittoraRowContextMenuActions(
+                onEdit: onEdit,
+                onDuplicate: transaction.type == .transfer ? nil : {
+                    Task {
+                        await vm.duplicateTransaction(id: transaction.id)
+                        appState.notifyChanged([.transactions, .accounts, .budgets])
+                    }
+                },
+                onDelete: {
+                    Task {
+                        dependencies.hapticService.warning()
+                        await vm.deleteTransaction(id: transaction.id)
+                        appState.notifyChanged([.transactions, .accounts, .budgets])
+                    }
+                }
+            ))
             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 Button(role: .destructive) {
                     Task {
@@ -376,9 +402,10 @@ private struct TransactionRowModifier: ViewModifier {
 private extension View {
     func transactionRowModifiers(
         vm: TransactionListViewModel,
-        transaction: TransactionEntity
+        transaction: TransactionEntity,
+        onEdit: @escaping () -> Void
     ) -> some View {
-        modifier(TransactionRowModifier(vm: vm, transaction: transaction))
+        modifier(TransactionRowModifier(vm: vm, transaction: transaction, onEdit: onEdit))
     }
 }
 

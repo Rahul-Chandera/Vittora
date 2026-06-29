@@ -148,6 +148,21 @@ struct SavingsGoalListView: View {
                     SavingsGoalCardView(goal: goal, currencyCode: currencyCode)
                 }
                 .buttonStyle(.plain)
+                .contextMenu {
+                    Button {
+                        selectedGoalID = goal.id
+                    } label: {
+                        Label(String(localized: "Edit"), systemImage: "pencil")
+                    }
+                    Button(role: .destructive) {
+                        Task {
+                            await vm.delete(id: goal.id)
+                            appState.notifyChanged(.savings)
+                        }
+                    } label: {
+                        Label(String(localized: "Delete"), systemImage: "trash")
+                    }
+                }
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
                         Task {

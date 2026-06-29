@@ -100,6 +100,31 @@ struct RecurringListView: View {
                                         NavigationLink(value: NavigationDestination.recurringDetail(id: rule.id)) {
                                             RecurringRowView(rule: rule)
                                         }
+                                        .contextMenu {
+                                            NavigationLink(value: NavigationDestination.recurringDetail(id: rule.id)) {
+                                                Label(String(localized: "Edit"), systemImage: "pencil")
+                                            }
+                                            Button {
+                                                Task {
+                                                    await viewModel.togglePause(id: rule.id)
+                                                    await dependencies.refreshRecurringAndDebtReminders()
+                                                }
+                                            } label: {
+                                                Label(
+                                                    rule.isActive ? String(localized: "Pause") : String(localized: "Resume"),
+                                                    systemImage: rule.isActive ? "pause.circle.fill" : "play.circle.fill"
+                                                )
+                                            }
+                                            Button(role: .destructive) {
+                                                Task {
+                                                    await viewModel.deleteRule(id: rule.id)
+                                                    await dependencies.refreshRecurringAndDebtReminders()
+                                                    appState.notifyChanged(.recurring)
+                                                }
+                                            } label: {
+                                                Label(String(localized: "Delete"), systemImage: "trash")
+                                            }
+                                        }
                                         .swipeActions(edge: .leading) {
                                             Button {
                                                 Task {

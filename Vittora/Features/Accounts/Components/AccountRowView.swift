@@ -35,6 +35,7 @@ struct AccountRowView: View {
             }
         }
         .padding(.vertical, VSpacing.xs)
+        .contentShape(Rectangle())
         .vittoraPointerHighlight()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)

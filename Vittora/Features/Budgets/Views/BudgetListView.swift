@@ -61,6 +61,19 @@ struct BudgetListView: View {
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
                             }
+                            .contextMenu {
+                                NavigationLink(value: NavigationDestination.budgetDetail(id: budget.id)) {
+                                    Label(String(localized: "Edit"), systemImage: "pencil")
+                                }
+                                Button(role: .destructive) {
+                                    Task {
+                                        await viewModel.deleteBudget(id: budget.id)
+                                        appState.notifyChanged(.budgets)
+                                    }
+                                } label: {
+                                    Label(String(localized: "Delete"), systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing) {
                                 Button(role: .destructive) {
                                     Task {

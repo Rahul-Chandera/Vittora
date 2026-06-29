@@ -178,6 +178,17 @@ struct PayeeListView: View {
             NavigationLink(value: NavigationDestination.payeeDetail(id: payee.id)) {
                 PayeeRowView(payee: payee)
             }
+            .contextMenu {
+                NavigationLink(value: NavigationDestination.payeeDetail(id: payee.id)) {
+                    Label(String(localized: "Edit"), systemImage: "pencil")
+                }
+                Button(role: .destructive) {
+                    payeeToDelete = payee.id
+                    showingDeleteAlert = true
+                } label: {
+                    Label(String(localized: "Delete"), systemImage: "trash")
+                }
+            }
             .swipeActions(edge: .trailing) {
                 Button(role: .destructive) {
                     payeeToDelete = payee.id

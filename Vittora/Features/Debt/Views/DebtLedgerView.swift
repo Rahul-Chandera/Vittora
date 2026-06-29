@@ -110,6 +110,13 @@ struct DebtLedgerView: View {
                             .padding(.horizontal, VSpacing.md)
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button {
+                            selectedPayeeID = entry.payee.id
+                        } label: {
+                            Label(String(localized: "View Ledger"), systemImage: "doc.text")
+                        }
+                    }
 
                     if entry.id != entries.last?.id {
                         Divider().padding(.leading, VSpacing.lg)

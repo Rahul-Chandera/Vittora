@@ -56,6 +56,7 @@ struct DebtRowView: View {
             }
         }
         .padding(.vertical, VSpacing.xs)
+        .contentShape(Rectangle())
         .vittoraPointerHighlight()
     }
 

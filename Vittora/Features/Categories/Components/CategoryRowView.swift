@@ -42,6 +42,7 @@ struct CategoryRowView: View {
             }
         }
         .padding(.vertical, VSpacing.xxs)
+        .contentShape(Rectangle())
         .vittoraPointerHighlight()
     }
 }

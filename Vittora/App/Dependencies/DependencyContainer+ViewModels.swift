@@ -15,7 +15,12 @@ extension DependencyContainer {
             fetchUseCase: fetchUseCase,
             searchUseCase: searchUseCase,
             deleteUseCase: deleteUseCase,
-            bulkOpsUseCase: BulkOperationsUseCase(transactionRepository: transactionRepository)
+            bulkOpsUseCase: BulkOperationsUseCase(transactionRepository: transactionRepository),
+            addUseCase: AddTransactionUseCase(
+                accountRepository: accountRepository,
+                categoryRepository: categoryRepository,
+                ledgerWriting: ledgerWriteStore
+            )
         )
     }
 

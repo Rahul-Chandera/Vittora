@@ -130,6 +130,25 @@ struct AccountListView: View {
                             NavigationLink(value: NavigationDestination.accountDetail(id: account.id)) {
                                 AccountRowView(account: account)
                             }
+                            .contextMenu {
+                                NavigationLink(value: NavigationDestination.accountDetail(id: account.id)) {
+                                    Label(String(localized: "Edit"), systemImage: "pencil")
+                                }
+                                Button {
+                                    Task {
+                                        await vm.archiveAccount(id: account.id)
+                                        appState.notifyChanged(.accounts)
+                                    }
+                                } label: {
+                                    Label(String(localized: "Archive"), systemImage: "archivebox")
+                                }
+                                Button(role: .destructive) {
+                                    accountToDelete = account.id
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label(String(localized: "Delete"), systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing) {
                                 Button(role: .destructive) {
                                     accountToDelete = account.id
