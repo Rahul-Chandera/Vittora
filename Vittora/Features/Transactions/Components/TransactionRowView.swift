@@ -104,6 +104,7 @@ struct TransactionRowView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityText)
         .accessibilityIdentifier(rowAccessibilityIdentifier)
+        .vittoraPointerHighlight()
     }
 
     private static func color(for type: TransactionType) -> Color {
