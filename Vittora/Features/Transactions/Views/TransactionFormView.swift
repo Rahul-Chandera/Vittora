@@ -114,7 +114,7 @@ struct TransactionFormView: View {
         }
         .accessibilityIdentifier("transaction-form-root")
         .errorAlert(message: transactionErrorBinding)
-        .task(id: dependencyReadinessKey) {
+        .task {
             if vm == nil {
                 vm = createViewModel()
                 if let vm {
@@ -128,12 +128,6 @@ struct TransactionFormView: View {
                 }
             }
         }
-    }
-
-    private var dependencyReadinessKey: Bool {
-        dependencies.transactionRepository != nil &&
-        dependencies.accountRepository != nil &&
-        dependencies.categoryRepository != nil
     }
 
     @ViewBuilder

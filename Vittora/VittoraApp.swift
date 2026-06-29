@@ -58,7 +58,7 @@ struct VittoraApp: App {
             auditLogger: dependencyContainer.securityAuditLogService
         )
         _dependencies = State(initialValue: dependencyContainer)
-        let keychainService = dependencyContainer.keychainService ?? KeychainService()
+        let keychainService = dependencyContainer.keychainService
         _settingsVM = State(initialValue: SettingsViewModel(keychainService: keychainService))
         _syncService = State(initialValue: syncStatusService)
         _syncConflictHandler = State(initialValue: conflictHandler)
@@ -245,7 +245,7 @@ struct VittoraApp: App {
         await configureNotificationService()
         await dependencies.refreshCreditCardDueReminders()
 
-        guard let modelContainer else { return }
+        guard modelContainer != nil else { return }
         do {
             try await dependencies.dataSeeder.seedDefaultCategoriesIfNeeded()
         } catch {
