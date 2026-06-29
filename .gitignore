@@ -62,12 +62,6 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
-/.build-swift6-pass
-/.build-swift6-tests
-/.build-ios-final-regression
-/.build-sim-crash-fix
-/.build-ios
-/.build-macos
-/.build-audit-test
-/.build-audit
-/.build-*
+
+# Xcode derived-data style build output (never commit)
+/.build-*/
