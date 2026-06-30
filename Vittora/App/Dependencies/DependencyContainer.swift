@@ -41,6 +41,7 @@ final class DependencyContainer {
     let conversionEventRecorder: ConversionEventRecorder
     let securityAuditLogService: SecurityAuditLogService
     let dataSeeder: any DataSeederProtocol
+    let categorizationRuleStore: any CategorizationRuleStoring
 
     init(
         transactionRepository: any TransactionRepository,
@@ -70,7 +71,8 @@ final class DependencyContainer {
         scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase,
         conversionEventRecorder: ConversionEventRecorder,
         securityAuditLogService: SecurityAuditLogService,
-        dataSeeder: any DataSeederProtocol
+        dataSeeder: any DataSeederProtocol,
+        categorizationRuleStore: any CategorizationRuleStoring
     ) {
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
@@ -100,6 +102,7 @@ final class DependencyContainer {
         self.conversionEventRecorder = conversionEventRecorder
         self.securityAuditLogService = securityAuditLogService
         self.dataSeeder = dataSeeder
+        self.categorizationRuleStore = categorizationRuleStore
     }
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
@@ -208,7 +211,8 @@ final class DependencyContainer {
             scheduleSelfDebtDueRemindersUseCase: scheduleSelfDebtDueRemindersUseCase,
             conversionEventRecorder: conversionEventRecorder,
             securityAuditLogService: auditLogService,
-            dataSeeder: dataSeeder
+            dataSeeder: dataSeeder,
+            categorizationRuleStore: UserDefaultsCategorizationRuleStore()
         )
     }
 

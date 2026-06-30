@@ -191,7 +191,7 @@ struct TransactionFormView: View {
             .accessibilityIdentifier("transaction-payee-picker")
             .onChange(of: vm.selectedPayeeID) { _, _ in
                 Task {
-                    await vm.suggestCategory()
+                    await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
                     await vm.checkDuplicates()
                 }
             }
@@ -230,6 +230,11 @@ struct TransactionFormView: View {
             TextField(String(localized: "Notes"), text: Bindable(vm).note, axis: .vertical)
                 .lineLimit(3...5)
                 .accessibilityIdentifier("transaction-note-field")
+                .onChange(of: vm.note) { _, _ in
+                    Task {
+                        await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
+                    }
+                }
         }
 
         Section(String(localized: "Tags")) {
@@ -313,6 +318,11 @@ struct TransactionFormView: View {
         if vm.selectedCategoryID == nil, relevantCategories.count == 1, let first = relevantCategories.first {
             vm.selectedCategoryID = first.id
         }
+    }
+
+    private func payeeName(for payeeID: UUID?) -> String? {
+        guard let payeeID else { return nil }
+        return payees.first(where: { $0.id == payeeID })?.name
     }
 
     private func createViewModel() -> TransactionFormViewModel {

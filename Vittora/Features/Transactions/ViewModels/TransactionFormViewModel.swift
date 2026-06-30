@@ -63,7 +63,11 @@ import VittoraCore
         paymentMethod = entity.paymentMethod
     }
 
-    func suggestCategory() async {
+    func suggestCategory(
+        payeeName: String? = nil,
+        merchantText: String? = nil,
+        rawOCRText: String? = nil
+    ) async {
         guard let parsedAmount, parsedAmount > 0 else {
             suggestedCategoryID = nil
             return
@@ -75,8 +79,14 @@ import VittoraCore
 
         do {
             suggestedCategoryID = try await smartCategorizeUseCase.execute(
-                payeeID: selectedPayeeID,
-                amount: parsedAmount
+                SmartCategorizeRequest(
+                    payeeID: selectedPayeeID,
+                    payeeName: payeeName,
+                    note: note.isEmpty ? nil : note,
+                    merchantText: merchantText,
+                    rawOCRText: rawOCRText,
+                    amount: parsedAmount
+                )
             )
         } catch {
             self.error = error.userFacingMessage(
