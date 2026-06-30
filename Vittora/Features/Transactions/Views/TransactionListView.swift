@@ -116,7 +116,7 @@ struct TransactionListView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItemGroup(placement: .primaryAction) {
                 NavigationLink(value: NavigationDestination.addTransaction) {
                     Image(systemName: "plus.circle.fill")
                         .font(.title2)
@@ -124,8 +124,7 @@ struct TransactionListView: View {
                 .accessibilityIdentifier("transaction-add-button")
                 .accessibilityLabel(String(localized: "Add transaction"))
                 .accessibilityHint(String(localized: "Opens the new transaction form"))
-            }
-            ToolbarItem(placement: .primaryAction) {
+
                 Button {
                     showFilterSheet = true
                 } label: {
@@ -137,8 +136,7 @@ struct TransactionListView: View {
                 .accessibilityLabel(String(localized: "Filter transactions"))
                 .accessibilityHint(String(localized: "Opens transaction filters"))
                 .accessibilityValue(vm.hasActiveFilter ? String(localized: "Filter active") : String(localized: "No filters applied"))
-            }
-            ToolbarItem(placement: .primaryAction) {
+
                 Button {
                     showCSVImport = true
                 } label: {
