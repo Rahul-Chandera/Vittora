@@ -354,7 +354,7 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | K3 | FUNCTIONAL-7 / BUSINESS-2 | P1 | `Features/Splits/...` | ShareLink invite/summary (image/deep link) + per-group report export; decide CKShare vs share-out for V1. | A non-user can be invited; group exports. | L |
 | K4 | FUNCTIONAL-8 | P1 | `Features/Reports/...` | `ImageRenderer`/`PDFDocument` export for Annual/Monthly/Custom via ShareLink. | Reports export to PDF. | M |
 
-> **Epic K status (2026-06-30):** **K1 done** (#15). **K2 done** (#14). **K4 done** (#13). **K3** PR #16 — share-out V1 (summary + deep link to a locally-existing group; recipient cannot join/sync a new group — **CKShare follow-up** for full viral loop). **Follow-up (K1b):** India 80E/80G/LTA section caps.
+> **Epic K status (2026-06-30):** **K1–K4 done** (#15, #14, #13, #16). **K5** PR — CSV import (Generic/Mint/YNAB profiles, duplicate-aware). **Follow-ups:** K1b (80E/80G/LTA caps), K3 CKShare viral loop.
 
 | K5 | FUNCTIONAL-18 | P2 | new CSV import flow | Column mapping + duplicate-aware insert (reuse DuplicateDetection); generic + Mint/YNAB profiles. | Imports a sample CSV correctly. | M |
 | K6 | FUNCTIONAL-3 | P2 | `SmartCategorizeUseCase.swift` | Rule-based first pass (keyword→category, editable) on merchant/OCR text/note; fallback to payee history. | Rules categorize known merchants. | M |

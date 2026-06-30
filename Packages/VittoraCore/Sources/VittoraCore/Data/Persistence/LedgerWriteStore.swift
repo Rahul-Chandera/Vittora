@@ -137,14 +137,30 @@ public actor LedgerWriteStore: LedgerWriting {
         guard transaction.type != .transfer else {
             throw LedgerWriteError.transferNotSupported
         }
+        try performAddBatch([transaction])
+    }
+
+    /// Create multiple transactions and apply their net balance effects atomically.
+    ///
+    /// Every row is inserted in one `commit`; account balances receive the sum of
+    /// each leg's `signedBalanceEffect` per account. Any failure rolls back the
+    /// entire batch — no partial import (DATAINTEGRITY-2).
+    public func performAddBatch(_ transactions: [TransactionEntity]) throws {
+        guard !transactions.isEmpty else { return }
+        for transaction in transactions where transaction.type == .transfer {
+            throw LedgerWriteError.transferNotSupported
+        }
         try commit { ctx in
-            ctx.insert(Self.makeTransactionModel(from: transaction))
-            guard let accountID = transaction.accountID else { return }
-            guard let account = try Self.fetchAccount(accountID, in: ctx) else {
-                throw LedgerWriteError.accountNotFound(accountID)
+            var balanceDeltas: [UUID: Decimal] = [:]
+            for transaction in transactions {
+                ctx.insert(Self.makeTransactionModel(from: transaction))
+                if let accountID = transaction.accountID {
+                    balanceDeltas[accountID, default: 0] += transaction.signedBalanceEffect
+                }
             }
-            account.balance += transaction.signedBalanceEffect
-            account.updatedAt = .now
+            for (accountID, delta) in balanceDeltas where delta != 0 {
+                try Self.adjustAccount(accountID, by: delta, in: ctx)
+            }
         }
     }
 
