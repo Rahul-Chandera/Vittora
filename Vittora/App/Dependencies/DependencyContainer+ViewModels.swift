@@ -9,7 +9,8 @@ extension DependencyContainer {
             transactionRepository: transactionRepository,
             documentRepository: documentRepository,
             documentStorageService: documentStorageService,
-            ledgerWriting: ledgerWriteStore
+            ledgerWriting: ledgerWriteStore,
+            editHistoryStore: transactionEditHistoryStore
         )
         return TransactionListViewModel(
             fetchUseCase: fetchUseCase,
@@ -106,7 +107,8 @@ extension DependencyContainer {
             ),
             updateUseCase: UpdateTransactionUseCase(
                 transactionRepository: transactionRepository,
-                ledgerWriting: ledgerWriteStore
+                ledgerWriting: ledgerWriteStore,
+                recordEditUseCase: RecordTransactionEditUseCase(store: transactionEditHistoryStore)
             ),
             smartCategorizeUseCase: SmartCategorizeUseCase(
                 transactionRepository: transactionRepository,
@@ -132,9 +134,19 @@ extension DependencyContainer {
                 transactionRepository: transactionRepository,
                 documentRepository: documentRepository,
                 documentStorageService: documentStorageService,
-                ledgerWriting: ledgerWriteStore
-            )
+                ledgerWriting: ledgerWriteStore,
+                editHistoryStore: transactionEditHistoryStore
+            ),
+            editHistoryStore: transactionEditHistoryStore
         )
+    }
+
+    func makeBatchScanUseCase() -> BatchScanUseCase {
+        BatchScanUseCase(ocrService: OCRService())
+    }
+
+    func makeManageSavedTransactionFiltersUseCase() -> ManageSavedTransactionFiltersUseCase {
+        ManageSavedTransactionFiltersUseCase(store: savedTransactionFilterStore)
     }
 
     func makeTransactionCSVImportViewModel() -> TransactionCSVImportViewModel {

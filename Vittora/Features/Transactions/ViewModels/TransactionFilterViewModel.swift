@@ -122,4 +122,26 @@ import VittoraCore
             break
         }
     }
+
+    func makeSnapshot() -> TransactionFilterSnapshot {
+        TransactionFilterSnapshot(
+            startDate: startDate,
+            endDate: endDate,
+            selectedTypeRaws: selectedTypes.map(\.rawValue).sorted(),
+            amountMin: amountMin,
+            amountMax: amountMax,
+            datePresetRaw: datePreset.rawValue
+        )
+    }
+
+    func applySnapshot(_ snapshot: TransactionFilterSnapshot) {
+        startDate = snapshot.startDate
+        endDate = snapshot.endDate
+        selectedTypes = Set(snapshot.selectedTypeRaws.compactMap(TransactionType.init(rawValue:)))
+        amountMin = snapshot.amountMin
+        amountMax = snapshot.amountMax
+        if let preset = DatePreset(rawValue: snapshot.datePresetRaw) {
+            datePreset = preset
+        }
+    }
 }

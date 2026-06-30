@@ -87,7 +87,6 @@ struct QuickEntryView: View {
                                     let feedback = UIImpactFeedbackGenerator(style: .light)
                                     feedback.impactOccurred()
                                     #endif
-                                    try await Task.sleep(for: .milliseconds(300))
                                     dismiss()
                                 } catch {
                                     vm.error = error.userFacingMessage(

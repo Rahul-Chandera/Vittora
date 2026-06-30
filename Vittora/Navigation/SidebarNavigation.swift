@@ -84,9 +84,7 @@ struct SidebarNavigation: View {
             }
         }
         .sheet(isPresented: $showAddTransaction) {
-            NavigationStack {
-                TransactionFormView()
-            }
+            QuickEntryView()
         }
         .handlesAppCommands(
             appState: appState,

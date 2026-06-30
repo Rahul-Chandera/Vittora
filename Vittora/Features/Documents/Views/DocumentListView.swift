@@ -7,6 +7,7 @@ struct DocumentListView: View {
     let transactionID: UUID
     @State private var vm: DocumentListViewModel?
     @State private var showScanner = false
+    @State private var showBatchScan = false
     @State private var showImport = false
     @State private var previewItem: DocumentPreviewItem?
     @State private var selectedPhoto: PhotosPickerItem?
@@ -55,6 +56,11 @@ struct DocumentListView: View {
                 Task { await vm?.attach(imageData: data, mimeType: "image/jpeg") }
             })
         }
+        .sheet(isPresented: $showBatchScan) {
+            BatchReceiptScanView(transactionID: transactionID) {
+                Task { await vm?.load() }
+            }
+        }
         .sheet(isPresented: $showImport) {
             DocumentImportView(onDocumentSelected: { data, mimeType in
                 Task { await vm?.attach(imageData: data, mimeType: mimeType) }
@@ -96,6 +102,12 @@ struct DocumentListView: View {
                 } label: {
                     Label(String(localized: "Scan Receipt"), systemImage: "camera.viewfinder")
                 }
+
+                Button {
+                    showBatchScan = true
+                } label: {
+                    Label(String(localized: "Batch Scan"), systemImage: "doc.on.doc")
+                }
                 #endif
 
                 Button {
@@ -103,6 +115,14 @@ struct DocumentListView: View {
                 } label: {
                     Label(String(localized: "Import File"), systemImage: "folder")
                 }
+
+                #if os(macOS)
+                Button {
+                    showBatchScan = true
+                } label: {
+                    Label(String(localized: "Batch Scan"), systemImage: "doc.on.doc")
+                }
+                #endif
             } label: {
                 Image(systemName: "plus")
                     .foregroundColor(VColors.primary)

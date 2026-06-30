@@ -29,6 +29,8 @@ public enum AppUserDefaults {
         public nonisolated static let userNameLegacy = "vittora.userName"
         public nonisolated static let budgetThresholdFired = "vittora.budgetThresholdFired"
         public nonisolated static let categorizationRules = "vittora.categorizationRules"
+        public nonisolated static let transactionEditHistory = "vittora.transactionEditHistory"
+        public nonisolated static let savedTransactionFilters = "vittora.savedTransactionFilters"
     }
 
     public enum KeychainKey {

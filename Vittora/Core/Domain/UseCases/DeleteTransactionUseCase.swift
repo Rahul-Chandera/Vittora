@@ -9,17 +9,20 @@ struct DeleteTransactionUseCase: Sendable {
     /// (BOTH legs for an A3 transfer) and removes the row(s) in one save. Routing
     /// through the ledger store keeps that atomic (DATAINTEGRITY-1/2, A4).
     let ledgerWriting: any LedgerWriting
+    let editHistoryStore: (any TransactionEditHistoryStoring)?
 
     nonisolated init(
         transactionRepository: any TransactionRepository,
         documentRepository: any DocumentRepository,
         documentStorageService: any DocumentStorageServiceProtocol,
-        ledgerWriting: any LedgerWriting
+        ledgerWriting: any LedgerWriting,
+        editHistoryStore: (any TransactionEditHistoryStoring)? = nil
     ) {
         self.transactionRepository = transactionRepository
         self.documentRepository = documentRepository
         self.documentStorageService = documentStorageService
         self.ledgerWriting = ledgerWriting
+        self.editHistoryStore = editHistoryStore
     }
 
     func execute(id: UUID) async throws {
@@ -41,6 +44,7 @@ struct DeleteTransactionUseCase: Sendable {
         // Reverse balance effect(s) and delete the row(s) atomically. For an A3
         // transfer this removes BOTH paired legs and reverses both balances.
         try await ledgerWriting.performDelete(transactionID: id)
+        TransactionEditHistorySideEffects.clearHistory(editHistoryStore, transactionID: id)
     }
 
     func executeBulk(ids: [UUID]) async throws {
