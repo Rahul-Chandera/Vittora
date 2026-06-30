@@ -87,4 +87,9 @@ final class SplitGroupDetailViewModel {
     func memberName(for id: UUID) -> String {
         memberNames[id] ?? String(localized: "Unknown")
     }
+
+    var exportContentVersion: String {
+        let expenseStamp = expenses.map(\.updatedAt.timeIntervalSince1970).max() ?? 0
+        return "\(group.updatedAt.timeIntervalSince1970)-\(expenses.count)-\(expenseStamp)"
+    }
 }

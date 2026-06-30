@@ -23,6 +23,8 @@ final class AppState {
     var isPrivacyShieldVisible: Bool
     /// Set when the user opens the app from a local notification tap (C1).
     var pendingNotificationDeepLink: VittoraNotificationDeepLink?
+    /// Split group to open from a shared `vittora://splits/group/…` link (K3).
+    var pendingSplitGroupID: UUID?
     /// Typed global command requests (keyboard shortcuts, dashboard quick actions).
     private(set) var pendingCommand: AppCommandRequest?
 
@@ -117,6 +119,17 @@ final class AppState {
         case .savings:
             selectedTab = .savings
         }
+    }
+
+    /// Routes to the Splits tab and queues a group detail navigation (K3 share-out).
+    func openSplitGroup(from url: URL) {
+        guard let groupID = SplitGroupDeepLink.groupID(from: url) else { return }
+        pendingSplitGroupID = groupID
+        selectedTab = .splits
+    }
+
+    func clearPendingSplitGroupID() {
+        pendingSplitGroupID = nil
     }
 
     enum AppTab: String, CaseIterable, Identifiable, Sendable {
