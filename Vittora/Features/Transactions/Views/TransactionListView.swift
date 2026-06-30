@@ -8,6 +8,7 @@ struct TransactionListView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var vm: TransactionListViewModel?
     @State private var showFilterSheet = false
+    @State private var showCSVImport = false
     @State private var filterVM: TransactionFilterViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var selectedTransactionID: UUID?
@@ -136,7 +137,21 @@ struct TransactionListView: View {
                     .accessibilityLabel(String(localized: "Filter transactions"))
                     .accessibilityHint(String(localized: "Opens transaction filters"))
                     .accessibilityValue(vm.hasActiveFilter ? String(localized: "Filter active") : String(localized: "No filters applied"))
+
+                    Button {
+                        showCSVImport = true
+                    } label: {
+                        Image(systemName: "square.and.arrow.down")
+                            .font(.title2)
+                    }
+                    .accessibilityLabel(String(localized: "Import CSV"))
+                    .accessibilityHint(String(localized: "Import transactions from a CSV file"))
                 }
+            }
+        }
+        .sheet(isPresented: $showCSVImport) {
+            TransactionCSVImportView {
+                Task { await vm.loadTransactions() }
             }
         }
         .sheet(isPresented: $showFilterSheet) {

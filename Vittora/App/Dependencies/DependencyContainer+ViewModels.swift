@@ -133,6 +133,24 @@ extension DependencyContainer {
         )
     }
 
+    func makeTransactionCSVImportViewModel() -> TransactionCSVImportViewModel {
+        TransactionCSVImportViewModel(
+            importUseCase: ImportTransactionsFromCSVUseCase(
+                addTransactionUseCase: AddTransactionUseCase(
+                    accountRepository: accountRepository,
+                    categoryRepository: categoryRepository,
+                    ledgerWriting: ledgerWriteStore
+                ),
+                duplicateDetectionUseCase: DuplicateDetectionUseCase(
+                    transactionRepository: transactionRepository
+                ),
+                payeeRepository: payeeRepository,
+                categoryRepository: categoryRepository
+            ),
+            fetchAccountsUseCase: FetchAccountsUseCase(accountRepository: accountRepository)
+        )
+    }
+
     func makeDebtLedgerViewModel() -> DebtLedgerViewModel {
         DebtLedgerViewModel(
             fetchLedgerUseCase: FetchDebtLedgerUseCase(
