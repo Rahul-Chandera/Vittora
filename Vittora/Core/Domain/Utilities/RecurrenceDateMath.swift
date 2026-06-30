@@ -1,7 +1,11 @@
 import Foundation
 import VittoraCore
 
-/// Deterministic recurrence date stepping (shared by cash-flow projection and generation).
+/// Recurrence date stepping for cash-flow projection.
+///
+/// `GenerateRecurringTransactionsUseCase` keeps its own stepping logic; keep
+/// behavior aligned if you consolidate later (prefer anchor-based month stepping
+/// from the rule's original day to avoid mid-month drift such as Jan 30 → Feb 28 → Mar 31).
 enum RecurrenceDateMath {
     nonisolated static func nextOccurrence(
         after date: Date,
@@ -54,6 +58,11 @@ enum RecurrenceDateMath {
         return results
     }
 
+    /// Sums scheduled amounts for active rules whose next occurrence falls in `interval`.
+    ///
+    /// Recurring rules are expense-only today — `GenerateRecurringTransactionsUseCase`
+    /// always posts `.expense`. If recurring income is added, filter by transaction
+    /// type (or a new template field) before summing here and in projection totals.
     nonisolated static func totalAmount(
         for rules: [RecurringRuleEntity],
         in interval: Range<Date>,

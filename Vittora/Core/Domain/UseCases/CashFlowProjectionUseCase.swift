@@ -115,6 +115,7 @@ struct CashFlowProjectionUseCase: Sendable {
                 continue
             }
 
+            // Active recurring rules are expense-only; see RecurrenceDateMath.totalAmount.
             let recurringExpense = RecurrenceDateMath.totalAmount(
                 for: activeRules,
                 in: monthStart..<monthEnd,
