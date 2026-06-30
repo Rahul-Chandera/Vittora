@@ -22,5 +22,16 @@
 	<array>
 		<string>com.enerjiktech.vittora.main</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.enerjiktech.vittora</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>vittora</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

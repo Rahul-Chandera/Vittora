@@ -57,6 +57,13 @@ struct SplitGroupListView: View {
             guard vm != nil, appState.refreshVersion(for: .splits) > 0 else { return }
             await vm?.load()
         }
+        .task(id: appState.pendingSplitGroupID) {
+            guard let groupID = appState.pendingSplitGroupID else { return }
+            await vm?.load()
+            guard vm?.summaries.contains(where: { $0.id == groupID }) == true else { return }
+            selectedGroupID = groupID
+            appState.clearPendingSplitGroupID()
+        }
         .sheet(isPresented: $showAddGroup) {
             SplitGroupFormView {
                 Task { await vm?.load() }
