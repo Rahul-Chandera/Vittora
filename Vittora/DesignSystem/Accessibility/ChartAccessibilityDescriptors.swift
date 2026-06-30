@@ -160,6 +160,51 @@ struct MonthlyNetCashFlowChartDescriptor: AXChartDescriptorRepresentable, Sendab
     }
 }
 
+struct CashFlowProjectionChartDescriptor: AXChartDescriptorRepresentable, Sendable {
+    let data: [CashFlowMonth]
+    let currencyCode: String
+
+    nonisolated func makeChartDescriptor() -> AXChartDescriptor {
+        let labels = data.map { ChartAccessibilitySupport.monthLabel($0.month) }
+        let values = data.map { Double(truncating: $0.net as NSDecimalNumber) }
+        let range = ChartAccessibilitySupport.numericRange(for: values, includeZero: true)
+        let xAxis = AXCategoricalDataAxisDescriptor(
+            title: String(localized: "Month"),
+            categoryOrder: labels
+        )
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: String(localized: "Net cash flow"),
+            range: range,
+            gridlinePositions: ChartAccessibilitySupport.gridlines(for: range)
+        ) { value in
+            ChartAccessibilitySupport.currencyString(for: value, currencyCode: currencyCode)
+        }
+
+        let series = ChartAccessibilitySupport.dataSeries(
+            name: String(localized: "Net cash flow"),
+            isContinuous: false,
+            points: zip(labels, data).map { label, item in
+                let kind = item.isProjected
+                    ? String(localized: "projected")
+                    : String(localized: "actual")
+                return AXDataPoint(
+                    x: label,
+                    y: Double(truncating: item.net as NSDecimalNumber),
+                    label: String(localized: "\(label) \(kind) net cash flow")
+                )
+            }
+        )
+
+        return AXChartDescriptor(
+            title: String(localized: "Monthly Net Cash Flow"),
+            summary: String(localized: "Shows actual and projected monthly surplus or deficit."),
+            xAxis: xAxis,
+            yAxis: yAxis,
+            series: [series]
+        )
+    }
+}
+
 struct SpendingTrendChartDescriptor: AXChartDescriptorRepresentable, Sendable {
     let dataPoints: [TrendDataPoint]
     let currencyCode: String
