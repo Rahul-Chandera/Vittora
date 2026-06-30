@@ -42,6 +42,8 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 
 **Root-cause strategy (decided):** introduce a **write-side Unit-of-Work** (one `ModelContext` per business operation) for all compound writes, add **transfer leg pairing**, **correct account-change reversal**, and a **balance reconciliation/repair** safety net. (Alternative — fully derived balances — is captured as `I-ALT` for later; not required to ship the beta.)
 
+> **Epic A status (2026-06-30):** **A1–A13 done** (merged into `refactoring`). **A13** — India surcharge marginal relief (pre-cess cap, then 4% cess) + 15% equity STCG/LTCG surcharge cap; boundary vectors validated against incometax.gov.in; documented in `RULE_COVERAGE.md`; `test-tax` green in CI. Placeholder branch `fix/A13-india-surcharge-relief` deleted (work already on `refactoring`).
+
 ### A1 — Introduce a single-context write Unit-of-Work
 - **Finding:** DATAINTEGRITY-2 / ARCHITECTURE-01
 - **Deps:** none (foundational)
@@ -207,8 +209,8 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 - **Files:** `Core/Infrastructure/Tax/IndiaTaxCalculator.swift`; `Docs/Tax/RULE_COVERAGE.md`
 - **Steps:** implement surcharge marginal relief (cap incremental surcharge at income-above-threshold) mirroring the existing rebate relief; cap the surcharge rate at 15% on the equity LTCG/STCG (111A/112A) portion; update RULE_COVERAGE.
 - **Acceptance:** boundary vectors at ₹50L/₹1Cr/₹2Cr/₹5Cr match official calculator within ₹1.
-- **Tests:** `TaxCalculatorRegressionTests` — add the four boundary vectors.
-- **Status:** Merged into `refactoring`.
+- **Tests:** `TaxCalculatorRegressionTests/IndiaFY2025SurchargeMarginalRelief` — boundary vectors at ₹50L/₹51L, ₹1Cr/₹1.01Cr, ₹2Cr/₹2.01Cr, ₹5Cr/₹5.01Cr + equity STCG 15% surcharge cap.
+- **Status:** **Done** — merged into `refactoring`. Pre-cess marginal relief + 4% cess ordering; 15% cap on equity LTCG/STCG portion. Vectors validated against incometax.gov.in; `RULE_COVERAGE.md` updated; `test-tax` green in CI. No further work needed.
 
 # EPIC B — Security / App Lock (P0) 🔴
 
@@ -354,11 +356,15 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | K3 | FUNCTIONAL-7 / BUSINESS-2 | P1 | `Features/Splits/...` | ShareLink invite/summary (image/deep link) + per-group report export; decide CKShare vs share-out for V1. | A non-user can be invited; group exports. | L |
 | K4 | FUNCTIONAL-8 | P1 | `Features/Reports/...` | `ImageRenderer`/`PDFDocument` export for Annual/Monthly/Custom via ShareLink. | Reports export to PDF. | M |
 
-> **Epic K status (2026-06-30):** **K1–K4 done** (#15, #14, #13, #16). **K5** PR — CSV import (Generic/Mint/YNAB profiles, duplicate-aware). **Follow-ups:** K1b (80E/80G/LTA caps), K3 CKShare viral loop.
+> **Epic K status (2026-06-30):** **K1–K7 done** (#15, #14, #13, #16, #17, #18, #19). **Non-blocking follow-ups (do not gate merges):**
+> - **K5:** bulk-import atomicity refinements; accounting-negative `($50)` parsing edge cases (partial fix in #17).
+> - **K6:** payee-history whole-table fetch on every categorize call — optimize to scoped query.
+> - **K7:** SECURE 2.0 ages 60–63 catch-up; HSA 55+ catch-up; verify 2026 401(k)/IRA statutory limits.
+> - **Earlier:** K1b (80E/80G/LTA caps); **J2** Core extraction finish; **K3** CKShare viral loop (vs share-out V1).
 
-| K5 | FUNCTIONAL-18 | P2 | new CSV import flow | Column mapping + duplicate-aware insert (reuse DuplicateDetection); generic + Mint/YNAB profiles. | Imports a sample CSV correctly. | M |
-| K6 | FUNCTIONAL-3 | P2 | `SmartCategorizeUseCase.swift` | Rule-based first pass (keyword→category, editable) on merchant/OCR text/note; fallback to payee history. | Rules categorize known merchants. | M |
-| K7 | FUNCTIONAL-10/9 | P2 | `Features/Savings`, US tax profile | Savings auto-allocation (`required = (target-current)/months`); US 401k/IRA/HSA contribution inputs + headroom. | Suggested monthly + projected date shown. | M |
+| K5 | FUNCTIONAL-18 | P2 | new CSV import flow | Column mapping + duplicate-aware insert (reuse DuplicateDetection); generic + Mint/YNAB profiles. | Imports a sample CSV correctly. | M | **Merged #17** |
+| K6 | FUNCTIONAL-3 | P2 | `SmartCategorizeUseCase.swift` | Rule-based first pass (keyword→category, editable) on merchant/OCR text/note; fallback to payee history. | Rules categorize known merchants. | M | **Merged #18** |
+| K7 | FUNCTIONAL-10/9 | P2 | `Features/Savings`, US tax profile | Savings auto-allocation (`required = (target-current)/months`); US 401k/IRA/HSA contribution inputs + headroom. | Suggested monthly + projected date shown. | M | **Merged #19** |
 | K8 | FUNCTIONAL-11/12/13, UX-14 | P2 | per finding | Wire or remove `BatchScanUseCase` + multi-page; add edit audit trail; saved filters; resolve `QuickEntryView` (wire as fast-add or delete; remove 300ms sleep). | Dead code removed or wired; features tested. | M |
 
 ---
@@ -384,14 +390,14 @@ These are **decision/strategy** items (not agent-codable); track in `DECISION_LO
 - **BUSINESS-5:** sequence launch to ONE Wave-1 market (recommend India-first on the tax wedge) — do not parallelize US+India.
 - **BUSINESS-3/4/8/11:** correct UVP + competitive matrix + tier marketing to shipped scope; lead with privacy + tax; treat OCR/ML/multi-currency/Watch/Widgets/Vision as roadmap.
 - **BUSINESS-6:** pick one positioning ("money OS" vs honest "privacy-first tracker with tax") and make the product embody it.
-- **BUSINESS-7:** externalize tax rule sets to a signed, fetchable data file with cached fallback + freshness indicator (engineering follow-up once K1/A13 land).
+- **BUSINESS-7:** externalize tax rule sets to a signed, fetchable data file with cached fallback + freshness indicator (engineering follow-up once K1 lands; A13 complete).
 - **BUSINESS-10/12:** rebuild KPI model bottom-up from a single-market soft-launch with real trial-start/convert numbers; gate spend on hitting pre-launch KPIs.
 
 ---
 
 ## Milestone definitions
 
-- **M1 — Beta-safe (flip NO GO → GO WITH CONDITIONS):** Epic A (A1–A10), Epic B (B1–B3), Epic C (C1, C3, C6), Epic D (D1–D2), Epic E (E1–E2), F0 decision, plus G1 and UX category-row fix. Add L1 (CI) to lock it in.
+- **M1 — Beta-safe (flip NO GO → GO WITH CONDITIONS):** Epic A (A1–A13), Epic B (B1–B3), Epic C (C1, C3, C6), Epic D (D1–D2), Epic E (E1–E2), F0 decision, plus G1 and UX category-row fix. Add L1 (CI) to lock it in.
 - **M2 — Public-launch-ready:** remaining D/E, Epic F (if monetizing), Epic G/H/I, K1–K4, L2–L8, metadata reconciliation.
 - **M3 — Scale/roadmap:** Epic J, remaining K, derived-balance (I-ALT), tax remote config.
 
