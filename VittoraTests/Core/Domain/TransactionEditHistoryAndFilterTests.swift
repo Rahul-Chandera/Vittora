@@ -49,6 +49,28 @@ struct TransactionEditHistoryTests {
         #expect(try store.fetch(for: transactionID).isEmpty)
     }
 
+    @Test("store caps history at maxRecordsPerTransaction per transaction")
+    func storeCapsPerTransaction() throws {
+        let defaults = UserDefaults(suiteName: "TransactionEditHistoryCapTests") ?? .standard
+        defaults.removePersistentDomain(forName: "TransactionEditHistoryCapTests")
+        let store = UserDefaultsTransactionEditHistoryStore(userDefaults: defaults)
+        let transactionID = UUID()
+        let cap = TransactionEditHistoryStore.maxRecordsPerTransaction
+
+        for index in 0..<(cap + 5) {
+            let record = TransactionEditRecord(
+                transactionID: transactionID,
+                editedAt: Date(timeIntervalSince1970: Double(index)),
+                changes: [TransactionFieldChange(field: .amount, previousValue: "\(index)", newValue: "\(index + 1)")]
+            )
+            try store.append(record)
+        }
+
+        let fetched = try store.fetch(for: transactionID)
+        #expect(fetched.count == cap)
+        #expect(fetched.first?.editedAt == Date(timeIntervalSince1970: Double(cap + 4)))
+    }
+
     @Test("record edit use case writes on update")
     func recordEditUseCase() throws {
         let defaults = UserDefaults(suiteName: "RecordEditUseCaseTests") ?? .standard
@@ -132,24 +154,54 @@ struct BatchScanUseCaseTests {
     func scanOrder() async throws {
         let useCase = BatchScanUseCase(ocrService: MockOCR())
         let image = try #require(makeTestImage())
-        let results = try await useCase.scanReceipts(from: [image, image])
-        #expect(results.count == 2)
-        #expect(results.allSatisfy { $0.totalAmount == 42 })
+        let outcome = await useCase.scanReceipts(from: [image, image])
+        #expect(outcome.receipts.count == 2)
+        #expect(outcome.failureCount == 0)
+        #expect(outcome.receipts.allSatisfy { $0.totalAmount == 42 })
     }
 
-    private func makeTestImage() -> CGImage? {
+    @Test("scanReceipts continues when one image fails")
+    func scanPartialSuccess() async throws {
+        let useCase = BatchScanUseCase(ocrService: FlakyOCR())
+        let goodImage = try #require(makeTestImage(width: 8))
+        let badImage = try #require(makeTestImage(width: 1))
+        let outcome = await useCase.scanReceipts(from: [goodImage, badImage, goodImage])
+        #expect(outcome.receipts.count == 2)
+        #expect(outcome.failureCount == 1)
+    }
+
+    private struct FlakyOCR: OCRServiceProtocol {
+        func scanReceipt(from image: CGImage) async throws -> ReceiptData {
+            if image.width <= 1 {
+                throw DocumentError.ocrFailed("simulated failure")
+            }
+            return ReceiptData(
+                totalAmount: 42,
+                date: .now,
+                merchantName: "Test",
+                lineItems: [],
+                rawText: "TOTAL 42.00"
+            )
+        }
+
+        func extractText(from image: CGImage) async throws -> [RecognizedTextBlock] {
+            []
+        }
+    }
+
+    private func makeTestImage(width: Int = 8) -> CGImage? {
         #if canImport(UIKit)
-        let size = CGSize(width: 8, height: 8)
+        let size = CGSize(width: width, height: 8)
         UIGraphicsBeginImageContext(size)
         defer { UIGraphicsEndImageContext() }
         UIColor.white.setFill()
         UIRectFill(CGRect(origin: .zero, size: size))
         return UIGraphicsGetImageFromCurrentImageContext()?.cgImage
         #elseif canImport(AppKit)
-        let image = NSImage(size: NSSize(width: 8, height: 8))
+        let image = NSImage(size: NSSize(width: width, height: 8))
         image.lockFocus()
         NSColor.white.setFill()
-        NSRect(x: 0, y: 0, width: 8, height: 8).fill()
+        NSRect(x: 0, y: 0, width: width, height: 8).fill()
         image.unlockFocus()
         return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
         #else

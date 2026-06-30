@@ -9,6 +9,9 @@ protocol TransactionEditHistoryStoring: Sendable {
 }
 
 enum TransactionEditHistoryStore {
+    /// Maximum edit records retained per transaction (oldest dropped on append).
+    nonisolated static let maxRecordsPerTransaction = 20
+
     nonisolated static func clearAll(userDefaults: UserDefaults = .standard) {
         userDefaults.removeObject(forKey: AppUserDefaults.StandardKey.transactionEditHistory)
     }
@@ -36,7 +39,23 @@ final class UserDefaultsTransactionEditHistoryStore: TransactionEditHistoryStori
         defer { lock.unlock() }
         var records = try decodeRecordsLocked()
         records.append(record)
+        records = Self.trim(records, for: record.transactionID)
         try encodeRecordsLocked(records)
+    }
+
+    /// Keep the newest `maxRecordsPerTransaction` entries for `transactionID`.
+    nonisolated private static func trim(
+        _ records: [TransactionEditRecord],
+        for transactionID: UUID
+    ) -> [TransactionEditRecord] {
+        let cap = TransactionEditHistoryStore.maxRecordsPerTransaction
+        var result = records.filter { $0.transactionID != transactionID }
+        let kept = records
+            .filter { $0.transactionID == transactionID }
+            .sorted { $0.editedAt > $1.editedAt }
+            .prefix(cap)
+        result.append(contentsOf: kept)
+        return result
     }
 
     nonisolated func delete(for transactionID: UUID) throws {

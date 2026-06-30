@@ -93,6 +93,35 @@ struct BatchReceiptScanView: View {
         }
     }
 
+    private func runBatchScan(inputs: [BatchScanInput]) async {
+        let attachUseCase = AttachDocumentUseCase(
+            documentRepository: dependencies.documentRepository,
+            documentStorageService: dependencies.documentStorageService
+        )
+        let outcome = await dependencies.makeBatchScanUseCase().scanAndAttach(
+            inputs: inputs,
+            transactionID: transactionID,
+            attachUseCase: attachUseCase
+        )
+
+        guard outcome.attachedCount > 0 else {
+            error = String(localized: "We couldn't attach any of the selected receipts.")
+            return
+        }
+
+        attachedCount = outcome.attachedCount
+        if outcome.hadPartialFailure {
+            error = String(
+                localized: "\(outcome.attachedCount) attached; \(outcome.failureCount) couldn't be processed."
+            )
+        }
+        dependencies.conversionEventRecorder.afterOCRScanCompleted()
+        onComplete()
+        if !outcome.hadPartialFailure {
+            dismiss()
+        }
+    }
+
     #if os(iOS)
     private func processSelectedPhotos() async {
         isProcessing = true
@@ -114,25 +143,7 @@ struct BatchReceiptScanView: View {
             return
         }
 
-        do {
-            let attachUseCase = AttachDocumentUseCase(
-                documentRepository: dependencies.documentRepository,
-                documentStorageService: dependencies.documentStorageService
-            )
-            _ = try await dependencies.makeBatchScanUseCase().scanAndAttach(
-                inputs: inputs,
-                transactionID: transactionID,
-                attachUseCase: attachUseCase
-            )
-            attachedCount = inputs.count
-            dependencies.conversionEventRecorder.afterOCRScanCompleted()
-            onComplete()
-            dismiss()
-        } catch {
-            self.error = error.userFacingMessage(
-                fallback: String(localized: "We couldn't scan those receipts right now.")
-            )
-        }
+        await runBatchScan(inputs: inputs)
     }
 
     private func cgImage(from data: Data) -> CGImage? {
@@ -183,25 +194,7 @@ struct BatchReceiptScanView: View {
             return
         }
 
-        do {
-            let attachUseCase = AttachDocumentUseCase(
-                documentRepository: dependencies.documentRepository,
-                documentStorageService: dependencies.documentStorageService
-            )
-            _ = try await dependencies.makeBatchScanUseCase().scanAndAttach(
-                inputs: inputs,
-                transactionID: transactionID,
-                attachUseCase: attachUseCase
-            )
-            attachedCount = inputs.count
-            dependencies.conversionEventRecorder.afterOCRScanCompleted()
-            onComplete()
-            dismiss()
-        } catch {
-            self.error = error.userFacingMessage(
-                fallback: String(localized: "We couldn't scan those receipts right now.")
-            )
-        }
+        await runBatchScan(inputs: inputs)
     }
 
     private func mimeType(for url: URL) -> String {
