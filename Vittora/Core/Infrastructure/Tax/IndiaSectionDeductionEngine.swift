@@ -154,7 +154,14 @@ enum IndiaSectionDeductionEngine {
         }
         warnings.append(contentsOf: hraResult.warnings)
 
-        allowedTotal += bucketClaims[.other, default: 0]
+        let otherClaimed = bucketClaims[.other, default: 0]
+        if otherClaimed > 0 {
+            warnings.append(
+                String(
+                    localized: "Unsupported or uncapped deduction sections were not applied. Use 80C, 80CCD(1B), 80D, or HRA."
+                )
+            )
+        }
 
         return Result(
             allowedTotal: allowedTotal,
@@ -202,10 +209,10 @@ enum IndiaSectionDeductionEngine {
         let hasStructuredInputs = salary > 0 && (hraReceived > 0 || rentPaid > 0)
 
         if hasStructuredInputs {
-            let rentComponent = max(0, rentPaid - (salary * Decimal(0.10)))
+            let rentComponent = max(0, rentPaid - (salary * hraSalaryDeductionRate))
             let salaryPercent = advancedInputs.indiaMetroCity
-                ? salary * Decimal(0.50)
-                : salary * Decimal(0.40)
+                ? salary * hraMetroSalaryCapRate
+                : salary * hraNonMetroSalaryCapRate
             let exemption = min(hraReceived, rentComponent, salaryPercent).rounded(scale: 2)
             return (exemption, hraReceived, [])
         }
@@ -247,10 +254,15 @@ enum IndiaSectionDeductionEngine {
     ) -> Bool {
         guard let dateOfBirth else { return false }
         let fyStartYear = Int(financialYearLabel.prefix(4)) ?? Calendar.current.component(.year, from: referenceDate)
-        let fyStart = Calendar.current.date(from: DateComponents(year: fyStartYear, month: 4, day: 1)) ?? referenceDate
-        let age = Calendar.current.dateComponents([.year], from: dateOfBirth, to: fyStart).year ?? 0
+        // Age for 80D is assessed at FY end (31 March), not FY start.
+        let fyEnd = Calendar.current.date(from: DateComponents(year: fyStartYear + 1, month: 3, day: 31)) ?? referenceDate
+        let age = Calendar.current.dateComponents([.year], from: dateOfBirth, to: fyEnd).year ?? 0
         return age >= 60
     }
+
+    nonisolated private static let hraSalaryDeductionRate = Decimal(10) / Decimal(100)
+    nonisolated private static let hraMetroSalaryCapRate = Decimal(50) / Decimal(100)
+    nonisolated private static let hraNonMetroSalaryCapRate = Decimal(40) / Decimal(100)
 }
 
 private extension Decimal {

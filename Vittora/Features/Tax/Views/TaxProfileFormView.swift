@@ -373,7 +373,7 @@ private struct AddDeductionSheet: View {
     }
 
     private var indiaSections: [String] {
-        ["80C", "80CCD(1B)", "80D", "80D (Parents)", "80E", "80G", "HRA", "LTA", "Other"]
+        ["80C", "80CCD(1B)", "80D", "80D (Parents)", "HRA"]
     }
 
     var body: some View {

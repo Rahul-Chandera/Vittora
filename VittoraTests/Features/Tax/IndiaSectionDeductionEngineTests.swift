@@ -41,7 +41,7 @@ struct IndiaSectionDeductionEngineTests {
         #expect(result.allowedTotal == 50_000)
     }
 
-    @Test("80D self cap increases for senior citizens")
+    @Test("80D self cap increases for senior citizens at FY end")
     func caps80DSeniorTier() {
         let dob = Calendar.current.date(from: DateComponents(year: 1960, month: 1, day: 1))
         let deductions = [
@@ -56,6 +56,61 @@ struct IndiaSectionDeductionEngineTests {
         )
 
         #expect(result.allowedTotal == 50_000)
+    }
+
+    @Test("80D senior cap applies when taxpayer turns 60 during the FY")
+    func caps80DSeniorWhenTurning60MidFY() {
+        // Born 1 Jul 1965 → turns 60 during FY 2025-26; age on 31 Mar 2026 is 60.
+        let dob = Calendar.current.date(from: DateComponents(year: 1965, month: 7, day: 1))
+        let deductions = [
+            TaxDeduction(name: "Health", amount: 45_000, section: "80D"),
+        ]
+
+        let result = IndiaSectionDeductionEngine.resolve(
+            deductions: deductions,
+            advancedInputs: TaxAdvancedInputs(),
+            dateOfBirth: dob,
+            financialYearLabel: "2025-26"
+        )
+
+        #expect(result.allowedTotal == 45_000)
+        #expect(result.utilizations.first { $0.sectionKey == "80D" }?.statutoryCap == 50_000)
+    }
+
+    @Test("80D regular cap when taxpayer turns 60 after FY end")
+    func caps80DRegularWhenTurning60AfterFY() {
+        // Born 1 Apr 1966 → still 59 on 31 Mar 2026.
+        let dob = Calendar.current.date(from: DateComponents(year: 1966, month: 4, day: 1))
+        let deductions = [
+            TaxDeduction(name: "Health", amount: 40_000, section: "80D"),
+        ]
+
+        let result = IndiaSectionDeductionEngine.resolve(
+            deductions: deductions,
+            advancedInputs: TaxAdvancedInputs(),
+            dateOfBirth: dob,
+            financialYearLabel: "2025-26"
+        )
+
+        #expect(result.allowedTotal == 25_000)
+    }
+
+    @Test("unsupported deduction sections are not applied")
+    func rejectsUncappedOtherSections() {
+        let deductions = [
+            TaxDeduction(name: "Home loan interest", amount: 200_000, section: "24(b)"),
+            TaxDeduction(name: "Donation", amount: 50_000, section: "80G"),
+        ]
+
+        let result = IndiaSectionDeductionEngine.resolve(
+            deductions: deductions,
+            advancedInputs: TaxAdvancedInputs(),
+            dateOfBirth: nil,
+            financialYearLabel: "2025-26"
+        )
+
+        #expect(result.allowedTotal == 0)
+        #expect(result.warnings.contains { $0.localizedCaseInsensitiveContains("Unsupported") })
     }
 
     @Test("HRA exemption uses minimum of three components")
