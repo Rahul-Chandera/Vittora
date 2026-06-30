@@ -28,6 +28,9 @@ public protocol LedgerWriting: Sendable {
     /// Insert a transaction and apply its balance effect to its account in one save.
     func performAdd(_ transaction: TransactionEntity) async throws
 
+    /// Insert multiple transactions and apply their combined balance effects in one save.
+    func performAddBatch(_ transactions: [TransactionEntity]) async throws
+
     /// Update a NON-transfer transaction and reconcile balances atomically:
     /// reverse the original leg's effect on its original account and apply the new
     /// effect on the (possibly changed) account — all in one save. Rejects

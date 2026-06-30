@@ -25,12 +25,22 @@ struct MockLedgerWriting: LedgerWriting {
     }
 
     func performAdd(_ transaction: TransactionEntity) async throws {
-        try await transactionRepository.create(transaction)
-        guard let accountID = transaction.accountID,
-              var account = try await accountRepository.fetchByID(accountID) else { return }
-        account.balance += transaction.signedBalanceEffect
-        account.updatedAt = .now
-        try await accountRepository.update(account)
+        try await performAddBatch([transaction])
+    }
+
+    func performAddBatch(_ transactions: [TransactionEntity]) async throws {
+        for transaction in transactions {
+            try await transactionRepository.create(transaction)
+        }
+        var balanceDeltas: [UUID: Decimal] = [:]
+        for transaction in transactions {
+            if let accountID = transaction.accountID {
+                balanceDeltas[accountID, default: 0] += transaction.signedBalanceEffect
+            }
+        }
+        for (accountID, delta) in balanceDeltas where delta != 0 {
+            try await adjust(accountID, by: delta)
+        }
     }
 
     func performUpdate(_ transaction: TransactionEntity) async throws {

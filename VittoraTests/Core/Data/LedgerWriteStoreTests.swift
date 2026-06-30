@@ -117,6 +117,28 @@ struct LedgerWriteStoreTests {
         #expect(account?.balance == 800)
     }
 
+    @Test("performAddBatch inserts all transactions and applies net balance in one save")
+    func performAddBatchPersistsAtomically() async throws {
+        let container = try makeContainer()
+        let accountID = try seedAccount(container, balance: 1000)
+        let store = LedgerWriteStore(modelContainer: container)
+
+        try await store.performAddBatch([
+            TransactionEntity(amount: 50, type: .expense, accountID: accountID),
+            TransactionEntity(amount: 25, type: .expense, accountID: accountID),
+            TransactionEntity(amount: 100, type: .income, accountID: accountID),
+        ])
+
+        let saveCount = await store.saveCount
+        #expect(saveCount == 1)
+
+        let verify = ModelContext(container)
+        let txs = try verify.fetch(FetchDescriptor<SDTransaction>())
+        #expect(txs.count == 3)
+        let account = try verify.fetch(FetchDescriptor<SDAccount>()).first
+        #expect(account?.balance == 1025)
+    }
+
     @Test("performAdd rolls back when the account id does not resolve")
     func performAddRollsBackWhenAccountMissing() async throws {
         let container = try makeContainer()

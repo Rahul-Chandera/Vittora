@@ -116,6 +116,66 @@ struct CSVTransactionImportTests {
         #expect(result.skippedDuplicateCount == 1)
     }
 
+    @Test("generic profile parses accounting negatives in parentheses")
+    func genericAccountingNegativeAmount() throws {
+        let csv = """
+        Date,Description,Amount
+        2026-04-01,Grocery Store,($50.00)
+        """
+
+        let preview = try ImportTransactionsFromCSVUseCase(
+            addTransactionUseCase: makeAddUseCase(),
+            duplicateDetectionUseCase: DuplicateDetectionUseCase(transactionRepository: MockTransactionRepository()),
+            payeeRepository: MockPayeeRepository(),
+            categoryRepository: MockCategoryRepository()
+        ).preview(csvData: Data(csv.utf8), profile: .generic, locale: locale)
+
+        #expect(preview.rows.count == 1)
+        #expect(preview.rows[0].type == .expense)
+        #expect(preview.rows[0].amount == Decimal(string: "50.00"))
+    }
+
+    @Test("import creates multiple transactions in one batch")
+    func importCreatesMultipleTransactions() async throws {
+        let csv = """
+        Date,Description,Amount
+        2026-03-01,Merchant A,-10.00
+        2026-03-02,Merchant B,-20.00
+        """
+
+        let account = AccountEntity(name: "Checking", type: .bank, balance: 100)
+        let accountRepo = MockAccountRepository()
+        try await accountRepo.create(account)
+
+        let payeeRepo = MockPayeeRepository()
+        let transactionRepo = MockTransactionRepository()
+        let ledger = MockLedgerWriting(transactionRepository: transactionRepo, accountRepository: accountRepo)
+
+        let useCase = ImportTransactionsFromCSVUseCase(
+            addTransactionUseCase: AddTransactionUseCase(
+                accountRepository: accountRepo,
+                categoryRepository: MockCategoryRepository(),
+                ledgerWriting: ledger
+            ),
+            duplicateDetectionUseCase: DuplicateDetectionUseCase(transactionRepository: transactionRepo),
+            payeeRepository: payeeRepo,
+            categoryRepository: MockCategoryRepository()
+        )
+
+        let result = try await useCase.execute(
+            csvData: Data(csv.utf8),
+            profile: .generic,
+            accountID: account.id,
+            currencyCode: "USD",
+            locale: locale
+        )
+
+        #expect(result.importedCount == 2)
+        #expect(result.createdPayeeCount == 2)
+        let stored = await transactionRepo.transactions
+        #expect(stored.count == 2)
+    }
+
     @Test("import creates payees and transactions")
     func importCreatesTransactions() async throws {
         let csv = """

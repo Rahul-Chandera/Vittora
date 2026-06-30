@@ -83,46 +83,62 @@ struct ImportTransactionsFromCSVUseCase: Sendable {
         var payeesByName = try await loadPayeeLookup()
         var categoriesByName = try await loadCategoryLookup()
 
-        var importedCount = 0
-        var skippedDuplicateCount = 0
         var createdPayeeCount = 0
-
+        var resolvedPayees: [Int: UUID?] = [:]
         for row in preview.rows {
-            let payeeID = try await resolvePayeeID(
+            resolvedPayees[row.lineNumber] = try await resolvePayeeID(
                 name: row.payeeName,
                 lookup: &payeesByName,
                 createdPayeeCount: &createdPayeeCount
             )
+        }
+
+        let existingTransactions = try await duplicateDetectionUseCase.prefetchExisting(
+            accountID: accountID,
+            covering: preview.rows.map(\.date)
+        )
+
+        var skippedDuplicateCount = 0
+        var pendingTransactions: [TransactionEntity] = []
+        var seenCandidates: [TransactionEntity] = existingTransactions
+
+        for row in preview.rows {
+            let payeeID = resolvedPayees[row.lineNumber] ?? nil
             let categoryID = row.categoryName.flatMap { categoriesByName[$0.lowercased()] }
 
-            let duplicates = try await duplicateDetectionUseCase.execute(
+            if isDuplicate(
                 amount: row.amount,
                 date: row.date,
                 payeeID: payeeID,
-                accountID: accountID
-            )
-            if !duplicates.isEmpty {
+                accountID: accountID,
+                in: seenCandidates
+            ) {
                 skippedDuplicateCount += 1
                 continue
             }
 
-            _ = try await addTransactionUseCase.execute(
+            let transaction = TransactionEntity(
                 amount: row.amount,
-                type: row.type,
                 date: row.date,
+                note: row.note,
+                type: row.type,
+                paymentMethod: .other,
+                currencyCode: currencyCode,
+                tags: [],
                 categoryID: categoryID,
                 accountID: accountID,
-                payeeID: payeeID,
-                note: row.note,
-                tags: [],
-                paymentMethod: .other,
-                currencyCode: currencyCode
+                payeeID: payeeID
             )
-            importedCount += 1
+            pendingTransactions.append(transaction)
+            seenCandidates.append(transaction)
+        }
+
+        if !pendingTransactions.isEmpty {
+            try await addTransactionUseCase.executeBatch(pendingTransactions)
         }
 
         return CSVImportResult(
-            importedCount: importedCount,
+            importedCount: pendingTransactions.count,
             skippedDuplicateCount: skippedDuplicateCount,
             skippedInvalidCount: preview.invalidRowCount,
             createdPayeeCount: createdPayeeCount
@@ -173,5 +189,23 @@ struct ImportTransactionsFromCSVUseCase: Sendable {
         lookup[key] = entity.id
         createdPayeeCount += 1
         return entity.id
+    }
+
+    private func isDuplicate(
+        amount: Decimal,
+        date: Date,
+        payeeID: UUID?,
+        accountID: UUID,
+        in candidates: [TransactionEntity]
+    ) -> Bool {
+        candidates.contains { transaction in
+            DuplicateDetectionUseCase.matches(
+                transaction,
+                amount: amount,
+                date: date,
+                payeeID: payeeID,
+                accountID: accountID
+            )
+        }
     }
 }

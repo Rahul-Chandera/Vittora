@@ -171,8 +171,8 @@ enum CSVTransactionImportMapper {
            let inflowIndex = mapping.inflowColumn,
            columns.indices.contains(outflowIndex),
            columns.indices.contains(inflowIndex) {
-            let outflow = parseAmount(columns[outflowIndex], locale: locale) ?? 0
-            let inflow = parseAmount(columns[inflowIndex], locale: locale) ?? 0
+            let outflow = abs(parseAmount(columns[outflowIndex], locale: locale) ?? 0)
+            let inflow = abs(parseAmount(columns[inflowIndex], locale: locale) ?? 0)
             if outflow > 0 {
                 amountType = (outflow, .expense)
             } else if inflow > 0 {
@@ -216,6 +216,19 @@ enum CSVTransactionImportMapper {
     }
 
     nonisolated private static func parseAmount(_ raw: String, locale: Locale) -> Decimal? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+
+        if trimmed.hasPrefix("("), trimmed.hasSuffix(")") {
+            let inner = trimmed.dropFirst().dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let magnitude = parseUnsignedAmount(inner, locale: locale), magnitude != 0 else { return nil }
+            return -magnitude
+        }
+
+        return parseUnsignedAmount(trimmed, locale: locale)
+    }
+
+    nonisolated private static func parseUnsignedAmount(_ raw: String, locale: Locale) -> Decimal? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
 
