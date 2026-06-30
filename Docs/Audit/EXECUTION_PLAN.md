@@ -350,9 +350,11 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | ID | Finding | Pri | Files | Change | Acceptance | Eff |
 |---|---|---|---|---|---|---|
 | K1 | FUNCTIONAL-6 | P1 | `TaxEntity.swift`, `IndiaTaxCalculator.swift`, `TaxProfileFormView.swift` | Section-aware deduction model with statutory caps (80C ₹1.5L, 80CCD(1B) ₹50k, 80D age tiers) + HRA exemption calc + 80C utilization view. | Caps enforced; HRA = min of 3 components; tested. | L |
-| K2 | FUNCTIONAL-5 | P1 | `CashFlowReportView.swift`, new projection use case | Walk active recurring occurrences forward N months + avg discretionary; render projected vs actual (or rename until built). | Forecast uses future recurring data. | M |
+| K2 | FUNCTIONAL-5 | P1 | `CashFlowReportView.swift`, new projection use case | Walk active recurring occurrences forward N months + avg discretionary; render projected vs actual. | Forecast uses future recurring data. | M |
 | K3 | FUNCTIONAL-7 / BUSINESS-2 | P1 | `Features/Splits/...` | ShareLink invite/summary (image/deep link) + per-group report export; decide CKShare vs share-out for V1. | A non-user can be invited; group exports. | L |
 | K4 | FUNCTIONAL-8 | P1 | `Features/Reports/...` | `ImageRenderer`/`PDFDocument` export for Annual/Monthly/Custom via ShareLink. | Reports export to PDF. | M |
+
+> **Epic K progress (2026-06-29):** **K4 done** (#13). **K2 in progress** — cash-flow projection use case + projected vs actual UI.
 | K5 | FUNCTIONAL-18 | P2 | new CSV import flow | Column mapping + duplicate-aware insert (reuse DuplicateDetection); generic + Mint/YNAB profiles. | Imports a sample CSV correctly. | M |
 | K6 | FUNCTIONAL-3 | P2 | `SmartCategorizeUseCase.swift` | Rule-based first pass (keyword→category, editable) on merchant/OCR text/note; fallback to payee history. | Rules categorize known merchants. | M |
 | K7 | FUNCTIONAL-10/9 | P2 | `Features/Savings`, US tax profile | Savings auto-allocation (`required = (target-current)/months`); US 401k/IRA/HSA contribution inputs + headroom. | Suggested monthly + projected date shown. | M |
