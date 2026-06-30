@@ -354,14 +354,12 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | K3 | FUNCTIONAL-7 / BUSINESS-2 | P1 | `Features/Splits/...` | ShareLink invite/summary (image/deep link) + per-group report export; decide CKShare vs share-out for V1. | A non-user can be invited; group exports. | L |
 | K4 | FUNCTIONAL-8 | P1 | `Features/Reports/...` | `ImageRenderer`/`PDFDocument` export for Annual/Monthly/Custom via ShareLink. | Reports export to PDF. | M |
 
-> **Epic K status (2026-06-30):** **K2 done** (#14). **K4 done** (#13). **K1** PR #15. **K3** — ShareLink invite/summary + group PDF export (share-out V1, not CKShare).
+> **Epic K status (2026-06-30):** **K1 done** (#15). **K2 done** (#14). **K4 done** (#13). **K3** PR #16 — share-out V1 (summary + deep link to a locally-existing group; recipient cannot join/sync a new group — **CKShare follow-up** for full viral loop). **Follow-up (K1b):** India 80E/80G/LTA section caps.
 
 | K5 | FUNCTIONAL-18 | P2 | new CSV import flow | Column mapping + duplicate-aware insert (reuse DuplicateDetection); generic + Mint/YNAB profiles. | Imports a sample CSV correctly. | M |
 | K6 | FUNCTIONAL-3 | P2 | `SmartCategorizeUseCase.swift` | Rule-based first pass (keyword→category, editable) on merchant/OCR text/note; fallback to payee history. | Rules categorize known merchants. | M |
 | K7 | FUNCTIONAL-10/9 | P2 | `Features/Savings`, US tax profile | Savings auto-allocation (`required = (target-current)/months`); US 401k/IRA/HSA contribution inputs + headroom. | Suggested monthly + projected date shown. | M |
 | K8 | FUNCTIONAL-11/12/13, UX-14 | P2 | per finding | Wire or remove `BatchScanUseCase` + multi-page; add edit audit trail; saved filters; resolve `QuickEntryView` (wire as fast-add or delete; remove 300ms sleep). | Dead code removed or wired; features tested. | M |
-
-> **Epic K status (2026-06-28):** **K1 done** — `IndiaSectionDeductionEngine` enforces 80C/80CCD(1B)/80D caps + HRA min-of-three; utilization UI in tax profile form; `advancedInputs` persistence fix. **K4 done** (#13). **K2** in PR #14. **Next:** K3 (splits share/invite).
 
 ---
 
