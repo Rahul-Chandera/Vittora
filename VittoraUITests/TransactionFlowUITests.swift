@@ -84,12 +84,11 @@ final class TransactionFlowUITests: XCTestCase {
         XCTAssertTrue(coffeeRow.waitForExistence(timeout: 5))
         XCTAssertTrue(salaryRow.waitForExistence(timeout: 5))
 
-        let filterButton = app.buttons["transaction-filter-button"]
         XCTAssertTrue(
             waitForFilterButton(timeout: 10),
             "Filter button should be visible on the transactions list."
         )
-        filterButton.tap()
+        tapFilterButton()
 
         let minAmountField = app.textFields["transaction-filter-min-field"]
         XCTAssertTrue(minAmountField.waitForExistence(timeout: 5))
@@ -111,7 +110,7 @@ final class TransactionFlowUITests: XCTestCase {
             "Filtering to the higher amount range should hide the seeded coffee transaction."
         )
 
-        filterButton.tap()
+        tapFilterButton()
         let clearButton = app.buttons["transaction-filter-clear-button"]
         XCTAssertTrue(clearButton.waitForExistence(timeout: 5))
         clearButton.tap()
@@ -202,17 +201,33 @@ final class TransactionFlowUITests: XCTestCase {
 
     @MainActor
     private func waitForFilterButton(timeout: TimeInterval) -> Bool {
-        let deadline = Date().addingTimeInterval(timeout)
+        let filterButton = app.buttons["transaction-filter-button"]
+        guard filterButton.waitForExistence(timeout: timeout) else { return false }
 
-        while Date() < deadline {
-            let filterButton = app.buttons["transaction-filter-button"]
-            if filterButton.waitForExistence(timeout: 0.5), filterButton.isHittable {
+        let layoutDeadline = Date().addingTimeInterval(min(timeout, 5))
+        while Date() < layoutDeadline {
+            if hasValidFrame(filterButton) {
                 return true
             }
             RunLoop.current.run(until: Date().addingTimeInterval(0.2))
         }
 
+        return hasValidFrame(filterButton)
+    }
+
+    @MainActor
+    private func tapFilterButton() {
         let filterButton = app.buttons["transaction-filter-button"]
-        return filterButton.exists && filterButton.isHittable
+        XCTAssertTrue(
+            waitForFilterButton(timeout: 10),
+            "Filter button should be ready before tapping."
+        )
+        filterButton.tap()
+    }
+
+    @MainActor
+    private func hasValidFrame(_ element: XCUIElement) -> Bool {
+        let frame = element.frame
+        return frame.width > 1 && frame.height > 1
     }
 }
