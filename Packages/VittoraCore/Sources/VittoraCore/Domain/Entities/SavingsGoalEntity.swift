@@ -102,15 +102,23 @@ public struct SavingsGoalEntity: Identifiable, Hashable, Equatable, Sendable {
         return days < 0 && !isAchieved
     }
 
-    /// Monthly savings needed to hit the target by the deadline
+    /// Monthly savings needed to hit the target by the deadline.
     public var monthlySavingsNeeded: Decimal? {
-        guard let days = daysRemaining, days > 0, remainingAmount > 0 else { return nil }
-        let months = Decimal(max(1, days / 30))
-        let raw = remainingAmount / months
-        var result = Decimal()
-        var copy = raw
-        NSDecimalRound(&result, &copy, 2, .bankers)
-        return result
+        guard status == .active, let targetDate, remainingAmount > 0 else { return nil }
+        return SavingsAllocationMath.monthlyRequired(
+            targetAmount: targetAmount,
+            currentAmount: currentAmount,
+            targetDate: targetDate
+        )
+    }
+
+    /// Allocation snapshot for UI (monthly required + projected completion).
+    public var allocationSnapshot: SavingsAllocationSnapshot {
+        SavingsAllocationMath.snapshot(
+            targetAmount: targetAmount,
+            currentAmount: currentAmount,
+            targetDate: targetDate
+        )
     }
 
     public nonisolated init(

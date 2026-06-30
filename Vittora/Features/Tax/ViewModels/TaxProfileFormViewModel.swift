@@ -23,10 +23,15 @@ final class TaxProfileFormViewModel {
     var indiaHRAPaidString = ""
     var indiaRentPaidString = ""
 
+    var us401kContributedString = ""
+    var usIRAContributedString = ""
+    var usHSAContributedString = ""
+
     // Live preview
     var liveEstimate: TaxEstimate?
     var liveComparison: TaxComparison?
     var indiaDeductionUtilization: [IndiaSectionDeductionEngine.Utilization] = []
+    var usContributionUtilization: [USContributionUtilization] = []
 
     var isSaving = false
     var error: String?
@@ -65,6 +70,7 @@ final class TaxProfileFormViewModel {
         customDeductions = profile.customDeductions
         advancedInputs = profile.advancedInputs
         syncIndiaInputStringsFromAdvancedInputs()
+        syncUSInputStringsFromAdvancedInputs()
         recalculateLive()
     }
 
@@ -74,6 +80,7 @@ final class TaxProfileFormViewModel {
             liveEstimate = nil
             liveComparison = nil
             indiaDeductionUtilization = []
+            usContributionUtilization = []
             return
         }
 
@@ -89,8 +96,17 @@ final class TaxProfileFormViewModel {
                 financialYearLabel: financialYear
             )
             indiaDeductionUtilization = resolution.utilizations
+            usContributionUtilization = []
+        } else if country == .unitedStates {
+            indiaDeductionUtilization = []
+            let taxYear = USTaxCalculator.supportedTaxYear(for: profile)
+            usContributionUtilization = USContributionHeadroomEngine.utilizations(
+                profile: profile,
+                taxYear: taxYear
+            )
         } else {
             indiaDeductionUtilization = []
+            usContributionUtilization = []
         }
     }
 
@@ -157,6 +173,17 @@ final class TaxProfileFormViewModel {
         } else if indiaRentPaidString.isEmpty {
             advancedInputs.indiaRentPaid = 0
         }
+        syncDecimalField(us401kContributedString, into: \.us401kYTDContributed)
+        syncDecimalField(usIRAContributedString, into: \.usIRAYTDContributed)
+        syncDecimalField(usHSAContributedString, into: \.usHSAYTDContributed)
+    }
+
+    private func syncDecimalField(_ string: String, into keyPath: WritableKeyPath<TaxAdvancedInputs, Decimal>) {
+        if let value = Decimal(localizedAmount: string) {
+            advancedInputs[keyPath: keyPath] = value
+        } else if string.isEmpty {
+            advancedInputs[keyPath: keyPath] = 0
+        }
     }
 
     private func syncIndiaInputStringsFromAdvancedInputs() {
@@ -168,6 +195,18 @@ final class TaxProfileFormViewModel {
             : ""
         indiaRentPaidString = advancedInputs.indiaRentPaid > 0
             ? "\(advancedInputs.indiaRentPaid)"
+            : ""
+    }
+
+    private func syncUSInputStringsFromAdvancedInputs() {
+        us401kContributedString = advancedInputs.us401kYTDContributed > 0
+            ? "\(advancedInputs.us401kYTDContributed)"
+            : ""
+        usIRAContributedString = advancedInputs.usIRAYTDContributed > 0
+            ? "\(advancedInputs.usIRAYTDContributed)"
+            : ""
+        usHSAContributedString = advancedInputs.usHSAYTDContributed > 0
+            ? "\(advancedInputs.usHSAYTDContributed)"
             : ""
     }
 }

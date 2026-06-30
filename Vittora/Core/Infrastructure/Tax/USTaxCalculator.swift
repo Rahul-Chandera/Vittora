@@ -63,7 +63,10 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         let marginalRate = bracketResults.last?.ratePercent ?? 0
 
         var supplementary: [TaxSupplementaryLine] = payroll.lines
-        supplementary += Self.contributionAdvisoryLines(taxYear: taxYear)
+        supplementary += USContributionHeadroomEngine.supplementaryHeadroomLines(
+            profile: profile,
+            taxYear: taxYear
+        )
 
         var assumptions: [String] = [
             String(localized: "Annual income treated as wages for Social Security and Medicare estimates unless you adjust advanced inputs.")
@@ -334,7 +337,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    nonisolated private static func supportedTaxYear(for profile: TaxProfile) -> Int {
+    nonisolated static func supportedTaxYear(for profile: TaxProfile) -> Int {
         parsedTaxYear(from: profile.financialYear) ?? TaxYear.ty2026.rawValue
     }
 

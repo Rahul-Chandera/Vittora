@@ -5,6 +5,7 @@ struct SavingsGoalFormView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
 
     let existingGoal: SavingsGoalEntity?
     let onSaved: () -> Void
@@ -29,6 +30,19 @@ struct SavingsGoalFormView: View {
         return name.trimmingCharacters(in: .whitespaces).count >= 2
     }
     private var isEditing: Bool { existingGoal != nil }
+
+    private var allocationPreview: SavingsAllocationSnapshot? {
+        guard let parsedTarget, parsedTarget > 0 else { return nil }
+        let current = parsedCurrent ?? 0
+        guard current < parsedTarget else { return nil }
+        let snapshot = SavingsAllocationMath.snapshot(
+            targetAmount: parsedTarget,
+            currentAmount: current,
+            targetDate: hasDeadline ? targetDate : nil
+        )
+        guard snapshot.monthlyRequired != nil || snapshot.projectedCompletionDate != nil else { return nil }
+        return snapshot
+    }
 
     init(existingGoal: SavingsGoalEntity? = nil, onSaved: @escaping () -> Void) {
         self.existingGoal = existingGoal
@@ -85,6 +99,33 @@ struct SavingsGoalFormView: View {
                             in: Date.now...,
                             displayedComponents: [.date]
                         )
+                    }
+                }
+
+                if let preview = allocationPreview {
+                    Section(String(localized: "Savings Plan")) {
+                        if let monthly = preview.monthlyRequired {
+                            HStack {
+                                Text(String(localized: "Suggested monthly"))
+                                Spacer()
+                                Text(monthly.formatted(.currency(code: currencyCode)) + String(localized: "/month"))
+                                    .font(VTypography.bodyBold)
+                                    .foregroundStyle(VColors.income)
+                            }
+                        }
+                        if let projected = preview.projectedCompletionDate {
+                            HStack {
+                                Text(String(localized: "Projected completion"))
+                                Spacer()
+                                Text(projected.formatted(date: .long, time: .omitted))
+                                    .font(VTypography.bodyBold)
+                            }
+                        }
+                        if let months = preview.remainingMonths, months > 0 {
+                            Text(String(localized: "Based on \(months) month(s) until your deadline."))
+                                .font(VTypography.caption1)
+                                .foregroundStyle(VColors.textSecondary)
+                        }
                     }
                 }
 

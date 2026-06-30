@@ -221,6 +221,64 @@ struct TaxProfileFormView: View {
                         )
                     }
                 }
+
+                Section {
+                    contributionAmountField(
+                        vm: vm,
+                        title: String(localized: "401(k) contributed YTD"),
+                        text: Bindable(vm).us401kContributedString,
+                        currencyCode: vm.country.currencyCode
+                    )
+                    contributionAmountField(
+                        vm: vm,
+                        title: String(localized: "IRA contributed YTD"),
+                        text: Bindable(vm).usIRAContributedString,
+                        currencyCode: vm.country.currencyCode
+                    )
+                    contributionAmountField(
+                        vm: vm,
+                        title: String(localized: "HSA contributed YTD"),
+                        text: Bindable(vm).usHSAContributedString,
+                        currencyCode: vm.country.currencyCode
+                    )
+                    Toggle(String(localized: "HSA family coverage"), isOn: Binding(
+                        get: { vm.advancedInputs.usHSAFamilyCoverage },
+                        set: {
+                            vm.advancedInputs.usHSAFamilyCoverage = $0
+                            vm.recalculateLive()
+                        }
+                    ))
+                } header: {
+                    Text(String(localized: "Retirement & HSA Contributions"))
+                } footer: {
+                    Text(String(localized: "Track year-to-date contributions to see remaining statutory headroom in your estimate."))
+                }
+
+                if !vm.usContributionUtilization.isEmpty {
+                    Section(String(localized: "Contribution Headroom")) {
+                        ForEach(vm.usContributionUtilization) { item in
+                            VStack(alignment: .leading, spacing: VSpacing.sm) {
+                                HStack {
+                                    Text(item.title)
+                                    Spacer()
+                                    Text(
+                                        "\(item.contributed.formatted(.currency(code: vm.country.currencyCode))) / \(item.statutoryLimit.formatted(.currency(code: vm.country.currencyCode)))"
+                                    )
+                                    .font(VTypography.caption1.bold())
+                                }
+                                ProgressView(value: item.utilizationFraction)
+                                    .tint(item.headroom > 0 ? VColors.primary : VColors.warning)
+                                Text(
+                                    String(
+                                        localized: "\(item.headroom.formatted(.currency(code: vm.country.currencyCode))) remaining"
+                                    )
+                                )
+                                .font(VTypography.caption2)
+                                .foregroundStyle(VColors.textSecondary)
+                            }
+                        }
+                    }
+                }
             }
 
             // Deductions (old regime India or itemized US)
@@ -330,6 +388,31 @@ struct TaxProfileFormView: View {
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func contributionAmountField(
+        vm: TaxProfileFormViewModel,
+        title: String,
+        text: Binding<String>,
+        currencyCode: String
+    ) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(String.currencySymbol(for: currencyCode))
+                .foregroundStyle(VColors.textSecondary)
+            TextField("0", text: text)
+                #if os(iOS)
+                .keyboardType(.decimalPad)
+                .textContentType(nil)
+                #endif
+                .multilineTextAlignment(.trailing)
+                .frame(width: 120)
+                .onChange(of: text.wrappedValue) { _, _ in
+                    vm.recalculateLive()
+                }
         }
     }
 }
