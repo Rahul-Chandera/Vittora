@@ -28,6 +28,7 @@ public enum AppUserDefaults {
         /// Legacy UserDefaults location; matches `KeychainKey.userName`.
         public nonisolated static let userNameLegacy = "vittora.userName"
         public nonisolated static let budgetThresholdFired = "vittora.budgetThresholdFired"
+        public nonisolated static let categorizationRules = "vittora.categorizationRules"
     }
 
     public enum KeychainKey {

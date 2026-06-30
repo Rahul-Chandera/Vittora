@@ -26,6 +26,14 @@ struct CategoryListView: View {
                     Image(systemName: VIcons.Actions.add)
                 }
             }
+            ToolbarItem(placement: .automatic) {
+                NavigationLink {
+                    CategorizationRulesView()
+                } label: {
+                    Image(systemName: "text.magnifyingglass")
+                }
+                .accessibilityLabel(String(localized: "Categorization rules"))
+            }
         }
         .sheet(isPresented: $showAddCategory) {
             if let vm = viewModel {

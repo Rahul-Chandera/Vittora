@@ -7,7 +7,9 @@ import VittoraCore
 @MainActor
 struct TransactionFormViewModelTests {
 
-    private func makeViewModel() -> (TransactionFormViewModel, MockTransactionRepository, MockAccountRepository, MockCategoryRepository) {
+    private func makeViewModel(
+        ruleStore: InMemoryCategorizationRuleStore = InMemoryCategorizationRuleStore()
+    ) -> (TransactionFormViewModel, MockTransactionRepository, MockAccountRepository, MockCategoryRepository, InMemoryCategorizationRuleStore) {
         let txRepo = MockTransactionRepository()
         let accountRepo = MockAccountRepository()
         let categoryRepo = MockCategoryRepository()
@@ -27,17 +29,21 @@ struct TransactionFormViewModelTests {
                     accountRepository: accountRepo
                 )
             ),
-            smartCategorizeUseCase: SmartCategorizeUseCase(transactionRepository: txRepo),
+            smartCategorizeUseCase: SmartCategorizeUseCase(
+                transactionRepository: txRepo,
+                ruleStore: ruleStore,
+                categoryRepository: categoryRepo
+            ),
             duplicateDetectionUseCase: DuplicateDetectionUseCase(transactionRepository: txRepo)
         )
-        return (vm, txRepo, accountRepo, categoryRepo)
+        return (vm, txRepo, accountRepo, categoryRepo, ruleStore)
     }
 
     // MARK: - canSave
 
     @Test("canSave is false when amount is zero")
     func canSaveFalseWhenZeroAmount() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.amountString = "0"
         vm.selectedAccountID = UUID()
         #expect(vm.canSave == false)
@@ -45,7 +51,7 @@ struct TransactionFormViewModelTests {
 
     @Test("canSave is false when no account selected")
     func canSaveFalseWhenNoAccount() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.amountString = "100"
         vm.selectedAccountID = nil
         #expect(vm.canSave == false)
@@ -53,7 +59,7 @@ struct TransactionFormViewModelTests {
 
     @Test("canSave is false when amount string is empty")
     func canSaveFalseWhenEmptyString() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.amountString = ""
         vm.selectedAccountID = UUID()
         #expect(vm.canSave == false)
@@ -61,7 +67,7 @@ struct TransactionFormViewModelTests {
 
     @Test("canSave is true when amount > 0 and account is set")
     func canSaveTrueWhenValid() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.amountString = "49.99"
         vm.selectedAccountID = UUID()
         #expect(vm.canSave == true)
@@ -71,7 +77,7 @@ struct TransactionFormViewModelTests {
 
     @Test("canSave accepts a locale-valid decimal string")
     func canSaveWithValidAmount() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.amountString = "123.45"
         vm.selectedAccountID = UUID()
         #expect(vm.canSave == true)
@@ -79,7 +85,7 @@ struct TransactionFormViewModelTests {
 
     @Test("canSave rejects unparseable amount instead of silently coercing to zero")
     func canSaveFalseForInvalidString() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.amountString = "abc"
         vm.selectedAccountID = UUID()
         #expect(vm.canSave == false)
@@ -89,7 +95,7 @@ struct TransactionFormViewModelTests {
 
     @Test("loadTransaction populates all fields from entity")
     func loadTransactionPopulatesFields() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         let accountID = UUID()
         let payeeID = UUID()
         let categoryID = UUID()
@@ -124,7 +130,7 @@ struct TransactionFormViewModelTests {
 
     @Test("addTag appends tag and clears tagInput")
     func addTagAppendsAndClears() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.tagInput = "travel"
         vm.addTag()
         #expect(vm.tags == ["travel"])
@@ -133,7 +139,7 @@ struct TransactionFormViewModelTests {
 
     @Test("addTag ignores empty input")
     func addTagIgnoresEmpty() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.tagInput = "   "
         vm.addTag()
         #expect(vm.tags.isEmpty)
@@ -141,7 +147,7 @@ struct TransactionFormViewModelTests {
 
     @Test("addTag ignores duplicate tag")
     func addTagIgnoresDuplicate() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.tagInput = "food"
         vm.addTag()
         vm.tagInput = "food"
@@ -151,7 +157,7 @@ struct TransactionFormViewModelTests {
 
     @Test("removeTag removes matching tag")
     func removeTagRemovesMatch() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.tagInput = "food"
         vm.addTag()
         vm.tagInput = "travel"
@@ -162,7 +168,7 @@ struct TransactionFormViewModelTests {
 
     @Test("removeTag ignores non-existent tag")
     func removeTagIgnoresNonExistent() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.tagInput = "food"
         vm.addTag()
         vm.removeTag("unknown")
@@ -173,7 +179,7 @@ struct TransactionFormViewModelTests {
 
     @Test("save throws validationFailed when canSave is false")
     func saveThrowsWhenCanSaveFalse() async {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         // No amount or account set — canSave == false
         await #expect(throws: VittoraError.self) {
             try await vm.save()
@@ -182,7 +188,7 @@ struct TransactionFormViewModelTests {
 
     @Test("save creates new transaction via addUseCase")
     func saveCreatesNewTransaction() async throws {
-        let (vm, txRepo, accountRepo, _) = makeViewModel()
+        let (vm, txRepo, accountRepo, _, _) = makeViewModel()
         let account = AccountEntity(name: "Wallet", type: .cash, balance: 1000)
         await accountRepo.seed(account)
 
@@ -201,7 +207,7 @@ struct TransactionFormViewModelTests {
 
     @Test("save stores note and tags in transaction")
     func saveStoresNoteAndTags() async throws {
-        let (vm, txRepo, accountRepo, _) = makeViewModel()
+        let (vm, txRepo, accountRepo, _, _) = makeViewModel()
         let account = AccountEntity(name: "Bank", type: .bank, balance: 500)
         await accountRepo.seed(account)
 
@@ -220,7 +226,7 @@ struct TransactionFormViewModelTests {
 
     @Test("save empty note is stored as nil")
     func saveEmptyNoteStoredAsNil() async throws {
-        let (vm, txRepo, accountRepo, _) = makeViewModel()
+        let (vm, txRepo, accountRepo, _, _) = makeViewModel()
         let account = AccountEntity(name: "Bank", type: .bank, balance: 500)
         await accountRepo.seed(account)
 
@@ -236,7 +242,7 @@ struct TransactionFormViewModelTests {
 
     @Test("save in editing mode updates existing transaction")
     func saveInEditingModeUpdates() async throws {
-        let (vm, txRepo, accountRepo, _) = makeViewModel()
+        let (vm, txRepo, accountRepo, _, _) = makeViewModel()
         let account = AccountEntity(name: "Bank", type: .bank, balance: 1000)
         await accountRepo.seed(account)
 
@@ -258,7 +264,7 @@ struct TransactionFormViewModelTests {
 
     @Test("suggestCategory clears suggestion when no payee")
     func suggestCategoryNilWhenNoPayee() async {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.suggestedCategoryID = UUID()
         vm.selectedPayeeID = nil
         vm.amountString = "50"
@@ -268,7 +274,7 @@ struct TransactionFormViewModelTests {
 
     @Test("suggestCategory sets suggestion from payee transaction history")
     func suggestCategoryFromHistory() async {
-        let (vm, txRepo, _, _) = makeViewModel()
+        let (vm, txRepo, _, _, ruleStore) = makeViewModel()
         let payeeID = UUID()
         let categoryID = UUID()
 
@@ -285,11 +291,28 @@ struct TransactionFormViewModelTests {
         #expect(vm.suggestedCategoryID == categoryID)
     }
 
+    @Test("suggestCategory sets suggestion from keyword rule in note")
+    func suggestCategoryFromRuleNote() async throws {
+        let (vm, _, _, categoryRepo, ruleStore) = makeViewModel()
+        let categoryID = UUID()
+
+        try await categoryRepo.create(
+            CategoryEntity(id: categoryID, name: "Streaming", icon: "play.tv", colorHex: "#FF0000", type: .expense)
+        )
+        try ruleStore.save(CategorizationRule(keyword: "netflix", categoryID: categoryID))
+
+        vm.amountString = "15"
+        vm.note = "Netflix monthly"
+        await vm.suggestCategory()
+
+        #expect(vm.suggestedCategoryID == categoryID)
+    }
+
     // MARK: - checkDuplicates
 
     @Test("checkDuplicates clears warning when no account selected")
     func checkDuplicatesClearsWithoutAccount() async {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.duplicateWarning = [TransactionEntity(amount: 10, type: .expense)]
         vm.selectedAccountID = nil
         vm.amountString = "10"
@@ -299,7 +322,7 @@ struct TransactionFormViewModelTests {
 
     @Test("checkDuplicates finds matching transaction")
     func checkDuplicatesFindsMatch() async {
-        let (vm, txRepo, _, _) = makeViewModel()
+        let (vm, txRepo, _, _, ruleStore) = makeViewModel()
         let accountID = UUID()
         let payeeID = UUID()
 

@@ -174,6 +174,7 @@ public final class DataManagementService: Sendable {
 
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
         AppUserDefaults.sync.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.categorizationRules)
     }
 
     // MARK: - Helpers

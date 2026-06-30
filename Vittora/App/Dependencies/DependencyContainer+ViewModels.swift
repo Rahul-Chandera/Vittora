@@ -108,7 +108,11 @@ extension DependencyContainer {
                 transactionRepository: transactionRepository,
                 ledgerWriting: ledgerWriteStore
             ),
-            smartCategorizeUseCase: SmartCategorizeUseCase(transactionRepository: transactionRepository),
+            smartCategorizeUseCase: SmartCategorizeUseCase(
+                transactionRepository: transactionRepository,
+                ruleStore: categorizationRuleStore,
+                categoryRepository: categoryRepository
+            ),
             duplicateDetectionUseCase: DuplicateDetectionUseCase(transactionRepository: transactionRepository),
             currencyCode: currencyCode
         )
@@ -177,6 +181,16 @@ extension DependencyContainer {
         SavingsGoalListViewModel(
             fetchUseCase: FetchSavingsGoalsUseCase(savingsGoalRepository: savingsGoalRepository),
             saveUseCase: SaveSavingsGoalUseCase(savingsGoalRepository: savingsGoalRepository)
+        )
+    }
+
+    func makeCategorizationRulesViewModel() -> CategorizationRulesViewModel {
+        CategorizationRulesViewModel(
+            manageRulesUseCase: ManageCategorizationRulesUseCase(
+                ruleStore: categorizationRuleStore,
+                categoryRepository: categoryRepository
+            ),
+            fetchCategoriesUseCase: FetchCategoriesUseCase(repository: categoryRepository)
         )
     }
 
