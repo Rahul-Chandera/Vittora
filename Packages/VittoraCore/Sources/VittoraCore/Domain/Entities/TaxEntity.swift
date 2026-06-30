@@ -179,6 +179,14 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
     public nonisolated var indiaMetroCity: Bool = false
     /// India old regime: parents are senior citizens for 80D tier.
     public nonisolated var indiaParentsSeniorCitizen: Bool = false
+    /// US: year-to-date 401(k) elective deferrals.
+    public nonisolated var us401kYTDContributed: Decimal = 0
+    /// US: year-to-date traditional/Roth IRA contributions.
+    public nonisolated var usIRAYTDContributed: Decimal = 0
+    /// US: year-to-date HSA contributions.
+    public nonisolated var usHSAYTDContributed: Decimal = 0
+    /// US: when true, HSA statutory limit uses the family tier.
+    public nonisolated var usHSAFamilyCoverage: Bool = false
 
     public nonisolated init(
         usQualifiedDividends: Decimal = 0,
@@ -191,7 +199,11 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         indiaHRAPaid: Decimal = 0,
         indiaRentPaid: Decimal = 0,
         indiaMetroCity: Bool = false,
-        indiaParentsSeniorCitizen: Bool = false
+        indiaParentsSeniorCitizen: Bool = false,
+        us401kYTDContributed: Decimal = 0,
+        usIRAYTDContributed: Decimal = 0,
+        usHSAYTDContributed: Decimal = 0,
+        usHSAFamilyCoverage: Bool = false
     ) {
         self.usQualifiedDividends = usQualifiedDividends
         self.usLongTermCapitalGains = usLongTermCapitalGains
@@ -204,6 +216,10 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         self.indiaRentPaid = indiaRentPaid
         self.indiaMetroCity = indiaMetroCity
         self.indiaParentsSeniorCitizen = indiaParentsSeniorCitizen
+        self.us401kYTDContributed = us401kYTDContributed
+        self.usIRAYTDContributed = usIRAYTDContributed
+        self.usHSAYTDContributed = usHSAYTDContributed
+        self.usHSAFamilyCoverage = usHSAFamilyCoverage
     }
 }
 
@@ -220,6 +236,10 @@ extension TaxAdvancedInputs: Codable {
         case indiaRentPaid
         case indiaMetroCity
         case indiaParentsSeniorCitizen
+        case us401kYTDContributed
+        case usIRAYTDContributed
+        case usHSAYTDContributed
+        case usHSAFamilyCoverage
     }
 
     public nonisolated init(from decoder: Decoder) throws {
@@ -235,6 +255,10 @@ extension TaxAdvancedInputs: Codable {
         indiaRentPaid = try container.decodeIfPresent(Decimal.self, forKey: .indiaRentPaid) ?? 0
         indiaMetroCity = try container.decodeIfPresent(Bool.self, forKey: .indiaMetroCity) ?? false
         indiaParentsSeniorCitizen = try container.decodeIfPresent(Bool.self, forKey: .indiaParentsSeniorCitizen) ?? false
+        us401kYTDContributed = try container.decodeIfPresent(Decimal.self, forKey: .us401kYTDContributed) ?? 0
+        usIRAYTDContributed = try container.decodeIfPresent(Decimal.self, forKey: .usIRAYTDContributed) ?? 0
+        usHSAYTDContributed = try container.decodeIfPresent(Decimal.self, forKey: .usHSAYTDContributed) ?? 0
+        usHSAFamilyCoverage = try container.decodeIfPresent(Bool.self, forKey: .usHSAFamilyCoverage) ?? false
     }
 
     public nonisolated func encode(to encoder: Encoder) throws {
@@ -250,6 +274,10 @@ extension TaxAdvancedInputs: Codable {
         try container.encode(indiaRentPaid, forKey: .indiaRentPaid)
         try container.encode(indiaMetroCity, forKey: .indiaMetroCity)
         try container.encode(indiaParentsSeniorCitizen, forKey: .indiaParentsSeniorCitizen)
+        try container.encode(us401kYTDContributed, forKey: .us401kYTDContributed)
+        try container.encode(usIRAYTDContributed, forKey: .usIRAYTDContributed)
+        try container.encode(usHSAYTDContributed, forKey: .usHSAYTDContributed)
+        try container.encode(usHSAFamilyCoverage, forKey: .usHSAFamilyCoverage)
     }
 }
 

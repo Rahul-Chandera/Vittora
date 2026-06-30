@@ -85,9 +85,9 @@ struct SavingsGoalDetailView: View {
                     deadlineCard(days: days, goal: vm.goal)
                 }
 
-                // Monthly savings needed
-                if let monthly = vm.goal.monthlySavingsNeeded {
-                    monthlySavingsCard(monthly: monthly)
+                // Savings plan
+                if vm.goal.status == .active, vm.goal.remainingAmount > 0 {
+                    allocationPlanCard(vm.goal.allocationSnapshot)
                 }
 
                 // Contribution input (active goals only)
@@ -174,19 +174,30 @@ struct SavingsGoalDetailView: View {
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
-    private func monthlySavingsCard(monthly: Decimal) -> some View {
-        HStack(spacing: VSpacing.md) {
+    private func allocationPlanCard(_ snapshot: SavingsAllocationSnapshot) -> some View {
+        HStack(alignment: .top, spacing: VSpacing.md) {
             Image(systemName: "arrow.up.circle.fill")
                 .font(.title2)
                 .foregroundStyle(VColors.income)
                 .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(String(localized: "Save monthly to hit deadline"))
-                    .font(VTypography.caption1)
-                    .foregroundStyle(VColors.textSecondary)
-                Text(monthly.formatted(.currency(code: currencyCode)) + String(localized: "/month"))
-                    .font(VTypography.bodyBold)
-                    .foregroundStyle(VColors.income)
+            VStack(alignment: .leading, spacing: VSpacing.xs) {
+                if let monthly = snapshot.monthlyRequired {
+                    Text(String(localized: "Suggested monthly savings"))
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
+                    Text(monthly.formatted(.currency(code: currencyCode)) + String(localized: "/month"))
+                        .font(VTypography.bodyBold)
+                        .foregroundStyle(VColors.income)
+                }
+                if let projected = snapshot.projectedCompletionDate {
+                    Text(String(localized: "Projected completion"))
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
+                        .padding(.top, snapshot.monthlyRequired == nil ? 0 : VSpacing.xs)
+                    Text(projected.formatted(date: .long, time: .omitted))
+                        .font(VTypography.bodyBold)
+                        .foregroundStyle(VColors.textPrimary)
+                }
             }
             Spacer()
         }
