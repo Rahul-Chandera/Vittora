@@ -25,6 +25,7 @@ struct CSVColumnMapping: Sendable, Equatable {
     nonisolated let inflowColumn: Int?
     nonisolated let categoryColumn: Int?
     nonisolated let memoColumn: Int?
+    nonisolated let transactionTypeColumn: Int?
 }
 
 struct ParsedCSVTransactionRow: Sendable, Identifiable {
@@ -46,7 +47,8 @@ enum CSVTransactionImportMapper {
         case .mint:
             guard let date = index(in: normalized, matchingAny: ["date"]),
                   let description = index(in: normalized, matchingAny: ["description"]),
-                  let amount = index(in: normalized, matchingAny: ["amount"])
+                  let amount = index(in: normalized, matchingAny: ["amount"]),
+                  let transactionType = index(in: normalized, matchingAny: ["transactiontype"])
             else { return nil }
             let category = index(in: normalized, matchingAny: ["category"])
             return CSVColumnMapping(
@@ -56,7 +58,8 @@ enum CSVTransactionImportMapper {
                 outflowColumn: nil,
                 inflowColumn: nil,
                 categoryColumn: category,
-                memoColumn: nil
+                memoColumn: nil,
+                transactionTypeColumn: transactionType
             )
 
         case .ynab:
@@ -74,7 +77,8 @@ enum CSVTransactionImportMapper {
                 outflowColumn: outflow,
                 inflowColumn: inflow,
                 categoryColumn: category,
-                memoColumn: memo
+                memoColumn: memo,
+                transactionTypeColumn: nil
             )
 
         case .generic:
@@ -93,7 +97,8 @@ enum CSVTransactionImportMapper {
                 outflowColumn: nil,
                 inflowColumn: nil,
                 categoryColumn: category,
-                memoColumn: nil
+                memoColumn: nil,
+                transactionTypeColumn: nil
             )
         }
     }
@@ -150,7 +155,18 @@ enum CSVTransactionImportMapper {
         }.flatMap { $0.isEmpty ? nil : $0 }
 
         let amountType: (Decimal, TransactionType)?
-        if profile == .ynab,
+        if profile == .mint,
+           let typeIndex = mapping.transactionTypeColumn,
+           let amountIndex = mapping.amountColumn,
+           columns.indices.contains(typeIndex),
+           columns.indices.contains(amountIndex) {
+            guard let parsedAmount = parseAmount(columns[amountIndex], locale: locale), parsedAmount != 0 else {
+                return nil
+            }
+            let amount = abs(parsedAmount)
+            guard let type = parseMintTransactionType(columns[typeIndex]) else { return nil }
+            amountType = (amount, type)
+        } else if profile == .ynab,
            let outflowIndex = mapping.outflowColumn,
            let inflowIndex = mapping.inflowColumn,
            columns.indices.contains(outflowIndex),
@@ -186,6 +202,17 @@ enum CSVTransactionImportMapper {
             note: memo,
             categoryName: categoryName
         )
+    }
+
+    nonisolated private static func parseMintTransactionType(_ raw: String) -> TransactionType? {
+        switch raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "debit", "expense", "withdrawal", "payment":
+            return .expense
+        case "credit", "income", "deposit":
+            return .income
+        default:
+            return nil
+        }
     }
 
     nonisolated private static func parseAmount(_ raw: String, locale: Locale) -> Decimal? {

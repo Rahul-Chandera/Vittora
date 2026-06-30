@@ -25,12 +25,12 @@ struct CSVTransactionImportTests {
     private let accountID = UUID()
     private let locale = Locale(identifier: "en_US")
 
-    @Test("Mint profile maps signed amounts to income and expense")
+    @Test("Mint profile maps unsigned amounts with debit/credit transaction type")
     func mintProfileParsesRows() throws {
         let csv = """
-        Date,Description,Amount,Category
-        2026-01-10,Whole Foods,-42.15,Groceries
-        2026-01-11,Paycheck,2500.00,Income
+        Date,Description,Amount,Transaction Type,Category
+        2026-01-10,Whole Foods,42.15,debit,Groceries
+        2026-01-11,Paycheck,2500.00,credit,Income
         """
 
         let preview = try ImportTransactionsFromCSVUseCase(
