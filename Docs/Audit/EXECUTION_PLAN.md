@@ -356,16 +356,17 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | K3 | FUNCTIONAL-7 / BUSINESS-2 | P1 | `Features/Splits/...` | ShareLink invite/summary (image/deep link) + per-group report export; decide CKShare vs share-out for V1. | A non-user can be invited; group exports. | L |
 | K4 | FUNCTIONAL-8 | P1 | `Features/Reports/...` | `ImageRenderer`/`PDFDocument` export for Annual/Monthly/Custom via ShareLink. | Reports export to PDF. | M |
 
-> **Epic K status (2026-06-30):** **K1–K7 done** (#15, #14, #13, #16, #17, #18, #19). **Non-blocking follow-ups (do not gate merges):**
+> **Epic K status (2026-06-30):** **K1–K8 done** (#15, #14, #13, #16, #17, #18, #19, #20). **Non-blocking follow-ups (do not gate merges):**
 > - **K5:** bulk-import atomicity refinements; accounting-negative `($50)` parsing edge cases (partial fix in #17).
 > - **K6:** payee-history whole-table fetch on every categorize call — optimize to scoped query.
 > - **K7:** SECURE 2.0 ages 60–63 catch-up; HSA 55+ catch-up; verify 2026 401(k)/IRA statutory limits.
+> - **K8:** migrate edit history from UserDefaults to SwiftData/file if retention grows; batch-scan edge cases beyond partial-success UX.
 > - **Earlier:** K1b (80E/80G/LTA caps); **J2** Core extraction finish; **K3** CKShare viral loop (vs share-out V1).
 
 | K5 | FUNCTIONAL-18 | P2 | new CSV import flow | Column mapping + duplicate-aware insert (reuse DuplicateDetection); generic + Mint/YNAB profiles. | Imports a sample CSV correctly. | M | **Merged #17** |
 | K6 | FUNCTIONAL-3 | P2 | `SmartCategorizeUseCase.swift` | Rule-based first pass (keyword→category, editable) on merchant/OCR text/note; fallback to payee history. | Rules categorize known merchants. | M | **Merged #18** |
 | K7 | FUNCTIONAL-10/9 | P2 | `Features/Savings`, US tax profile | Savings auto-allocation (`required = (target-current)/months`); US 401k/IRA/HSA contribution inputs + headroom. | Suggested monthly + projected date shown. | M | **Merged #19** |
-| K8 | FUNCTIONAL-11/12/13, UX-14 | P2 | per finding | Wire or remove `BatchScanUseCase` + multi-page; add edit audit trail; saved filters; resolve `QuickEntryView` (wire as fast-add or delete; remove 300ms sleep). | Dead code removed or wired; features tested. | M |
+| K8 | FUNCTIONAL-11/12/13, UX-14 | P2 | per finding | Wire or remove `BatchScanUseCase` + multi-page; add edit audit trail; saved filters; resolve `QuickEntryView` (wire as fast-add or delete; remove 300ms sleep). | Dead code removed or wired; features tested. | M | **Merged #20** |
 
 ---
 
