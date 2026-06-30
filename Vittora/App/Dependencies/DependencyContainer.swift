@@ -42,6 +42,8 @@ final class DependencyContainer {
     let securityAuditLogService: SecurityAuditLogService
     let dataSeeder: any DataSeederProtocol
     let categorizationRuleStore: any CategorizationRuleStoring
+    let transactionEditHistoryStore: any TransactionEditHistoryStoring
+    let savedTransactionFilterStore: any SavedTransactionFilterStoring
 
     init(
         transactionRepository: any TransactionRepository,
@@ -72,7 +74,9 @@ final class DependencyContainer {
         conversionEventRecorder: ConversionEventRecorder,
         securityAuditLogService: SecurityAuditLogService,
         dataSeeder: any DataSeederProtocol,
-        categorizationRuleStore: any CategorizationRuleStoring
+        categorizationRuleStore: any CategorizationRuleStoring,
+        transactionEditHistoryStore: any TransactionEditHistoryStoring,
+        savedTransactionFilterStore: any SavedTransactionFilterStoring
     ) {
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
@@ -103,6 +107,8 @@ final class DependencyContainer {
         self.securityAuditLogService = securityAuditLogService
         self.dataSeeder = dataSeeder
         self.categorizationRuleStore = categorizationRuleStore
+        self.transactionEditHistoryStore = transactionEditHistoryStore
+        self.savedTransactionFilterStore = savedTransactionFilterStore
     }
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
@@ -212,7 +218,9 @@ final class DependencyContainer {
             conversionEventRecorder: conversionEventRecorder,
             securityAuditLogService: auditLogService,
             dataSeeder: dataSeeder,
-            categorizationRuleStore: UserDefaultsCategorizationRuleStore()
+            categorizationRuleStore: UserDefaultsCategorizationRuleStore(),
+            transactionEditHistoryStore: UserDefaultsTransactionEditHistoryStore(),
+            savedTransactionFilterStore: UserDefaultsSavedTransactionFilterStore()
         )
     }
 

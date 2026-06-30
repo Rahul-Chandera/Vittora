@@ -117,36 +117,36 @@ struct TransactionListView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                HStack {
-                    NavigationLink(value: NavigationDestination.addTransaction) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title2)
-                    }
-                    .accessibilityIdentifier("transaction-add-button")
-                    .accessibilityLabel(String(localized: "Add transaction"))
-                    .accessibilityHint(String(localized: "Opens the new transaction form"))
-
-                    Button {
-                        showFilterSheet = true
-                    } label: {
-                        Image(systemName: "funnel.fill")
-                            .font(.title2)
-                            .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
-                    }
-                    .accessibilityIdentifier("transaction-filter-button")
-                    .accessibilityLabel(String(localized: "Filter transactions"))
-                    .accessibilityHint(String(localized: "Opens transaction filters"))
-                    .accessibilityValue(vm.hasActiveFilter ? String(localized: "Filter active") : String(localized: "No filters applied"))
-
-                    Button {
-                        showCSVImport = true
-                    } label: {
-                        Image(systemName: "square.and.arrow.down")
-                            .font(.title2)
-                    }
-                    .accessibilityLabel(String(localized: "Import CSV"))
-                    .accessibilityHint(String(localized: "Import transactions from a CSV file"))
+                NavigationLink(value: NavigationDestination.addTransaction) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
                 }
+                .accessibilityIdentifier("transaction-add-button")
+                .accessibilityLabel(String(localized: "Add transaction"))
+                .accessibilityHint(String(localized: "Opens the new transaction form"))
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showFilterSheet = true
+                } label: {
+                    Image(systemName: "funnel.fill")
+                        .font(.title2)
+                        .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
+                }
+                .accessibilityIdentifier("transaction-filter-button")
+                .accessibilityLabel(String(localized: "Filter transactions"))
+                .accessibilityHint(String(localized: "Opens transaction filters"))
+                .accessibilityValue(vm.hasActiveFilter ? String(localized: "Filter active") : String(localized: "No filters applied"))
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showCSVImport = true
+                } label: {
+                    Image(systemName: "square.and.arrow.down")
+                        .font(.title2)
+                }
+                .accessibilityLabel(String(localized: "Import CSV"))
+                .accessibilityHint(String(localized: "Import transactions from a CSV file"))
             }
         }
         .sheet(isPresented: $showCSVImport) {

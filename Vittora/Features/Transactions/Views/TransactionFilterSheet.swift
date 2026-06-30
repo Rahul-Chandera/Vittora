@@ -2,10 +2,15 @@ import SwiftUI
 import VittoraCore
 
 struct TransactionFilterSheet: View {
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @State var viewModel: TransactionFilterViewModel
     let onApply: (TransactionFilter) -> Void
     @State private var localVM: TransactionFilterViewModel
+    @State private var savedPresets: [SavedTransactionFilterPreset] = []
+    @State private var showSaveAlert = false
+    @State private var presetName = ""
+    @State private var filterError: String?
 
     init(viewModel: TransactionFilterViewModel, onApply: @escaping (TransactionFilter) -> Void) {
         _viewModel = State(initialValue: viewModel)
@@ -16,6 +21,32 @@ struct TransactionFilterSheet: View {
     var body: some View {
         NavigationStack {
             Form {
+                if !savedPresets.isEmpty {
+                    Section(String(localized: "Saved Filters")) {
+                        ForEach(savedPresets) { preset in
+                            Button {
+                                localVM.applySnapshot(preset.snapshot)
+                            } label: {
+                                HStack {
+                                    Text(preset.name)
+                                        .foregroundColor(VColors.textPrimary)
+                                    Spacer()
+                                    Image(systemName: "line.3.horizontal.decrease.circle")
+                                        .foregroundColor(VColors.textSecondary)
+                                }
+                            }
+                            .accessibilityIdentifier("saved-filter-\(preset.id.uuidString)")
+                            .swipeActions {
+                                Button(role: .destructive) {
+                                    deletePreset(preset)
+                                } label: {
+                                    Label(String(localized: "Delete"), systemImage: "trash")
+                                }
+                            }
+                        }
+                    }
+                }
+
                 Section(String(localized: "Date Range")) {
                     Picker(String(localized: "Preset"), selection: Bindable(localVM).datePreset) {
                         ForEach(TransactionFilterViewModel.DatePreset.allCases, id: \.self) { preset in
@@ -74,12 +105,21 @@ struct TransactionFilterSheet: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
+            .navigationTitle(String(localized: "Filters"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Clear")) {
                         localVM.clearAll()
                     }
                     .accessibilityIdentifier("transaction-filter-clear-button")
+                }
+
+                ToolbarItem(placement: .primaryAction) {
+                    Button(String(localized: "Save")) {
+                        presetName = ""
+                        showSaveAlert = true
+                    }
+                    .accessibilityIdentifier("transaction-filter-save-button")
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -90,6 +130,55 @@ struct TransactionFilterSheet: View {
                     .accessibilityIdentifier("transaction-filter-apply-button")
                 }
             }
+            .alert(String(localized: "Save Filter"), isPresented: $showSaveAlert) {
+                TextField(String(localized: "Name"), text: $presetName)
+                Button(String(localized: "Cancel"), role: .cancel) {}
+                Button(String(localized: "Save")) {
+                    saveCurrentFilter()
+                }
+            } message: {
+                Text(String(localized: "Save the current filter settings for quick access later."))
+            }
+            .errorAlert(message: $filterError)
+            .task {
+                reloadSavedPresets()
+            }
+        }
+    }
+
+    private func reloadSavedPresets() {
+        do {
+            savedPresets = try dependencies.makeManageSavedTransactionFiltersUseCase().fetchAll()
+        } catch {
+            savedPresets = []
+            filterError = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load saved filters.")
+            )
+        }
+    }
+
+    private func saveCurrentFilter() {
+        do {
+            _ = try dependencies.makeManageSavedTransactionFiltersUseCase().save(
+                name: presetName,
+                snapshot: localVM.makeSnapshot()
+            )
+            reloadSavedPresets()
+        } catch {
+            filterError = error.userFacingMessage(
+                fallback: String(localized: "We couldn't save this filter.")
+            )
+        }
+    }
+
+    private func deletePreset(_ preset: SavedTransactionFilterPreset) {
+        do {
+            try dependencies.makeManageSavedTransactionFiltersUseCase().delete(id: preset.id)
+            reloadSavedPresets()
+        } catch {
+            filterError = error.userFacingMessage(
+                fallback: String(localized: "We couldn't delete this filter.")
+            )
         }
     }
 }

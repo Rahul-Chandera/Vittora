@@ -8,13 +8,16 @@ struct UpdateTransactionUseCase: Sendable {
     /// (one save, rollback on failure). There is no non-atomic repository fallback
     /// (DATAINTEGRITY-3, A4).
     let ledgerWriting: any LedgerWriting
+    let recordEditUseCase: RecordTransactionEditUseCase?
 
     nonisolated init(
         transactionRepository: any TransactionRepository,
-        ledgerWriting: any LedgerWriting
+        ledgerWriting: any LedgerWriting,
+        recordEditUseCase: RecordTransactionEditUseCase? = nil
     ) {
         self.transactionRepository = transactionRepository
         self.ledgerWriting = ledgerWriting
+        self.recordEditUseCase = recordEditUseCase
     }
 
     func execute(_ entity: TransactionEntity) async throws {
@@ -37,5 +40,11 @@ struct UpdateTransactionUseCase: Sendable {
         // Atomic reverse-old / apply-new (handles same-account netting and
         // account changes) inside one ledger-store save.
         try await ledgerWriting.performUpdate(entity)
+
+        TransactionEditHistorySideEffects.recordEdit(
+            recordEditUseCase,
+            before: existingTransaction,
+            after: entity
+        )
     }
 }

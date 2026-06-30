@@ -107,9 +107,7 @@ struct AppTabView: View {
         }
         .tabViewStyle(.sidebarAdaptable)
         .fullScreenCover(isPresented: $showAddTransaction) {
-            NavigationStack {
-                TransactionFormView()
-            }
+            QuickEntryView()
         }
         .handlesAppCommands(appState: appState, showAddTransaction: $showAddTransaction)
     }
