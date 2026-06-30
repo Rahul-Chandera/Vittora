@@ -360,6 +360,8 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | K7 | FUNCTIONAL-10/9 | P2 | `Features/Savings`, US tax profile | Savings auto-allocation (`required = (target-current)/months`); US 401k/IRA/HSA contribution inputs + headroom. | Suggested monthly + projected date shown. | M |
 | K8 | FUNCTIONAL-11/12/13, UX-14 | P2 | per finding | Wire or remove `BatchScanUseCase` + multi-page; add edit audit trail; saved filters; resolve `QuickEntryView` (wire as fast-add or delete; remove 300ms sleep). | Dead code removed or wired; features tested. | M |
 
+> **Epic K status (2026-06-28):** **K1 done** — `IndiaSectionDeductionEngine` enforces 80C/80CCD(1B)/80D caps + HRA min-of-three; utilization UI in tax profile form; `advancedInputs` persistence fix. **K4 done** (#13). **K2** in PR #14. **Next:** K3 (splits share/invite).
+
 ---
 
 # EPIC L — Testing & CI (P1)

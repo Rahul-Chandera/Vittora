@@ -91,6 +91,7 @@ test-tax:
 		-derivedDataPath .build \
 		-only-testing:VittoraTests/USTaxCalculatorTests \
 		-only-testing:VittoraTests/TaxCalculatorRegressionTests \
+		-only-testing:VittoraTests/IndiaSectionDeductionEngineTests \
 		test
 
 test-sync:

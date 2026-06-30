@@ -26,6 +26,7 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
         let incomeSourceType: IncomeSourceType
         let dateOfBirth: Date?
         let customDeductions: [TaxDeduction]
+        let financialYearLabel: String
     }
 
     private struct TaxCoreAmounts: Sendable {
@@ -81,6 +82,15 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
                 warnings.append(String(localized: "Surcharge on equity LTCG/STCG is capped at 15% under Sections 111A/112A-style modeling."))
             }
         }
+        if input.regime == .oldRegime {
+            let deductionResolution = IndiaSectionDeductionEngine.resolve(
+                deductions: input.customDeductions,
+                advancedInputs: input.advancedInputs,
+                dateOfBirth: input.dateOfBirth,
+                financialYearLabel: input.financialYearLabel
+            )
+            warnings.append(contentsOf: deductionResolution.warnings)
+        }
 
         let exclusions: [String] = [
             String(localized: "State taxes and cess on surcharges are modeled only at the federal level; verify with a CA.")
@@ -123,7 +133,8 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
             financialYear: supportedFinancialYear(for: profile),
             incomeSourceType: profile.incomeSourceType,
             dateOfBirth: profile.dateOfBirth,
-            customDeductions: profile.customDeductions
+            customDeductions: profile.customDeductions,
+            financialYearLabel: profile.financialYear
         )
     }
 
@@ -133,8 +144,14 @@ struct IndiaTaxCalculator: TaxCalculatorProtocol {
             incomeSourceType: input.incomeSourceType,
             financialYear: input.financialYear
         )
+        let deductionResolution = IndiaSectionDeductionEngine.resolve(
+            deductions: input.customDeductions,
+            advancedInputs: input.advancedInputs,
+            dateOfBirth: input.dateOfBirth,
+            financialYearLabel: input.financialYearLabel
+        )
         let customDeductionsTotal: Decimal = input.regime == .oldRegime
-            ? input.customDeductions.reduce(0) { $0 + $1.amount }
+            ? deductionResolution.allowedTotal
             : 0
 
         let taxableIncome = max(0, input.gross - standardDeduction - customDeductionsTotal)
