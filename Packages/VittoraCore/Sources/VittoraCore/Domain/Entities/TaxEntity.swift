@@ -169,6 +169,16 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
     public nonisolated var indiaEquityLTCG: Decimal = 0
     /// India: equity STCG (simplified flat rate bucket).
     public nonisolated var indiaEquitySTCG: Decimal = 0
+    /// India old regime: annual basic salary (+ DA) for HRA exemption.
+    public nonisolated var indiaBasicSalary: Decimal = 0
+    /// India old regime: annual HRA received.
+    public nonisolated var indiaHRAPaid: Decimal = 0
+    /// India old regime: annual rent paid.
+    public nonisolated var indiaRentPaid: Decimal = 0
+    /// India old regime: metro city (50% salary) vs non-metro (40%).
+    public nonisolated var indiaMetroCity: Bool = false
+    /// India old regime: parents are senior citizens for 80D tier.
+    public nonisolated var indiaParentsSeniorCitizen: Bool = false
 
     public nonisolated init(
         usQualifiedDividends: Decimal = 0,
@@ -176,7 +186,12 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         usShortTermCapitalGains: Decimal = 0,
         usOtherInvestmentIncome: Decimal = 0,
         indiaEquityLTCG: Decimal = 0,
-        indiaEquitySTCG: Decimal = 0
+        indiaEquitySTCG: Decimal = 0,
+        indiaBasicSalary: Decimal = 0,
+        indiaHRAPaid: Decimal = 0,
+        indiaRentPaid: Decimal = 0,
+        indiaMetroCity: Bool = false,
+        indiaParentsSeniorCitizen: Bool = false
     ) {
         self.usQualifiedDividends = usQualifiedDividends
         self.usLongTermCapitalGains = usLongTermCapitalGains
@@ -184,6 +199,11 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         self.usOtherInvestmentIncome = usOtherInvestmentIncome
         self.indiaEquityLTCG = indiaEquityLTCG
         self.indiaEquitySTCG = indiaEquitySTCG
+        self.indiaBasicSalary = indiaBasicSalary
+        self.indiaHRAPaid = indiaHRAPaid
+        self.indiaRentPaid = indiaRentPaid
+        self.indiaMetroCity = indiaMetroCity
+        self.indiaParentsSeniorCitizen = indiaParentsSeniorCitizen
     }
 }
 
@@ -195,6 +215,11 @@ extension TaxAdvancedInputs: Codable {
         case usOtherInvestmentIncome
         case indiaEquityLTCG
         case indiaEquitySTCG
+        case indiaBasicSalary
+        case indiaHRAPaid
+        case indiaRentPaid
+        case indiaMetroCity
+        case indiaParentsSeniorCitizen
     }
 
     public nonisolated init(from decoder: Decoder) throws {
@@ -205,6 +230,11 @@ extension TaxAdvancedInputs: Codable {
         usOtherInvestmentIncome = try container.decodeIfPresent(Decimal.self, forKey: .usOtherInvestmentIncome) ?? 0
         indiaEquityLTCG = try container.decodeIfPresent(Decimal.self, forKey: .indiaEquityLTCG) ?? 0
         indiaEquitySTCG = try container.decodeIfPresent(Decimal.self, forKey: .indiaEquitySTCG) ?? 0
+        indiaBasicSalary = try container.decodeIfPresent(Decimal.self, forKey: .indiaBasicSalary) ?? 0
+        indiaHRAPaid = try container.decodeIfPresent(Decimal.self, forKey: .indiaHRAPaid) ?? 0
+        indiaRentPaid = try container.decodeIfPresent(Decimal.self, forKey: .indiaRentPaid) ?? 0
+        indiaMetroCity = try container.decodeIfPresent(Bool.self, forKey: .indiaMetroCity) ?? false
+        indiaParentsSeniorCitizen = try container.decodeIfPresent(Bool.self, forKey: .indiaParentsSeniorCitizen) ?? false
     }
 
     public nonisolated func encode(to encoder: Encoder) throws {
@@ -215,6 +245,11 @@ extension TaxAdvancedInputs: Codable {
         try container.encode(usOtherInvestmentIncome, forKey: .usOtherInvestmentIncome)
         try container.encode(indiaEquityLTCG, forKey: .indiaEquityLTCG)
         try container.encode(indiaEquitySTCG, forKey: .indiaEquitySTCG)
+        try container.encode(indiaBasicSalary, forKey: .indiaBasicSalary)
+        try container.encode(indiaHRAPaid, forKey: .indiaHRAPaid)
+        try container.encode(indiaRentPaid, forKey: .indiaRentPaid)
+        try container.encode(indiaMetroCity, forKey: .indiaMetroCity)
+        try container.encode(indiaParentsSeniorCitizen, forKey: .indiaParentsSeniorCitizen)
     }
 }
 

@@ -17,10 +17,16 @@ final class TaxProfileFormViewModel {
     var incomeSourceType: IncomeSourceType = .salaried
     var dateOfBirth: Date? = nil
     var customDeductions: [TaxDeduction] = []
+    var advancedInputs = TaxAdvancedInputs()
+
+    var indiaBasicSalaryString = ""
+    var indiaHRAPaidString = ""
+    var indiaRentPaidString = ""
 
     // Live preview
     var liveEstimate: TaxEstimate?
     var liveComparison: TaxComparison?
+    var indiaDeductionUtilization: [IndiaSectionDeductionEngine.Utilization] = []
 
     var isSaving = false
     var error: String?
@@ -32,6 +38,10 @@ final class TaxProfileFormViewModel {
 
     var income: Decimal { parsedIncome ?? 0 }
     var canSave: Bool { (parsedIncome ?? 0) > 0 }
+
+    var section80CUtilization: IndiaSectionDeductionEngine.Utilization? {
+        indiaDeductionUtilization.first { $0.sectionKey == "80C" }
+    }
 
     init(
         saveUseCase: SaveTaxProfileUseCase,
@@ -53,19 +63,35 @@ final class TaxProfileFormViewModel {
         incomeSourceType = profile.incomeSourceType
         dateOfBirth = profile.dateOfBirth
         customDeductions = profile.customDeductions
+        advancedInputs = profile.advancedInputs
+        syncIndiaInputStringsFromAdvancedInputs()
         recalculateLive()
     }
 
     func recalculateLive() {
+        syncAdvancedInputsFromStrings()
         guard income > 0 else {
             liveEstimate = nil
             liveComparison = nil
+            indiaDeductionUtilization = []
             return
         }
 
         let profile = currentProfile()
         liveEstimate = estimateUseCase.execute(profile: profile)
         liveComparison = compareUseCase.execute(profile: profile)
+
+        if country == .india, indiaRegime == .oldRegime {
+            let resolution = IndiaSectionDeductionEngine.resolve(
+                deductions: customDeductions,
+                advancedInputs: advancedInputs,
+                dateOfBirth: dateOfBirth,
+                financialYearLabel: financialYear
+            )
+            indiaDeductionUtilization = resolution.utilizations
+        } else {
+            indiaDeductionUtilization = []
+        }
     }
 
     func addDeduction(name: String, amount: Decimal, section: String?) {
@@ -85,6 +111,7 @@ final class TaxProfileFormViewModel {
         guard let parsedIncome = parsedIncome, parsedIncome > 0 else {
             throw VittoraError.validationFailed(String(localized: "Please enter a valid annual income."))
         }
+        syncAdvancedInputsFromStrings()
         isSaving = true
         error = nil
         do {
@@ -109,7 +136,38 @@ final class TaxProfileFormViewModel {
         profile.financialYear = financialYear
         profile.incomeSourceType = incomeSourceType
         profile.dateOfBirth = dateOfBirth
+        profile.advancedInputs = advancedInputs
         profile.updatedAt = .now
         return profile
+    }
+
+    private func syncAdvancedInputsFromStrings() {
+        if let basic = Decimal(localizedAmount: indiaBasicSalaryString) {
+            advancedInputs.indiaBasicSalary = basic
+        } else if indiaBasicSalaryString.isEmpty {
+            advancedInputs.indiaBasicSalary = 0
+        }
+        if let hra = Decimal(localizedAmount: indiaHRAPaidString) {
+            advancedInputs.indiaHRAPaid = hra
+        } else if indiaHRAPaidString.isEmpty {
+            advancedInputs.indiaHRAPaid = 0
+        }
+        if let rent = Decimal(localizedAmount: indiaRentPaidString) {
+            advancedInputs.indiaRentPaid = rent
+        } else if indiaRentPaidString.isEmpty {
+            advancedInputs.indiaRentPaid = 0
+        }
+    }
+
+    private func syncIndiaInputStringsFromAdvancedInputs() {
+        indiaBasicSalaryString = advancedInputs.indiaBasicSalary > 0
+            ? "\(advancedInputs.indiaBasicSalary)"
+            : ""
+        indiaHRAPaidString = advancedInputs.indiaHRAPaid > 0
+            ? "\(advancedInputs.indiaHRAPaid)"
+            : ""
+        indiaRentPaidString = advancedInputs.indiaRentPaid > 0
+            ? "\(advancedInputs.indiaRentPaid)"
+            : ""
     }
 }

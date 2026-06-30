@@ -149,10 +149,59 @@ struct TaxProfileFormView: View {
                                 vm.recalculateLive()
                             }
                         }
+
+                        Toggle(String(localized: "Parents are senior citizens (80D)"), isOn: Binding(
+                            get: { vm.advancedInputs.indiaParentsSeniorCitizen },
+                            set: {
+                                vm.advancedInputs.indiaParentsSeniorCitizen = $0
+                                vm.recalculateLive()
+                            }
+                        ))
                     } header: {
                         Text(String(localized: "Age (for senior citizen slabs)"))
                     } footer: {
                         Text(String(localized: "Senior citizens (60+) and super-senior citizens (80+) have higher basic exemption limits under the old regime."))
+                    }
+
+                    Section {
+                        HStack {
+                            Text(vm.country.currencySymbol)
+                                .foregroundStyle(VColors.textSecondary)
+                            TextField(String(localized: "Annual basic salary + DA"), text: Bindable(vm).indiaBasicSalaryString)
+                                #if os(iOS)
+                                .keyboardType(.numberPad)
+                                #endif
+                                .onChange(of: vm.indiaBasicSalaryString) { _, _ in vm.recalculateLive() }
+                        }
+                        HStack {
+                            Text(vm.country.currencySymbol)
+                                .foregroundStyle(VColors.textSecondary)
+                            TextField(String(localized: "Annual HRA received"), text: Bindable(vm).indiaHRAPaidString)
+                                #if os(iOS)
+                                .keyboardType(.numberPad)
+                                #endif
+                                .onChange(of: vm.indiaHRAPaidString) { _, _ in vm.recalculateLive() }
+                        }
+                        HStack {
+                            Text(vm.country.currencySymbol)
+                                .foregroundStyle(VColors.textSecondary)
+                            TextField(String(localized: "Annual rent paid"), text: Bindable(vm).indiaRentPaidString)
+                                #if os(iOS)
+                                .keyboardType(.numberPad)
+                                #endif
+                                .onChange(of: vm.indiaRentPaidString) { _, _ in vm.recalculateLive() }
+                        }
+                        Toggle(String(localized: "Metro city"), isOn: Binding(
+                            get: { vm.advancedInputs.indiaMetroCity },
+                            set: {
+                                vm.advancedInputs.indiaMetroCity = $0
+                                vm.recalculateLive()
+                            }
+                        ))
+                    } header: {
+                        Text(String(localized: "HRA Exemption"))
+                    } footer: {
+                        Text(String(localized: "HRA exemption uses the minimum of actual HRA, rent minus 10% of salary, and 50%/40% of salary."))
                     }
                 }
             } else {
@@ -202,6 +251,43 @@ struct TaxProfileFormView: View {
                     AddDeductionFooter(country: vm.country, onAdd: { name, amount, section in
                         vm.addDeduction(name: name, amount: amount, section: section)
                     })
+                }
+
+                if let utilization = vm.section80CUtilization {
+                    Section(String(localized: "Section 80C Utilization")) {
+                        VStack(alignment: .leading, spacing: VSpacing.sm) {
+                            HStack {
+                                Text(String(localized: "Used"))
+                                Spacer()
+                                Text(
+                                    "\(utilization.allowed.formatted(.currency(code: vm.country.currencyCode))) / \(utilization.statutoryCap.formatted(.currency(code: vm.country.currencyCode)))"
+                                )
+                                .font(VTypography.bodyBold)
+                            }
+                            ProgressView(value: Double(truncating: (utilization.allowed / utilization.statutoryCap) as NSDecimalNumber))
+                                .tint(VColors.primary)
+                            if utilization.claimed > utilization.allowed {
+                                Text(String(localized: "Claims above ₹1.5 lakh are capped for tax calculation."))
+                                    .font(VTypography.caption1)
+                                    .foregroundStyle(VColors.warning)
+                            }
+                        }
+                    }
+                }
+
+                if vm.indiaDeductionUtilization.count > 1 {
+                    Section(String(localized: "Section Caps")) {
+                        ForEach(vm.indiaDeductionUtilization.filter { $0.sectionKey != "80C" }) { item in
+                            HStack {
+                                Text(item.sectionKey)
+                                Spacer()
+                                Text(
+                                    "\(item.allowed.formatted(.currency(code: vm.country.currencyCode))) / \(item.statutoryCap.formatted(.currency(code: vm.country.currencyCode)))"
+                                )
+                                .font(VTypography.caption1)
+                            }
+                        }
+                    }
                 }
             }
 
@@ -286,7 +372,9 @@ private struct AddDeductionSheet: View {
         return !name.isEmpty
     }
 
-    private var indiaSections: [String] { ["80C", "80D", "80E", "80G", "HRA", "LTA", "Other"] }
+    private var indiaSections: [String] {
+        ["80C", "80CCD(1B)", "80D", "80D (Parents)", "HRA"]
+    }
 
     var body: some View {
         NavigationStack {
