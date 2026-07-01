@@ -125,6 +125,7 @@ test-sync:
 		test
 
 test-data:
+	@# On-disk SwiftData stores race when xcodebuild runs parallel simulator clones.
 	xcodebuild \
 		-scheme $(SCHEME) \
 		-configuration $(CONFIG) \
@@ -134,6 +135,8 @@ test-data:
 		-only-testing:VittoraTests/ModelContainerConfigTests \
 		-only-testing:VittoraTests/ModelContainerOnDiskTests \
 		-only-testing:VittoraTests/SwiftDataDocumentRepositoryTests \
+		-parallel-testing-enabled NO \
+		-maximum-parallel-testing-workers 1 \
 		test
 
 test-recurring:
