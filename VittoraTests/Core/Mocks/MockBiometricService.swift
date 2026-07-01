@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 import VittoraCore
 
 @MainActor
@@ -9,6 +10,10 @@ final class MockBiometricService: BiometricServiceProtocol, Sendable {
     var shouldSucceed = true
     var shouldThrowError = false
     var simulateBiometryUnavailable = false
+    /// When set, `authenticate` mirrors real `BiometricService` LAError handling.
+    var simulatedLAErrorCode: LAError.Code?
+    /// When set, `authenticateWithPasscode` applies LAError cancel/throw semantics.
+    var simulatedPasscodeLAErrorCode: LAError.Code?
     var throwError: VittoraError = .biometricFailed(String(localized: "Mock error"))
     var mockBiometricType: BiometricType = .faceID
 
@@ -24,6 +29,10 @@ final class MockBiometricService: BiometricServiceProtocol, Sendable {
 
         if shouldThrowError {
             throw throwError
+        }
+
+        if let code = simulatedLAErrorCode {
+            return try await handleLAError(code, reason: reason, allowPasscodeFallback: allowPasscodeFallback)
         }
 
         if simulateBiometryUnavailable {
@@ -42,6 +51,10 @@ final class MockBiometricService: BiometricServiceProtocol, Sendable {
             throw throwError
         }
 
+        if let code = simulatedPasscodeLAErrorCode {
+            return try handlePasscodeLAError(code)
+        }
+
         return shouldSucceed
     }
 
@@ -52,5 +65,32 @@ final class MockBiometricService: BiometricServiceProtocol, Sendable {
         shouldSucceed = true
         shouldThrowError = false
         simulateBiometryUnavailable = false
+        simulatedLAErrorCode = nil
+        simulatedPasscodeLAErrorCode = nil
+    }
+
+    private func handleLAError(
+        _ code: LAError.Code,
+        reason: String,
+        allowPasscodeFallback: Bool
+    ) async throws -> Bool {
+        switch code {
+        case .userCancel, .appCancel, .systemCancel:
+            return false
+        case .biometryLockout, .biometryNotAvailable, .biometryNotEnrolled:
+            guard allowPasscodeFallback else { return false }
+            return try await authenticateWithPasscode(reason: reason)
+        default:
+            throw VittoraError.biometricFailed(LAError(code).localizedDescription)
+        }
+    }
+
+    private func handlePasscodeLAError(_ code: LAError.Code) throws -> Bool {
+        switch code {
+        case .userCancel, .appCancel, .systemCancel:
+            return false
+        default:
+            throw VittoraError.biometricFailed(LAError(code).localizedDescription)
+        }
     }
 }
