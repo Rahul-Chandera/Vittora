@@ -162,6 +162,7 @@ public final class EncryptionService: EncryptionServiceProtocol, Sendable {
         case .migrateFromLegacy(let legacyData):
             let wrapped = try wrapAESKey(legacyData, with: seKey)
             try await keychainService.save(wrapped, forKey: seWrappedKeyID)
+            // Delete raw legacy key only after wrapped copy persists (RELEASE_CHECKLIST §2).
             try await keychainService.delete(forKey: legacyKeyID)
             return SymmetricKey(data: legacyData)
         case .generateFresh:
