@@ -6,6 +6,11 @@ actor MockBudgetRepository: BudgetRepository {
     private(set) var budgets: [BudgetEntity] = []
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    var writeFailureControls = MockWriteFailureControls()
+
+    private func checkWriteFailure(for entityID: UUID? = nil) throws {
+        try writeFailureControls.checkWrite(entityID: entityID)
+    }
 
     func fetchAll() async throws -> [BudgetEntity] {
         if shouldThrowError { throw throwError }
@@ -18,11 +23,13 @@ actor MockBudgetRepository: BudgetRepository {
     }
 
     func create(_ entity: BudgetEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         budgets.append(entity)
     }
 
     func update(_ entity: BudgetEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         if let index = budgets.firstIndex(where: { $0.id == entity.id }) {
             budgets[index] = entity
@@ -32,6 +39,7 @@ actor MockBudgetRepository: BudgetRepository {
     }
 
     func delete(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         if let index = budgets.firstIndex(where: { $0.id == id }) {
             budgets.remove(at: index)

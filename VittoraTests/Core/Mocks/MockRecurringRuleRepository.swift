@@ -7,6 +7,11 @@ actor MockRecurringRuleRepository: RecurringRuleRepository {
     var shouldThrowError: Bool = false
     var shouldThrowOnUpdate: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    var writeFailureControls = MockWriteFailureControls()
+
+    private func checkWriteFailure(for entityID: UUID? = nil) throws {
+        try writeFailureControls.checkWrite(entityID: entityID)
+    }
 
     func fetchAll() async throws -> [RecurringRuleEntity] {
         if shouldThrowError { throw throwError }
@@ -19,11 +24,13 @@ actor MockRecurringRuleRepository: RecurringRuleRepository {
     }
 
     func create(_ entity: RecurringRuleEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         rules.append(entity)
     }
 
     func update(_ entity: RecurringRuleEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         if shouldThrowOnUpdate { throw throwError }
         if let index = rules.firstIndex(where: { $0.id == entity.id }) {
@@ -34,6 +41,7 @@ actor MockRecurringRuleRepository: RecurringRuleRepository {
     }
 
     func delete(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         if let index = rules.firstIndex(where: { $0.id == id }) {
             rules.remove(at: index)

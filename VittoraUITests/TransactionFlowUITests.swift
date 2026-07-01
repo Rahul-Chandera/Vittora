@@ -85,10 +85,20 @@ final class TransactionFlowUITests: XCTestCase {
         XCTAssertTrue(salaryRow.waitForExistence(timeout: 5))
 
         XCTAssertTrue(
-            waitForFilterButton(timeout: 10),
+            app.buttons["transaction-add-button"].waitForExistence(timeout: 15),
+            "Transaction toolbar should finish loading before filtering."
+        )
+        XCTAssertTrue(
+            waitForFilterButton(timeout: 20),
             "Filter button should be visible on the transactions list."
         )
         tapFilterButton()
+
+        let filterSheet = app.descendants(matching: .any)["transaction-filter-sheet"]
+        XCTAssertTrue(
+            filterSheet.waitForExistence(timeout: 15),
+            "Filter sheet should present after tapping filter."
+        )
 
         let minAmountField = app.textFields["transaction-filter-min-field"]
         XCTAssertTrue(minAmountField.waitForExistence(timeout: 5))

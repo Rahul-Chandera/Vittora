@@ -6,6 +6,11 @@ actor MockCategoryRepository: CategoryRepository {
     private(set) var categories: [CategoryEntity] = []
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    var writeFailureControls = MockWriteFailureControls()
+
+    private func checkWriteFailure(for entityID: UUID? = nil) throws {
+        try writeFailureControls.checkWrite(entityID: entityID)
+    }
 
     func fetchAll() async throws -> [CategoryEntity] {
         if shouldThrowError { throw throwError }
@@ -18,11 +23,13 @@ actor MockCategoryRepository: CategoryRepository {
     }
 
     func create(_ entity: CategoryEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         categories.append(entity)
     }
 
     func update(_ entity: CategoryEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         if let index = categories.firstIndex(where: { $0.id == entity.id }) {
             categories[index] = entity
@@ -32,6 +39,7 @@ actor MockCategoryRepository: CategoryRepository {
     }
 
     func delete(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         if let index = categories.firstIndex(where: { $0.id == id }) {
             categories.remove(at: index)
