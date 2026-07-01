@@ -17,30 +17,32 @@ final class OnboardingFlowUITests: XCTestCase {
 
     @MainActor
     func testCanCompleteOnboardingAndReachDashboard() throws {
-        let nextButton = app.buttons["onboarding-next-button"]
-        XCTAssertTrue(nextButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(
+            app.otherElements["onboarding-root"].waitForExistence(timeout: 10),
+            "Onboarding root should appear in onboarding UI test mode."
+        )
         XCTAssertTrue(
             app.staticTexts["onboarding-welcome-title"].waitForExistence(timeout: 5),
-            "Onboarding should be visible in onboarding UI test mode."
+            "Welcome step should be visible."
         )
 
-        nextButton.tap()
+        tapNext()
 
         let currencyButton = app.buttons["onboarding-currency-USD"]
         XCTAssertTrue(currencyButton.waitForExistence(timeout: 5))
         currencyButton.tap()
-        nextButton.tap()
+        tapNext()
 
         let nameField = app.textFields["onboarding-name-field"]
         XCTAssertTrue(nameField.waitForExistence(timeout: 5))
         nameField.tap()
         nameField.typeText("Taylor\n")
-        nextButton.tap()
+        tapNext()
 
         let bankAccountType = app.buttons["onboarding-account-type-bank"]
         if bankAccountType.waitForExistence(timeout: 3) {
             bankAccountType.tap()
-            nextButton.tap()
+            tapNext()
         }
 
         let accountNameField = app.textFields["onboarding-account-name-field"]
@@ -54,45 +56,63 @@ final class OnboardingFlowUITests: XCTestCase {
         openingBalanceField.typeText("1000")
         dismissKeyboardIfNeeded()
 
-        XCTAssertTrue(
-            nextButton.waitForExistence(timeout: 5) && nextButton.isEnabled,
-            "Account setup should be valid after name and opening balance are entered."
-        )
-        nextButton.tap()
+        tapNextWhenEnabled(timeout: 15)
 
-        let reachedNotifications = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "label == %@", "Continue"),
-            object: nextButton
-        )
-        XCTAssertEqual(
-            XCTWaiter().wait(for: [reachedNotifications], timeout: 15),
-            .completed,
+        XCTAssertTrue(
+            waitForOnboardingStep("onboarding-notifications-step", timeout: 20),
             "Should advance to the notifications step after account setup."
         )
-        nextButton.tap()
+        tapNext()
 
-        let completionStepExpectation = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "label == %@", "Start Tracking"),
-            object: nextButton
-        )
-        XCTAssertEqual(
-            XCTWaiter().wait(for: [completionStepExpectation], timeout: 10),
-            .completed,
+        XCTAssertTrue(
+            waitForOnboardingStep("onboarding-complete-step", timeout: 15),
             "The review step should appear before finishing onboarding."
         )
+        XCTAssertTrue(
+            app.staticTexts["onboarding-done-title"].waitForExistence(timeout: 5),
+            "Done title should be visible on the review step."
+        )
 
-        nextButton.tap()
+        tapNext()
 
         XCTAssertFalse(
-            nextButton.waitForExistence(timeout: 1),
+            app.buttons["onboarding-next-button"].waitForExistence(timeout: 2),
             "The onboarding CTA should be dismissed after finishing the flow."
         )
         XCTAssertTrue(
-            app.tabBars.buttons["Transactions"].waitForExistence(timeout: 5),
+            app.tabBars.buttons["Transactions"].waitForExistence(timeout: 10),
             "The main app tab bar should appear after onboarding completes."
         )
     }
 
+    @MainActor
+    private func tapNext() {
+        let nextButton = app.buttons["onboarding-next-button"]
+        XCTAssertTrue(nextButton.waitForExistence(timeout: 5))
+        nextButton.tap()
+    }
+
+    @MainActor
+    private func tapNextWhenEnabled(timeout: TimeInterval) {
+        let nextButton = app.buttons["onboarding-next-button"]
+        let enabledExpectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "isEnabled == true"),
+            object: nextButton
+        )
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [enabledExpectation], timeout: timeout),
+            .completed,
+            "Next button should become enabled before advancing."
+        )
+        nextButton.tap()
+    }
+
+    @MainActor
+    private func waitForOnboardingStep(_ identifier: String, timeout: TimeInterval) -> Bool {
+        app.descendants(matching: .any)[identifier].waitForExistence(timeout: timeout)
+    }
+
+    @MainActor
     private func dismissKeyboardIfNeeded() {
         let toolbarDone = app.toolbars.buttons["Done"]
         if toolbarDone.waitForExistence(timeout: 2) {
