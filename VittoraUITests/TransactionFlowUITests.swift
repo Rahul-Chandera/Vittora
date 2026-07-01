@@ -94,6 +94,12 @@ final class TransactionFlowUITests: XCTestCase {
         )
         tapFilterButton()
 
+        let filterSheet = app.descendants(matching: .any)["transaction-filter-sheet"]
+        XCTAssertTrue(
+            filterSheet.waitForExistence(timeout: 15),
+            "Filter sheet should present after tapping filter."
+        )
+
         let minAmountField = app.textFields["transaction-filter-min-field"]
         XCTAssertTrue(minAmountField.waitForExistence(timeout: 5))
         minAmountField.tap()

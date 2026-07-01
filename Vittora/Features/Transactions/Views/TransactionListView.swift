@@ -136,15 +136,20 @@ struct TransactionListView: View {
                 .accessibilityLabel(String(localized: "Filter transactions"))
                 .accessibilityHint(String(localized: "Opens transaction filters"))
                 .accessibilityValue(vm.hasActiveFilter ? String(localized: "Filter active") : String(localized: "No filters applied"))
-
-                Button {
-                    showCSVImport = true
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    Button {
+                        showCSVImport = true
+                    } label: {
+                        Label(String(localized: "Import CSV"), systemImage: "square.and.arrow.down")
+                    }
                 } label: {
-                    Image(systemName: "square.and.arrow.down")
+                    Image(systemName: "ellipsis.circle")
                         .font(.title2)
                 }
-                .accessibilityLabel(String(localized: "Import CSV"))
-                .accessibilityHint(String(localized: "Import transactions from a CSV file"))
+                .accessibilityIdentifier("transaction-overflow-menu")
+                .accessibilityLabel(String(localized: "More transaction actions"))
             }
         }
         .sheet(isPresented: $showCSVImport) {
