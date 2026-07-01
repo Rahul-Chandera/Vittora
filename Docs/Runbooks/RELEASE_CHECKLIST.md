@@ -13,6 +13,10 @@ Use this checklist before TestFlight/App Store submission.
 
 - [ ] App lock flow verified on cold launch and foreground transitions.
 - [ ] Keychain + encryption paths verified for expected data classes.
+- [ ] **Secure Enclave (physical device only — CI/simulator uses legacy test path):**
+  - [ ] Fresh install on a biometric-capable device: enable app lock, encrypt a document, force-quit, relaunch — data decrypts after unlock.
+  - [ ] Legacy→SE upgrade: install a build that wrote `com.vittora.encryption.key`, upgrade to current — existing ciphertext still decrypts; legacy key removed and `com.vittora.encryption.key.se_wrapped` present.
+  - [ ] Record device model + OS version in the internal release log.
 - [ ] Document delete and factory reset verified for full cleanup behavior.
 - [ ] `Vittora/PrivacyInfo.xcprivacy` reviewed and updated as needed.
 - [ ] Required-reason APIs in the privacy manifest match actual SDK usage (`grep` UserDefaults / file timestamps / other APIs).

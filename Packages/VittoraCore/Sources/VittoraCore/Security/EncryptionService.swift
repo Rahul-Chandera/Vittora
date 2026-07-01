@@ -79,7 +79,7 @@ public final class EncryptionService: EncryptionServiceProtocol, Sendable {
         cachedKey = nil
         keyCreationTask = nil
 
-        if usesLegacyKeyPath {
+        if storagePath == .legacyBiometricKeychain {
             try await generateLegacyKey()
         } else {
             let seKey = try getOrCreateSEPrivateKey()
@@ -105,7 +105,7 @@ public final class EncryptionService: EncryptionServiceProtocol, Sendable {
             if let cached = self.cachedKey { return cached }
 
             let key: SymmetricKey
-            if self.usesLegacyKeyPath {
+            if self.storagePath == .legacyBiometricKeychain {
                 key = try await self.getOrCreateLegacyKey()
             } else {
                 key = try await self.getOrCreateSEBoundKey()
@@ -117,15 +117,21 @@ public final class EncryptionService: EncryptionServiceProtocol, Sendable {
         return try await task.value
     }
 
-    private var usesLegacyKeyPath: Bool {
+    private var storagePath: EncryptionKeyStoragePath {
         #if DEBUG
-        if useLegacyKeyPathForTesting { return true }
+        let forceLegacy = useLegacyKeyPathForTesting
+        #else
+        let forceLegacy = false
         #endif
         #if targetEnvironment(simulator)
-        return true
+        let isSimulator = true
         #else
-        return false
+        let isSimulator = false
         #endif
+        return EncryptionKeyPathPolicy.storagePath(
+            isSimulator: isSimulator,
+            forceLegacyForTesting: forceLegacy
+        )
     }
 
     // MARK: - SE path (device only)
@@ -133,12 +139,7 @@ public final class EncryptionService: EncryptionServiceProtocol, Sendable {
     private func getOrCreateSEBoundKey() async throws -> SymmetricKey {
         let seKey = try getOrCreateSEPrivateKey()
 
-        // 1. SE-wrapped key already stored — unwrap and return.
-        if let wrapped = try await keychainService.load(forKey: seWrappedKeyID) {
-            return try unwrapAESKey(wrapped, with: seKey)
-        }
-
-        // 2. Migrate a legacy raw key if one exists (first upgrade after SEC-03).
+        let hasWrappedKey = try await keychainService.load(forKey: seWrappedKeyID) != nil
         let legacyData: Data?
         do {
             legacyData = try await keychainService.load(
@@ -149,18 +150,26 @@ public final class EncryptionService: EncryptionServiceProtocol, Sendable {
             throw SecurityErrorMapper.encryptionFailed(.legacyKeyMigration, underlying: error)
         }
 
-        if let legacyData {
+        switch EncryptionKeyPathPolicy.secureEnclaveKeyResolution(
+            hasWrappedKey: hasWrappedKey,
+            legacyKeyData: legacyData
+        ) {
+        case .unwrapExisting:
+            guard let wrapped = try await keychainService.load(forKey: seWrappedKeyID) else {
+                throw SecurityErrorMapper.encryptionFailed(.keyRetrieval)
+            }
+            return try unwrapAESKey(wrapped, with: seKey)
+        case .migrateFromLegacy(let legacyData):
             let wrapped = try wrapAESKey(legacyData, with: seKey)
             try await keychainService.save(wrapped, forKey: seWrappedKeyID)
             try await keychainService.delete(forKey: legacyKeyID)
             return SymmetricKey(data: legacyData)
+        case .generateFresh:
+            let aesKeyData = SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) }
+            let wrapped = try wrapAESKey(aesKeyData, with: seKey)
+            try await keychainService.save(wrapped, forKey: seWrappedKeyID)
+            return SymmetricKey(data: aesKeyData)
         }
-
-        // 3. Fresh install — generate, wrap, persist, return.
-        let aesKeyData = SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) }
-        let wrapped = try wrapAESKey(aesKeyData, with: seKey)
-        try await keychainService.save(wrapped, forKey: seWrappedKeyID)
-        return SymmetricKey(data: aesKeyData)
     }
 
     // MARK: - SE private key lifecycle
