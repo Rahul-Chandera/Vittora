@@ -9,6 +9,11 @@ final class MockDocumentRepository: DocumentRepository {
     private(set) var fetchCountCallCount = 0
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    var writeFailureControls = MockWriteFailureControls()
+
+    private func checkWriteFailure(for entityID: UUID? = nil) throws {
+        try writeFailureControls.checkWrite(entityID: entityID)
+    }
 
     func fetchAll() async throws -> [DocumentEntity] {
         if shouldThrowError { throw throwError }
@@ -28,11 +33,13 @@ final class MockDocumentRepository: DocumentRepository {
     }
 
     func create(_ entity: DocumentEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         documents.append(entity)
     }
 
     func update(_ entity: DocumentEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         guard let index = documents.firstIndex(where: { $0.id == entity.id }) else {
             throw VittoraError.notFound(String(localized: "Document not found"))
@@ -41,6 +48,7 @@ final class MockDocumentRepository: DocumentRepository {
     }
 
     func delete(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         guard let index = documents.firstIndex(where: { $0.id == id }) else {
             throw VittoraError.notFound(String(localized: "Document not found"))

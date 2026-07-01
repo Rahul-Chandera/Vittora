@@ -6,8 +6,13 @@ actor MockTransactionRepository: TransactionRepository {
     private(set) var transactions: [TransactionEntity] = []
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    var writeFailureControls = MockWriteFailureControls()
     /// When set, simulates repository list caps (e.g. SwiftDataTransactionRepository's 500-row limit).
     var fetchAllLimit: Int?
+
+    private func checkWriteFailure(for entityID: UUID? = nil) throws {
+        try writeFailureControls.checkWrite(entityID: entityID)
+    }
 
     func setFetchAllLimit(_ limit: Int?) {
         fetchAllLimit = limit
@@ -92,11 +97,13 @@ actor MockTransactionRepository: TransactionRepository {
     }
 
     func create(_ entity: TransactionEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         transactions.append(entity)
     }
 
     func update(_ entity: TransactionEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         if let index = transactions.firstIndex(where: { $0.id == entity.id }) {
             transactions[index] = entity
@@ -106,6 +113,7 @@ actor MockTransactionRepository: TransactionRepository {
     }
 
     func delete(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         if let index = transactions.firstIndex(where: { $0.id == id }) {
             transactions.remove(at: index)
@@ -115,6 +123,7 @@ actor MockTransactionRepository: TransactionRepository {
     }
 
     func bulkDelete(_ ids: [UUID]) async throws {
+        try checkWriteFailure()
         if shouldThrowError { throw throwError }
         for id in ids {
             try await delete(id)

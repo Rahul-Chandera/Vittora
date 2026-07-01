@@ -7,6 +7,11 @@ final class MockAccountRepository: AccountRepository {
     private(set) var accounts: [AccountEntity] = []
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    var writeFailureControls = MockWriteFailureControls()
+
+    private func checkWriteFailure(for entityID: UUID? = nil) throws {
+        try writeFailureControls.checkWrite(entityID: entityID)
+    }
 
     func fetchAll() async throws -> [AccountEntity] {
         if shouldThrowError { throw throwError }
@@ -24,11 +29,13 @@ final class MockAccountRepository: AccountRepository {
     }
 
     func create(_ entity: AccountEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         accounts.append(entity)
     }
 
     func update(_ entity: AccountEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         if let index = accounts.firstIndex(where: { $0.id == entity.id }) {
             accounts[index] = entity
@@ -38,6 +45,7 @@ final class MockAccountRepository: AccountRepository {
     }
 
     func delete(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         if let index = accounts.firstIndex(where: { $0.id == id }) {
             accounts.remove(at: index)

@@ -7,6 +7,11 @@ final class MockDebtRepository: DebtRepository {
     private(set) var debts: [DebtEntry] = []
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    var writeFailureControls = MockWriteFailureControls()
+
+    private func checkWriteFailure(for entityID: UUID? = nil) throws {
+        try writeFailureControls.checkWrite(entityID: entityID)
+    }
 
     func fetchAll() async throws -> [DebtEntry] {
         if shouldThrowError { throw throwError }
@@ -24,11 +29,13 @@ final class MockDebtRepository: DebtRepository {
     }
 
     func create(_ entity: DebtEntry) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         debts.append(entity)
     }
 
     func update(_ entity: DebtEntry) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         guard let index = debts.firstIndex(where: { $0.id == entity.id }) else {
             throw VittoraError.notFound(String(localized: "Debt not found"))
@@ -37,6 +44,7 @@ final class MockDebtRepository: DebtRepository {
     }
 
     func delete(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         guard let index = debts.firstIndex(where: { $0.id == id }) else {
             throw VittoraError.notFound(String(localized: "Debt not found"))
