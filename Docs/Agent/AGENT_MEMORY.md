@@ -37,7 +37,7 @@ This file captures stable context to speed up future AI-agent tasks.
 
 ## Recent Hardening (already landed)
 
-- **Epic K (PRs #17–#19, 2026-06-30):** CSV import (Generic/Mint/YNAB, batch atomic insert); smart categorization rules + payee-history fallback; savings auto-allocation + US 401(k)/IRA/HSA headroom. **Non-blocking follow-ups:** K5 import atomicity/`($50)` edges; K6 payee-history full-table fetch; K7 SECURE 2.0 60–63 + HSA 55+ catch-up + 2026 limit verification; K3 CKShare viral loop; J2 Core extraction finish.
+- **Epic K (PRs #17–#20, 2026-06-30):** CSV import; smart categorization; savings auto-allocation + US contribution headroom; **K8** quick entry (global fast-add), edit audit trail (UserDefaults, 20/txn cap, post-commit side effects), saved filter presets, batch receipt scan (partial success). **Non-blocking follow-ups:** K5 import atomicity/`($50)` edges; K6 payee-history full-table fetch; K7 SECURE 2.0 60–63 + HSA 55+ + 2026 limits; K8 SwiftData edit-history migration; K3 CKShare viral loop; J2 Core extraction finish.
 - **Epic J (PR #12):** sidebarAdaptable tabs, NavigationSplitView list/detail, macOS Settings scene, SceneStorage/Handoff, keyboard shortcuts, context menus; `VittoraCore` SPM (108 files — partial J2; see `Packages/VittoraCore/README.md` J2 follow-up).
 - Tax profile save path preserves advanced fields on first save.
 - Tax form save keeps full loaded profile context.
