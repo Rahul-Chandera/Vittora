@@ -85,7 +85,11 @@ final class TransactionFlowUITests: XCTestCase {
         XCTAssertTrue(salaryRow.waitForExistence(timeout: 5))
 
         XCTAssertTrue(
-            waitForFilterButton(timeout: 10),
+            app.buttons["transaction-add-button"].waitForExistence(timeout: 15),
+            "Transaction toolbar should finish loading before filtering."
+        )
+        XCTAssertTrue(
+            waitForFilterButton(timeout: 20),
             "Filter button should be visible on the transactions list."
         )
         tapFilterButton()
