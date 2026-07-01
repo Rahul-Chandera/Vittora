@@ -121,6 +121,7 @@ test-sync:
 		-derivedDataPath .build \
 		-only-testing:VittoraTests/SyncConflictHandlerTests \
 		-only-testing:VittoraTests/ReconcileAccountBalanceUseCaseTests \
+		-only-testing:VittoraTests/SyncIntegrityValidatorTests \
 		test
 
 test-data:
