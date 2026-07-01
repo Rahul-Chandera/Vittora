@@ -125,11 +125,21 @@ struct DashboardUseCaseTests {
 
         @Test("Returns at most 5 recent transactions sorted by date descending")
         func testRecentTransactionsLimitedToFive() async throws {
+            let calendar = Calendar.current
+            let now = Date.now
+            let startOfMonth = calendar.date(
+                from: calendar.dateComponents([.year, .month], from: now)
+            ) ?? now
+            // Keep all fixtures inside the dashboard month filter (startOfMonth...now).
+            let windowStart = max(startOfMonth, now.addingTimeInterval(-6 * 3600))
+            let windowDuration = max(now.timeIntervalSince(windowStart), 1)
+
             var transactions: [TransactionEntity] = []
             for i in 0..<7 {
+                let date = windowStart.addingTimeInterval(windowDuration * Double(i) / 6.0)
                 transactions.append(TransactionEntity(
                     amount: Decimal(i * 10 + 10),
-                    date: Date(timeIntervalSinceNow: -Double(i) * 3600),
+                    date: date,
                     type: .expense
                 ))
             }
