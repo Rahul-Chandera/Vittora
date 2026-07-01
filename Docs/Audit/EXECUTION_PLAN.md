@@ -375,9 +375,9 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | ID | Finding | Files | Change | Verify | Eff |
 |---|---|---|---|---|---|
 | L1 | TESTING-8 | new `.github/workflows/ci.yml` (or Xcode Cloud) | `make build-ios` + `make build-macos` + `make test` on every PR; upload xcresult; fail on red; gate merges. | CI green on a PR. | M | **Merged** |
-| L2 | TESTING-9 | `VittoraTests/Core/Mocks/*` | Add `failOnNextWrite`/`failForID` to repo mocks; `MockKeychainService` records access class; `MockBiometricService` throws LAError variants. | Use-case error/rollback paths reachable. | M | **In PR** |
-| L3 | TESTING-2 | `ModelContainerConfigTests.swift` | On-disk V1→V2 migration round-trip fixture (overlaps A2/I4). | `make test-data`. | M |
-| L4 | TESTING-3 | new `SyncIntegrityValidatorTests` | Seed each invalid shape (NaN, neg asset, overpaid debt, bad currency) + balance-drift; assert violations/repair. | `make test-sync`. | M |
+| L2 | TESTING-9 | `VittoraTests/Core/Mocks/*` | Add `failOnNextWrite`/`failForID` to repo mocks; `MockKeychainService` records access class; `MockBiometricService` throws LAError variants. | Use-case error/rollback paths reachable. | M | **Merged #22** |
+| L3 | TESTING-2 | `ModelContainerOnDiskTests.swift` | On-disk V1→V2 migration round-trip fixture (overlaps A2/I4). | `make test-data`. | M | **Done** (`onDiskStoreMigratesV1ToV2`) |
+| L4 | TESTING-3 | new `SyncIntegrityValidatorTests` | Seed each invalid shape (NaN, neg asset, overpaid debt, bad currency) + balance-drift; assert violations/repair. | `make test-sync`. | M | **In PR** |
 | L5 | TESTING-4 | `EncryptionServiceTests` (device-gated) | SE generate/wrap/unwrap round-trip + legacy→SE migration; or factor migration decision into a pure tested fn + manual device step in checklist. | Device test or documented manual. | M |
 | L6 | TESTING-5 | new `ReceiptParserServiceTests` | Table-driven synthetic receipts ($/₹, comma grouping, date formats, total-keyword, no-amount). | New suite green. | S |
 | L7 | TESTING-6 | `AppLockServiceTests` + UI test | `shouldLock(...)` boundary tests (overlaps B1) + background/foreground UI test. | Lock appears after background. | M |
