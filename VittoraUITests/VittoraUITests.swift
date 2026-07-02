@@ -113,8 +113,24 @@ final class AccessibilityUITests: XCTestCase {
 
     @MainActor
     func testLargeTextDoesNotBreakLayout() throws {
-        // Simulate accessibility text size by checking app doesn't crash
-        // with the current Dynamic Type setting
+        XCTAssertTrue(
+            UITestSupport.waitForContentRoot(in: app, timeout: 20),
+            "Root view should be visible under the current Dynamic Type setting."
+        )
+        XCTAssertTrue(
+            UITestSupport.waitForAppForeground(in: app, timeout: 15),
+            "App should remain in the foreground during layout checks."
+        )
+
+        for tab in ["Dashboard", "Transactions", "Budgets"] {
+            if UITestSupport.navigateToTab(named: tab, in: app, timeout: 12) {
+                XCTAssertTrue(
+                    UITestSupport.waitForContentRoot(in: app, timeout: 10),
+                    "Tab '\(tab)' should remain navigable at current text size."
+                )
+            }
+        }
+
         XCTAssertTrue(app.state == .runningForeground)
     }
 }
