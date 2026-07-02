@@ -25,8 +25,8 @@ help:
 	@echo "  make build-macos      Compile macOS target (no signing)"
 	@echo "  make test             Run unit + UI tests on iOS Simulator (CI default)"
 	@echo "  make test-unit        Run VittoraTests on iOS Simulator"
-	@echo "  make test-ios-ui      Run VittoraUITests on iOS Simulator (onboarding first, then core suite)"
-	@echo "  make test-ios-ui-onboarding  Run OnboardingFlowUITests only (first pass in CI gate)"
+	@echo "  make test-ios-ui      Run VittoraUITests on iOS Simulator (core suite, then onboarding)"
+	@echo "  make test-ios-ui-onboarding  Run OnboardingFlowUITests only (second pass in CI gate)"
 	@echo "  make test-tax         Run US tax calculator tests (macOS host; needs macOS 26+)"
 	@echo "  make test-sync        Run sync conflict tests (macOS host; needs macOS 26+)"
 	@echo "  make test-data        Run data/document repository tests (macOS host; needs macOS 26+)"
@@ -72,7 +72,7 @@ test-unit:
 		$(IOS_CI_SERIAL_FLAGS) \
 		test
 
-test-ios-ui: test-ios-ui-onboarding test-ios-ui-core
+test-ios-ui: test-ios-ui-core test-ios-ui-onboarding
 
 test-ios-ui-core:
 	@mkdir -p $(TEST_DERIVED)

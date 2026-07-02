@@ -17,7 +17,7 @@ On every push/PR to `refactoring` or `develop`:
 
 - `make build-ios`
 - `make build-macos`
-- `make test` (VittoraTests + full VittoraUITests on iOS Simulator — onboarding runs in an isolated first pass, then the remaining UI suite; GitHub `macos-15` has no macOS 26 host)
+- `make test` (VittoraTests + full VittoraUITests on iOS Simulator — core UI suite then onboarding in a second pass; GitHub `macos-15` has no macOS 26 host)
 - Uploads `.build-ci/*.xcresult` artifacts on completion (pass or fail)
 
 US locale is pinned on the runner (`en_US`); tests remain locale-independent in code.
