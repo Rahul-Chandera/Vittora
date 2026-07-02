@@ -98,6 +98,39 @@ enum UITestSupport {
     }
 
     @MainActor
+    static func waitForAppForeground(
+        in app: XCUIApplication,
+        timeout: TimeInterval = 15
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if app.state == .runningForeground {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+        }
+        return app.state == .runningForeground
+    }
+
+    @MainActor
+    static func waitForIdentifier(
+        in app: XCUIApplication,
+        _ identifier: String,
+        toExist: Bool,
+        timeout: TimeInterval
+    ) -> Bool {
+        let element = app.descendants(matching: .any)[identifier]
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if element.exists == toExist {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        return element.exists == toExist
+    }
+
+    @MainActor
     static func waitForTransactionRowCount(
         in app: XCUIApplication,
         _ expectedCount: Int,
