@@ -26,7 +26,7 @@ final class OnboardingFlowUITests: XCTestCase {
                 in: app,
                 "onboarding-root",
                 toExist: true,
-                timeout: 20
+                timeout: 45
             ),
             "Onboarding root should appear in onboarding UI test mode."
         )

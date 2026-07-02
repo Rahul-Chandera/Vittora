@@ -113,6 +113,9 @@ struct VittoraApp: App {
     ) -> Bool {
         if showsOnboardingForUITesting {
             KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
+            KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockTimeout)
             return false
         }
 
