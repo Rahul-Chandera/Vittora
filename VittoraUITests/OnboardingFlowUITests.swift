@@ -4,13 +4,8 @@ final class OnboardingFlowUITests: XCTestCase {
 
     var app: XCUIApplication!
 
-    @MainActor
     override func setUpWithError() throws {
         continueAfterFailure = false
-        app = XCUIApplication()
-        app.launchArguments = ["--uitesting", "--ui-test-onboarding"]
-        app.launchEnvironment["UITEST_FORCE_ONBOARDING"] = "1"
-        app.launch()
     }
 
     override func tearDownWithError() throws {
@@ -18,7 +13,16 @@ final class OnboardingFlowUITests: XCTestCase {
     }
 
     @MainActor
+    private func launchOnboardingApp() {
+        app = XCUIApplication()
+        app.launchArguments = ["--uitesting", "--ui-test-onboarding"]
+        app.launchEnvironment["UITEST_FORCE_ONBOARDING"] = "1"
+        app.launch()
+    }
+
+    @MainActor
     func testCanCompleteOnboardingAndReachDashboard() throws {
+        launchOnboardingApp()
         XCTAssertTrue(
             UITestSupport.waitForAppForeground(in: app, timeout: 20),
             "Onboarding UI test should reach the foreground."
