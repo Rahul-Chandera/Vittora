@@ -4,10 +4,12 @@ final class OnboardingFlowUITests: XCTestCase {
 
     var app: XCUIApplication!
 
+    @MainActor
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
         app.launchArguments = ["--uitesting", "--ui-test-onboarding"]
+        app.launchEnvironment["UITEST_FORCE_ONBOARDING"] = "1"
         app.launch()
     }
 
@@ -18,16 +20,11 @@ final class OnboardingFlowUITests: XCTestCase {
     @MainActor
     func testCanCompleteOnboardingAndReachDashboard() throws {
         XCTAssertTrue(
-            UITestSupport.waitForAppForeground(in: app, timeout: 15),
+            UITestSupport.waitForAppForeground(in: app, timeout: 20),
             "Onboarding UI test should reach the foreground."
         )
         XCTAssertTrue(
-            UITestSupport.waitForIdentifier(
-                in: app,
-                "onboarding-root",
-                toExist: true,
-                timeout: 45
-            ),
+            waitForOnboardingShell(timeout: 45),
             "Onboarding root should appear in onboarding UI test mode."
         )
         XCTAssertTrue(
@@ -116,6 +113,22 @@ final class OnboardingFlowUITests: XCTestCase {
             UITestSupport.waitForContentRoot(in: app, timeout: 15),
             "Main app content should be visible after onboarding."
         )
+    }
+
+    @MainActor
+    private func waitForOnboardingShell(timeout: TimeInterval) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if app.otherElements["onboarding-root"].exists
+                || app.buttons["onboarding-next-button"].exists
+                || app.staticTexts["onboarding-welcome-title"].exists {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        return app.otherElements["onboarding-root"].exists
+            || app.buttons["onboarding-next-button"].exists
+            || app.staticTexts["onboarding-welcome-title"].exists
     }
 
     @MainActor

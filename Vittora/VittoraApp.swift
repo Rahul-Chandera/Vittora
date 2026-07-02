@@ -40,6 +40,7 @@ struct VittoraApp: App {
         isUITesting = launchArguments.contains("--uitesting")
         isRunningAutomatedTests = isUITesting || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         showsOnboardingForUITesting = launchArguments.contains("--ui-test-onboarding")
+            || ProcessInfo.processInfo.environment["UITEST_FORCE_ONBOARDING"] == "1"
         bypassOnboardingForUITesting = isUITesting && !showsOnboardingForUITesting
         seedsTransactionsForUITesting = launchArguments.contains("--ui-test-seed-transactions")
         seedsTransfersForUITesting = launchArguments.contains("--ui-test-seed-transfers")
