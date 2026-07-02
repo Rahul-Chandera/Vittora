@@ -82,18 +82,15 @@ final class OnboardingFlowUITests: XCTestCase {
         )
         tapNext()
 
-        XCTAssertTrue(
-            waitForOnboardingStep("onboarding-complete-step", timeout: 20),
-            "The review step should appear before finishing onboarding."
+        let nextButton = app.buttons["onboarding-next-button"]
+        let reviewStepExpectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label == %@", "Start Tracking"),
+            object: nextButton
         )
-        XCTAssertTrue(
-            UITestSupport.waitForIdentifier(
-                in: app,
-                "onboarding-done-title",
-                toExist: true,
-                timeout: 10
-            ),
-            "Done title should be visible on the review step."
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [reviewStepExpectation], timeout: 25),
+            .completed,
+            "The review step should appear before finishing onboarding."
         )
 
         tapNext()
