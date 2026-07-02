@@ -51,7 +51,7 @@ This file captures stable context to speed up future AI-agent tasks.
 - Recurring generation idempotency/rollback hardened.
 - Entitlements aligned to CloudKit container identifier.
 - Sync integrity validator capped to recent records for scalability.
-- **Epic L (2026-07):** L5 SE policy (#27); CI UI retry stopgap + `.build-test-data` (#28). **Follow-up L9:** stabilize broad `VittoraUITests` flakes (not onboarding-only) — retry is gate relief, not the fix.
+- **Epic L (2026-07):** L5 SE policy (#27); L6–L8 (#29); L9 UI stabilization removes CI retry stopgap (#28).
 - PDF preview parsing cache added.
 - Dead `Router` abstraction removed.
 - Privacy manifest and compliance checklist added.
