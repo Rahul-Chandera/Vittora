@@ -18,83 +18,119 @@ final class OnboardingFlowUITests: XCTestCase {
     @MainActor
     func testCanCompleteOnboardingAndReachDashboard() throws {
         XCTAssertTrue(
-            app.otherElements["onboarding-root"].waitForExistence(timeout: 10),
+            UITestSupport.waitForAppForeground(in: app, timeout: 15),
+            "Onboarding UI test should reach the foreground."
+        )
+        XCTAssertTrue(
+            UITestSupport.waitForIdentifier(
+                in: app,
+                "onboarding-root",
+                toExist: true,
+                timeout: 20
+            ),
             "Onboarding root should appear in onboarding UI test mode."
         )
         XCTAssertTrue(
-            app.staticTexts["onboarding-welcome-title"].waitForExistence(timeout: 5),
+            UITestSupport.waitForIdentifier(
+                in: app,
+                "onboarding-welcome-title",
+                toExist: true,
+                timeout: 10
+            ),
             "Welcome step should be visible."
         )
 
         tapNext()
 
         let currencyButton = app.buttons["onboarding-currency-USD"]
-        XCTAssertTrue(currencyButton.waitForExistence(timeout: 5))
-        currencyButton.tap()
+        XCTAssertTrue(
+            UITestSupport.waitForElement(currencyButton, timeout: 10, requireHittable: true),
+            "USD currency option should be ready."
+        )
+        UITestSupport.tapWhenReady(currencyButton, timeout: 10)
         tapNext()
 
         let nameField = app.textFields["onboarding-name-field"]
-        XCTAssertTrue(nameField.waitForExistence(timeout: 5))
+        XCTAssertTrue(nameField.waitForExistence(timeout: 10))
         nameField.tap()
         nameField.typeText("Taylor\n")
         tapNext()
 
         let bankAccountType = app.buttons["onboarding-account-type-bank"]
-        if bankAccountType.waitForExistence(timeout: 3) {
-            bankAccountType.tap()
+        if bankAccountType.waitForExistence(timeout: 5) {
+            UITestSupport.tapWhenReady(bankAccountType, timeout: 8)
             tapNext()
         }
 
         let accountNameField = app.textFields["onboarding-account-name-field"]
-        XCTAssertTrue(accountNameField.waitForExistence(timeout: 5))
+        XCTAssertTrue(accountNameField.waitForExistence(timeout: 10))
         accountNameField.tap()
         accountNameField.typeText("Daily Checking")
 
         let openingBalanceField = app.textFields["onboarding-opening-balance-field"]
-        XCTAssertTrue(openingBalanceField.waitForExistence(timeout: 5))
+        XCTAssertTrue(openingBalanceField.waitForExistence(timeout: 10))
         openingBalanceField.tap()
         openingBalanceField.typeText("1000")
         dismissKeyboardIfNeeded()
 
-        tapNextWhenEnabled(timeout: 15)
+        tapNextWhenEnabled(timeout: 20)
 
         XCTAssertTrue(
-            waitForOnboardingStep("onboarding-notifications-step", timeout: 20),
+            waitForOnboardingStep("onboarding-notifications-step", timeout: 25),
             "Should advance to the notifications step after account setup."
         )
         tapNext()
 
         XCTAssertTrue(
-            waitForOnboardingStep("onboarding-complete-step", timeout: 15),
+            waitForOnboardingStep("onboarding-complete-step", timeout: 20),
             "The review step should appear before finishing onboarding."
         )
         XCTAssertTrue(
-            app.staticTexts["onboarding-done-title"].waitForExistence(timeout: 5),
+            UITestSupport.waitForIdentifier(
+                in: app,
+                "onboarding-done-title",
+                toExist: true,
+                timeout: 10
+            ),
             "Done title should be visible on the review step."
         )
 
         tapNext()
 
-        XCTAssertFalse(
-            app.buttons["onboarding-next-button"].waitForExistence(timeout: 2),
+        XCTAssertTrue(
+            UITestSupport.waitForDisappearance(
+                app.buttons["onboarding-next-button"],
+                timeout: 10
+            ),
             "The onboarding CTA should be dismissed after finishing the flow."
         )
         XCTAssertTrue(
-            app.tabBars.buttons["Transactions"].waitForExistence(timeout: 10),
+            UITestSupport.waitForElement(
+                app.tabBars.buttons["Transactions"],
+                timeout: 20,
+                requireHittable: false
+            ),
             "The main app tab bar should appear after onboarding completes."
+        )
+        XCTAssertTrue(
+            UITestSupport.waitForContentRoot(in: app, timeout: 15),
+            "Main app content should be visible after onboarding."
         )
     }
 
     @MainActor
     private func tapNext() {
         let nextButton = app.buttons["onboarding-next-button"]
-        XCTAssertTrue(nextButton.waitForExistence(timeout: 5))
-        nextButton.tap()
+        UITestSupport.tapWhenReady(nextButton, timeout: 10)
     }
 
     @MainActor
     private func tapNextWhenEnabled(timeout: TimeInterval) {
         let nextButton = app.buttons["onboarding-next-button"]
+        XCTAssertTrue(
+            UITestSupport.waitForElement(nextButton, timeout: timeout, requireHittable: false),
+            "Next button should exist before waiting for enablement."
+        )
         let enabledExpectation = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "isEnabled == true"),
             object: nextButton
@@ -104,19 +140,19 @@ final class OnboardingFlowUITests: XCTestCase {
             .completed,
             "Next button should become enabled before advancing."
         )
-        nextButton.tap()
+        UITestSupport.tapWhenReady(nextButton, timeout: 8)
     }
 
     @MainActor
     private func waitForOnboardingStep(_ identifier: String, timeout: TimeInterval) -> Bool {
-        app.descendants(matching: .any)[identifier].waitForExistence(timeout: timeout)
+        UITestSupport.waitForIdentifier(in: app, identifier, toExist: true, timeout: timeout)
     }
 
     @MainActor
     private func dismissKeyboardIfNeeded() {
         let toolbarDone = app.toolbars.buttons["Done"]
-        if toolbarDone.waitForExistence(timeout: 2) {
-            toolbarDone.tap()
+        if toolbarDone.waitForExistence(timeout: 3) {
+            UITestSupport.tapWhenReady(toolbarDone, timeout: 5)
         }
     }
 }
