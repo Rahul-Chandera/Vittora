@@ -379,9 +379,9 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | L3 | TESTING-2 | `ModelContainerOnDiskTests.swift` | On-disk V1→V2 migration round-trip fixture (overlaps A2/I4). | `make test-data`. | M | **Done** (`onDiskStoreMigratesV1ToV2`) |
 | L4 | TESTING-3 | new `SyncIntegrityValidatorTests` | Seed each invalid shape (NaN, neg asset, overpaid debt, bad currency) + balance-drift; assert violations/repair. | `make test-sync`. | M | **Merged #25** |
 | L5 | TESTING-4 | `EncryptionKeyPathPolicy` + `EncryptionServiceTests` | Pure `storagePath` / `secureEnclaveKeyResolution` tests; SE wrap/unwrap verified manually on device (see RELEASE_CHECKLIST §2). | Policy suite green + device checklist. | M | **Merged #27** |
-| L6 | TESTING-5 | new `ReceiptParserServiceTests` | Table-driven synthetic receipts ($/₹, comma grouping, date formats, total-keyword, no-amount). | New suite green. | S | **In PR** |
-| L7 | TESTING-6 | `AppLockServiceTests` + UI test | `shouldLock(...)` boundary tests (overlaps B1) + background/foreground UI test. | Lock appears after background. | M | **In PR** |
-| L8 | TESTING-7 | `DecimalCurrencyTests.swift` | Exact `Decimal` equality; assert rounding mode on .5 boundaries; JPY no fraction; pinned locale strings. | `make test`. | S | **In PR** |
+| L6 | TESTING-5 | new `ReceiptParserServiceTests` | Table-driven synthetic receipts ($/₹, comma grouping, date formats, total-keyword, no-amount). | New suite green. | S | **Merged #29** |
+| L7 | TESTING-6 | `AppLockServiceTests` + UI test | `shouldLock(...)` boundary tests (overlaps B1) + background/foreground UI test. | Lock appears after background. | M | **Merged #29** |
+| L8 | TESTING-7 | `DecimalCurrencyTests.swift` | Exact `Decimal` equality; assert rounding mode on .5 boundaries; JPY no fraction; pinned locale strings. | `make test`. | S | **Merged #29** |
 | L9 | TESTING-10 | `VittoraUITests/*` + `Makefile` | **Stabilize flaky UI tests** (transaction filter, transfer flow, etc.) — proper waits/hittability fixes; remove reliance on CI `-retry-tests-on-failure` stopgap (#28). | UI suite green 3× locally + CI without retry. | M | **Follow-up** (#28 merged stopgap) |
 
 ---
