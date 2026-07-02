@@ -28,39 +28,35 @@ final class TransactionFlowUITests: XCTestCase {
 
         let listRoot = app.descendants(matching: .any)["transaction-list-root"]
         XCTAssertTrue(
-            listRoot.waitForExistence(timeout: 5),
+            listRoot.waitForExistence(timeout: 10),
             "Transaction list should be visible before counting rows."
         )
-        let initialTransactionCount = listRoot
-            .descendants(matching: .any)
-            .matching(NSPredicate(format: "identifier BEGINSWITH %@", "transaction-row-"))
-            .count
+        let initialTransactionCount = transactionRowCount()
 
         let addButton = app.buttons["transaction-add-button"].exists
             ? app.buttons["transaction-add-button"]
             : app.buttons["Add Transaction"].firstMatch
-        XCTAssertTrue(addButton.waitForExistence(timeout: 10))
-        addButton.tap()
+        UITestSupport.tapWhenReady(addButton, timeout: 15)
 
         let amountField = app.textFields["transaction-amount-field"].exists
             ? app.textFields["transaction-amount-field"]
             : app.textFields.firstMatch
-        XCTAssertTrue(amountField.waitForExistence(timeout: 5))
+        XCTAssertTrue(amountField.waitForExistence(timeout: 8))
         amountField.tap()
         amountField.typeText("42.75")
 
         let noteField = app.descendants(matching: .any)["transaction-note-field"]
-        XCTAssertTrue(noteField.waitForExistence(timeout: 5))
+        XCTAssertTrue(noteField.waitForExistence(timeout: 8))
         noteField.tap()
         noteField.typeText("UI Test Dinner")
 
         let saveButton = app.buttons["transaction-form-save-button"]
-        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 8))
         XCTAssertTrue(saveButton.isEnabled, "The form should be saveable with seeded defaults.")
-        saveButton.tap()
+        UITestSupport.tapWhenReady(saveButton, timeout: 8)
 
-        XCTAssertFalse(
-            amountField.waitForExistence(timeout: 3),
+        XCTAssertTrue(
+            UITestSupport.waitForDisappearance(amountField, timeout: 8),
             "The transaction form should dismiss after saving."
         )
 
@@ -70,7 +66,7 @@ final class TransactionFlowUITests: XCTestCase {
             "The saved transaction row should appear in the list."
         )
         XCTAssertTrue(
-            waitForTransactionRowCount(initialTransactionCount + 1, timeout: 15),
+            UITestSupport.waitForTransactionRowCount(in: app, initialTransactionCount + 1, timeout: 20),
             "The transaction list should show one additional row after saving a new entry."
         )
     }
@@ -81,66 +77,64 @@ final class TransactionFlowUITests: XCTestCase {
 
         let coffeeRow = app.descendants(matching: .any)["transaction-row-coffee-run"]
         let salaryRow = app.descendants(matching: .any)["transaction-row-monthly-salary"]
-        XCTAssertTrue(coffeeRow.waitForExistence(timeout: 5))
-        XCTAssertTrue(salaryRow.waitForExistence(timeout: 5))
+        XCTAssertTrue(coffeeRow.waitForExistence(timeout: 10))
+        XCTAssertTrue(salaryRow.waitForExistence(timeout: 10))
 
         XCTAssertTrue(
-            app.buttons["transaction-add-button"].waitForExistence(timeout: 15),
+            UITestSupport.waitForElement(app.buttons["transaction-add-button"], timeout: 20, requireHittable: true),
             "Transaction toolbar should finish loading before filtering."
         )
         XCTAssertTrue(
-            waitForFilterButton(timeout: 20),
+            waitForFilterButton(timeout: 25),
             "Filter button should be visible on the transactions list."
         )
         tapFilterButton()
 
         let filterSheet = app.descendants(matching: .any)["transaction-filter-sheet"]
         XCTAssertTrue(
-            filterSheet.waitForExistence(timeout: 15),
+            filterSheet.waitForExistence(timeout: 20),
             "Filter sheet should present after tapping filter."
         )
 
         let minAmountField = app.textFields["transaction-filter-min-field"]
-        XCTAssertTrue(minAmountField.waitForExistence(timeout: 5))
+        XCTAssertTrue(minAmountField.waitForExistence(timeout: 8))
         minAmountField.tap()
         minAmountField.typeText("1000")
 
         let applyButton = app.buttons["transaction-filter-apply-button"]
-        XCTAssertTrue(applyButton.waitForExistence(timeout: 5))
-        applyButton.tap()
+        UITestSupport.tapWhenReady(applyButton, timeout: 8)
 
         let filteredCoffeeRow = app.descendants(matching: .any)["transaction-row-coffee-run"]
         let filteredSalaryRow = app.descendants(matching: .any)["transaction-row-monthly-salary"]
         XCTAssertTrue(
-            filteredSalaryRow.waitForExistence(timeout: 5),
+            filteredSalaryRow.waitForExistence(timeout: 10),
             "Filtering to the higher amount range should keep the seeded salary transaction."
         )
         XCTAssertFalse(
-            filteredCoffeeRow.waitForExistence(timeout: 2),
+            filteredCoffeeRow.waitForExistence(timeout: 3),
             "Filtering to the higher amount range should hide the seeded coffee transaction."
         )
 
         tapFilterButton()
         let clearButton = app.buttons["transaction-filter-clear-button"]
-        XCTAssertTrue(clearButton.waitForExistence(timeout: 5))
-        clearButton.tap()
-        applyButton.tap()
+        UITestSupport.tapWhenReady(clearButton, timeout: 8)
+        UITestSupport.tapWhenReady(applyButton, timeout: 8)
 
         XCTAssertTrue(
-            coffeeRow.waitForExistence(timeout: 5),
+            coffeeRow.waitForExistence(timeout: 10),
             "Clearing filters should restore all seeded transactions before searching."
         )
-        XCTAssertTrue(salaryRow.waitForExistence(timeout: 5))
+        XCTAssertTrue(salaryRow.waitForExistence(timeout: 10))
 
         let searchField = app.searchFields["Search transactions"]
-        XCTAssertTrue(searchField.waitForExistence(timeout: 5))
+        XCTAssertTrue(searchField.waitForExistence(timeout: 8))
         searchField.tap()
         searchField.typeText("Coffee")
 
         // Debounced search (250ms) — wait for filtered results.
-        XCTAssertTrue(coffeeRow.waitForExistence(timeout: 5))
+        XCTAssertTrue(coffeeRow.waitForExistence(timeout: 10))
         XCTAssertFalse(
-            salaryRow.waitForExistence(timeout: 5),
+            salaryRow.waitForExistence(timeout: 8),
             "Searching should hide transactions whose notes do not match."
         )
     }
@@ -148,35 +142,20 @@ final class TransactionFlowUITests: XCTestCase {
     @MainActor
     private func navigateToTransactionsTab() {
         XCTAssertTrue(
-            app.otherElements["content-root"].waitForExistence(timeout: 10),
+            UITestSupport.waitForContentRoot(in: app),
             "App shell should be visible before opening transactions."
         )
 
-        if waitForTransactionsList(timeout: 3) {
-            return
-        }
-
-        let transactionsTab = app.tabBars.buttons["Transactions"]
-        let transactionsButton = app.buttons["Transactions"].firstMatch
-
-        if transactionsTab.waitForExistence(timeout: 5) {
-            transactionsTab.tap()
-        } else if transactionsButton.waitForExistence(timeout: 5) {
-            transactionsButton.tap()
-        } else if app.tabBars.buttons["More"].waitForExistence(timeout: 3) {
-            app.tabBars.buttons["More"].tap()
-            XCTAssertTrue(
-                app.buttons["Transactions"].waitForExistence(timeout: 5),
-                "Transactions should appear in the tab overflow menu."
-            )
-            app.buttons["Transactions"].tap()
-        } else {
-            XCTFail("Could not find the Transactions tab.")
+        if waitForTransactionsList(timeout: 5) {
             return
         }
 
         XCTAssertTrue(
-            waitForTransactionsList(timeout: 15),
+            UITestSupport.navigateToTab(named: "Transactions", in: app, timeout: 15),
+            "Could not find the Transactions tab."
+        )
+        XCTAssertTrue(
+            waitForTransactionsList(timeout: 20),
             "The transactions list should be visible after selecting the tab."
         )
     }
@@ -196,48 +175,18 @@ final class TransactionFlowUITests: XCTestCase {
     }
 
     @MainActor
-    private func waitForTransactionRowCount(_ expectedCount: Int, timeout: TimeInterval) -> Bool {
-        let deadline = Date().addingTimeInterval(timeout)
-
-        while Date() < deadline {
-            if transactionRowCount() == expectedCount {
-                return true
-            }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
-        }
-
-        return transactionRowCount() == expectedCount
-    }
-
-    @MainActor
     private func waitForFilterButton(timeout: TimeInterval) -> Bool {
         let filterButton = app.buttons["transaction-filter-button"]
-        guard filterButton.waitForExistence(timeout: timeout) else { return false }
-
-        let layoutDeadline = Date().addingTimeInterval(min(timeout, 5))
-        while Date() < layoutDeadline {
-            if hasValidFrame(filterButton) {
-                return true
-            }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
-        }
-
-        return hasValidFrame(filterButton)
+        return UITestSupport.waitForElement(filterButton, timeout: timeout, requireHittable: true)
     }
 
     @MainActor
     private func tapFilterButton() {
         let filterButton = app.buttons["transaction-filter-button"]
         XCTAssertTrue(
-            waitForFilterButton(timeout: 10),
+            waitForFilterButton(timeout: 15),
             "Filter button should be ready before tapping."
         )
-        filterButton.tap()
-    }
-
-    @MainActor
-    private func hasValidFrame(_ element: XCUIElement) -> Bool {
-        let frame = element.frame
-        return frame.width > 1 && frame.height > 1
+        UITestSupport.tapWhenReady(filterButton, timeout: 5)
     }
 }

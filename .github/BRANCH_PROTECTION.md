@@ -19,7 +19,6 @@ On every push/PR to `refactoring` or `develop`:
 - `make build-macos`
 - `make test` (VittoraTests + VittoraUITests on iOS Simulator — GitHub `macos-15` has no macOS 26 host)
 - `OnboardingFlowUITests` is **excluded from the CI gate** (`make test-ios-ui` skips it on GitHub Actions); run locally or via `make test-ios-ui-onboarding`. Onboarding logic is covered by `OnboardingViewModelTests`.
-- UI tests **retry once on failure** on CI (`-retry-tests-on-failure -test-iterations 2`) to reduce simulator flake false reds.
 - Uploads `.build-ci/*.xcresult` artifacts on completion (pass or fail)
 
 US locale is pinned on the runner (`en_US`); tests remain locale-independent in code.

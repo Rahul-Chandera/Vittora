@@ -382,7 +382,7 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | L6 | TESTING-5 | new `ReceiptParserServiceTests` | Table-driven synthetic receipts ($/₹, comma grouping, date formats, total-keyword, no-amount). | New suite green. | S | **Merged #29** |
 | L7 | TESTING-6 | `AppLockServiceTests` + UI test | `shouldLock(...)` boundary tests (overlaps B1) + background/foreground UI test. | Lock appears after background. | M | **Merged #29** |
 | L8 | TESTING-7 | `DecimalCurrencyTests.swift` | Exact `Decimal` equality; assert rounding mode on .5 boundaries; JPY no fraction; pinned locale strings. | `make test`. | S | **Merged #29** |
-| L9 | TESTING-10 | `VittoraUITests/*` + `Makefile` | **Stabilize flaky UI tests** (transaction filter, transfer flow, etc.) — proper waits/hittability fixes; remove reliance on CI `-retry-tests-on-failure` stopgap (#28). | UI suite green 3× locally + CI without retry. | M | **Follow-up** (#28 merged stopgap) |
+| L9 | TESTING-10 | `VittoraUITests/*` + `Makefile` | **Stabilize flaky UI tests** (transaction filter, transfer flow, etc.) — proper waits/hittability fixes; remove reliance on CI `-retry-tests-on-failure` stopgap (#28). | UI suite green 3× locally + CI without retry. | M | **In PR** |
 
 ---
 

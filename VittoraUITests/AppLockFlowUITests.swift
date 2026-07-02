@@ -20,7 +20,7 @@ final class AppLockFlowUITests: XCTestCase {
         #if !os(iOS)
         throw XCTSkip("App lock background UI test runs on iOS Simulator only")
         #else
-        XCTAssertTrue(app.otherElements["content-root"].waitForExistence(timeout: 8))
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app, timeout: 8))
 
         XCUIDevice.shared.press(.home)
         sleep(2)

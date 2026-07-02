@@ -14,13 +14,10 @@ IOS_TEST_SIGN_FLAGS := CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=-
 # Serial testing on CI avoids parallel simulator clone instability.
 ifeq ($(GITHUB_ACTIONS),true)
 IOS_CI_SERIAL_FLAGS := -parallel-testing-enabled NO -maximum-parallel-testing-workers 1
-# Retry flaky UI tests once before failing the gate (broad suite instability, not onboarding-only).
-IOS_CI_UI_RETRY_FLAGS := -retry-tests-on-failure -test-iterations 2
 # Onboarding UI test is flaky on CI simulators; logic covered by OnboardingViewModelTests.
 IOS_UI_SKIP_FLAGS := -skip-testing:VittoraUITests/OnboardingFlowUITests
 else
 IOS_CI_SERIAL_FLAGS :=
-IOS_CI_UI_RETRY_FLAGS :=
 IOS_UI_SKIP_FLAGS :=
 endif
 
@@ -90,7 +87,6 @@ test-ios-ui:
 		$(IOS_UI_SKIP_FLAGS) \
 		$(IOS_TEST_SIGN_FLAGS) \
 		$(IOS_CI_SERIAL_FLAGS) \
-		$(IOS_CI_UI_RETRY_FLAGS) \
 		test
 
 test-ios-ui-onboarding:
