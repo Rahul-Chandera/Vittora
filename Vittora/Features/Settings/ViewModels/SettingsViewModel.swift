@@ -235,6 +235,14 @@ final class SettingsViewModel {
             UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
         }
 
+        if ProcessInfo.processInfo.arguments.contains("--ui-test-app-lock") {
+            _isAppLockEnabled = true
+            UserDefaults.standard.set(
+                AppLockTimeout.immediately.rawValue,
+                forKey: AppUserDefaults.StandardKey.appLockTimeout
+            )
+        }
+
         if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.passcodeFallback) {
             _allowPasscodeFallback = data.first == 1
         } else {

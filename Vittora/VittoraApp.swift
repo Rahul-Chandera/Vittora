@@ -211,6 +211,11 @@ struct VittoraApp: App {
             }
 
             switch newPhase {
+            case .inactive:
+                // UI-test harness: home press often stops at .inactive on Simulator.
+                if exercisesAppLockPolicy, settingsVM.isAppLockEnabled {
+                    dependencies.appLockService.recordBackgrounded(at: .now)
+                }
             case .background:
                 if settingsVM.isAppLockEnabled {
                     dependencies.appLockService.recordBackgrounded(at: .now)

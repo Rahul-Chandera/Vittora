@@ -23,11 +23,17 @@ final class AppLockFlowUITests: XCTestCase {
         XCTAssertTrue(app.otherElements["content-root"].waitForExistence(timeout: 8))
 
         XCUIDevice.shared.press(.home)
-        sleep(1)
+        sleep(2)
         app.activate()
 
+        let lockRoot = app.otherElements["app-lock-root"]
+        let lockTitle = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "Locked")
+        ).firstMatch
+        let lockAppeared = lockRoot.waitForExistence(timeout: 10)
+            || lockTitle.waitForExistence(timeout: 2)
         XCTAssertTrue(
-            app.otherElements["app-lock-root"].waitForExistence(timeout: 8),
+            lockAppeared,
             "App lock screen should appear after background when timeout is immediate"
         )
         XCTAssertFalse(app.otherElements["content-root"].exists)

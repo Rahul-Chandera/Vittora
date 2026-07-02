@@ -100,6 +100,7 @@ struct AppLockView: View {
                 applyMissingServiceFailClosed()
                 return
             }
+            guard !ProcessInfo.processInfo.arguments.contains("--ui-test-app-lock") else { return }
             await authenticate()
         }
         .task { await runCooldownTimer() }
