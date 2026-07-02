@@ -30,6 +30,7 @@ struct VittoraApp: App {
     private let bypassOnboardingForUITesting: Bool
     private let seedsTransactionsForUITesting: Bool
     private let seedsTransfersForUITesting: Bool
+    private let exercisesAppLockPolicy: Bool
     private let startupErrorMessage: String?
     private let startupFailureMessage: String?
     private let recurringGenerationCoordinator: RecurringGenerationCoordinator?
@@ -42,6 +43,15 @@ struct VittoraApp: App {
         bypassOnboardingForUITesting = isUITesting && !showsOnboardingForUITesting
         seedsTransactionsForUITesting = launchArguments.contains("--ui-test-seed-transactions")
         seedsTransfersForUITesting = launchArguments.contains("--ui-test-seed-transfers")
+        exercisesAppLockPolicy = launchArguments.contains("--ui-test-app-lock")
+
+        if exercisesAppLockPolicy {
+            KeychainService.syncSave(Data([1]), forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+            UserDefaults.standard.set(
+                AppLockTimeout.immediately.rawValue,
+                forKey: AppUserDefaults.StandardKey.appLockTimeout
+            )
+        }
 
         let startupContainer = Self.makeStartupModelContainer(inMemory: isRunningAutomatedTests)
         modelContainer = startupContainer.container
@@ -83,7 +93,8 @@ struct VittoraApp: App {
                     bypassOnboardingForUITesting: bypassOnboardingForUITesting
                 ),
                 selectedTab: Self.initialSelectedTab(isUITesting: isUITesting),
-                isUITesting: isUITesting
+                isUITesting: isUITesting,
+                exercisesAppLockPolicy: exercisesAppLockPolicy
             )
         )
 
@@ -192,7 +203,7 @@ struct VittoraApp: App {
             let shouldShowPrivacyShield = newPhase == .inactive || newPhase == .background
             appState.isPrivacyShieldVisible = !isRunningAutomatedTests && shouldShowPrivacyShield
 
-            guard !isRunningAutomatedTests else {
+            guard !isRunningAutomatedTests || exercisesAppLockPolicy else {
                 if newPhase == .active {
                     appState.isPrivacyShieldVisible = false
                 }
@@ -200,6 +211,11 @@ struct VittoraApp: App {
             }
 
             switch newPhase {
+            case .inactive:
+                // UI-test harness: home press often stops at .inactive on Simulator.
+                if exercisesAppLockPolicy, settingsVM.isAppLockEnabled {
+                    dependencies.appLockService.recordBackgrounded(at: .now)
+                }
             case .background:
                 if settingsVM.isAppLockEnabled {
                     dependencies.appLockService.recordBackgrounded(at: .now)

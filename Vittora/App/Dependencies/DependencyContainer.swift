@@ -134,7 +134,10 @@ final class DependencyContainer {
         let recurringGenerationCoordinator = RecurringGenerationCoordinator(useCase: generateUseCase)
 
         let keychainService = KeychainService()
-        let biometricService = BiometricService()
+        let biometricService: any BiometricServiceProtocol =
+            ProcessInfo.processInfo.arguments.contains("--ui-test-app-lock")
+            ? UITestAppLockBiometricService()
+            : BiometricService()
         let encryptionService = EncryptionService(keychainService: keychainService)
         let auditLogService = SecurityAuditLogService(encryptionService: encryptionService)
         let documentStorageService = EncryptedDocumentStorageService(
@@ -258,5 +261,21 @@ final class DependencyContainer {
             preconditionFailure("DependencyContainer.preview is unavailable in release builds")
             #endif
         }
+    }
+}
+
+/// Keeps the lock screen visible during `--ui-test-app-lock` UI tests (no real biometry).
+@MainActor
+private final class UITestAppLockBiometricService: BiometricServiceProtocol, @unchecked Sendable {
+    var biometricType: BiometricType { .faceID }
+
+    func canUseBiometrics() -> Bool { true }
+
+    func authenticate(reason: String, allowPasscodeFallback: Bool) async throws -> Bool {
+        false
+    }
+
+    func authenticateWithPasscode(reason: String) async throws -> Bool {
+        false
     }
 }

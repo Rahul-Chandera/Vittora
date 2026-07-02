@@ -93,12 +93,14 @@ struct AppLockView: View {
                 Spacer()
             }
         }
+        .accessibilityIdentifier("app-lock-root")
         .privacySensitive()
         .task {
             guard isLockServiceAvailable else {
                 applyMissingServiceFailClosed()
                 return
             }
+            guard !ProcessInfo.processInfo.arguments.contains("--ui-test-app-lock") else { return }
             await authenticate()
         }
         .task { await runCooldownTimer() }

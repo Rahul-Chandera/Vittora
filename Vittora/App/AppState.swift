@@ -10,6 +10,8 @@ final class AppState {
     var selectedTab: AppTab
     var isLoading: Bool
     var isUITesting: Bool
+    /// When true, UI tests exercise real background/foreground app-lock policy despite `--uitesting`.
+    var exercisesAppLockPolicy: Bool
     /// Monotonic per-domain counters bumped when persisted data in that domain changes.
     private(set) var transactionsRefreshVersion = 0
     private(set) var accountsRefreshVersion = 0
@@ -35,6 +37,7 @@ final class AppState {
         selectedTab: AppTab = .dashboard,
         isLoading: Bool = false,
         isUITesting: Bool = false,
+        exercisesAppLockPolicy: Bool = false,
         isPrivacyShieldVisible: Bool = false,
         pendingNotificationDeepLink: VittoraNotificationDeepLink? = nil
     ) {
@@ -44,6 +47,7 @@ final class AppState {
         self.selectedTab = selectedTab
         self.isLoading = isLoading
         self.isUITesting = isUITesting
+        self.exercisesAppLockPolicy = exercisesAppLockPolicy
         self.isPrivacyShieldVisible = isPrivacyShieldVisible
         self.pendingNotificationDeepLink = pendingNotificationDeepLink
     }
