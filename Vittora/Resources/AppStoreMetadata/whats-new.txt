@@ -1,6 +1,8 @@
 Version 0.1.0
 
+Requires iOS 26 or later (iPhone/iPad) or macOS 26 or later (Mac).
+
 - Local notification reminders for budgets, bills, recurring expenses, and debt due dates
-- Tax comparison tools for India and the United States
+- Tax comparison tools for India and the United States (US: federal estimate only)
 - Improved sync conflict review and recurring transaction reliability
 - Release configuration aligned to shipped iPhone, iPad, and Mac support
