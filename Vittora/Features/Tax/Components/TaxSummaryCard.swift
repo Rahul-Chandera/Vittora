@@ -29,6 +29,10 @@ struct TaxSummaryCard: View {
 
                 Divider()
 
+                if estimate.country == .unitedStates {
+                    USTaxFederalEstimateLabel()
+                }
+
                 // Final tax — hero number
                 VStack(spacing: 4) {
                     Text(estimate.finalTax.formatted(.currency(code: currencyCode)))

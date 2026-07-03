@@ -9,6 +9,10 @@ struct TaxComparisonView: View {
             VStack(alignment: .leading, spacing: VSpacing.md) {
                 header
 
+                if comparison.kind == .usDeductionModes {
+                    USTaxFederalEstimateLabel()
+                }
+
                 ViewThatFits {
                     HStack(alignment: .top, spacing: VSpacing.md) {
                         optionCard(

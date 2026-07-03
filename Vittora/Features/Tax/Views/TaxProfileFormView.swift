@@ -352,6 +352,11 @@ struct TaxProfileFormView: View {
             // Live estimate preview
             if let live = vm.liveEstimate {
                 Section(String(localized: "Live Estimate")) {
+                    if vm.country == .unitedStates {
+                        USTaxFederalEstimateLabel()
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
+                    }
                     HStack {
                         Text(String(localized: "Estimated Tax"))
                         Spacer()

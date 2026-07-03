@@ -26,4 +26,4 @@ Use before App Store / Mac App Store submission.
 
 ## Metadata
 
-- [ ] App Store copy in `Vittora/Resources/AppStoreMetadata/` describes shipped features only (no Watch, Widgets, Siri, or visionOS claims).
+- [ ] App Store copy in `Vittora/Resources/AppStoreMetadata/` describes shipped features only (no Watch, Widgets, Siri, or visionOS claims), states **iOS 26+ / macOS 26+** device requirements (DEC-009 / M0), and uses per-market listing treatments for en-IN vs en-US (DEC-010 / M1 #5).
