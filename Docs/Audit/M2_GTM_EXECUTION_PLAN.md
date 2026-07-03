@@ -20,10 +20,10 @@
 
 ## 2. D5 — store listing spec ×2 (mechanism: per-locale metadata on one app)
 
-One binary, one App Store listing, **localized metadata per storefront** (`en-IN`, `en-US`) + custom product pages for campaign links later.
+One binary, one App Store listing, **localized metadata per storefront** + custom product pages for campaign links later. *Mechanics note (corrects earlier `en-IN` reference): App Store Connect has no "English (India)" locale — the India storefront serves **English (U.K.)** metadata when present (verify on ASC setup; consider Hindi `hi` later). So `en-US` = primary/US treatment, `en-GB` = India treatment.*
 
-- **en-IN:** title/subtitle around *expense tracker + India tax*; keyword set: expense tracker, money manager, budget, income tax calculator, 80C, HRA, tax regime, split expenses, spending tracker. Screenshots: ₹ lakh-formatted dashboard → regime-comparison tax screen → 80C/HRA utilization → split summary → budget alert. Description opens with the tax pillar.
-- **en-US:** title/subtitle around *private budgeting, no bank linking*; keywords: budget app, privacy, expense tracker, YNAB alternative, Mint replacement, CSV import, envelope-style, no ads. Screenshots: $ dashboard → budget alerts → CSV import flow → federal-estimate screen **with the honesty label visible** → savings headroom. Description leads with privacy.
+- **en-GB (→ India storefront):** title/subtitle around *money + India tax planning*; keywords target income-tax-calculator/80C/HRA/regime/salary intents. Screenshots: ₹ lakh-formatted dashboard → regime-comparison tax screen → 80C/HRA utilization → split summary → budget alert. Description opens with the tax pillar. **Full copy: `M2_T3_STORE_METADATA_PACKS.md`.**
+- **en-US:** title/subtitle around *private budgeting, no bank linking*; keywords target privacy/expense/CSV intents (competitor names kept OUT of the keyword field per guideline 2.3.7 — Mint/YNAB compatibility stated factually in the description instead). Screenshots: $ dashboard → budget alerts → CSV import flow → federal-estimate screen **with the honesty label visible** → savings headroom. Description leads with privacy. **Full copy: `M2_T3_STORE_METADATA_PACKS.md`.**
 - **Both:** device/OS requirement stated plainly (iOS 26+/macOS 26+, per M0/DEC-009); privacy nutrition label consistent with the manifest (**no tracking, no analytics of any kind** — per M2-D1(a) this is now a verifiable, first-class marketing asset — feature it); no claims from the "never claim" list.
 
 ## 3. Measurement (M2-D1 — ✅ DECIDED: (a) ASC-only, 2026-07-02)
@@ -80,7 +80,7 @@ Baselines set **from the soft launch, not aspiration** (audit directive). Per ma
 | M2-D1 | ~~Decide measurement (a)/(b)~~ → **DECIDED (a)**, 2026-07-02 | Rahul ✅ |
 | M2-T1 | US federal-estimate honesty label (in-product) | Cursor ✅ *(implemented; PR pending)* |
 | M2-T2 | ~~Opt-in anonymous milestone counter~~ — **deferred** (D1 = (a)); build on §3 revisit triggers | — |
-| M2-T3 | en-IN + en-US metadata packs (title/subtitle/keywords/descriptions/screenshot scripts) per §2 | Rahul (board can draft copy) |
+| M2-T3 | en-GB (India) + en-US metadata packs (title/subtitle/keywords/descriptions/screenshot scripts) per §2 | ✅ drafted by board → `M2_T3_STORE_METADATA_PACKS.md`; Rahul reviews/enters in ASC |
 | M2-T4 | Beta cohort recruiting posts (India ITR-season + US privacy niche) + beta feedback survey (the (a)-world activation window) | Rahul |
 | M2-T5 | Press-kit page (screenshots, privacy story incl. zero-analytics, founder note) | Rahul |
 | M2-T6 | Day-75 checkpoint review (calendar it now: ~Nov 2026) | Rahul + board |
