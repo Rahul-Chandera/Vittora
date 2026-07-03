@@ -85,7 +85,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
 
         let exclusions = [
             String(localized: "Alternative Minimum Tax (AMT) is not calculated."),
-            String(localized: "State and local taxes are not included."),
+            TaxDisclaimer.usFederalEstimateLabel,
             String(localized: "Payroll taxes are shown separately and are not included in the federal income tax total.")
         ]
 

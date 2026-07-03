@@ -1,5 +1,10 @@
 Vittora is a private personal finance app for iPhone, iPad, and Mac.
 
+Requirements:
+- iPhone or iPad with iOS 26 or later
+- Mac with macOS 26 or later
+- Optional iCloud sync uses your Apple ID and iCloud (enabled in Settings)
+
 Track spending, income, budgets, recurring payments, savings goals, debt, tax estimates, receipts, and reports. Your data stays on your devices with optional iCloud sync through your Apple account — no analytics SDKs or ad trackers.
 
 Shipped in this release:
@@ -7,7 +12,7 @@ Shipped in this release:
 - Budgets with spending alerts and recurring transaction rules
 - Debt tracking, bill reminders, and local notifications you control
 - Receipt attachments, document storage, and reports
-- Tax estimates for India and the United States
+- Tax estimates for India and the United States (US estimates are federal only — state taxes not included)
 - App Lock with Face ID / Touch ID and encrypted document storage
 - iCloud sync across your Apple devices
 

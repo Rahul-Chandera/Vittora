@@ -247,7 +247,7 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 | D2 | COMPLIANCE-2/4, SECURITY-9 | P0 | `Info.plist`, `Vittora.entitlements` | Remove `remote-notification` UIBackgroundMode; remove `aps-environment` (no push) **or** set `production` via per-config entitlements; keep `fetch` only if BGAppRefresh needs it. | No unused push capability; release uses production. | S | **Merged** |
 | D3 | COMPLIANCE-3 | P1 | new `Vittora-macOS.entitlements`, `project.pbxproj` | Add `com.apple.security.app-sandbox` + `network.client` (CloudKit), `device.camera`, `personal-information.photos-library`, `...addressbook` for macOS. | macOS build sandboxed; camera/contacts/photos verified on a real Mac. | M | **Merged** |
 | D4 | COMPLIANCE-6 / MULTIPLATFORM-1 | P1 | `project.pbxproj` | Remove `xros xrsimulator` from `SUPPORTED_PLATFORMS` and `7` from `TARGETED_DEVICE_FAMILY` until a real visionOS release is scoped. | Build targets match QA'd platforms. | S | **Merged** |
-| D5 | COMPLIANCE-5 | P1 | `Vittora/Resources/AppStoreMetadata/*` | Restrict description/keywords/screenshots/paywall copy to shipped features (no Watch/Widgets/Siri/Vision). | Metadata = shipped scope. | M | **Merged** |
+| D5 | COMPLIANCE-5 | P1 | `Vittora/Resources/AppStoreMetadata/*` | Restrict copy to shipped features (no Watch/Widgets/Siri/Vision); state **iOS 26+ / macOS 26+** device requirements (M0/DEC-009); prepare **D5 ×2** en-IN vs en-US treatments (M1/DEC-010 #5). | Metadata = shipped scope + OS floor + per-market listings. | M | **Merged** (OS requirements + honesty-label PR) |
 | D6 | COMPLIANCE-9 | P1 | `Docs/Architecture/SYSTEM_MAP.md`, `Docs/Runbooks/RELEASE_CHECKLIST.md` | Fix dead paths (`EncryptedDocumentStorageService.swift`, `Privacy_Compliance_Checklist.md`); add checklist items for required-reason APIs + unused-capability audit. | Docs point at real files. | S | **Merged** |
 | D7 | COMPLIANCE-10 | P1 | `Info.plist` | Remove `NSPhotoLibraryUsageDescription` (PhotosPicker needs none) unless direct PHPhotoLibrary access is added. | No over-declared strings. | S | **Merged** |
 | D8 | COMPLIANCE-8 | P1 | `RELEASE_CHECKLIST.md` | Record `ITSAppUsesNonExemptEncryption=false` rationale (Apple AES/SE for user data → exempt). | Decision auditable. | S | **Merged** |
@@ -391,7 +391,9 @@ B1..B6  C1..C6  D1..D7  E1..E5  F0       (P0, parallel to A)
 # EPIC M — Business / GTM (non-code decisions)
 
 These are **decision/strategy** items (not agent-codable); track in `DECISION_LOG.md`:
-- **BUSINESS-5:** sequence launch to ONE Wave-1 market (recommend India-first on the tax wedge) — do not parallelize US+India.
+- **M0 (DEC-009):** deployment floor = **iOS 26 / macOS 26** — brief `M0_DEPLOYMENT_TARGET_DECISION_BRIEF.md`; Epic N for 26-only capabilities; no N1 back-deployment.
+- **M1 (DEC-010):** Wave-1 = **parallel US + India** (asymmetric GTM, five de-risk conditions in brief §6) — brief `M1_WAVE1_MARKET_DECISION_BRIEF.md`. **Engineering:** US federal honesty label (**Merged** in honesty-label PR). **Backlog:** US state-tax slab engine (not Wave-1).
+- **BUSINESS-5:** ~~single Wave-1 market~~ — superseded by DEC-010 (parallel with asymmetric GTM).
 - **BUSINESS-3/4/8/11:** correct UVP + competitive matrix + tier marketing to shipped scope; lead with privacy + tax; treat OCR/ML/multi-currency/Watch/Widgets/Vision as roadmap.
 - **BUSINESS-6:** pick one positioning ("money OS" vs honest "privacy-first tracker with tax") and make the product embody it.
 - **BUSINESS-7:** externalize tax rule sets to a signed, fetchable data file with cached fallback + freshness indicator (engineering follow-up once K1 lands; A13 complete).
