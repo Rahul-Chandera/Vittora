@@ -20,13 +20,13 @@ enum UITestSupport {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if element.exists {
-                if !requireHittable || element.isHittable {
-                    return hasValidFrame(element)
+                if !requireHittable || hasValidFrame(element) {
+                    return true
                 }
             }
             RunLoop.current.run(until: Date().addingTimeInterval(0.15))
         }
-        return element.exists && (!requireHittable || element.isHittable) && hasValidFrame(element)
+        return element.exists && (!requireHittable || hasValidFrame(element))
     }
 
     @MainActor
@@ -38,14 +38,19 @@ enum UITestSupport {
     ) {
         XCTAssertTrue(
             waitForElement(element, timeout: timeout, requireHittable: true),
-            "Element should exist and be hittable before tap.",
+            "Element should exist and be tappable before tap.",
             file: file,
             line: line
         )
-        if element.isHittable {
-            element.tap()
-        } else {
+        tapElementSafely(element)
+    }
+
+    @MainActor
+    private static func tapElementSafely(_ element: XCUIElement) {
+        if hasValidFrame(element) {
             element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        } else {
+            element.tap()
         }
     }
 
