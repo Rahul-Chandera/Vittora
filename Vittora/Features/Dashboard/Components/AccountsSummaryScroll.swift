@@ -92,6 +92,8 @@ private struct AccountMiniCard: View {
                 Text(formattedBalance(account.balance))
                     .font(VTypography.amountSmall)
                     .foregroundColor(account.type.isAsset ? VColors.textPrimary : VColors.expense)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
 
                 Text(account.type.displayName)
                     .font(VTypography.caption2)
