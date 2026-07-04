@@ -14,6 +14,7 @@ struct TransactionFormView: View {
     @State private var showAccountPicker = false
     @State private var showCategoryPicker = false
     @State private var showPayeePicker = false
+    @State private var showAddPayee = false
 
     let transactionID: UUID?
     let initialType: TransactionType?
@@ -115,6 +116,13 @@ struct TransactionFormView: View {
         }
         .accessibilityIdentifier("transaction-form-root")
         .errorAlert(message: transactionErrorBinding)
+        .sheet(isPresented: $showAddPayee) {
+            NavigationStack {
+                PayeeFormView {
+                    Task { await reloadPayeesSelectingNewest() }
+                }
+            }
+        }
         .task {
             if vm == nil {
                 vm = createViewModel()
@@ -195,6 +203,13 @@ struct TransactionFormView: View {
                     await vm.checkDuplicates()
                 }
             }
+
+            Button {
+                showAddPayee = true
+            } label: {
+                Label(String(localized: "Add Payee"), systemImage: "plus.circle")
+            }
+            .accessibilityIdentifier("transaction-add-payee-button")
 
             if let suggestedID = vm.suggestedCategoryID,
                let suggested = (categories.expense + categories.income).first(where: { $0.id == suggestedID }) {
@@ -321,6 +336,19 @@ struct TransactionFormView: View {
     private func payeeName(for payeeID: UUID?) -> String? {
         guard let payeeID else { return nil }
         return payees.first(where: { $0.id == payeeID })?.name
+    }
+
+    /// Refreshes the payee list after inline creation and auto-selects the newly
+    /// added payee (the one absent from the list before the add sheet ran), so the
+    /// user doesn't have to re-open the picker to pick what they just created.
+    private func reloadPayeesSelectingNewest() async {
+        let previousIDs = Set(payees.map(\.id))
+        let fetchPayeesUseCase = FetchPayeesUseCase(repository: dependencies.payeeRepository)
+        guard let refreshed = try? await fetchPayeesUseCase.execute() else { return }
+        payees = refreshed
+        if let newPayee = refreshed.first(where: { !previousIDs.contains($0.id) }) {
+            vm?.selectedPayeeID = newPayee.id
+        }
     }
 
     private func createViewModel() -> TransactionFormViewModel {
