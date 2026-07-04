@@ -377,6 +377,10 @@ struct DashboardView: View {
             BudgetFormView(isPresented: .constant(false))
         case .accountDetail(let id):
             AccountDetailView(accountID: id)
+        case .accountList:
+            AccountListView()
+        case .addAccount:
+            AccountFormView()
         default:
             EmptyView()
         }
