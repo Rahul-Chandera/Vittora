@@ -73,6 +73,27 @@ final class TransactionFlowUITests: XCTestCase {
     }
 
     @MainActor
+    func testEditFromTransactionDetailOpensForm() throws {
+        navigateToTransactionsTab()
+
+        let coffeeRow = app.descendants(matching: .any)["transaction-row-coffee-run"]
+        XCTAssertTrue(coffeeRow.waitForExistence(timeout: 15), "Seeded transaction should appear.")
+        UITestSupport.tapWhenReady(coffeeRow, timeout: 10)
+
+        let editButton = app.buttons["transaction-detail-edit-button"]
+        XCTAssertTrue(editButton.waitForExistence(timeout: 10), "Detail should show the edit button.")
+        UITestSupport.tapWhenReady(editButton, timeout: 10)
+
+        // The amount field only exists in the form, so its presence proves edit
+        // opened the form rather than re-pushing the detail screen (the bug).
+        let amountField = app.textFields["transaction-amount-field"]
+        XCTAssertTrue(
+            amountField.waitForExistence(timeout: 10),
+            "Tapping edit should open the transaction form, not the detail screen again."
+        )
+    }
+
+    @MainActor
     func testCanSearchAndFilterTransactions() throws {
         navigateToTransactionsTab()
         waitForSeededTransactionRows()
