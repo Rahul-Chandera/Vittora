@@ -46,6 +46,7 @@ final class TransactionFlowUITests: XCTestCase {
         amountField.typeText("42.75")
 
         let noteField = app.descendants(matching: .any)["transaction-note-field"]
+        UITestSupport.scrollToElement(noteField, in: app)
         XCTAssertTrue(noteField.waitForExistence(timeout: 8))
         noteField.tap()
         noteField.typeText("UI Test Dinner")
