@@ -46,7 +46,7 @@ struct TransactionListView: View {
             await vm?.loadTransactions()
         }
         .navigationDestination(item: $navigateDestination) { dest in
-            navigationView(for: dest)
+            NavigationDestinationView(destination: dest)
         }
         .errorAlert(message: transactionListErrorBinding)
     }
@@ -324,23 +324,6 @@ struct TransactionListView: View {
         Text(title)
             .foregroundColor(VColors.textSecondary)
             .accessibilityAddTraits(.isHeader)
-    }
-
-    @ViewBuilder
-    private func navigationView(for destination: NavigationDestination) -> some View {
-        switch destination {
-        case .transactionDetail(let id):
-            TransactionDetailView(transactionID: id)
-
-        case .addTransaction:
-            TransactionFormView()
-
-        case .editTransaction(let id):
-            TransactionFormView(transactionID: id)
-
-        default:
-            EmptyView()
-        }
     }
 
     private func createViewModel() -> TransactionListViewModel {

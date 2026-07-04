@@ -44,7 +44,7 @@ struct DashboardView: View {
             await vm?.refresh()
         }
         .navigationDestination(item: $navigateDestination) { dest in
-            navigationView(for: dest)
+            NavigationDestinationView(destination: dest)
         }
         #if os(iOS)
         .if(shouldPresentQuickActionsAsSheet) { view in
@@ -360,30 +360,6 @@ struct DashboardView: View {
                 }
             }
         )
-    }
-
-    @ViewBuilder
-    private func navigationView(for destination: NavigationDestination) -> some View {
-        switch destination {
-        case .transactionDetail(let id):
-            TransactionDetailView(transactionID: id)
-        case .addTransaction:
-            TransactionFormView()
-        case .editTransaction(let id):
-            TransactionFormView(transactionID: id)
-        case .addTransfer:
-            TransferFormView()
-        case .addBudget:
-            BudgetFormView(isPresented: .constant(false))
-        case .accountDetail(let id):
-            AccountDetailView(accountID: id)
-        case .accountList:
-            AccountListView()
-        case .addAccount:
-            AccountFormView()
-        default:
-            EmptyView()
-        }
     }
 
     private func createViewModel() -> DashboardViewModel {
