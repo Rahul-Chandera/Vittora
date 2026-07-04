@@ -15,6 +15,7 @@ struct TransactionFormView: View {
     @State private var showCategoryPicker = false
     @State private var showPayeePicker = false
     @State private var showAddPayee = false
+    @State private var showAddAccount = false
 
     let transactionID: UUID?
     let initialType: TransactionType?
@@ -123,6 +124,13 @@ struct TransactionFormView: View {
                 }
             }
         }
+        .sheet(isPresented: $showAddAccount) {
+            NavigationStack {
+                AccountFormView {
+                    Task { await reloadAccountsSelectingNewest() }
+                }
+            }
+        }
         .task {
             if vm == nil {
                 vm = createViewModel()
@@ -189,6 +197,13 @@ struct TransactionFormView: View {
                 }
             }
             .accessibilityIdentifier("transaction-account-picker")
+
+            Button {
+                showAddAccount = true
+            } label: {
+                Label(String(localized: "Add Account"), systemImage: "plus.circle")
+            }
+            .accessibilityIdentifier("transaction-add-account-button")
 
             Picker(String(localized: "Payee"), selection: Bindable(vm).selectedPayeeID) {
                 Text(String(localized: "None")).tag(UUID?.none)
@@ -348,6 +363,19 @@ struct TransactionFormView: View {
         payees = refreshed
         if let newPayee = refreshed.first(where: { !previousIDs.contains($0.id) }) {
             vm?.selectedPayeeID = newPayee.id
+        }
+    }
+
+    /// Mirror of `reloadPayeesSelectingNewest` for inline account creation: refresh
+    /// the account list and select the just-added account (absent before the sheet),
+    /// which also satisfies the required-account rule so Save enables immediately.
+    private func reloadAccountsSelectingNewest() async {
+        let previousIDs = Set(accounts.map(\.id))
+        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: dependencies.accountRepository)
+        guard let refreshed = try? await fetchAccountsUseCase.execute() else { return }
+        accounts = refreshed
+        if let newAccount = refreshed.first(where: { !previousIDs.contains($0.id) }) {
+            vm?.selectedAccountID = newAccount.id
         }
     }
 
