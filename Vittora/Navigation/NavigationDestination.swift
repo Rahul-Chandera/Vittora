@@ -3,6 +3,7 @@ import VittoraCore
 
 enum NavigationDestination: Hashable {
     // Accounts
+    case accountList
     case accountDetail(id: UUID)
     case addAccount
     case addTransfer
