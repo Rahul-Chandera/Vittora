@@ -221,7 +221,7 @@ struct VittoraApp: App {
         guard !isRunningAutomatedTests else { return }
 
         guard let modelContainer else { return }
-        let dataSeeder = DefaultDataSeeder(modelContainer: modelContainer)
+        let dataSeeder = dependencies.dataSeeder ?? DefaultDataSeeder(modelContainer: modelContainer)
         do {
             try await dataSeeder.seedDefaultCategoriesIfNeeded()
         } catch {

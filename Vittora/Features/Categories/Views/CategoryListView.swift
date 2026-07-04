@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CategoryListView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: CategoryListViewModel?
     @State private var showAddCategory = false
@@ -37,7 +38,10 @@ struct CategoryListView: View {
         .alert(String(localized: "Delete Category"), isPresented: $showingDeleteAlert) {
             Button(String(localized: "Delete"), role: .destructive) {
                 if let id = categoryToDelete, let vm = viewModel {
-                    Task { await vm.deleteCategory(id: id) }
+                    Task {
+                        await vm.deleteCategory(id: id)
+                        appState.notifyDataChanged()
+                    }
                 }
             }
             Button(String(localized: "Cancel"), role: .cancel) {}
@@ -46,6 +50,10 @@ struct CategoryListView: View {
         }
         .task {
             await setupViewModel()
+        }
+        .task(id: appState.dataRefreshVersion) {
+            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+            await viewModel?.loadCategories()
         }
     }
 

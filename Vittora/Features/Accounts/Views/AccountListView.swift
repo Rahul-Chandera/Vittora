@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AccountListView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: AccountListViewModel?
@@ -41,7 +42,10 @@ struct AccountListView: View {
         .alert(String(localized: "Delete Account"), isPresented: $showingDeleteAlert) {
             Button(String(localized: "Delete"), role: .destructive) {
                 if let id = accountToDelete, let vm = viewModel {
-                    Task { await vm.deleteAccount(id: id) }
+                    Task {
+                        await vm.deleteAccount(id: id)
+                        appState.notifyDataChanged()
+                    }
                 }
             }
             Button(String(localized: "Cancel"), role: .cancel) {}
@@ -50,6 +54,10 @@ struct AccountListView: View {
         }
         .task {
             await setupViewModel()
+        }
+        .task(id: appState.dataRefreshVersion) {
+            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+            await viewModel?.loadAccounts()
         }
     }
 
@@ -144,7 +152,10 @@ struct AccountListView: View {
                                     Label(String(localized: "Delete"), systemImage: "trash")
                                 }
                                 Button {
-                                    Task { await vm.archiveAccount(id: account.id) }
+                                    Task {
+                                        await vm.archiveAccount(id: account.id)
+                                        appState.notifyDataChanged()
+                                    }
                                 } label: {
                                     Label(String(localized: "Archive"), systemImage: "archivebox")
                                 }

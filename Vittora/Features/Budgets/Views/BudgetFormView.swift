@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct BudgetFormView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) var dependencies
     @Environment(\.currencySymbol) private var currencySymbol
     @Binding var isPresented: Bool
@@ -104,6 +105,7 @@ struct BudgetFormView: View {
                         Task {
                             do {
                                 try await viewModel?.save()
+                                appState.notifyDataChanged()
                                 isPresented = false
                             } catch {
                                 viewModel?.error = error.localizedDescription

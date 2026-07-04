@@ -64,6 +64,19 @@ private final class MockSplitGroupRepo: SplitGroupRepository {
     func deleteExpense(_ id: UUID) async throws { expenses.removeAll { $0.id == id } }
 }
 
+private actor MockDataSeeder: DataSeederProtocol {
+    private(set) var seedIfNeededCallCount = 0
+    private(set) var reseedCallCount = 0
+
+    func seedDefaultCategoriesIfNeeded() async throws {
+        seedIfNeededCallCount += 1
+    }
+
+    func reseedDefaultCategories() async throws {
+        reseedCallCount += 1
+    }
+}
+
 @MainActor
 private final class MockDocumentRepo: DocumentRepository {
     var items: [DocumentEntity] = []
@@ -307,5 +320,45 @@ struct DataManagementServiceTests {
         #expect((try await keychain.exists(forKey: "vittora.userName")) == false)
         #expect((try await keychain.exists(forKey: "com.vittora.encryption.key")) == false)
         #expect((try await keychain.exists(forKey: "com.vittora.encryption.key.se_wrapped")) == false)
+    }
+
+    @Test("factoryReset re-seeds default categories via the data seeder")
+    func factoryResetReseedsDefaultCategories() async throws {
+        let txRepo = MockTransactionRepository()
+        let accRepo = MockAccountRepository()
+        let catRepo = MockCategoryRepository()
+        let budRepo = MockBudgetRepo()
+        let debtRepo = MockDebtRepo()
+        let goalRepo = MockSavingsGoalRepo()
+        let splitRepo = MockSplitGroupRepo()
+        let docRepo = MockDocumentRepo()
+        let keychain = MockKeychainService()
+        let seeder = MockDataSeeder()
+
+        try await catRepo.create(
+            CategoryEntity(name: "Custom", icon: "tag.fill", colorHex: "#000000", type: .expense)
+        )
+
+        let service = DataManagementService(
+            transactionRepository: txRepo,
+            accountRepository: accRepo,
+            categoryRepository: catRepo,
+            budgetRepository: budRepo,
+            debtRepository: debtRepo,
+            savingsGoalRepository: goalRepo,
+            splitGroupRepository: splitRepo,
+            documentRepository: docRepo,
+            keychainService: keychain,
+            dataSeeder: seeder
+        )
+
+        try await service.factoryReset()
+
+        let reseedCount = await seeder.reseedCallCount
+        #expect(reseedCount == 1)
+        // Categories should have been wiped before the seeder ran. The mock
+        // seeder is a no-op, so we just confirm the cleanup half of the contract
+        // here; the real DefaultDataSeeder repopulates them in production.
+        #expect((try await catRepo.fetchAll()).isEmpty)
     }
 }

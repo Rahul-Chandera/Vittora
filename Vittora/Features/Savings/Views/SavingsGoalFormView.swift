@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SavingsGoalFormView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
 
@@ -180,6 +181,7 @@ struct SavingsGoalFormView: View {
                     colorHex: selectedColor
                 )
             }
+            appState.notifyDataChanged()
             onSaved()
             dismiss()
         } catch {

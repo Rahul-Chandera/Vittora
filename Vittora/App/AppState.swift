@@ -9,7 +9,9 @@ final class AppState {
     var selectedTab: AppTab
     var isLoading: Bool
     var isUITesting: Bool
-    var transactionRefreshVersion: Int
+    /// Monotonic counter bumped whenever any persisted data changes.
+    /// Views that need to refetch on data mutations should observe this via `.task(id:)`.
+    var dataRefreshVersion: Int
     var isPrivacyShieldVisible: Bool
 
     init(
@@ -19,7 +21,7 @@ final class AppState {
         selectedTab: AppTab = .dashboard,
         isLoading: Bool = false,
         isUITesting: Bool = false,
-        transactionRefreshVersion: Int = 0,
+        dataRefreshVersion: Int = 0,
         isPrivacyShieldVisible: Bool = false
     ) {
         self.isAuthenticated = isAuthenticated
@@ -28,8 +30,14 @@ final class AppState {
         self.selectedTab = selectedTab
         self.isLoading = isLoading
         self.isUITesting = isUITesting
-        self.transactionRefreshVersion = transactionRefreshVersion
+        self.dataRefreshVersion = dataRefreshVersion
         self.isPrivacyShieldVisible = isPrivacyShieldVisible
+    }
+
+    /// Notifies all observers that some piece of persisted data has changed.
+    /// Call this from any save/edit/delete flow on the user's behalf.
+    func notifyDataChanged() {
+        dataRefreshVersion &+= 1
     }
 
     enum AppTab: String, CaseIterable, Identifiable, Sendable {

@@ -26,8 +26,8 @@ struct TransactionListView: View {
                 await vm?.loadTransactions()
             }
         }
-        .task(id: appState.transactionRefreshVersion) {
-            guard vm != nil else { return }
+        .task(id: appState.dataRefreshVersion) {
+            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
             await vm?.loadTransactions()
         }
         .navigationDestination(item: $navigateDestination) { dest in

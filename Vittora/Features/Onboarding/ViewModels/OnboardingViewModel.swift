@@ -14,7 +14,11 @@ final class OnboardingViewModel {
         var isLast: Bool { self == .done }
     }
 
+    enum AccountSubStep { case type, details }
+
     var currentStep: Step = .welcome
+    var accountSubStep: AccountSubStep = .type
+    var isAccountSubStepEnabled: Bool = false
     var selectedCurrencyCode = CurrencyDefaults.code
     var userName = ""
     var accountName = ""
@@ -39,7 +43,8 @@ final class OnboardingViewModel {
         case .welcome:   return true
         case .currency:  return !selectedCurrencyCode.isEmpty
         case .profile:   return hasValidProfileName
-        case .account:   return hasValidAccountSetup
+        case .account:
+            return (isAccountSubStepEnabled && accountSubStep == .type) ? true : hasValidAccountSetup
         case .done:      return hasValidAccountSetup
         }
     }
@@ -57,6 +62,12 @@ final class OnboardingViewModel {
     ]
 
     func advance() {
+        if currentStep == .account && accountSubStep == .type && isAccountSubStepEnabled {
+            withAnimation(.easeInOut(duration: 0.35)) {
+                accountSubStep = .details
+            }
+            return
+        }
         guard let next = Step(rawValue: currentStep.rawValue + 1) else { return }
         withAnimation(.easeInOut(duration: 0.3)) {
             currentStep = next

@@ -40,20 +40,24 @@ final class DataManagementViewModel {
         }
     }
 
-    func factoryReset() async {
+    func factoryReset() async -> Bool {
         isClearing = true
         error = nil
         defer { isClearing = false }
         do {
             try await service.factoryReset()
             await loadStats()
+            return true
         } catch {
             self.error = error.localizedDescription
+            return false
         }
     }
 }
 
 struct DataManagementView: View {
+    @Environment(AppState.self) private var appState
+    @Environment(SettingsViewModel.self) private var settingsVM
     @Environment(\.dependencies) private var dependencies
     @State private var vm: DataManagementViewModel?
     @AppStorage("vittora.exportSchedule") private var exportScheduleRaw: String = "off"
@@ -205,7 +209,12 @@ struct DataManagementView: View {
             titleVisibility: .visible
         ) {
             Button(String(localized: "Reset Everything"), role: .destructive) {
-                Task { await vm.factoryReset() }
+                Task {
+                    let didReset = await vm.factoryReset()
+                    if didReset {
+                        resetRuntimeStateAfterFactoryReset()
+                    }
+                }
             }
             Button(String(localized: "Cancel"), role: .cancel) {}
         } message: {
@@ -249,9 +258,18 @@ struct DataManagementView: View {
             recurringRuleRepository: dependencies.recurringRuleRepository,
             taxProfileRepository: dependencies.taxProfileRepository,
             documentStorageService: dependencies.documentStorageService,
-            keychainService: dependencies.keychainService ?? KeychainService()
+            keychainService: dependencies.keychainService ?? KeychainService(),
+            dataSeeder: dependencies.dataSeeder
         )
         vm = DataManagementViewModel(service: service)
         Task { await vm?.loadStats() }
+    }
+
+    private func resetRuntimeStateAfterFactoryReset() {
+        settingsVM.isAppLockEnabled = false
+        appState.isLocked = false
+        appState.isAuthenticated = true
+        appState.isOnboardingComplete = false
+        appState.selectedTab = .dashboard
     }
 }

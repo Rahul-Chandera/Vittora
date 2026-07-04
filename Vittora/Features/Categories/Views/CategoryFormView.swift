@@ -4,6 +4,7 @@ struct CategoryFormView: View {
     var editingCategory: CategoryEntity? = nil
     var onSave: (() -> Void)? = nil
 
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CategoryFormViewModel?
@@ -139,6 +140,7 @@ struct CategoryFormView: View {
         saveError = nil
         do {
             try await vm.save()
+            appState.notifyDataChanged()
             onSave?()
             dismiss()
         } catch {

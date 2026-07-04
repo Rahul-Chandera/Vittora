@@ -1,15 +1,15 @@
 import SwiftUI
 
 struct DashboardView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.currencyCode) private var currencyCode
     @State private var vm: DashboardViewModel?
     @State private var navigateDestination: NavigationDestination?
-    @State private var showAddBudget = false
-    @State private var showQuickActionTransactionForm = false
-    @State private var showQuickActionTransferForm = false
-    @State private var quickActionTransactionType: TransactionType = .expense
+    @State private var activeQuickActionModal: QuickActionModal?
+    @State private var isQuickEntryButtonVisible: Bool = true
+    @State private var lastScrollOffsetY: CGFloat = 0
 
     var body: some View {
         ZStack {
@@ -25,6 +25,9 @@ struct DashboardView: View {
                     .tint(VColors.primary)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            quickEntryFloatingButton
+        }
         .navigationTitle(String(localized: "Dashboard"))
         .task {
             if vm == nil {
@@ -32,49 +35,29 @@ struct DashboardView: View {
                 await vm?.load()
             }
         }
+        .task(id: appState.dataRefreshVersion) {
+            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+            await vm?.refresh()
+        }
         .navigationDestination(item: $navigateDestination) { dest in
             navigationView(for: dest)
-        }
-        .sheet(isPresented: $showAddBudget) {
-            BudgetFormView(isPresented: $showAddBudget)
         }
         #if os(iOS)
         .if(shouldPresentQuickActionsAsSheet) { view in
             view
-                .sheet(isPresented: $showQuickActionTransactionForm) {
-                    NavigationStack {
-                        TransactionFormView(initialType: quickActionTransactionType)
-                    }
-                }
-                .sheet(isPresented: $showQuickActionTransferForm) {
-                    NavigationStack {
-                        TransferFormView()
-                    }
+                .sheet(item: $activeQuickActionModal) { modal in
+                    quickActionModalView(for: modal)
                 }
         }
         .if(!shouldPresentQuickActionsAsSheet) { view in
             view
-                .fullScreenCover(isPresented: $showQuickActionTransactionForm) {
-                    NavigationStack {
-                        TransactionFormView(initialType: quickActionTransactionType)
-                    }
-                }
-                .fullScreenCover(isPresented: $showQuickActionTransferForm) {
-                    NavigationStack {
-                        TransferFormView()
-                    }
+                .fullScreenCover(item: $activeQuickActionModal) { modal in
+                    quickActionModalView(for: modal)
                 }
         }
         #else
-        .sheet(isPresented: $showQuickActionTransactionForm) {
-            NavigationStack {
-                TransactionFormView(initialType: quickActionTransactionType)
-            }
-        }
-        .sheet(isPresented: $showQuickActionTransferForm) {
-            NavigationStack {
-                TransferFormView()
-            }
+        .sheet(item: $activeQuickActionModal) { modal in
+            quickActionModalView(for: modal)
         }
         #endif
     }
@@ -94,6 +77,11 @@ struct DashboardView: View {
             macLayout(vm)
             #endif
         }
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            geometry.contentOffset.y
+        } action: { oldValue, newValue in
+            updateQuickEntryButtonVisibility(oldOffset: oldValue, newOffset: newValue)
+        }
         .refreshable {
             await vm.refresh()
         }
@@ -101,6 +89,38 @@ struct DashboardView: View {
             if let errorMessage = vm.error {
                 errorBanner(errorMessage)
             }
+        }
+    }
+
+    private var quickEntryFloatingButton: some View {
+        QuickEntryButton {
+            NotificationCenter.default.post(name: .vittoraNewTransaction, object: nil)
+        }
+        .padding(.trailing, VSpacing.lg)
+        .padding(.bottom, VSpacing.lg)
+        .opacity(isQuickEntryButtonVisible ? 1 : 0)
+        .scaleEffect(isQuickEntryButtonVisible ? 1 : 0.85)
+        .offset(y: isQuickEntryButtonVisible ? 0 : 16)
+        .animation(reduceMotion ? nil : .spring(response: 0.32, dampingFraction: 0.85), value: isQuickEntryButtonVisible)
+        .allowsHitTesting(isQuickEntryButtonVisible)
+        .accessibilityHidden(!isQuickEntryButtonVisible)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+    }
+
+    private func updateQuickEntryButtonVisibility(oldOffset: CGFloat, newOffset: CGFloat) {
+        let delta = newOffset - oldOffset
+        let scrollThreshold: CGFloat = 6
+        let topProximity: CGFloat = 16
+
+        if newOffset <= topProximity {
+            if !isQuickEntryButtonVisible { isQuickEntryButtonVisible = true }
+            return
+        }
+
+        if delta > scrollThreshold, isQuickEntryButtonVisible {
+            isQuickEntryButtonVisible = false
+        } else if delta < -scrollThreshold, !isQuickEntryButtonVisible {
+            isQuickEntryButtonVisible = true
         }
     }
 
@@ -200,7 +220,7 @@ struct DashboardView: View {
                     .foregroundColor(VColors.textSecondary)
                 Spacer()
                 Button {
-                    showAddBudget = true
+                    activeQuickActionModal = .addBudget
                 } label: {
                     Text(String(localized: "Manage"))
                         .font(VTypography.caption1)
@@ -292,15 +312,46 @@ struct DashboardView: View {
     ) {
         switch destination {
         case .addTransaction:
-            quickActionTransactionType = transactionType ?? .expense
-            showQuickActionTransactionForm = true
+            activeQuickActionModal = .addTransaction(type: transactionType ?? .expense)
         case .addTransfer:
-            showQuickActionTransferForm = true
+            activeQuickActionModal = .addTransfer
         case .addBudget:
-            showAddBudget = true
+            activeQuickActionModal = .addBudget
         default:
             navigateDestination = destination
         }
+    }
+
+    @ViewBuilder
+    private func quickActionModalView(for modal: QuickActionModal) -> some View {
+        switch modal {
+        case .addTransaction(let type):
+            NavigationStack {
+                TransactionFormView(initialType: type)
+            }
+        case .addTransfer:
+            NavigationStack {
+                TransferFormView()
+            }
+        case .addBudget:
+            BudgetFormView(isPresented: budgetPresentationBinding)
+        }
+    }
+
+    private var budgetPresentationBinding: Binding<Bool> {
+        Binding(
+            get: {
+                if case .addBudget = activeQuickActionModal {
+                    return true
+                }
+                return false
+            },
+            set: { isPresented in
+                if !isPresented {
+                    activeQuickActionModal = nil
+                }
+            }
+        )
     }
 
     @ViewBuilder
@@ -346,6 +397,23 @@ struct DashboardView: View {
             monthComparisonUseCase: comparisonUseCase,
             currencyCode: currencyCode
         )
+    }
+}
+
+private enum QuickActionModal: Identifiable {
+    case addTransaction(type: TransactionType)
+    case addTransfer
+    case addBudget
+
+    var id: String {
+        switch self {
+        case .addTransaction(let type):
+            return "addTransaction-\(type.rawValue)"
+        case .addTransfer:
+            return "addTransfer"
+        case .addBudget:
+            return "addBudget"
+        }
     }
 }
 

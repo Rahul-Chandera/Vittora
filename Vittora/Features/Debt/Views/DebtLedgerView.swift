@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DebtLedgerView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @State private var vm: DebtLedgerViewModel?
     @State private var showAddDebt = false
@@ -59,6 +60,10 @@ struct DebtLedgerView: View {
                 )
                 await vm?.load()
             }
+        }
+        .task(id: appState.dataRefreshVersion) {
+            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+            await vm?.load()
         }
         .sheet(isPresented: $showAddDebt) {
             DebtFormView {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SplitGroupListView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @State private var vm: SplitGroupListViewModel?
     @State private var showAddGroup = false
@@ -61,6 +62,10 @@ struct SplitGroupListView: View {
                 )
                 await vm?.load()
             }
+        }
+        .task(id: appState.dataRefreshVersion) {
+            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+            await vm?.load()
         }
         .sheet(isPresented: $showAddGroup) {
             SplitGroupFormView {

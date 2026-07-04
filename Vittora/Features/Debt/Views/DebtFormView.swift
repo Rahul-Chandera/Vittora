@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DebtFormView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @Environment(\.currencyCode) private var currencyCode
@@ -72,6 +73,7 @@ struct DebtFormView: View {
                             guard let vm else { return }
                             do {
                                 try await vm.save()
+                                appState.notifyDataChanged()
                                 onSaved()
                                 dismiss()
                             } catch {

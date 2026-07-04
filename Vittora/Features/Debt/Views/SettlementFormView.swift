@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettlementFormView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @Environment(\.currencyCode) private var currencyCode
@@ -100,6 +101,7 @@ struct SettlementFormView: View {
                 settlementAmount: amount,
                 accountID: selectedAccountID
             )
+            appState.notifyDataChanged()
             onSettled()
             dismiss()
         } catch {
