@@ -165,7 +165,9 @@ struct TransactionDetailView: View {
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         HStack(spacing: VSpacing.md) {
-                            NavigationLink(value: NavigationDestination.editTransaction(id: transaction.id)) {
+                            Button {
+                                navigateDestination = .editTransaction(id: transaction.id)
+                            } label: {
                                 Image(systemName: "pencil")
                             }
                             .accessibilityIdentifier("transaction-detail-edit-button")
