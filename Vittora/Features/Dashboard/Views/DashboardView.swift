@@ -157,7 +157,9 @@ struct DashboardView: View {
 
                 AccountsSummaryScroll(
                     accounts: data.accountSummary,
-                    onSelect: { id in navigateDestination = .accountDetail(id: id) }
+                    onSelect: { id in navigateDestination = .accountDetail(id: id) },
+                    onManage: { navigateDestination = .accountList },
+                    onAdd: { navigateDestination = .addAccount }
                 )
 
                 netWorthSection(netWorth: data.netWorth)
@@ -207,7 +209,9 @@ struct DashboardView: View {
 
                 AccountsSummaryScroll(
                     accounts: data.accountSummary,
-                    onSelect: { id in navigateDestination = .accountDetail(id: id) }
+                    onSelect: { id in navigateDestination = .accountDetail(id: id) },
+                    onManage: { navigateDestination = .accountList },
+                    onAdd: { navigateDestination = .addAccount }
                 )
             }
             .padding(VSpacing.screenPadding)
