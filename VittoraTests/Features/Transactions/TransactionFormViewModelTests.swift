@@ -73,6 +73,43 @@ struct TransactionFormViewModelTests {
         #expect(vm.canSave == true)
     }
 
+    // MARK: - default account selection (regression: Save disabled with >1 account)
+
+    @Test("selectDefaultAccountIfNeeded picks the first account when none selected — even with multiple")
+    func defaultsFirstAccountWithMultiple() {
+        let (vm, _, _, _, _) = makeViewModel()
+        let first = AccountEntity(name: "Checking", type: .bank)
+        let second = AccountEntity(name: "Savings", type: .bank)
+        vm.selectedAccountID = nil
+
+        vm.selectDefaultAccountIfNeeded(from: [first, second])
+
+        #expect(vm.selectedAccountID == first.id)
+        vm.amountString = "311000"
+        #expect(vm.canSave == true) // Save is now enabled without the user touching the picker
+    }
+
+    @Test("selectDefaultAccountIfNeeded does not override an already-selected account (edit path)")
+    func doesNotOverrideExistingSelection() {
+        let (vm, _, _, _, _) = makeViewModel()
+        let existing = UUID()
+        vm.selectedAccountID = existing
+
+        vm.selectDefaultAccountIfNeeded(from: [AccountEntity(name: "Other", type: .cash)])
+
+        #expect(vm.selectedAccountID == existing)
+    }
+
+    @Test("selectDefaultAccountIfNeeded is a safe no-op with no accounts")
+    func noOpWhenNoAccounts() {
+        let (vm, _, _, _, _) = makeViewModel()
+        vm.selectedAccountID = nil
+
+        vm.selectDefaultAccountIfNeeded(from: [])
+
+        #expect(vm.selectedAccountID == nil)
+    }
+
     // MARK: - localized amount parsing
 
     @Test("canSave accepts a locale-valid decimal string")

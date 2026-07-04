@@ -310,9 +310,7 @@ struct TransactionFormView: View {
     private func applyDefaultSelectionsIfNeeded() {
         guard let vm else { return }
 
-        if vm.selectedAccountID == nil, accounts.count == 1, let first = accounts.first {
-            vm.selectedAccountID = first.id
-        }
+        vm.selectDefaultAccountIfNeeded(from: accounts)
 
         let relevantCategories = vm.type == .income ? categories.income : categories.expense
         if vm.selectedCategoryID == nil, relevantCategories.count == 1, let first = relevantCategories.first {
