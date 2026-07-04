@@ -29,6 +29,15 @@ import VittoraCore
         return selectedAccountID != nil
     }
 
+    /// Pre-selects a default account for a new transaction so the required
+    /// account field is satisfied out of the box (Save otherwise stays disabled
+    /// with no visible reason). No-op if the user already chose one or when
+    /// editing an existing transaction. Matches `QuickEntryView` behaviour.
+    func selectDefaultAccountIfNeeded(from accounts: [AccountEntity]) {
+        guard selectedAccountID == nil, let first = accounts.first else { return }
+        selectedAccountID = first.id
+    }
+
     private let addUseCase: AddTransactionUseCase
     private let updateUseCase: UpdateTransactionUseCase
     private let smartCategorizeUseCase: SmartCategorizeUseCase
