@@ -149,7 +149,7 @@ struct DashboardView: View {
 
                 RecentTransactionsList(
                     transactions: data.recentTransactions,
-                    onSeeAll: { navigateDestination = .addTransaction },
+                    onSeeAll: { appState.selectedTab = .transactions },
                     onSelect: { id in navigateDestination = .transactionDetail(id: id) }
                 )
 
@@ -199,7 +199,7 @@ struct DashboardView: View {
                     VStack(spacing: VSpacing.sectionSpacing) {
                         RecentTransactionsList(
                             transactions: data.recentTransactions,
-                            onSeeAll: { navigateDestination = .addTransaction },
+                            onSeeAll: { appState.selectedTab = .transactions },
                             onSelect: { id in navigateDestination = .transactionDetail(id: id) }
                         )
                         UpcomingRecurringList(rules: data.upcomingRecurring)
@@ -228,14 +228,14 @@ struct DashboardView: View {
                     .foregroundColor(VColors.textSecondary)
                 Spacer()
                 Button {
-                    activeQuickActionModal = .addBudget
+                    appState.selectedTab = .budgets
                 } label: {
                     Text(String(localized: "Manage"))
                         .font(VTypography.caption1)
                         .foregroundColor(VColors.primary)
                 }
                 .buttonStyle(.plain)
-                .accessibilityHint(String(localized: "Opens the budget form"))
+                .accessibilityHint(String(localized: "Opens the Budgets tab"))
             }
 
             VStack(spacing: VSpacing.sm) {
