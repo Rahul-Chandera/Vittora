@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct HeroSpendingCard: View {
     let monthSpending: Decimal
@@ -18,7 +19,7 @@ struct HeroSpendingCard: View {
                     Text(String(localized: "Spent"))
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
-                    Text(formattedAmount(monthSpending))
+                    Text(CurrencyFormatter.format(monthSpending, currencyCode: currencyCode))
                         .font(VTypography.amountLarge)
                         .foregroundColor(VColors.expense)
                     if let comp = comparison {
@@ -32,7 +33,7 @@ struct HeroSpendingCard: View {
                     Text(String(localized: "Income"))
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
-                    Text(formattedAmount(monthIncome))
+                    Text(CurrencyFormatter.format(monthIncome, currencyCode: currencyCode))
                         .font(VTypography.amountMedium)
                         .foregroundColor(VColors.income)
                     if let comp = comparison {
@@ -109,14 +110,10 @@ struct HeroSpendingCard: View {
         .padding(.top, VSpacing.xs)
     }
 
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
-    }
-
     private var accessibilitySummary: String {
         var parts = [
-            String(localized: "Spent \(formattedAmount(monthSpending))"),
-            String(localized: "Income \(formattedAmount(monthIncome))")
+            String(localized: "Spent \(CurrencyFormatter.format(monthSpending, currencyCode: currencyCode))"),
+            String(localized: "Income \(CurrencyFormatter.format(monthIncome, currencyCode: currencyCode))")
         ]
 
         if let comparison {

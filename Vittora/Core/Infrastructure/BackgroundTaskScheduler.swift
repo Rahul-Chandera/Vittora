@@ -4,6 +4,7 @@ import SwiftData
 
 #if os(iOS)
 import BackgroundTasks
+import VittoraCore
 #endif
 
 final class BackgroundTaskScheduler: Sendable {
@@ -12,16 +13,16 @@ final class BackgroundTaskScheduler: Sendable {
     #endif
     private static let logger = Logger(subsystem: "com.vittora.app", category: "background")
 
-    private let generateUseCase: GenerateRecurringTransactionsUseCase
+    private let coordinator: RecurringGenerationCoordinator
 
-    init(generateUseCase: GenerateRecurringTransactionsUseCase) {
-        self.generateUseCase = generateUseCase
+    init(coordinator: RecurringGenerationCoordinator) {
+        self.coordinator = coordinator
     }
 
     #if os(iOS)
     /// Register background task handler for recurring transaction generation
-    static func register(generateUseCase: GenerateRecurringTransactionsUseCase) {
-        let scheduler = BackgroundTaskScheduler(generateUseCase: generateUseCase)
+    static func register(coordinator: RecurringGenerationCoordinator) {
+        let scheduler = BackgroundTaskScheduler(coordinator: coordinator)
 
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: recurringTaskID,
@@ -60,7 +61,7 @@ final class BackgroundTaskScheduler: Sendable {
         Self.scheduleNextRefresh()
 
         do {
-            let count = try await generateUseCase.execute()
+            let count = try await coordinator.generate()
             Self.logger.info("Generated \(count) recurring transactions")
             task.setTaskCompleted(success: true)
         } catch {

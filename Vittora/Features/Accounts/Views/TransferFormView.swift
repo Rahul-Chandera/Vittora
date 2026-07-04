@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TransferFormView: View {
     @Environment(AppState.self) private var appState
@@ -52,16 +53,13 @@ struct TransferFormView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let accountRepo = deps.accountRepository,
-              let transactionRepo = deps.transactionRepository else { return }
 
         let vm = TransferViewModel(
             transferUseCase: TransferFundsUseCase(
-                transactionRepository: transactionRepo,
-                accountRepository: accountRepo
+                accountRepository: dependencies.accountRepository,
+                ledgerWriteStore: dependencies.ledgerWriteStore
             ),
-            fetchUseCase: FetchAccountsUseCase(accountRepository: accountRepo)
+            fetchUseCase: FetchAccountsUseCase(accountRepository: dependencies.accountRepository)
         )
         viewModel = vm
         await vm.loadAccounts()
@@ -180,7 +178,7 @@ struct TransferFormView: View {
         isTransferring = true
         do {
             try await vm.transfer()
-            appState.notifyDataChanged()
+            appState.notifyChanged([.transactions, .accounts])
             onSave?()
             dismiss()
         } catch {

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Main entry point for the Budgets feature module.
 /// Provides the primary list view for budget management.
@@ -12,5 +13,5 @@ public struct BudgetsFeature: View {
 
 #Preview {
     BudgetsFeature()
-        .environment(\.dependencies, DependencyContainer())
+        .environment(\.dependencies, DependencyContainer.preview())
 }

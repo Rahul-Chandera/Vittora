@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import VittoraCore
 
 struct TopCategoriesChart: View {
     let categories: [CategorySpend]
@@ -64,7 +65,7 @@ struct TopCategoriesChart: View {
 
                     Spacer()
 
-                    Text(formattedAmount(item.amount))
+                    Text(CurrencyFormatter.formatCompact(item.amount, currencyCode: currencyCode))
                         .font(VTypography.caption2Bold)
                         .foregroundColor(VColors.textSecondary)
                 }
@@ -74,10 +75,6 @@ struct TopCategoriesChart: View {
 
     private func categoryColor(at index: Int) -> Color {
         VColors.categoryColors[index % VColors.categoryColors.count]
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode).precision(.fractionLength(0)))
     }
 }
 

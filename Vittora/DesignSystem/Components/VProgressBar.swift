@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// An animated budget progress bar with semantic coloring based on spending thresholds.
 /// Changes color from green (safe) to orange (warning) to red (danger).
@@ -23,39 +24,41 @@ struct VProgressBar: View {
 
     var body: some View {
         VStack(spacing: VSpacing.sm) {
-            ZStack(alignment: .leading) {
-                // Background track
-                RoundedRectangle(cornerRadius: VSpacing.cornerRadiusSM)
-                    .fill(VColors.tertiaryBackground)
-                    .frame(height: 8)
-
-                // Progress fill with gradient
-                if progress > 0 {
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Background track
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusSM)
-                        .fill(progressGradient)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .frame(width: max(0, progress * 300), height: 8)
-                        .if(animated && !reduceMotion) { view in
-                            view.animation(.easeInOut(duration: 0.6), value: progress)
-                        }
-                }
+                        .fill(VColors.tertiaryBackground)
+                        .frame(height: 8)
 
-                // Status indicator (non-color signal for warning/danger/overflow)
-                if progress >= 0.75 {
-                    HStack {
-                        Spacer()
-                        Image(systemName: progress > 1.0 ? "exclamationmark.circle.fill" : "exclamationmark.triangle.fill")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(statusColor)
-                            .padding(.horizontal, VSpacing.xs)
-                            .accessibilityLabel(progress > 1.0
-                                ? String(localized: "Over budget")
-                                : progress >= 0.9
-                                    ? String(localized: "Near limit")
-                                    : String(localized: "Approaching limit"))
+                    // Progress fill with gradient
+                    if progress > 0 {
+                        RoundedRectangle(cornerRadius: VSpacing.cornerRadiusSM)
+                            .fill(progressGradient)
+                            .frame(width: max(0, progress * geometry.size.width), height: 8)
+                            .if(animated && !reduceMotion) { view in
+                                view.animation(.easeInOut(duration: 0.6), value: progress)
+                            }
+                    }
+
+                    // Status indicator (non-color signal for warning/danger/overflow)
+                    if progress >= 0.75 {
+                        HStack {
+                            Spacer()
+                            Image(systemName: progress > 1.0 ? "exclamationmark.circle.fill" : "exclamationmark.triangle.fill")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(statusColor)
+                                .padding(.horizontal, VSpacing.xs)
+                                .accessibilityLabel(progress > 1.0
+                                    ? String(localized: "Over budget")
+                                    : progress >= 0.9
+                                        ? String(localized: "Near limit")
+                                        : String(localized: "Approaching limit"))
+                        }
                     }
                 }
             }
+            .frame(height: 8)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(String(localized: "Budget progress"))
             .accessibilityValue(accessibilityStatusLabel)

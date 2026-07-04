@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Shows the simplified "who owes whom" settlement list for a group.
 struct GroupBalanceSummaryCard: View {

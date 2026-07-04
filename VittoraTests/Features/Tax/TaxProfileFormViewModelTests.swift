@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("TaxProfileFormViewModel Tests")
@@ -46,18 +47,25 @@ struct TaxProfileFormViewModelTests {
         #expect(vm.income == 75000)
     }
 
-    @Test("income strips commas before parsing")
-    func incomeStripsCommas() {
+    @Test("income parses locale-formatted grouping for the current locale")
+    func incomeParsesLocaleFormattedGrouping() {
         let vm = makeViewModel(taxRepo: MockTaxProfileRepository())
-        vm.incomeString = "1,200,000"
-        #expect(vm.income == Decimal(string: "1200000")!)
+        let amount = Decimal(1_200_000)
+        let formatter = NumberFormatter()
+        formatter.locale = .current
+        formatter.numberStyle = .decimal
+        formatter.generatesDecimalNumbers = true
+        let formatted = formatter.string(from: amount as NSDecimalNumber)
+        vm.incomeString = formatted ?? "1200000"
+        #expect(vm.income == amount)
     }
 
-    @Test("income returns zero for non-numeric string")
+    @Test("income returns zero and canSave is false for non-numeric string")
     func incomeZeroForInvalidString() {
         let vm = makeViewModel(taxRepo: MockTaxProfileRepository())
         vm.incomeString = "abc"
         #expect(vm.income == 0)
+        #expect(vm.canSave == false)
     }
 
     // MARK: - populate(from:)

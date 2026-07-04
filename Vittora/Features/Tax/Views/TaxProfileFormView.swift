@@ -1,7 +1,7 @@
 import SwiftUI
+import VittoraCore
 
 struct TaxProfileFormView: View {
-    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @State private var vm: TaxProfileFormViewModel?
@@ -37,7 +37,6 @@ struct TaxProfileFormView: View {
                             guard let vm else { return }
                             do {
                                 try await vm.save()
-                                appState.notifyDataChanged()
                                 onSaved()
                                 dismiss()
                             } catch {
@@ -54,8 +53,8 @@ struct TaxProfileFormView: View {
             }
         }
         .task {
-            guard vm == nil, let taxRepo = dependencies.taxProfileRepository else { return }
-            let saveUseCase = SaveTaxProfileUseCase(taxProfileRepository: taxRepo)
+            guard vm == nil else { return }
+            let saveUseCase = SaveTaxProfileUseCase(taxProfileRepository: dependencies.taxProfileRepository)
             let estimateUseCase = EstimateTaxUseCase()
             let newVM = TaxProfileFormViewModel(
                 saveUseCase: saveUseCase,
@@ -150,10 +149,59 @@ struct TaxProfileFormView: View {
                                 vm.recalculateLive()
                             }
                         }
+
+                        Toggle(String(localized: "Parents are senior citizens (80D)"), isOn: Binding(
+                            get: { vm.advancedInputs.indiaParentsSeniorCitizen },
+                            set: {
+                                vm.advancedInputs.indiaParentsSeniorCitizen = $0
+                                vm.recalculateLive()
+                            }
+                        ))
                     } header: {
                         Text(String(localized: "Age (for senior citizen slabs)"))
                     } footer: {
                         Text(String(localized: "Senior citizens (60+) and super-senior citizens (80+) have higher basic exemption limits under the old regime."))
+                    }
+
+                    Section {
+                        HStack {
+                            Text(vm.country.currencySymbol)
+                                .foregroundStyle(VColors.textSecondary)
+                            TextField(String(localized: "Annual basic salary + DA"), text: Bindable(vm).indiaBasicSalaryString)
+                                #if os(iOS)
+                                .keyboardType(.numberPad)
+                                #endif
+                                .onChange(of: vm.indiaBasicSalaryString) { _, _ in vm.recalculateLive() }
+                        }
+                        HStack {
+                            Text(vm.country.currencySymbol)
+                                .foregroundStyle(VColors.textSecondary)
+                            TextField(String(localized: "Annual HRA received"), text: Bindable(vm).indiaHRAPaidString)
+                                #if os(iOS)
+                                .keyboardType(.numberPad)
+                                #endif
+                                .onChange(of: vm.indiaHRAPaidString) { _, _ in vm.recalculateLive() }
+                        }
+                        HStack {
+                            Text(vm.country.currencySymbol)
+                                .foregroundStyle(VColors.textSecondary)
+                            TextField(String(localized: "Annual rent paid"), text: Bindable(vm).indiaRentPaidString)
+                                #if os(iOS)
+                                .keyboardType(.numberPad)
+                                #endif
+                                .onChange(of: vm.indiaRentPaidString) { _, _ in vm.recalculateLive() }
+                        }
+                        Toggle(String(localized: "Metro city"), isOn: Binding(
+                            get: { vm.advancedInputs.indiaMetroCity },
+                            set: {
+                                vm.advancedInputs.indiaMetroCity = $0
+                                vm.recalculateLive()
+                            }
+                        ))
+                    } header: {
+                        Text(String(localized: "HRA Exemption"))
+                    } footer: {
+                        Text(String(localized: "HRA exemption uses the minimum of actual HRA, rent minus 10% of salary, and 50%/40% of salary."))
                     }
                 }
             } else {
@@ -171,6 +219,64 @@ struct TaxProfileFormView: View {
                         Text(
                             String(localized: "Use this status only during the two tax years after a spouse's death if you still meet IRS eligibility requirements.")
                         )
+                    }
+                }
+
+                Section {
+                    contributionAmountField(
+                        vm: vm,
+                        title: String(localized: "401(k) contributed YTD"),
+                        text: Bindable(vm).us401kContributedString,
+                        currencyCode: vm.country.currencyCode
+                    )
+                    contributionAmountField(
+                        vm: vm,
+                        title: String(localized: "IRA contributed YTD"),
+                        text: Bindable(vm).usIRAContributedString,
+                        currencyCode: vm.country.currencyCode
+                    )
+                    contributionAmountField(
+                        vm: vm,
+                        title: String(localized: "HSA contributed YTD"),
+                        text: Bindable(vm).usHSAContributedString,
+                        currencyCode: vm.country.currencyCode
+                    )
+                    Toggle(String(localized: "HSA family coverage"), isOn: Binding(
+                        get: { vm.advancedInputs.usHSAFamilyCoverage },
+                        set: {
+                            vm.advancedInputs.usHSAFamilyCoverage = $0
+                            vm.recalculateLive()
+                        }
+                    ))
+                } header: {
+                    Text(String(localized: "Retirement & HSA Contributions"))
+                } footer: {
+                    Text(String(localized: "Track year-to-date contributions to see remaining statutory headroom in your estimate."))
+                }
+
+                if !vm.usContributionUtilization.isEmpty {
+                    Section(String(localized: "Contribution Headroom")) {
+                        ForEach(vm.usContributionUtilization) { item in
+                            VStack(alignment: .leading, spacing: VSpacing.sm) {
+                                HStack {
+                                    Text(item.title)
+                                    Spacer()
+                                    Text(
+                                        "\(item.contributed.formatted(.currency(code: vm.country.currencyCode))) / \(item.statutoryLimit.formatted(.currency(code: vm.country.currencyCode)))"
+                                    )
+                                    .font(VTypography.caption1.bold())
+                                }
+                                ProgressView(value: item.utilizationFraction)
+                                    .tint(item.headroom > 0 ? VColors.primary : VColors.warning)
+                                Text(
+                                    String(
+                                        localized: "\(item.headroom.formatted(.currency(code: vm.country.currencyCode))) remaining"
+                                    )
+                                )
+                                .font(VTypography.caption2)
+                                .foregroundStyle(VColors.textSecondary)
+                            }
+                        }
                     }
                 }
             }
@@ -204,11 +310,53 @@ struct TaxProfileFormView: View {
                         vm.addDeduction(name: name, amount: amount, section: section)
                     })
                 }
+
+                if let utilization = vm.section80CUtilization {
+                    Section(String(localized: "Section 80C Utilization")) {
+                        VStack(alignment: .leading, spacing: VSpacing.sm) {
+                            HStack {
+                                Text(String(localized: "Used"))
+                                Spacer()
+                                Text(
+                                    "\(utilization.allowed.formatted(.currency(code: vm.country.currencyCode))) / \(utilization.statutoryCap.formatted(.currency(code: vm.country.currencyCode)))"
+                                )
+                                .font(VTypography.bodyBold)
+                            }
+                            ProgressView(value: Double(truncating: (utilization.allowed / utilization.statutoryCap) as NSDecimalNumber))
+                                .tint(VColors.primary)
+                            if utilization.claimed > utilization.allowed {
+                                Text(String(localized: "Claims above ₹1.5 lakh are capped for tax calculation."))
+                                    .font(VTypography.caption1)
+                                    .foregroundStyle(VColors.warning)
+                            }
+                        }
+                    }
+                }
+
+                if vm.indiaDeductionUtilization.count > 1 {
+                    Section(String(localized: "Section Caps")) {
+                        ForEach(vm.indiaDeductionUtilization.filter { $0.sectionKey != "80C" }) { item in
+                            HStack {
+                                Text(item.sectionKey)
+                                Spacer()
+                                Text(
+                                    "\(item.allowed.formatted(.currency(code: vm.country.currencyCode))) / \(item.statutoryCap.formatted(.currency(code: vm.country.currencyCode)))"
+                                )
+                                .font(VTypography.caption1)
+                            }
+                        }
+                    }
+                }
             }
 
             // Live estimate preview
             if let live = vm.liveEstimate {
                 Section(String(localized: "Live Estimate")) {
+                    if vm.country == .unitedStates {
+                        USTaxFederalEstimateLabel()
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
+                    }
                     HStack {
                         Text(String(localized: "Estimated Tax"))
                         Spacer()
@@ -247,6 +395,31 @@ struct TaxProfileFormView: View {
             }
         }
     }
+
+    @ViewBuilder
+    private func contributionAmountField(
+        vm: TaxProfileFormViewModel,
+        title: String,
+        text: Binding<String>,
+        currencyCode: String
+    ) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(String.currencySymbol(for: currencyCode))
+                .foregroundStyle(VColors.textSecondary)
+            TextField("0", text: text)
+                #if os(iOS)
+                .keyboardType(.decimalPad)
+                .textContentType(nil)
+                #endif
+                .multilineTextAlignment(.trailing)
+                .frame(width: 120)
+                .onChange(of: text.wrappedValue) { _, _ in
+                    vm.recalculateLive()
+                }
+        }
+    }
 }
 
 // MARK: - Add Deduction Footer
@@ -281,10 +454,15 @@ private struct AddDeductionSheet: View {
     @State private var amountString = ""
     @State private var section = ""
 
-    private var amount: Decimal { Decimal(string: amountString) ?? 0 }
-    private var canAdd: Bool { !name.isEmpty && amount > 0 }
+    private var parsedAmount: Decimal? { Decimal(localizedAmount: amountString) }
+    private var canAdd: Bool {
+        guard let parsedAmount, parsedAmount > 0 else { return false }
+        return !name.isEmpty
+    }
 
-    private var indiaSections: [String] { ["80C", "80D", "80E", "80G", "HRA", "LTA", "Other"] }
+    private var indiaSections: [String] {
+        ["80C", "80CCD(1B)", "80D", "80D (Parents)", "HRA"]
+    }
 
     var body: some View {
         NavigationStack {
@@ -321,7 +499,9 @@ private struct AddDeductionSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
-                        onAdd(name, amount, section.isEmpty ? nil : section)
+                        if let parsedAmount {
+                            onAdd(name, parsedAmount, section.isEmpty ? nil : section)
+                        }
                     }
                     .disabled(!canAdd)
                 }

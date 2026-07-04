@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct NetWorthCard: View {
     let netWorth: Decimal

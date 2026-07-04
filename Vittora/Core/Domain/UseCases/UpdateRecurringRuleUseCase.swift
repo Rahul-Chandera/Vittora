@@ -1,9 +1,10 @@
 import Foundation
+import VittoraCore
 
 struct UpdateRecurringRuleUseCase: Sendable {
     let repository: any RecurringRuleRepository
 
-    init(repository: any RecurringRuleRepository) {
+    nonisolated init(repository: any RecurringRuleRepository) {
         self.repository = repository
     }
 

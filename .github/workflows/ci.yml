@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - refactoring
+      - develop
+  pull_request:
+    branches:
+      - refactoring
+      - develop
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  LANG: en_US.UTF-8
+  LC_ALL: en_US.UTF-8
+  LC_CTYPE: en_US.UTF-8
+
+jobs:
+  build-and-test:
+    name: build-and-test
+    runs-on: macos-15
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Set US locale
+        run: ./Scripts/ci/set-us-locale.sh
+
+      - name: Show toolchain and simulators
+        run: |
+          xcodebuild -version
+          xcrun simctl list runtimes available || true
+          xcrun simctl list devices available | head -40 || true
+
+      - name: Resolve iOS Simulator destination
+        id: simulator
+        run: |
+          IOS_SIM_DEST="$(./Scripts/ci/resolve-ios-simulator-destination.sh)"
+          echo "IOS_SIM_DEST=$IOS_SIM_DEST" >> "$GITHUB_ENV"
+          echo "destination=$IOS_SIM_DEST" >> "$GITHUB_OUTPUT"
+
+      - name: Boot iOS Simulator
+        run: ./Scripts/ci/boot-simulator-if-needed.sh "$IOS_SIM_DEST"
+
+      - name: make build-ios
+        run: make build-ios
+
+      - name: make build-macos
+        run: make build-macos
+
+      - name: make test
+        run: make test
+        env:
+          IOS_SIM_DEST: ${{ env.IOS_SIM_DEST }}
+
+      - name: Upload xcresult bundles
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcresult-${{ github.run_id }}
+          path: |
+            .build-ci/Test-Unit.xcresult
+            .build-ci/Test-iOS-UI.xcresult
+          if-no-files-found: warn
+          retention-days: 14

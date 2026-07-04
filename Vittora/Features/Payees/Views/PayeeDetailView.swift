@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct PayeeDetailView: View {
     let payeeID: UUID
@@ -42,14 +43,11 @@ struct PayeeDetailView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let payeeRepo = deps.payeeRepository,
-              let transactionRepo = deps.transactionRepository else { return }
 
         let vm = PayeeDetailViewModel(
-            payeeRepository: payeeRepo,
-            analyticsUseCase: PayeeAnalyticsUseCase(transactionRepository: transactionRepo),
-            transactionRepository: transactionRepo
+            payeeRepository: dependencies.payeeRepository,
+            analyticsUseCase: PayeeAnalyticsUseCase(transactionRepository: dependencies.transactionRepository),
+            transactionRepository: dependencies.transactionRepository
         )
         viewModel = vm
         await vm.loadPayee(id: payeeID)

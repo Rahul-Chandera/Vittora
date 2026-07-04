@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TransactionDetailView: View {
     @Environment(AppState.self) private var appState
@@ -18,7 +19,7 @@ struct TransactionDetailView: View {
                         VStack(spacing: VSpacing.sm) {
                             let amountColor = transactionColor(for: transaction.type)
                             HStack(spacing: VSpacing.sm) {
-                                Text(formatAmount(transaction.amount))
+                                Text(CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode))
                                     .font(VTypography.title1)
                                     .foregroundColor(amountColor)
 
@@ -28,7 +29,7 @@ struct TransactionDetailView: View {
                             }
 
                             HStack(spacing: VSpacing.md) {
-                                Text(transaction.type.rawValue.capitalized)
+                                Text(transaction.type.displayName)
                                     .font(VTypography.caption2)
                                     .foregroundColor(.white)
                                     .padding(.horizontal, VSpacing.md)
@@ -51,7 +52,7 @@ struct TransactionDetailView: View {
                         .accessibilityLabel(String(localized: "Transaction summary"))
                         .accessibilityValue(
                             String(
-                                localized: "\(transaction.type.rawValue.capitalized), \(formatAmount(transaction.amount)), \(formatDate(transaction.date))"
+                                localized: "\(transaction.type.displayName), \(CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode)), \(formatDate(transaction.date))"
                             )
                         )
 
@@ -82,9 +83,40 @@ struct TransactionDetailView: View {
                                 }
                             }
 
-                            detailRow(label: String(localized: "Payment Method"), value: transaction.paymentMethod.rawValue.capitalized)
+                            detailRow(label: String(localized: "Payment Method"), value: transaction.paymentMethod.displayName)
                         }
                         .padding(VSpacing.lg)
+
+                        if !vm.editHistory.isEmpty {
+                            VStack(alignment: .leading, spacing: VSpacing.md) {
+                                Text(String(localized: "Edit History"))
+                                    .font(VTypography.bodyBold)
+                                    .foregroundColor(VColors.textPrimary)
+
+                                ForEach(vm.editHistory) { record in
+                                    VStack(alignment: .leading, spacing: VSpacing.xs) {
+                                        Text(record.editedAt.formatted(date: .abbreviated, time: .shortened))
+                                            .font(VTypography.caption2)
+                                            .foregroundColor(VColors.textSecondary)
+
+                                        ForEach(record.changes, id: \.field) { change in
+                                            Text(
+                                                String(
+                                                    localized: "\(editFieldLabel(change.field)): \(displayEditValue(change.previousValue, field: change.field, currencyCode: currencyCode)) → \(displayEditValue(change.newValue, field: change.field, currencyCode: currencyCode))"
+                                                )
+                                            )
+                                            .font(VTypography.caption1)
+                                            .foregroundColor(VColors.textPrimary)
+                                        }
+                                    }
+                                    .padding(VSpacing.md)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(VColors.secondaryBackground)
+                                    .cornerRadius(VSpacing.cornerRadiusSM)
+                                }
+                            }
+                            .padding(.horizontal, VSpacing.lg)
+                        }
 
                         // Related transactions
                         if !vm.relatedTransactions.isEmpty {
@@ -109,7 +141,7 @@ struct TransactionDetailView: View {
 
                                                 Spacer()
 
-                                                Text(formatAmount(related.amount))
+                                                Text(CurrencyFormatter.format(related.amount, currencyCode: currencyCode))
                                                     .font(VTypography.caption1)
                                                     .foregroundColor(transactionColor(for: related.type))
                                             }
@@ -144,7 +176,7 @@ struct TransactionDetailView: View {
                                 Task {
                                     do {
                                         try await vm.delete()
-                                        appState.notifyDataChanged()
+                                        appState.notifyChanged([.transactions, .accounts, .budgets])
                                         dismiss()
                                     } catch {
                                         vm.error = error.userFacingMessage(
@@ -185,7 +217,7 @@ struct TransactionDetailView: View {
         .errorAlert(message: transactionDetailErrorBinding)
         .task {
             if vm == nil {
-                vm = await createViewModel()
+                vm = createViewModel()
                 await vm?.loadTransaction(id: transactionID)
             }
         }
@@ -206,12 +238,54 @@ struct TransactionDetailView: View {
         }
     }
 
-    private func formatAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
-    }
-
     private func formatDate(_ date: Date) -> String {
         date.formatted(.dateTime.month(.abbreviated).day().year())
+    }
+
+    private func editFieldLabel(_ field: TransactionEditField) -> String {
+        switch field {
+        case .amount: String(localized: "Amount")
+        case .date: String(localized: "Date")
+        case .type: String(localized: "Type")
+        case .category: String(localized: "Category")
+        case .account: String(localized: "Account")
+        case .payee: String(localized: "Payee")
+        case .note: String(localized: "Note")
+        case .tags: String(localized: "Tags")
+        case .paymentMethod: String(localized: "Payment Method")
+        }
+    }
+
+    private func displayEditValue(
+        _ raw: String?,
+        field: TransactionEditField,
+        currencyCode: String
+    ) -> String {
+        guard let raw, !raw.isEmpty else {
+            return String(localized: "—")
+        }
+        switch field {
+        case .amount:
+            if let decimal = Decimal(string: raw) {
+                return CurrencyFormatter.format(decimal, currencyCode: currencyCode)
+            }
+            return raw
+        case .type, .paymentMethod:
+            if let type = TransactionType(rawValue: raw) {
+                return type.displayName
+            }
+            if let method = PaymentMethod(rawValue: raw) {
+                return method.displayName
+            }
+            return raw
+        case .date:
+            if let date = ISO8601DateFormatter().date(from: raw) {
+                return formatDate(date)
+            }
+            return raw
+        default:
+            return raw
+        }
     }
 
     private func transactionColor(for type: TransactionType) -> Color {
@@ -254,26 +328,8 @@ struct TransactionDetailView: View {
         }
     }
 
-    private func createViewModel() async -> TransactionDetailViewModel? {
-        guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository,
-              let documentRepo = dependencies.documentRepository,
-              let documentStorage = dependencies.documentStorageService else {
-            return nil
-        }
-
-        let fetchUseCase = FetchTransactionsUseCase(transactionRepository: transactionRepo)
-        let deleteUseCase = DeleteTransactionUseCase(
-            transactionRepository: transactionRepo,
-            accountRepository: accountRepo,
-            documentRepository: documentRepo,
-            documentStorageService: documentStorage
-        )
-
-        return TransactionDetailViewModel(
-            fetchUseCase: fetchUseCase,
-            deleteUseCase: deleteUseCase
-        )
+    private func createViewModel() -> TransactionDetailViewModel {
+        dependencies.makeTransactionDetailViewModel()
     }
 
     private var transactionDetailErrorBinding: Binding<String?> {

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AccountDetailView: View {
     let accountID: UUID
@@ -42,13 +43,10 @@ struct AccountDetailView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let accountRepo = deps.accountRepository,
-              let transactionRepo = deps.transactionRepository else { return }
 
         let vm = AccountDetailViewModel(
-            accountRepository: accountRepo,
-            transactionRepository: transactionRepo
+            accountRepository: dependencies.accountRepository,
+            transactionRepository: dependencies.transactionRepository
         )
         viewModel = vm
         await vm.loadAccount(id: accountID)
@@ -78,7 +76,7 @@ struct AccountDetailView: View {
                             AccountTypeIcon(type: account.type, size: 48)
                             Spacer()
                             VStack(alignment: .trailing) {
-                                Text(account.type.rawValue.capitalized)
+                                Text(account.type.displayName)
                                     .font(VTypography.caption1)
                                     .foregroundColor(VColors.textSecondary)
                                 Text(account.currencyCode)
@@ -101,7 +99,7 @@ struct AccountDetailView: View {
             // Account Details
             Section(String(localized: "Details")) {
                 LabeledContent("Name", value: account.name)
-                LabeledContent("Type", value: account.type.rawValue.capitalized)
+                LabeledContent("Type", value: account.type.displayName)
                 LabeledContent("Currency", value: account.currencyCode)
                 LabeledContent("Created", value: account.createdAt.formatted(date: .abbreviated, time: .omitted))
                 if account.isArchived {

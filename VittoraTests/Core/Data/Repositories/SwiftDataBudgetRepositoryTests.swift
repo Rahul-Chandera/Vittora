@@ -1,8 +1,11 @@
+
 import Foundation
 import Testing
 import SwiftData
+import VittoraCore
 @testable import Vittora
 
+@MainActor
 @Suite("SwiftDataBudgetRepository Tests")
 struct SwiftDataBudgetRepositoryTests {
 
@@ -157,26 +160,56 @@ struct SwiftDataBudgetRepositoryTests {
 
     // MARK: - fetchActive
 
-    @Test("fetchActive returns all budgets whose startDate is in the past")
+    @Test("fetchActive returns budgets in the current period")
     func testFetchActive() async throws {
         let repo = try makeRepo()
-        let pastDate = Date(timeIntervalSince1970: 1_000_000)
+        let calendar = Calendar.current
+        let currentPeriodStart = calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date()
         let futureDate = Date(timeIntervalSinceNow: 86_400 * 365)
 
         try await repo.create(BudgetEntity(
-            id: UUID(), amount: 100, period: .monthly, startDate: pastDate,
-            createdAt: pastDate, updatedAt: pastDate
+            id: UUID(), amount: 100, period: .monthly, startDate: currentPeriodStart,
+            createdAt: currentPeriodStart, updatedAt: currentPeriodStart
         ))
         try await repo.create(BudgetEntity(
             id: UUID(), amount: 200, period: .weekly, startDate: futureDate,
-            createdAt: pastDate, updatedAt: pastDate
+            createdAt: currentPeriodStart, updatedAt: currentPeriodStart
         ))
 
         let active = try await repo.fetchActive()
 
-        // fetchActive predicates startDate <= now — past-start budget should be included
-        let activeIDs = active.map(\.startDate)
-        #expect(activeIDs.contains(pastDate))
+        let activeStarts = active.map(\.startDate)
+        #expect(activeStarts.contains(currentPeriodStart))
+        #expect(!activeStarts.contains(futureDate))
+    }
+
+    @Test("fetchActive excludes budgets whose period has ended")
+    func testFetchActiveExcludesExpiredPeriod() async throws {
+        let repo = try makeRepo()
+        let calendar = Calendar.current
+        let twoMonthsAgo = calendar.date(byAdding: .month, value: -2, to: Date()) ?? Date()
+
+        try await repo.create(BudgetEntity(
+            id: UUID(),
+            amount: 100,
+            period: .monthly,
+            startDate: twoMonthsAgo,
+            createdAt: twoMonthsAgo,
+            updatedAt: twoMonthsAgo
+        ))
+        try await repo.create(BudgetEntity(
+            id: UUID(),
+            amount: 200,
+            period: .monthly,
+            startDate: calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date(),
+            createdAt: twoMonthsAgo,
+            updatedAt: twoMonthsAgo
+        ))
+
+        let active = try await repo.fetchActive()
+
+        #expect(active.count == 1)
+        #expect(active.first?.amount == 200)
     }
 
     // MARK: - fetchForCategory

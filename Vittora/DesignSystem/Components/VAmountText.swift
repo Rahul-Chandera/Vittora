@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Displays currency-formatted amounts with semantic coloring and rounded font design.
 /// Supports multiple sizes and automatic color coding based on transaction type.

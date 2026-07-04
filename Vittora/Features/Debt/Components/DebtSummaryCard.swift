@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct DebtSummaryCard: View {
     @Environment(\.currencyCode) private var currencyCode
@@ -32,7 +33,7 @@ struct DebtSummaryCard: View {
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
                 Spacer()
-                Text(formattedAmount(balance.netBalance))
+                Text(CurrencyFormatter.format(balance.netBalance, currencyCode: currencyCode))
                     .font(VTypography.amountSmall)
                     .foregroundColor(balance.netBalance >= 0 ? VColors.income : VColors.expense)
             }
@@ -47,7 +48,7 @@ struct DebtSummaryCard: View {
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundColor(color)
-            Text(formattedAmount(amount))
+            Text(CurrencyFormatter.format(amount, currencyCode: currencyCode))
                 .font(VTypography.amountMedium)
                 .foregroundColor(color)
             Text(title)
@@ -55,9 +56,5 @@ struct DebtSummaryCard: View {
                 .foregroundColor(VColors.textSecondary)
         }
         .frame(maxWidth: .infinity)
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(currencyCode: currencyCode)
     }
 }

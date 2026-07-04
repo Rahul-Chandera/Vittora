@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct MockTransactionRepository: TransactionRepository {
     func fetchTransactionCount() async throws -> Int {
@@ -32,6 +33,18 @@ struct MockTransactionRepository: TransactionRepository {
         ]
     }
 
+    func fetchPage(filter: TransactionFilter?, offset: Int, limit: Int) async throws -> [TransactionEntity] {
+        let all = try await fetchAll(filter: filter)
+        let start = min(max(0, offset), all.count)
+        let end = min(start + max(1, limit), all.count)
+        guard start < end else { return [] }
+        return Array(all[start..<end])
+    }
+
+    func fetchAllForReconciliation() async throws -> [TransactionEntity] {
+        try await fetchAll(filter: nil)
+    }
+
     func fetchByID(_ id: UUID) async throws -> TransactionEntity? {
         return TransactionEntity(
             id: id,
@@ -40,6 +53,11 @@ struct MockTransactionRepository: TransactionRepository {
             note: "Sample",
             type: .expense
         )
+    }
+
+    func fetchForAccount(id: UUID, limit: Int) async throws -> [TransactionEntity] {
+        let all = try await fetchAll(filter: TransactionFilter(accountIDs: [id]))
+        return Array(all.prefix(max(1, limit)))
     }
 
     func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {

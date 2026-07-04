@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct BudgetCardView: View {
     let budget: BudgetEntity
@@ -32,7 +33,7 @@ struct BudgetCardView: View {
                             .font(VTypography.bodyBold)
                             .foregroundColor(VColors.textPrimary)
 
-                        Text(budget.period.rawValue.capitalized)
+                        Text(budget.period.displayName)
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
                     }

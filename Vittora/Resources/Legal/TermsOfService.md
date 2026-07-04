@@ -27,6 +27,10 @@ Vittora provides organizational tools, calculations, and estimates. It does not 
 
 We may update, improve, suspend, or remove features over time. Some functionality may depend on Apple services such as iCloud, camera access, file import, or device-specific capabilities.
 
+## Pricing
+
+Vittora is currently offered without in-app purchases or subscriptions. iCloud sync is included at no additional cost. If paid features are introduced in a future release, they will be described in the app and in updated terms before you are charged.
+
 ## Data and privacy
 
 Your use of Vittora is also governed by the Privacy Policy included with the app. Please review it to understand how the app handles information and permissions.

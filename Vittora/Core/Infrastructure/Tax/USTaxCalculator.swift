@@ -1,15 +1,16 @@
 import Foundation
+import VittoraCore
 
 /// US federal income tax calculator with year-aware federal rules.
 /// Supports tax years 2025 and 2026, with a legacy 2024 fallback.
 struct USTaxCalculator: TaxCalculatorProtocol {
-    let country: TaxCountry = .unitedStates
+    nonisolated let country: TaxCountry = .unitedStates
 
-    func calculate(profile: TaxProfile) -> TaxEstimate {
+    nonisolated func calculate(profile: TaxProfile) -> TaxEstimate {
         calculate(profile: profile, deductionMode: .bestAvailable)
     }
 
-    func calculate(profile: TaxProfile, deductionMode: USDeductionMode) -> TaxEstimate {
+    nonisolated func calculate(profile: TaxProfile, deductionMode: USDeductionMode) -> TaxEstimate {
         let status = profile.filingStatus
         let gross = profile.annualIncome
         let adv = profile.advancedInputs
@@ -62,7 +63,10 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         let marginalRate = bracketResults.last?.ratePercent ?? 0
 
         var supplementary: [TaxSupplementaryLine] = payroll.lines
-        supplementary += Self.contributionAdvisoryLines(taxYear: taxYear)
+        supplementary += USContributionHeadroomEngine.supplementaryHeadroomLines(
+            profile: profile,
+            taxYear: taxYear
+        )
 
         var assumptions: [String] = [
             String(localized: "Annual income treated as wages for Social Security and Medicare estimates unless you adjust advanced inputs.")
@@ -81,7 +85,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
 
         let exclusions = [
             String(localized: "Alternative Minimum Tax (AMT) is not calculated."),
-            String(localized: "State and local taxes are not included."),
+            TaxDisclaimer.usFederalEstimateLabel,
             String(localized: "Payroll taxes are shown separately and are not included in the federal income tax total.")
         ]
 
@@ -110,11 +114,11 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         )
     }
 
-    private static let rulesLastUpdated: Date = {
+    nonisolated private static let rulesLastUpdated: Date = {
         Calendar.current.date(from: DateComponents(year: 2026, month: 4, day: 18)) ?? .now
     }()
 
-    private func ageAtEndOfTaxYear(dateOfBirth: Date?, taxYear: Int) -> Int? {
+    nonisolated private func ageAtEndOfTaxYear(dateOfBirth: Date?, taxYear: Int) -> Int? {
         guard let dob = dateOfBirth else { return nil }
         guard let end = Calendar.current.date(from: DateComponents(year: taxYear, month: 12, day: 31)) else { return nil }
         return Calendar.current.dateComponents([.year], from: dob, to: end).year
@@ -124,7 +128,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         let lines: [TaxSupplementaryLine]
     }
 
-    private static func payrollTaxes(wages: Decimal, status: USFilingStatus, taxYear: Int) -> PayrollBreakdown {
+    nonisolated private static func payrollTaxes(wages: Decimal, status: USFilingStatus, taxYear: Int) -> PayrollBreakdown {
         let ssWageBase: Decimal = taxYear >= 2026 ? 184_500 : 176_100
         let ss = (min(wages, ssWageBase) * (Decimal(string: "0.062") ?? 0)).rounded(scale: 2)
         let medicare = (wages * (Decimal(string: "0.0145") ?? 0)).rounded(scale: 2)
@@ -146,7 +150,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         return PayrollBreakdown(lines: lines)
     }
 
-    private static func netInvestmentIncomeTax(magi: Decimal, netInvestmentIncome: Decimal, status: USFilingStatus) -> Decimal {
+    nonisolated private static func netInvestmentIncomeTax(magi: Decimal, netInvestmentIncome: Decimal, status: USFilingStatus) -> Decimal {
         guard netInvestmentIncome > 0 else { return 0 }
         let threshold: Decimal
         switch status {
@@ -162,7 +166,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         return (max(0, base) * (Decimal(string: "0.038") ?? 0)).rounded(scale: 2)
     }
 
-    private static func preferentialCapitalGainsTax(
+    nonisolated private static func preferentialCapitalGainsTax(
         amount: Decimal,
         ordinaryTaxable: Decimal,
         status: USFilingStatus,
@@ -191,7 +195,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         let fifteenRateUpperBound: Decimal
     }
 
-    private static func preferentialThresholds(status: USFilingStatus, taxYear: Int) -> PreferentialThresholds {
+    nonisolated private static func preferentialThresholds(status: USFilingStatus, taxYear: Int) -> PreferentialThresholds {
         switch supportedTaxYearValue(from: taxYear) {
         case .ty2024:
             return preferentialThresholds2024(status: status)
@@ -202,7 +206,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    private static func preferentialThresholds2024(status: USFilingStatus) -> PreferentialThresholds {
+    nonisolated private static func preferentialThresholds2024(status: USFilingStatus) -> PreferentialThresholds {
         switch status {
         case .marriedFilingJointly, .qualifyingSurvivingSpouse:
             PreferentialThresholds(zeroRateUpperBound: 94_050, fifteenRateUpperBound: 583_750)
@@ -215,7 +219,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    private static func preferentialThresholds2025(status: USFilingStatus) -> PreferentialThresholds {
+    nonisolated private static func preferentialThresholds2025(status: USFilingStatus) -> PreferentialThresholds {
         switch status {
         case .marriedFilingJointly, .qualifyingSurvivingSpouse:
             PreferentialThresholds(zeroRateUpperBound: 96_700, fifteenRateUpperBound: 600_050)
@@ -228,7 +232,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    private static func preferentialThresholds2026(status: USFilingStatus) -> PreferentialThresholds {
+    nonisolated private static func preferentialThresholds2026(status: USFilingStatus) -> PreferentialThresholds {
         // Uses current app rule assumptions for TY2026.
         switch status {
         case .marriedFilingJointly, .qualifyingSurvivingSpouse:
@@ -242,7 +246,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    private static func contributionAdvisoryLines(taxYear: Int) -> [TaxSupplementaryLine] {
+    nonisolated private static func contributionAdvisoryLines(taxYear: Int) -> [TaxSupplementaryLine] {
         if taxYear >= 2026 {
             return [
                 TaxSupplementaryLine(title: String(localized: "401(k) elective deferral limit (advisory)"), amount: 24_500),
@@ -257,7 +261,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         ]
     }
 
-    private func selectDeduction(
+    nonisolated private func selectDeduction(
         standardDeduction: Decimal,
         itemizedDeductions: Decimal,
         deductionMode: USDeductionMode
@@ -292,7 +296,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    private func regimeLabel(for status: USFilingStatus, deductionMode: USDeductionMode) -> String {
+    nonisolated private func regimeLabel(for status: USFilingStatus, deductionMode: USDeductionMode) -> String {
         switch deductionMode {
         case .bestAvailable:
             status.displayName
@@ -314,15 +318,15 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         let brackets: [TaxSlab]
     }
 
-    static func standardDeduction(for status: USFilingStatus, taxYear: Int) -> Decimal {
+    nonisolated static func standardDeduction(for status: USFilingStatus, taxYear: Int) -> Decimal {
         rules(for: status, taxYear: taxYear).standardDeduction
     }
 
-    static func brackets(for status: USFilingStatus, taxYear: Int) -> [TaxSlab] {
+    nonisolated static func brackets(for status: USFilingStatus, taxYear: Int) -> [TaxSlab] {
         rules(for: status, taxYear: taxYear).brackets
     }
 
-    private static func rules(for status: USFilingStatus, taxYear: Int) -> TaxRules {
+    nonisolated private static func rules(for status: USFilingStatus, taxYear: Int) -> TaxRules {
         switch supportedTaxYearValue(from: taxYear) {
         case .ty2024:
             return legacy2024Rules(for: status)
@@ -333,11 +337,11 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    private static func supportedTaxYear(for profile: TaxProfile) -> Int {
+    nonisolated static func supportedTaxYear(for profile: TaxProfile) -> Int {
         parsedTaxYear(from: profile.financialYear) ?? TaxYear.ty2026.rawValue
     }
 
-    private static func supportedTaxYearValue(from taxYear: Int) -> TaxYear {
+    nonisolated private static func supportedTaxYearValue(from taxYear: Int) -> TaxYear {
         switch taxYear {
         case ...TaxYear.ty2024.rawValue:
             .ty2024
@@ -348,11 +352,11 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    private static func parsedTaxYear(from financialYear: String) -> Int? {
+    nonisolated private static func parsedTaxYear(from financialYear: String) -> Int? {
         Int(financialYear.prefix(4))
     }
 
-    private static func legacy2024Rules(for status: USFilingStatus) -> TaxRules {
+    nonisolated private static func legacy2024Rules(for status: USFilingStatus) -> TaxRules {
         switch status {
         case .single:
             return TaxRules(
@@ -409,7 +413,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    private static func taxYear2025Rules(for status: USFilingStatus) -> TaxRules {
+    nonisolated private static func taxYear2025Rules(for status: USFilingStatus) -> TaxRules {
         switch status {
         case .single:
             return TaxRules(
@@ -466,7 +470,7 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         }
     }
 
-    private static func taxYear2026Rules(for status: USFilingStatus) -> TaxRules {
+    nonisolated private static func taxYear2026Rules(for status: USFilingStatus) -> TaxRules {
         switch status {
         case .single:
             return TaxRules(

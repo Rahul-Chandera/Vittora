@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @Observable
 @MainActor
@@ -24,9 +25,7 @@ final class AccountDetailViewModel {
         error = nil
         do {
             account = try await accountRepository.fetchByID(id)
-            let filter = TransactionFilter(accountIDs: [id])
-            let all = try await transactionRepository.fetchAll(filter: filter)
-            recentTransactions = Array(all.prefix(10))
+            recentTransactions = try await transactionRepository.fetchForAccount(id: id, limit: 10)
         } catch {
             self.error = error.localizedDescription
         }

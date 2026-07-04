@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// A reusable card styling modifier providing consistent card appearance across the app.
 struct CardModifier: ViewModifier {

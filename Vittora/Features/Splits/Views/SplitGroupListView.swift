@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct SplitGroupListView: View {
     @Environment(AppState.self) private var appState
@@ -8,64 +9,60 @@ struct SplitGroupListView: View {
     @State private var selectedGroupID: UUID?
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                if let vm {
-                    if vm.isLoading && vm.summaries.isEmpty {
-                        ProgressView().tint(VColors.primary)
-                    } else if let error = vm.error {
-                        ContentUnavailableView {
-                            Label(String(localized: "Unable to Load"), systemImage: "exclamationmark.triangle")
-                        } description: {
-                            Text(error)
-                        } actions: {
-                            Button(String(localized: "Try Again")) {
-                                vm.error = nil
-                                Task { await vm.load() }
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(VColors.primary)
+        ZStack {
+            if let vm {
+                if vm.isLoading && vm.summaries.isEmpty {
+                    ProgressView().tint(VColors.primary)
+                } else if let error = vm.error {
+                    ContentUnavailableView {
+                        Label(String(localized: "Unable to Load"), systemImage: "exclamationmark.triangle")
+                    } description: {
+                        Text(error)
+                    } actions: {
+                        Button(String(localized: "Try Again")) {
+                            vm.error = nil
+                            Task { await vm.load() }
                         }
-                    } else {
-                        listContent(vm)
+                        .buttonStyle(.borderedProminent)
+                        .tint(VColors.primary)
                     }
+                } else {
+                    listContent(vm)
                 }
             }
-            .background(VColors.background)
-            .navigationTitle(String(localized: "Split Expenses"))
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showAddGroup = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
+        }
+        .background(VColors.background)
+        .navigationTitle(String(localized: "Split Expenses"))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showAddGroup = true
+                } label: {
+                    Image(systemName: "plus")
                 }
             }
-            .navigationDestination(item: $selectedGroupID) { groupID in
-                if let summary = vm?.summaries.first(where: { $0.id == groupID }) {
-                    SplitGroupDetailView(group: summary.group)
-                }
+        }
+        .navigationDestination(item: $selectedGroupID) { groupID in
+            if let summary = vm?.summaries.first(where: { $0.id == groupID }) {
+                SplitGroupDetailView(group: summary.group)
             }
         }
         .task {
             if vm == nil {
-                guard let splitRepo = dependencies.splitGroupRepository,
-                      let payeeRepo = dependencies.payeeRepository else { return }
-                vm = SplitGroupListViewModel(
-                    fetchGroupsUseCase: FetchSplitGroupsUseCase(
-                        splitGroupRepository: splitRepo,
-                        payeeRepository: payeeRepo
-                    ),
-                    createGroupUseCase: CreateSplitGroupUseCase(splitGroupRepository: splitRepo),
-                    splitGroupRepository: splitRepo
-                )
+                vm = dependencies.makeSplitGroupListViewModel()
                 await vm?.load()
             }
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .splits)) {
+            guard vm != nil, appState.refreshVersion(for: .splits) > 0 else { return }
             await vm?.load()
+        }
+        .task(id: appState.pendingSplitGroupID) {
+            guard let groupID = appState.pendingSplitGroupID else { return }
+            await vm?.load()
+            guard vm?.summaries.contains(where: { $0.id == groupID }) == true else { return }
+            selectedGroupID = groupID
+            appState.clearPendingSplitGroupID()
         }
         .sheet(isPresented: $showAddGroup) {
             SplitGroupFormView {
@@ -171,5 +168,7 @@ private struct GroupRowView: View {
 }
 
 #Preview {
-    SplitGroupListView()
+    NavigationStack {
+        SplitGroupListView()
+    }
 }

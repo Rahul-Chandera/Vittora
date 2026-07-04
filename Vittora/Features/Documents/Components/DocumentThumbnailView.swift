@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct DocumentThumbnailView: View {
     let entity: DocumentEntity

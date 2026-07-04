@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct SettlementFormView: View {
     @Environment(AppState.self) private var appState
@@ -15,7 +16,7 @@ struct SettlementFormView: View {
     @State private var isLoading = false
     @State private var error: String?
 
-    private var amount: Decimal? { Decimal(string: amountString) }
+    private var amount: Decimal? { Decimal(localizedAmount: amountString) }
     private var maxAmount: Decimal { debt.remainingAmount }
     private var canSettle: Bool { (amount ?? 0) > 0 && (amount ?? 0) <= maxAmount }
 
@@ -31,7 +32,7 @@ struct SettlementFormView: View {
                             .textContentType(nil)
                             #endif
                     }
-                    Button(String(localized: "Settle Full Amount (\(formattedAmount(maxAmount)))")) {
+                    Button(String(localized: "Settle Full Amount (\(CurrencyFormatter.format(maxAmount, currencyCode: currencyCode)))")) {
                         amountString = "\(maxAmount)"
                     }
                     .font(VTypography.caption1)
@@ -71,7 +72,7 @@ struct SettlementFormView: View {
         }
         .task {
             do {
-                accounts = try await dependencies.accountRepository?.fetchAll() ?? []
+                accounts = try await dependencies.accountRepository.fetchAll()
             } catch {
                 self.error = error.localizedDescription
             }
@@ -84,16 +85,13 @@ struct SettlementFormView: View {
     }
 
     private func settle() async {
-        guard let amount,
-              let debtRepo = dependencies.debtRepository,
-              let txRepo = dependencies.transactionRepository,
-              let accRepo = dependencies.accountRepository else { return }
+        guard let amount else { return }
         isLoading = true
         error = nil
         let useCase = SettleDebtUseCase(
-            debtRepository: debtRepo,
-            transactionRepository: txRepo,
-            accountRepository: accRepo
+            debtRepository: dependencies.debtRepository,
+            accountRepository: dependencies.accountRepository,
+            ledgerWriting: dependencies.ledgerWriteStore
         )
         do {
             try await useCase.execute(
@@ -101,16 +99,13 @@ struct SettlementFormView: View {
                 settlementAmount: amount,
                 accountID: selectedAccountID
             )
-            appState.notifyDataChanged()
+            await dependencies.refreshRecurringAndDebtReminders()
+            appState.notifyChanged([.debt, .transactions, .accounts])
             onSettled()
             dismiss()
         } catch {
             self.error = error.localizedDescription
         }
         isLoading = false
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(currencyCode: currencyCode)
     }
 }

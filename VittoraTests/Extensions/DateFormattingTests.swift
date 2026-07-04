@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("Date Formatting Tests")
@@ -196,8 +197,10 @@ struct DateFormattingTests {
 
     @Test("Is in same month")
     func testIsInSameMonth() {
-        let date = Date()
-        let nextDay = dateByAdding(days: 5)
+        // Fixed mid-month date so the +5-day case never crosses a month
+        // boundary (a bare Date() fails in the last 5 days of any month).
+        let date = calendar.date(from: DateComponents(year: 2026, month: 4, day: 15)) ?? Date()
+        let nextDay = dateByAdding(days: 5, to: date)
         #expect(date.isInSameMonth(as: nextDay) == true)
     }
 

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AccountListView: View {
     @Environment(AppState.self) private var appState
@@ -44,7 +45,7 @@ struct AccountListView: View {
                 if let id = accountToDelete, let vm = viewModel {
                     Task {
                         await vm.deleteAccount(id: id)
-                        appState.notifyDataChanged()
+                        appState.notifyChanged(.accounts)
                     }
                 }
             }
@@ -55,8 +56,8 @@ struct AccountListView: View {
         .task {
             await setupViewModel()
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .accounts)) {
+            guard viewModel != nil, appState.refreshVersion(for: .accounts) > 0 else { return }
             await viewModel?.loadAccounts()
         }
     }
@@ -64,22 +65,7 @@ struct AccountListView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let accountRepo = deps.accountRepository,
-              let transactionRepo = deps.transactionRepository else { return }
-
-        let fetchUseCase = FetchAccountsUseCase(accountRepository: accountRepo)
-        let calcUseCase = CalculateNetWorthUseCase(accountRepository: accountRepo)
-        let deleteUseCase = DeleteAccountUseCase(
-            accountRepository: accountRepo,
-            transactionRepository: transactionRepo
-        )
-
-        let vm = AccountListViewModel(
-            fetchAccountsUseCase: fetchUseCase,
-            calculateNetWorthUseCase: calcUseCase,
-            deleteAccountUseCase: deleteUseCase
-        )
+        let vm = dependencies.makeAccountListViewModel()
         viewModel = vm
         await vm.loadAccounts()
     }
@@ -144,6 +130,25 @@ struct AccountListView: View {
                             NavigationLink(value: NavigationDestination.accountDetail(id: account.id)) {
                                 AccountRowView(account: account)
                             }
+                            .contextMenu {
+                                NavigationLink(value: NavigationDestination.accountDetail(id: account.id)) {
+                                    Label(String(localized: "Edit"), systemImage: "pencil")
+                                }
+                                Button {
+                                    Task {
+                                        await vm.archiveAccount(id: account.id)
+                                        appState.notifyChanged(.accounts)
+                                    }
+                                } label: {
+                                    Label(String(localized: "Archive"), systemImage: "archivebox")
+                                }
+                                Button(role: .destructive) {
+                                    accountToDelete = account.id
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label(String(localized: "Delete"), systemImage: "trash")
+                                }
+                            }
                             .swipeActions(edge: .trailing) {
                                 Button(role: .destructive) {
                                     accountToDelete = account.id
@@ -154,7 +159,7 @@ struct AccountListView: View {
                                 Button {
                                     Task {
                                         await vm.archiveAccount(id: account.id)
-                                        appState.notifyDataChanged()
+                                        appState.notifyChanged(.accounts)
                                     }
                                 } label: {
                                     Label(String(localized: "Archive"), systemImage: "archivebox")

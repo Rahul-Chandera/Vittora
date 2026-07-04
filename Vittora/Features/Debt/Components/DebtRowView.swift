@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct DebtRowView: View {
     @Environment(\.currencyCode) private var currencyCode
@@ -24,12 +25,12 @@ struct DebtRowView: View {
 
                 HStack(spacing: VSpacing.sm) {
                     if entry.totalLent > 0 {
-                        Text(String(localized: "owes you \(formattedAmount(entry.totalLent))"))
+                        Text(String(localized: "owes you \(CurrencyFormatter.format(entry.totalLent, currencyCode: currencyCode))"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.income)
                     }
                     if entry.totalBorrowed > 0 {
-                        Text(String(localized: "you owe \(formattedAmount(entry.totalBorrowed))"))
+                        Text(String(localized: "you owe \(CurrencyFormatter.format(entry.totalBorrowed, currencyCode: currencyCode))"))
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.expense)
                     }
@@ -39,7 +40,7 @@ struct DebtRowView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: VSpacing.xxs) {
-                Text(formattedAmount(abs(entry.netBalance)))
+                Text(CurrencyFormatter.format(abs(entry.netBalance), currencyCode: currencyCode))
                     .font(VTypography.amountSmall)
                     .foregroundColor(entry.netBalance >= 0 ? VColors.income : VColors.expense)
 
@@ -55,6 +56,8 @@ struct DebtRowView: View {
             }
         }
         .padding(.vertical, VSpacing.xs)
+        .contentShape(Rectangle())
+        .vittoraPointerHighlight()
     }
 
     private var avatarColor: Color {
@@ -65,9 +68,5 @@ struct DebtRowView: View {
         let parts = name.split(separator: " ")
         let letters = parts.compactMap { $0.first }.prefix(2)
         return letters.map(String.init).joined()
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(currencyCode: currencyCode)
     }
 }

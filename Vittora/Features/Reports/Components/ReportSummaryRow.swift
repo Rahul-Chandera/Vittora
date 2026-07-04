@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct ReportSummaryRow: View {
     let label: String
@@ -26,7 +27,7 @@ struct ReportSummaryRow: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: VSpacing.xxs) {
-                    Text(formattedAmount(amount))
+                    Text(CurrencyFormatter.format(amount, currencyCode: currencyCode))
                         .font(VTypography.caption1Bold)
                         .foregroundColor(VColors.textPrimary)
 
@@ -50,10 +51,6 @@ struct ReportSummaryRow: View {
             }
             .frame(height: 4)
         }
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
     }
 }
 

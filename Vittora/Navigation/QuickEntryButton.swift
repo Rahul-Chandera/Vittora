@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct QuickEntryButton: View {
     var action: () -> Void = {}

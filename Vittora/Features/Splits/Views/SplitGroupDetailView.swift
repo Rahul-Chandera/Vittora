@@ -1,7 +1,10 @@
 import SwiftUI
+import VittoraCore
 
 struct SplitGroupDetailView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.currencyCode) private var currencyCode
     @State private var vm: SplitGroupDetailViewModel?
     @State private var showAddExpense = false
     @State private var showEditGroup = false
@@ -33,6 +36,11 @@ struct SplitGroupDetailView: View {
                     Image(systemName: "plus")
                 }
             }
+            if let vm {
+                ToolbarItem(placement: .automatic) {
+                    shareMenu(vm)
+                }
+            }
             ToolbarItem(placement: .secondaryAction) {
                 Button(String(localized: "Edit Group")) {
                     showEditGroup = true
@@ -48,23 +56,20 @@ struct SplitGroupDetailView: View {
         }
         .task {
             if vm == nil {
-                guard let splitRepo = dependencies.splitGroupRepository,
-                      let payeeRepo = dependencies.payeeRepository else { return }
                 vm = SplitGroupDetailViewModel(
                     group: group,
-                    splitGroupRepository: splitRepo,
-                    payeeRepository: payeeRepo
+                    splitGroupRepository: dependencies.splitGroupRepository,
+                    payeeRepository: dependencies.payeeRepository
                 )
             }
             await vm?.load()
         }
         .sheet(isPresented: $showAddExpense) {
-            if let vm,
-               let splitRepo = dependencies.splitGroupRepository {
+            if let vm {
                 AddGroupExpenseView(
                     group: vm.group,
                     memberNames: vm.memberNames,
-                    splitGroupRepository: splitRepo
+                    splitGroupRepository: dependencies.splitGroupRepository
                 ) {
                     Task { await vm.load() }
                 }
@@ -220,5 +225,54 @@ struct SplitGroupDetailView: View {
     private func initials(_ name: String) -> String {
         let parts = name.split(separator: " ")
         return parts.prefix(2).compactMap { $0.first }.map { String($0) }.joined().uppercased()
+    }
+
+    @ViewBuilder
+    private func shareMenu(_ vm: SplitGroupDetailViewModel) -> some View {
+        Menu {
+            ShareLink(
+                item: SplitGroupShareDraft.inviteMessage(
+                    groupName: vm.group.name,
+                    memberNames: vm.memberNames,
+                    memberIDs: vm.group.memberIDs,
+                    balances: vm.simplifiedBalances,
+                    groupID: vm.group.id,
+                    currencyCode: currencyCode
+                )
+            ) {
+                Label(String(localized: "Invite to Group"), systemImage: "person.badge.plus")
+            }
+
+            ShareLink(
+                item: SplitGroupShareDraft.summaryMessage(
+                    groupName: vm.group.name,
+                    memberNames: vm.memberNames,
+                    memberIDs: vm.group.memberIDs,
+                    balances: vm.simplifiedBalances,
+                    outstandingExpenses: vm.outstandingExpenses,
+                    currencyCode: currencyCode
+                )
+            ) {
+                Label(String(localized: "Share Summary"), systemImage: "square.and.arrow.up")
+            }
+
+            ReportPDFShareLink(
+                fileName: "split-group-\(vm.group.name)",
+                contentVersion: vm.exportContentVersion,
+                isEnabled: !vm.isLoading
+            ) {
+                SplitGroupExportDocument(
+                    groupName: vm.group.name,
+                    memberNames: vm.memberNames,
+                    memberIDs: vm.group.memberIDs,
+                    balances: vm.simplifiedBalances,
+                    outstandingExpenses: vm.outstandingExpenses,
+                    settledExpenses: vm.settledExpenses,
+                    currencyCode: currencyCode
+                )
+            }
+        } label: {
+            Label(String(localized: "Share"), systemImage: "square.and.arrow.up")
+        }
     }
 }

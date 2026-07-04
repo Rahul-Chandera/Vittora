@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct CreateDebtEntryUseCase: Sendable {
     let debtRepository: any DebtRepository

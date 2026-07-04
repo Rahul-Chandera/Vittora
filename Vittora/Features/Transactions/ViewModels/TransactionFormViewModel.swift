@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @Observable @MainActor final class TransactionFormViewModel {
     var amountString: String = ""
@@ -19,12 +20,13 @@ import Foundation
     var isLoading = false
     var error: String?
 
-    var amount: Decimal {
-        Decimal(string: amountString) ?? 0
+    private var parsedAmount: Decimal? {
+        Decimal(localizedAmount: amountString)
     }
 
     var canSave: Bool {
-        amount > 0 && selectedAccountID != nil
+        guard let parsedAmount, parsedAmount > 0 else { return false }
+        return selectedAccountID != nil
     }
 
     private let addUseCase: AddTransactionUseCase
@@ -61,8 +63,12 @@ import Foundation
         paymentMethod = entity.paymentMethod
     }
 
-    func suggestCategory() async {
-        guard selectedPayeeID != nil && amount > 0 else {
+    func suggestCategory(
+        payeeName: String? = nil,
+        merchantText: String? = nil,
+        rawOCRText: String? = nil
+    ) async {
+        guard let parsedAmount, parsedAmount > 0 else {
             suggestedCategoryID = nil
             return
         }
@@ -73,8 +79,14 @@ import Foundation
 
         do {
             suggestedCategoryID = try await smartCategorizeUseCase.execute(
-                payeeID: selectedPayeeID,
-                amount: amount
+                SmartCategorizeRequest(
+                    payeeID: selectedPayeeID,
+                    payeeName: payeeName,
+                    note: note.isEmpty ? nil : note,
+                    merchantText: merchantText,
+                    rawOCRText: rawOCRText,
+                    amount: parsedAmount
+                )
             )
         } catch {
             self.error = error.userFacingMessage(
@@ -84,7 +96,7 @@ import Foundation
     }
 
     func checkDuplicates() async {
-        guard amount > 0, let accountID = selectedAccountID else {
+        guard let parsedAmount, parsedAmount > 0, let accountID = selectedAccountID else {
             duplicateWarning = []
             return
         }
@@ -95,7 +107,7 @@ import Foundation
 
         do {
             duplicateWarning = try await duplicateDetectionUseCase.execute(
-                amount: amount,
+                amount: parsedAmount,
                 date: date,
                 payeeID: selectedPayeeID,
                 accountID: accountID
@@ -121,7 +133,7 @@ import Foundation
     }
 
     func save() async throws {
-        guard canSave else {
+        guard let parsedAmount, parsedAmount > 0, selectedAccountID != nil else {
             throw VittoraError.validationFailed(
                 String(localized: "Amount must be greater than zero and an account must be selected.")
             )
@@ -135,7 +147,7 @@ import Foundation
             // Update existing transaction
             var updated = TransactionEntity(
                 id: editingID,
-                amount: amount,
+                amount: parsedAmount,
                 date: date,
                 note: note.isEmpty ? nil : note,
                 type: type,
@@ -151,7 +163,7 @@ import Foundation
         } else {
             // Create new transaction
             _ = try await addUseCase.execute(
-                amount: amount,
+                amount: parsedAmount,
                 type: type,
                 date: date,
                 categoryID: selectedCategoryID,

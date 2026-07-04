@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Full bracket-by-bracket tax breakdown sheet.
 struct TaxBreakdownView: View {
@@ -11,6 +12,10 @@ struct TaxBreakdownView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: VSpacing.sectionSpacing) {
+                    if estimate.country == .unitedStates {
+                        USTaxFederalEstimateLabel()
+                    }
+
                     TaxBracketBarView(estimate: estimate)
                         .padding(VSpacing.cardPadding)
                         .background(VColors.secondaryBackground)

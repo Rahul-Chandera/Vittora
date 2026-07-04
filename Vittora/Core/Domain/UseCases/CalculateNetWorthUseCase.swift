@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct NetWorthSummary: Sendable {
     let totalAssets: Decimal
@@ -12,7 +13,7 @@ struct NetWorthSummary: Sendable {
 struct CalculateNetWorthUseCase: Sendable {
     let accountRepository: any AccountRepository
 
-    init(accountRepository: any AccountRepository) {
+    nonisolated init(accountRepository: any AccountRepository) {
         self.accountRepository = accountRepository
     }
 

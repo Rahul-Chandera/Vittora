@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Vittora
+import VittoraCore
 
 @Suite("KeychainService Tests")
 @MainActor

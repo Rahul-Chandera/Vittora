@@ -1,10 +1,14 @@
 import SwiftUI
+import VittoraCore
 
 struct DashboardView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.currencyCode) private var currencyCode
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
     @State private var vm: DashboardViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var activeQuickActionModal: QuickActionModal?
@@ -35,8 +39,8 @@ struct DashboardView: View {
                 await vm?.load()
             }
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.dashboardRefreshToken) {
+            guard vm != nil, appState.hasAnyRefresh(in: [.transactions, .accounts, .budgets, .recurring]) else { return }
             await vm?.refresh()
         }
         .navigationDestination(item: $navigateDestination) { dest in
@@ -64,7 +68,7 @@ struct DashboardView: View {
 
     #if os(iOS)
     private var shouldPresentQuickActionsAsSheet: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        horizontalSizeClass == .regular
     }
     #endif
 
@@ -94,7 +98,7 @@ struct DashboardView: View {
 
     private var quickEntryFloatingButton: some View {
         QuickEntryButton {
-            NotificationCenter.default.post(name: .vittoraNewTransaction, object: nil)
+            appState.request(.presentNewTransaction)
         }
         .padding(.trailing, VSpacing.lg)
         .padding(.bottom, VSpacing.lg)
@@ -273,7 +277,7 @@ struct DashboardView: View {
                 Text(String(localized: "Net Worth"))
                     .font(VTypography.subheadline)
                     .foregroundColor(VColors.textSecondary)
-                Text(vm?.formattedAmount(netWorth) ?? "$0.00")
+                Text(CurrencyFormatter.format(netWorth, currencyCode: currencyCode))
                     .font(VTypography.amountMedium)
                     .foregroundColor(netWorth >= 0 ? VColors.income : VColors.expense)
             }
@@ -284,7 +288,7 @@ struct DashboardView: View {
         .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "Net worth"))
-        .accessibilityValue(vm?.formattedAmount(netWorth) ?? netWorth.formatted(.currency(code: currencyCode)))
+        .accessibilityValue(CurrencyFormatter.format(netWorth, currencyCode: currencyCode))
     }
 
     private func progressColor(_ progress: Double) -> Color {
@@ -374,29 +378,8 @@ struct DashboardView: View {
         }
     }
 
-    private func createViewModel() -> DashboardViewModel? {
-        guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository,
-              let categoryRepo = dependencies.categoryRepository,
-              let budgetRepo = dependencies.budgetRepository,
-              let recurringRepo = dependencies.recurringRuleRepository else {
-            return nil
-        }
-
-        let dataUseCase = DashboardDataUseCase(
-            transactionRepository: transactionRepo,
-            accountRepository: accountRepo,
-            categoryRepository: categoryRepo,
-            budgetRepository: budgetRepo,
-            recurringRuleRepository: recurringRepo
-        )
-        let comparisonUseCase = MonthComparisonUseCase(transactionRepository: transactionRepo)
-
-        return DashboardViewModel(
-            dashboardDataUseCase: dataUseCase,
-            monthComparisonUseCase: comparisonUseCase,
-            currencyCode: currencyCode
-        )
+    private func createViewModel() -> DashboardViewModel {
+        dependencies.makeDashboardViewModel()
     }
 }
 

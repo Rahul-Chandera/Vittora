@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct BudgetOverviewCard: View {
     let spent: Decimal
@@ -70,7 +71,7 @@ struct BudgetOverviewCard: View {
         .accessibilityLabel(String(localized: "Budget overview"))
         .accessibilityValue(
             String(
-                localized: "Total budget \(formattedAmount(budget)), spent \(formattedAmount(spent)), remaining \(formattedAmount(remaining)), \(Int(min(progress * 100, 999))) percent used"
+                localized: "Total budget \(CurrencyFormatter.format(budget, currencyCode: currencyCode)), spent \(CurrencyFormatter.format(spent, currencyCode: currencyCode)), remaining \(CurrencyFormatter.format(remaining, currencyCode: currencyCode)), \(Int(min(progress * 100, 999))) percent used"
             )
         )
     }
@@ -83,10 +84,6 @@ struct BudgetOverviewCard: View {
         } else {
             return VColors.budgetSafe
         }
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
     }
 }
 

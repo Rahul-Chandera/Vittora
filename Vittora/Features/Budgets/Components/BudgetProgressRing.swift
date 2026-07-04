@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct BudgetProgressRing: View {
     let progress: Double  // 0.0 to 1.0+

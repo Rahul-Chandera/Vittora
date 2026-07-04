@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 
 @testable import Vittora
 
@@ -26,22 +27,37 @@ struct TransactionUseCaseTests {
     @Suite("AddTransactionUseCase")
     struct AddTransactionUseCaseTests {
 
+        // A6: the use case writes through a real LedgerWriteStore, so these
+        // tests exercise the real persistence path (account create via repo,
+        // insert + balance adjust via the store) on one in-memory container.
+        private struct Env {
+            let accountRepo: SwiftDataAccountRepository
+            let categoryRepo: SwiftDataCategoryRepository
+            let txRepo: SwiftDataTransactionRepository
+            let useCase: AddTransactionUseCase
+        }
+
+        private func makeEnv() throws -> Env {
+            let container = try ModelContainerConfig.makeContainer(inMemory: true)
+            let accountRepo = SwiftDataAccountRepository(modelContainer: container)
+            let categoryRepo = SwiftDataCategoryRepository(modelContainer: container)
+            let txRepo = SwiftDataTransactionRepository(modelContainer: container)
+            let store = LedgerWriteStore(modelContainer: container)
+            let useCase = AddTransactionUseCase(
+                accountRepository: accountRepo,
+                categoryRepository: categoryRepo,
+                ledgerWriting: store
+            )
+            return Env(accountRepo: accountRepo, categoryRepo: categoryRepo, txRepo: txRepo, useCase: useCase)
+        }
+
         @Test("Creates a transaction and adjusts account balance for expense")
         func testExpenseDeductsBalance() async throws {
-            let accountRepo = MockAccountRepository()
-            let transactionRepo = MockTransactionRepository()
-            let categoryRepo = MockCategoryRepository()
-
+            let env = try makeEnv()
             let account = makeAccount(balance: 1000)
-            await accountRepo.seed(account)
+            try await env.accountRepo.create(account)
 
-            let useCase = AddTransactionUseCase(
-                transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
-                categoryRepository: categoryRepo
-            )
-
-            let transaction = try await useCase.execute(
+            let transaction = try await env.useCase.execute(
                 amount: 200,
                 type: .expense,
                 date: .now,
@@ -54,29 +70,20 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
             #expect(updatedAccount?.balance == 800)
-            let savedTransactions = await transactionRepo.transactions
+            let savedTransactions = try await env.txRepo.fetchAll(filter: nil)
             #expect(savedTransactions.count == 1)
-            #expect(savedTransactions[0].id == transaction.id)
+            #expect(savedTransactions.first?.id == transaction.id)
         }
 
         @Test("Creates a transaction and increases account balance for income")
         func testIncomeAddsBalance() async throws {
-            let accountRepo = MockAccountRepository()
-            let transactionRepo = MockTransactionRepository()
-            let categoryRepo = MockCategoryRepository()
-
+            let env = try makeEnv()
             let account = makeAccount(balance: 500)
-            await accountRepo.seed(account)
+            try await env.accountRepo.create(account)
 
-            let useCase = AddTransactionUseCase(
-                transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
-                categoryRepository: categoryRepo
-            )
-
-            _ = try await useCase.execute(
+            _ = try await env.useCase.execute(
                 amount: 300,
                 type: .income,
                 date: .now,
@@ -89,26 +96,17 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
             #expect(updatedAccount?.balance == 800)
         }
 
         @Test("Adjustment adds to balance")
         func testAdjustmentAddsBalance() async throws {
-            let accountRepo = MockAccountRepository()
-            let transactionRepo = MockTransactionRepository()
-            let categoryRepo = MockCategoryRepository()
-
+            let env = try makeEnv()
             let account = makeAccount(balance: 100)
-            await accountRepo.seed(account)
+            try await env.accountRepo.create(account)
 
-            let useCase = AddTransactionUseCase(
-                transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
-                categoryRepository: categoryRepo
-            )
-
-            _ = try await useCase.execute(
+            _ = try await env.useCase.execute(
                 amount: 50,
                 type: .adjustment,
                 date: .now,
@@ -121,56 +119,47 @@ struct TransactionUseCaseTests {
                 currencyCode: "USD"
             )
 
-            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
             #expect(updatedAccount?.balance == 150)
         }
 
-        @Test("Transfer does not adjust balance")
-        func testTransferDoesNotChangeBalance() async throws {
-            let accountRepo = MockAccountRepository()
-            let transactionRepo = MockTransactionRepository()
-            let categoryRepo = MockCategoryRepository()
-
+        @Test("Generic add rejects transfers — they must use performTransfer")
+        func testRejectsTransferThroughGenericAdd() async throws {
+            let env = try makeEnv()
             let account = makeAccount(balance: 1000)
-            await accountRepo.seed(account)
+            try await env.accountRepo.create(account)
 
-            let useCase = AddTransactionUseCase(
-                transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
-                categoryRepository: categoryRepo
-            )
+            // A transfer routed through the single-leg add path would apply a
+            // one-sided balance change; performAdd rejects it (DATAINTEGRITY-1).
+            await #expect(throws: LedgerWriteError.self) {
+                _ = try await env.useCase.execute(
+                    amount: 200,
+                    type: .transfer,
+                    date: .now,
+                    categoryID: nil,
+                    accountID: account.id,
+                    payeeID: nil,
+                    note: nil,
+                    tags: [],
+                    paymentMethod: .bankTransfer,
+                    currencyCode: "USD"
+                )
+            }
 
-            _ = try await useCase.execute(
-                amount: 200,
-                type: .transfer,
-                date: .now,
-                categoryID: nil,
-                accountID: account.id,
-                payeeID: nil,
-                note: nil,
-                tags: [],
-                paymentMethod: .bankTransfer,
-                currencyCode: "USD"
-            )
-
-            let updatedAccount = accountRepo.accounts.first { $0.id == account.id }
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
             #expect(updatedAccount?.balance == 1000)
+            let savedTransactions = try await env.txRepo.fetchAll(filter: nil)
+            #expect(savedTransactions.isEmpty)
         }
 
         @Test("Throws validation error for zero amount")
         func testThrowsForZeroAmount() async throws {
-            let accountRepo = MockAccountRepository()
+            let env = try makeEnv()
             let account = makeAccount()
-            await accountRepo.seed(account)
-
-            let useCase = AddTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: accountRepo,
-                categoryRepository: MockCategoryRepository()
-            )
+            try await env.accountRepo.create(account)
 
             await #expect(throws: (any Error).self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     amount: 0,
                     type: .expense,
                     date: .now,
@@ -187,14 +176,10 @@ struct TransactionUseCaseTests {
 
         @Test("Throws when account does not exist")
         func testThrowsWhenAccountMissing() async throws {
-            let useCase = AddTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: MockAccountRepository(),
-                categoryRepository: MockCategoryRepository()
-            )
+            let env = try makeEnv()
 
             await #expect(throws: (any Error).self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     amount: 100,
                     type: .expense,
                     date: .now,
@@ -211,18 +196,12 @@ struct TransactionUseCaseTests {
 
         @Test("Throws when account is archived")
         func testThrowsForArchivedAccount() async throws {
-            let accountRepo = MockAccountRepository()
+            let env = try makeEnv()
             let account = makeAccount(isArchived: true)
-            await accountRepo.seed(account)
-
-            let useCase = AddTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: accountRepo,
-                categoryRepository: MockCategoryRepository()
-            )
+            try await env.accountRepo.create(account)
 
             await #expect(throws: (any Error).self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     amount: 100,
                     type: .expense,
                     date: .now,
@@ -239,18 +218,12 @@ struct TransactionUseCaseTests {
 
         @Test("Throws when category does not exist")
         func testThrowsWhenCategoryMissing() async throws {
-            let accountRepo = MockAccountRepository()
+            let env = try makeEnv()
             let account = makeAccount()
-            await accountRepo.seed(account)
-
-            let useCase = AddTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: accountRepo,
-                categoryRepository: MockCategoryRepository()
-            )
+            try await env.accountRepo.create(account)
 
             await #expect(throws: (any Error).self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     amount: 100,
                     type: .expense,
                     date: .now,
@@ -267,21 +240,13 @@ struct TransactionUseCaseTests {
 
         @Test("Validates category exists when provided")
         func testAcceptsValidCategory() async throws {
-            let accountRepo = MockAccountRepository()
-            let categoryRepo = MockCategoryRepository()
-
+            let env = try makeEnv()
             let account = makeAccount()
             let category = makeCategory()
-            await accountRepo.seed(account)
-            await categoryRepo.seed(category)
+            try await env.accountRepo.create(account)
+            try await env.categoryRepo.create(category)
 
-            let useCase = AddTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: accountRepo,
-                categoryRepository: categoryRepo
-            )
-
-            let result = try await useCase.execute(
+            let result = try await env.useCase.execute(
                 amount: 50,
                 type: .expense,
                 date: .now,
@@ -321,9 +286,12 @@ struct TransactionUseCaseTests {
 
             let useCase = DeleteTransactionUseCase(
                 transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
                 documentRepository: MockDocumentRepository(),
-                documentStorageService: MockDocumentStorageService()
+                documentStorageService: MockDocumentStorageService(),
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
             )
             try await useCase.execute(id: transaction.id)
 
@@ -350,9 +318,12 @@ struct TransactionUseCaseTests {
 
             let useCase = DeleteTransactionUseCase(
                 transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
                 documentRepository: MockDocumentRepository(),
-                documentStorageService: MockDocumentStorageService()
+                documentStorageService: MockDocumentStorageService(),
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
             )
             try await useCase.execute(id: transaction.id)
 
@@ -375,9 +346,12 @@ struct TransactionUseCaseTests {
 
             let useCase = DeleteTransactionUseCase(
                 transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
                 documentRepository: MockDocumentRepository(),
-                documentStorageService: MockDocumentStorageService()
+                documentStorageService: MockDocumentStorageService(),
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
             )
             try await useCase.executeBulk(ids: [t1.id, t2.id])
 
@@ -387,11 +361,16 @@ struct TransactionUseCaseTests {
 
         @Test("Throws when transaction not found")
         func testThrowsWhenTransactionMissing() async throws {
+            let transactionRepo = MockTransactionRepository()
+            let accountRepo = MockAccountRepository()
             let useCase = DeleteTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: MockAccountRepository(),
+                transactionRepository: transactionRepo,
                 documentRepository: MockDocumentRepository(),
-                documentStorageService: MockDocumentStorageService()
+                documentStorageService: MockDocumentStorageService(),
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
             )
 
             await #expect(throws: (any Error).self) {
@@ -425,15 +404,61 @@ struct TransactionUseCaseTests {
 
             let useCase = DeleteTransactionUseCase(
                 transactionRepository: transactionRepo,
-                accountRepository: accountRepo,
                 documentRepository: documentRepo,
-                documentStorageService: documentStorage
+                documentStorageService: documentStorage,
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
             )
             try await useCase.execute(id: transaction.id)
 
             let remainingDocuments = try await documentRepo.fetchForTransaction(transaction.id)
             #expect(remainingDocuments.isEmpty)
             #expect(documentStorage.deletedDocuments.contains(linkedDocument.id))
+        }
+
+        @Test("Deleting one transfer leg reverses BOTH legs and removes both rows")
+        func deleteTransferReversesBothLegs() async throws {
+            let accountRepo = MockAccountRepository()
+            let transactionRepo = MockTransactionRepository()
+
+            // Post-transfer state: source 750 (1000 − 250), dest 250 (0 + 250).
+            let source = AccountEntity(name: "Source", type: .bank, balance: 750)
+            let dest = AccountEntity(name: "Dest", type: .bank, balance: 250)
+            await accountRepo.seed(source)
+            await accountRepo.seed(dest)
+
+            let pairID = UUID()
+            let debit = TransactionEntity(
+                amount: 250, type: .transfer,
+                accountID: source.id, destinationAccountID: dest.id,
+                transferPairID: pairID, transferDirection: .debit
+            )
+            let credit = TransactionEntity(
+                amount: 250, type: .transfer,
+                accountID: dest.id, destinationAccountID: source.id,
+                transferPairID: pairID, transferDirection: .credit
+            )
+            await transactionRepo.seed(debit)
+            await transactionRepo.seed(credit)
+
+            let useCase = DeleteTransactionUseCase(
+                transactionRepository: transactionRepo,
+                documentRepository: MockDocumentRepository(),
+                documentStorageService: MockDocumentStorageService(),
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
+            )
+            // Delete via ONE leg; both legs must go and both balances reverse.
+            try await useCase.execute(id: debit.id)
+
+            let remaining = await transactionRepo.transactions
+            #expect(remaining.isEmpty)
+            #expect(accountRepo.accounts.first { $0.id == source.id }?.balance == 1000)
+            #expect(accountRepo.accounts.first { $0.id == dest.id }?.balance == 0)
         }
     }
 
@@ -487,6 +512,32 @@ struct TransactionUseCaseTests {
             #expect(result.count == 1)
             #expect(result[0].type == .expense)
         }
+
+        @Test("execute(id:) finds a transaction outside the fetchAll list window")
+        func testFetchByIDBeyondListWindow() async throws {
+            let repo = MockTransactionRepository()
+            await repo.setFetchAllLimit(500)
+            let calendar = Calendar.current
+            let oldestDate = calendar.date(byAdding: .day, value: -600, to: .now) ?? .now
+            let oldest = TransactionEntity(amount: 1, date: oldestDate, note: "Oldest", type: .expense)
+            await repo.seed(oldest)
+
+            for dayOffset in 0..<500 {
+                let date = calendar.date(byAdding: .day, value: -dayOffset, to: .now) ?? .now
+                await repo.seed(
+                    TransactionEntity(amount: Decimal(dayOffset + 2), date: date, type: .expense)
+                )
+            }
+
+            let useCase = FetchTransactionsUseCase(transactionRepository: repo)
+            let listed = try await useCase.execute(filter: nil)
+            #expect(listed.count == 500)
+            #expect(listed.contains(where: { $0.id == oldest.id }) == false)
+
+            let found = try await useCase.execute(id: oldest.id)
+            #expect(found?.id == oldest.id)
+            #expect(found?.note == "Oldest")
+        }
     }
 
     // MARK: - SearchTransactionsUseCase
@@ -529,6 +580,31 @@ struct TransactionUseCaseTests {
             #expect(result.count == 1)
             #expect(result[0].note == "Coffee")
         }
+
+        @Test("finds oldest match beyond list cap via repository search")
+        func testFindsOldestMatchBeyondListCap() async throws {
+            let container = try ModelContainerConfig.makePreviewContainer()
+            let repo = SwiftDataTransactionRepository(modelContainer: container)
+            let oldestID = UUID()
+            let marker = "ancient-coffee-stop"
+
+            for index in 0..<201 {
+                let date = Date(timeIntervalSince1970: Double(22_000_000 + index * 1_000))
+                try await repo.create(TransactionEntity(
+                    id: index == 0 ? oldestID : UUID(),
+                    amount: Decimal(index + 1),
+                    date: date,
+                    note: index == 0 ? marker : "recent-\(index)",
+                    type: .expense
+                ))
+            }
+
+            let useCase = SearchTransactionsUseCase(transactionRepository: repo)
+            let result = try await useCase.execute(query: "ancient")
+
+            #expect(result.count == 1)
+            #expect(result.first?.id == oldestID)
+        }
     }
 
     // MARK: - UpdateTransactionUseCase
@@ -555,7 +631,10 @@ struct TransactionUseCaseTests {
 
             let useCase = UpdateTransactionUseCase(
                 transactionRepository: transactionRepo,
-                accountRepository: accountRepo
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
             )
 
             // Change to a 100-expense: reverse 200 (+200), then apply 100 (-100) → net 900
@@ -589,7 +668,10 @@ struct TransactionUseCaseTests {
 
             let useCase = UpdateTransactionUseCase(
                 transactionRepository: transactionRepo,
-                accountRepository: accountRepo
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
             )
             try await useCase.execute(updated)
 
@@ -598,15 +680,129 @@ struct TransactionUseCaseTests {
             #expect(finalAccount?.balance == 1500)
         }
 
+        @Test("Editing an expense to a different account adjusts both balances")
+        func editChangingAccountUpdatesBothBalances() async throws {
+            let accountRepo = MockAccountRepository()
+            let transactionRepo = MockTransactionRepository()
+
+            // Old account already reflects the original 200 expense (1000 - 200).
+            let oldAccount = AccountEntity(name: "Old", type: .bank, balance: Decimal(800))
+            let newAccount = AccountEntity(name: "New", type: .bank, balance: Decimal(500))
+            await accountRepo.seed(oldAccount)
+            await accountRepo.seed(newAccount)
+
+            let original = TransactionEntity(
+                amount: 200,
+                type: .expense,
+                accountID: oldAccount.id
+            )
+            await transactionRepo.seed(original)
+
+            // Move the same expense to the new account.
+            var moved = original
+            moved.accountID = newAccount.id
+
+            let useCase = UpdateTransactionUseCase(
+                transactionRepository: transactionRepo,
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
+            )
+            try await useCase.execute(moved)
+
+            let finalOld = accountRepo.accounts.first { $0.id == oldAccount.id }
+            let finalNew = accountRepo.accounts.first { $0.id == newAccount.id }
+            // Old account: expense reversed (+200) -> 1000. New account: expense applied (-200) -> 300.
+            #expect(finalOld?.balance == 1000)
+            #expect(finalNew?.balance == 300)
+        }
+
+        @Test("Editing income to a different account moves the credit")
+        func editChangingAccountMovesIncome() async throws {
+            let accountRepo = MockAccountRepository()
+            let transactionRepo = MockTransactionRepository()
+
+            let oldAccount = AccountEntity(name: "Old", type: .bank, balance: Decimal(1300))
+            let newAccount = AccountEntity(name: "New", type: .bank, balance: Decimal(1000))
+            await accountRepo.seed(oldAccount)
+            await accountRepo.seed(newAccount)
+
+            let original = TransactionEntity(
+                amount: 300,
+                type: .income,
+                accountID: oldAccount.id
+            )
+            await transactionRepo.seed(original)
+
+            var moved = original
+            moved.accountID = newAccount.id
+
+            let useCase = UpdateTransactionUseCase(
+                transactionRepository: transactionRepo,
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
+            )
+            try await useCase.execute(moved)
+
+            let finalOld = accountRepo.accounts.first { $0.id == oldAccount.id }
+            let finalNew = accountRepo.accounts.first { $0.id == newAccount.id }
+            // Old account: income reversed (-300) -> 1000. New account: income applied (+300) -> 1300.
+            #expect(finalOld?.balance == 1000)
+            #expect(finalNew?.balance == 1300)
+        }
+
+        @Test("Generic update rejects a transfer leg (Option B guard) and changes nothing")
+        func updateRejectsTransferLeg() async throws {
+            let accountRepo = MockAccountRepository()
+            let transactionRepo = MockTransactionRepository()
+
+            let source = AccountEntity(name: "Source", type: .bank, balance: 750)
+            await accountRepo.seed(source)
+
+            let leg = TransactionEntity(
+                amount: 250, type: .transfer,
+                accountID: source.id, destinationAccountID: UUID(),
+                transferPairID: UUID(), transferDirection: .debit
+            )
+            await transactionRepo.seed(leg)
+
+            let useCase = UpdateTransactionUseCase(
+                transactionRepository: transactionRepo,
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo
+                )
+            )
+
+            var edited = leg
+            edited.amount = 999
+
+            await #expect(throws: VittoraError.self) {
+                try await useCase.execute(edited)
+            }
+
+            // Nothing changed: balance and the stored leg are untouched.
+            #expect(accountRepo.accounts.first { $0.id == source.id }?.balance == 750)
+            let stored = await transactionRepo.transactions.first { $0.id == leg.id }
+            #expect(stored?.amount == 250)
+        }
+
         @Test("Throws when transaction does not exist")
         func testThrowsWhenTransactionMissing() async throws {
             let accountRepo = MockAccountRepository()
             let account = AccountEntity(name: "Bank", type: .bank, balance: 1000)
             await accountRepo.seed(account)
 
+            let txRepo = MockTransactionRepository()
             let useCase = UpdateTransactionUseCase(
-                transactionRepository: MockTransactionRepository(),
-                accountRepository: accountRepo
+                transactionRepository: txRepo,
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: txRepo,
+                    accountRepository: accountRepo
+                )
             )
 
             let nonExistent = TransactionEntity(amount: 50, type: .expense, accountID: account.id)

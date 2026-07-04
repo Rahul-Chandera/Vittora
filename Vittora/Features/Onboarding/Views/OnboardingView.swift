@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
@@ -33,6 +34,8 @@ struct OnboardingView: View {
                         .tag(OnboardingViewModel.Step.profile)
                     AccountSetupStepView(vm: vm)
                         .tag(OnboardingViewModel.Step.account)
+                    NotificationsStepView(vm: vm)
+                        .tag(OnboardingViewModel.Step.notifications)
                     DoneStepView(vm: vm)
                         .tag(OnboardingViewModel.Step.done)
                 }
@@ -124,6 +127,8 @@ struct OnboardingView: View {
         case .account:  return (vm.isAccountSubStepEnabled && vm.accountSubStep == .type)
                             ? String(localized: "Continue")
                             : String(localized: "Review Setup")
+        case .notifications:
+            return String(localized: "Continue")
         case .done:     return String(localized: "Start Tracking")
         }
     }
@@ -250,6 +255,8 @@ private struct CurrencyStepView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("\(currency.name), \(currency.code)")
+                        .accessibilityAddTraits(vm.selectedCurrencyCode == currency.code ? .isSelected : [])
                         .accessibilityIdentifier("onboarding-currency-\(currency.code)")
                         Divider()
                     }
@@ -564,7 +571,7 @@ private struct AccountSetupStepView: View {
         } label: {
             VStack(spacing: VSpacing.sm) {
                 AccountTypeIcon(type: type, size: 40)
-                Text(type.onboardingDisplayName)
+                Text(type.displayName)
                     .font(VTypography.caption1.bold())
                     .foregroundStyle(VColors.textPrimary)
                     .multilineTextAlignment(.center)
@@ -581,26 +588,95 @@ private struct AccountSetupStepView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(type.displayName)
+        .accessibilityAddTraits(vm.selectedAccountType == type ? .isSelected : [])
         .accessibilityIdentifier("onboarding-account-type-\(type.rawValue)")
     }
 }
 
-private struct DoneStepView: View {
-    let vm: OnboardingViewModel
+private struct NotificationsStepView: View {
+    @Bindable var vm: OnboardingViewModel
 
     var body: some View {
         VStack(spacing: VSpacing.lg) {
             Spacer()
 
-            ZStack {
-                Circle()
-                    .fill(VColors.primary)
-                    .frame(width: 88, height: 88)
-                Image(systemName: "checkmark")
-                    .font(.system(size: 44, weight: .bold))
-                    .foregroundStyle(.white)
+            Image(systemName: "bell.badge.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(VColors.primary)
+                .accessibilityHidden(true)
+
+            VStack(spacing: VSpacing.sm) {
+                Text(String(localized: "Stay on top of your money"))
+                    .font(VTypography.title2.bold())
+                    .foregroundStyle(VColors.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .accessibilityIdentifier("onboarding-notifications-title")
+
+                Text(String(localized: "Get gentle reminders for budgets, bills, and goals — only when you want them."))
+                    .font(VTypography.body)
+                    .foregroundStyle(VColors.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, VSpacing.xl)
             }
-            .symbolEffect(.bounce)
+
+            VStack(alignment: .leading, spacing: VSpacing.md) {
+                FeatureRow(icon: "target", color: .orange, text: String(localized: "Budget limit alerts"))
+                FeatureRow(icon: "calendar.badge.clock", color: .blue, text: String(localized: "Bill and debt due dates"))
+                FeatureRow(icon: "arrow.triangle.2.circlepath", color: .purple, text: String(localized: "Upcoming recurring transactions"))
+            }
+            .padding(.horizontal, VSpacing.xl)
+
+            Toggle(isOn: $vm.wantsNotifications) {
+                VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                    Text(String(localized: "Enable reminders"))
+                        .font(VTypography.bodyBold)
+                        .foregroundStyle(VColors.textPrimary)
+                    Text(String(localized: "You can change this anytime in Settings."))
+                        .font(VTypography.caption2)
+                        .foregroundStyle(VColors.textSecondary)
+                }
+            }
+            .padding(VSpacing.cardPadding)
+            .background(VColors.secondaryBackground)
+            .cornerRadius(VSpacing.cornerRadiusCard)
+            .padding(.horizontal, VSpacing.screenPadding)
+            .accessibilityIdentifier("onboarding-notifications-toggle")
+
+            Text(String(localized: "Vittora will ask for notification permission when you turn reminders on in Settings."))
+                .font(VTypography.caption2)
+                .foregroundStyle(VColors.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, VSpacing.xl)
+
+            Spacer()
+        }
+        .accessibilityIdentifier("onboarding-notifications-step")
+    }
+}
+
+private struct DoneStepView: View {
+    let vm: OnboardingViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        VStack(spacing: VSpacing.lg) {
+            Spacer()
+
+            Group {
+                ZStack {
+                    Circle()
+                        .fill(VColors.primary)
+                        .frame(width: 88, height: 88)
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 44, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+            }
+            .if(!reduceMotion) { view in
+                view.symbolEffect(.bounce)
+            }
+            .accessibilityHidden(true)
 
             VStack(spacing: VSpacing.sm) {
                 Text(String(localized: "You're all set!"))
@@ -625,7 +701,7 @@ private struct DoneStepView: View {
                 )
                 onboardingSummaryRow(
                     title: String(localized: "Account Type"),
-                    value: vm.selectedAccountType.onboardingDisplayName
+                    value: vm.selectedAccountType.displayName
                 )
             }
             .padding(VSpacing.cardPadding)
@@ -648,29 +724,6 @@ private struct DoneStepView: View {
             Text(value)
                 .font(VTypography.bodyBold)
                 .foregroundStyle(VColors.textPrimary)
-        }
-    }
-}
-
-private extension AccountType {
-    var onboardingDisplayName: String {
-        switch self {
-        case .cash:
-            String(localized: "Cash")
-        case .bank:
-            String(localized: "Bank")
-        case .creditCard:
-            String(localized: "Credit Card")
-        case .loan:
-            String(localized: "Loan")
-        case .digitalWallet:
-            String(localized: "Digital Wallet")
-        case .investment:
-            String(localized: "Investment")
-        case .receivable:
-            String(localized: "Receivable")
-        case .payable:
-            String(localized: "Payable")
         }
     }
 }

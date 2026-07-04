@@ -1,12 +1,25 @@
 import SwiftUI
+import VittoraCore
 
 struct TransactionListView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies: DependencyContainer
+    @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var vm: TransactionListViewModel?
     @State private var showFilterSheet = false
+    @State private var showCSVImport = false
     @State private var filterVM: TransactionFilterViewModel?
     @State private var navigateDestination: NavigationDestination?
+    @State private var selectedTransactionID: UUID?
+
+    private var prefersSplitDetail: Bool {
+        #if os(macOS)
+        true
+        #else
+        horizontalSizeClass == .regular
+        #endif
+    }
 
     var body: some View {
         ZStack {
@@ -16,18 +29,20 @@ struct TransactionListView: View {
                 } else {
                     listView(vm)
                 }
+            } else {
+                ProgressView()
             }
         }
         .navigationTitle(String(localized: "Transactions"))
         .accessibilityIdentifier("transaction-list-root")
         .task {
             if vm == nil {
-                vm = await createViewModel()
+                vm = createViewModel()
                 await vm?.loadTransactions()
             }
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .transactions)) {
+            guard vm != nil, appState.refreshVersion(for: .transactions) > 0 else { return }
             await vm?.loadTransactions()
         }
         .navigationDestination(item: $navigateDestination) { dest in
@@ -38,41 +53,48 @@ struct TransactionListView: View {
 
     @ViewBuilder
     private func listView(_ vm: TransactionListViewModel) -> some View {
-        List {
-            ForEach(vm.groupedTransactions, id: \.date) { dateGroup in
-                Section(header: sectionHeader(for: dateGroup.date)) {
-                    ForEach(dateGroup.transactions) { transaction in
-                        TransactionRowView(transaction: transaction, showSelection: vm.isMultiSelectMode)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                if vm.isMultiSelectMode {
-                                    vm.toggleSelection(transaction.id)
-                                } else {
-                                    navigateDestination = .transactionDetail(id: transaction.id)
-                                }
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    Task {
-                                        dependencies.hapticService.warning()
-                                        await vm.deleteTransaction(id: transaction.id)
-                                    }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+        if prefersSplitDetail && !vm.isMultiSelectMode {
+            splitDetailView(vm)
+        } else {
+            compactListView(vm)
+        }
+    }
 
-                                NavigationLink(value: NavigationDestination.editTransaction(id: transaction.id)) {
-                                    Label("Edit", systemImage: "pencil")
-                                }
-                                .tint(.blue)
-                            }
-                            .onLongPressGesture {
-                                if !vm.isMultiSelectMode {
-                                    vm.isMultiSelectMode = true
-                                }
-                                vm.toggleSelection(transaction.id)
-                            }
-                    }
+    @ViewBuilder
+    private func splitDetailView(_ vm: TransactionListViewModel) -> some View {
+        NavigationSplitView {
+            transactionList(vm, selection: $selectedTransactionID)
+                .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
+        } detail: {
+            if let selectedTransactionID {
+                TransactionDetailView(transactionID: selectedTransactionID)
+            } else {
+                ContentUnavailableView(
+                    String(localized: "Select a Transaction"),
+                    systemImage: "list.bullet.rectangle",
+                    description: Text(String(localized: "Choose a transaction from the list to view its details."))
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func compactListView(_ vm: TransactionListViewModel) -> some View {
+        transactionList(vm, selection: nil)
+    }
+
+    @ViewBuilder
+    private func transactionList(_ vm: TransactionListViewModel, selection: Binding<UUID?>?) -> some View {
+        @Bindable var vm = vm
+
+        Group {
+            if let selection {
+                List(selection: selection) {
+                    transactionSections(vm, selection: selection)
+                }
+            } else {
+                List {
+                    transactionSections(vm, selection: nil)
                 }
             }
         }
@@ -82,34 +104,57 @@ struct TransactionListView: View {
         .listStyle(.inset)
         #endif
         .searchable(text: Bindable(vm).searchQuery, prompt: String(localized: "Search transactions"))
-        .onChange(of: vm.searchQuery) { oldValue, newValue in
-            Task {
-                await vm.search(newValue)
+        .task(id: vm.searchQuery) {
+            let query = vm.searchQuery
+            try? await Task.sleep(for: .milliseconds(250))
+            guard !Task.isCancelled else { return }
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                await vm.loadTransactions()
+            } else {
+                await vm.search(trimmed)
             }
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                HStack {
-                    NavigationLink(value: NavigationDestination.addTransaction) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title2)
-                    }
-                    .accessibilityIdentifier("transaction-add-button")
-                    .accessibilityLabel(String(localized: "Add transaction"))
-                    .accessibilityHint(String(localized: "Opens the new transaction form"))
-
-                    Button {
-                        showFilterSheet = true
-                    } label: {
-                        Image(systemName: "funnel.fill")
-                            .font(.title2)
-                            .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
-                    }
-                    .accessibilityIdentifier("transaction-filter-button")
-                    .accessibilityLabel(String(localized: "Filter transactions"))
-                    .accessibilityHint(String(localized: "Opens transaction filters"))
-                    .accessibilityValue(vm.hasActiveFilter ? String(localized: "Filter active") : String(localized: "No filters applied"))
+            ToolbarItemGroup(placement: .primaryAction) {
+                NavigationLink(value: NavigationDestination.addTransaction) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
                 }
+                .accessibilityIdentifier("transaction-add-button")
+                .accessibilityLabel(String(localized: "Add transaction"))
+                .accessibilityHint(String(localized: "Opens the new transaction form"))
+
+                Button {
+                    showFilterSheet = true
+                } label: {
+                    Image(systemName: "funnel.fill")
+                        .font(.title2)
+                        .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
+                }
+                .accessibilityIdentifier("transaction-filter-button")
+                .accessibilityLabel(String(localized: "Filter transactions"))
+                .accessibilityHint(String(localized: "Opens transaction filters"))
+                .accessibilityValue(vm.hasActiveFilter ? String(localized: "Filter active") : String(localized: "No filters applied"))
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    Button {
+                        showCSVImport = true
+                    } label: {
+                        Label(String(localized: "Import CSV"), systemImage: "square.and.arrow.down")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.title2)
+                }
+                .accessibilityIdentifier("transaction-overflow-menu")
+                .accessibilityLabel(String(localized: "More transaction actions"))
+            }
+        }
+        .sheet(isPresented: $showCSVImport) {
+            TransactionCSVImportView {
+                Task { await vm.loadTransactions() }
             }
         }
         .sheet(isPresented: $showFilterSheet) {
@@ -167,6 +212,66 @@ struct TransactionListView: View {
                     .tint(VColors.primary)
             }
         }
+        .overlay(alignment: .bottom) {
+            if vm.isLoadingMore {
+                ProgressView()
+                    .padding(VSpacing.md)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func transactionSections(
+        _ vm: TransactionListViewModel,
+        selection: Binding<UUID?>?
+    ) -> some View {
+        ForEach(vm.groupedTransactions, id: \.date) { dateGroup in
+            Section(header: sectionHeader(for: dateGroup.date)) {
+                ForEach(dateGroup.transactions) { transaction in
+                    transactionRow(vm, transaction: transaction, selection: selection)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func transactionRow(
+        _ vm: TransactionListViewModel,
+        transaction: TransactionEntity,
+        selection: Binding<UUID?>?
+    ) -> some View {
+        let row = TransactionRowView(
+            transaction: transaction,
+            currencyCode: currencyCode,
+            showSelection: vm.isMultiSelectMode,
+            isSelected: vm.selectedTransactionIDs.contains(transaction.id)
+        )
+
+        if selection != nil {
+            row
+                .tag(Optional(transaction.id))
+                .transactionRowModifiers(
+                    vm: vm,
+                    transaction: transaction,
+                    onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
+                )
+        } else {
+            Button {
+                if vm.isMultiSelectMode {
+                    vm.toggleSelection(transaction.id)
+                } else {
+                    navigateDestination = .transactionDetail(id: transaction.id)
+                }
+            } label: {
+                row
+            }
+            .buttonStyle(.plain)
+            .transactionRowModifiers(
+                vm: vm,
+                transaction: transaction,
+                onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
+            )
+        }
     }
 
     private var emptyState: some View {
@@ -206,17 +311,19 @@ struct TransactionListView: View {
     @ViewBuilder
     private func sectionHeader(for date: Date) -> some View {
         let calendar = Calendar.current
+        let title: String = {
+            if calendar.isDateInToday(date) {
+                return String(localized: "Today")
+            } else if calendar.isDateInYesterday(date) {
+                return String(localized: "Yesterday")
+            } else {
+                return date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+            }
+        }()
 
-        if calendar.isDateInToday(date) {
-            Text(String(localized: "Today"))
-                .foregroundColor(VColors.textSecondary)
-        } else if calendar.isDateInYesterday(date) {
-            Text(String(localized: "Yesterday"))
-                .foregroundColor(VColors.textSecondary)
-        } else {
-            Text(date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
-                .foregroundColor(VColors.textSecondary)
-        }
+        Text(title)
+            .foregroundColor(VColors.textSecondary)
+            .accessibilityAddTraits(.isHeader)
     }
 
     @ViewBuilder
@@ -236,33 +343,8 @@ struct TransactionListView: View {
         }
     }
 
-    private func createViewModel() async -> TransactionListViewModel? {
-        guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository,
-              let documentRepo = dependencies.documentRepository,
-              let documentStorage = dependencies.documentStorageService else {
-            return nil
-        }
-
-        let fetchUseCase = FetchTransactionsUseCase(transactionRepository: transactionRepo)
-        let searchUseCase = SearchTransactionsUseCase(transactionRepository: transactionRepo)
-        let deleteUseCase = DeleteTransactionUseCase(
-            transactionRepository: transactionRepo,
-            accountRepository: accountRepo,
-            documentRepository: documentRepo,
-            documentStorageService: documentStorage
-        )
-        let bulkOpsUseCase = BulkOperationsUseCase(
-            transactionRepository: transactionRepo,
-            accountRepository: accountRepo
-        )
-
-        return TransactionListViewModel(
-            fetchUseCase: fetchUseCase,
-            searchUseCase: searchUseCase,
-            deleteUseCase: deleteUseCase,
-            bulkOpsUseCase: bulkOpsUseCase
-        )
+    private func createViewModel() -> TransactionListViewModel {
+        dependencies.makeTransactionListViewModel()
     }
 
     private var transactionListErrorBinding: Binding<String?> {
@@ -272,6 +354,76 @@ struct TransactionListView: View {
                 vm?.error = newValue
             }
         )
+    }
+}
+
+private struct TransactionRowModifier: ViewModifier {
+    @Environment(\.dependencies) private var dependencies
+    @Environment(AppState.self) private var appState
+    let vm: TransactionListViewModel
+    let transaction: TransactionEntity
+    let onEdit: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                Task {
+                    await vm.loadNextPageIfNeeded(currentTransactionID: transaction.id)
+                }
+            }
+            .accessibilityAction(named: String(localized: "Select")) {
+                if !vm.isMultiSelectMode {
+                    vm.isMultiSelectMode = true
+                }
+                vm.toggleSelection(transaction.id)
+            }
+            .vittoraRowContextMenu(VittoraRowContextMenuActions(
+                onEdit: onEdit,
+                onDuplicate: transaction.type == .transfer ? nil : {
+                    Task {
+                        await vm.duplicateTransaction(id: transaction.id)
+                        appState.notifyChanged([.transactions, .accounts, .budgets])
+                    }
+                },
+                onDelete: {
+                    Task {
+                        dependencies.hapticService.warning()
+                        await vm.deleteTransaction(id: transaction.id)
+                        appState.notifyChanged([.transactions, .accounts, .budgets])
+                    }
+                }
+            ))
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                Button(role: .destructive) {
+                    Task {
+                        dependencies.hapticService.warning()
+                        await vm.deleteTransaction(id: transaction.id)
+                    }
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+
+                NavigationLink(value: NavigationDestination.editTransaction(id: transaction.id)) {
+                    Label("Edit", systemImage: "pencil")
+                }
+                .tint(.blue)
+            }
+            .onLongPressGesture {
+                if !vm.isMultiSelectMode {
+                    vm.isMultiSelectMode = true
+                }
+                vm.toggleSelection(transaction.id)
+            }
+    }
+}
+
+private extension View {
+    func transactionRowModifiers(
+        vm: TransactionListViewModel,
+        transaction: TransactionEntity,
+        onEdit: @escaping () -> Void
+    ) -> some View {
+        modifier(TransactionRowModifier(vm: vm, transaction: transaction, onEdit: onEdit))
     }
 }
 

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Compact inline sync indicator — shown in navigation bars.
 struct SyncStatusView: View {
@@ -56,6 +57,11 @@ struct SyncStatusView: View {
 struct SyncDetailView: View {
     @Environment(SyncStatusService.self) private var syncService
     @Environment(SyncConflictHandler.self) private var syncConflictHandler
+    @Environment(\.dependencies) private var dependencies
+
+    @State private var isReconciling = false
+    @State private var reconcileMessage: String?
+    @State private var showReconcileResult = false
 
     var body: some View {
         Form {
@@ -168,6 +174,27 @@ struct SyncDetailView: View {
             }
 
             Section {
+                Button {
+                    Task { await reconcileBalances() }
+                } label: {
+                    HStack {
+                        Label(String(localized: "Repair Account Balances"), systemImage: "checkmark.gobackward")
+                            .foregroundStyle(VColors.textPrimary)
+                        Spacer()
+                        if isReconciling {
+                            ProgressView().scaleEffect(0.8)
+                        }
+                    }
+                }
+                .disabled(isReconciling)
+            } header: {
+                Text(String(localized: "Balance Reconciliation"))
+            } footer: {
+                Text(String(localized: "Recomputes each account's balance from its opening balance and transaction history, then repairs any drift. Accounts that use transfers are skipped for now."))
+                    .foregroundStyle(VColors.textSecondary)
+            }
+
+            Section {
                 Text(String(localized: "Vittora uses CloudKit to automatically sync your data across all your Apple devices signed into the same iCloud account. No manual steps needed."))
                     .font(VTypography.caption1)
                     .foregroundStyle(VColors.textSecondary)
@@ -179,6 +206,30 @@ struct SyncDetailView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .alert(String(localized: "Balance Reconciliation"), isPresented: $showReconcileResult) {
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text(reconcileMessage ?? "")
+        }
+    }
+
+    private func reconcileBalances() async {
+        isReconciling = true
+        defer { isReconciling = false }
+
+        let useCase = ReconcileAccountBalanceUseCase(
+            accountRepository: dependencies.accountRepository,
+            transactionRepository: dependencies.transactionRepository
+        )
+        do {
+            let repaired = try await useCase.repair()
+            reconcileMessage = repaired.isEmpty
+                ? String(localized: "All account balances are already reconciled.")
+                : String(localized: "Repaired \(repaired.count) account balance(s).")
+        } catch {
+            reconcileMessage = String(localized: "Reconciliation failed: \(error.localizedDescription)")
+        }
+        showReconcileResult = true
     }
 
     private var conflictSummaryText: String {

@@ -1,10 +1,11 @@
 import Foundation
+import VittoraCore
 
 struct DeletePayeeUseCase: Sendable {
     private let repository: any PayeeRepository
     private let transactionRepository: any TransactionRepository
 
-    init(repository: any PayeeRepository, transactionRepository: any TransactionRepository) {
+    nonisolated init(repository: any PayeeRepository, transactionRepository: any TransactionRepository) {
         self.repository = repository
         self.transactionRepository = transactionRepository
     }

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct RolloverBudgetUseCase: Sendable {
     let budgetRepository: any BudgetRepository

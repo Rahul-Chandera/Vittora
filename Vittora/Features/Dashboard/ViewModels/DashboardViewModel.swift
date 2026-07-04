@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import os.signpost
+import VittoraCore
 
 @Observable
 @MainActor
@@ -12,16 +13,13 @@ final class DashboardViewModel {
 
     private let dashboardDataUseCase: DashboardDataUseCase
     private let monthComparisonUseCase: MonthComparisonUseCase
-    private let currencyCode: String
 
     init(
         dashboardDataUseCase: DashboardDataUseCase,
-        monthComparisonUseCase: MonthComparisonUseCase,
-        currencyCode: String = CurrencyDefaults.code
+        monthComparisonUseCase: MonthComparisonUseCase
     ) {
         self.dashboardDataUseCase = dashboardDataUseCase
         self.monthComparisonUseCase = monthComparisonUseCase
-        self.currencyCode = currencyCode
     }
 
     func load() async {
@@ -49,10 +47,6 @@ final class DashboardViewModel {
     }
 
     // MARK: - Formatted helpers
-
-    func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
-    }
 
     func formattedPercent(_ value: Double) -> String {
         let formatted = String(format: "%.1f", abs(value))

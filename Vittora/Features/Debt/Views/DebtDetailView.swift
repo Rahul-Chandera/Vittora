@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct DebtDetailView: View {
     @Environment(\.dependencies) private var dependencies
@@ -29,19 +30,15 @@ struct DebtDetailView: View {
         #endif
         .task {
             if vm == nil {
-                guard let debtRepo = dependencies.debtRepository,
-                      let payeeRepo = dependencies.payeeRepository,
-                      let txRepo = dependencies.transactionRepository,
-                      let accRepo = dependencies.accountRepository else { return }
                 let settleUC = SettleDebtUseCase(
-                    debtRepository: debtRepo,
-                    transactionRepository: txRepo,
-                    accountRepository: accRepo
+                    debtRepository: dependencies.debtRepository,
+                    accountRepository: dependencies.accountRepository,
+                    ledgerWriting: dependencies.ledgerWriteStore
                 )
                 vm = DebtDetailViewModel(
                     payeeID: payeeID,
-                    debtRepository: debtRepo,
-                    payeeRepository: payeeRepo,
+                    debtRepository: dependencies.debtRepository,
+                    payeeRepository: dependencies.payeeRepository,
                     settleUseCase: settleUC
                 )
                 await vm?.load()
@@ -68,7 +65,7 @@ struct DebtDetailView: View {
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
                 Spacer()
-                Text(formattedAmount(vm.netBalance))
+                Text(CurrencyFormatter.format(vm.netBalance, currencyCode: currencyCode))
                     .font(VTypography.amountSmall)
                     .foregroundColor(vm.netBalance >= 0 ? VColors.income : VColors.expense)
             }
@@ -80,7 +77,7 @@ struct DebtDetailView: View {
 
     private func balanceColumn(_ title: String, _ amount: Decimal, _ color: Color) -> some View {
         VStack(spacing: VSpacing.xs) {
-            Text(formattedAmount(amount))
+            Text(CurrencyFormatter.format(amount, currencyCode: currencyCode))
                 .font(VTypography.amountMedium)
                 .foregroundColor(color)
             Text(title)
@@ -99,7 +96,7 @@ struct DebtDetailView: View {
 
             VStack(spacing: VSpacing.xs) {
                 ForEach(vm.entries) { entry in
-                    entryRow(entry)
+                    entryRow(entry, payeeName: vm.payee?.name)
                     if entry.id != vm.entries.last?.id {
                         Divider().padding(.leading, VSpacing.lg)
                     }
@@ -111,7 +108,7 @@ struct DebtDetailView: View {
     }
 
     @ViewBuilder
-    private func entryRow(_ entry: DebtEntry) -> some View {
+    private func entryRow(_ entry: DebtEntry, payeeName: String?) -> some View {
         HStack(spacing: VSpacing.md) {
             Image(systemName: entry.direction == .lent ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
                 .foregroundColor(entry.direction == .lent ? VColors.income : VColors.expense)
@@ -142,29 +139,42 @@ struct DebtDetailView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: VSpacing.xxs) {
-                Text(formattedAmount(entry.amount))
+                Text(CurrencyFormatter.format(entry.amount, currencyCode: currencyCode))
                     .font(VTypography.amountCaption)
                     .foregroundColor(VColors.textPrimary)
                 if !entry.isSettled && entry.settledAmount > 0 {
-                    Text(String(localized: "\(formattedAmount(entry.remainingAmount)) left"))
+                    Text(String(localized: "\(CurrencyFormatter.format(entry.remainingAmount, currencyCode: currencyCode)) left"))
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textSecondary)
                 }
                 if !entry.isSettled {
-                    Button(String(localized: "Settle")) {
-                        debtToSettle = entry
+                    HStack(spacing: VSpacing.sm) {
+                        if entry.direction == .lent {
+                            ShareLink(
+                                item: DebtContactReminderDraft.message(
+                                    payeeName: payeeName ?? String(localized: "there"),
+                                    remainingAmount: entry.remainingAmount,
+                                    dueDate: entry.dueDate,
+                                    currencyCode: currencyCode
+                                )
+                            ) {
+                                Text(String(localized: "Remind"))
+                                    .font(VTypography.caption2)
+                                    .foregroundColor(VColors.primary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        Button(String(localized: "Settle")) {
+                            debtToSettle = entry
+                        }
+                        .font(VTypography.caption2)
+                        .foregroundColor(VColors.primary)
+                        .buttonStyle(.plain)
                     }
-                    .font(VTypography.caption2)
-                    .foregroundColor(VColors.primary)
-                    .buttonStyle(.plain)
                 }
             }
         }
         .padding(VSpacing.md)
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
     }
 }
 

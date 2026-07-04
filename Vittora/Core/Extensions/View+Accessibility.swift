@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 // MARK: - Adaptive line limit
 

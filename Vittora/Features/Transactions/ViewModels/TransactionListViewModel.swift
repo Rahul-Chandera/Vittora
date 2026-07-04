@@ -1,10 +1,13 @@
 import Foundation
+import VittoraCore
 
 @Observable @MainActor final class TransactionListViewModel {
     var groupedTransactions: [(date: Date, transactions: [TransactionEntity])] = []
     var activeFilter: TransactionFilter = TransactionFilter()
     var searchQuery: String = ""
     var isLoading = false
+    var isLoadingMore = false
+    var hasMorePages = true
     var error: String?
     var selectedTransactionIDs: Set<UUID> = []
     var isMultiSelectMode = false
@@ -13,17 +16,21 @@ import Foundation
     private let searchUseCase: SearchTransactionsUseCase
     private let deleteUseCase: DeleteTransactionUseCase
     private let bulkOpsUseCase: BulkOperationsUseCase
+    private let addUseCase: AddTransactionUseCase
+    private var loadedOffset = 0
 
     init(
         fetchUseCase: FetchTransactionsUseCase,
         searchUseCase: SearchTransactionsUseCase,
         deleteUseCase: DeleteTransactionUseCase,
-        bulkOpsUseCase: BulkOperationsUseCase
+        bulkOpsUseCase: BulkOperationsUseCase,
+        addUseCase: AddTransactionUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.searchUseCase = searchUseCase
         self.deleteUseCase = deleteUseCase
         self.bulkOpsUseCase = bulkOpsUseCase
+        self.addUseCase = addUseCase
     }
 
     var hasActiveFilter: Bool {
@@ -36,14 +43,26 @@ import Foundation
         activeFilter.amountRange != nil
     }
 
+    var lastLoadedTransactionID: UUID? {
+        groupedTransactions.last?.transactions.last?.id
+    }
+
+    private var isSearching: Bool {
+        !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     func loadTransactions() async {
         isLoading = true
         error = nil
+        loadedOffset = 0
+        hasMorePages = true
         defer { isLoading = false }
 
         do {
-            let filter = searchQuery.trimmingCharacters(in: .whitespaces).isEmpty ? activeFilter : nil
-            groupedTransactions = try await fetchUseCase.executeGroupedByDate(filter: filter)
+            let page = try await fetchUseCase.executePage(filter: activeFilter, offset: 0)
+            groupedTransactions = FetchTransactionsUseCase.groupByDate(page)
+            loadedOffset = page.count
+            hasMorePages = page.count == FetchTransactionsUseCase.listPageSize
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load transactions right now.")
@@ -51,10 +70,47 @@ import Foundation
         }
     }
 
+    func loadNextPageIfNeeded(currentTransactionID: UUID) async {
+        guard !isSearching,
+              hasMorePages,
+              !isLoading,
+              !isLoadingMore,
+              currentTransactionID == lastLoadedTransactionID else {
+            return
+        }
+        await loadNextPage()
+    }
+
+    private func loadNextPage() async {
+        isLoadingMore = true
+        defer { isLoadingMore = false }
+
+        do {
+            let page = try await fetchUseCase.executePage(
+                filter: activeFilter,
+                offset: loadedOffset
+            )
+            guard !page.isEmpty else {
+                hasMorePages = false
+                return
+            }
+            groupedTransactions = FetchTransactionsUseCase.mergeGrouped(
+                groupedTransactions,
+                with: page
+            )
+            loadedOffset += page.count
+            hasMorePages = page.count == FetchTransactionsUseCase.listPageSize
+        } catch {
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't load more transactions.")
+            )
+        }
+    }
+
     func search(_ query: String) async {
-        searchQuery = query
         isLoading = true
         error = nil
+        hasMorePages = false
         defer { isLoading = false }
 
         do {
@@ -62,13 +118,7 @@ import Foundation
                 await loadTransactions()
             } else {
                 let results = try await searchUseCase.execute(query: query)
-                let grouped = Dictionary(grouping: results) { transaction in
-                    Calendar.current.startOfDay(for: transaction.date)
-                }
-                let sortedDates = grouped.keys.sorted(by: >)
-                groupedTransactions = sortedDates.map { date in
-                    (date: date, transactions: grouped[date] ?? [])
-                }
+                groupedTransactions = FetchTransactionsUseCase.groupByDate(results)
             }
         } catch {
             self.error = error.userFacingMessage(
@@ -99,6 +149,45 @@ import Foundation
         }
     }
 
+    func duplicateTransaction(id: UUID) async {
+        isLoading = true
+        error = nil
+        defer { isLoading = false }
+
+        do {
+            guard let original = try await fetchUseCase.execute(id: id) else {
+                error = String(localized: "We couldn't find this transaction.")
+                return
+            }
+            guard original.type != .transfer else {
+                error = String(localized: "Transfers must be created through the transfer flow.")
+                return
+            }
+            guard let accountID = original.accountID else {
+                error = String(localized: "This transaction isn't linked to an account.")
+                return
+            }
+
+            _ = try await addUseCase.execute(
+                amount: original.amount,
+                type: original.type,
+                date: .now,
+                categoryID: original.categoryID,
+                accountID: accountID,
+                payeeID: original.payeeID,
+                note: original.note,
+                tags: original.tags,
+                paymentMethod: original.paymentMethod,
+                currencyCode: original.currencyCode
+            )
+            await loadTransactions()
+        } catch {
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't duplicate this transaction.")
+            )
+        }
+    }
+
     func deleteSelected() async {
         let ids = Array(selectedTransactionIDs)
         isLoading = true
@@ -106,7 +195,7 @@ import Foundation
         defer { isLoading = false }
 
         do {
-            try await bulkOpsUseCase.bulkDelete(transactionIDs: ids)
+            try await deleteUseCase.executeBulk(ids: ids)
             selectedTransactionIDs.removeAll()
             isMultiSelectMode = false
             await loadTransactions()

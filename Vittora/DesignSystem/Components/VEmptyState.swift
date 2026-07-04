@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// An empty state view showing a large icon, title, subtitle, and optional action button.
 /// Used when no data is available or no results are found.

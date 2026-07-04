@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// A customizable action button with Primary, Secondary, and Destructive styles.
 /// Supports loading state, full width layout, and haptic feedback.

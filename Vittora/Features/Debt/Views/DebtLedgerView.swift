@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct DebtLedgerView: View {
     @Environment(AppState.self) private var appState
@@ -48,21 +49,12 @@ struct DebtLedgerView: View {
         }
         .task {
             if vm == nil {
-                guard let debtRepo = dependencies.debtRepository,
-                      let payeeRepo = dependencies.payeeRepository else { return }
-                vm = DebtLedgerViewModel(
-                    fetchLedgerUseCase: FetchDebtLedgerUseCase(
-                        debtRepository: debtRepo,
-                        payeeRepository: payeeRepo
-                    ),
-                    calculateBalanceUseCase: CalculateDebtBalanceUseCase(debtRepository: debtRepo),
-                    fetchOverdueUseCase: FetchOverdueDebtsUseCase(debtRepository: debtRepo)
-                )
+                vm = dependencies.makeDebtLedgerViewModel()
                 await vm?.load()
             }
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .debt)) {
+            guard vm != nil, appState.refreshVersion(for: .debt) > 0 else { return }
             await vm?.load()
         }
         .sheet(isPresented: $showAddDebt) {
@@ -118,6 +110,13 @@ struct DebtLedgerView: View {
                             .padding(.horizontal, VSpacing.md)
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button {
+                            selectedPayeeID = entry.payee.id
+                        } label: {
+                            Label(String(localized: "View Ledger"), systemImage: "doc.text")
+                        }
+                    }
 
                     if entry.id != entries.last?.id {
                         Divider().padding(.leading, VSpacing.lg)

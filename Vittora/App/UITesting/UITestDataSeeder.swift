@@ -1,19 +1,23 @@
 import Foundation
+import VittoraCore
 
 @MainActor
 final class UITestDataSeeder {
     private let accountRepository: any AccountRepository
     private let categoryRepository: any CategoryRepository
     private let transactionRepository: any TransactionRepository
+    private let ledgerWriting: any LedgerWriting
 
     init(
         accountRepository: any AccountRepository,
         categoryRepository: any CategoryRepository,
-        transactionRepository: any TransactionRepository
+        transactionRepository: any TransactionRepository,
+        ledgerWriting: any LedgerWriting
     ) {
         self.accountRepository = accountRepository
         self.categoryRepository = categoryRepository
         self.transactionRepository = transactionRepository
+        self.ledgerWriting = ledgerWriting
     }
 
     func seedTransactionScenarioIfNeeded() async throws {
@@ -56,9 +60,9 @@ final class UITestDataSeeder {
         try await categoryRepository.create(salaryCategory)
 
         let addTransactionUseCase = AddTransactionUseCase(
-            transactionRepository: transactionRepository,
             accountRepository: accountRepository,
-            categoryRepository: categoryRepository
+            categoryRepository: categoryRepository,
+            ledgerWriting: ledgerWriting
         )
 
         _ = try await addTransactionUseCase.execute(
@@ -68,7 +72,7 @@ final class UITestDataSeeder {
             categoryID: groceriesCategory.id,
             accountID: checkingAccount.id,
             payeeID: nil,
-            note: String(localized: "Coffee Run"),
+            note: "Coffee Run",
             tags: ["coffee"],
             paymentMethod: .debitCard,
             currencyCode: "USD"
@@ -81,7 +85,7 @@ final class UITestDataSeeder {
             categoryID: salaryCategory.id,
             accountID: checkingAccount.id,
             payeeID: nil,
-            note: String(localized: "Monthly Salary"),
+            note: "Monthly Salary",
             tags: ["income"],
             paymentMethod: .bankTransfer,
             currencyCode: "USD"

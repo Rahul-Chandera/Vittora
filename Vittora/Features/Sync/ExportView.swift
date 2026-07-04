@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 @Observable
 @MainActor
@@ -76,21 +77,7 @@ struct ExportView: View {
         #endif
         .task {
             guard vm == nil else { return }
-
-            if let exportService = dependencies.exportService {
-                vm = ExportViewModel(exportService: exportService)
-                return
-            }
-
-            guard let repo = dependencies.transactionRepository else { return }
-            vm = ExportViewModel(
-                exportService: DataExportService(
-                    transactionRepository: repo,
-                    accountRepository: dependencies.accountRepository,
-                    categoryRepository: dependencies.categoryRepository,
-                    payeeRepository: dependencies.payeeRepository
-                )
-            )
+            vm = ExportViewModel(exportService: dependencies.exportService)
         }
     }
 

@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import OSLog
+import VittoraCore
 
 @main
 struct VittoraApp: App {
@@ -29,18 +30,29 @@ struct VittoraApp: App {
     private let bypassOnboardingForUITesting: Bool
     private let seedsTransactionsForUITesting: Bool
     private let seedsTransfersForUITesting: Bool
+    private let exercisesAppLockPolicy: Bool
     private let startupErrorMessage: String?
     private let startupFailureMessage: String?
-    private let recurringGenerationUseCase: GenerateRecurringTransactionsUseCase?
+    private let recurringGenerationCoordinator: RecurringGenerationCoordinator?
 
     init() {
         let launchArguments = ProcessInfo.processInfo.arguments
         isUITesting = launchArguments.contains("--uitesting")
         isRunningAutomatedTests = isUITesting || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         showsOnboardingForUITesting = launchArguments.contains("--ui-test-onboarding")
+            || ProcessInfo.processInfo.environment["UITEST_FORCE_ONBOARDING"] == "1"
         bypassOnboardingForUITesting = isUITesting && !showsOnboardingForUITesting
         seedsTransactionsForUITesting = launchArguments.contains("--ui-test-seed-transactions")
         seedsTransfersForUITesting = launchArguments.contains("--ui-test-seed-transfers")
+        exercisesAppLockPolicy = launchArguments.contains("--ui-test-app-lock")
+
+        if exercisesAppLockPolicy {
+            KeychainService.syncSave(Data([1]), forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+            UserDefaults.standard.set(
+                AppLockTimeout.immediately.rawValue,
+                forKey: AppUserDefaults.StandardKey.appLockTimeout
+            )
+        }
 
         let startupContainer = Self.makeStartupModelContainer(inMemory: isRunningAutomatedTests)
         modelContainer = startupContainer.container
@@ -51,14 +63,14 @@ struct VittoraApp: App {
         if let modelContainer {
             dependencyContainer = DependencyContainer.createDefault(modelContainer: modelContainer)
         } else {
-            dependencyContainer = DependencyContainer()
+            dependencyContainer = DependencyContainer.startupFailure()
         }
         let syncStatusService = SyncStatusService(isMonitoringEnabled: !isRunningAutomatedTests)
         let conflictHandler = SyncConflictHandler(
             auditLogger: dependencyContainer.securityAuditLogService
         )
         _dependencies = State(initialValue: dependencyContainer)
-        let keychainService = dependencyContainer.keychainService ?? KeychainService()
+        let keychainService = dependencyContainer.keychainService
         _settingsVM = State(initialValue: SettingsViewModel(keychainService: keychainService))
         _syncService = State(initialValue: syncStatusService)
         _syncConflictHandler = State(initialValue: conflictHandler)
@@ -81,25 +93,17 @@ struct VittoraApp: App {
                     showsOnboardingForUITesting: showsOnboardingForUITesting,
                     bypassOnboardingForUITesting: bypassOnboardingForUITesting
                 ),
-                isUITesting: isUITesting
+                selectedTab: Self.initialSelectedTab(isUITesting: isUITesting),
+                isUITesting: isUITesting,
+                exercisesAppLockPolicy: exercisesAppLockPolicy
             )
         )
 
-        if let recurringRuleRepository = dependencyContainer.recurringRuleRepository,
-           let transactionRepository = dependencyContainer.transactionRepository,
-           let accountRepository = dependencyContainer.accountRepository {
-            recurringGenerationUseCase = GenerateRecurringTransactionsUseCase(
-                ruleRepository: recurringRuleRepository,
-                transactionRepository: transactionRepository,
-                accountRepository: accountRepository
-            )
-        } else {
-            recurringGenerationUseCase = nil
-        }
+        recurringGenerationCoordinator = dependencyContainer.recurringGenerationCoordinator
 
         #if os(iOS)
-        if !isRunningAutomatedTests, let recurringGenerationUseCase {
-            BackgroundTaskScheduler.register(generateUseCase: recurringGenerationUseCase)
+        if !isRunningAutomatedTests, let recurringGenerationCoordinator {
+            BackgroundTaskScheduler.register(coordinator: recurringGenerationCoordinator)
         }
         #endif
     }
@@ -109,37 +113,52 @@ struct VittoraApp: App {
         bypassOnboardingForUITesting: Bool
     ) -> Bool {
         if showsOnboardingForUITesting {
-            KeychainService.syncDelete(forKey: "vittora.onboardingComplete")
+            KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
+            KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockTimeout)
             return false
         }
 
         if bypassOnboardingForUITesting { return true }
 
         // Keychain is authoritative; migrate from UserDefaults on first upgrade
-        if let data = KeychainService.syncLoad(forKey: "vittora.onboardingComplete") {
+        if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.onboardingComplete) {
             return data.first == 1
         }
-        let udValue = UserDefaults.standard.bool(forKey: "vittora.onboardingComplete")
+        let udValue = UserDefaults.standard.bool(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
         if udValue {
-            KeychainService.syncSave(Data([1]), forKey: "vittora.onboardingComplete")
-            UserDefaults.standard.removeObject(forKey: "vittora.onboardingComplete")
+            KeychainService.syncSave(Data([1]), forKey: AppUserDefaults.KeychainKey.onboardingComplete)
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
         }
         return udValue
+    }
+
+    private static func initialSelectedTab(isUITesting: Bool) -> AppState.AppTab {
+        guard isUITesting,
+              let rawValue = ProcessInfo.processInfo.environment["UITEST_INITIAL_TAB"],
+              let tab = AppState.AppTab(rawValue: rawValue) else {
+            return .dashboard
+        }
+        return tab
     }
 
     var body: some Scene {
         WindowGroup {
             if let modelContainer {
                 ContentView()
-                    .environment(appState)
-                    .environment(\.dependencies, dependencies)
-                    .environment(settingsVM)
-                    .environment(syncService)
-                    .environment(syncConflictHandler)
-                    .environment(\.currencyCode, settingsVM.selectedCurrencyCode)
-                    .environment(\.currencySymbol, String.currencySymbol(for: settingsVM.selectedCurrencyCode))
-                    .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
-                    .modelContainer(modelContainer)
+                    .vittoraAppEnvironments(
+                        appState: appState,
+                        dependencies: dependencies,
+                        settingsVM: settingsVM,
+                        syncService: syncService,
+                        syncConflictHandler: syncConflictHandler,
+                        modelContainer: modelContainer
+                    )
+                    .restoresSceneState(appState: appState)
+                    #if os(macOS)
+                    .frame(minWidth: 960, minHeight: 640)
+                    #endif
                     .overlay(alignment: .top) {
                         if let startupErrorMessage {
                             StartupRecoveryBanner(message: startupErrorMessage)
@@ -149,6 +168,9 @@ struct VittoraApp: App {
                     }
                     .task {
                         await performStartupTasksIfNeeded()
+                    }
+                    .onOpenURL { url in
+                        appState.openSplitGroup(from: url)
                     }
             } else {
                 StartupFailureView(
@@ -160,18 +182,24 @@ struct VittoraApp: App {
         }
         #if os(macOS)
         .defaultSize(width: 1200, height: 800)
+        .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(after: .newItem) {
                 Button(String(localized: "New Transaction")) {
-                    NotificationCenter.default.post(name: .vittoraNewTransaction, object: nil)
+                    appState.request(.presentNewTransaction)
                 }
                 .keyboardShortcut("n", modifiers: .command)
             }
-            CommandGroup(after: .appSettings) {
-                Button(String(localized: "Settings")) {
-                    NotificationCenter.default.post(name: .vittoraOpenSettings, object: nil)
+            CommandMenu(String(localized: "Go to")) {
+                ForEach(Array(AppState.AppTab.allCases.enumerated()), id: \.offset) { index, tab in
+                    Button(tab.title) {
+                        appState.request(.selectTab(tab))
+                    }
+                    .keyboardShortcut(
+                        tabShortcutKey(at: index),
+                        modifiers: .command
+                    )
                 }
-                .keyboardShortcut(",", modifiers: .command)
             }
         }
         #endif
@@ -179,29 +207,96 @@ struct VittoraApp: App {
             let shouldShowPrivacyShield = newPhase == .inactive || newPhase == .background
             appState.isPrivacyShieldVisible = !isRunningAutomatedTests && shouldShowPrivacyShield
 
-            if newPhase == .background && !isRunningAutomatedTests && settingsVM.isAppLockEnabled {
-                appState.isLocked = true
-                appState.isAuthenticated = false
-            }
-            if newPhase == .active {
-                if !isRunningAutomatedTests {
-                    if settingsVM.isAppLockEnabled && !appState.isAuthenticated {
-                        appState.isLocked = true
-                    } else if !settingsVM.isAppLockEnabled {
-                        appState.isLocked = false
-                    }
+            guard !isRunningAutomatedTests || exercisesAppLockPolicy else {
+                if newPhase == .active {
+                    appState.isPrivacyShieldVisible = false
                 }
+                return
+            }
+
+            switch newPhase {
+            case .inactive:
+                // UI-test harness: home press often stops at .inactive on Simulator.
+                if exercisesAppLockPolicy, settingsVM.isAppLockEnabled {
+                    dependencies.appLockService.recordBackgrounded(at: .now)
+                }
+            case .background:
+                if settingsVM.isAppLockEnabled {
+                    dependencies.appLockService.recordBackgrounded(at: .now)
+                }
+            case .active:
+                applyAppLockPolicyOnBecomeActive()
                 appState.isPrivacyShieldVisible = false
                 PerformanceLogger.App.sceneDidBecomeActive()
-                guard !isRunningAutomatedTests else { return }
                 Task {
                     await syncService.checkiCloudStatus()
                     #if os(iOS)
                     BackgroundTaskScheduler.scheduleNextRefresh()
                     #endif
                 }
+            default:
+                break
             }
         }
+
+        #if os(macOS)
+        Settings {
+            if let modelContainer {
+                SettingsView()
+                    .vittoraAppEnvironments(
+                        appState: appState,
+                        dependencies: dependencies,
+                        settingsVM: settingsVM,
+                        syncService: syncService,
+                        syncConflictHandler: syncConflictHandler,
+                        modelContainer: modelContainer
+                    )
+                    .frame(minWidth: 520, minHeight: 480)
+            } else {
+                ContentUnavailableView {
+                    Label(String(localized: "Settings Unavailable"), systemImage: "gearshape")
+                } description: {
+                    Text(String(localized: "Vittora could not open its data store."))
+                }
+            }
+        }
+        #endif
+    }
+
+    private func tabShortcutKey(at index: Int) -> KeyEquivalent {
+        guard let scalar = UnicodeScalar(49 + index) else {
+            return KeyEquivalent(Character("1"))
+        }
+        return KeyEquivalent(Character(scalar))
+    }
+
+    /// Re-lock only when background duration meets the configured timeout (B1).
+    private func applyAppLockPolicyOnBecomeActive() {
+        guard settingsVM.isAppLockEnabled else {
+            appState.isLocked = false
+            return
+        }
+
+        let service = dependencies.appLockService
+        if let backgroundedAt = service.lastBackgroundedAt,
+           AppLockPolicy.shouldLock(
+               backgroundedAt: backgroundedAt,
+               now: .now,
+               timeout: settingsVM.appLockTimeout.timeInterval
+           ) {
+            appState.isLocked = true
+            appState.isAuthenticated = false
+            Task { await service.lock() }
+        } else if !appState.isAuthenticated {
+            appState.isLocked = true
+        }
+    }
+
+    private func configureNotificationService() async {
+        dependencies.notificationService.setDeepLinkHandler { [appState] deepLink in
+            appState.openFromNotification(deepLink)
+        }
+        await dependencies.notificationService.registerCategories()
     }
 
     private func performStartupTasksIfNeeded() async {
@@ -220,57 +315,51 @@ struct VittoraApp: App {
 
         guard !isRunningAutomatedTests else { return }
 
-        guard let modelContainer else { return }
-        let dataSeeder = dependencies.dataSeeder ?? DefaultDataSeeder(modelContainer: modelContainer)
+        await configureNotificationService()
+        await dependencies.refreshCreditCardDueReminders()
+
+        guard modelContainer != nil else { return }
         do {
-            try await dataSeeder.seedDefaultCategoriesIfNeeded()
+            try await dependencies.dataSeeder.seedDefaultCategoriesIfNeeded()
         } catch {
             Self.logger.error("Failed to seed default categories: \(error.localizedDescription, privacy: .public)")
         }
 
-        guard let recurringGenerationUseCase else { return }
         do {
-            _ = try await recurringGenerationUseCase.execute()
+            _ = try await dependencies.recurringGenerationCoordinator.generate()
         } catch {
             Self.logger.error("Failed to generate recurring transactions on launch: \(error.localizedDescription, privacy: .public)")
         }
+        await dependencies.refreshRecurringAndDebtReminders()
     }
 
     private func seedUITestTransactionsIfNeeded() async {
-        guard let accountRepository = dependencies.accountRepository,
-              let categoryRepository = dependencies.categoryRepository,
-              let transactionRepository = dependencies.transactionRepository else {
-            return
-        }
-
         let seeder = UITestDataSeeder(
-            accountRepository: accountRepository,
-            categoryRepository: categoryRepository,
-            transactionRepository: transactionRepository
+            accountRepository: dependencies.accountRepository,
+            categoryRepository: dependencies.categoryRepository,
+            transactionRepository: dependencies.transactionRepository,
+            ledgerWriting: dependencies.ledgerWriteStore
         )
 
         do {
             try await seeder.seedTransactionScenarioIfNeeded()
+            appState.notifyChanged([.transactions, .accounts, .categories])
         } catch {
             Self.logger.error("Failed to seed UI test transaction data: \(error.localizedDescription, privacy: .public)")
         }
     }
 
     private func seedUITestTransferScenarioIfNeeded() async {
-        guard let accountRepository = dependencies.accountRepository,
-              let categoryRepository = dependencies.categoryRepository,
-              let transactionRepository = dependencies.transactionRepository else {
-            return
-        }
-
         let seeder = UITestDataSeeder(
-            accountRepository: accountRepository,
-            categoryRepository: categoryRepository,
-            transactionRepository: transactionRepository
+            accountRepository: dependencies.accountRepository,
+            categoryRepository: dependencies.categoryRepository,
+            transactionRepository: dependencies.transactionRepository,
+            ledgerWriting: dependencies.ledgerWriteStore
         )
 
         do {
             try await seeder.seedTransferScenarioIfNeeded()
+            appState.notifyChanged(.accounts)
         } catch {
             Self.logger.error("Failed to seed UI test transfer data: \(error.localizedDescription, privacy: .public)")
         }

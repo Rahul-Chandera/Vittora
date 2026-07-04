@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 extension View {
     /// Present a fullscreen modal sheet.

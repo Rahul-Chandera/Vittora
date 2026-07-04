@@ -1,12 +1,22 @@
 import SwiftUI
+import VittoraCore
 
 struct AppLockView: View {
     @Environment(AppState.self) private var appState
+    @Environment(SettingsViewModel.self) private var settingsVM
     @Environment(\.dependencies) private var dependencies
 
     @State private var isAuthenticating = false
     @State private var errorMessage: String?
     @State private var cooldownRemaining: Int = 0
+
+    private var isLockServiceAvailable: Bool { true }
+
+    private var showsPasscodeButton: Bool {
+        isLockServiceAvailable && AppLockPasscodeFallbackPolicy.showsPasscodeButton(
+            allowPasscodeFallback: settingsVM.allowPasscodeFallback
+        )
+    }
 
     var body: some View {
         ZStack {
@@ -57,11 +67,9 @@ struct AppLockView: View {
                                 .tint(.white)
                                 .scaleEffect(0.85)
                         } else {
-                            Image(systemName: biometricIcon)
+                            Image(systemName: isLockServiceAvailable ? biometricIcon : "arrow.clockwise")
                         }
-                        Text(isAuthenticating
-                             ? String(localized: "Authenticating…")
-                             : String(localized: "Unlock"))
+                        Text(unlockButtonTitle)
                             .font(VTypography.bodyBold)
                     }
                     .frame(maxWidth: 260)
@@ -70,27 +78,52 @@ struct AppLockView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(VColors.primary)
                 .disabled(isAuthenticating || cooldownRemaining > 0)
-                .accessibilityLabel(String(localized: "Unlock Vittora"))
-                .accessibilityHint(String(localized: "Authenticates using biometrics or passcode"))
+                .accessibilityLabel(unlockButtonTitle)
+                .accessibilityHint(unlockButtonHint)
 
-                Button(String(localized: "Use Passcode")) {
-                    Task { await authenticateWithPasscode() }
+                if showsPasscodeButton {
+                    Button(String(localized: "Use Passcode")) {
+                        Task { await authenticateWithPasscode() }
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(isAuthenticating || cooldownRemaining > 0)
+                    .accessibilityHint(String(localized: "Unlocks using your device passcode"))
                 }
-                .buttonStyle(.bordered)
-                .disabled(isAuthenticating || cooldownRemaining > 0)
-                .accessibilityHint(String(localized: "Unlocks using your device passcode"))
 
                 Spacer()
             }
         }
+        .accessibilityIdentifier("app-lock-root")
         .privacySensitive()
-        .task { await authenticate() }
+        .task {
+            guard isLockServiceAvailable else {
+                applyMissingServiceFailClosed()
+                return
+            }
+            guard !ProcessInfo.processInfo.arguments.contains("--ui-test-app-lock") else { return }
+            await authenticate()
+        }
         .task { await runCooldownTimer() }
     }
 
+    private var unlockButtonTitle: String {
+        if isAuthenticating { return String(localized: "Authenticating…") }
+        if isLockServiceAvailable { return String(localized: "Unlock") }
+        return String(localized: "Retry")
+    }
+
+    private var unlockButtonHint: String {
+        if !isLockServiceAvailable {
+            return String(localized: "Retries App Lock after a service error")
+        }
+        if settingsVM.allowPasscodeFallback {
+            return String(localized: "Authenticates using biometrics or passcode")
+        }
+        return String(localized: "Authenticates using biometrics only")
+    }
+
     private var biometricIcon: String {
-        guard let service = dependencies.biometricService else { return "faceid" }
-        switch service.biometricType {
+        switch dependencies.biometricService.biometricType {
         case .faceID:   return "faceid"
         case .touchID:  return "touchid"
         case .opticID:  return "eye"
@@ -100,7 +133,7 @@ struct AppLockView: View {
 
     private func authenticate() async {
         await performAuthentication { lockService in
-            try await lockService.unlock()
+            try await lockService.unlock(allowPasscodeFallback: settingsVM.allowPasscodeFallback)
         }
     }
 
@@ -110,13 +143,17 @@ struct AppLockView: View {
         }
     }
 
+    private func applyMissingServiceFailClosed() {
+        let update = AppLockUnlockGate.sessionUpdateAfterMissingService()
+        appState.isAuthenticated = update.isAuthenticated
+        appState.isLocked = update.isLocked
+        errorMessage = AppLockUnlockGate.missingServiceMessage
+    }
+
     private func performAuthentication(
         _ action: @escaping (any AppLockServiceProtocol) async throws -> Bool
     ) async {
-        guard let lockService = dependencies.appLockService else {
-            appState.isLocked = false
-            return
-        }
+        let lockService = dependencies.appLockService
         isAuthenticating = true
         errorMessage = nil
         defer { isAuthenticating = false }
@@ -135,7 +172,7 @@ struct AppLockView: View {
     /// Polls the lock service every second to keep the on-screen countdown in sync.
     private func runCooldownTimer() async {
         while !Task.isCancelled {
-            if let expires = dependencies.appLockService?.cooldownExpiresAt, expires > .now {
+            if let expires = dependencies.appLockService.cooldownExpiresAt, expires > .now {
                 cooldownRemaining = Int(expires.timeIntervalSince(.now).rounded(.up))
             } else {
                 cooldownRemaining = 0

@@ -1,20 +1,25 @@
 import Foundation
+import VittoraCore
 
 @Observable @MainActor final class TransactionDetailViewModel {
     var transaction: TransactionEntity?
     var relatedTransactions: [TransactionEntity] = []
+    var editHistory: [TransactionEditRecord] = []
     var isLoading = false
     var error: String?
 
     private let fetchUseCase: FetchTransactionsUseCase
     private let deleteUseCase: DeleteTransactionUseCase
+    private let editHistoryStore: any TransactionEditHistoryStoring
 
     init(
         fetchUseCase: FetchTransactionsUseCase,
-        deleteUseCase: DeleteTransactionUseCase
+        deleteUseCase: DeleteTransactionUseCase,
+        editHistoryStore: any TransactionEditHistoryStoring
     ) {
         self.fetchUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
+        self.editHistoryStore = editHistoryStore
     }
 
     func loadTransaction(id: UUID) async {
@@ -23,12 +28,13 @@ import Foundation
         defer { isLoading = false }
 
         do {
-            let transactions = try await fetchUseCase.execute(filter: nil)
-            guard let found = transactions.first(where: { $0.id == id }) else {
+            guard let found = try await fetchUseCase.execute(id: id) else {
                 error = String(localized: "We couldn't find this transaction.")
+                editHistory = []
                 return
             }
             transaction = found
+            editHistory = (try? editHistoryStore.fetch(for: id)) ?? []
 
             // Load related transactions (same payee, same account, within 30 days)
             if let payeeID = found.payeeID, let accountID = found.accountID {
@@ -57,6 +63,7 @@ import Foundation
         }
         try await deleteUseCase.execute(id: transaction.id)
         self.transaction = nil
+        editHistory = []
     }
 
     func duplicate() async throws -> TransactionEntity {

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @Observable
 @MainActor
@@ -12,11 +13,15 @@ final class TransferViewModel {
     var isLoading = false
     var error: String?
 
+    private var parsedAmount: Decimal? {
+        Decimal(localizedAmount: amount)
+    }
+
     var canTransfer: Bool {
         sourceAccount != nil &&
         destinationAccount != nil &&
         sourceAccount?.id != destinationAccount?.id &&
-        (Decimal(string: amount) ?? 0) > 0
+        (parsedAmount ?? 0) > 0
     }
 
     private let transferUseCase: TransferFundsUseCase
@@ -39,7 +44,11 @@ final class TransferViewModel {
         guard let source = sourceAccount, let destination = destinationAccount else {
             throw VittoraError.validationFailed("Please select source and destination accounts")
         }
-        let transferAmount = Decimal(string: amount) ?? 0
+        guard let transferAmount = Decimal(localizedAmount: amount), transferAmount > 0 else {
+            throw VittoraError.validationFailed(
+                String(localized: "Please enter a valid transfer amount.")
+            )
+        }
         try await transferUseCase.execute(
             sourceAccountID: source.id,
             destinationAccountID: destination.id,

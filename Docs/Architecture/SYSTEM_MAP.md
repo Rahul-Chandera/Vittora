@@ -32,6 +32,8 @@ This map helps agents find the right files quickly.
 - Mapping layer: `Vittora/Core/Data/Mappers/`
 - Data management/reset: `Vittora/Core/Data/Persistence/DataManagementService.swift`
 - Export: `Vittora/Core/Data/Persistence/DataExportService.swift`
+- Write Unit-of-Work (atomic compound ledger writes): `Vittora/Core/Data/Persistence/LedgerWriteStore.swift`
+- Atomic write seam (protocol use cases depend on): `Vittora/Core/Data/Persistence/LedgerWriting.swift`
 
 ## Sync
 
@@ -39,6 +41,7 @@ This map helps agents find the right files quickly.
 - CloudKit event monitor: `Vittora/Core/Sync/CloudKitSyncMonitor.swift`
 - Conflict semantics: `Vittora/Core/Sync/SyncConflictHandler.swift`
 - Integrity checks: `Vittora/Core/Sync/SyncIntegrityValidator.swift`
+- Balance reconciliation/repair (DATAINTEGRITY-12): `Vittora/Core/Domain/UseCases/ReconcileAccountBalanceUseCase.swift`
 - UI surfaces: `Vittora/Features/Sync/SyncStatusView.swift`, `Vittora/Features/Sync/DataManagementView.swift`
 
 ## Tax
@@ -52,13 +55,14 @@ This map helps agents find the right files quickly.
 ## Documents and Receipts
 
 - Metadata repo: `Vittora/Core/Data/Repositories/SwiftDataDocumentRepository.swift`
-- Secure storage service: `Vittora/Core/Data/Infrastructure/EncryptedDocumentStorageService.swift`
+- Secure storage service: `Vittora/Core/Data/Mappers/DocumentMapper.swift` (`EncryptedDocumentStorageService`)
 - Delete orchestration: `Vittora/Core/Domain/UseCases/DeleteDocumentUseCase.swift`
 - Preview/import/list UI: `Vittora/Features/Documents/Views/`
 
 ## Recurring Transactions
 
 - Generation use case: `Vittora/Core/Domain/UseCases/GenerateRecurringTransactionsUseCase.swift`
+- Serializer: `Vittora/Core/Domain/UseCases/RecurringGenerationCoordinator.swift` (coalesces launch + BGTask runs)
 - Rule repository: `Vittora/Core/Data/Repositories/SwiftDataRecurringRuleRepository.swift`
 - Background scheduler: `Vittora/Core/Infrastructure/BackgroundTaskScheduler.swift`
 - Feature UI: `Vittora/Features/Recurring/`

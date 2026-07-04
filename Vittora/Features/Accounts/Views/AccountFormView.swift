@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AccountFormView: View {
     var editingAccount: AccountEntity? = nil
@@ -55,13 +56,11 @@ struct AccountFormView: View {
 
     private func setupViewModel() {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let accountRepo = deps.accountRepository else { return }
 
         let vm = AccountFormViewModel(
-            createUseCase: CreateAccountUseCase(accountRepository: accountRepo),
-            updateUseCase: UpdateAccountUseCase(accountRepository: accountRepo),
-            repository: accountRepo
+            createUseCase: CreateAccountUseCase(accountRepository: dependencies.accountRepository),
+            updateUseCase: UpdateAccountUseCase(accountRepository: dependencies.accountRepository),
+            repository: dependencies.accountRepository
         )
         if let account = editingAccount {
             vm.loadAccount(account)
@@ -98,6 +97,19 @@ struct AccountFormView: View {
                 }
             }
 
+            if vm.selectedType == .creditCard {
+                Section(String(localized: "Billing Cycle")) {
+                    billingDayPicker(
+                        title: String(localized: "Statement Day"),
+                        selection: Bindable(vm).statementDayOfMonth
+                    )
+                    billingDayPicker(
+                        title: String(localized: "Payment Due Day"),
+                        selection: Bindable(vm).dueDayOfMonth
+                    )
+                }
+            }
+
             Section(String(localized: "Icon")) {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: VSpacing.sm) {
                     ForEach(availableIcons, id: \.self) { iconName in
@@ -114,6 +126,9 @@ struct AccountFormView: View {
                             }
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel(String(localized: "Account icon"))
+                        .accessibilityValue(iconName)
+                        .accessibilityAddTraits(vm.selectedIcon == iconName ? .isSelected : [])
                     }
                 }
                 .padding(.vertical, VSpacing.xs)
@@ -127,13 +142,26 @@ struct AccountFormView: View {
         }
     }
 
+    private func billingDayPicker(title: String, selection: Binding<Int?>) -> some View {
+        Picker(title, selection: selection) {
+            Text(String(localized: "Not set")).tag(Optional<Int>.none)
+            ForEach(1...31, id: \.self) { day in
+                Text("\(day)").tag(Optional(day))
+            }
+        }
+    }
+
     private func save() async {
         guard let vm = viewModel else { return }
         isSaving = true
         saveError = nil
         do {
             try await vm.save()
-            appState.notifyDataChanged()
+            if !vm.isEditing {
+                await dependencies.conversionEventRecorder.afterAccountCreated()
+            }
+            await dependencies.refreshCreditCardDueReminders()
+            appState.notifyChanged(.accounts)
             onSave?()
             dismiss()
         } catch {

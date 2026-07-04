@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("Decimal Currency Formatting Tests")
@@ -144,5 +145,61 @@ struct DecimalCurrencyTests {
         let abbreviated = Decimal(500).abbreviated()
         #expect(!abbreviated.isEmpty)
         #expect(!abbreviated.contains("K"))
+    }
+
+    // MARK: - L8: exact Decimal equality and rounding boundaries
+
+    @Test("rounded(to:) uses exact Decimal equality at half-up boundary")
+    func testRoundingHalfUpExact() {
+        let input = Decimal(string: "1.005")!
+        let rounded = input.rounded(to: 2)
+        #expect(rounded == Decimal(string: "1.01")!)
+    }
+
+    @Test("rounded(to:) rounds .5 up at zero decimal places")
+    func testRoundingHalfUpToInteger() {
+        let input = Decimal(string: "2.5")!
+        #expect(input.rounded(to: 0) == Decimal(string: "3")!)
+    }
+
+    @Test("rounded(to:) preserves value below half boundary")
+    func testRoundingBelowHalfBoundary() {
+        let input = Decimal(string: "1.004")!
+        #expect(input.rounded(to: 2) == Decimal(string: "1.00")!)
+    }
+
+    @Test("JPY formats without fractional digits")
+    func testJPYNoFraction() {
+        let formatted = format(Decimal(1000), currencyCode: "JPY")
+        #expect(!formatted.contains("."))
+        #expect(formatted.contains("1000") || formatted.contains("1,000"))
+    }
+
+    @Test("pinned en_US_POSIX USD string")
+    func testPinnedLocaleUSD() {
+        let amount = Decimal(string: "1234.56")!
+        let formatted = formatPinned(amount, currencyCode: "USD")
+        #expect(formatted.contains("1,234.56"))
+        #expect(formatted.contains("$"))
+    }
+
+    @Test("pinned en_US_POSIX INR string")
+    func testPinnedLocaleINR() {
+        let amount = Decimal(string: "2499.00")!
+        let formatted = formatPinned(amount, currencyCode: "INR")
+        #expect(formatted.contains("2,499"))
+        #expect(formatted.contains("₹"))
+    }
+
+    /// Locale-independent assertion helper (TESTING-7 / L8).
+    private func formatPinned(_ decimal: Decimal, currencyCode: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyCode
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.usesGroupingSeparator = true
+        formatter.groupingSeparator = ","
+        formatter.decimalSeparator = "."
+        return formatter.string(from: NSDecimalNumber(decimal: decimal)) ?? ""
     }
 }

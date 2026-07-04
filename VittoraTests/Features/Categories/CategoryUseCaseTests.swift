@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 
 @testable import Vittora
 
@@ -103,23 +104,71 @@ struct CategoryUseCaseTests {
 
     @Suite("DeleteCategoryUseCase")
     struct DeleteCategoryUseCaseTests {
+        private func makeDeleteUseCase(
+            categoryRepo: MockCategoryRepository,
+            transactionRepo: MockTransactionRepository = MockTransactionRepository()
+        ) async -> DeleteCategoryUseCase {
+            let accountRepo = await MainActor.run { MockAccountRepository() }
+            return DeleteCategoryUseCase(
+                categoryRepository: categoryRepo,
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepo,
+                    accountRepository: accountRepo,
+                    categoryRepository: categoryRepo
+                )
+            )
+        }
+
         @Test("Deletes an existing non-default category")
         func testDeleteNonDefaultCategory() async throws {
             let repo = MockCategoryRepository()
             let category = CategoryEntity(name: "Old Category", icon: "tag.fill", isDefault: false)
             await repo.seed(category)
 
-            let useCase = DeleteCategoryUseCase(repository: repo)
+            let useCase = await makeDeleteUseCase(categoryRepo: repo)
             try await useCase.execute(id: category.id)
 
             let all = await repo.categories
             #expect(all.isEmpty)
         }
 
+        @Test("Nullifies categoryID on dependent transactions before delete")
+        func testDeleteNullifiesTransactionCategory() async throws {
+            let repo = MockCategoryRepository()
+            let txRepo = MockTransactionRepository()
+            let category = CategoryEntity(name: "Food", icon: "fork.knife", isDefault: false)
+            await repo.seed(category)
+            try await txRepo.create(
+                TransactionEntity(amount: 50, type: .expense, categoryID: category.id, accountID: UUID())
+            )
+
+            let useCase = await makeDeleteUseCase(categoryRepo: repo, transactionRepo: txRepo)
+            try await useCase.execute(id: category.id)
+
+            let txs = await txRepo.transactions
+            #expect(txs.first?.categoryID == nil)
+            #expect(await repo.categories.isEmpty)
+        }
+
+        @Test("Throws validationFailed when deleting a default category")
+        func testThrowsWhenDeletingDefaultCategory() async throws {
+            let repo = MockCategoryRepository()
+            let category = CategoryEntity(name: "Food & Drink", icon: "fork.knife", isDefault: true)
+            await repo.seed(category)
+
+            let useCase = await makeDeleteUseCase(categoryRepo: repo)
+
+            await #expect(throws: VittoraError.self) {
+                try await useCase.execute(id: category.id)
+            }
+            let all = await repo.categories
+            #expect(all.count == 1)
+        }
+
         @Test("Throws error when deleting non-existent category")
         func testThrowsWhenDeletingNonExistent() async throws {
             let repo = MockCategoryRepository()
-            let useCase = DeleteCategoryUseCase(repository: repo)
+            let useCase = await makeDeleteUseCase(categoryRepo: repo)
 
             await #expect(throws: (any Error).self) {
                 try await useCase.execute(id: UUID())

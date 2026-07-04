@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct FetchDocumentsUseCase: Sendable {
     let documentRepository: any DocumentRepository

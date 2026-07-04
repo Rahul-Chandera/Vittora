@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct PayeeAnalyticsCard: View {
     let analytics: PayeeAnalytics

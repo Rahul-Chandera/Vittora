@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct SaveTaxProfileUseCase: Sendable {
     let taxProfileRepository: any TaxProfileRepository

@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 extension Decimal {
     /// Format decimal as currency with specified currency code.
@@ -32,11 +33,6 @@ extension Decimal {
     /// Check if the decimal is zero.
     var isZero: Bool {
         return self == 0
-    }
-
-    /// True when the value is representable as a finite double (used for sync integrity checks).
-    var isFiniteDecimal: Bool {
-        Double(truncating: NSDecimalNumber(decimal: self)).isFinite
     }
 
     /// Format as percentage with specified decimal places.

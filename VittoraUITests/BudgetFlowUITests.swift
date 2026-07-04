@@ -17,34 +17,37 @@ final class BudgetFlowUITests: XCTestCase {
 
     @MainActor
     func testCanCreateBudgetFromEmptyState() throws {
-        let budgetsTab = app.tabBars.buttons["Budgets"]
-        XCTAssertTrue(budgetsTab.waitForExistence(timeout: 5))
-        budgetsTab.tap()
+        XCTAssertTrue(
+            UITestSupport.waitForContentRoot(in: app),
+            "App shell should be visible before opening budgets."
+        )
+        XCTAssertTrue(
+            UITestSupport.navigateToTab(named: "Budgets", in: app, timeout: 15),
+            "Budgets tab should be reachable."
+        )
 
         XCTAssertTrue(
-            app.staticTexts["No Budgets Yet"].waitForExistence(timeout: 5),
+            app.staticTexts["No Budgets Yet"].waitForExistence(timeout: 10),
             "The budget screen should start empty in UI test mode."
         )
 
         let addButton = app.buttons["budget-add-button"]
-        XCTAssertTrue(addButton.waitForExistence(timeout: 5))
-        addButton.tap()
+        UITestSupport.tapWhenReady(addButton, timeout: 10)
 
         let amountField = app.textFields["budget-amount-field"]
-        XCTAssertTrue(amountField.waitForExistence(timeout: 5))
+        XCTAssertTrue(amountField.waitForExistence(timeout: 8))
         amountField.tap()
         amountField.typeText("250")
 
         let saveButton = app.buttons["budget-save-button"]
-        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
-        saveButton.tap()
+        UITestSupport.tapWhenReady(saveButton, timeout: 8)
 
-        XCTAssertFalse(
-            amountField.waitForExistence(timeout: 1),
+        XCTAssertTrue(
+            UITestSupport.waitForDisappearance(amountField, timeout: 8),
             "The budget form should dismiss after saving."
         )
         XCTAssertFalse(
-            app.staticTexts["No Budgets Yet"].waitForExistence(timeout: 3),
+            app.staticTexts["No Budgets Yet"].waitForExistence(timeout: 5),
             "The empty state should disappear after creating a budget."
         )
     }

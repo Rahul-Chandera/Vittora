@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Vittora
+import VittoraCore
 
 @Suite("BiometricService Tests")
 @MainActor
@@ -55,7 +55,7 @@ struct BiometricServiceTests {
         let lock = AppLockService(biometricService: mock)
 
         await lock.lock()
-        let result = try await lock.unlock()
+        let result = try await lock.unlock(allowPasscodeFallback: true)
 
         #expect(result == true)
         #expect(lock.isLocked == false)
@@ -68,7 +68,7 @@ struct BiometricServiceTests {
         let lock = AppLockService(biometricService: mock)
 
         await lock.lock()
-        let result = try await lock.unlock()
+        let result = try await lock.unlock(allowPasscodeFallback: true)
 
         #expect(result == false)
         #expect(lock.isLocked == true)
@@ -82,7 +82,7 @@ struct BiometricServiceTests {
 
         await lock.lock()
         await #expect(throws: VittoraError.self) {
-            try await lock.unlock()
+            try await lock.unlock(allowPasscodeFallback: true)
         }
     }
 

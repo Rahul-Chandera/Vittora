@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import VittoraCore
 
 struct MonthlyOverviewView: View {
     @Environment(\.dependencies) private var dependencies
@@ -28,10 +29,30 @@ struct MonthlyOverviewView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                if let vm, hasReportData(vm) {
+                    ReportPDFShareLink(
+                        fileName: "monthly-overview",
+                        contentVersion: monthlyReportContentVersion(vm),
+                        isEnabled: !vm.isLoading
+                    ) {
+                        MonthlyReportExportDocument(
+                            reportTitle: String(localized: "Monthly Overview"),
+                            subtitle: String(localized: "Last 12 months"),
+                            monthlyData: vm.monthlyData,
+                            currencyCode: currencyCode,
+                            totalIncome: vm.totalIncome,
+                            totalExpense: vm.totalExpense,
+                            netSavings: vm.netSavings
+                        )
+                    }
+                }
+            }
+        }
         .task {
             if vm == nil {
-                guard let repo = dependencies.transactionRepository else { return }
-                let useCase = MonthlyOverviewUseCase(transactionRepository: repo)
+                let useCase = MonthlyOverviewUseCase(transactionRepository: dependencies.transactionRepository)
                 vm = MonthlyOverviewViewModel(useCase: useCase)
                 await vm?.load()
             }
@@ -54,7 +75,7 @@ struct MonthlyOverviewView: View {
                 .font(VTypography.caption2)
                 .foregroundColor(VColors.textSecondary)
                 .adaptiveLineLimit(1)
-            Text(formattedAmount(amount))
+            Text(CurrencyFormatter.formatCompact(amount, currencyCode: currencyCode))
                 .font(VTypography.amountSmall)
                 .foregroundColor(color)
         }
@@ -95,12 +116,12 @@ struct MonthlyOverviewView: View {
 
                         Spacer()
 
-                        Text(formattedAmount(item.income))
+                        Text(CurrencyFormatter.formatCompact(item.income, currencyCode: currencyCode))
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.income)
                             .frame(width: 80, alignment: .trailing)
 
-                        Text(formattedAmount(item.expense))
+                        Text(CurrencyFormatter.formatCompact(item.expense, currencyCode: currencyCode))
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.expense)
                             .frame(width: 80, alignment: .trailing)
@@ -117,12 +138,15 @@ struct MonthlyOverviewView: View {
         }
     }
 
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode).precision(.fractionLength(0)))
-    }
-
     private func hasReportData(_ vm: MonthlyOverviewViewModel) -> Bool {
         vm.monthlyData.contains { $0.income != 0 || $0.expense != 0 }
+    }
+
+    private func monthlyReportContentVersion(_ vm: MonthlyOverviewViewModel) -> String {
+        let monthKeys = vm.monthlyData
+            .map { String($0.month.timeIntervalSince1970) }
+            .joined(separator: ",")
+        return "monthly|\(vm.totalIncome)|\(vm.totalExpense)|\(vm.netSavings)|\(monthKeys)"
     }
 
     private var emptyState: some View {

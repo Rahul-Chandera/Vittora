@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct SavingsGoalListView: View {
     @Environment(AppState.self) private var appState
@@ -9,45 +10,39 @@ struct SavingsGoalListView: View {
     @State private var selectedGoalID: UUID?
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                if let vm {
-                    if vm.isLoading && vm.goals.isEmpty {
-                        ProgressView().tint(VColors.primary)
-                    } else if vm.goals.isEmpty {
-                        emptyState
-                    } else {
-                        listContent(vm)
-                    }
+        ZStack {
+            if let vm {
+                if vm.isLoading && vm.goals.isEmpty {
+                    ProgressView().tint(VColors.primary)
+                } else if vm.goals.isEmpty {
+                    emptyState
+                } else {
+                    listContent(vm)
                 }
             }
-            .background(VColors.background)
-            .navigationTitle(String(localized: "Savings Goals"))
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button { showAddGoal = true } label: {
-                        Image(systemName: "plus")
-                    }
+        }
+        .background(VColors.background)
+        .navigationTitle(String(localized: "Savings Goals"))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button { showAddGoal = true } label: {
+                    Image(systemName: "plus")
                 }
             }
-            .navigationDestination(item: $selectedGoalID) { id in
-                if let goal = vm?.goals.first(where: { $0.id == id }) {
-                    SavingsGoalDetailView(initialGoal: goal, currencyCode: currencyCode)
-                }
+        }
+        .navigationDestination(item: $selectedGoalID) { id in
+            if let goal = vm?.goals.first(where: { $0.id == id }) {
+                SavingsGoalDetailView(initialGoal: goal, currencyCode: currencyCode)
             }
         }
         .task {
             if vm == nil {
-                guard let repo = dependencies.savingsGoalRepository else { return }
-                vm = SavingsGoalListViewModel(
-                    fetchUseCase: FetchSavingsGoalsUseCase(savingsGoalRepository: repo),
-                    saveUseCase: SaveSavingsGoalUseCase(savingsGoalRepository: repo)
-                )
+                vm = dependencies.makeSavingsGoalListViewModel()
                 await vm?.load()
             }
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard vm != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .savings)) {
+            guard vm != nil, appState.refreshVersion(for: .savings) > 0 else { return }
             await vm?.load()
         }
         .sheet(isPresented: $showAddGoal) {
@@ -153,11 +148,26 @@ struct SavingsGoalListView: View {
                     SavingsGoalCardView(goal: goal, currencyCode: currencyCode)
                 }
                 .buttonStyle(.plain)
+                .contextMenu {
+                    Button {
+                        selectedGoalID = goal.id
+                    } label: {
+                        Label(String(localized: "Edit"), systemImage: "pencil")
+                    }
+                    Button(role: .destructive) {
+                        Task {
+                            await vm.delete(id: goal.id)
+                            appState.notifyChanged(.savings)
+                        }
+                    } label: {
+                        Label(String(localized: "Delete"), systemImage: "trash")
+                    }
+                }
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
                         Task {
                             await vm.delete(id: goal.id)
-                            appState.notifyDataChanged()
+                            appState.notifyChanged(.savings)
                         }
                     } label: {
                         Label(String(localized: "Delete"), systemImage: "trash")
@@ -191,5 +201,7 @@ struct SavingsGoalListView: View {
 }
 
 #Preview {
-    SavingsGoalListView()
+    NavigationStack {
+        SavingsGoalListView()
+    }
 }

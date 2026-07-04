@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct RecurringListView: View {
     @Environment(AppState.self) private var appState
@@ -6,7 +7,6 @@ struct RecurringListView: View {
     @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: RecurringListViewModel?
     @State private var showAddSheet = false
-    @State private var selectedRuleID: UUID? = nil
 
     var body: some View {
         ZStack {
@@ -97,13 +97,39 @@ struct RecurringListView: View {
                             ForEach(viewModel.grouped, id: \.label) { group in
                                 Section(header: Text(group.label).font(VTypography.calloutBold)) {
                                     ForEach(group.rules, id: \.id) { rule in
-                                        NavigationLink(destination: RecurringDetailView(ruleID: rule.id)) {
+                                        NavigationLink(value: NavigationDestination.recurringDetail(id: rule.id)) {
                                             RecurringRowView(rule: rule)
+                                        }
+                                        .contextMenu {
+                                            NavigationLink(value: NavigationDestination.recurringDetail(id: rule.id)) {
+                                                Label(String(localized: "Edit"), systemImage: "pencil")
+                                            }
+                                            Button {
+                                                Task {
+                                                    await viewModel.togglePause(id: rule.id)
+                                                    await dependencies.refreshRecurringAndDebtReminders()
+                                                }
+                                            } label: {
+                                                Label(
+                                                    rule.isActive ? String(localized: "Pause") : String(localized: "Resume"),
+                                                    systemImage: rule.isActive ? "pause.circle.fill" : "play.circle.fill"
+                                                )
+                                            }
+                                            Button(role: .destructive) {
+                                                Task {
+                                                    await viewModel.deleteRule(id: rule.id)
+                                                    await dependencies.refreshRecurringAndDebtReminders()
+                                                    appState.notifyChanged(.recurring)
+                                                }
+                                            } label: {
+                                                Label(String(localized: "Delete"), systemImage: "trash")
+                                            }
                                         }
                                         .swipeActions(edge: .leading) {
                                             Button {
                                                 Task {
                                                     await viewModel.togglePause(id: rule.id)
+                                                    await dependencies.refreshRecurringAndDebtReminders()
                                                 }
                                             } label: {
                                                 Label(
@@ -117,7 +143,8 @@ struct RecurringListView: View {
                                             Button(role: .destructive) {
                                                 Task {
                                                     await viewModel.deleteRule(id: rule.id)
-                                                    appState.notifyDataChanged()
+                                                    await dependencies.refreshRecurringAndDebtReminders()
+                                                    appState.notifyChanged(.recurring)
                                                 }
                                             } label: {
                                                 Label("Delete", systemImage: "trash.fill")
@@ -164,31 +191,20 @@ struct RecurringListView: View {
                 await viewModel?.loadRules()
             }
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .recurring)) {
+            guard viewModel != nil, appState.refreshVersion(for: .recurring) > 0 else { return }
             await viewModel?.loadRules()
         }
     }
 
     private func setupViewModel() {
-        guard let recurringRepo = dependencies.recurringRuleRepository else { return }
-
-        let fetchUseCase = FetchRecurringRulesUseCase(repository: recurringRepo)
-        let deleteUseCase = DeleteRecurringRuleUseCase(repository: recurringRepo)
-        let pauseResumeUseCase = PauseResumeRuleUseCase(repository: recurringRepo)
-        let calculateCostUseCase = CalculateSubscriptionCostUseCase()
-
-        viewModel = RecurringListViewModel(
-            fetchUseCase: fetchUseCase,
-            deleteUseCase: deleteUseCase,
-            pauseResumeUseCase: pauseResumeUseCase,
-            calculateCostUseCase: calculateCostUseCase
-        )
+        viewModel = dependencies.makeRecurringListViewModel()
     }
 }
 
 #Preview {
     NavigationStack {
         RecurringListView()
+            .withNavigationDestinations()
     }
 }

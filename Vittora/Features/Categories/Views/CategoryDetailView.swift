@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Loads a category by ID and presents its edit form.
 struct CategoryDetailView: View {
@@ -32,13 +33,8 @@ struct CategoryDetailView: View {
     private func load() async {
         isLoading = true
         loadError = nil
-        let deps = dependencies
-        guard let repo = deps.categoryRepository else {
-            isLoading = false
-            return
-        }
         do {
-            category = try await repo.fetchByID(categoryID)
+            category = try await dependencies.categoryRepository.fetchByID(categoryID)
         } catch {
             loadError = error.localizedDescription
         }

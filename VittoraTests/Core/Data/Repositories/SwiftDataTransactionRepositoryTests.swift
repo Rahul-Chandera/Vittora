@@ -1,8 +1,11 @@
+
 import Foundation
 import Testing
 import SwiftData
+import VittoraCore
 @testable import Vittora
 
+@MainActor
 @Suite("SwiftDataTransactionRepository Tests")
 struct SwiftDataTransactionRepositoryTests {
 
@@ -249,6 +252,65 @@ struct SwiftDataTransactionRepositoryTests {
         #expect(results.isEmpty)
     }
 
+    @Test("search finds match beyond 200-row list window")
+    func testSearchBeyondListCap() async throws {
+        let repo = try makeRepo()
+        let oldestID = UUID()
+        let marker = "ancient-grocery-run"
+
+        for index in 0..<201 {
+            let date = Date(timeIntervalSince1970: Double(20_000_000 + index * 1_000))
+            try await repo.create(TransactionEntity(
+                id: index == 0 ? oldestID : UUID(),
+                amount: Decimal(index + 1),
+                date: date,
+                note: index == 0 ? marker : "recent-\(index)",
+                type: .expense,
+                paymentMethod: .cash,
+                currencyCode: "USD",
+                createdAt: date,
+                updatedAt: date
+            ))
+        }
+
+        let results = try await repo.search(query: "ancient")
+
+        #expect(results.count == 1)
+        #expect(results.first?.id == oldestID)
+        #expect(results.first?.note == marker)
+    }
+
+    @Test("fetchAll with single category filter and no date range")
+    func testFetchAllWithCategoryOnlyFilter() async throws {
+        let repo = try makeRepo()
+        let targetCategory = UUID()
+        let otherCategory = UUID()
+        let targetID = UUID()
+
+        for index in 0..<201 {
+            let date = Date(timeIntervalSince1970: Double(21_000_000 + index * 1_000))
+            try await repo.create(TransactionEntity(
+                id: index == 0 ? targetID : UUID(),
+                amount: Decimal(index + 1),
+                date: date,
+                note: "row-\(index)",
+                type: .expense,
+                paymentMethod: .cash,
+                currencyCode: "USD",
+                categoryID: index == 0 ? targetCategory : otherCategory,
+                createdAt: date,
+                updatedAt: date
+            ))
+        }
+
+        let filter = TransactionFilter(categoryIDs: [targetCategory])
+        let results = try await repo.fetchAll(filter: filter)
+
+        #expect(results.count == 1)
+        #expect(results.first?.id == targetID)
+        #expect(results.first?.categoryID == targetCategory)
+    }
+
     // MARK: - fetchAll with filter
 
     @Test("fetchAll with date range filter returns matching transactions")
@@ -322,5 +384,66 @@ struct SwiftDataTransactionRepositoryTests {
         let all = try await repo.fetchAll(filter: nil)
 
         #expect(all.count == 3)
+    }
+
+    @Test("fetchPage returns rows in date order with offset")
+    func testFetchPage() async throws {
+        let repo = try makeRepo()
+
+        for i in 0..<5 {
+            try await repo.create(TransactionEntity(
+                id: UUID(),
+                amount: Decimal(i + 1),
+                date: Date(timeIntervalSince1970: Double(14_000_000 + i * 100_000)),
+                type: .expense,
+                paymentMethod: .cash,
+                currencyCode: "USD",
+                createdAt: Date(timeIntervalSince1970: Double(14_000_000 + i * 100_000)),
+                updatedAt: Date(timeIntervalSince1970: Double(14_000_000 + i * 100_000))
+            ))
+        }
+
+        let firstPage = try await repo.fetchPage(filter: nil, offset: 0, limit: 2)
+        let secondPage = try await repo.fetchPage(filter: nil, offset: 2, limit: 2)
+
+        #expect(firstPage.count == 2)
+        #expect(secondPage.count == 2)
+        #expect(firstPage.first?.date ?? .distantPast > secondPage.first?.date ?? .distantPast)
+    }
+
+    @Test("fetchForAccount returns recent rows for the account only")
+    func testFetchForAccount() async throws {
+        let repo = try makeRepo()
+        let accountID = UUID()
+        let otherAccountID = UUID()
+        let recentID = UUID()
+        let olderID = UUID()
+
+        try await repo.create(TransactionEntity(
+            id: recentID,
+            amount: 10,
+            date: Date(timeIntervalSince1970: 13_000_000),
+            type: .expense,
+            accountID: accountID
+        ))
+        try await repo.create(TransactionEntity(
+            id: olderID,
+            amount: 20,
+            date: Date(timeIntervalSince1970: 12_000_000),
+            type: .expense,
+            accountID: accountID
+        ))
+        try await repo.create(TransactionEntity(
+            id: UUID(),
+            amount: 30,
+            date: Date(timeIntervalSince1970: 13_500_000),
+            type: .expense,
+            accountID: otherAccountID
+        ))
+
+        let results = try await repo.fetchForAccount(id: accountID, limit: 1)
+
+        #expect(results.count == 1)
+        #expect(results.first?.id == recentID)
     }
 }

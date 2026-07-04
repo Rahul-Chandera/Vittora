@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 @MainActor
@@ -7,6 +8,11 @@ final class MockSplitGroupRepository: SplitGroupRepository {
     private(set) var expenses: [GroupExpense] = []
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    var writeFailureControls = MockWriteFailureControls()
+
+    private func checkWriteFailure(for entityID: UUID? = nil) throws {
+        try writeFailureControls.checkWrite(entityID: entityID)
+    }
 
     // MARK: - Group CRUD
 
@@ -21,11 +27,13 @@ final class MockSplitGroupRepository: SplitGroupRepository {
     }
 
     func createGroup(_ group: SplitGroup) async throws {
+        try checkWriteFailure(for: group.id)
         if shouldThrowError { throw throwError }
         groups.append(group)
     }
 
     func updateGroup(_ group: SplitGroup) async throws {
+        try checkWriteFailure(for: group.id)
         if shouldThrowError { throw throwError }
         guard let index = groups.firstIndex(where: { $0.id == group.id }) else {
             throw VittoraError.notFound(String(localized: "Split group not found"))
@@ -34,6 +42,7 @@ final class MockSplitGroupRepository: SplitGroupRepository {
     }
 
     func deleteGroup(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         guard let index = groups.firstIndex(where: { $0.id == id }) else {
             throw VittoraError.notFound(String(localized: "Split group not found"))
@@ -54,11 +63,13 @@ final class MockSplitGroupRepository: SplitGroupRepository {
     }
 
     func createExpense(_ expense: GroupExpense) async throws {
+        try checkWriteFailure(for: expense.id)
         if shouldThrowError { throw throwError }
         expenses.append(expense)
     }
 
     func updateExpense(_ expense: GroupExpense) async throws {
+        try checkWriteFailure(for: expense.id)
         if shouldThrowError { throw throwError }
         guard let index = expenses.firstIndex(where: { $0.id == expense.id }) else {
             throw VittoraError.notFound(String(localized: "Group expense not found"))
@@ -67,6 +78,7 @@ final class MockSplitGroupRepository: SplitGroupRepository {
     }
 
     func deleteExpense(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         guard let index = expenses.firstIndex(where: { $0.id == id }) else {
             throw VittoraError.notFound(String(localized: "Group expense not found"))

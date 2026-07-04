@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct SaveSavingsGoalUseCase: Sendable {
     let savingsGoalRepository: any SavingsGoalRepository

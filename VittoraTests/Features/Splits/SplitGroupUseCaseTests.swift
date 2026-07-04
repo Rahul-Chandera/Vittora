@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("Split Group Use Case Tests")
@@ -155,12 +156,128 @@ struct SplitGroupUseCaseTests {
                 isSettled: true
             )
 
-            let result = SimplifyDebtsUseCase.simplify(
+            let result = SimplifyDebtsUseCase().execute(
+                groupID: UUID(),
                 expenses: [settled],
                 memberIDs: [payer, other]
             )
 
             #expect(result.isEmpty)
+        }
+
+        @Test("rounded transfers net all member balances to zero")
+        func transfersNetToZero() {
+            let a = UUID(), b = UUID(), c = UUID(), d = UUID()
+            let members = [a, b, c, d]
+
+            let amounts: [Decimal] = [Decimal(string: "0.07")!, 10, 33.33, 100]
+            var expenses: [GroupExpense] = []
+            for amount in amounts {
+                let ideal = members.map { _ in amount / Decimal(members.count) }
+                let shares = SplitRounding.allocate(amount: amount, memberIDs: members, idealParts: ideal)
+                expenses.append(GroupExpense(
+                    groupID: UUID(),
+                    paidByMemberID: a,
+                    amount: amount,
+                    title: "Test",
+                    shares: shares
+                ))
+            }
+
+            var initialNet = members.reduce(into: [UUID: Decimal]()) { $0[$1] = 0 }
+            for expense in expenses {
+                let payer = expense.paidByMemberID
+                for share in expense.shares where share.memberID != payer {
+                    initialNet[share.memberID, default: 0] -= share.amount
+                    initialNet[payer, default: 0] += share.amount
+                }
+            }
+            for id in members {
+                initialNet[id] = initialNet[id]?.rounded(scale: SplitRounding.moneyScale) ?? 0
+            }
+
+            let transfers = SimplifyDebtsUseCase.simplify(expenses: expenses, memberIDs: members)
+            let after = SimplifyDebtsUseCase.netAfterTransfers(initialNet: initialNet, transfers: transfers)
+
+            for id in members {
+                #expect(abs(after[id, default: 0]) <= SplitRounding.moneyEpsilon)
+            }
+        }
+    }
+
+    // MARK: - AddGroupExpenseUseCase share calculation (A12)
+
+    @Suite("AddGroupExpenseUseCase share calculation")
+    @MainActor
+    struct AddGroupExpenseShareCalculationTests {
+        private let useCase = AddGroupExpenseUseCase(splitGroupRepository: MockSplitGroupRepository())
+
+        @Test("equal splits sum exactly across member counts and amounts")
+        func equalSplitsSumExactly() throws {
+            let amounts: [Decimal] = [Decimal(string: "0.07")!, 1, 10, 33.33, 100]
+            for amount in amounts {
+                for count in 2...8 {
+                    let ids = (0..<count).map { _ in UUID() }
+                    let shares = try useCase.calculateShares(
+                        amount: amount, method: .equal, memberIDs: ids, customValues: [:]
+                    )
+                    #expect(SplitRounding.sharesBalance(amount, shares))
+                    #expect(SplitRounding.allSharesNonNegative(shares))
+                }
+            }
+        }
+
+        @Test("percentage splits sum exactly and validate total is 100")
+        func percentageSplitsSumExactly() throws {
+            let a = UUID(), b = UUID(), c = UUID()
+            let ids = [a, b, c]
+            let shares = try useCase.calculateShares(
+                amount: 10,
+                method: .percentage,
+                memberIDs: ids,
+                customValues: [a: 50, b: 30, c: 20]
+            )
+            #expect(SplitRounding.sharesBalance(10, shares))
+            #expect(SplitRounding.allSharesNonNegative(shares))
+        }
+
+        @Test("percentage inputs must sum to 100 within tolerance")
+        func percentageSumValidation() {
+            let ids = [UUID(), UUID(), UUID()]
+            #expect(throws: AddGroupExpenseUseCase.ExpenseError.self) {
+                try useCase.calculateShares(
+                    amount: 10,
+                    method: .percentage,
+                    memberIDs: ids,
+                    customValues: [ids[0]: 33, ids[1]: 33, ids[2]: 33]
+                )
+            }
+        }
+
+        @Test("shares method absorbs remainder without negative last share")
+        func sharesSplitAvoidsNegativeLastShare() throws {
+            let ids = [UUID(), UUID()]
+            let shares = try useCase.calculateShares(
+                amount: Decimal(string: "0.07")!,
+                method: .shares,
+                memberIDs: ids,
+                customValues: [ids[0]: 1, ids[1]: 1]
+            )
+            #expect(SplitRounding.sharesBalance(Decimal(string: "0.07")!, shares))
+            #expect(SplitRounding.allSharesNonNegative(shares))
+        }
+
+        @Test("shares method rejects zero total weight")
+        func sharesRejectsZeroWeights() {
+            let ids = [UUID(), UUID()]
+            #expect(throws: AddGroupExpenseUseCase.ExpenseError.self) {
+                try useCase.calculateShares(
+                    amount: 10,
+                    method: .shares,
+                    memberIDs: ids,
+                    customValues: [ids[0]: 0, ids[1]: 0]
+                )
+            }
         }
     }
 }

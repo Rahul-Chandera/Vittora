@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Read-only view of encrypted security audit entries (SEC-18).
 struct SecurityAuditLogView: View {
@@ -37,11 +38,7 @@ struct SecurityAuditLogView: View {
     }
 
     private func loadEntries() async {
-        guard let svc = dependencies.securityAuditLogService else {
-            entries = []
-            return
-        }
-        entries = await svc.recentEntries(limit: 100)
+        entries = await dependencies.securityAuditLogService.recentEntries(limit: 100)
     }
 
     private func displayTitle(for kind: SecurityAuditEventKind) -> String {
