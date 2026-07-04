@@ -222,7 +222,7 @@ struct TransactionDetailView: View {
             }
         }
         .navigationDestination(item: $navigateDestination) { dest in
-            navigationView(for: dest)
+            NavigationDestinationView(destination: dest)
         }
     }
 
@@ -311,20 +311,6 @@ struct TransactionDetailView: View {
             return "arrow.left.arrow.right"
         case .adjustment:
             return "equal"
-        }
-    }
-
-    @ViewBuilder
-    private func navigationView(for destination: NavigationDestination) -> some View {
-        switch destination {
-        case .transactionDetail(let id):
-            TransactionDetailView(transactionID: id)
-
-        case .editTransaction(let id):
-            TransactionFormView(transactionID: id)
-
-        default:
-            EmptyView()
         }
     }
 
