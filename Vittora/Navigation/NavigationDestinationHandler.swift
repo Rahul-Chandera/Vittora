@@ -8,6 +8,8 @@ struct NavigationDestinationHandler: ViewModifier {
         content
             .navigationDestination(for: NavigationDestination.self) { destination in
                 switch destination {
+                case .accountList:
+                    AccountListView()
                 case .accountDetail(let id):
                     AccountDetailView(accountID: id)
                 case .addAccount:
