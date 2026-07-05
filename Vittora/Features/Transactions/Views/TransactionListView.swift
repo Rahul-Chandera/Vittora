@@ -296,34 +296,13 @@ struct TransactionListView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: VSpacing.lg) {
-            Image(systemName: "list.dash")
-                .font(.system(size: 48))
-                .foregroundColor(VColors.textTertiary)
-
-            Text(String(localized: "No transactions"))
-                .font(VTypography.bodyBold)
-                .foregroundColor(VColors.textPrimary)
-
-            Text(String(localized: "Add your first transaction to get started"))
-                .font(VTypography.caption1)
-                .foregroundColor(VColors.textSecondary)
-                .multilineTextAlignment(.center)
-
-            NavigationLink(value: NavigationDestination.addTransaction) {
-                Text(String(localized: "Add Transaction"))
-                    .font(VTypography.body)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(VSpacing.md)
-                    .background(VColors.primary)
-                    .cornerRadius(VSpacing.cornerRadiusSM)
-            }
-            .padding(.top, VSpacing.lg)
-
-            Spacer()
-        }
-        .padding(VSpacing.screenPadding)
+        VEmptyState(
+            icon: "list.bullet.rectangle",
+            title: String(localized: "No transactions"),
+            subtitle: String(localized: "Add your first transaction to get started"),
+            actionLabel: String(localized: "Add Transaction"),
+            action: { navigateDestination = .addTransaction }
+        )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.background)
         .accessibilityIdentifier("transaction-empty-state")
