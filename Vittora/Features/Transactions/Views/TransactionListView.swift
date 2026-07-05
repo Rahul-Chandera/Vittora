@@ -128,7 +128,7 @@ struct TransactionListView: View {
                 Button {
                     showFilterSheet = true
                 } label: {
-                    Image(systemName: "funnel.fill")
+                    Image(systemName: vm.hasActiveFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
                         .font(.title2)
                         .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
                 }
@@ -206,7 +206,10 @@ struct TransactionListView: View {
                 #endif
             }
         }
-        .if(vm.isLoading) { view in
+        // Only show the full-screen spinner on the very first load. On refreshes
+        // (e.g. returning from a detail page, which re-runs .task), we already
+        // have rows to show, so flashing the overlay just makes it blink.
+        .if(vm.isLoading && vm.groupedTransactions.isEmpty) { view in
             view.overlay {
                 ProgressView()
                     .tint(VColors.primary)
