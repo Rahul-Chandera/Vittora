@@ -264,6 +264,24 @@ final class SettingsViewModel {
         }
     }
 
+    /// Re-reads the display name (keychain) and re-publishes the currency
+    /// (UserDefaults) after they were written outside this view model — e.g.
+    /// during onboarding — so the live UI reflects them without an app restart.
+    func reloadPersistedProfile() {
+        let name: String
+        if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.userName),
+           let decoded = String(data: data, encoding: .utf8) {
+            name = decoded
+        } else {
+            name = ""
+        }
+        withMutation(keyPath: \.userName) {
+            _userName = name
+        }
+        // selectedCurrencyCode reads UserDefaults live; nudge observers to re-read.
+        withMutation(keyPath: \.selectedCurrencyCode) {}
+    }
+
     // App version
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
