@@ -127,11 +127,15 @@ struct AccountListView: View {
                 if !accountsForType.isEmpty {
                     Section(header: Text(sectionTitle(for: type))) {
                         ForEach(accountsForType) { account in
-                            NavigationLink(value: NavigationDestination.accountDetail(id: account.id)) {
+                            NavigationLink {
+                                AccountDetailView(accountID: account.id)
+                            } label: {
                                 AccountRowView(account: account)
                             }
                             .contextMenu {
-                                NavigationLink(value: NavigationDestination.accountDetail(id: account.id)) {
+                                NavigationLink {
+                                    AccountDetailView(accountID: account.id)
+                                } label: {
                                     Label(String(localized: "Edit"), systemImage: "pencil")
                                 }
                                 Button {
