@@ -62,15 +62,11 @@ struct PayeeFormView: View {
     private func formContent(vm: PayeeFormViewModel) -> some View {
         Form {
             Section(String(localized: "Type")) {
+                // Segmented segments must be a single Text/Image; composite
+                // (HStack of icon + text) content breaks tap selection.
                 Picker(String(localized: "Payee Type"), selection: Bindable(vm).selectedType) {
-                    HStack {
-                        Image(systemName: "building.2.fill")
-                        Text(String(localized: "Business"))
-                    }.tag(PayeeType.business)
-                    HStack {
-                        Image(systemName: "person.fill")
-                        Text(String(localized: "Person"))
-                    }.tag(PayeeType.person)
+                    Text(String(localized: "Business")).tag(PayeeType.business)
+                    Text(String(localized: "Person")).tag(PayeeType.person)
                 }
                 .pickerStyle(.segmented)
             }
