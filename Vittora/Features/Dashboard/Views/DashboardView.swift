@@ -230,9 +230,14 @@ struct DashboardView: View {
                 Button {
                     appState.selectedTab = .budgets
                 } label: {
-                    Text(String(localized: "Manage"))
-                        .font(VTypography.caption1)
-                        .foregroundColor(VColors.primary)
+                    HStack(spacing: VSpacing.xxs) {
+                        Text(String(localized: "Manage"))
+                            .font(VTypography.caption1)
+                            .foregroundColor(VColors.primary)
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                            .foregroundColor(VColors.primary)
+                    }
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint(String(localized: "Opens the Budgets tab"))
