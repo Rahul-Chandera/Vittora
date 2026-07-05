@@ -37,6 +37,7 @@ struct TaxSummaryCard: View {
                 VStack(spacing: 4) {
                     Text(estimate.finalTax.formatted(.currency(code: currencyCode)))
                         .font(VTypography.amountLarge)
+                        .amountScaling()
                         .foregroundStyle(VColors.expense)
 
                     HStack(spacing: VSpacing.xs) {
