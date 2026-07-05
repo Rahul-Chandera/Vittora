@@ -83,7 +83,8 @@ extension DependencyContainer {
                 ledgerWriting: ledgerWriteStore
             ),
             pauseResumeUseCase: PauseResumeRuleUseCase(repository: recurringRuleRepository),
-            calculateCostUseCase: CalculateSubscriptionCostUseCase()
+            calculateCostUseCase: CalculateSubscriptionCostUseCase(),
+            categoryRepository: categoryRepository
         )
     }
 

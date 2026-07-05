@@ -98,11 +98,15 @@ struct RecurringListView: View {
                             ForEach(viewModel.grouped, id: \.label) { group in
                                 Section(header: Text(group.label).font(VTypography.calloutBold)) {
                                     ForEach(group.rules, id: \.id) { rule in
-                                        NavigationLink(value: NavigationDestination.recurringDetail(id: rule.id)) {
-                                            RecurringRowView(rule: rule)
+                                        NavigationLink {
+                                            RecurringDetailView(ruleID: rule.id)
+                                        } label: {
+                                            RecurringRowView(rule: rule, category: viewModel.category(for: rule))
                                         }
                                         .contextMenu {
-                                            NavigationLink(value: NavigationDestination.recurringDetail(id: rule.id)) {
+                                            NavigationLink {
+                                                RecurringDetailView(ruleID: rule.id)
+                                            } label: {
                                                 Label(String(localized: "Edit"), systemImage: "pencil")
                                             }
                                             Button {
