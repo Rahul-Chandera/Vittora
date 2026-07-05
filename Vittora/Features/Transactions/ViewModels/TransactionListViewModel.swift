@@ -17,20 +17,30 @@ import VittoraCore
     private let deleteUseCase: DeleteTransactionUseCase
     private let bulkOpsUseCase: BulkOperationsUseCase
     private let addUseCase: AddTransactionUseCase
+    private let categoryRepository: any CategoryRepository
     private var loadedOffset = 0
+    private var categoriesByID: [UUID: CategoryEntity] = [:]
 
     init(
         fetchUseCase: FetchTransactionsUseCase,
         searchUseCase: SearchTransactionsUseCase,
         deleteUseCase: DeleteTransactionUseCase,
         bulkOpsUseCase: BulkOperationsUseCase,
-        addUseCase: AddTransactionUseCase
+        addUseCase: AddTransactionUseCase,
+        categoryRepository: any CategoryRepository
     ) {
         self.fetchUseCase = fetchUseCase
         self.searchUseCase = searchUseCase
         self.deleteUseCase = deleteUseCase
         self.bulkOpsUseCase = bulkOpsUseCase
         self.addUseCase = addUseCase
+        self.categoryRepository = categoryRepository
+    }
+
+    /// The category a transaction is assigned to, if any — so the list row can
+    /// show the category name instead of a generic "Transaction".
+    func category(for transaction: TransactionEntity) -> CategoryEntity? {
+        transaction.categoryID.flatMap { categoriesByID[$0] }
     }
 
     var hasActiveFilter: Bool {
@@ -63,6 +73,8 @@ import VittoraCore
             groupedTransactions = FetchTransactionsUseCase.groupByDate(page)
             loadedOffset = page.count
             hasMorePages = page.count == FetchTransactionsUseCase.listPageSize
+            let categories = try await categoryRepository.fetchAll()
+            categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load transactions right now.")

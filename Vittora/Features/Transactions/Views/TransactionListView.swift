@@ -245,6 +245,7 @@ struct TransactionListView: View {
     ) -> some View {
         let row = TransactionRowView(
             transaction: transaction,
+            category: vm.category(for: transaction),
             currencyCode: currencyCode,
             showSelection: vm.isMultiSelectMode,
             isSelected: vm.selectedTransactionIDs.contains(transaction.id)
