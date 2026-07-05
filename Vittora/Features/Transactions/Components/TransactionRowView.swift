@@ -45,6 +45,18 @@ struct TransactionRowView: View {
         rowAccessibilityIdentifier = Self.makeAccessibilityIdentifier(for: transaction)
     }
 
+    /// Whether the transaction has a user-entered note.
+    private var hasNote: Bool {
+        !(transaction.note?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+    }
+
+    /// Row title: the note if the user wrote one, otherwise the category name so
+    /// the list reads as the category instead of a generic "Transaction".
+    private var displayTitle: String {
+        if hasNote, let note = transaction.note { return note }
+        return category?.name ?? String(localized: "Transaction")
+    }
+
     var body: some View {
         HStack(spacing: VSpacing.md) {
             if showSelection {
@@ -68,13 +80,15 @@ struct TransactionRowView: View {
             .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: VSpacing.xs) {
-                Text(transaction.note ?? "Transaction")
+                Text(displayTitle)
                     .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)
                     .adaptiveLineLimit(1)
 
                 HStack(spacing: VSpacing.sm) {
-                    if let categoryName = category?.name {
+                    // Only as a subtitle when the title is the note; otherwise the
+                    // title already is the category name — don't repeat it.
+                    if hasNote, let categoryName = category?.name {
                         Text(categoryName)
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
