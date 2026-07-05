@@ -43,6 +43,7 @@ public actor DefaultDataSeeder: DataSeederProtocol {
             ("Education", "book.fill", "#9D4EDD"),
             ("Utilities", "bolt.fill", "#FFB703"),
             ("Rent", "house.fill", "#FB5607"),
+            ("EMI", "indianrupeesign.circle.fill", "#5A189A"),
             ("Insurance", "shield.fill", "#3A0CA3"),
             ("Personal Care", "figure.walk", "#E76F51"),
             ("Gifts", "gift.fill", "#F4A261"),
