@@ -551,7 +551,11 @@ struct TransactionUseCaseTests {
             let repo = MockTransactionRepository()
             await repo.seed(TransactionEntity(amount: 50, note: "Coffee", type: .expense))
 
-            let useCase = SearchTransactionsUseCase(transactionRepository: repo)
+            let useCase = SearchTransactionsUseCase(
+                transactionRepository: repo,
+                categoryRepository: MockCategoryRepository(),
+                payeeRepository: MockPayeeRepository()
+            )
             let result = try await useCase.execute(query: "")
 
             #expect(result.isEmpty)
@@ -562,7 +566,11 @@ struct TransactionUseCaseTests {
             let repo = MockTransactionRepository()
             await repo.seed(TransactionEntity(amount: 50, note: "Coffee", type: .expense))
 
-            let useCase = SearchTransactionsUseCase(transactionRepository: repo)
+            let useCase = SearchTransactionsUseCase(
+                transactionRepository: repo,
+                categoryRepository: MockCategoryRepository(),
+                payeeRepository: MockPayeeRepository()
+            )
             let result = try await useCase.execute(query: "   ")
 
             #expect(result.isEmpty)
@@ -574,7 +582,11 @@ struct TransactionUseCaseTests {
             await repo.seed(TransactionEntity(amount: 5, note: "Coffee", type: .expense))
             await repo.seed(TransactionEntity(amount: 10, note: "Groceries", type: .expense))
 
-            let useCase = SearchTransactionsUseCase(transactionRepository: repo)
+            let useCase = SearchTransactionsUseCase(
+                transactionRepository: repo,
+                categoryRepository: MockCategoryRepository(),
+                payeeRepository: MockPayeeRepository()
+            )
             let result = try await useCase.execute(query: "Coffee")
 
             #expect(result.count == 1)
@@ -599,11 +611,72 @@ struct TransactionUseCaseTests {
                 ))
             }
 
-            let useCase = SearchTransactionsUseCase(transactionRepository: repo)
+            let useCase = SearchTransactionsUseCase(
+                transactionRepository: repo,
+                categoryRepository: MockCategoryRepository(),
+                payeeRepository: MockPayeeRepository()
+            )
             let result = try await useCase.execute(query: "ancient")
 
             #expect(result.count == 1)
             #expect(result.first?.id == oldestID)
+        }
+
+        @Test("Matches by category name")
+        func testMatchesByCategoryName() async throws {
+            let repo = MockTransactionRepository()
+            let categoryRepo = MockCategoryRepository()
+            let food = CategoryEntity(name: "Groceries", icon: "cart", type: .expense)
+            await categoryRepo.seed(food)
+            await repo.seed(TransactionEntity(amount: 20, note: nil, type: .expense, categoryID: food.id))
+            await repo.seed(TransactionEntity(amount: 30, note: "Movie", type: .expense))
+
+            let useCase = SearchTransactionsUseCase(
+                transactionRepository: repo,
+                categoryRepository: categoryRepo,
+                payeeRepository: MockPayeeRepository()
+            )
+            let result = try await useCase.execute(query: "grocer")
+
+            #expect(result.count == 1)
+            #expect(result.first?.categoryID == food.id)
+        }
+
+        @Test("Matches by payee name")
+        func testMatchesByPayeeName() async throws {
+            let repo = MockTransactionRepository()
+            let payeeRepo = MockPayeeRepository()
+            let payee = PayeeEntity(name: "Landlord")
+            await payeeRepo.seed(payee)
+            await repo.seed(TransactionEntity(amount: 900, note: nil, type: .expense, payeeID: payee.id))
+            await repo.seed(TransactionEntity(amount: 30, note: "Movie", type: .expense))
+
+            let useCase = SearchTransactionsUseCase(
+                transactionRepository: repo,
+                categoryRepository: MockCategoryRepository(),
+                payeeRepository: payeeRepo
+            )
+            let result = try await useCase.execute(query: "landlord")
+
+            #expect(result.count == 1)
+            #expect(result.first?.payeeID == payee.id)
+        }
+
+        @Test("Matches by exact amount, ignoring separators")
+        func testMatchesByAmount() async throws {
+            let repo = MockTransactionRepository()
+            await repo.seed(TransactionEntity(amount: 35000, note: nil, type: .expense))
+            await repo.seed(TransactionEntity(amount: 42, note: "Lunch", type: .expense))
+
+            let useCase = SearchTransactionsUseCase(
+                transactionRepository: repo,
+                categoryRepository: MockCategoryRepository(),
+                payeeRepository: MockPayeeRepository()
+            )
+            let result = try await useCase.execute(query: "35,000")
+
+            #expect(result.count == 1)
+            #expect(result.first?.amount == 35000)
         }
     }
 

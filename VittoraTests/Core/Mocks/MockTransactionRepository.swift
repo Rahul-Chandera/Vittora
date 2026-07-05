@@ -36,6 +36,9 @@ actor MockTransactionRepository: TransactionRepository {
             if let accountIDs = filter.accountIDs {
                 results = results.filter { $0.accountID.map { accountIDs.contains($0) } ?? false }
             }
+            if let payeeIDs = filter.payeeIDs {
+                results = results.filter { $0.payeeID.map { payeeIDs.contains($0) } ?? false }
+            }
             if let types = filter.types {
                 results = results.filter { types.contains($0.type) }
             }
