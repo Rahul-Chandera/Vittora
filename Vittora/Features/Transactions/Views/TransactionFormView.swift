@@ -19,10 +19,18 @@ struct TransactionFormView: View {
 
     let transactionID: UUID?
     let initialType: TransactionType?
+    /// Show a Cancel button. Only pass `true` when presenting modally; a pushed
+    /// form already has a back button, so Cancel would be a duplicate.
+    let showsCancelButton: Bool
 
-    init(transactionID: UUID? = nil, initialType: TransactionType? = nil) {
+    init(
+        transactionID: UUID? = nil,
+        initialType: TransactionType? = nil,
+        showsCancelButton: Bool = false
+    ) {
         self.transactionID = transactionID
         self.initialType = initialType
+        self.showsCancelButton = showsCancelButton
     }
 
     var body: some View {
@@ -69,11 +77,15 @@ struct TransactionFormView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(String(localized: "Cancel")) {
-                            dismiss()
+                    // Only when presented modally — a pushed form already has a
+                    // back button, so Cancel would be a duplicate top-left button.
+                    if showsCancelButton {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(String(localized: "Cancel")) {
+                                dismiss()
+                            }
+                            .accessibilityIdentifier("transaction-form-cancel-button")
                         }
-                        .accessibilityIdentifier("transaction-form-cancel-button")
                     }
 
                     ToolbarItem(placement: .confirmationAction) {
