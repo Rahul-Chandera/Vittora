@@ -42,6 +42,13 @@ final class TransactionFlowUITests: XCTestCase {
             ? app.textFields["transaction-amount-field"]
             : app.textFields.firstMatch
         XCTAssertTrue(amountField.waitForExistence(timeout: 8))
+
+        // Pushed from the Transactions tab → only the back button, no Cancel.
+        XCTAssertFalse(
+            app.buttons["transaction-form-cancel-button"].exists,
+            "A pushed add-transaction form should not show a Cancel button."
+        )
+
         amountField.tap()
         amountField.typeText("42.75")
 

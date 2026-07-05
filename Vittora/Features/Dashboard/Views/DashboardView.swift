@@ -340,7 +340,7 @@ struct DashboardView: View {
         switch modal {
         case .addTransaction(let type):
             NavigationStack {
-                TransactionFormView(initialType: type)
+                TransactionFormView(initialType: type, showsCancelButton: true)
             }
         case .addTransfer:
             NavigationStack {
