@@ -4,7 +4,11 @@ import VittoraCore
 extension DependencyContainer {
     func makeTransactionListViewModel() -> TransactionListViewModel {
         let fetchUseCase = FetchTransactionsUseCase(transactionRepository: transactionRepository)
-        let searchUseCase = SearchTransactionsUseCase(transactionRepository: transactionRepository)
+        let searchUseCase = SearchTransactionsUseCase(
+            transactionRepository: transactionRepository,
+            categoryRepository: categoryRepository,
+            payeeRepository: payeeRepository
+        )
         let deleteUseCase = DeleteTransactionUseCase(
             transactionRepository: transactionRepository,
             documentRepository: documentRepository,

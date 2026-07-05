@@ -82,6 +82,24 @@ struct SettingsViewModelTests {
         #expect(flag.value)
     }
 
+    @Test("reloadPersistedProfile republishes currency so the UI refreshes")
+    func reloadPersistedProfileNotifiesCurrency() {
+        final class Flag: @unchecked Sendable { var value = false }
+        let flag = Flag()
+
+        let vm = makeViewModel(keychainService: MockKeychainService())
+        withObservationTracking {
+            _ = vm.selectedCurrencyCode
+        } onChange: {
+            flag.value = true
+        }
+
+        // Onboarding writes the currency straight to UserDefaults; reload must
+        // notify observers so .environment(\.currencyCode) re-reads it.
+        vm.reloadPersistedProfile()
+        #expect(flag.value)
+    }
+
     // MARK: - ExportSchedule
 
     @Test("ExportSchedule has 3 cases")
