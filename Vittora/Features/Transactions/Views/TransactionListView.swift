@@ -24,7 +24,11 @@ struct TransactionListView: View {
     var body: some View {
         ZStack {
             if let vm = vm {
-                if vm.groupedTransactions.isEmpty {
+                // Full-screen empty state only when there's genuinely no data and
+                // no active search/filter. During a search/filter the list (with
+                // its search bar) must stay mounted, otherwise a zero-result query
+                // removes the search field and strands the user.
+                if vm.groupedTransactions.isEmpty && !hasQueryOrFilter(vm) {
                     emptyState
                 } else {
                     listView(vm)
@@ -49,6 +53,10 @@ struct TransactionListView: View {
             NavigationDestinationView(destination: dest)
         }
         .errorAlert(message: transactionListErrorBinding)
+    }
+
+    private func hasQueryOrFilter(_ vm: TransactionListViewModel) -> Bool {
+        !vm.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || vm.hasActiveFilter
     }
 
     @ViewBuilder
@@ -104,6 +112,15 @@ struct TransactionListView: View {
         .listStyle(.inset)
         #endif
         .searchable(text: Bindable(vm).searchQuery, prompt: String(localized: "Search transactions"))
+        .overlay {
+            if vm.groupedTransactions.isEmpty {
+                ContentUnavailableView {
+                    Label(String(localized: "No Results"), systemImage: "magnifyingglass")
+                } description: {
+                    Text(String(localized: "No transactions match your search or filters."))
+                }
+            }
+        }
         .task(id: vm.searchQuery) {
             let query = vm.searchQuery
             try? await Task.sleep(for: .milliseconds(250))
@@ -128,7 +145,7 @@ struct TransactionListView: View {
                 Button {
                     showFilterSheet = true
                 } label: {
-                    Image(systemName: "funnel.fill")
+                    Image(systemName: vm.hasActiveFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
                         .font(.title2)
                         .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
                 }
@@ -206,7 +223,10 @@ struct TransactionListView: View {
                 #endif
             }
         }
-        .if(vm.isLoading) { view in
+        // Only show the full-screen spinner on the very first load. On refreshes
+        // (e.g. returning from a detail page, which re-runs .task), we already
+        // have rows to show, so flashing the overlay just makes it blink.
+        .if(vm.isLoading && vm.groupedTransactions.isEmpty) { view in
             view.overlay {
                 ProgressView()
                     .tint(VColors.primary)
@@ -242,6 +262,7 @@ struct TransactionListView: View {
     ) -> some View {
         let row = TransactionRowView(
             transaction: transaction,
+            category: vm.category(for: transaction),
             currencyCode: currencyCode,
             showSelection: vm.isMultiSelectMode,
             isSelected: vm.selectedTransactionIDs.contains(transaction.id)

@@ -25,7 +25,8 @@ extension DependencyContainer {
                 accountRepository: accountRepository,
                 categoryRepository: categoryRepository,
                 ledgerWriting: ledgerWriteStore
-            )
+            ),
+            categoryRepository: categoryRepository
         )
     }
 
