@@ -102,6 +102,7 @@ struct NetWorthReportView: View {
                          ? nw.formatted(.currency(code: currencyCode))
                          : "-\(abs(nw).formatted(.currency(code: currencyCode)))")
                         .font(VTypography.amountLarge)
+                        .amountScaling()
                         .foregroundStyle(nw >= 0 ? VColors.income : VColors.expense)
                 }
 

@@ -288,6 +288,7 @@ struct DashboardView: View {
                     .foregroundColor(VColors.textSecondary)
                 Text(CurrencyFormatter.format(netWorth, currencyCode: currencyCode))
                     .font(VTypography.amountMedium)
+                    .amountScaling()
                     .foregroundColor(netWorth >= 0 ? VColors.income : VColors.expense)
             }
             Spacer()

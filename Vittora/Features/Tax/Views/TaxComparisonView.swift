@@ -109,6 +109,7 @@ struct TaxComparisonView: View {
 
             Text(estimate.finalTax.formatted(.currency(code: estimate.country.currencyCode)))
                 .font(VTypography.amountMedium)
+                .amountScaling()
                 .foregroundStyle(isRecommended ? VColors.primary : VColors.expense)
                 .adaptiveLineLimit(1)
                 .adaptiveMinimumScaleFactor(0.8)

@@ -39,6 +39,7 @@ struct RecurringListView: View {
                                 VStack(alignment: .leading, spacing: VSpacing.xs) {
                                     Text(costSummary.monthlyCost.formatted(currencyCode: currencyCode))
                                         .font(VTypography.amountLarge)
+                                        .amountScaling()
                                         .foregroundColor(VColors.expense)
 
                                     Text(String(localized: "per month"))

@@ -89,6 +89,7 @@ struct AccountDetailView: View {
                             .foregroundColor(VColors.textSecondary)
                         Text(account.balance.formatted(.currency(code: account.currencyCode)))
                             .font(VTypography.amountLarge)
+                            .amountScaling()
                             .foregroundColor(account.balance >= 0 ? VColors.textPrimary : VColors.expense)
                     }
                 }

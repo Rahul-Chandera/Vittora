@@ -77,6 +77,7 @@ struct MonthlyOverviewView: View {
                 .adaptiveLineLimit(1)
             Text(CurrencyFormatter.formatCompact(amount, currencyCode: currencyCode))
                 .font(VTypography.amountSmall)
+                .amountScaling()
                 .foregroundColor(color)
         }
         .padding(VSpacing.md)
