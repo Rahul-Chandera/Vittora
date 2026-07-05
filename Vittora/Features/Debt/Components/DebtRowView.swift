@@ -42,6 +42,7 @@ struct DebtRowView: View {
             VStack(alignment: .trailing, spacing: VSpacing.xxs) {
                 Text(CurrencyFormatter.format(abs(entry.netBalance), currencyCode: currencyCode))
                     .font(VTypography.amountSmall)
+                    .amountScaling()
                     .foregroundColor(entry.netBalance >= 0 ? VColors.income : VColors.expense)
 
                 if entry.entries.contains(where: { $0.isOverdue }) {

@@ -51,6 +51,7 @@ struct RecurringDetailView: View {
                                 VStack(alignment: .trailing, spacing: VSpacing.xs) {
                                     Text(rule.templateAmount.formatted(currencyCode: currencyCode))
                                         .font(VTypography.amountMedium)
+                                        .amountScaling()
                                         .foregroundColor(VColors.expense)
 
                                     Text(String(localized: "per transaction"))

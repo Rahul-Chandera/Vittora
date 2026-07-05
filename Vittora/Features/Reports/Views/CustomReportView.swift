@@ -165,6 +165,7 @@ struct CustomReportView: View {
             Spacer()
             Text(CurrencyFormatter.format(total, currencyCode: currencyCode))
                 .font(VTypography.amountSmall)
+                .amountScaling()
                 .foregroundColor(VColors.textPrimary)
         }
         .padding(VSpacing.cardPadding)
