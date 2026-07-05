@@ -182,6 +182,32 @@ final class TransactionFlowUITests: XCTestCase {
     }
 
     @MainActor
+    func testSearchWithNoMatchesKeepsSearchField() throws {
+        navigateToTransactionsTab()
+        waitForSeededTransactionRows()
+
+        let searchField = app.searchFields["Search transactions"]
+        XCTAssertTrue(
+            UITestSupport.waitForElement(searchField, timeout: 12, requireHittable: true),
+            "Search field should be ready."
+        )
+        searchField.tap()
+        searchField.typeText("zzznomatchxyz")
+
+        // A zero-result search must keep the search field mounted and show an
+        // in-list "No Results" state — not swap to the full empty state that
+        // removed the search bar and stranded the user.
+        XCTAssertTrue(
+            app.staticTexts["No Results"].waitForExistence(timeout: 12),
+            "A zero-result search should show 'No Results', not the full empty state."
+        )
+        XCTAssertTrue(
+            searchField.exists,
+            "The search field must remain after a zero-result search so the user can recover."
+        )
+    }
+
+    @MainActor
     private func navigateToTransactionsTab() {
         XCTAssertTrue(
             UITestSupport.waitForContentRoot(in: app),
