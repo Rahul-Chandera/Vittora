@@ -14,9 +14,14 @@ struct RecentTransactionsList: View {
                     .foregroundColor(VColors.textSecondary)
                 Spacer()
                 Button(action: onSeeAll) {
-                    Text(String(localized: "See All"))
-                        .font(VTypography.caption1)
-                        .foregroundColor(VColors.primary)
+                    HStack(spacing: VSpacing.xxs) {
+                        Text(String(localized: "See All"))
+                            .font(VTypography.caption1)
+                            .foregroundColor(VColors.primary)
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                            .foregroundColor(VColors.primary)
+                    }
                 }
                 .buttonStyle(.plain)
             }
