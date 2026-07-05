@@ -10,21 +10,32 @@ final class RecurringListViewModel {
     var isLoading = false
     var error: String?
 
+    private var categoriesByID: [UUID: CategoryEntity] = [:]
+
     private let fetchUseCase: FetchRecurringRulesUseCase
     private let deleteUseCase: DeleteRecurringRuleUseCase
     private let pauseResumeUseCase: PauseResumeRuleUseCase
     private let calculateCostUseCase: CalculateSubscriptionCostUseCase
+    private let categoryRepository: any CategoryRepository
 
     init(
         fetchUseCase: FetchRecurringRulesUseCase,
         deleteUseCase: DeleteRecurringRuleUseCase,
         pauseResumeUseCase: PauseResumeRuleUseCase,
-        calculateCostUseCase: CalculateSubscriptionCostUseCase
+        calculateCostUseCase: CalculateSubscriptionCostUseCase,
+        categoryRepository: any CategoryRepository
     ) {
         self.fetchUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
         self.pauseResumeUseCase = pauseResumeUseCase
         self.calculateCostUseCase = calculateCostUseCase
+        self.categoryRepository = categoryRepository
+    }
+
+    /// The category assigned to a rule's template, if any — used so the list
+    /// shows the real category name instead of "Uncategorized".
+    func category(for rule: RecurringRuleEntity) -> CategoryEntity? {
+        rule.templateCategoryID.flatMap { categoriesByID[$0] }
     }
 
     /// Group rules by frequency label for display
@@ -50,6 +61,8 @@ final class RecurringListViewModel {
             let fetchedRules = try await fetchUseCase.execute()
             self.rules = fetchedRules
             self.costSummary = calculateCostUseCase.execute(rules: fetchedRules)
+            let categories = try await categoryRepository.fetchAll()
+            self.categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load recurring transactions right now.")

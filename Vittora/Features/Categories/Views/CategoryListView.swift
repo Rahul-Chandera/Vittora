@@ -111,11 +111,16 @@ struct CategoryListView: View {
             if !vm.filteredExpenseCategories.isEmpty {
                 Section(String(localized: "Expense")) {
                     ForEach(vm.filteredExpenseCategories) { category in
-                        NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
+                        NavigationLink {
+                            CategoryDetailView(categoryID: category.id)
+                        } label: {
                             CategoryRowView(category: category)
                         }
+                        .accessibilityIdentifier("category-row-\(category.name.lowercased())")
                         .contextMenu {
-                            NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
+                            NavigationLink {
+                                CategoryDetailView(categoryID: category.id)
+                            } label: {
                                 Label(String(localized: "Edit"), systemImage: "pencil")
                             }
                             if !category.isDefault {
@@ -136,17 +141,12 @@ struct CategoryListView: View {
                                     Label("Delete", systemImage: "trash")
                                 }
                             }
-                            NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
+                            NavigationLink {
+                                CategoryDetailView(categoryID: category.id)
+                            } label: {
                                 Label("Edit", systemImage: "pencil")
                             }
                             .tint(.blue)
-                        }
-                    }
-                    .onMove { indices, newOffset in
-                        Task {
-                            var reordered = vm.filteredExpenseCategories
-                            reordered.move(fromOffsets: indices, toOffset: newOffset)
-                            await vm.reorder(type: .expense, orderedIDs: reordered.map(\.id))
                         }
                     }
                 }
@@ -155,11 +155,16 @@ struct CategoryListView: View {
             if !vm.filteredIncomeCategories.isEmpty {
                 Section(String(localized: "Income")) {
                     ForEach(vm.filteredIncomeCategories) { category in
-                        NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
+                        NavigationLink {
+                            CategoryDetailView(categoryID: category.id)
+                        } label: {
                             CategoryRowView(category: category)
                         }
+                        .accessibilityIdentifier("category-row-\(category.name.lowercased())")
                         .contextMenu {
-                            NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
+                            NavigationLink {
+                                CategoryDetailView(categoryID: category.id)
+                            } label: {
                                 Label(String(localized: "Edit"), systemImage: "pencil")
                             }
                             if !category.isDefault {
@@ -180,13 +185,6 @@ struct CategoryListView: View {
                                     Label("Delete", systemImage: "trash")
                                 }
                             }
-                        }
-                    }
-                    .onMove { indices, newOffset in
-                        Task {
-                            var reordered = vm.filteredIncomeCategories
-                            reordered.move(fromOffsets: indices, toOffset: newOffset)
-                            await vm.reorder(type: .income, orderedIDs: reordered.map(\.id))
                         }
                     }
                 }
