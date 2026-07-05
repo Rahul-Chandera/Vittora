@@ -35,6 +35,13 @@ struct ContentView: View {
             }
         }
         .accessibilityIdentifier("content-root")
+        .onChange(of: appState.isOnboardingComplete) { _, isComplete in
+            // Onboarding writes the name/currency straight to storage; refresh the
+            // shared view model so the main app shows them without a restart.
+            if isComplete {
+                settingsVM.reloadPersistedProfile()
+            }
+        }
     }
 }
 
