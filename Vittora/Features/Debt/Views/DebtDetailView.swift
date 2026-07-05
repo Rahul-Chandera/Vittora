@@ -67,6 +67,7 @@ struct DebtDetailView: View {
                 Spacer()
                 Text(CurrencyFormatter.format(vm.netBalance, currencyCode: currencyCode))
                     .font(VTypography.amountSmall)
+                    .amountScaling()
                     .foregroundColor(vm.netBalance >= 0 ? VColors.income : VColors.expense)
             }
         }
@@ -79,6 +80,7 @@ struct DebtDetailView: View {
         VStack(spacing: VSpacing.xs) {
             Text(CurrencyFormatter.format(amount, currencyCode: currencyCode))
                 .font(VTypography.amountMedium)
+                .amountScaling()
                 .foregroundColor(color)
             Text(title)
                 .font(VTypography.caption2)

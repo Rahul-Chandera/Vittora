@@ -126,6 +126,7 @@ struct SavingsGoalDetailView: View {
                 VStack(spacing: 4) {
                     Text(vm.goal.currentAmount.formatted(.currency(code: currencyCode)))
                         .font(VTypography.amountLarge)
+                        .amountScaling()
                         .foregroundStyle(goalColor)
                     Text(String(localized: "saved of \(vm.goal.targetAmount.formatted(.currency(code: currencyCode)))"))
                         .font(VTypography.caption1)
