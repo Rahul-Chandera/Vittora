@@ -52,9 +52,12 @@ struct VEmptyState: View {
                 }
             }
 
+            // Same prominent style as every other action button in the app
+            // (e.g. Savings' "Create Goal"), for a consistent corner radius.
             if let actionLabel = actionLabel, let actionHandler = actionHandler {
-                VActionButton(actionLabel, action: actionHandler)
-                    .padding(.horizontal, VSpacing.screenPadding)
+                Button(actionLabel, action: actionHandler)
+                    .buttonStyle(.borderedProminent)
+                    .tint(VColors.primary)
             }
 
             Spacer()
