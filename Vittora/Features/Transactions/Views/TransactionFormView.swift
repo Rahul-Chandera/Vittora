@@ -138,7 +138,7 @@ struct TransactionFormView: View {
         }
         .sheet(isPresented: $showAddAccount) {
             NavigationStack {
-                AccountFormView {
+                AccountFormView(showsCancelButton: true) {
                     Task { await reloadAccountsSelectingNewest() }
                 }
             }

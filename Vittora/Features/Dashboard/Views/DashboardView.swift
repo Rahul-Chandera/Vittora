@@ -345,7 +345,7 @@ struct DashboardView: View {
             }
         case .addTransfer:
             NavigationStack {
-                TransferFormView()
+                TransferFormView(showsCancelButton: true)
             }
         case .addBudget:
             BudgetFormView(isPresented: budgetPresentationBinding)
