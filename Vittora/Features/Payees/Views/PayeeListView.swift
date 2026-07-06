@@ -115,6 +115,7 @@ struct PayeeListView: View {
                 .multilineTextAlignment(.center)
             Button(String(localized: "Add Payee")) { showAddPayee = true }
                 .buttonStyle(.borderedProminent)
+                .tint(VColors.primary)
             Button {
                 Task { await vm.importContacts() }
             } label: {

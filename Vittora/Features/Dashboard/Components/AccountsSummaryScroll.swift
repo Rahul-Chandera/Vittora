@@ -46,6 +46,7 @@ struct AccountsSummaryScroll: View {
                                 .font(VTypography.subheadline)
                         }
                         .buttonStyle(.borderedProminent)
+                        .tint(VColors.primary)
                         .accessibilityIdentifier("dashboard-accounts-add")
                     }
                 }
