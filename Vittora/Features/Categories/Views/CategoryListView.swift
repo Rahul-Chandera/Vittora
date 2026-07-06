@@ -100,6 +100,7 @@ struct CategoryListView: View {
                 .multilineTextAlignment(.center)
             Button(String(localized: "Add Category")) { showAddCategory = true }
                 .buttonStyle(.borderedProminent)
+                .tint(VColors.primary)
         }
         .padding(VSpacing.screenPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
