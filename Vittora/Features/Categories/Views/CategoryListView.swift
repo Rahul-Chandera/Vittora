@@ -38,7 +38,7 @@ struct CategoryListView: View {
         .sheet(isPresented: $showAddCategory) {
             if let vm = viewModel {
                 NavigationStack {
-                    CategoryFormView(onSave: {
+                    CategoryFormView(showsCancelButton: true, onSave: {
                         Task { await vm.loadCategories() }
                     })
                 }

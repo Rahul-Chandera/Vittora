@@ -29,7 +29,7 @@ struct AccountDetailView: View {
         .sheet(isPresented: $showEditSheet) {
             if let account = viewModel?.account {
                 NavigationStack {
-                    AccountFormView(editingAccount: account) {
+                    AccountFormView(editingAccount: account, showsCancelButton: true) {
                         Task { await viewModel?.loadAccount(id: accountID) }
                     }
                 }

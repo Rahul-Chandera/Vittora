@@ -3,6 +3,9 @@ import VittoraCore
 
 struct CategoryFormView: View {
     var editingCategory: CategoryEntity? = nil
+    /// Show a Cancel button. Only pass `true` when presenting modally; a pushed
+    /// form already has a back button, so Cancel would be a duplicate.
+    var showsCancelButton: Bool = false
     var onSave: (() -> Void)? = nil
 
     @Environment(AppState.self) private var appState
@@ -27,8 +30,10 @@ struct CategoryFormView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button(String(localized: "Cancel")) { dismiss() }
+            if showsCancelButton {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(String(localized: "Cancel")) { dismiss() }
+                }
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(String(localized: "Save")) {

@@ -3,6 +3,9 @@ import VittoraCore
 
 struct TransferFormView: View {
     @Environment(AppState.self) private var appState
+    /// Show a Cancel button. Only pass `true` when presenting modally; a pushed
+    /// form already has a back button, so Cancel would be a duplicate.
+    var showsCancelButton: Bool = false
     var onSave: (() -> Void)? = nil
 
     @Environment(\.dependencies) private var dependencies
@@ -23,9 +26,11 @@ struct TransferFormView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button(String(localized: "Cancel")) { dismiss() }
-                    .accessibilityIdentifier("transfer-cancel-button")
+            if showsCancelButton {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(String(localized: "Cancel")) { dismiss() }
+                        .accessibilityIdentifier("transfer-cancel-button")
+                }
             }
             ToolbarItem(placement: .confirmationAction) {
                 if isTransferring {

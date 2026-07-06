@@ -34,7 +34,7 @@ struct AccountListView: View {
         .sheet(isPresented: $showAddAccount) {
             if let vm = viewModel {
                 NavigationStack {
-                    AccountFormView(onSave: {
+                    AccountFormView(showsCancelButton: true, onSave: {
                         Task { await vm.loadAccounts() }
                     })
                 }
