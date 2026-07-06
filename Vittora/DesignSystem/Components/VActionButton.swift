@@ -103,30 +103,28 @@ struct VActionButton: View {
             }
             action()
         }) {
-            ZStack {
+            // Background as a hugging .background, not a ZStack sibling — a bare
+            // RoundedRectangle in a ZStack is greedy and inflates the button to
+            // all available space (e.g. half the screen inside VEmptyState).
+            HStack(spacing: VSpacing.md) {
+                if isLoading {
+                    ProgressView()
+                        .tint(style.foregroundColor)
+                }
+
+                Text(label)
+                    .font(size.font)
+                    .foregroundColor(style.foregroundColor)
+                    .opacity(isLoading ? 0.7 : 1)
+            }
+            .padding(.horizontal, VSpacing.xl)
+            .frame(maxWidth: isFullWidth ? .infinity : nil)
+            .frame(height: size.height)
+            .background(
                 RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD)
                     .fill(style.backgroundColor)
                     .opacity(isEnabled ? 1 : 0.5)
-
-                HStack(spacing: VSpacing.md) {
-                    if isLoading {
-                        ProgressView()
-                            .tint(style.foregroundColor)
-                    }
-
-                    Text(label)
-                        .font(size.font)
-                        .foregroundColor(style.foregroundColor)
-                        .opacity(isLoading ? 0.7 : 1)
-
-                    if isLoading {
-                        Spacer()
-                            .frame(width: 0)
-                    }
-                }
-                .frame(maxWidth: isFullWidth ? .infinity : nil)
-                .frame(height: size.height)
-            }
+            )
         }
         .disabled(!isEnabled || isLoading)
         .if(style == .secondary) { view in
