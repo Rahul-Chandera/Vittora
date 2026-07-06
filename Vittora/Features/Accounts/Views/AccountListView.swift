@@ -96,6 +96,7 @@ struct AccountListView: View {
                 .multilineTextAlignment(.center)
             Button(String(localized: "Add Account")) { showAddAccount = true }
                 .buttonStyle(.borderedProminent)
+                .tint(VColors.primary)
         }
         .padding(VSpacing.screenPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
