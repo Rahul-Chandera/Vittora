@@ -58,6 +58,7 @@ struct CategoryPicker: View {
                             .font(.system(size: 14, weight: .semibold))
                     }
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }
