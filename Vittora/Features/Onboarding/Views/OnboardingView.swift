@@ -1,5 +1,8 @@
 import SwiftUI
 import VittoraCore
+#if os(iOS)
+import UIKit
+#endif
 
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
@@ -62,11 +65,25 @@ struct OnboardingView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("onboarding-root")
+        .onChange(of: vm.currentStep) { _, _ in
+            // The step views own their FocusStates; when the CTA advances the
+            // step, nothing clears them and the keyboard stays up over the next
+            // step. Resign globally on every step change.
+            dismissKeyboard()
+        }
         #if os(iOS)
         .onChange(of: horizontalSizeClass, initial: true) { _, new in
             vm.isAccountSubStepEnabled = new == .compact
             if new != .compact { vm.accountSubStep = .type }
         }
+        #endif
+    }
+
+    private func dismissKeyboard() {
+        #if os(iOS)
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
+        )
         #endif
     }
 
@@ -485,6 +502,7 @@ private struct AccountSetupStepView: View {
     }
 
     private var accountDetailsStep: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: VSpacing.lg) {
                 Spacer(minLength: VSpacing.xl)
@@ -549,8 +567,18 @@ private struct AccountSetupStepView: View {
                     }
                 }
                 .padding(.horizontal, VSpacing.screenPadding)
+                .id("account-fields")
 
                 Spacer(minLength: VSpacing.xl)
+            }
+        }
+        // With the keyboard up, the header eats the small visible window and
+        // the balance field sits clipped below the fold. Bring the fields
+        // group to the top whenever either field gains focus.
+        .onChange(of: focusedField) { _, newValue in
+            guard newValue != nil else { return }
+            withAnimation {
+                proxy.scrollTo("account-fields", anchor: .top)
             }
         }
         #if os(iOS)
@@ -562,6 +590,7 @@ private struct AccountSetupStepView: View {
             }
         }
         #endif
+        }
     }
 
     @ViewBuilder
