@@ -40,6 +40,8 @@ struct RecurringDetailView: View {
                                     Text(category?.name ?? String(localized: "Uncategorized"))
                                         .font(VTypography.title2)
                                         .foregroundColor(VColors.textPrimary)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.7)
 
                                     Text(frequencyLabel(rule.frequency))
                                         .font(VTypography.callout)
@@ -207,8 +209,8 @@ struct RecurringDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .sheet(isPresented: $showEditSheet) {
-            if rule != nil {
-                RecurringFormView(onDismiss: {
+            if let rule {
+                RecurringFormView(editingRule: rule, onDismiss: {
                     showEditSheet = false
                     Task {
                         await loadData()
