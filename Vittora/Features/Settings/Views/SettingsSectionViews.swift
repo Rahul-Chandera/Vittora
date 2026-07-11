@@ -49,6 +49,8 @@ struct CurrencySettingsView: View {
                                     .foregroundStyle(VColors.primary)
                             }
                         }
+                        // Make the whole row tappable, not just the text.
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -82,6 +84,8 @@ struct AppearanceSettingsView: View {
                                     .foregroundStyle(VColors.primary)
                             }
                         }
+                        // Make the whole row tappable, not just the text.
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -149,6 +153,8 @@ struct SecuritySettingsView: View {
                                         .foregroundStyle(VColors.primary)
                                 }
                             }
+                            // Make the whole row tappable, not just the text.
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
