@@ -54,8 +54,13 @@ final class OnboardingFlowUITests: XCTestCase {
         let nameField = app.textFields["onboarding-name-field"]
         XCTAssertTrue(nameField.waitForExistence(timeout: 10))
         nameField.tap()
-        nameField.typeText("Taylor\n")
+        nameField.typeText("Taylor")
         tapNext()
+
+        XCTAssertTrue(
+            UITestSupport.waitForDisappearance(app.keyboards.firstMatch, timeout: 8),
+            "Keyboard should auto-dismiss when advancing to the next onboarding step."
+        )
 
         let bankAccountType = app.buttons["onboarding-account-type-bank"]
         if bankAccountType.waitForExistence(timeout: 5) {
