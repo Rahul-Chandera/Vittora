@@ -34,11 +34,13 @@ final class QuickEntryPresentationUITests: XCTestCase {
         // On regular width (iPad) quick entry must be a sheet, not a full-screen
         // cover: the underlying UI stays in the accessibility hierarchy under a
         // sheet, but is removed by a fullScreenCover.
+        #if os(iOS)
         if UIDevice.current.userInterfaceIdiom == .pad {
             XCTAssertTrue(
                 app.buttons["quick-entry-floating-button"].exists,
                 "On iPad, quick entry should present as a sheet (dashboard still in hierarchy)."
             )
         }
+        #endif
     }
 }
