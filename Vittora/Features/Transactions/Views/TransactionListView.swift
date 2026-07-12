@@ -74,14 +74,19 @@ struct TransactionListView: View {
             transactionList(vm, selection: $selectedTransactionID)
                 .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
         } detail: {
-            if let selectedTransactionID {
-                TransactionDetailView(transactionID: selectedTransactionID)
-            } else {
-                ContentUnavailableView(
-                    String(localized: "Select a Transaction"),
-                    systemImage: "list.bullet.rectangle",
-                    description: Text(String(localized: "Choose a transaction from the list to view its details."))
-                )
+            // The detail column needs its own NavigationStack so pushes from
+            // within it (e.g. the detail's edit button) have a stack to land on.
+            NavigationStack {
+                if let selectedTransactionID {
+                    TransactionDetailView(transactionID: selectedTransactionID)
+                        .id(selectedTransactionID)
+                } else {
+                    ContentUnavailableView(
+                        String(localized: "Select a Transaction"),
+                        systemImage: "list.bullet.rectangle",
+                        description: Text(String(localized: "Choose a transaction from the list to view its details."))
+                    )
+                }
             }
         }
     }
@@ -134,7 +139,13 @@ struct TransactionListView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
-                NavigationLink(value: NavigationDestination.addTransaction) {
+                // Button + navigateDestination instead of a value-based
+                // NavigationLink: inside the iPad split view's sidebar column the
+                // shared navigationDestination(for:) isn't in scope, so the value
+                // link did nothing there (same family as #51/#60).
+                Button {
+                    navigateDestination = .addTransaction
+                } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.title2)
                 }
@@ -268,14 +279,26 @@ struct TransactionListView: View {
             isSelected: vm.selectedTransactionIDs.contains(transaction.id)
         )
 
-        if selection != nil {
-            row
-                .tag(Optional(transaction.id))
-                .transactionRowModifiers(
-                    vm: vm,
-                    transaction: transaction,
-                    onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
-                )
+        if let selection {
+            // Drive the split-view selection explicitly. Tag-based List selection
+            // doesn't respond to taps in this nested context (split view inside
+            // the tab's NavigationStack), so a plain row was un-tappable on iPad.
+            Button {
+                if vm.isMultiSelectMode {
+                    vm.toggleSelection(transaction.id)
+                } else {
+                    selection.wrappedValue = transaction.id
+                }
+            } label: {
+                row
+            }
+            .buttonStyle(.plain)
+            .tag(Optional(transaction.id))
+            .transactionRowModifiers(
+                vm: vm,
+                transaction: transaction,
+                onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
+            )
         } else {
             Button {
                 if vm.isMultiSelectMode {
