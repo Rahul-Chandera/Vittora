@@ -16,6 +16,7 @@ struct QuickEntryButton: View {
                 .shadow(color: Color("VPrimary").opacity(0.3), radius: 8, y: 4)
         }
         .accessibilityLabel(String(localized: "Add Transaction"))
+        .accessibilityIdentifier("quick-entry-floating-button")
     }
 }
 

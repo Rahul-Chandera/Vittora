@@ -21,8 +21,17 @@ struct AppTabView: View {
                 regularTabView
             }
         }
-        .fullScreenCover(isPresented: $showAddTransaction) {
-            QuickEntryView()
+        // Match the dashboard quick actions: a centered sheet on regular width
+        // (iPad), full-screen cover only on compact (iPhone).
+        .if(horizontalSizeClass == .regular) { view in
+            view.sheet(isPresented: $showAddTransaction) {
+                QuickEntryView()
+            }
+        }
+        .if(horizontalSizeClass != .regular) { view in
+            view.fullScreenCover(isPresented: $showAddTransaction) {
+                QuickEntryView()
+            }
         }
         .handlesAppCommands(appState: appState, showAddTransaction: $showAddTransaction)
     }
