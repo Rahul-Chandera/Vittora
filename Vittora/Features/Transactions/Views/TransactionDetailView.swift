@@ -8,7 +8,7 @@ struct TransactionDetailView: View {
     @Environment(\.currencyCode) private var currencyCode
     @State private var vm: TransactionDetailViewModel?
     let transactionID: UUID
-    @State private var navigateDestination: NavigationDestination?
+    @State private var showEditSheet = false
 
     var body: some View {
         ZStack {
@@ -166,7 +166,7 @@ struct TransactionDetailView: View {
                     ToolbarItem(placement: .primaryAction) {
                         HStack(spacing: VSpacing.md) {
                             Button {
-                                navigateDestination = .editTransaction(id: transaction.id)
+                                showEditSheet = true
                             } label: {
                                 Image(systemName: "pencil")
                             }
@@ -223,8 +223,15 @@ struct TransactionDetailView: View {
                 await vm?.loadTransaction(id: transactionID)
             }
         }
-        .navigationDestination(item: $navigateDestination) { dest in
-            NavigationDestinationView(destination: dest)
+        // Edit as a sheet (like Account/Payee detail): a push via
+        // navigationDestination silently fails inside the iPad split view's
+        // detail column, and the sheet works identically on iPhone.
+        .sheet(isPresented: $showEditSheet, onDismiss: {
+            Task { await vm?.loadTransaction(id: transactionID) }
+        }) {
+            NavigationStack {
+                TransactionFormView(transactionID: transactionID, showsCancelButton: true)
+            }
         }
     }
 
