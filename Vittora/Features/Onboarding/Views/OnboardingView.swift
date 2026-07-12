@@ -27,26 +27,28 @@ struct OnboardingView: View {
                         .padding(.top, VSpacing.xl)
                 }
 
-                // Step content
-                TabView(selection: currentStepBinding) {
-                    WelcomeStepView()
-                        .tag(OnboardingViewModel.Step.welcome)
-                    CurrencyStepView(vm: vm)
-                        .tag(OnboardingViewModel.Step.currency)
-                    ProfileStepView(vm: vm)
-                        .tag(OnboardingViewModel.Step.profile)
-                    AccountSetupStepView(vm: vm)
-                        .tag(OnboardingViewModel.Step.account)
-                    NotificationsStepView(vm: vm)
-                        .tag(OnboardingViewModel.Step.notifications)
-                    DoneStepView(vm: vm)
-                        .tag(OnboardingViewModel.Step.done)
+                // Step content. Deliberately NOT a paging TabView: the pager
+                // keeps neighboring pages (each with text fields → its own
+                // keyboard host) alive at once, which broke keyboard layout on
+                // iPad and let it write a wrong page back mid-animation,
+                // skipping the account step. Swiping would also bypass the
+                // canAdvance validation gating. One step view at a time.
+                Group {
+                    switch vm.currentStep {
+                    case .welcome:       WelcomeStepView()
+                    case .currency:      CurrencyStepView(vm: vm)
+                    case .profile:       ProfileStepView(vm: vm)
+                    case .account:       AccountSetupStepView(vm: vm)
+                    case .notifications: NotificationsStepView(vm: vm)
+                    case .done:          DoneStepView(vm: vm)
+                    }
                 }
-                #if os(iOS)
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                #else
-                .tabViewStyle(.automatic)
-                #endif
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(reduceMotion ? .opacity : .asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
+                .id(vm.currentStep)
                 .animation(reduceMotion ? .none : .easeInOut, value: vm.currentStep)
 
                 // CTA button
@@ -150,12 +152,6 @@ struct OnboardingView: View {
         }
     }
 
-    private var currentStepBinding: Binding<OnboardingViewModel.Step> {
-        Binding(
-            get: { vm.currentStep },
-            set: { vm.currentStep = $0 }
-        )
-    }
 }
 
 // MARK: - Step Views
