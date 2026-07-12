@@ -3,15 +3,21 @@ import SwiftData
 // MARK: - Shared model sets
 
 private enum VittoraSchemaModels {
-    /// Model types shared across V1–V6; nonisolated so `VersionedSchema.models` stays Sendable-safe.
+    /// Model types whose shape never changed across V1–V6; nonisolated so
+    /// `VersionedSchema.models` stays Sendable-safe.
+    ///
+    /// IMPORTANT: models that changed between versions (SDTransaction,
+    /// SDAccount, SDDebt) must NOT live here. Each VersionedSchema has to
+    /// reference a *frozen snapshot* of the shape it actually had, never the
+    /// live class — aliasing the live class made V3–V6 produce identical
+    /// schema checksums, and CoreData aborts staged migration with
+    /// "Duplicate version checksums detected" (crash on any store upgrade).
     nonisolated(unsafe) static let sharedBaseline: [any PersistentModel.Type] = [
-        SDAccount.self,
         SDCategory.self,
         SDBudget.self,
         SDPayee.self,
         SDRecurringRule.self,
         SDDocument.self,
-        SDDebt.self,
         SDSplitGroup.self,
         SDGroupExpense.self,
         SDTaxProfile.self,
@@ -23,7 +29,11 @@ public enum VittoraSchemaV1: VersionedSchema {
     public static let versionIdentifier = Schema.Version(1, 0, 0)
 
     public static var models: [any PersistentModel.Type] {
-        [VittoraSchemaV1.SDTransaction.self] + VittoraSchemaModels.sharedBaseline
+        [
+            VittoraSchemaV1.SDTransaction.self,
+            VittoraSchemaV1.SDAccount.self,
+            VittoraSchemaV1.SDDebt.self,
+        ] + VittoraSchemaModels.sharedBaseline
     }
 }
 
@@ -35,7 +45,11 @@ public enum VittoraSchemaV2: VersionedSchema {
     public static let versionIdentifier = Schema.Version(2, 0, 0)
 
     public static var models: [any PersistentModel.Type] {
-        [VittoraSchemaV2.SDTransaction.self] + VittoraSchemaModels.sharedBaseline
+        [
+            VittoraSchemaV2.SDTransaction.self,
+            VittoraSchemaV1.SDAccount.self,
+            VittoraSchemaV1.SDDebt.self,
+        ] + VittoraSchemaModels.sharedBaseline
     }
 }
 
@@ -49,7 +63,11 @@ public enum VittoraSchemaV3: VersionedSchema {
     public static let versionIdentifier = Schema.Version(3, 0, 0)
 
     public static var models: [any PersistentModel.Type] {
-        [SDTransaction.self] + VittoraSchemaModels.sharedBaseline
+        [
+            SDTransaction.self,
+            VittoraSchemaV1.SDAccount.self,
+            VittoraSchemaV1.SDDebt.self,
+        ] + VittoraSchemaModels.sharedBaseline
     }
 }
 
@@ -66,7 +84,11 @@ public enum VittoraSchemaV4: VersionedSchema {
     public static let versionIdentifier = Schema.Version(4, 0, 0)
 
     public static var models: [any PersistentModel.Type] {
-        VittoraSchemaV3.models
+        [
+            SDTransaction.self,
+            VittoraSchemaV4.SDAccount.self,
+            VittoraSchemaV1.SDDebt.self,
+        ] + VittoraSchemaModels.sharedBaseline
     }
 }
 
@@ -79,7 +101,11 @@ public enum VittoraSchemaV5: VersionedSchema {
     public static let versionIdentifier = Schema.Version(5, 0, 0)
 
     public static var models: [any PersistentModel.Type] {
-        VittoraSchemaV4.models
+        [
+            SDTransaction.self,
+            VittoraSchemaV4.SDAccount.self,
+            SDDebt.self,
+        ] + VittoraSchemaModels.sharedBaseline
     }
 }
 
@@ -90,8 +116,13 @@ public enum VittoraSchemaV5: VersionedSchema {
 public enum VittoraSchemaV6: VersionedSchema {
     public static let versionIdentifier = Schema.Version(6, 0, 0)
 
+    /// Current version — the only one that references the live model classes.
     public static var models: [any PersistentModel.Type] {
-        VittoraSchemaV5.models
+        [
+            SDTransaction.self,
+            SDAccount.self,
+            SDDebt.self,
+        ] + VittoraSchemaModels.sharedBaseline
     }
 }
 

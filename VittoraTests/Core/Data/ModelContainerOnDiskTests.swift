@@ -209,8 +209,10 @@ struct ModelContainerOnDiskTests {
                 configurations: [config]
             )
             let ctx = ModelContext(container)
-            ctx.insert(SDAccount(id: withOpeningID, name: "Seeded", type: .bank, balance: 500, openingBalance: 1000))
-            ctx.insert(SDAccount(id: legacyID, name: "Legacy", type: .bank, balance: 500, openingBalance: nil))
+            // V4's registered account class is the frozen snapshot (the live
+            // SDAccount belongs to V6 only).
+            ctx.insert(VittoraSchemaV4.SDAccount(id: withOpeningID, name: "Seeded", type: .bank, balance: 500, openingBalance: 1000))
+            ctx.insert(VittoraSchemaV4.SDAccount(id: legacyID, name: "Legacy", type: .bank, balance: 500, openingBalance: nil))
             try ctx.save()
         }
 
@@ -222,7 +224,7 @@ struct ModelContainerOnDiskTests {
             configurations: [config]
         )
         let ctx = ModelContext(container)
-        let rows = try ctx.fetch(FetchDescriptor<SDAccount>())
+        let rows = try ctx.fetch(FetchDescriptor<VittoraSchemaV4.SDAccount>())
 
         #expect(rows.count == 2)
         #expect(rows.first { $0.id == withOpeningID }?.openingBalance == 1000)
@@ -332,5 +334,68 @@ struct ModelContainerOnDiskTests {
         let entity = AccountMapper.toEntity(row)
         #expect(entity.statementDayOfMonth == 5)
         #expect(entity.dueDayOfMonth == 20)
+    }
+
+    /// Regression for the "Duplicate version checksums detected" launch crash:
+    /// a store created at the true V3 shape (pre-`openingBalance` account,
+    /// pre-JSON debt) must stage-migrate V3→V6 on open. Before the schemas
+    /// were frozen, V3–V6 aliased the live models, the on-disk store matched
+    /// no version in the plan, and CoreData threw while building the stages.
+    @Test("on-disk V3-era store stage-migrates to V6 preserving account and debt data")
+    func onDiskStoreMigratesV3ToV6() throws {
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let storeURL = dir.appendingPathComponent("vittora-v3-migration.store")
+
+        let accountID = UUID()
+        let debtID = UUID()
+        let payeeID = UUID()
+        let legacyLinkID = UUID()
+
+        // Phase 1: seed at the frozen V3 shape (no migration plan).
+        do {
+            let v3Schema = Schema(VittoraSchemaV3.models)
+            let config = ModelConfiguration(schema: v3Schema, url: storeURL, cloudKitDatabase: .none)
+            let container = try ModelContainer(for: v3Schema, configurations: [config])
+            let ctx = ModelContext(container)
+            ctx.insert(VittoraSchemaV1.SDAccount(
+                id: accountID, name: "Legacy Checking", type: .bank, balance: 750
+            ))
+            let debt = VittoraSchemaV1.SDDebt(
+                id: debtID, payeeID: payeeID, amount: 200, direction: .lent
+            )
+            debt.linkedTransactionID = legacyLinkID
+            ctx.insert(debt)
+            try ctx.save()
+        }
+
+        // Phase 2: reopen at V6 with the plan — runs stages V3→V4→V5→V6.
+        let schema = Schema(VittoraSchemaV6.models)
+        let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let ctx = ModelContext(container)
+
+        let account = try #require(
+            try ctx.fetch(FetchDescriptor<SDAccount>()).first { $0.id == accountID }
+        )
+        #expect(account.name == "Legacy Checking")
+        #expect(account.balance == 750)
+        #expect(account.openingBalance == nil)       // added in V4, nil on legacy rows
+        #expect(account.statementDayOfMonth == nil)  // added in V6
+        #expect(account.dueDayOfMonth == nil)
+
+        let debt = try #require(
+            try ctx.fetch(FetchDescriptor<SDDebt>()).first { $0.id == debtID }
+        )
+        #expect(debt.amount == 200)
+        #expect(debt.linkedTransactionID == legacyLinkID)
+        // V5's JSON column arrives with its default on migrated rows.
+        #expect(debt.linkedTransactionIDs.isEmpty)
     }
 }
