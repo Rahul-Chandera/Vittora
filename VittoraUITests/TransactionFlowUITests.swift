@@ -80,6 +80,34 @@ final class TransactionFlowUITests: XCTestCase {
     }
 
     @MainActor
+    func testTapOutsideDismissesKeyboard() throws {
+        navigateToTransactionsTab()
+
+        let addButton = app.buttons["transaction-add-button"]
+        UITestSupport.tapWhenReady(addButton, timeout: 15)
+
+        let amountField = app.textFields["transaction-amount-field"]
+        XCTAssertTrue(amountField.waitForExistence(timeout: 8))
+        amountField.tap()
+        XCTAssertTrue(
+            app.keyboards.firstMatch.waitForExistence(timeout: 8),
+            "Keyboard should appear when the amount field is focused."
+        )
+
+        // Tap a non-input area of the form (the "Details" section header — above
+        // the keyboard, not a control) — the global tap-to-dismiss gesture
+        // should hide the keyboard (decimal pads have no return key).
+        let detailsHeader = app.staticTexts["Details"]
+        XCTAssertTrue(detailsHeader.waitForExistence(timeout: 5), "Details section header should be visible.")
+        detailsHeader.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+
+        XCTAssertTrue(
+            UITestSupport.waitForDisappearance(app.keyboards.firstMatch, timeout: 8),
+            "Tapping outside a text input should dismiss the keyboard."
+        )
+    }
+
+    @MainActor
     func testEditFromTransactionDetailOpensForm() throws {
         navigateToTransactionsTab()
 

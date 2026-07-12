@@ -35,6 +35,11 @@ struct ContentView: View {
             }
         }
         .accessibilityIdentifier("content-root")
+        #if os(iOS)
+        .onAppear {
+            KeyboardDismissGesture.installIfNeeded()
+        }
+        #endif
         .onChange(of: appState.isOnboardingComplete) { _, isComplete in
             // Onboarding writes the name/currency straight to storage; refresh the
             // shared view model so the main app shows them without a restart.
