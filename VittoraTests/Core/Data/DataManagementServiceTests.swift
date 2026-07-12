@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 // MARK: - Minimal mock repositories for DataManagementService
@@ -131,7 +132,8 @@ struct DataManagementServiceTests {
             debtRepository: debtRepo,
             savingsGoalRepository: goalRepo,
             splitGroupRepository: splitRepo,
-            documentRepository: docRepo
+            documentRepository: docRepo,
+            keychainService: MockKeychainService()
         )
         return (service, txRepo, accRepo, catRepo, budRepo, debtRepo, goalRepo, splitRepo, docRepo)
     }
@@ -287,6 +289,7 @@ struct DataManagementServiceTests {
         try await keychain.save(Data([1]), forKey: "vittora.onboardingComplete", access: .standard)
         try await keychain.save(Data([1]), forKey: "vittora.appLockEnabled", access: .standard)
         try await keychain.save(Data([1]), forKey: "vittora.passcodeFallback", access: .standard)
+        try await keychain.save(Data([4]), forKey: KeychainAppLockCooldownStore.keychainKey, access: .standard)
         try await keychain.save(Data("name".utf8), forKey: "vittora.userName", access: .standard)
         try await keychain.save(Data([1]), forKey: "com.vittora.encryption.key", access: .standard)
         try await keychain.save(Data([1]), forKey: "com.vittora.encryption.key.se_wrapped", access: .standard)
@@ -317,6 +320,7 @@ struct DataManagementServiceTests {
         #expect((try await keychain.exists(forKey: "vittora.onboardingComplete")) == false)
         #expect((try await keychain.exists(forKey: "vittora.appLockEnabled")) == false)
         #expect((try await keychain.exists(forKey: "vittora.passcodeFallback")) == false)
+        #expect((try await keychain.exists(forKey: KeychainAppLockCooldownStore.keychainKey)) == false)
         #expect((try await keychain.exists(forKey: "vittora.userName")) == false)
         #expect((try await keychain.exists(forKey: "com.vittora.encryption.key")) == false)
         #expect((try await keychain.exists(forKey: "com.vittora.encryption.key.se_wrapped")) == false)

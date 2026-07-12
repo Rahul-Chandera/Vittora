@@ -1,7 +1,12 @@
 import SwiftUI
+import VittoraCore
+
+private enum DependencyContainerEnvironment {
+    static let previewContainer: DependencyContainer = DependencyContainer.preview()
+}
 
 extension EnvironmentValues {
-    @Entry var dependencies: DependencyContainer = DependencyContainer()
+    @Entry var dependencies: DependencyContainer = DependencyContainerEnvironment.previewContainer
     @Entry var currencyCode: String = CurrencyDefaults.code
     @Entry var currencySymbol: String = CurrencyDefaults.symbol
 }

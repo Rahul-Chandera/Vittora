@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("Debt Use Case Tests")
@@ -69,29 +70,40 @@ struct DebtUseCaseTests {
     @MainActor
     struct SettleDebtUseCaseTests {
 
-        private func makeUseCase(
-            debtRepo: MockDebtRepository,
-            txRepo: MockTransactionRepository,
-            accountRepo: MockAccountRepository
-        ) -> SettleDebtUseCase {
-            SettleDebtUseCase(
+        // A6: settlement writes through a real LedgerWriteStore so the debt
+        // bump, the linked transaction, and the balance change land in one
+        // save. Tests run against one in-memory container end-to-end.
+        private struct Env {
+            let debtRepo: SwiftDataDebtRepository
+            let accountRepo: SwiftDataAccountRepository
+            let txRepo: SwiftDataTransactionRepository
+            let useCase: SettleDebtUseCase
+        }
+
+        private func makeEnv() throws -> Env {
+            let container = try ModelContainerConfig.makeContainer(inMemory: true)
+            let debtRepo = SwiftDataDebtRepository(modelContainer: container)
+            let accountRepo = SwiftDataAccountRepository(modelContainer: container)
+            let txRepo = SwiftDataTransactionRepository(modelContainer: container)
+            let store = LedgerWriteStore(modelContainer: container)
+            let useCase = SettleDebtUseCase(
                 debtRepository: debtRepo,
-                transactionRepository: txRepo,
-                accountRepository: accountRepo
+                accountRepository: accountRepo,
+                ledgerWriting: store
             )
+            return Env(debtRepo: debtRepo, accountRepo: accountRepo, txRepo: txRepo, useCase: useCase)
         }
 
         @Test("partial settlement updates settledAmount")
         @MainActor
         func partialSettlement() async throws {
-            let debtRepo = MockDebtRepository()
+            let env = try makeEnv()
             let entry = DebtEntry(payeeID: UUID(), amount: 1000, direction: .lent)
-            debtRepo.seed(entry)
+            try await env.debtRepo.create(entry)
 
-            let useCase = makeUseCase(debtRepo: debtRepo, txRepo: MockTransactionRepository(), accountRepo: MockAccountRepository())
-            try await useCase.execute(debtID: entry.id, settlementAmount: 300, accountID: nil)
+            try await env.useCase.execute(debtID: entry.id, settlementAmount: 300, accountID: nil)
 
-            let updated = debtRepo.debts.first { $0.id == entry.id }
+            let updated = try await env.debtRepo.fetchByID(entry.id)
             #expect(updated?.settledAmount == 300)
             #expect(updated?.isSettled == false)
         }
@@ -99,26 +111,24 @@ struct DebtUseCaseTests {
         @Test("full settlement marks isSettled true")
         @MainActor
         func fullSettlement() async throws {
-            let debtRepo = MockDebtRepository()
+            let env = try makeEnv()
             let entry = DebtEntry(payeeID: UUID(), amount: 500, direction: .borrowed)
-            debtRepo.seed(entry)
+            try await env.debtRepo.create(entry)
 
-            let useCase = makeUseCase(debtRepo: debtRepo, txRepo: MockTransactionRepository(), accountRepo: MockAccountRepository())
-            try await useCase.execute(debtID: entry.id, settlementAmount: 500, accountID: nil)
+            try await env.useCase.execute(debtID: entry.id, settlementAmount: 500, accountID: nil)
 
-            let updated = debtRepo.debts.first { $0.id == entry.id }
+            let updated = try await env.debtRepo.fetchByID(entry.id)
             #expect(updated?.isSettled == true)
             #expect(updated?.settledAmount == 500)
         }
 
         @Test("throws notFound for unknown debt ID")
         @MainActor
-        func throwsNotFound() async {
-            let debtRepo = MockDebtRepository()
-            let useCase = makeUseCase(debtRepo: debtRepo, txRepo: MockTransactionRepository(), accountRepo: MockAccountRepository())
+        func throwsNotFound() async throws {
+            let env = try makeEnv()
 
             await #expect(throws: VittoraError.self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     debtID: UUID(),
                     settlementAmount: 100,
                     accountID: nil
@@ -128,19 +138,18 @@ struct DebtUseCaseTests {
 
         @Test("throws validationFailed when amount exceeds remaining")
         @MainActor
-        func throwsWhenAmountExceedsRemaining() async {
-            let debtRepo = MockDebtRepository()
+        func throwsWhenAmountExceedsRemaining() async throws {
+            let env = try makeEnv()
             let entry = DebtEntry(
                 payeeID: UUID(),
                 amount: 200,
                 settledAmount: 150,
                 direction: .lent
             )
-            debtRepo.seed(entry)
+            try await env.debtRepo.create(entry)
 
-            let useCase = makeUseCase(debtRepo: debtRepo, txRepo: MockTransactionRepository(), accountRepo: MockAccountRepository())
             await #expect(throws: VittoraError.self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     debtID: entry.id,
                     settlementAmount: 100, // remaining is only 50
                     accountID: nil
@@ -150,14 +159,13 @@ struct DebtUseCaseTests {
 
         @Test("throws validationFailed for zero settlement amount")
         @MainActor
-        func throwsForZeroAmount() async {
-            let debtRepo = MockDebtRepository()
+        func throwsForZeroAmount() async throws {
+            let env = try makeEnv()
             let entry = DebtEntry(payeeID: UUID(), amount: 100, direction: .lent)
-            debtRepo.seed(entry)
+            try await env.debtRepo.create(entry)
 
-            let useCase = makeUseCase(debtRepo: debtRepo, txRepo: MockTransactionRepository(), accountRepo: MockAccountRepository())
             await #expect(throws: VittoraError.self) {
-                try await useCase.execute(
+                try await env.useCase.execute(
                     debtID: entry.id,
                     settlementAmount: 0,
                     accountID: nil
@@ -165,32 +173,66 @@ struct DebtUseCaseTests {
             }
         }
 
-        @Test("settlement with account creates linked transaction")
+        @Test("settlement with account creates linked transaction and moves balance")
         @MainActor
         func settlementWithAccountCreatesTransaction() async throws {
-            let debtRepo = MockDebtRepository()
-            let txRepo = MockTransactionRepository()
-            let accountRepo = MockAccountRepository()
-
+            let env = try makeEnv()
             let entry = DebtEntry(payeeID: UUID(), amount: 300, direction: .lent)
-            debtRepo.seed(entry)
+            try await env.debtRepo.create(entry)
 
             let account = AccountEntity(name: "Wallet", type: .cash, balance: 1000)
-            try await accountRepo.create(account)
+            try await env.accountRepo.create(account)
 
-            let useCase = makeUseCase(debtRepo: debtRepo, txRepo: txRepo, accountRepo: accountRepo)
-            try await useCase.execute(
+            try await env.useCase.execute(
                 debtID: entry.id,
                 settlementAmount: 300,
                 accountID: account.id
             )
 
-            let txCount = await txRepo.transactions.count
-            #expect(txCount == 1)
+            let savedTransactions = try await env.txRepo.fetchAll(filter: nil)
+            #expect(savedTransactions.count == 1)
 
-            let updatedEntry = debtRepo.debts.first { $0.id == entry.id }
-            #expect(updatedEntry?.linkedTransactionID != nil)
+            let updatedEntry = try await env.debtRepo.fetchByID(entry.id)
+            #expect(updatedEntry?.linkedTransactionIDs.count == 1)
             #expect(updatedEntry?.isSettled == true)
+
+            // Lent debt repaid -> income -> account balance increases.
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
+            #expect(updatedAccount?.balance == 1300)
+        }
+
+        @Test("two partial settlements retain both linked transactions")
+        @MainActor
+        func twoPartialSettlementsRetained() async throws {
+            let env = try makeEnv()
+            let entry = DebtEntry(payeeID: UUID(), amount: 1000, direction: .lent)
+            try await env.debtRepo.create(entry)
+
+            let account = AccountEntity(name: "Wallet", type: .cash, balance: 1000)
+            try await env.accountRepo.create(account)
+
+            try await env.useCase.execute(
+                debtID: entry.id,
+                settlementAmount: 300,
+                accountID: account.id
+            )
+            try await env.useCase.execute(
+                debtID: entry.id,
+                settlementAmount: 200,
+                accountID: account.id
+            )
+
+            let savedTransactions = try await env.txRepo.fetchAll(filter: nil)
+            #expect(savedTransactions.count == 2)
+
+            let updatedEntry = try await env.debtRepo.fetchByID(entry.id)
+            #expect(updatedEntry?.settledAmount == 500)
+            #expect(updatedEntry?.linkedTransactionIDs.count == 2)
+            #expect(Set(updatedEntry?.linkedTransactionIDs ?? []) == Set(savedTransactions.map(\.id)))
+            #expect(updatedEntry?.isSettled == false)
+
+            let updatedAccount = try await env.accountRepo.fetchByID(account.id)
+            #expect(updatedAccount?.balance == 1500)
         }
     }
 

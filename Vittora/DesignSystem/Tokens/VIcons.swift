@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 enum VIcons {
     // MARK: - Tab Bar Icons

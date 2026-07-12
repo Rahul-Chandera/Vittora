@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import VittoraCore
 
 struct AnnualReportView: View {
     @Environment(\.dependencies) private var dependencies
@@ -38,6 +39,27 @@ struct AnnualReportView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                if let vm, hasReportData(vm) {
+                    ReportPDFShareLink(
+                        fileName: "annual-report-\(selectedYear)",
+                        contentVersion: annualReportContentVersion(vm),
+                        isEnabled: !vm.isLoading
+                    ) {
+                        MonthlyReportExportDocument(
+                            reportTitle: String(localized: "Annual Report"),
+                            subtitle: String(localized: "Year \(selectedYear)"),
+                            monthlyData: vm.monthlyData,
+                            currencyCode: currencyCode,
+                            totalIncome: vm.totalIncome,
+                            totalExpense: vm.totalExpense,
+                            netSavings: vm.netSavings
+                        )
+                    }
+                }
+            }
+        }
         .task {
             await loadData()
         }
@@ -198,9 +220,8 @@ struct AnnualReportView: View {
     // MARK: - Helpers
 
     private func loadData() async {
-        guard let repo = dependencies.transactionRepository else { return }
         if vm == nil {
-            let useCase = MonthlyOverviewUseCase(transactionRepository: repo)
+            let useCase = MonthlyOverviewUseCase(transactionRepository: dependencies.transactionRepository)
             vm = MonthlyOverviewViewModel(useCase: useCase)
         }
         await vm?.load()
@@ -208,6 +229,13 @@ struct AnnualReportView: View {
 
     private func hasReportData(_ vm: MonthlyOverviewViewModel) -> Bool {
         vm.monthlyData.contains { $0.income != 0 || $0.expense != 0 }
+    }
+
+    private func annualReportContentVersion(_ vm: MonthlyOverviewViewModel) -> String {
+        let monthKeys = vm.monthlyData
+            .map { String($0.month.timeIntervalSince1970) }
+            .joined(separator: ",")
+        return "annual|\(selectedYear)|\(vm.totalIncome)|\(vm.totalExpense)|\(vm.netSavings)|\(monthKeys)"
     }
 
     private var emptyState: some View {

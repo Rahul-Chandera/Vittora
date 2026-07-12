@@ -1,10 +1,11 @@
 import SwiftUI
+import VittoraCore
 
 struct CategoryPicker: View {
     @Binding var selectedCategoryID: UUID?
     let categories: [CategoryEntity]
     var filterType: CategoryType? = nil
-    var title: String = "Select Category"
+    var title: String = String(localized: "Select Category")
 
     var filteredCategories: [CategoryEntity] {
         if let type = filterType {
@@ -24,10 +25,10 @@ struct CategoryPicker: View {
     var body: some View {
         List {
             if !expenseCategories.isEmpty && filterType == nil {
-                Section("Expense") {
+                Section(String(localized: "Expense")) {
                     categoryRows(expenseCategories)
                 }
-                Section("Income") {
+                Section(String(localized: "Income")) {
                     categoryRows(incomeCategories)
                 }
             } else {

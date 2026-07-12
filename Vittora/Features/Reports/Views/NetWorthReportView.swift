@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import VittoraCore
 
 @Observable
 @MainActor
@@ -77,8 +78,8 @@ struct NetWorthReportView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .task {
-            guard vm == nil, let repo = dependencies.accountRepository else { return }
-            vm = NetWorthViewModel(repository: repo)
+            guard vm == nil else { return }
+            vm = NetWorthViewModel(repository: dependencies.accountRepository)
             await vm?.load()
         }
         .refreshable {
@@ -185,7 +186,7 @@ struct NetWorthReportView: View {
                             Text(account.name)
                                 .font(VTypography.body)
                                 .foregroundStyle(VColors.textPrimary)
-                            Text(account.type.rawValue.capitalized)
+                            Text(account.type.displayName)
                                 .font(VTypography.caption2)
                                 .foregroundStyle(VColors.textTertiary)
                         }

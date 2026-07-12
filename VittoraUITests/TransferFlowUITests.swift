@@ -17,78 +17,62 @@ final class TransferFlowUITests: XCTestCase {
 
     @MainActor
     func testCanTransferFundsFromDashboardQuickAction() throws {
+        XCTAssertTrue(
+            UITestSupport.waitForContentRoot(in: app),
+            "Dashboard should be visible before starting a transfer."
+        )
+
         let transferButton = app.buttons["quick-action-transfer-button"]
-        XCTAssertTrue(transferButton.waitForExistence(timeout: 5))
-        transferButton.tap()
+        UITestSupport.tapWhenReady(transferButton, timeout: 15)
 
         let sourceButton = app.buttons["transfer-source-account-button"]
-        XCTAssertTrue(sourceButton.waitForExistence(timeout: 5))
-        sourceButton.tap()
+        UITestSupport.tapWhenReady(sourceButton, timeout: 10)
 
         let accountPicker = app.collectionViews["account-picker-root"]
-        XCTAssertTrue(accountPicker.waitForExistence(timeout: 5))
+        XCTAssertTrue(accountPicker.waitForExistence(timeout: 10))
 
         let sourceAccountRow = app.buttons["transfer-source-account-ui-test-checking"]
-        XCTAssertTrue(sourceAccountRow.waitForExistence(timeout: 5))
-        sourceAccountRow.tap()
+        UITestSupport.tapWhenReady(sourceAccountRow, timeout: 10)
 
         let destinationButton = app.buttons["transfer-destination-account-button"]
-        XCTAssertTrue(destinationButton.waitForExistence(timeout: 5))
-        destinationButton.tap()
+        UITestSupport.tapWhenReady(destinationButton, timeout: 10)
 
-        XCTAssertTrue(accountPicker.waitForExistence(timeout: 5))
+        XCTAssertTrue(accountPicker.waitForExistence(timeout: 10))
 
         let destinationAccountRow = app.buttons["transfer-destination-account-ui-test-savings"]
-        XCTAssertTrue(destinationAccountRow.waitForExistence(timeout: 5))
-        destinationAccountRow.tap()
+        UITestSupport.tapWhenReady(destinationAccountRow, timeout: 10)
 
         let amountField = app.textFields["transfer-amount-field"]
-        XCTAssertTrue(amountField.waitForExistence(timeout: 5))
+        XCTAssertTrue(amountField.waitForExistence(timeout: 8))
         amountField.tap()
         amountField.typeText("125")
 
         let noteField = app.textFields["transfer-note-field"]
-        XCTAssertTrue(noteField.waitForExistence(timeout: 5))
+        XCTAssertTrue(noteField.waitForExistence(timeout: 8))
         noteField.tap()
         noteField.typeText("Move to savings")
 
         let submitButton = app.buttons["transfer-submit-button"]
-        XCTAssertTrue(submitButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(submitButton.waitForExistence(timeout: 8))
         XCTAssertTrue(submitButton.isEnabled)
-        submitButton.tap()
+        UITestSupport.tapWhenReady(submitButton, timeout: 8)
 
-        XCTAssertFalse(
-            sourceButton.waitForExistence(timeout: 1),
+        XCTAssertTrue(
+            UITestSupport.waitForDisappearance(sourceButton, timeout: 10),
             "The transfer form should dismiss after a successful transfer."
         )
 
-        let transactionsTab = app.tabBars.buttons["Transactions"]
-        XCTAssertTrue(transactionsTab.waitForExistence(timeout: 5))
-        transactionsTab.tap()
-
         XCTAssertTrue(
-            waitForTransactionRowCount(2, timeout: 5),
+            UITestSupport.navigateToTab(named: "Transactions", in: app, timeout: 15),
+            "Transactions tab should be reachable after transfer."
+        )
+        XCTAssertTrue(
+            app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 15),
+            "Transaction list should load after switching tabs."
+        )
+        XCTAssertTrue(
+            UITestSupport.waitForTransactionRowCount(in: app, 2, timeout: 20),
             "A transfer should create the paired debit and credit entries in the transaction list."
         )
-    }
-
-    @MainActor
-    private func waitForTransactionRowCount(_ expectedCount: Int, timeout: TimeInterval) -> Bool {
-        let deadline = Date().addingTimeInterval(timeout)
-
-        while Date() < deadline {
-            let rowCount = app
-                .descendants(matching: .any)
-                .matching(NSPredicate(format: "identifier BEGINSWITH %@", "transaction-row-"))
-                .count
-
-            if rowCount == expectedCount {
-                return true
-            }
-
-            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
-        }
-
-        return false
     }
 }

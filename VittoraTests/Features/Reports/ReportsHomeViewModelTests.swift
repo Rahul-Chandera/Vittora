@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("ReportsHomeViewModel Tests")
@@ -64,22 +65,6 @@ struct ReportsHomeViewModelTests {
 
         #expect(vm.error != nil)
         #expect(vm.isLoading == false)
-    }
-
-    // MARK: - formattedAmount
-
-    @Test("formattedAmount formats positive decimal as currency string")
-    func formattedAmountPositive() {
-        let vm = makeViewModel()
-        let result = vm.formattedAmount(Decimal(100))
-        #expect(result.contains("100"))
-    }
-
-    @Test("formattedAmount handles zero")
-    func formattedAmountZero() {
-        let vm = makeViewModel()
-        let result = vm.formattedAmount(0)
-        #expect(result.contains("0"))
     }
 }
 

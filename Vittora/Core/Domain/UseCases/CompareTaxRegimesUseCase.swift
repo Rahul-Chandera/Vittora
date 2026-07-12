@@ -1,11 +1,12 @@
 import Foundation
+import VittoraCore
 
 /// Produces a side-by-side tax comparison for the current country.
 struct CompareTaxRegimesUseCase: Sendable {
     private let estimateUseCase: EstimateTaxUseCase
     private let usTaxCalculator: USTaxCalculator
 
-    init(
+    nonisolated init(
         estimateUseCase: EstimateTaxUseCase = EstimateTaxUseCase(),
         usTaxCalculator: USTaxCalculator = USTaxCalculator()
     ) {

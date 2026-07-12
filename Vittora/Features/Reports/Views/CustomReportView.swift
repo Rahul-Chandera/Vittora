@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct CustomReportView: View {
     @Environment(\.dependencies) private var dependencies
@@ -36,17 +37,26 @@ struct CustomReportView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                if let vm, let result = vm.result, !result.rows.isEmpty {
+                    ReportPDFShareLink(
+                        fileName: "custom-report",
+                        contentVersion: customReportContentVersion(result),
+                        isEnabled: !vm.isLoading
+                    ) {
+                        CustomReportExportDocument(result: result, currencyCode: currencyCode)
+                    }
+                }
+            }
+        }
         .task {
             if vm == nil {
-                guard let txRepo = dependencies.transactionRepository,
-                      let catRepo = dependencies.categoryRepository,
-                      let accRepo = dependencies.accountRepository,
-                      let payeeRepo = dependencies.payeeRepository else { return }
                 let useCase = CustomReportUseCase(
-                    transactionRepository: txRepo,
-                    categoryRepository: catRepo,
-                    accountRepository: accRepo,
-                    payeeRepository: payeeRepo
+                    transactionRepository: dependencies.transactionRepository,
+                    categoryRepository: dependencies.categoryRepository,
+                    accountRepository: dependencies.accountRepository,
+                    payeeRepository: dependencies.payeeRepository
                 )
                 vm = CustomReportViewModel(useCase: useCase)
                 await vm?.generate()
@@ -153,7 +163,7 @@ struct CustomReportView: View {
                 .font(VTypography.bodyBold)
                 .foregroundColor(VColors.textPrimary)
             Spacer()
-            Text(formattedAmount(total))
+            Text(CurrencyFormatter.format(total, currencyCode: currencyCode))
                 .font(VTypography.amountSmall)
                 .foregroundColor(VColors.textPrimary)
         }
@@ -162,8 +172,16 @@ struct CustomReportView: View {
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
+    private func customReportContentVersion(_ result: CustomReportResult) -> String {
+        let rangeKey: String = {
+            guard let range = result.dateRange else { return "all" }
+            return "\(range.lowerBound.timeIntervalSince1970)-\(range.upperBound.timeIntervalSince1970)"
+        }()
+        let rowKey = result.rows
+            .map { "\($0.label):\($0.amount):\($0.count)" }
+            .joined(separator: ",")
+        let typeKey = result.transactionType?.rawValue ?? "all"
+        return "custom|\(result.grouping.rawValue)|\(typeKey)|\(rangeKey)|\(result.total)|\(rowKey)"
     }
 
     private var customReportErrorBinding: Binding<String?> {

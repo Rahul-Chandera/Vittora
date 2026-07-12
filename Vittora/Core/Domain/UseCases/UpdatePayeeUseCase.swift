@@ -1,9 +1,10 @@
 import Foundation
+import VittoraCore
 
 struct UpdatePayeeUseCase: Sendable {
     private let repository: any PayeeRepository
 
-    init(repository: any PayeeRepository) {
+    nonisolated init(repository: any PayeeRepository) {
         self.repository = repository
     }
 

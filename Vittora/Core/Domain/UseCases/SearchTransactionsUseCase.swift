@@ -1,9 +1,10 @@
 import Foundation
+import VittoraCore
 
 struct SearchTransactionsUseCase: Sendable {
     let transactionRepository: any TransactionRepository
 
-    init(transactionRepository: any TransactionRepository) {
+    nonisolated init(transactionRepository: any TransactionRepository) {
         self.transactionRepository = transactionRepository
     }
 
@@ -14,8 +15,6 @@ struct SearchTransactionsUseCase: Sendable {
         }
 
         let trimmedQuery = query.trimmingCharacters(in: .whitespaces)
-        let filter = TransactionFilter(searchQuery: trimmedQuery)
-
-        return try await transactionRepository.fetchAll(filter: filter)
+        return try await transactionRepository.search(query: trimmedQuery)
     }
 }

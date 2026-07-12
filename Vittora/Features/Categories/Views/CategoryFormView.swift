@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct CategoryFormView: View {
     var editingCategory: CategoryEntity? = nil
@@ -48,12 +49,10 @@ struct CategoryFormView: View {
 
     private func setupViewModel() {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let categoryRepo = deps.categoryRepository else { return }
 
         let vm = CategoryFormViewModel(
-            createUseCase: CreateCategoryUseCase(repository: categoryRepo),
-            updateUseCase: UpdateCategoryUseCase(repository: categoryRepo)
+            createUseCase: CreateCategoryUseCase(repository: dependencies.categoryRepository),
+            updateUseCase: UpdateCategoryUseCase(repository: dependencies.categoryRepository)
         )
         if let category = editingCategory {
             vm.loadCategory(category)
@@ -140,7 +139,7 @@ struct CategoryFormView: View {
         saveError = nil
         do {
             try await vm.save()
-            appState.notifyDataChanged()
+            appState.notifyChanged(.categories)
             onSave?()
             dismiss()
         } catch {

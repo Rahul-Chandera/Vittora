@@ -1,35 +1,72 @@
 import SwiftUI
+import VittoraCore
 
 struct TransactionRowView: View {
     let transaction: TransactionEntity
     var category: CategoryEntity?
     var showSelection: Bool = false
     var isSelected: Bool = false
-    @Environment(\.currencyCode) private var currencyCode
+
+    private let formattedAmount: String
+    private let amountColor: Color
+    private let formattedTimeText: String
+    private let typeLabel: String
+    private let accessibilityText: String
+    private let rowAccessibilityIdentifier: String
+
+    @ScaledMetric(relativeTo: .body) private var categoryIconSize: CGFloat = 40
+
+    init(
+        transaction: TransactionEntity,
+        category: CategoryEntity? = nil,
+        currencyCode: String = CurrencyDefaults.code,
+        showSelection: Bool = false,
+        isSelected: Bool = false
+    ) {
+        self.transaction = transaction
+        self.category = category
+        self.showSelection = showSelection
+        self.isSelected = isSelected
+
+        formattedAmount = CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode)
+        amountColor = Self.color(for: transaction.type)
+        formattedTimeText = transaction.date.formatted(date: .omitted, time: .shortened)
+        typeLabel = transaction.type.displayName
+
+        let note = transaction.note ?? String(localized: "Transaction")
+        let cat = category.map { ", \($0.name)" } ?? ""
+        var description = "\(note)\(cat), \(typeLabel), \(formattedTimeText), \(formattedAmount)"
+        if showSelection {
+            description += isSelected
+                ? ", \(String(localized: "Selected"))"
+                : ", \(String(localized: "Not selected"))"
+        }
+        accessibilityText = description
+        rowAccessibilityIdentifier = Self.makeAccessibilityIdentifier(for: transaction)
+    }
 
     var body: some View {
         HStack(spacing: VSpacing.md) {
-            // Selection checkbox
             if showSelection {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.body)
                     .foregroundColor(isSelected ? VColors.primary : VColors.textTertiary)
+                    .accessibilityHidden(true)
             }
 
-            // Category icon circle
             ZStack {
                 Circle()
                     .fill(
                         Color(hex: category?.colorHex ?? "#007AFF") ?? .blue
                     )
-                    .frame(width: 40, height: 40)
+                    .frame(width: categoryIconSize, height: categoryIconSize)
 
                 Image(systemName: category?.icon ?? "circle")
                     .font(.body)
                     .foregroundColor(.white)
             }
+            .accessibilityHidden(true)
 
-            // Transaction details
             VStack(alignment: .leading, spacing: VSpacing.xs) {
                 Text(transaction.note ?? "Transaction")
                     .font(VTypography.body)
@@ -43,7 +80,7 @@ struct TransactionRowView: View {
                             .foregroundColor(VColors.textSecondary)
                     }
 
-                    Text(formattedTime(transaction.date))
+                    Text(formattedTimeText)
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textTertiary)
                 }
@@ -51,15 +88,13 @@ struct TransactionRowView: View {
 
             Spacer()
 
-            // Amount
             VStack(alignment: .trailing, spacing: VSpacing.xs) {
-                let amountColor = transactionColor(for: transaction.type)
-                Text(formatAmount(transaction.amount))
+                Text(formattedAmount)
                     .font(VTypography.body)
                     .fontWeight(.semibold)
                     .foregroundColor(amountColor)
 
-                Text(transaction.type.rawValue.capitalized)
+                Text(typeLabel)
                     .font(VTypography.caption2)
                     .foregroundColor(amountColor)
                     .opacity(0.7)
@@ -67,24 +102,13 @@ struct TransactionRowView: View {
         }
         .padding(VSpacing.md)
         .contentShape(Rectangle())
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityDescription)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
         .accessibilityIdentifier(rowAccessibilityIdentifier)
+        .vittoraPointerHighlight()
     }
 
-    private var accessibilityDescription: String {
-        let note = transaction.note ?? String(localized: "Transaction")
-        let amount = formatAmount(transaction.amount)
-        let type = transaction.type.rawValue.capitalized
-        let cat = category.map { ", \($0.name)" } ?? ""
-        return "\(note)\(cat), \(type), \(amount)"
-    }
-
-    private func formattedTime(_ date: Date) -> String {
-        date.formatted(date: .omitted, time: .shortened)
-    }
-
-    private func transactionColor(for type: TransactionType) -> Color {
+    private static func color(for type: TransactionType) -> Color {
         switch type {
         case .expense:
             return VColors.expense
@@ -97,11 +121,7 @@ struct TransactionRowView: View {
         }
     }
 
-    private func formatAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode))
-    }
-
-    private var rowAccessibilityIdentifier: String {
+    private static func makeAccessibilityIdentifier(for transaction: TransactionEntity) -> String {
         let base = transaction.note?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
         let normalized = base
             .replacingOccurrences(of: "[^a-z0-9]+", with: "-", options: .regularExpression)

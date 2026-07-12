@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import VittoraCore
 
 struct DocumentImportView: View {
     @Environment(\.dismiss) private var dismiss

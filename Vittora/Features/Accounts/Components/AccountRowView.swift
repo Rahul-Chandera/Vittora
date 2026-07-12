@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct AccountRowView: View {
     let account: AccountEntity
@@ -11,7 +12,7 @@ struct AccountRowView: View {
                 Text(account.name)
                     .font(VTypography.bodyBold)
                     .foregroundColor(VColors.textPrimary)
-                Text(account.type.rawValue.capitalized.replacingOccurrences(of: "Creditcard", with: "Credit Card").replacingOccurrences(of: "Digitalwallet", with: "Digital Wallet"))
+                Text(account.type.displayName)
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
             }
@@ -34,6 +35,8 @@ struct AccountRowView: View {
             }
         }
         .padding(.vertical, VSpacing.xs)
+        .contentShape(Rectangle())
+        .vittoraPointerHighlight()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
     }

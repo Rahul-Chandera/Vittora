@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct SavingsGoalCardView: View {
     let goal: SavingsGoalEntity
@@ -52,6 +53,16 @@ struct SavingsGoalCardView: View {
                                 .font(VTypography.caption2)
                                 .foregroundStyle(days < 0 ? VColors.expense : VColors.textSecondary)
                         }
+                    }
+
+                    if let monthly = goal.monthlySavingsNeeded, goal.status == .active {
+                        Text(
+                            String(
+                                localized: "Save \(monthly.formatted(.currency(code: currencyCode)))/month"
+                            )
+                        )
+                        .font(VTypography.caption2.bold())
+                        .foregroundStyle(VColors.income)
                     }
                 }
 

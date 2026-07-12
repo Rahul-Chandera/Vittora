@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TransactionFormView: View {
     @Environment(AppState.self) private var appState
@@ -78,7 +79,11 @@ struct TransactionFormView: View {
                             Task {
                                 do {
                                     try await vm.save()
-                                    appState.notifyDataChanged()
+                                    if !vm.isEditing {
+                                        await dependencies.conversionEventRecorder.afterTransactionCreated()
+                                    }
+                                    await dependencies.refreshBudgetThresholdAlerts()
+                                    appState.notifyChanged([.transactions, .accounts, .budgets])
                                     dependencies.hapticService.success()
                                     dismiss()
                                 } catch {
@@ -110,9 +115,9 @@ struct TransactionFormView: View {
         }
         .accessibilityIdentifier("transaction-form-root")
         .errorAlert(message: transactionErrorBinding)
-        .task(id: dependencyReadinessKey) {
+        .task {
             if vm == nil {
-                vm = await createViewModel()
+                vm = createViewModel()
                 if let vm {
                     if transactionID == nil, let initialType {
                         vm.type = initialType
@@ -124,12 +129,6 @@ struct TransactionFormView: View {
                 }
             }
         }
-    }
-
-    private var dependencyReadinessKey: Bool {
-        dependencies.transactionRepository != nil &&
-        dependencies.accountRepository != nil &&
-        dependencies.categoryRepository != nil
     }
 
     @ViewBuilder
@@ -192,7 +191,7 @@ struct TransactionFormView: View {
             .accessibilityIdentifier("transaction-payee-picker")
             .onChange(of: vm.selectedPayeeID) { _, _ in
                 Task {
-                    await vm.suggestCategory()
+                    await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
                     await vm.checkDuplicates()
                 }
             }
@@ -222,7 +221,7 @@ struct TransactionFormView: View {
 
             Picker(String(localized: "Payment Method"), selection: Bindable(vm).paymentMethod) {
                 ForEach(PaymentMethod.allCases, id: \.self) { method in
-                    Text(method.rawValue.capitalized).tag(method)
+                    Text(method.displayName).tag(method)
                 }
             }
         }
@@ -231,6 +230,11 @@ struct TransactionFormView: View {
             TextField(String(localized: "Notes"), text: Bindable(vm).note, axis: .vertical)
                 .lineLimit(3...5)
                 .accessibilityIdentifier("transaction-note-field")
+                .onChange(of: vm.note) { _, _ in
+                    Task {
+                        await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
+                    }
+                }
         }
 
         Section(String(localized: "Tags")) {
@@ -243,18 +247,16 @@ struct TransactionFormView: View {
     }
 
     private func loadTransactionData(_ vm: TransactionFormViewModel?, transactionID: UUID) async {
-        guard let vm = vm,
-              let transactionRepo = dependencies.transactionRepository else {
+        guard let vm = vm else {
             return
         }
 
         isLoadingData = true
         defer { isLoadingData = false }
 
-        let fetchUseCase = FetchTransactionsUseCase(transactionRepository: transactionRepo)
+        let fetchUseCase = FetchTransactionsUseCase(transactionRepository: dependencies.transactionRepository)
         do {
-            let transactions = try await fetchUseCase.execute(filter: nil)
-            if let transaction = transactions.first(where: { $0.id == transactionID }) {
+            if let transaction = try await fetchUseCase.execute(id: transactionID) {
                 vm.loadTransaction(transaction)
             } else {
                 vm.error = String(localized: "We couldn't find this transaction.")
@@ -270,15 +272,9 @@ struct TransactionFormView: View {
         isLoadingData = true
         defer { isLoadingData = false }
 
-        guard let accountRepo = dependencies.accountRepository,
-              let categoryRepo = dependencies.categoryRepository,
-              let payeeRepo = dependencies.payeeRepository else {
-            return
-        }
-
-        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: accountRepo)
-        let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: categoryRepo)
-        let fetchPayeesUseCase = FetchPayeesUseCase(repository: payeeRepo)
+        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: dependencies.accountRepository)
+        let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: dependencies.categoryRepository)
+        let fetchPayeesUseCase = FetchPayeesUseCase(repository: dependencies.payeeRepository)
         var didFailToLoadPickerData = false
 
         do {
@@ -324,32 +320,13 @@ struct TransactionFormView: View {
         }
     }
 
-    private func createViewModel() async -> TransactionFormViewModel? {
-        guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository,
-              let categoryRepo = dependencies.categoryRepository else {
-            return nil
-        }
+    private func payeeName(for payeeID: UUID?) -> String? {
+        guard let payeeID else { return nil }
+        return payees.first(where: { $0.id == payeeID })?.name
+    }
 
-        let addUseCase = AddTransactionUseCase(
-            transactionRepository: transactionRepo,
-            accountRepository: accountRepo,
-            categoryRepository: categoryRepo
-        )
-        let updateUseCase = UpdateTransactionUseCase(
-            transactionRepository: transactionRepo,
-            accountRepository: accountRepo
-        )
-        let smartCategorizeUseCase = SmartCategorizeUseCase(transactionRepository: transactionRepo)
-        let duplicateDetectionUseCase = DuplicateDetectionUseCase(transactionRepository: transactionRepo)
-
-        return TransactionFormViewModel(
-            addUseCase: addUseCase,
-            updateUseCase: updateUseCase,
-            smartCategorizeUseCase: smartCategorizeUseCase,
-            duplicateDetectionUseCase: duplicateDetectionUseCase,
-            currencyCode: currencyCode
-        )
+    private func createViewModel() -> TransactionFormViewModel {
+        dependencies.makeTransactionFormViewModel(currencyCode: currencyCode)
     }
 
     private var transactionErrorBinding: Binding<String?> {

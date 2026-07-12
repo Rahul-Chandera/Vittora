@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct PayeeListView: View {
     @Environment(AppState.self) private var appState
@@ -46,7 +47,7 @@ struct PayeeListView: View {
                 if let id = payeeToDelete, let vm = viewModel {
                     Task {
                         await vm.deletePayee(id: id)
-                        appState.notifyDataChanged()
+                        appState.notifyChanged(.payees)
                     }
                 }
             }
@@ -74,8 +75,8 @@ struct PayeeListView: View {
         .task {
             await setupViewModel()
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .payees)) {
+            guard viewModel != nil, appState.refreshVersion(for: .payees) > 0 else { return }
             await viewModel?.loadPayees()
         }
     }
@@ -83,23 +84,7 @@ struct PayeeListView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let payeeRepo = deps.payeeRepository,
-              let transactionRepo = deps.transactionRepository else { return }
-
-        let vm = PayeeListViewModel(
-            fetchUseCase: FetchPayeesUseCase(repository: payeeRepo),
-            deleteUseCase: DeletePayeeUseCase(
-                repository: payeeRepo,
-                transactionRepository: transactionRepo
-            ),
-            importContactsUseCase: deps.contactsImportService.map {
-                ImportContactsUseCase(
-                    repository: payeeRepo,
-                    contactsService: $0
-                )
-            }
-        )
+        let vm = dependencies.makePayeeListViewModel()
         viewModel = vm
         await vm.loadPayees()
     }
@@ -192,6 +177,17 @@ struct PayeeListView: View {
         ForEach(payees) { payee in
             NavigationLink(value: NavigationDestination.payeeDetail(id: payee.id)) {
                 PayeeRowView(payee: payee)
+            }
+            .contextMenu {
+                NavigationLink(value: NavigationDestination.payeeDetail(id: payee.id)) {
+                    Label(String(localized: "Edit"), systemImage: "pencil")
+                }
+                Button(role: .destructive) {
+                    payeeToDelete = payee.id
+                    showingDeleteAlert = true
+                } label: {
+                    Label(String(localized: "Delete"), systemImage: "trash")
+                }
             }
             .swipeActions(edge: .trailing) {
                 Button(role: .destructive) {

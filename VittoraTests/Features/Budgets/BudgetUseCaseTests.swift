@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 
 @testable import Vittora
 
@@ -311,6 +312,112 @@ struct BudgetUseCaseTests {
             #expect(result.count == 2)
             #expect(result.contains(where: { $0.id == atThreshold.id }))
             #expect(result.contains(where: { $0.id == overThreshold.id }))
+        }
+
+        @Test("newlyCrossedThresholds returns all levels crossed in one jump")
+        func newlyCrossedThresholdsReturnsMultipleLevels() {
+            let useCase = CheckBudgetThresholdUseCase()
+            let budget = BudgetEntity(amount: 1000, spent: 960, period: .monthly)
+
+            let result = useCase.newlyCrossedThresholds(for: budget, previouslyFired: [])
+
+            #expect(result.map(\.rawValue) == [50, 75, 90])
+        }
+
+        @Test("newlyCrossedThresholds skips already fired levels")
+        func newlyCrossedThresholdsSkipsFired() {
+            let useCase = CheckBudgetThresholdUseCase()
+            let budget = BudgetEntity(amount: 1000, spent: 920, period: .monthly)
+
+            let result = useCase.newlyCrossedThresholds(
+                for: budget,
+                previouslyFired: [.fifty, .seventyFive]
+            )
+
+            #expect(result == [.ninety])
+        }
+    }
+
+    @MainActor
+    @Suite("EvaluateBudgetThresholdAlertsUseCase")
+    struct EvaluateBudgetThresholdAlertsUseCaseTests {
+
+        private func makeEnabledDefaults() -> UserDefaults {
+            let suite = "EvaluateBudgetThresholdAlertsTests.\(UUID().uuidString)"
+            let defaults = UserDefaults(suiteName: suite) ?? .standard
+            defaults.set(true, forKey: "vittora.notificationsEnabled")
+            defaults.set(true, forKey: "vittora.notifyBudgetAlerts")
+            return defaults
+        }
+
+        @Test("fires at 50, 75, 90, and 100 once each as spending increases")
+        func firesEachThresholdOnce() async throws {
+            let budgetID = UUID()
+            let start = makeBudgetDate(year: 2026, month: 6, day: 1)
+            let alertStore = InMemoryBudgetThresholdAlertStore()
+            let notifications = MockNotificationService()
+            let defaults = makeEnabledDefaults()
+
+            let spentLevels: [(Decimal, Int)] = [
+                (500, 50),
+                (760, 75),
+                (910, 90),
+                (1000, 100),
+            ]
+
+            for (spent, expectedLevel) in spentLevels {
+                let fetcher = StubBudgetFetcher(budgets: [
+                    BudgetEntity(
+                        id: budgetID,
+                        amount: 1000,
+                        spent: spent,
+                        period: .monthly,
+                        startDate: start
+                    ),
+                ])
+                let stepUseCase = EvaluateBudgetThresholdAlertsUseCase(
+                    budgetFetcher: fetcher,
+                    alertStore: alertStore,
+                    notificationService: notifications,
+                    userDefaults: defaults
+                )
+                try await stepUseCase.execute()
+                #expect(notifications.scheduledRequests.last?.body.contains("\(expectedLevel)") == true)
+            }
+
+            #expect(notifications.scheduledRequests.count == 4)
+
+            let repeatFetcher = StubBudgetFetcher(budgets: [
+                BudgetEntity(id: budgetID, amount: 1000, spent: 1000, period: .monthly, startDate: start),
+            ])
+            let repeatUseCase = EvaluateBudgetThresholdAlertsUseCase(
+                budgetFetcher: repeatFetcher,
+                alertStore: alertStore,
+                notificationService: notifications,
+                userDefaults: defaults
+            )
+            try await repeatUseCase.execute()
+            #expect(notifications.scheduledRequests.count == 4)
+        }
+
+        @Test("skips scheduling when budget alerts are disabled")
+        func skipsWhenDisabled() async throws {
+            let defaults = UserDefaults(suiteName: "EvaluateBudgetThresholdAlertsTests.disabled.\(UUID())") ?? .standard
+            defaults.set(false, forKey: "vittora.notificationsEnabled")
+            let notifications = MockNotificationService()
+            let fetcher = StubBudgetFetcher(budgets: [
+                BudgetEntity(amount: 1000, spent: 900, period: .monthly),
+            ])
+            let useCase = EvaluateBudgetThresholdAlertsUseCase(
+                budgetFetcher: fetcher,
+                alertStore: InMemoryBudgetThresholdAlertStore(),
+                notificationService: notifications,
+                userDefaults: defaults
+            )
+
+            try await useCase.execute()
+
+            #expect(notifications.scheduledRequests.isEmpty)
         }
     }
 

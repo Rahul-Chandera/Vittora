@@ -1,9 +1,10 @@
 import Foundation
+import VittoraCore
 
 struct FetchTaxCategoriesUseCase: Sendable {
     private let repository: any CategoryRepository
 
-    init(repository: any CategoryRepository) {
+    nonisolated init(repository: any CategoryRepository) {
         self.repository = repository
     }
 

@@ -1,63 +1,50 @@
 import Foundation
+import VittoraCore
 
 struct UpdateTransactionUseCase: Sendable {
     let transactionRepository: any TransactionRepository
-    let accountRepository: any AccountRepository
+    /// REQUIRED, non-optional: a transaction edit reverses one balance effect and
+    /// applies another, so it must persist atomically through the ledger store
+    /// (one save, rollback on failure). There is no non-atomic repository fallback
+    /// (DATAINTEGRITY-3, A4).
+    let ledgerWriting: any LedgerWriting
+    let recordEditUseCase: RecordTransactionEditUseCase?
 
-    init(
+    nonisolated init(
         transactionRepository: any TransactionRepository,
-        accountRepository: any AccountRepository
+        ledgerWriting: any LedgerWriting,
+        recordEditUseCase: RecordTransactionEditUseCase? = nil
     ) {
         self.transactionRepository = transactionRepository
-        self.accountRepository = accountRepository
+        self.ledgerWriting = ledgerWriting
+        self.recordEditUseCase = recordEditUseCase
     }
 
     func execute(_ entity: TransactionEntity) async throws {
-        // Fetch the existing transaction
+        // Fetch the existing transaction so we can both guard transfers and let
+        // the store reverse its *original* effect against its *original* account.
         guard let existingTransaction = try await transactionRepository.fetchByID(entity.id) else {
-            throw VittoraError.notFound("Transaction not found")
+            throw VittoraError.notFound(String(localized: "Transaction not found"))
         }
 
-        // Get the account for balance adjustments
-        guard let account = try await accountRepository.fetchByID(entity.accountID ?? UUID()) else {
-            throw VittoraError.notFound("Account not found")
+        // GUARD (Option B, A4): the generic edit path must NOT touch transfers. A
+        // transfer is two paired legs; editing one through this single-leg form
+        // would drop its `transferPairID`/direction and desync balances. Transfer
+        // edits go through the dedicated transfer flow (`performUpdateTransfer`).
+        guard existingTransaction.type != .transfer, entity.type != .transfer else {
+            throw VittoraError.validationFailed(
+                String(localized: "Transfers can't be edited here. Edit them from the transfer screen.")
+            )
         }
 
-        // Reverse the old transaction balance effect
-        var updatedAccount = account
-        updatedAccount.updatedAt = .now
+        // Atomic reverse-old / apply-new (handles same-account netting and
+        // account changes) inside one ledger-store save.
+        try await ledgerWriting.performUpdate(entity)
 
-        switch existingTransaction.type {
-        case .expense:
-            updatedAccount.balance += existingTransaction.amount
-        case .income:
-            updatedAccount.balance -= existingTransaction.amount
-        case .transfer:
-            // Transfer balance effects handled by destinationAccountID
-            break
-        case .adjustment:
-            updatedAccount.balance -= existingTransaction.amount
-        }
-
-        // Apply the new transaction balance effect
-        switch entity.type {
-        case .expense:
-            updatedAccount.balance -= entity.amount
-        case .income:
-            updatedAccount.balance += entity.amount
-        case .transfer:
-            // Transfer balance effects handled by destinationAccountID
-            break
-        case .adjustment:
-            updatedAccount.balance += entity.amount
-        }
-
-        // Update the transaction with new updatedAt
-        var updatedTransaction = entity
-        updatedTransaction.updatedAt = .now
-
-        // Save changes
-        try await transactionRepository.update(updatedTransaction)
-        try await accountRepository.update(updatedAccount)
+        TransactionEditHistorySideEffects.recordEdit(
+            recordEditUseCase,
+            before: existingTransaction,
+            after: entity
+        )
     }
 }

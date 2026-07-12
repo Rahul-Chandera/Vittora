@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct QuickEntryView: View {
     @Environment(AppState.self) private var appState
@@ -79,12 +80,13 @@ struct QuickEntryView: View {
                             Task {
                                 do {
                                     try await vm.save()
-                                    appState.notifyDataChanged()
+                                    await dependencies.conversionEventRecorder.afterTransactionCreated()
+                                    await dependencies.refreshBudgetThresholdAlerts()
+                                    appState.notifyChanged([.transactions, .accounts, .budgets])
                                     #if os(iOS)
                                     let feedback = UIImpactFeedbackGenerator(style: .light)
                                     feedback.impactOccurred()
                                     #endif
-                                    try await Task.sleep(for: .milliseconds(300))
                                     dismiss()
                                 } catch {
                                     vm.error = error.userFacingMessage(
@@ -131,7 +133,7 @@ struct QuickEntryView: View {
         .errorAlert(message: quickEntryErrorBinding)
         .task {
             if vm == nil {
-                vm = await createViewModel()
+                vm = createViewModel()
                 await loadCategories()
             }
         }
@@ -141,13 +143,8 @@ struct QuickEntryView: View {
         isLoading = true
         defer { isLoading = false }
 
-        guard let categoryRepo = dependencies.categoryRepository,
-              let accountRepo = dependencies.accountRepository else {
-            return
-        }
-
-        let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: categoryRepo)
-        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: accountRepo)
+        let fetchCategoriesUseCase = FetchCategoriesUseCase(repository: dependencies.categoryRepository)
+        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: dependencies.accountRepository)
         var didFailToLoadOptions = false
 
         do {
@@ -176,36 +173,8 @@ struct QuickEntryView: View {
         }
     }
 
-    private func createViewModel() async -> TransactionFormViewModel? {
-        guard let transactionRepo = dependencies.transactionRepository,
-              let accountRepo = dependencies.accountRepository,
-              let categoryRepo = dependencies.categoryRepository else {
-            return nil
-        }
-
-        let addUseCase = AddTransactionUseCase(
-            transactionRepository: transactionRepo,
-            accountRepository: accountRepo,
-            categoryRepository: categoryRepo
-        )
-        let updateUseCase = UpdateTransactionUseCase(
-            transactionRepository: transactionRepo,
-            accountRepository: accountRepo
-        )
-        let smartCategorizeUseCase = SmartCategorizeUseCase(transactionRepository: transactionRepo)
-        let duplicateDetectionUseCase = DuplicateDetectionUseCase(transactionRepository: transactionRepo)
-
-        let vm = TransactionFormViewModel(
-            addUseCase: addUseCase,
-            updateUseCase: updateUseCase,
-            smartCategorizeUseCase: smartCategorizeUseCase,
-            duplicateDetectionUseCase: duplicateDetectionUseCase,
-            currencyCode: currencyCode
-        )
-        vm.isQuickEntry = true
-        vm.type = .expense
-
-        return vm
+    private func createViewModel() -> TransactionFormViewModel {
+        dependencies.makeQuickEntryViewModel(currencyCode: currencyCode)
     }
 
     private var quickEntryErrorBinding: Binding<String?> {

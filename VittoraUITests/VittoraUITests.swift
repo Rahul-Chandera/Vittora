@@ -57,34 +57,25 @@ final class NavigationUITests: XCTestCase {
 
     @MainActor
     func testCanNavigateToTransactions() throws {
-        XCTAssertTrue(app.otherElements["content-root"].waitForExistence(timeout: 5))
-        // Attempt to find Transactions tab/button
-        let transactionsButton = app.buttons["Transactions"].firstMatch
-        if transactionsButton.waitForExistence(timeout: 3) {
-            transactionsButton.tap()
-        }
-        // App should still be running after navigation attempt
-        XCTAssertTrue(app.otherElements["content-root"].exists)
+        XCTAssertTrue(UITestSupport.navigateToTab(named: "Transactions", in: app))
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
     }
 
     @MainActor
     func testCanNavigateToBudgets() throws {
-        XCTAssertTrue(app.otherElements["content-root"].waitForExistence(timeout: 5))
-        let budgetsButton = app.buttons["Budgets"].firstMatch
-        if budgetsButton.waitForExistence(timeout: 3) {
-            budgetsButton.tap()
-        }
-        XCTAssertTrue(app.otherElements["content-root"].exists)
+        XCTAssertTrue(UITestSupport.navigateToTab(named: "Budgets", in: app))
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
     }
 
     @MainActor
     func testCanNavigateToSettings() throws {
-        XCTAssertTrue(app.otherElements["content-root"].waitForExistence(timeout: 5))
-        let settingsButton = app.buttons["Settings"].firstMatch
-        if settingsButton.waitForExistence(timeout: 3) {
-            settingsButton.tap()
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
+        if UITestSupport.navigateToTab(named: "Settings", in: app, timeout: 8) {
+            XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
+            return
         }
-        XCTAssertTrue(app.otherElements["content-root"].exists)
+        // Settings may sit in sidebar overflow on compact widths; app must stay stable.
+        XCTAssertTrue(app.state == .runningForeground)
     }
 }
 
@@ -122,8 +113,24 @@ final class AccessibilityUITests: XCTestCase {
 
     @MainActor
     func testLargeTextDoesNotBreakLayout() throws {
-        // Simulate accessibility text size by checking app doesn't crash
-        // with the current Dynamic Type setting
+        XCTAssertTrue(
+            UITestSupport.waitForContentRoot(in: app, timeout: 20),
+            "Root view should be visible under the current Dynamic Type setting."
+        )
+        XCTAssertTrue(
+            UITestSupport.waitForAppForeground(in: app, timeout: 15),
+            "App should remain in the foreground during layout checks."
+        )
+
+        for tab in ["Dashboard", "Transactions", "Budgets"] {
+            if UITestSupport.navigateToTab(named: tab, in: app, timeout: 12) {
+                XCTAssertTrue(
+                    UITestSupport.waitForContentRoot(in: app, timeout: 10),
+                    "Tab '\(tab)' should remain navigable at current text size."
+                )
+            }
+        }
+
         XCTAssertTrue(app.state == .runningForeground)
     }
 }

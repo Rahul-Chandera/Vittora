@@ -1,5 +1,6 @@
 import Testing
 import SwiftData
+import VittoraCore
 @testable import Vittora
 
 /// Creates an in-memory model container for testing

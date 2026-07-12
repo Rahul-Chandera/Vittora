@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @Observable
 @MainActor
@@ -13,10 +14,14 @@ final class SavingsGoalDetailViewModel {
     var contributionString = ""
     var isAddingContribution = false
 
-    var contributionAmount: Decimal {
-        Decimal(string: contributionString.replacingOccurrences(of: ",", with: "")) ?? 0
+    private var parsedContribution: Decimal? {
+        Decimal(localizedAmount: contributionString)
     }
-    var canContribute: Bool { contributionAmount > 0 && goal.status == .active }
+
+    var canContribute: Bool {
+        guard let parsedContribution, parsedContribution > 0 else { return false }
+        return goal.status == .active
+    }
 
     init(goal: SavingsGoalEntity, saveUseCase: SaveSavingsGoalUseCase) {
         self.goal = goal
@@ -24,13 +29,13 @@ final class SavingsGoalDetailViewModel {
     }
 
     func addContribution() async {
-        guard canContribute else { return }
+        guard let parsedContribution, parsedContribution > 0, goal.status == .active else { return }
         isAddingContribution = true
         error = nil
         do {
             goal = try await saveUseCase.executeAddContribution(
                 goalID: goal.id,
-                amount: contributionAmount
+                amount: parsedContribution
             )
             contributionString = ""
         } catch {

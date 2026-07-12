@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct ContactsImportResult: Sendable, Equatable {
     let importedCount: Int
@@ -24,7 +25,7 @@ struct ImportContactsUseCase: Sendable {
     private let repository: any PayeeRepository
     private let contactsService: any ContactsImportServiceProtocol
 
-    init(
+    nonisolated init(
         repository: any PayeeRepository,
         contactsService: any ContactsImportServiceProtocol
     ) {

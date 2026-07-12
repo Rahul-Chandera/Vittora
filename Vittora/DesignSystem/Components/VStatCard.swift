@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// A compact stat card displaying a label, value, and optional trend indicator.
 /// Ideal for dashboard grids showing key metrics.
@@ -80,14 +81,29 @@ struct VStatCard: View {
                             HStack(spacing: VSpacing.xs) {
                                 Image(systemName: trend.icon)
                                     .font(.system(size: 12, weight: .semibold))
+                                    .accessibilityHidden(true)
                                 Text("\(Int(trend.percentage))%")
                                     .font(VTypography.caption2Bold)
                             }
                             .foregroundColor(trend.color)
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(trendAccessibilityLabel(trend))
                         }
                     }
                 }
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(label)
+            .accessibilityValue(value.formatted(.currency(code: currencyCode).precision(.fractionLength(0...2))))
+        }
+    }
+
+    private func trendAccessibilityLabel(_ trend: Trend) -> String {
+        switch trend {
+        case .up(let percentage):
+            return String(localized: "Up \(Int(percentage)) percent")
+        case .down(let percentage):
+            return String(localized: "Down \(Int(percentage)) percent")
         }
     }
 }

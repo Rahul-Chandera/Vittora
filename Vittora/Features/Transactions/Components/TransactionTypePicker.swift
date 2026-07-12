@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TransactionTypePicker: View {
     @Binding var type: TransactionType

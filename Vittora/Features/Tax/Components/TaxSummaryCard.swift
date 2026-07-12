@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Compact tax overview card — shows gross income, deductions, taxable income, final tax and effective rate.
 struct TaxSummaryCard: View {
@@ -27,6 +28,10 @@ struct TaxSummaryCard: View {
                 }
 
                 Divider()
+
+                if estimate.country == .unitedStates {
+                    USTaxFederalEstimateLabel()
+                }
 
                 // Final tax — hero number
                 VStack(spacing: 4) {

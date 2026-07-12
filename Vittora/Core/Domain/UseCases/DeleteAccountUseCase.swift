@@ -1,10 +1,11 @@
 import Foundation
+import VittoraCore
 
 struct DeleteAccountUseCase: Sendable {
     let accountRepository: any AccountRepository
     let transactionRepository: any TransactionRepository
 
-    init(
+    nonisolated init(
         accountRepository: any AccountRepository,
         transactionRepository: any TransactionRepository
     ) {

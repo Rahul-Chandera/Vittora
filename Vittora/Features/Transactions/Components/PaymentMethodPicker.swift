@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct PaymentMethodPicker: View {
     @Binding var selectedMethod: PaymentMethod

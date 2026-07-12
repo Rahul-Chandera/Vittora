@@ -1,10 +1,11 @@
 import Foundation
+import VittoraCore
 
 /// Routes a TaxProfile to the correct calculator and returns a TaxEstimate.
 struct EstimateTaxUseCase: Sendable {
     private let calculators: [TaxCountry: any TaxCalculatorProtocol]
 
-    init(calculators: [any TaxCalculatorProtocol] = [IndiaTaxCalculator(), USTaxCalculator()]) {
+    nonisolated init(calculators: [any TaxCalculatorProtocol] = [IndiaTaxCalculator(), USTaxCalculator()]) {
         self.calculators = Dictionary(uniqueKeysWithValues: calculators.map { ($0.country, $0) })
     }
 

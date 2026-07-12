@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @Observable
 @MainActor
@@ -8,13 +9,15 @@ final class AccountFormViewModel {
     var initialBalance: String = "0"
     var selectedCurrency: String = CurrencyDefaults.code
     var selectedIcon: String = "building.columns.fill"
+    var statementDayOfMonth: Int?
+    var dueDayOfMonth: Int?
     var isEditing = false
     var editingID: UUID?
     var validationErrors: [String] = []
 
     var canSave: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty &&
-        (Decimal(string: initialBalance) != nil)
+        (Decimal(localizedAmount: initialBalance) != nil)
     }
 
     private let createUseCase: CreateAccountUseCase
@@ -39,11 +42,17 @@ final class AccountFormViewModel {
         initialBalance = "\(entity.balance)"
         selectedCurrency = entity.currencyCode
         selectedIcon = entity.icon
+        statementDayOfMonth = entity.statementDayOfMonth
+        dueDayOfMonth = entity.dueDayOfMonth
     }
 
     func save() async throws {
         validationErrors = []
-        let balance = Decimal(string: initialBalance) ?? 0
+        guard let balance = Decimal(localizedAmount: initialBalance) else {
+            throw VittoraError.validationFailed(
+                String(localized: "Please enter a valid opening balance.")
+            )
+        }
 
         if isEditing, let id = editingID {
             try await updateUseCase.execute(
@@ -52,7 +61,9 @@ final class AccountFormViewModel {
                 type: selectedType,
                 balance: balance,
                 currencyCode: selectedCurrency,
-                icon: selectedIcon
+                icon: selectedIcon,
+                statementDayOfMonth: selectedType == .creditCard ? statementDayOfMonth : nil,
+                dueDayOfMonth: selectedType == .creditCard ? dueDayOfMonth : nil
             )
         } else {
             try await createUseCase.execute(
@@ -60,7 +71,9 @@ final class AccountFormViewModel {
                 type: selectedType,
                 balance: balance,
                 currencyCode: selectedCurrency,
-                icon: selectedIcon
+                icon: selectedIcon,
+                statementDayOfMonth: selectedType == .creditCard ? statementDayOfMonth : nil,
+                dueDayOfMonth: selectedType == .creditCard ? dueDayOfMonth : nil
             )
         }
     }

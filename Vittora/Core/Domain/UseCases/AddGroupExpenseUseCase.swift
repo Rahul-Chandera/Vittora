@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct AddGroupExpenseUseCase: Sendable {
     let splitGroupRepository: any SplitGroupRepository
@@ -8,6 +9,8 @@ struct AddGroupExpenseUseCase: Sendable {
         case missingPayer
         case splitGroupHasNoMembers
         case splitDoesNotBalance(Decimal, Decimal)
+        case percentagesDoNotSum(Decimal)
+        case shareWeightsInvalid
 
         var errorDescription: String? {
             switch self {
@@ -20,6 +23,10 @@ struct AddGroupExpenseUseCase: Sendable {
             case let .splitDoesNotBalance(total, splitSum):
                 let code = CurrencyDefaults.code
                 return String(localized: "Split amounts (\(splitSum.formatted(.currency(code: code)))) must equal the total (\(total.formatted(.currency(code: code)))).")
+            case let .percentagesDoNotSum(sum):
+                return String(localized: "Percentages must sum to 100% (currently \(sum.formatted(.number.precision(.fractionLength(0...2))))%).")
+            case .shareWeightsInvalid:
+                return String(localized: "Share weights must sum to more than zero.")
             }
         }
     }
@@ -78,48 +85,36 @@ struct AddGroupExpenseUseCase: Sendable {
 
         switch method {
         case .equal:
-            guard let lastID = memberIDs.last else {
-                throw ExpenseError.splitGroupHasNoMembers
-            }
-            let share = (amount / Decimal(memberIDs.count)).rounded(scale: 2)
-            // Last member absorbs rounding remainder
-            var shares = memberIDs.dropLast().map { SplitShare(memberID: $0, amount: share) }
-            let remainder = amount - share * Decimal(memberIDs.count - 1)
-            shares.append(SplitShare(memberID: lastID, amount: remainder))
-            return shares
+            let ideal = memberIDs.map { _ in amount / Decimal(memberIDs.count) }
+            return SplitRounding.allocate(amount: amount, memberIDs: memberIDs, idealParts: ideal)
 
         case .percentage:
-            var shares: [SplitShare] = []
-            for id in memberIDs {
-                let pct = customValues[id] ?? (100 / Decimal(memberIDs.count))
-                shares.append(SplitShare(memberID: id, amount: (amount * pct / 100).rounded(scale: 2)))
+            let percentages = memberIDs.map { id in
+                customValues[id] ?? (100 / Decimal(memberIDs.count))
             }
-            return shares
+            let pctSum = percentages.reduce(Decimal(0), +)
+            if abs(pctSum - 100) > SplitRounding.percentageTolerance {
+                throw ExpenseError.percentagesDoNotSum(pctSum)
+            }
+            let ideal = zip(memberIDs, percentages).map { _, pct in amount * pct / 100 }
+            return SplitRounding.allocate(amount: amount, memberIDs: memberIDs, idealParts: ideal)
 
         case .exact:
             let shares = memberIDs.map { SplitShare(memberID: $0, amount: customValues[$0] ?? 0) }
-            let sum = shares.reduce(Decimal(0)) { $0 + $1.amount }
-            if abs(sum - amount) > 0.01 {
+            let sum = SplitRounding.shareTotal(shares)
+            if abs(sum - amount) > SplitRounding.moneyTolerance {
                 throw ExpenseError.splitDoesNotBalance(amount, sum)
             }
             return shares
 
         case .shares:
-            guard let lastID = memberIDs.last else {
-                throw ExpenseError.splitGroupHasNoMembers
-            }
-            let totalShares = customValues.values.reduce(Decimal(0), +)
+            let weights = memberIDs.map { customValues[$0] ?? 1 }
+            let totalShares = weights.reduce(Decimal(0), +)
             guard totalShares > 0 else {
-                return memberIDs.map { SplitShare(memberID: $0, amount: 0) }
+                throw ExpenseError.shareWeightsInvalid
             }
-            var shares: [SplitShare] = []
-            for id in memberIDs.dropLast() {
-                let weight = customValues[id] ?? 1
-                shares.append(SplitShare(memberID: id, amount: (amount * weight / totalShares).rounded(scale: 2)))
-            }
-            let allocated = shares.reduce(Decimal(0)) { $0 + $1.amount }
-            shares.append(SplitShare(memberID: lastID, amount: amount - allocated))
-            return shares
+            let ideal = weights.map { amount * $0 / totalShares }
+            return SplitRounding.allocate(amount: amount, memberIDs: memberIDs, idealParts: ideal)
         }
     }
 }

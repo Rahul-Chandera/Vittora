@@ -1,18 +1,21 @@
 import Foundation
+import VittoraCore
 
 struct AddTransactionUseCase: Sendable {
-    let transactionRepository: any TransactionRepository
     let accountRepository: any AccountRepository
     let categoryRepository: any CategoryRepository
+    /// Required atomic write surface — no repository fallback. The insert and
+    /// the balance adjustment must land in one save (DATAINTEGRITY-2).
+    let ledgerWriting: any LedgerWriting
 
-    init(
-        transactionRepository: any TransactionRepository,
+    nonisolated init(
         accountRepository: any AccountRepository,
-        categoryRepository: any CategoryRepository
+        categoryRepository: any CategoryRepository,
+        ledgerWriting: any LedgerWriting
     ) {
-        self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
         self.categoryRepository = categoryRepository
+        self.ledgerWriting = ledgerWriting
     }
 
     func execute(
@@ -62,27 +65,49 @@ struct AddTransactionUseCase: Sendable {
             payeeID: payeeID
         )
 
-        // Save transaction
-        try await transactionRepository.create(transaction)
-
-        // Adjust account balance
-        var updatedAccount = account
-        updatedAccount.updatedAt = .now
-
-        switch type {
-        case .expense:
-            updatedAccount.balance -= amount
-        case .income:
-            updatedAccount.balance += amount
-        case .transfer:
-            // Transfer balance effects handled by destinationAccountID
-            break
-        case .adjustment:
-            updatedAccount.balance += amount
-        }
-
-        try await accountRepository.update(updatedAccount)
+        // Insert the transaction and adjust the account balance atomically.
+        // The store applies the type-specific balance effect in one save.
+        try await ledgerWriting.performAdd(transaction)
 
         return transaction
+    }
+
+    func executeBatch(_ transactions: [TransactionEntity]) async throws {
+        guard !transactions.isEmpty else { return }
+
+        guard transactions.allSatisfy({ $0.amount > 0 && $0.type != .transfer }) else {
+            throw VittoraError.validationFailed(
+                String(localized: "Every imported amount must be greater than zero.")
+            )
+        }
+
+        guard let accountID = transactions.first?.accountID else {
+            throw VittoraError.validationFailed(String(localized: "An account is required."))
+        }
+
+        guard transactions.allSatisfy({ $0.accountID == accountID }) else {
+            throw VittoraError.validationFailed(
+                String(localized: "All imported transactions must use the same account.")
+            )
+        }
+
+        guard let account = try await accountRepository.fetchByID(accountID) else {
+            throw VittoraError.notFound(String(localized: "Account not found"))
+        }
+
+        guard !account.isArchived else {
+            throw VittoraError.validationFailed(
+                String(localized: "Cannot add transactions to an archived account.")
+            )
+        }
+
+        let categoryIDs = Set(transactions.compactMap(\.categoryID))
+        for categoryID in categoryIDs {
+            guard try await categoryRepository.fetchByID(categoryID) != nil else {
+                throw VittoraError.notFound(String(localized: "Category not found"))
+            }
+        }
+
+        try await ledgerWriting.performAddBatch(transactions)
     }
 }

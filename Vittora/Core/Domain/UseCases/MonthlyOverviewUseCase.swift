@@ -1,11 +1,12 @@
 import Foundation
+import VittoraCore
 
 struct MonthlyData: Sendable, Identifiable {
-    var id: Date { month }
-    let month: Date
-    let income: Decimal
-    let expense: Decimal
-    var net: Decimal { income - expense }
+    nonisolated var id: Date { month }
+    nonisolated let month: Date
+    nonisolated let income: Decimal
+    nonisolated let expense: Decimal
+    nonisolated var net: Decimal { income - expense }
 }
 
 struct MonthlyOverviewUseCase: Sendable {

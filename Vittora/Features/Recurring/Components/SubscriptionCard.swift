@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct SubscriptionCard: View {
     @Environment(\.currencyCode) private var currencyCode
@@ -131,7 +132,7 @@ struct SubscriptionCard: View {
         frequency: .monthly,
         nextDate: Date.now,
         isActive: true,
-        templateAmount: Decimal(string: "29.99") ?? 29.99
+        templateAmount: Decimal(localizedAmount: "29.99", locale: Locale(identifier: "en_US_POSIX")) ?? 0
     )
     let sampleCategory = CategoryEntity(
         name: "Subscriptions",
@@ -143,7 +144,7 @@ struct SubscriptionCard: View {
     VStack(spacing: VSpacing.lg) {
         SubscriptionCard(
             rule: sampleRule,
-            monthlyCost: Decimal(string: "29.99") ?? 29.99,
+            monthlyCost: Decimal(localizedAmount: "29.99", locale: Locale(identifier: "en_US_POSIX")) ?? 0,
             category: sampleCategory
         )
         .padding(VSpacing.lg)

@@ -1,35 +1,29 @@
 import SwiftUI
+import VittoraCore
 
 struct ContentView: View {
     @Environment(AppState.self) private var appState
     @Environment(SettingsViewModel.self) private var settingsVM
     @Environment(\.dependencies) private var dependencies
-    #if os(iOS)
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    #endif
 
     var body: some View {
         ZStack {
-            if !appState.isUITesting &&
-                settingsVM.isAppLockEnabled &&
+            if !appState.isUITesting || appState.exercisesAppLockPolicy,
+                settingsVM.isAppLockEnabled,
                 (appState.isLocked || !appState.isAuthenticated) {
                 AppLockView()
             } else {
                 if !appState.isOnboardingComplete {
                     OnboardingView(
-                        createAccountUseCase: dependencies.accountRepository.map {
-                            CreateAccountUseCase(accountRepository: $0)
-                        }
+                        createAccountUseCase: CreateAccountUseCase(
+                            accountRepository: dependencies.accountRepository
+                        )
                     )
                 } else {
                     #if os(macOS)
                     SidebarNavigation()
                     #else
-                    if horizontalSizeClass == .regular {
-                        SidebarNavigation() // iPad
-                    } else {
-                        AppTabView()        // iPhone
-                    }
+                    AppTabView()
                     #endif
                 }
             }

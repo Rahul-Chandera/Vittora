@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct BudgetFormView: View {
     @Environment(AppState.self) private var appState
@@ -105,7 +106,10 @@ struct BudgetFormView: View {
                         Task {
                             do {
                                 try await viewModel?.save()
-                                appState.notifyDataChanged()
+                                if viewModel?.isEditing != true {
+                                    await dependencies.conversionEventRecorder.afterBudgetCreated()
+                                }
+                                appState.notifyChanged(.budgets)
                                 isPresented = false
                             } catch {
                                 viewModel?.error = error.localizedDescription
@@ -121,10 +125,10 @@ struct BudgetFormView: View {
         .task {
             if viewModel == nil {
                 let createUseCase = CreateBudgetUseCase(
-                    budgetRepository: dependencies.budgetRepository ?? MockBudgetRepository()
+                    budgetRepository: dependencies.budgetRepository
                 )
                 let updateUseCase = UpdateBudgetUseCase(
-                    budgetRepository: dependencies.budgetRepository ?? MockBudgetRepository()
+                    budgetRepository: dependencies.budgetRepository
                 )
                 viewModel = BudgetFormViewModel(
                     createUseCase: createUseCase,
@@ -134,7 +138,7 @@ struct BudgetFormView: View {
 
             // Load categories
             do {
-                categories = try await (dependencies.categoryRepository ?? MockCategoryRepository()).fetchAll()
+                categories = try await dependencies.categoryRepository.fetchAll()
             } catch {
                 // Silent failure
             }
@@ -150,5 +154,5 @@ struct BudgetFormView: View {
 
 #Preview {
     BudgetFormView(isPresented: .constant(true))
-        .environment(\.dependencies, DependencyContainer())
+        .environment(\.dependencies, DependencyContainer.preview())
 }

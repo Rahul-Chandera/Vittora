@@ -1,10 +1,22 @@
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 actor MockTransactionRepository: TransactionRepository {
     private(set) var transactions: [TransactionEntity] = []
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    var writeFailureControls = MockWriteFailureControls()
+    /// When set, simulates repository list caps (e.g. SwiftDataTransactionRepository's 500-row limit).
+    var fetchAllLimit: Int?
+
+    private func checkWriteFailure(for entityID: UUID? = nil) throws {
+        try writeFailureControls.checkWrite(entityID: entityID)
+    }
+
+    func setFetchAllLimit(_ limit: Int?) {
+        fetchAllLimit = limit
+    }
 
     func fetchTransactionCount() async throws -> Int {
         if shouldThrowError { throw throwError }
@@ -34,12 +46,40 @@ actor MockTransactionRepository: TransactionRepository {
                 results = results.filter { amountRange.contains($0.amount) }
             }
         }
-        return results.sorted { $0.date > $1.date }
+        let sorted = results.sorted { $0.date > $1.date }
+        if let fetchAllLimit {
+            return Array(sorted.prefix(fetchAllLimit))
+        }
+        return sorted
+    }
+
+    func fetchPage(filter: TransactionFilter?, offset: Int, limit: Int) async throws -> [TransactionEntity] {
+        if shouldThrowError { throw throwError }
+        let savedLimit = fetchAllLimit
+        fetchAllLimit = nil
+        defer { fetchAllLimit = savedLimit }
+        let all = try await fetchAll(filter: filter)
+        let start = min(max(0, offset), all.count)
+        let end = min(start + max(1, limit), all.count)
+        guard start < end else { return [] }
+        return Array(all[start..<end])
+    }
+
+    func fetchAllForReconciliation() async throws -> [TransactionEntity] {
+        if shouldThrowError { throw throwError }
+        return transactions
     }
 
     func fetchByID(_ id: UUID) async throws -> TransactionEntity? {
         if shouldThrowError { throw throwError }
         return transactions.first { $0.id == id }
+    }
+
+    func fetchForAccount(id: UUID, limit: Int) async throws -> [TransactionEntity] {
+        if shouldThrowError { throw throwError }
+        let filter = TransactionFilter(accountIDs: [id])
+        let results = try await fetchAll(filter: filter)
+        return Array(results.prefix(max(1, limit)))
     }
 
     func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {
@@ -57,11 +97,13 @@ actor MockTransactionRepository: TransactionRepository {
     }
 
     func create(_ entity: TransactionEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         transactions.append(entity)
     }
 
     func update(_ entity: TransactionEntity) async throws {
+        try checkWriteFailure(for: entity.id)
         if shouldThrowError { throw throwError }
         if let index = transactions.firstIndex(where: { $0.id == entity.id }) {
             transactions[index] = entity
@@ -71,6 +113,7 @@ actor MockTransactionRepository: TransactionRepository {
     }
 
     func delete(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         if let index = transactions.firstIndex(where: { $0.id == id }) {
             transactions.remove(at: index)
@@ -80,6 +123,7 @@ actor MockTransactionRepository: TransactionRepository {
     }
 
     func bulkDelete(_ ids: [UUID]) async throws {
+        try checkWriteFailure()
         if shouldThrowError { throw throwError }
         for id in ids {
             try await delete(id)

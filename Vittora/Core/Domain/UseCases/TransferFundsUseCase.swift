@@ -1,15 +1,22 @@
 import Foundation
+import VittoraCore
 
 struct TransferFundsUseCase: Sendable {
-    let transactionRepository: any TransactionRepository
     let accountRepository: any AccountRepository
+    /// REQUIRED, non-optional: money writes must be atomic. Routing through the
+    /// ledger store guarantees both legs + both balance adjustments persist in a
+    /// single save (or not at all). There is no non-atomic repository fallback.
+    ///
+    /// Pre-I1: callers unwrap the optional vended store-or-throw at construction.
+    /// Post-A6 follow-up: switch this to `any LedgerWriting` once that seam lands.
+    let ledgerWriteStore: LedgerWriteStore
 
-    init(
-        transactionRepository: any TransactionRepository,
-        accountRepository: any AccountRepository
+    nonisolated init(
+        accountRepository: any AccountRepository,
+        ledgerWriteStore: LedgerWriteStore
     ) {
-        self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
+        self.ledgerWriteStore = ledgerWriteStore
     }
 
     func execute(
@@ -21,68 +28,44 @@ struct TransferFundsUseCase: Sendable {
         currencyCode: String = CurrencyDefaults.code
     ) async throws {
         guard sourceAccountID != destinationAccountID else {
-            throw VittoraError.validationFailed("Source and destination accounts must be different")
+            throw VittoraError.validationFailed(
+                String(localized: "Source and destination accounts must be different")
+            )
         }
 
-        // Validate accounts exist
         guard let sourceAccount = try await accountRepository.fetchByID(sourceAccountID) else {
-            throw VittoraError.notFound("Source account not found")
+            throw VittoraError.notFound(String(localized: "Source account not found"))
         }
-
         guard let destinationAccount = try await accountRepository.fetchByID(destinationAccountID) else {
-            throw VittoraError.notFound("Destination account not found")
+            throw VittoraError.notFound(String(localized: "Destination account not found"))
         }
 
         guard !sourceAccount.isArchived else {
-            throw VittoraError.validationFailed("Cannot transfer from an archived account")
+            throw VittoraError.validationFailed(
+                String(localized: "Cannot transfer from an archived account")
+            )
         }
-
         guard !destinationAccount.isArchived else {
-            throw VittoraError.validationFailed("Cannot transfer to an archived account")
+            throw VittoraError.validationFailed(
+                String(localized: "Cannot transfer to an archived account")
+            )
         }
 
-        // Validate amount is positive
         guard amount > 0 else {
-            throw VittoraError.validationFailed("Transfer amount must be positive")
+            throw VittoraError.validationFailed(
+                String(localized: "Transfer amount must be positive")
+            )
         }
 
-        // Create debit transaction from source account
-        let sourceTransaction = TransactionEntity(
+        // Two paired legs (debit source, credit destination) + both balance
+        // adjustments persist atomically in one save inside the ledger store.
+        try await ledgerWriteStore.performTransfer(
+            sourceAccountID: sourceAccountID,
+            destinationAccountID: destinationAccountID,
             amount: amount,
             date: date,
             note: note,
-            type: .transfer,
-            paymentMethod: .bankTransfer,
-            currencyCode: currencyCode,
-            accountID: sourceAccountID,
-            destinationAccountID: destinationAccountID
+            currencyCode: currencyCode
         )
-
-        try await transactionRepository.create(sourceTransaction)
-
-        // Create credit transaction to destination account
-        let destinationTransaction = TransactionEntity(
-            amount: amount,
-            date: date,
-            note: note,
-            type: .transfer,
-            paymentMethod: .bankTransfer,
-            currencyCode: currencyCode,
-            accountID: destinationAccountID,
-            destinationAccountID: sourceAccountID
-        )
-
-        try await transactionRepository.create(destinationTransaction)
-
-        var updatedSourceAccount = sourceAccount
-        updatedSourceAccount.balance -= amount
-        updatedSourceAccount.updatedAt = .now
-
-        var updatedDestinationAccount = destinationAccount
-        updatedDestinationAccount.balance += amount
-        updatedDestinationAccount.updatedAt = .now
-
-        try await accountRepository.update(updatedSourceAccount)
-        try await accountRepository.update(updatedDestinationAccount)
     }
 }

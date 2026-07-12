@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 enum NavigationDestination: Hashable {
     // Accounts
@@ -21,6 +22,9 @@ enum NavigationDestination: Hashable {
 
     // Payees
     case payeeDetail(id: UUID)
+
+    // Recurring
+    case recurringDetail(id: UUID)
 
     // Reports
     case reportDetail(type: ReportType)

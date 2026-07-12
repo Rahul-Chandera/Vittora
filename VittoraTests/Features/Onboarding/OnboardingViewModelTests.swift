@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 
 @testable import Vittora
 
@@ -22,7 +23,69 @@ struct OnboardingViewModelTests {
         #expect(vm.currentStep == .account)
 
         vm.advance()
+        #expect(vm.currentStep == .notifications)
+
+        vm.advance()
         #expect(vm.currentStep == .done)
+    }
+
+    @Test("notifications step is always skippable")
+    func notificationsStepIsSkippable() {
+        let vm = OnboardingViewModel()
+        vm.currentStep = .notifications
+        vm.wantsNotifications = false
+        #expect(vm.canAdvance == true)
+        vm.wantsNotifications = true
+        #expect(vm.canAdvance == true)
+    }
+
+    @Test("complete persists notification opt-in without requesting OS permission")
+    func completePersistsNotificationOptInWithoutSystemPrompt() async throws {
+        let keychain = MockKeychainService()
+        let udSuiteName = "OnboardingViewModelTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: udSuiteName) ?? .standard
+        defer { defaults.removePersistentDomain(forName: udSuiteName) }
+
+        let vm = OnboardingViewModel(
+            createAccountUseCase: CreateAccountUseCase(accountRepository: TestOnboardingAccountRepository()),
+            keychainService: keychain,
+            userDefaults: defaults
+        )
+        let appState = AppState(isOnboardingComplete: false)
+
+        vm.currentStep = .done
+        vm.accountName = "Cash"
+        vm.openingBalance = "100"
+        vm.wantsNotifications = true
+
+        await vm.complete(appState: appState)
+
+        #expect(vm.error == nil)
+        #expect(defaults.bool(forKey: "vittora.notificationsEnabled") == true)
+    }
+
+    @Test("complete leaves notifications disabled when user skips priming step")
+    func completeSkipsNotificationOptIn() async throws {
+        let keychain = MockKeychainService()
+        let udSuiteName = "OnboardingViewModelTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: udSuiteName) ?? .standard
+        defer { defaults.removePersistentDomain(forName: udSuiteName) }
+
+        let vm = OnboardingViewModel(
+            createAccountUseCase: CreateAccountUseCase(accountRepository: TestOnboardingAccountRepository()),
+            keychainService: keychain,
+            userDefaults: defaults
+        )
+        let appState = AppState(isOnboardingComplete: false)
+
+        vm.currentStep = .done
+        vm.accountName = "Cash"
+        vm.openingBalance = "100"
+        vm.wantsNotifications = false
+
+        await vm.complete(appState: appState)
+
+        #expect(defaults.bool(forKey: "vittora.notificationsEnabled") == false)
     }
 
     @Test("account step requires valid first account details")
@@ -64,7 +127,8 @@ struct OnboardingViewModelTests {
         let repository = TestOnboardingAccountRepository()
         let vm = OnboardingViewModel(
             createAccountUseCase: CreateAccountUseCase(accountRepository: repository),
-            keychainService: keychain
+            keychainService: keychain,
+            userDefaults: defaults
         )
         let appState = AppState(isOnboardingComplete: false)
 
@@ -82,7 +146,7 @@ struct OnboardingViewModelTests {
         #expect(appState.isOnboardingComplete == true)
 
         // currencyCode remains in UserDefaults
-        #expect(UserDefaults.standard.string(forKey: "vittora.currencyCode") == "INR")
+        #expect(defaults.string(forKey: "vittora.currencyCode") == "INR")
 
         // Sensitive values go to Keychain
         let nameData = try await keychain.load(forKey: "vittora.userName")

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 extension View {
     func errorAlert(message: Binding<String?>) -> some View {

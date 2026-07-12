@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct TaxDisclaimerView: View {
     var body: some View {

@@ -1,16 +1,17 @@
 import Foundation
 import Accessibility
 import SwiftUI
+import VittoraCore
 
 enum ChartAccessibilitySupport {
-    static func currencyString(for value: Double, currencyCode: String) -> String {
+    nonisolated static func currencyString(for value: Double, currencyCode: String) -> String {
         let fractionDigits = value.rounded() == value ? 0 : 2
         return Decimal(value).formatted(
             .currency(code: currencyCode).precision(.fractionLength(fractionDigits))
         )
     }
 
-    static func numericRange(for values: [Double], includeZero: Bool = false) -> ClosedRange<Double> {
+    nonisolated static func numericRange(for values: [Double], includeZero: Bool = false) -> ClosedRange<Double> {
         let rangeValues = includeZero ? values + [0] : values
         guard let lower = rangeValues.min(), let upper = rangeValues.max() else {
             return 0...1
@@ -25,7 +26,7 @@ enum ChartAccessibilitySupport {
         return (lower - padding)...(upper + padding)
     }
 
-    static func gridlines(for range: ClosedRange<Double>, segments: Int = 4) -> [Double] {
+    nonisolated static func gridlines(for range: ClosedRange<Double>, segments: Int = 4) -> [Double] {
         let segmentCount = max(segments, 1)
         let lower = range.lowerBound
         let delta = range.upperBound - range.lowerBound
@@ -34,19 +35,19 @@ enum ChartAccessibilitySupport {
         }
     }
 
-    static func monthLabel(_ date: Date) -> String {
+    nonisolated static func monthLabel(_ date: Date) -> String {
         date.formatted(.dateTime.month(.wide))
     }
 
-    static func fullDateLabel(_ date: Date) -> String {
+    nonisolated static func fullDateLabel(_ date: Date) -> String {
         date.formatted(.dateTime.month(.abbreviated).day().year())
     }
 
-    static func dayLabel(_ day: Int) -> String {
+    nonisolated static func dayLabel(_ day: Int) -> String {
         String(localized: "Day \(day)")
     }
 
-    static func dataSeries(
+    nonisolated static func dataSeries(
         name: String,
         isContinuous: Bool,
         points: [AXDataPoint]
@@ -63,7 +64,7 @@ struct MonthlyIncomeExpenseChartDescriptor: AXChartDescriptorRepresentable, Send
     let data: [MonthlyData]
     let currencyCode: String
 
-    func makeChartDescriptor() -> AXChartDescriptor {
+    nonisolated func makeChartDescriptor() -> AXChartDescriptor {
         let labels = data.map { ChartAccessibilitySupport.monthLabel($0.month) }
         let amounts = data.flatMap {
             [
@@ -121,7 +122,7 @@ struct MonthlyNetCashFlowChartDescriptor: AXChartDescriptorRepresentable, Sendab
     let data: [MonthlyData]
     let currencyCode: String
 
-    func makeChartDescriptor() -> AXChartDescriptor {
+    nonisolated func makeChartDescriptor() -> AXChartDescriptor {
         let labels = data.map { ChartAccessibilitySupport.monthLabel($0.month) }
         let values = data.map { Double(truncating: $0.net as NSDecimalNumber) }
         let range = ChartAccessibilitySupport.numericRange(for: values, includeZero: true)
@@ -159,11 +160,56 @@ struct MonthlyNetCashFlowChartDescriptor: AXChartDescriptorRepresentable, Sendab
     }
 }
 
+struct CashFlowProjectionChartDescriptor: AXChartDescriptorRepresentable, Sendable {
+    let data: [CashFlowMonth]
+    let currencyCode: String
+
+    nonisolated func makeChartDescriptor() -> AXChartDescriptor {
+        let labels = data.map { ChartAccessibilitySupport.monthLabel($0.month) }
+        let values = data.map { Double(truncating: $0.net as NSDecimalNumber) }
+        let range = ChartAccessibilitySupport.numericRange(for: values, includeZero: true)
+        let xAxis = AXCategoricalDataAxisDescriptor(
+            title: String(localized: "Month"),
+            categoryOrder: labels
+        )
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: String(localized: "Net cash flow"),
+            range: range,
+            gridlinePositions: ChartAccessibilitySupport.gridlines(for: range)
+        ) { value in
+            ChartAccessibilitySupport.currencyString(for: value, currencyCode: currencyCode)
+        }
+
+        let series = ChartAccessibilitySupport.dataSeries(
+            name: String(localized: "Net cash flow"),
+            isContinuous: false,
+            points: zip(labels, data).map { label, item in
+                let kind = item.isProjected
+                    ? String(localized: "projected")
+                    : String(localized: "actual")
+                return AXDataPoint(
+                    x: label,
+                    y: Double(truncating: item.net as NSDecimalNumber),
+                    label: String(localized: "\(label) \(kind) net cash flow")
+                )
+            }
+        )
+
+        return AXChartDescriptor(
+            title: String(localized: "Monthly Net Cash Flow"),
+            summary: String(localized: "Shows actual and projected monthly surplus or deficit."),
+            xAxis: xAxis,
+            yAxis: yAxis,
+            series: [series]
+        )
+    }
+}
+
 struct SpendingTrendChartDescriptor: AXChartDescriptorRepresentable, Sendable {
     let dataPoints: [TrendDataPoint]
     let currencyCode: String
 
-    func makeChartDescriptor() -> AXChartDescriptor {
+    nonisolated func makeChartDescriptor() -> AXChartDescriptor {
         let labels = dataPoints.map { ChartAccessibilitySupport.fullDateLabel($0.date) }
         let values = dataPoints.map { Double(truncating: $0.amount as NSDecimalNumber) }
         let range = ChartAccessibilitySupport.numericRange(for: values, includeZero: true)
@@ -205,7 +251,7 @@ struct CategoryBreakdownChartDescriptor: AXChartDescriptorRepresentable, Sendabl
     let breakdowns: [CategoryBreakdown]
     let currencyCode: String
 
-    func makeChartDescriptor() -> AXChartDescriptor {
+    nonisolated func makeChartDescriptor() -> AXChartDescriptor {
         let categories = Array(breakdowns.prefix(8))
         let labels = categories.map(\.category.name)
         let values = categories.map { Double(truncating: $0.amount as NSDecimalNumber) }
@@ -250,7 +296,7 @@ struct CategorySpendChartDescriptor: AXChartDescriptorRepresentable, Sendable {
     let categories: [CategorySpend]
     let currencyCode: String
 
-    func makeChartDescriptor() -> AXChartDescriptor {
+    nonisolated func makeChartDescriptor() -> AXChartDescriptor {
         let labels = categories.map(\.category.name)
         let values = categories.map { Double(truncating: $0.amount as NSDecimalNumber) }
         let range = ChartAccessibilitySupport.numericRange(for: values, includeZero: true)
@@ -295,7 +341,7 @@ struct DailySpendAccessibilityChartDescriptor: AXChartDescriptorRepresentable, S
     let dailyBudgetAverage: Decimal
     let currencyCode: String
 
-    func makeChartDescriptor() -> AXChartDescriptor {
+    nonisolated func makeChartDescriptor() -> AXChartDescriptor {
         let labels = points.map { ChartAccessibilitySupport.dayLabel($0.day) }
         let spendValues = points.map { Double(truncating: $0.amount as NSDecimalNumber) }
         let budgetValue = Double(truncating: dailyBudgetAverage as NSDecimalNumber)
@@ -352,7 +398,7 @@ struct BalanceHistoryChartDescriptor: AXChartDescriptorRepresentable, Sendable {
     let dataPoints: [BalanceDataPoint]
     let currencyCode: String
 
-    func makeChartDescriptor() -> AXChartDescriptor {
+    nonisolated func makeChartDescriptor() -> AXChartDescriptor {
         let labels = dataPoints.map { ChartAccessibilitySupport.fullDateLabel($0.date) }
         let balances = dataPoints.map { Double(truncating: $0.balance as NSDecimalNumber) }
         let range = ChartAccessibilitySupport.numericRange(for: balances, includeZero: false)

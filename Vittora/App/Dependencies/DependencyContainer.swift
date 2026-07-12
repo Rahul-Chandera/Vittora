@@ -1,79 +1,281 @@
 import SwiftUI
 import SwiftData
+import OSLog
+import VittoraCore
 
 @Observable
 @MainActor
 final class DependencyContainer {
-    var transactionRepository: (any TransactionRepository)?
-    var accountRepository: (any AccountRepository)?
-    var categoryRepository: (any CategoryRepository)?
-    var payeeRepository: (any PayeeRepository)?
-    var budgetRepository: (any BudgetRepository)?
-    var recurringRuleRepository: (any RecurringRuleRepository)?
-    var documentRepository: (any DocumentRepository)?
-    var debtRepository: (any DebtRepository)?
-    var splitGroupRepository: (any SplitGroupRepository)?
-    var taxProfileRepository: (any TaxProfileRepository)?
-    var savingsGoalRepository: (any SavingsGoalRepository)?
+    let transactionRepository: any TransactionRepository
+    let accountRepository: any AccountRepository
+    let categoryRepository: any CategoryRepository
+    let payeeRepository: any PayeeRepository
+    let budgetRepository: any BudgetRepository
+    let recurringRuleRepository: any RecurringRuleRepository
+    let documentRepository: any DocumentRepository
+    let debtRepository: any DebtRepository
+    let splitGroupRepository: any SplitGroupRepository
+    let taxProfileRepository: any TaxProfileRepository
+    let savingsGoalRepository: any SavingsGoalRepository
 
-    var biometricService: (any BiometricServiceProtocol)?
-    var keychainService: (any KeychainServiceProtocol)?
-    var encryptionService: (any EncryptionServiceProtocol)?
-    var documentStorageService: (any DocumentStorageServiceProtocol)?
-    var appLockService: (any AppLockServiceProtocol)?
-    var exportService: (any DataExportServiceProtocol)?
-    var contactsImportService: (any ContactsImportServiceProtocol)?
-    var hapticService: (any HapticServiceProtocol) = LiveHapticService()
-    var securityAuditLogService: SecurityAuditLogService?
-    var dataSeeder: (any DataSeederProtocol)?
+    let ledgerWriteStore: LedgerWriteStore
+
+    /// Shared serializer for recurring generation so app-launch and background
+    /// runs funnel through one in-flight run (DATAINTEGRITY-4).
+    let recurringGenerationCoordinator: RecurringGenerationCoordinator
+
+    let biometricService: any BiometricServiceProtocol
+    let keychainService: any KeychainServiceProtocol
+    let encryptionService: any EncryptionServiceProtocol
+    let documentStorageService: any DocumentStorageServiceProtocol
+    let appLockService: any AppLockServiceProtocol
+    let exportService: any DataExportServiceProtocol
+    let contactsImportService: any ContactsImportServiceProtocol
+    var hapticService: any HapticServiceProtocol = LiveHapticService()
+    let notificationService: any NotificationServiceProtocol
+    let evaluateBudgetThresholdAlertsUseCase: EvaluateBudgetThresholdAlertsUseCase
+    let scheduleCreditCardDueRemindersUseCase: ScheduleCreditCardDueRemindersUseCase
+    let scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase
+    let scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase
+    var conversionEventTracker: any ConversionEventTracking = UserDefaultsConversionEventTracker()
+    let conversionEventRecorder: ConversionEventRecorder
+    let securityAuditLogService: SecurityAuditLogService
+    let dataSeeder: any DataSeederProtocol
+    let categorizationRuleStore: any CategorizationRuleStoring
+    let transactionEditHistoryStore: any TransactionEditHistoryStoring
+    let savedTransactionFilterStore: any SavedTransactionFilterStoring
+
+    init(
+        transactionRepository: any TransactionRepository,
+        accountRepository: any AccountRepository,
+        categoryRepository: any CategoryRepository,
+        payeeRepository: any PayeeRepository,
+        budgetRepository: any BudgetRepository,
+        recurringRuleRepository: any RecurringRuleRepository,
+        documentRepository: any DocumentRepository,
+        debtRepository: any DebtRepository,
+        splitGroupRepository: any SplitGroupRepository,
+        taxProfileRepository: any TaxProfileRepository,
+        savingsGoalRepository: any SavingsGoalRepository,
+        ledgerWriteStore: LedgerWriteStore,
+        recurringGenerationCoordinator: RecurringGenerationCoordinator,
+        biometricService: any BiometricServiceProtocol,
+        keychainService: any KeychainServiceProtocol,
+        encryptionService: any EncryptionServiceProtocol,
+        documentStorageService: any DocumentStorageServiceProtocol,
+        appLockService: any AppLockServiceProtocol,
+        exportService: any DataExportServiceProtocol,
+        contactsImportService: any ContactsImportServiceProtocol,
+        notificationService: any NotificationServiceProtocol,
+        evaluateBudgetThresholdAlertsUseCase: EvaluateBudgetThresholdAlertsUseCase,
+        scheduleCreditCardDueRemindersUseCase: ScheduleCreditCardDueRemindersUseCase,
+        scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase,
+        scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase,
+        conversionEventRecorder: ConversionEventRecorder,
+        securityAuditLogService: SecurityAuditLogService,
+        dataSeeder: any DataSeederProtocol,
+        categorizationRuleStore: any CategorizationRuleStoring,
+        transactionEditHistoryStore: any TransactionEditHistoryStoring,
+        savedTransactionFilterStore: any SavedTransactionFilterStoring
+    ) {
+        self.transactionRepository = transactionRepository
+        self.accountRepository = accountRepository
+        self.categoryRepository = categoryRepository
+        self.payeeRepository = payeeRepository
+        self.budgetRepository = budgetRepository
+        self.recurringRuleRepository = recurringRuleRepository
+        self.documentRepository = documentRepository
+        self.debtRepository = debtRepository
+        self.splitGroupRepository = splitGroupRepository
+        self.taxProfileRepository = taxProfileRepository
+        self.savingsGoalRepository = savingsGoalRepository
+        self.ledgerWriteStore = ledgerWriteStore
+        self.recurringGenerationCoordinator = recurringGenerationCoordinator
+        self.biometricService = biometricService
+        self.keychainService = keychainService
+        self.encryptionService = encryptionService
+        self.documentStorageService = documentStorageService
+        self.appLockService = appLockService
+        self.exportService = exportService
+        self.contactsImportService = contactsImportService
+        self.notificationService = notificationService
+        self.evaluateBudgetThresholdAlertsUseCase = evaluateBudgetThresholdAlertsUseCase
+        self.scheduleCreditCardDueRemindersUseCase = scheduleCreditCardDueRemindersUseCase
+        self.scheduleRecurringPreNotificationsUseCase = scheduleRecurringPreNotificationsUseCase
+        self.scheduleSelfDebtDueRemindersUseCase = scheduleSelfDebtDueRemindersUseCase
+        self.conversionEventRecorder = conversionEventRecorder
+        self.securityAuditLogService = securityAuditLogService
+        self.dataSeeder = dataSeeder
+        self.categorizationRuleStore = categorizationRuleStore
+        self.transactionEditHistoryStore = transactionEditHistoryStore
+        self.savedTransactionFilterStore = savedTransactionFilterStore
+    }
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
-        let container = DependencyContainer()
+        let transactionRepository = SwiftDataTransactionRepository(modelContainer: modelContainer)
+        let accountRepository = SwiftDataAccountRepository(modelContainer: modelContainer)
+        let categoryRepository = SwiftDataCategoryRepository(modelContainer: modelContainer)
+        let payeeRepository = SwiftDataPayeeRepository(modelContainer: modelContainer)
+        let budgetRepository = SwiftDataBudgetRepository(modelContainer: modelContainer)
+        let recurringRuleRepository = SwiftDataRecurringRuleRepository(modelContainer: modelContainer)
+        let debtRepository = SwiftDataDebtRepository(modelContainer: modelContainer)
+        let splitGroupRepository = SwiftDataSplitGroupRepository(modelContainer: modelContainer)
+        let taxProfileRepository = SwiftDataTaxProfileRepository(modelContainer: modelContainer)
+        let savingsGoalRepository = SwiftDataSavingsGoalRepository(modelContainer: modelContainer)
+        let ledgerWriteStore = LedgerWriteStore(modelContainer: modelContainer)
+        let dataSeeder = DefaultDataSeeder(modelContainer: modelContainer)
 
-        container.transactionRepository = SwiftDataTransactionRepository(modelContainer: modelContainer)
-        container.accountRepository = SwiftDataAccountRepository(modelContainer: modelContainer)
-        container.categoryRepository = SwiftDataCategoryRepository(modelContainer: modelContainer)
-        container.payeeRepository = SwiftDataPayeeRepository(modelContainer: modelContainer)
-        container.budgetRepository = SwiftDataBudgetRepository(modelContainer: modelContainer)
-        container.recurringRuleRepository = SwiftDataRecurringRuleRepository(modelContainer: modelContainer)
-        container.debtRepository = SwiftDataDebtRepository(modelContainer: modelContainer)
-        container.splitGroupRepository = SwiftDataSplitGroupRepository(modelContainer: modelContainer)
-        container.taxProfileRepository = SwiftDataTaxProfileRepository(modelContainer: modelContainer)
-        container.savingsGoalRepository = SwiftDataSavingsGoalRepository(modelContainer: modelContainer)
-        container.dataSeeder = DefaultDataSeeder(modelContainer: modelContainer)
+        let generateUseCase = GenerateRecurringTransactionsUseCase(
+            ruleRepository: recurringRuleRepository,
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            ledgerWriting: ledgerWriteStore
+        )
+        let recurringGenerationCoordinator = RecurringGenerationCoordinator(useCase: generateUseCase)
 
         let keychainService = KeychainService()
-        let biometricService = BiometricService()
+        let biometricService: any BiometricServiceProtocol =
+            ProcessInfo.processInfo.arguments.contains("--ui-test-app-lock")
+            ? UITestAppLockBiometricService()
+            : BiometricService()
         let encryptionService = EncryptionService(keychainService: keychainService)
         let auditLogService = SecurityAuditLogService(encryptionService: encryptionService)
-        container.securityAuditLogService = auditLogService
-        container.keychainService = keychainService
-        container.biometricService = biometricService
-        container.encryptionService = encryptionService
-        container.documentStorageService = EncryptedDocumentStorageService(
+        let documentStorageService = EncryptedDocumentStorageService(
             encryptionService: encryptionService
         )
-        if let documentStorageService = container.documentStorageService {
-            container.documentRepository = EncryptedDocumentRepository(
-                modelContainer: modelContainer,
-                documentStorageService: documentStorageService
-            )
-        }
-        container.appLockService = AppLockService(
+        let documentRepository = EncryptedDocumentRepository(
+            modelContainer: modelContainer,
+            documentStorageService: documentStorageService
+        )
+        let appLockService = AppLockService(
             biometricService: biometricService,
             auditLogger: auditLogService
         )
-        container.contactsImportService = SystemContactsImportService()
-        if let transactionRepository = container.transactionRepository {
-            container.exportService = DataExportService(
-                transactionRepository: transactionRepository,
-                accountRepository: container.accountRepository,
-                categoryRepository: container.categoryRepository,
-                payeeRepository: container.payeeRepository,
-                auditLogger: auditLogService
-            )
-        }
+        let notificationService = NotificationService()
 
-        return container
+        let fetchBudgetsUseCase = FetchBudgetsUseCase(
+            budgetRepository: budgetRepository,
+            transactionRepository: transactionRepository
+        )
+        let evaluateBudgetThresholdAlertsUseCase = EvaluateBudgetThresholdAlertsUseCase(
+            budgetFetcher: fetchBudgetsUseCase,
+            alertStore: UserDefaultsBudgetThresholdAlertStore(),
+            notificationService: notificationService
+        )
+        let scheduleCreditCardDueRemindersUseCase = ScheduleCreditCardDueRemindersUseCase(
+            accountRepository: accountRepository,
+            notificationService: notificationService
+        )
+        let scheduleRecurringPreNotificationsUseCase = ScheduleRecurringPreNotificationsUseCase(
+            ruleRepository: recurringRuleRepository,
+            payeeRepository: payeeRepository,
+            notificationService: notificationService
+        )
+        let scheduleSelfDebtDueRemindersUseCase = ScheduleSelfDebtDueRemindersUseCase(
+            debtRepository: debtRepository,
+            payeeRepository: payeeRepository,
+            notificationService: notificationService
+        )
+        let contactsImportService = SystemContactsImportService()
+        let exportService = DataExportService(
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
+            payeeRepository: payeeRepository,
+            auditLogger: auditLogService
+        )
+        let conversionEventTracker = UserDefaultsConversionEventTracker()
+        let conversionEventRecorder = ConversionEventRecorder(
+            tracker: conversionEventTracker,
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            budgetRepository: budgetRepository
+        )
+
+        return DependencyContainer(
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
+            payeeRepository: payeeRepository,
+            budgetRepository: budgetRepository,
+            recurringRuleRepository: recurringRuleRepository,
+            documentRepository: documentRepository,
+            debtRepository: debtRepository,
+            splitGroupRepository: splitGroupRepository,
+            taxProfileRepository: taxProfileRepository,
+            savingsGoalRepository: savingsGoalRepository,
+            ledgerWriteStore: ledgerWriteStore,
+            recurringGenerationCoordinator: recurringGenerationCoordinator,
+            biometricService: biometricService,
+            keychainService: keychainService,
+            encryptionService: encryptionService,
+            documentStorageService: documentStorageService,
+            appLockService: appLockService,
+            exportService: exportService,
+            contactsImportService: contactsImportService,
+            notificationService: notificationService,
+            evaluateBudgetThresholdAlertsUseCase: evaluateBudgetThresholdAlertsUseCase,
+            scheduleCreditCardDueRemindersUseCase: scheduleCreditCardDueRemindersUseCase,
+            scheduleRecurringPreNotificationsUseCase: scheduleRecurringPreNotificationsUseCase,
+            scheduleSelfDebtDueRemindersUseCase: scheduleSelfDebtDueRemindersUseCase,
+            conversionEventRecorder: conversionEventRecorder,
+            securityAuditLogService: auditLogService,
+            dataSeeder: dataSeeder,
+            categorizationRuleStore: UserDefaultsCategorizationRuleStore(),
+            transactionEditHistoryStore: UserDefaultsTransactionEditHistoryStore(),
+            savedTransactionFilterStore: UserDefaultsSavedTransactionFilterStore()
+        )
+    }
+
+    /// Wiring used when the persistent store fails. The scene shows `StartupFailureView`
+    /// without attaching a `ModelContainer`, so this ephemeral graph is not user-facing data.
+    static func startupFailure() -> DependencyContainer {
+        let containerCreators: [() throws -> ModelContainer] = [
+            { try ModelContainerConfig.makeEphemeralWiringContainer() },
+            { try ModelContainerConfig.makeContainer(inMemory: true) },
+            { try ModelContainerConfig.makePreviewContainer() },
+        ]
+        for create in containerCreators {
+            if let container = try? create() {
+                return createDefault(modelContainer: container)
+            }
+        }
+        #if DEBUG
+        fatalError("DependencyContainer.startupFailure failed")
+        #else
+        Logger(subsystem: "com.vittora.app", category: "startup").fault(
+            "All startupFailure container attempts failed; app cannot wire dependencies."
+        )
+        fatalError("DependencyContainer.startupFailure failed")
+        #endif
+    }
+
+    /// Preview and SwiftUI environment fallback wiring.
+    static func preview() -> DependencyContainer {
+        do {
+            return createDefault(modelContainer: try ModelContainerConfig.makePreviewContainer())
+        } catch {
+            #if DEBUG
+            fatalError("DependencyContainer.preview failed: \(error)")
+            #else
+            preconditionFailure("DependencyContainer.preview is unavailable in release builds")
+            #endif
+        }
+    }
+}
+
+/// Keeps the lock screen visible during `--ui-test-app-lock` UI tests (no real biometry).
+@MainActor
+private final class UITestAppLockBiometricService: BiometricServiceProtocol, @unchecked Sendable {
+    var biometricType: BiometricType { .faceID }
+
+    func canUseBiometrics() -> Bool { true }
+
+    func authenticate(reason: String, allowPasscodeFallback: Bool) async throws -> Bool {
+        false
+    }
+
+    func authenticateWithPasscode(reason: String) async throws -> Bool {
+        false
     }
 }

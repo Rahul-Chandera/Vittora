@@ -4,6 +4,7 @@ import SwiftUI
 
 struct ReceiptScannerView: View {
     let onImageCaptured: (Data) -> Void
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @State private var scannerVM: ReceiptScannerViewModel?
     @State private var scannedData: Data?
@@ -48,6 +49,7 @@ struct ReceiptScannerView: View {
                     Task {
                         await vm.processImage(cgImage)
                         if let data = vm.scannedReceiptData {
+                            dependencies.conversionEventRecorder.afterOCRScanCompleted()
                             receiptData = data
                             showReview = true
                         }
@@ -92,6 +94,7 @@ struct ReceiptScannerView: View {
 import UIKit
 import VisionKit
 import CoreGraphics
+import VittoraCore
 
 struct DataScannerRepresentable: UIViewControllerRepresentable {
     let isProcessing: Bool

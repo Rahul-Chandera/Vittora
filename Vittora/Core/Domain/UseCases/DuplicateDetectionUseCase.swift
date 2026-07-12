@@ -1,9 +1,10 @@
 import Foundation
+import VittoraCore
 
 struct DuplicateDetectionUseCase: Sendable {
     let transactionRepository: any TransactionRepository
 
-    init(transactionRepository: any TransactionRepository) {
+    nonisolated init(transactionRepository: any TransactionRepository) {
         self.transactionRepository = transactionRepository
     }
 
@@ -40,10 +41,38 @@ struct DuplicateDetectionUseCase: Sendable {
 
         // Filter for exact matches on amount, date, payeeID, and accountID
         return transactions.filter { transaction in
-            transaction.amount == amount &&
+            Self.matches(
+                transaction,
+                amount: amount,
+                date: date,
+                payeeID: payeeID,
+                accountID: accountID
+            )
+        }
+    }
+
+    func prefetchExisting(accountID: UUID, covering dates: [Date]) async throws -> [TransactionEntity] {
+        guard let minDate = dates.min(), let maxDate = dates.max() else { return [] }
+        let startDate = Calendar.current.date(byAdding: .hour, value: -12, to: minDate) ?? minDate
+        let endDate = Calendar.current.date(byAdding: .hour, value: 12, to: maxDate) ?? maxDate
+        return try await transactionRepository.fetchAll(
+            filter: TransactionFilter(
+                dateRange: startDate...endDate,
+                accountIDs: [accountID]
+            )
+        )
+    }
+
+    nonisolated static func matches(
+        _ transaction: TransactionEntity,
+        amount: Decimal,
+        date: Date,
+        payeeID: UUID?,
+        accountID: UUID?
+    ) -> Bool {
+        transaction.amount == amount &&
             Calendar.current.isDate(transaction.date, inSameDayAs: date) &&
             transaction.payeeID == payeeID &&
             transaction.accountID == accountID
-        }
     }
 }

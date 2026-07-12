@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct DebtBalance: Sendable {
     let totalOwedToMe: Decimal    // sum of outstanding lent amounts

@@ -1,8 +1,11 @@
+
 import Foundation
 import Testing
 import SwiftData
+import VittoraCore
 @testable import Vittora
 
+@MainActor
 @Suite("SwiftDataDebtRepository Tests")
 struct SwiftDataDebtRepositoryTests {
 

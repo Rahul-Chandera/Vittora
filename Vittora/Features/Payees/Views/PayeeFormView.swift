@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct PayeeFormView: View {
     var editingPayee: PayeeEntity? = nil
@@ -46,12 +47,10 @@ struct PayeeFormView: View {
 
     private func setupViewModel() {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let payeeRepo = deps.payeeRepository else { return }
 
         let vm = PayeeFormViewModel(
-            createUseCase: CreatePayeeUseCase(repository: payeeRepo),
-            updateUseCase: UpdatePayeeUseCase(repository: payeeRepo)
+            createUseCase: CreatePayeeUseCase(repository: dependencies.payeeRepository),
+            updateUseCase: UpdatePayeeUseCase(repository: dependencies.payeeRepository)
         )
         if let payee = editingPayee {
             vm.loadPayee(payee)
@@ -128,7 +127,7 @@ struct PayeeFormView: View {
         saveError = nil
         do {
             try await vm.save()
-            appState.notifyDataChanged()
+            appState.notifyChanged(.payees)
             onSave?()
             dismiss()
         } catch {

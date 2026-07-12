@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// Horizontal stacked bar showing income distributed across tax brackets.
 struct TaxBracketBarView: View {

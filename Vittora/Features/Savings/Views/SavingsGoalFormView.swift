@@ -1,9 +1,11 @@
 import SwiftUI
+import VittoraCore
 
 struct SavingsGoalFormView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyCode) private var currencyCode
 
     let existingGoal: SavingsGoalEntity?
     let onSaved: () -> Void
@@ -21,10 +23,26 @@ struct SavingsGoalFormView: View {
 
     private let palette = ["#5856D6","#FF2D55","#FF9500","#34C759","#007AFF","#AF52DE","#FF6B35","#00C7BE"]
 
-    private var target: Decimal { Decimal(string: targetString.replacingOccurrences(of: ",", with: "")) ?? 0 }
-    private var current: Decimal { Decimal(string: currentString.replacingOccurrences(of: ",", with: "")) ?? 0 }
-    private var canSave: Bool { name.trimmingCharacters(in: .whitespaces).count >= 2 && target > 0 }
+    private var parsedTarget: Decimal? { Decimal(localizedAmount: targetString) }
+    private var parsedCurrent: Decimal? { Decimal(localizedAmount: currentString) }
+    private var canSave: Bool {
+        guard let parsedTarget, parsedTarget > 0 else { return false }
+        return name.trimmingCharacters(in: .whitespaces).count >= 2
+    }
     private var isEditing: Bool { existingGoal != nil }
+
+    private var allocationPreview: SavingsAllocationSnapshot? {
+        guard let parsedTarget, parsedTarget > 0 else { return nil }
+        let current = parsedCurrent ?? 0
+        guard current < parsedTarget else { return nil }
+        let snapshot = SavingsAllocationMath.snapshot(
+            targetAmount: parsedTarget,
+            currentAmount: current,
+            targetDate: hasDeadline ? targetDate : nil
+        )
+        guard snapshot.monthlyRequired != nil || snapshot.projectedCompletionDate != nil else { return nil }
+        return snapshot
+    }
 
     init(existingGoal: SavingsGoalEntity? = nil, onSaved: @escaping () -> Void) {
         self.existingGoal = existingGoal
@@ -81,6 +99,33 @@ struct SavingsGoalFormView: View {
                             in: Date.now...,
                             displayedComponents: [.date]
                         )
+                    }
+                }
+
+                if let preview = allocationPreview {
+                    Section(String(localized: "Savings Plan")) {
+                        if let monthly = preview.monthlyRequired {
+                            HStack {
+                                Text(String(localized: "Suggested monthly"))
+                                Spacer()
+                                Text(monthly.formatted(.currency(code: currencyCode)) + String(localized: "/month"))
+                                    .font(VTypography.bodyBold)
+                                    .foregroundStyle(VColors.income)
+                            }
+                        }
+                        if let projected = preview.projectedCompletionDate {
+                            HStack {
+                                Text(String(localized: "Projected completion"))
+                                Spacer()
+                                Text(projected.formatted(date: .long, time: .omitted))
+                                    .font(VTypography.bodyBold)
+                            }
+                        }
+                        if let months = preview.remainingMonths, months > 0 {
+                            Text(String(localized: "Based on \(months) month(s) until your deadline."))
+                                .font(VTypography.caption1)
+                                .foregroundStyle(VColors.textSecondary)
+                        }
                     }
                 }
 
@@ -154,17 +199,26 @@ struct SavingsGoalFormView: View {
     }
 
     private func save() async {
-        guard let repo = dependencies.savingsGoalRepository else { return }
+        guard let parsedTarget, parsedTarget > 0 else {
+            error = String(localized: "Please enter a valid target amount.")
+            return
+        }
+        if !currentString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+           parsedCurrent == nil {
+            error = String(localized: "Please enter a valid current amount.")
+            return
+        }
+        let currentAmount = parsedCurrent ?? 0
         isSaving = true
         error = nil
-        let useCase = SaveSavingsGoalUseCase(savingsGoalRepository: repo)
+        let useCase = SaveSavingsGoalUseCase(savingsGoalRepository: dependencies.savingsGoalRepository)
         do {
             if let existing = existingGoal {
                 var updated = existing
                 updated.name = name.trimmingCharacters(in: .whitespaces)
                 updated.category = category
-                updated.targetAmount = target
-                updated.currentAmount = current
+                updated.targetAmount = parsedTarget
+                updated.currentAmount = currentAmount
                 updated.targetDate = hasDeadline ? targetDate : nil
                 updated.note = note.isEmpty ? nil : note
                 updated.colorHex = selectedColor
@@ -173,15 +227,15 @@ struct SavingsGoalFormView: View {
                 _ = try await useCase.executeCreate(
                     name: name,
                     category: category,
-                    targetAmount: target,
-                    currentAmount: current,
+                    targetAmount: parsedTarget,
+                    currentAmount: currentAmount,
                     targetDate: hasDeadline ? targetDate : nil,
                     linkedAccountID: nil,
                     note: note.isEmpty ? nil : note,
                     colorHex: selectedColor
                 )
             }
-            appState.notifyDataChanged()
+            appState.notifyChanged(.savings)
             onSaved()
             dismiss()
         } catch {

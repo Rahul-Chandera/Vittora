@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct PayeeRowView: View {
     let payee: PayeeEntity

@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// A versatile card container with material background, subtle shadow, and configurable styling.
 /// Provides a clean, Apple-like appearance for grouping content.

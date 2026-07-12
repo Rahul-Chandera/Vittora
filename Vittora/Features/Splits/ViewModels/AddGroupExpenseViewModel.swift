@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 /// Per-member input row for a split expense form
 struct MemberAllocationRow: Identifiable, Sendable {
@@ -31,11 +32,17 @@ final class AddGroupExpenseViewModel {
     var isSaving = false
     var error: String?
 
-    var amount: Decimal { Decimal(string: amountString.replacingOccurrences(of: ",", with: ".")) ?? 0 }
+    private var parsedAmount: Decimal? {
+        Decimal(localizedAmount: amountString)
+    }
+
+    /// Best-effort total for live split math in the UI while the user is typing.
+    /// Persistence and `canSave` use `parsedAmount` so unparseable input never saves as zero.
+    var amount: Decimal { parsedAmount ?? 0 }
 
     var canSave: Bool {
-        !title.trimmingCharacters(in: .whitespaces).isEmpty &&
-        amount > 0 &&
+        guard let parsedAmount, parsedAmount > 0 else { return false }
+        return !title.trimmingCharacters(in: .whitespaces).isEmpty &&
         selectedPayerID != nil
     }
 
@@ -58,51 +65,44 @@ final class AddGroupExpenseViewModel {
     }
 
     func recalculate() {
-        guard amount > 0, !allocations.isEmpty else {
+        guard let parsedAmount, parsedAmount > 0, !allocations.isEmpty else {
             for i in allocations.indices { allocations[i].calculatedAmount = 0 }
             return
         }
 
-        let count = allocations.count
-        switch splitMethod {
-        case .equal:
-            let share = (amount / Decimal(count)).rounded(scale: 2)
-            for i in allocations.indices {
-                if i < count - 1 {
-                    allocations[i].calculatedAmount = share
-                } else {
-                    allocations[i].calculatedAmount = amount - share * Decimal(count - 1)
-                }
+        var customValues: [UUID: Decimal] = [:]
+        for row in allocations {
+            switch splitMethod {
+            case .equal:
+                break
+            case .percentage:
+                customValues[row.memberID] = Decimal(localizedAmount: row.inputValue)
+                    ?? (100 / Decimal(allocations.count))
+            case .exact:
+                customValues[row.memberID] = Decimal(localizedAmount: row.inputValue) ?? 0
+            case .shares:
+                customValues[row.memberID] = Decimal(localizedAmount: row.inputValue) ?? 1
             }
+        }
 
-        case .percentage:
-            for i in allocations.indices {
-                let pct = Decimal(string: allocations[i].inputValue) ?? (100 / Decimal(count))
-                allocations[i].calculatedAmount = (amount * pct / 100).rounded(scale: 2)
-            }
+        guard let shares = try? addExpenseUseCase.calculateShares(
+            amount: parsedAmount,
+            method: splitMethod,
+            memberIDs: group.memberIDs,
+            customValues: customValues
+        ) else {
+            for i in allocations.indices { allocations[i].calculatedAmount = 0 }
+            return
+        }
 
-        case .exact:
-            for i in allocations.indices {
-                allocations[i].calculatedAmount = Decimal(string: allocations[i].inputValue.replacingOccurrences(of: ",", with: ".")) ?? 0
-            }
-
-        case .shares:
-            let weights = allocations.map { Decimal(string: $0.inputValue) ?? 1 }
-            let total = weights.reduce(Decimal(0), +)
-            guard total > 0 else { return }
-            for i in allocations.indices {
-                if i < count - 1 {
-                    allocations[i].calculatedAmount = (amount * weights[i] / total).rounded(scale: 2)
-                } else {
-                    let allocated = allocations.dropLast().reduce(Decimal(0)) { $0 + $1.calculatedAmount }
-                    allocations[i].calculatedAmount = amount - allocated
-                }
-            }
+        let byMember = Dictionary(uniqueKeysWithValues: shares.map { ($0.memberID, $0.amount) })
+        for i in allocations.indices {
+            allocations[i].calculatedAmount = byMember[allocations[i].memberID] ?? 0
         }
     }
 
     func save() async -> Bool {
-        guard canSave, let payerID = selectedPayerID else { return false }
+        guard let parsedAmount, parsedAmount > 0, let payerID = selectedPayerID else { return false }
         isSaving = true
         error = nil
 
@@ -111,11 +111,11 @@ final class AddGroupExpenseViewModel {
             switch splitMethod {
             case .equal: break
             case .percentage:
-                customValues[row.memberID] = Decimal(string: row.inputValue) ?? (100 / Decimal(allocations.count))
+                customValues[row.memberID] = Decimal(localizedAmount: row.inputValue) ?? (100 / Decimal(allocations.count))
             case .exact:
-                customValues[row.memberID] = Decimal(string: row.inputValue.replacingOccurrences(of: ",", with: ".")) ?? 0
+                customValues[row.memberID] = Decimal(localizedAmount: row.inputValue) ?? 0
             case .shares:
-                customValues[row.memberID] = Decimal(string: row.inputValue) ?? 1
+                customValues[row.memberID] = Decimal(localizedAmount: row.inputValue) ?? 1
             }
         }
 
@@ -123,7 +123,7 @@ final class AddGroupExpenseViewModel {
             _ = try await addExpenseUseCase.execute(
                 groupID: group.id,
                 paidByMemberID: payerID,
-                amount: amount,
+                amount: parsedAmount,
                 title: title,
                 date: date,
                 splitMethod: splitMethod,

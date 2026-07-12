@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 struct SubscriptionCostSummary: Sendable {
     let monthlyCost: Decimal
@@ -10,7 +11,7 @@ struct CalculateSubscriptionCostUseCase: Sendable {
     private let calendar: Calendar
     private let nowProvider: @Sendable () -> Date
 
-    init(
+    nonisolated init(
         calendar: Calendar = .current,
         nowProvider: @escaping @Sendable () -> Date = { Date.now }
     ) {

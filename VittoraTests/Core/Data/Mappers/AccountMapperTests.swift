@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 import SwiftData
+import VittoraCore
 
 @testable import Vittora
 
@@ -42,6 +43,21 @@ struct AccountMapperTests {
         #expect(entity.updatedAt == updatedAt)
     }
 
+    @Test("toEntity maps credit card billing days")
+    func testToEntityMapsBillingDays() {
+        let model = SDAccount(
+            name: "Visa",
+            type: .creditCard,
+            statementDayOfMonth: 3,
+            dueDayOfMonth: 18
+        )
+
+        let entity = AccountMapper.toEntity(model)
+
+        #expect(entity.statementDayOfMonth == 3)
+        #expect(entity.dueDayOfMonth == 18)
+    }
+
     @Test("toEntity maps default values correctly")
     func testToEntityMapsDefaults() {
         let model = SDAccount()
@@ -53,7 +69,7 @@ struct AccountMapperTests {
         #expect(entity.name == "My Account")
         #expect(entity.type == .bank)
         #expect(entity.balance == Decimal(0))
-        #expect(entity.currencyCode == "USD")
+        #expect(entity.currencyCode == CurrencyDefaults.code)
         #expect(entity.icon == "building.columns.fill")
         #expect(entity.isArchived == false)
     }

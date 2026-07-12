@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import VittoraCore
 
 struct SpendingTrendsView: View {
     @Environment(\.dependencies) private var dependencies
@@ -43,8 +44,7 @@ struct SpendingTrendsView: View {
         #endif
         .task {
             if vm == nil {
-                guard let repo = dependencies.transactionRepository else { return }
-                let useCase = SpendingTrendsUseCase(transactionRepository: repo)
+                let useCase = SpendingTrendsUseCase(transactionRepository: dependencies.transactionRepository)
                 vm = SpendingTrendsViewModel(useCase: useCase)
                 await vm?.load()
             }
@@ -79,7 +79,7 @@ struct SpendingTrendsView: View {
             Text(label)
                 .font(VTypography.caption2)
                 .foregroundColor(VColors.textSecondary)
-            Text(formattedAmount(amount))
+            Text(CurrencyFormatter.formatCompact(amount, currencyCode: currencyCode))
                 .font(VTypography.amountSmall)
                 .foregroundColor(VColors.textPrimary)
         }
@@ -119,10 +119,6 @@ struct SpendingTrendsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(VSpacing.xxxl)
-    }
-
-    private func formattedAmount(_ amount: Decimal) -> String {
-        amount.formatted(.currency(code: currencyCode).precision(.fractionLength(0)))
     }
 
     private var spendingTrendsErrorBinding: Binding<String?> {

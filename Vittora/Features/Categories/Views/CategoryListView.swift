@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct CategoryListView: View {
     @Environment(AppState.self) private var appState
@@ -25,6 +26,14 @@ struct CategoryListView: View {
                     Image(systemName: VIcons.Actions.add)
                 }
             }
+            ToolbarItem(placement: .automatic) {
+                NavigationLink {
+                    CategorizationRulesView()
+                } label: {
+                    Image(systemName: "text.magnifyingglass")
+                }
+                .accessibilityLabel(String(localized: "Categorization rules"))
+            }
         }
         .sheet(isPresented: $showAddCategory) {
             if let vm = viewModel {
@@ -40,7 +49,7 @@ struct CategoryListView: View {
                 if let id = categoryToDelete, let vm = viewModel {
                     Task {
                         await vm.deleteCategory(id: id)
-                        appState.notifyDataChanged()
+                        appState.notifyChanged(.categories)
                     }
                 }
             }
@@ -51,8 +60,8 @@ struct CategoryListView: View {
         .task {
             await setupViewModel()
         }
-        .task(id: appState.dataRefreshVersion) {
-            guard viewModel != nil, appState.dataRefreshVersion > 0 else { return }
+        .task(id: appState.refreshVersion(for: .categories)) {
+            guard viewModel != nil, appState.refreshVersion(for: .categories) > 0 else { return }
             await viewModel?.loadCategories()
         }
     }
@@ -60,14 +69,7 @@ struct CategoryListView: View {
     @MainActor
     private func setupViewModel() async {
         guard viewModel == nil else { return }
-        let deps = dependencies
-        guard let categoryRepo = deps.categoryRepository else { return }
-
-        let vm = CategoryListViewModel(
-            fetchUseCase: FetchCategoriesUseCase(repository: categoryRepo),
-            deleteUseCase: DeleteCategoryUseCase(repository: categoryRepo),
-            reorderUseCase: ReorderCategoriesUseCase(repository: categoryRepo)
-        )
+        let vm = dependencies.makeCategoryListViewModel()
         viewModel = vm
         await vm.loadCategories()
     }
@@ -112,6 +114,19 @@ struct CategoryListView: View {
                         NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
                             CategoryRowView(category: category)
                         }
+                        .contextMenu {
+                            NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
+                                Label(String(localized: "Edit"), systemImage: "pencil")
+                            }
+                            if !category.isDefault {
+                                Button(role: .destructive) {
+                                    categoryToDelete = category.id
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label(String(localized: "Delete"), systemImage: "trash")
+                                }
+                            }
+                        }
                         .swipeActions(edge: .trailing) {
                             if !category.isDefault {
                                 Button(role: .destructive) {
@@ -142,6 +157,19 @@ struct CategoryListView: View {
                     ForEach(vm.filteredIncomeCategories) { category in
                         NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
                             CategoryRowView(category: category)
+                        }
+                        .contextMenu {
+                            NavigationLink(value: NavigationDestination.categoryDetail(id: category.id)) {
+                                Label(String(localized: "Edit"), systemImage: "pencil")
+                            }
+                            if !category.isDefault {
+                                Button(role: .destructive) {
+                                    categoryToDelete = category.id
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label(String(localized: "Delete"), systemImage: "trash")
+                                }
+                            }
                         }
                         .swipeActions(edge: .trailing) {
                             if !category.isDefault {

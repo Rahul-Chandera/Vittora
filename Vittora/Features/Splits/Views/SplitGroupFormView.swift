@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct SplitGroupFormView: View {
     @Environment(AppState.self) private var appState
@@ -90,9 +91,8 @@ struct SplitGroupFormView: View {
             }
         }
         .task {
-            guard let payeeRepo = dependencies.payeeRepository else { return }
             do {
-                allPayees = try await payeeRepo.fetchAll()
+                allPayees = try await dependencies.payeeRepository.fetchAll()
             } catch {
                 self.error = error.localizedDescription
             }
@@ -109,10 +109,9 @@ struct SplitGroupFormView: View {
     }
 
     private func save() async {
-        guard let repo = dependencies.splitGroupRepository else { return }
         isSaving = true
         error = nil
-        let useCase = CreateSplitGroupUseCase(splitGroupRepository: repo)
+        let useCase = CreateSplitGroupUseCase(splitGroupRepository: dependencies.splitGroupRepository)
         do {
             if let existing = existingGroup {
                 _ = try await useCase.executeUpdate(
@@ -123,7 +122,7 @@ struct SplitGroupFormView: View {
             } else {
                 _ = try await useCase.execute(name: groupName, memberIDs: Array(selectedMemberIDs))
             }
-            appState.notifyDataChanged()
+            appState.notifyChanged(.splits)
             onSaved()
             dismiss()
         } catch {

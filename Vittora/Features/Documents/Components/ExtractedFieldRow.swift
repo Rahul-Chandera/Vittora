@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct ExtractedFieldRow: View {
     let label: String

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import VittoraCore
 
 @Observable
 @MainActor
@@ -9,6 +10,7 @@ final class OnboardingViewModel {
         case currency
         case profile
         case account
+        case notifications
         case done
 
         var isLast: Bool { self == .done }
@@ -24,18 +26,22 @@ final class OnboardingViewModel {
     var accountName = ""
     var selectedAccountType: AccountType = .bank
     var openingBalance = ""
+    var wantsNotifications = false
     var isSaving = false
     var error: String?
 
     private let createAccountUseCase: CreateAccountUseCase?
     private let keychainService: any KeychainServiceProtocol
+    private let userDefaults: UserDefaults
 
     init(
         createAccountUseCase: CreateAccountUseCase? = nil,
-        keychainService: (any KeychainServiceProtocol)? = nil
+        keychainService: (any KeychainServiceProtocol)? = nil,
+        userDefaults: UserDefaults = .standard
     ) {
         self.createAccountUseCase = createAccountUseCase
         self.keychainService = keychainService ?? KeychainService()
+        self.userDefaults = userDefaults
     }
 
     var canAdvance: Bool {
@@ -45,6 +51,8 @@ final class OnboardingViewModel {
         case .profile:   return hasValidProfileName
         case .account:
             return (isAccountSubStepEnabled && accountSubStep == .type) ? true : hasValidAccountSetup
+        case .notifications:
+            return true
         case .done:      return hasValidAccountSetup
         }
     }
@@ -97,16 +105,18 @@ final class OnboardingViewModel {
             }
 
             // currencyCode is non-sensitive; UserDefaults is acceptable
-            UserDefaults.standard.set(selectedCurrencyCode, forKey: "vittora.currencyCode")
+            userDefaults.set(selectedCurrencyCode, forKey: AppUserDefaults.StandardKey.currencyCode)
+
+            persistNotificationPreference()
 
             let trimmedName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedName.isEmpty {
-                try await keychainService.delete(forKey: "vittora.userName")
+                try await keychainService.delete(forKey: AppUserDefaults.KeychainKey.userName)
             } else if let data = trimmedName.data(using: .utf8) {
-                try await keychainService.save(data, forKey: "vittora.userName")
+                try await keychainService.save(data, forKey: AppUserDefaults.KeychainKey.userName)
             }
 
-            try await keychainService.save(Data([1]), forKey: "vittora.onboardingComplete")
+            try await keychainService.save(Data([1]), forKey: AppUserDefaults.KeychainKey.onboardingComplete)
             appState.isOnboardingComplete = true
         } catch {
             self.error = error.localizedDescription
@@ -114,9 +124,7 @@ final class OnboardingViewModel {
     }
 
     private var normalizedOpeningBalance: Decimal? {
-        let trimmed = openingBalance.trimmingCharacters(in: .whitespacesAndNewlines)
-        let sanitized = trimmed.replacingOccurrences(of: ",", with: "")
-        return Decimal(string: sanitized)
+        Decimal(localizedAmount: openingBalance)
     }
 
     private var hasValidAccountSetup: Bool {
@@ -126,6 +134,11 @@ final class OnboardingViewModel {
 
     private var hasValidProfileName: Bool {
         !userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// Records notification intent only — the OS permission prompt is deferred to Settings (C6).
+    private func persistNotificationPreference() {
+        userDefaults.set(wantsNotifications, forKey: AppUserDefaults.StandardKey.notificationsEnabled)
     }
 }
 

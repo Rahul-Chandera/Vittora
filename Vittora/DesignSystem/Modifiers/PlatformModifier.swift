@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// A modifier that applies platform-specific padding for iPhone, iPad, and Mac.
 /// Provides ergonomic spacing based on device type and interface idiom.

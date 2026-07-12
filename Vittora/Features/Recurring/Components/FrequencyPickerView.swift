@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct FrequencyPickerView: View {
     @Binding var selectedFrequency: RecurrenceFrequency

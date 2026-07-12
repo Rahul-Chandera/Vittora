@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 /// A pill-shaped badge displaying category icon and name.
 /// Features semantic coloring and configurable sizes.

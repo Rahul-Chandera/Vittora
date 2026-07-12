@@ -1,10 +1,16 @@
 import Foundation
+import VittoraCore
 @testable import Vittora
 
 actor MockSavingsGoalRepository: SavingsGoalRepository {
     private(set) var goals: [SavingsGoalEntity] = []
     var shouldThrowError: Bool = false
     var throwError: VittoraError = .unknown(String(localized: "Mock error"))
+    var writeFailureControls = MockWriteFailureControls()
+
+    private func checkWriteFailure(for entityID: UUID? = nil) throws {
+        try writeFailureControls.checkWrite(entityID: entityID)
+    }
 
     func fetchAll() async throws -> [SavingsGoalEntity] {
         if shouldThrowError { throw throwError }
@@ -22,11 +28,13 @@ actor MockSavingsGoalRepository: SavingsGoalRepository {
     }
 
     func create(_ goal: SavingsGoalEntity) async throws {
+        try checkWriteFailure(for: goal.id)
         if shouldThrowError { throw throwError }
         goals.append(goal)
     }
 
     func update(_ goal: SavingsGoalEntity) async throws {
+        try checkWriteFailure(for: goal.id)
         if shouldThrowError { throw throwError }
         if let index = goals.firstIndex(where: { $0.id == goal.id }) {
             goals[index] = goal
@@ -36,6 +44,7 @@ actor MockSavingsGoalRepository: SavingsGoalRepository {
     }
 
     func delete(_ id: UUID) async throws {
+        try checkWriteFailure(for: id)
         if shouldThrowError { throw throwError }
         if let index = goals.firstIndex(where: { $0.id == id }) {
             goals.remove(at: index)

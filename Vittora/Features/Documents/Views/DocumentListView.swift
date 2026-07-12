@@ -1,11 +1,13 @@
 import SwiftUI
 import PhotosUI
+import VittoraCore
 
 struct DocumentListView: View {
     @Environment(\.dependencies) private var dependencies
     let transactionID: UUID
     @State private var vm: DocumentListViewModel?
     @State private var showScanner = false
+    @State private var showBatchScan = false
     @State private var showImport = false
     @State private var previewItem: DocumentPreviewItem?
     @State private var selectedPhoto: PhotosPickerItem?
@@ -30,25 +32,21 @@ struct DocumentListView: View {
         }
         .task {
             if vm == nil {
-                guard let docRepo = dependencies.documentRepository,
-                      let documentStorageService = dependencies.documentStorageService else {
-                    return
-                }
-                let fetchUseCase = FetchDocumentsUseCase(documentRepository: docRepo)
+                let fetchUseCase = FetchDocumentsUseCase(documentRepository: dependencies.documentRepository)
                 let attachUseCase = AttachDocumentUseCase(
-                    documentRepository: docRepo,
-                    documentStorageService: documentStorageService
+                    documentRepository: dependencies.documentRepository,
+                    documentStorageService: dependencies.documentStorageService
                 )
                 let deleteUseCase = DeleteDocumentUseCase(
-                    documentRepository: docRepo,
-                    documentStorageService: documentStorageService
+                    documentRepository: dependencies.documentRepository,
+                    documentStorageService: dependencies.documentStorageService
                 )
                 vm = DocumentListViewModel(
                     transactionID: transactionID,
                     fetchUseCase: fetchUseCase,
                     attachUseCase: attachUseCase,
                     deleteUseCase: deleteUseCase,
-                    documentStorageService: documentStorageService
+                    documentStorageService: dependencies.documentStorageService
                 )
                 await vm?.load()
             }
@@ -57,6 +55,11 @@ struct DocumentListView: View {
             ReceiptScannerView(onImageCaptured: { data in
                 Task { await vm?.attach(imageData: data, mimeType: "image/jpeg") }
             })
+        }
+        .sheet(isPresented: $showBatchScan) {
+            BatchReceiptScanView(transactionID: transactionID) {
+                Task { await vm?.load() }
+            }
         }
         .sheet(isPresented: $showImport) {
             DocumentImportView(onDocumentSelected: { data, mimeType in
@@ -99,6 +102,12 @@ struct DocumentListView: View {
                 } label: {
                     Label(String(localized: "Scan Receipt"), systemImage: "camera.viewfinder")
                 }
+
+                Button {
+                    showBatchScan = true
+                } label: {
+                    Label(String(localized: "Batch Scan"), systemImage: "doc.on.doc")
+                }
                 #endif
 
                 Button {
@@ -106,6 +115,14 @@ struct DocumentListView: View {
                 } label: {
                     Label(String(localized: "Import File"), systemImage: "folder")
                 }
+
+                #if os(macOS)
+                Button {
+                    showBatchScan = true
+                } label: {
+                    Label(String(localized: "Batch Scan"), systemImage: "doc.on.doc")
+                }
+                #endif
             } label: {
                 Image(systemName: "plus")
                     .foregroundColor(VColors.primary)

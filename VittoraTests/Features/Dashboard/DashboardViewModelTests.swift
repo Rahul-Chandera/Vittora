@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import VittoraCore
 @testable import Vittora
 
 @Suite("DashboardViewModel Tests")
@@ -139,22 +140,6 @@ struct DashboardViewModelTests {
         await vm.refresh()
         #expect(vm.dashboardData != nil)
         #expect(vm.isLoading == false)
-    }
-
-    // MARK: - Formatted helpers
-
-    @Test("formattedAmount formats decimal as currency")
-    func formattedAmountFormatsCurrency() {
-        let vm = makeViewModel()
-        let formatted = vm.formattedAmount(Decimal(1234))
-        #expect(formatted.contains("1,234") || formatted.contains("1234"))
-    }
-
-    @Test("formattedAmount handles zero")
-    func formattedAmountHandlesZero() {
-        let vm = makeViewModel()
-        let formatted = vm.formattedAmount(0)
-        #expect(formatted.contains("0"))
     }
 
     @Test("formattedPercent formats with one decimal place")

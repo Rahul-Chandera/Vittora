@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct ScannerOverlayView: View {
     let isProcessing: Bool

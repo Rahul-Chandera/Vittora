@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 @Observable
 @MainActor
@@ -53,6 +54,22 @@ final class DataManagementViewModel {
             return false
         }
     }
+
+    /// Factory reset gated by device authentication; aborts on cancel or failure (SECURITY-3).
+    func factoryReset(confirmWith biometricService: any BiometricServiceProtocol) async -> Bool {
+        do {
+            guard try await SensitiveActionAuthenticator.confirm(
+                action: .factoryReset,
+                using: biometricService
+            ) else {
+                return false
+            }
+        } catch {
+            self.error = error.localizedDescription
+            return false
+        }
+        return await factoryReset()
+    }
 }
 
 struct DataManagementView: View {
@@ -60,7 +77,7 @@ struct DataManagementView: View {
     @Environment(SettingsViewModel.self) private var settingsVM
     @Environment(\.dependencies) private var dependencies
     @State private var vm: DataManagementViewModel?
-    @AppStorage("vittora.exportSchedule") private var exportScheduleRaw: String = "off"
+    @AppStorage(AppUserDefaults.StandardKey.exportSchedule) private var exportScheduleRaw: String = "off"
 
     private var exportSchedule: SettingsViewModel.ExportSchedule {
         get { SettingsViewModel.ExportSchedule(rawValue: exportScheduleRaw) ?? .off }
@@ -210,7 +227,7 @@ struct DataManagementView: View {
         ) {
             Button(String(localized: "Reset Everything"), role: .destructive) {
                 Task {
-                    let didReset = await vm.factoryReset()
+                    let didReset = await vm.factoryReset(confirmWith: dependencies.biometricService)
                     if didReset {
                         resetRuntimeStateAfterFactoryReset()
                     }
@@ -236,37 +253,12 @@ struct DataManagementView: View {
     }
 
     private func setupVM() {
-        guard let txRepo = dependencies.transactionRepository,
-              let accRepo = dependencies.accountRepository,
-              let catRepo = dependencies.categoryRepository,
-              let budRepo = dependencies.budgetRepository,
-              let debtRepo = dependencies.debtRepository,
-              let goalRepo = dependencies.savingsGoalRepository,
-              let splitRepo = dependencies.splitGroupRepository,
-              let docRepo = dependencies.documentRepository else { return }
-
-        let service = DataManagementService(
-            transactionRepository: txRepo,
-            accountRepository: accRepo,
-            categoryRepository: catRepo,
-            budgetRepository: budRepo,
-            debtRepository: debtRepo,
-            savingsGoalRepository: goalRepo,
-            splitGroupRepository: splitRepo,
-            documentRepository: docRepo,
-            payeeRepository: dependencies.payeeRepository,
-            recurringRuleRepository: dependencies.recurringRuleRepository,
-            taxProfileRepository: dependencies.taxProfileRepository,
-            documentStorageService: dependencies.documentStorageService,
-            keychainService: dependencies.keychainService ?? KeychainService(),
-            dataSeeder: dependencies.dataSeeder
-        )
-        vm = DataManagementViewModel(service: service)
+        vm = DataManagementViewModel(service: dependencies.makeDataManagementService())
         Task { await vm?.loadStats() }
     }
 
     private func resetRuntimeStateAfterFactoryReset() {
-        settingsVM.isAppLockEnabled = false
+        settingsVM.resetKeychainBackedPreferencesInMemory()
         appState.isLocked = false
         appState.isAuthenticated = true
         appState.isOnboardingComplete = false

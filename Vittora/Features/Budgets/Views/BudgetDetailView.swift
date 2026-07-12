@@ -1,4 +1,5 @@
 import SwiftUI
+import VittoraCore
 
 struct BudgetDetailView: View {
     @Environment(\.dependencies) var dependencies
@@ -25,7 +26,7 @@ struct BudgetDetailView: View {
                                     .font(VTypography.bodyBold)
                                     .foregroundColor(VColors.textPrimary)
 
-                                Text(budget.period.rawValue.capitalized)
+                                Text(budget.period.displayName)
                                     .font(VTypography.caption1)
                                     .foregroundColor(VColors.textSecondary)
                             }
@@ -82,7 +83,7 @@ struct BudgetDetailView: View {
                                             .font(VTypography.caption1)
                                             .foregroundColor(VColors.textSecondary)
                                         Spacer()
-                                        Text(budget.period.rawValue.capitalized)
+                                        Text(budget.period.displayName)
                                             .font(VTypography.body)
                                             .foregroundColor(VColors.textPrimary)
                                     }
@@ -196,9 +197,9 @@ struct BudgetDetailView: View {
             if viewModel == nil {
                 let calculateProgressUseCase = CalculateBudgetProgressUseCase()
                 viewModel = BudgetDetailViewModel(
-                    budgetRepository: dependencies.budgetRepository ?? MockBudgetRepository(),
-                    categoryRepository: dependencies.categoryRepository ?? MockCategoryRepository(),
-                    transactionRepository: dependencies.transactionRepository ?? MockTransactionRepository(),
+                    budgetRepository: dependencies.budgetRepository,
+                    categoryRepository: dependencies.categoryRepository,
+                    transactionRepository: dependencies.transactionRepository,
                     calculateProgressUseCase: calculateProgressUseCase
                 )
             }
@@ -221,5 +222,5 @@ struct BudgetDetailView: View {
 
 #Preview {
     BudgetDetailView(budgetID: UUID())
-        .environment(\.dependencies, DependencyContainer())
+        .environment(\.dependencies, DependencyContainer.preview())
 }

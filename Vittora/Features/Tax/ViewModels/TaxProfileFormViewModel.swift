@@ -1,4 +1,5 @@
 import Foundation
+import VittoraCore
 
 @Observable
 @MainActor
@@ -16,17 +17,36 @@ final class TaxProfileFormViewModel {
     var incomeSourceType: IncomeSourceType = .salaried
     var dateOfBirth: Date? = nil
     var customDeductions: [TaxDeduction] = []
+    var advancedInputs = TaxAdvancedInputs()
+
+    var indiaBasicSalaryString = ""
+    var indiaHRAPaidString = ""
+    var indiaRentPaidString = ""
+
+    var us401kContributedString = ""
+    var usIRAContributedString = ""
+    var usHSAContributedString = ""
 
     // Live preview
     var liveEstimate: TaxEstimate?
     var liveComparison: TaxComparison?
+    var indiaDeductionUtilization: [IndiaSectionDeductionEngine.Utilization] = []
+    var usContributionUtilization: [USContributionUtilization] = []
 
     var isSaving = false
     var error: String?
     private var loadedProfile: TaxProfile?
 
-    var income: Decimal { Decimal(string: incomeString.replacingOccurrences(of: ",", with: "")) ?? 0 }
-    var canSave: Bool { income > 0 }
+    private var parsedIncome: Decimal? {
+        Decimal(localizedAmount: incomeString)
+    }
+
+    var income: Decimal { parsedIncome ?? 0 }
+    var canSave: Bool { (parsedIncome ?? 0) > 0 }
+
+    var section80CUtilization: IndiaSectionDeductionEngine.Utilization? {
+        indiaDeductionUtilization.first { $0.sectionKey == "80C" }
+    }
 
     init(
         saveUseCase: SaveTaxProfileUseCase,
@@ -48,19 +68,46 @@ final class TaxProfileFormViewModel {
         incomeSourceType = profile.incomeSourceType
         dateOfBirth = profile.dateOfBirth
         customDeductions = profile.customDeductions
+        advancedInputs = profile.advancedInputs
+        syncIndiaInputStringsFromAdvancedInputs()
+        syncUSInputStringsFromAdvancedInputs()
         recalculateLive()
     }
 
     func recalculateLive() {
+        syncAdvancedInputsFromStrings()
         guard income > 0 else {
             liveEstimate = nil
             liveComparison = nil
+            indiaDeductionUtilization = []
+            usContributionUtilization = []
             return
         }
 
         let profile = currentProfile()
         liveEstimate = estimateUseCase.execute(profile: profile)
         liveComparison = compareUseCase.execute(profile: profile)
+
+        if country == .india, indiaRegime == .oldRegime {
+            let resolution = IndiaSectionDeductionEngine.resolve(
+                deductions: customDeductions,
+                advancedInputs: advancedInputs,
+                dateOfBirth: dateOfBirth,
+                financialYearLabel: financialYear
+            )
+            indiaDeductionUtilization = resolution.utilizations
+            usContributionUtilization = []
+        } else if country == .unitedStates {
+            indiaDeductionUtilization = []
+            let taxYear = USTaxCalculator.supportedTaxYear(for: profile)
+            usContributionUtilization = USContributionHeadroomEngine.utilizations(
+                profile: profile,
+                taxYear: taxYear
+            )
+        } else {
+            indiaDeductionUtilization = []
+            usContributionUtilization = []
+        }
     }
 
     func addDeduction(name: String, amount: Decimal, section: String?) {
@@ -77,6 +124,10 @@ final class TaxProfileFormViewModel {
     }
 
     func save() async throws {
+        guard let parsedIncome = parsedIncome, parsedIncome > 0 else {
+            throw VittoraError.validationFailed(String(localized: "Please enter a valid annual income."))
+        }
+        syncAdvancedInputsFromStrings()
         isSaving = true
         error = nil
         do {
@@ -101,7 +152,61 @@ final class TaxProfileFormViewModel {
         profile.financialYear = financialYear
         profile.incomeSourceType = incomeSourceType
         profile.dateOfBirth = dateOfBirth
+        profile.advancedInputs = advancedInputs
         profile.updatedAt = .now
         return profile
+    }
+
+    private func syncAdvancedInputsFromStrings() {
+        if let basic = Decimal(localizedAmount: indiaBasicSalaryString) {
+            advancedInputs.indiaBasicSalary = basic
+        } else if indiaBasicSalaryString.isEmpty {
+            advancedInputs.indiaBasicSalary = 0
+        }
+        if let hra = Decimal(localizedAmount: indiaHRAPaidString) {
+            advancedInputs.indiaHRAPaid = hra
+        } else if indiaHRAPaidString.isEmpty {
+            advancedInputs.indiaHRAPaid = 0
+        }
+        if let rent = Decimal(localizedAmount: indiaRentPaidString) {
+            advancedInputs.indiaRentPaid = rent
+        } else if indiaRentPaidString.isEmpty {
+            advancedInputs.indiaRentPaid = 0
+        }
+        syncDecimalField(us401kContributedString, into: \.us401kYTDContributed)
+        syncDecimalField(usIRAContributedString, into: \.usIRAYTDContributed)
+        syncDecimalField(usHSAContributedString, into: \.usHSAYTDContributed)
+    }
+
+    private func syncDecimalField(_ string: String, into keyPath: WritableKeyPath<TaxAdvancedInputs, Decimal>) {
+        if let value = Decimal(localizedAmount: string) {
+            advancedInputs[keyPath: keyPath] = value
+        } else if string.isEmpty {
+            advancedInputs[keyPath: keyPath] = 0
+        }
+    }
+
+    private func syncIndiaInputStringsFromAdvancedInputs() {
+        indiaBasicSalaryString = advancedInputs.indiaBasicSalary > 0
+            ? "\(advancedInputs.indiaBasicSalary)"
+            : ""
+        indiaHRAPaidString = advancedInputs.indiaHRAPaid > 0
+            ? "\(advancedInputs.indiaHRAPaid)"
+            : ""
+        indiaRentPaidString = advancedInputs.indiaRentPaid > 0
+            ? "\(advancedInputs.indiaRentPaid)"
+            : ""
+    }
+
+    private func syncUSInputStringsFromAdvancedInputs() {
+        us401kContributedString = advancedInputs.us401kYTDContributed > 0
+            ? "\(advancedInputs.us401kYTDContributed)"
+            : ""
+        usIRAContributedString = advancedInputs.usIRAYTDContributed > 0
+            ? "\(advancedInputs.usIRAYTDContributed)"
+            : ""
+        usHSAContributedString = advancedInputs.usHSAYTDContributed > 0
+            ? "\(advancedInputs.usHSAYTDContributed)"
+            : ""
     }
 }

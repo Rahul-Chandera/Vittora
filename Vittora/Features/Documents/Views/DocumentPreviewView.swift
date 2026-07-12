@@ -137,6 +137,7 @@ struct PDFPreviewRepresentable: UIViewRepresentable {
 }
 #elseif os(macOS)
 import AppKit
+import VittoraCore
 
 struct PDFPreviewRepresentable: NSViewRepresentable {
     let data: Data
