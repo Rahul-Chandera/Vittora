@@ -51,8 +51,11 @@ struct OnboardingView: View {
                 .id(vm.currentStep)
                 .animation(reduceMotion ? .none : .easeInOut, value: vm.currentStep)
 
-                // CTA button
+                // CTA button. Capped width so it doesn't stretch edge-to-edge
+                // on wide layouts (Mac windows, iPad); iPhone is narrower than
+                // the cap and unaffected.
                 ctaButton
+                    .frame(maxWidth: 480)
                     .padding(.horizontal, VSpacing.screenPadding)
                     .padding(.bottom, VSpacing.xxxl)
             }
@@ -134,6 +137,9 @@ struct OnboardingView: View {
             .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD))
             .opacity((vm.canAdvance && !vm.isSaving) ? 1 : 0.55)
         }
+        // .plain: the label is fully custom; without this, macOS wraps it in
+        // the standard AppKit button bezel (a gray rounded container).
+        .buttonStyle(.plain)
         .disabled(!vm.canAdvance || vm.isSaving)
         .accessibilityIdentifier("onboarding-next-button")
     }
