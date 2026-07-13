@@ -394,6 +394,15 @@ struct VittoraApp: App {
 private struct StartupRecoveryBanner: View {
     let message: String
 
+    // The banner must carry its own escape hatch: recovery mode can coincide
+    // with incomplete onboarding, where Settings → Delete All Data is
+    // unreachable and the unopenable store would otherwise persist forever.
+    @Environment(\.dependencies) private var dependencies
+    @State private var showEraseConfirm = false
+    @State private var showRestartPrompt = false
+    @State private var isErasing = false
+    @State private var eraseError: String?
+
     var body: some View {
         HStack(alignment: .top, spacing: VSpacing.sm) {
             Image(systemName: "exclamationmark.triangle.fill")
@@ -408,7 +417,21 @@ private struct StartupRecoveryBanner: View {
                     .font(VTypography.caption2)
                     .foregroundStyle(VColors.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+                if let eraseError {
+                    Text(eraseError)
+                        .font(VTypography.caption2)
+                        .foregroundStyle(VColors.expense)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
+
+            Spacer(minLength: VSpacing.sm)
+
+            Button(String(localized: "Erase & Start Fresh…")) {
+                showEraseConfirm = true
+            }
+            .font(VTypography.caption1Bold)
+            .disabled(isErasing)
         }
         .padding(VSpacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -418,7 +441,51 @@ private struct StartupRecoveryBanner: View {
                 .stroke(VColors.warning.opacity(0.35), lineWidth: 1)
         }
         .cornerRadius(VSpacing.cornerRadiusMD)
-        .accessibilityElement(children: .combine)
+        .confirmationDialog(
+            String(localized: "Erase the unopenable data store?"),
+            isPresented: $showEraseConfirm,
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Erase Everything"), role: .destructive) {
+                Task { await eraseAndStartFresh() }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "This permanently deletes the data store Vittora couldn't open, along with saved settings. This cannot be undone."))
+        }
+        .alert(
+            String(localized: "Data Erased"),
+            isPresented: $showRestartPrompt
+        ) {
+            #if os(macOS)
+            Button(String(localized: "Quit Vittora")) {
+                NSApp.terminate(nil)
+            }
+            #endif
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "Quit and reopen Vittora to finish leaving recovery mode with a fresh data store."))
+        }
+    }
+
+    private func eraseAndStartFresh() async {
+        isErasing = true
+        eraseError = nil
+        defer { isErasing = false }
+
+        do {
+            guard try await SensitiveActionAuthenticator.confirm(
+                action: .factoryReset,
+                using: dependencies.biometricService
+            ) else {
+                return
+            }
+            try await dependencies.makeDataManagementService()
+                .factoryReset(alsoDestroyOnDiskStore: true)
+            showRestartPrompt = true
+        } catch {
+            eraseError = error.localizedDescription
+        }
     }
 }
 
