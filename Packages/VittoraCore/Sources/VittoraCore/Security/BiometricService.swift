@@ -33,6 +33,14 @@ public final class BiometricService: BiometricServiceProtocol, Sendable {
     }
 
     public func authenticate(reason: String, allowPasscodeFallback: Bool) async throws -> Bool {
+        // Pre-flight: when biometrics can't be used at all (not enrolled, not
+        // paired, disconnected — e.g. a Mac without a Touch ID keyboard), go
+        // straight to device passcode instead of relying on the error-code
+        // catch below, which can't enumerate every hardware-absence code.
+        guard canUseBiometrics() else {
+            guard allowPasscodeFallback else { return false }
+            return try await authenticateWithPasscode(reason: reason)
+        }
         do {
             return try await evaluate(
                 policy: .deviceOwnerAuthenticationWithBiometrics,
