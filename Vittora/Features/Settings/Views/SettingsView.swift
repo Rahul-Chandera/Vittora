@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var showDeleteAccountConfirm = false
     @State private var deleteConfirmationText = ""
     @State private var isDeletingAllData = false
+    @State private var deleteAllDataError: String?
 
     private let deleteConfirmationPhrase = String(localized: "DELETE")
 
@@ -166,7 +167,10 @@ struct SettingsView: View {
             get: { vm.keychainError },
             set: { vm.keychainError = $0 }
         ))
-        .sheet(isPresented: $showDeleteAccountConfirm) {
+        .sheet(isPresented: $showDeleteAccountConfirm, onDismiss: {
+            deleteConfirmationText = ""
+            deleteAllDataError = nil
+        }) {
             deleteAllDataConfirmationSheet
         }
     }
@@ -184,6 +188,9 @@ struct SettingsView: View {
                         .foregroundStyle(VColors.textSecondary)
 
                     TextField(deleteConfirmationPhrase, text: $deleteConfirmationText)
+                        // On macOS the grouped form renders the title as a
+                        // redundant leading label next to the caption above.
+                        .labelsHidden()
                         #if os(iOS)
                         .textInputAutocapitalization(.characters)
                         #endif
@@ -191,6 +198,15 @@ struct SettingsView: View {
 
                     if !deleteConfirmationText.isEmpty && !canConfirmDeleteAllData {
                         VInlineErrorText(String(localized: "The confirmation text must match exactly."))
+                    }
+                }
+
+                // Errors must render inside the sheet: the errorAlert on the
+                // underlying SettingsView cannot present while this sheet is up,
+                // so routing failures there swallows them silently.
+                if let deleteAllDataError {
+                    Section {
+                        VInlineErrorText(deleteAllDataError)
                     }
                 }
             }
@@ -221,6 +237,7 @@ struct SettingsView: View {
 
     private func confirmDeleteAllData() async {
         isDeletingAllData = true
+        deleteAllDataError = nil
         defer { isDeletingAllData = false }
 
         do {
@@ -231,7 +248,7 @@ struct SettingsView: View {
                 return
             }
         } catch {
-            vm.keychainError = error.localizedDescription
+            deleteAllDataError = error.localizedDescription
             return
         }
 
@@ -258,7 +275,7 @@ struct SettingsView: View {
             try await service.factoryReset()
             return true
         } catch {
-            vm.keychainError = error.localizedDescription
+            deleteAllDataError = error.localizedDescription
             return false
         }
     }
