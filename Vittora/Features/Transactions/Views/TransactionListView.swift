@@ -70,23 +70,41 @@ struct TransactionListView: View {
 
     @ViewBuilder
     private func splitDetailView(_ vm: TransactionListViewModel) -> some View {
+        #if os(macOS)
+        // HSplitView, not a nested NavigationSplitView: this view already
+        // lives inside the app-wide NavigationSplitView's detail column, and
+        // macOS renders a split view nested there with a phantom leading
+        // offset in its detail pane (content shifted right by ~a column).
+        HSplitView {
+            transactionList(vm, selection: $selectedTransactionID)
+                .frame(minWidth: 280, idealWidth: 340, maxWidth: 420)
+            splitDetailPane
+                .frame(minWidth: 400, maxWidth: .infinity)
+        }
+        #else
         NavigationSplitView {
             transactionList(vm, selection: $selectedTransactionID)
                 .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
         } detail: {
-            // The detail column needs its own NavigationStack so pushes from
-            // within it (e.g. the detail's edit button) have a stack to land on.
-            NavigationStack {
-                if let selectedTransactionID {
-                    TransactionDetailView(transactionID: selectedTransactionID)
-                        .id(selectedTransactionID)
-                } else {
-                    ContentUnavailableView(
-                        String(localized: "Select a Transaction"),
-                        systemImage: "list.bullet.rectangle",
-                        description: Text(String(localized: "Choose a transaction from the list to view its details."))
-                    )
-                }
+            splitDetailPane
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private var splitDetailPane: some View {
+        // The detail pane needs its own NavigationStack so pushes from
+        // within it (e.g. the detail's edit button) have a stack to land on.
+        NavigationStack {
+            if let selectedTransactionID {
+                TransactionDetailView(transactionID: selectedTransactionID)
+                    .id(selectedTransactionID)
+            } else {
+                ContentUnavailableView(
+                    String(localized: "Select a Transaction"),
+                    systemImage: "list.bullet.rectangle",
+                    description: Text(String(localized: "Choose a transaction from the list to view its details."))
+                )
             }
         }
     }
