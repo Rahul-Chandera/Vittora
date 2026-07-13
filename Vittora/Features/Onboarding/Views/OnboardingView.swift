@@ -12,6 +12,10 @@ struct OnboardingView: View {
     #endif
     @State private var vm: OnboardingViewModel
 
+    /// Widest the onboarding content column (fields, grids, summary, CTA) may
+    /// grow on wide layouts; narrower screens are unaffected.
+    private static let contentMaxWidth: CGFloat = 480
+
     init(createAccountUseCase: CreateAccountUseCase? = nil) {
         _vm = State(initialValue: OnboardingViewModel(createAccountUseCase: createAccountUseCase))
     }
@@ -43,6 +47,11 @@ struct OnboardingView: View {
                     case .done:          DoneStepView(vm: vm)
                     }
                 }
+                // Same width cap as the CTA so fields, the account-type grid,
+                // and the summary rows don't stretch edge-to-edge on wide
+                // layouts (Mac windows, iPad). The outer frame keeps the capped
+                // column centered and the transition area full-size.
+                .frame(maxWidth: Self.contentMaxWidth)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .transition(reduceMotion ? .opacity : .asymmetric(
                     insertion: .move(edge: .trailing).combined(with: .opacity),
@@ -51,8 +60,9 @@ struct OnboardingView: View {
                 .id(vm.currentStep)
                 .animation(reduceMotion ? .none : .easeInOut, value: vm.currentStep)
 
-                // CTA button
+                // CTA button, same cap.
                 ctaButton
+                    .frame(maxWidth: Self.contentMaxWidth)
                     .padding(.horizontal, VSpacing.screenPadding)
                     .padding(.bottom, VSpacing.xxxl)
             }
@@ -134,6 +144,9 @@ struct OnboardingView: View {
             .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD))
             .opacity((vm.canAdvance && !vm.isSaving) ? 1 : 0.55)
         }
+        // .plain: the label is fully custom; without this, macOS wraps it in
+        // the standard AppKit button bezel (a gray rounded container).
+        .buttonStyle(.plain)
         .disabled(!vm.canAdvance || vm.isSaving)
         .accessibilityIdentifier("onboarding-next-button")
     }
