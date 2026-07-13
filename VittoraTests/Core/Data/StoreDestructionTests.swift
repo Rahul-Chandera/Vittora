@@ -8,16 +8,29 @@ import VittoraCore
 @Suite("ModelContainerConfig.destroyPersistentStore")
 struct StoreDestructionTests {
 
-    @Test("removes the store file and its WAL/SHM sidecars")
+    @Test("removes the store file and its WAL/SHM sidecars, including the legacy location")
     func destroysStoreAndSidecars() throws {
-        let storeURL = ModelContainerConfig.persistentStoreURL
         let fm = FileManager.default
-        try fm.createDirectory(
-            at: storeURL.deletingLastPathComponent(),
-            withIntermediateDirectories: true
-        )
+        var storeURLs = [ModelContainerConfig.persistentStoreURL]
+        // SwiftData re-copies a store left at the legacy app-container default
+        // location back into the group container, so destroy must cover both.
+        if let legacyDirectory = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let legacyURL = legacyDirectory.appendingPathComponent("default.store")
+            if legacyURL != ModelContainerConfig.persistentStoreURL {
+                storeURLs.append(legacyURL)
+            }
+        }
 
-        let paths = [storeURL.path, storeURL.path + "-wal", storeURL.path + "-shm"]
+        var paths: [String] = []
+        for storeURL in storeURLs {
+            try fm.createDirectory(
+                at: storeURL.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+            for suffix in ["", "-wal", "-shm"] {
+                paths.append(storeURL.path + suffix)
+            }
+        }
         for path in paths where !fm.fileExists(atPath: path) {
             fm.createFile(atPath: path, contents: Data("stub".utf8))
         }
