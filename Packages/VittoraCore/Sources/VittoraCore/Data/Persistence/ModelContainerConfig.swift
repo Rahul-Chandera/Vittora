@@ -37,6 +37,32 @@ public enum ModelContainerConfig {
         return container
     }
 
+    /// File URL of the on-disk store — the same one `makeContainer` opens.
+    public nonisolated static var persistentStoreURL: URL {
+        ModelConfiguration(
+            schema: Schema(allModels),
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .none
+        ).url
+    }
+
+    /// Deletes the on-disk store and its WAL/SHM sidecars so the next launch
+    /// starts from a fresh store. Only safe while no on-disk container is open
+    /// — i.e. recovery mode, where the store couldn't be opened at all (the
+    /// escape hatch from an unopenable store, e.g. unknown model version).
+    public nonisolated static func destroyPersistentStore() throws {
+        let storeURL = persistentStoreURL
+        let fm = FileManager.default
+        let urls = [
+            storeURL,
+            URL(fileURLWithPath: storeURL.path + "-wal"),
+            URL(fileURLWithPath: storeURL.path + "-shm"),
+        ]
+        for url in urls where fm.fileExists(atPath: url.path) {
+            try fm.removeItem(at: url)
+        }
+    }
+
     /// In-memory container for previews and tests
     public nonisolated static func makePreviewContainer() throws -> ModelContainer {
         try makeContainer(inMemory: true)

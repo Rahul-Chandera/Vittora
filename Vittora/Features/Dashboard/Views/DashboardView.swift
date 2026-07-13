@@ -183,11 +183,10 @@ struct DashboardView: View {
                     currencyCode: currencyCode
                 )
 
-                LazyVGrid(
-                    columns: [GridItem(.flexible()), GridItem(.flexible())],
-                    alignment: .leading,
-                    spacing: VSpacing.sectionSpacing
-                ) {
+                // HStack, not LazyVGrid: a grid vertically centers its two
+                // column-VStacks in the shared row, so the shorter column
+                // floated mid-air next to the taller one.
+                HStack(alignment: .top, spacing: VSpacing.sectionSpacing) {
                     VStack(spacing: VSpacing.sectionSpacing) {
                         budgetProgressSection(progress: data.monthBudgetProgress)
                         QuickActionGrid { destination, transactionType in
@@ -195,6 +194,7 @@ struct DashboardView: View {
                         }
                         TopCategoriesChart(categories: data.topCategories, currencyCode: currencyCode)
                     }
+                    .frame(maxWidth: .infinity)
 
                     VStack(spacing: VSpacing.sectionSpacing) {
                         RecentTransactionsList(
@@ -205,6 +205,7 @@ struct DashboardView: View {
                         UpcomingRecurringList(rules: data.upcomingRecurring)
                         netWorthSection(netWorth: data.netWorth)
                     }
+                    .frame(maxWidth: .infinity)
                 }
 
                 AccountsSummaryScroll(

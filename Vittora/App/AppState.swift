@@ -12,6 +12,9 @@ final class AppState {
     var isUITesting: Bool
     /// When true, UI tests exercise real background/foreground app-lock policy despite `--uitesting`.
     var exercisesAppLockPolicy: Bool
+    /// True when the on-disk store failed to open and the app is running on an
+    /// in-memory recovery container (the disk store is untouched and unopened).
+    let isRecoveryMode: Bool
     /// Monotonic per-domain counters bumped when persisted data in that domain changes.
     private(set) var transactionsRefreshVersion = 0
     private(set) var accountsRefreshVersion = 0
@@ -38,6 +41,7 @@ final class AppState {
         isLoading: Bool = false,
         isUITesting: Bool = false,
         exercisesAppLockPolicy: Bool = false,
+        isRecoveryMode: Bool = false,
         isPrivacyShieldVisible: Bool = false,
         pendingNotificationDeepLink: VittoraNotificationDeepLink? = nil
     ) {
@@ -48,6 +52,7 @@ final class AppState {
         self.isLoading = isLoading
         self.isUITesting = isUITesting
         self.exercisesAppLockPolicy = exercisesAppLockPolicy
+        self.isRecoveryMode = isRecoveryMode
         self.isPrivacyShieldVisible = isPrivacyShieldVisible
         self.pendingNotificationDeepLink = pendingNotificationDeepLink
     }

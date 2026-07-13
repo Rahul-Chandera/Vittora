@@ -95,7 +95,8 @@ struct VittoraApp: App {
                 ),
                 selectedTab: Self.initialSelectedTab(isUITesting: isUITesting),
                 isUITesting: isUITesting,
-                exercisesAppLockPolicy: exercisesAppLockPolicy
+                exercisesAppLockPolicy: exercisesAppLockPolicy,
+                isRecoveryMode: startupErrorMessage != nil
             )
         )
 

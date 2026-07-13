@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var deleteConfirmationText = ""
     @State private var isDeletingAllData = false
     @State private var deleteAllDataError: String?
+    @State private var showRestartAfterRecoveryReset = false
 
     private let deleteConfirmationPhrase = String(localized: "DELETE")
 
@@ -173,6 +174,19 @@ struct SettingsView: View {
         }) {
             deleteAllDataConfirmationSheet
         }
+        .alert(
+            String(localized: "Data Erased"),
+            isPresented: $showRestartAfterRecoveryReset
+        ) {
+            #if os(macOS)
+            Button(String(localized: "Quit Vittora")) {
+                NSApp.terminate(nil)
+            }
+            #endif
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "Quit and reopen Vittora to finish leaving recovery mode with a fresh data store."))
+        }
     }
 
     private var deleteAllDataConfirmationSheet: some View {
@@ -256,6 +270,9 @@ struct SettingsView: View {
         if didDelete {
             resetRuntimeStateAfterFactoryReset()
             showDeleteAccountConfirm = false
+            if appState.isRecoveryMode {
+                showRestartAfterRecoveryReset = true
+            }
         }
     }
 
@@ -272,7 +289,10 @@ struct SettingsView: View {
     private func deleteAllData() async -> Bool {
         let service = dependencies.makeDataManagementService()
         do {
-            try await service.factoryReset()
+            // In recovery mode the repositories only clear the in-memory
+            // container; the unopenable on-disk store must be deleted too or
+            // the next launch lands straight back in recovery.
+            try await service.factoryReset(alsoDestroyOnDiskStore: appState.isRecoveryMode)
             return true
         } catch {
             deleteAllDataError = error.localizedDescription

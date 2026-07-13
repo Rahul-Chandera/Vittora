@@ -17,7 +17,10 @@ enum VColors {
     // Surfaces - use platform-adaptive colors
     #if os(macOS)
     static let background = Color(nsColor: .windowBackgroundColor)
-    static let secondaryBackground = Color(nsColor: .controlBackgroundColor)
+    // Cards must contrast with the white detail area the way iOS's
+    // secondarySystemBackground contrasts with systemBackground —
+    // controlBackgroundColor is white-on-white and made every card invisible.
+    static let secondaryBackground = Color(nsColor: .quaternarySystemFill)
     static let tertiaryBackground = Color(nsColor: .textBackgroundColor)
     static let groupedBackground = Color(nsColor: .windowBackgroundColor)
     #else
