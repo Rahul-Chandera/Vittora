@@ -40,6 +40,10 @@ struct AccountPickerView: View {
         .navigationTitle(title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #else
+        // macOS sheets resize to the pushed view's ideal size; List reports a
+        // near-zero ideal height, collapsing the sheet without an explicit min.
+        .frame(minWidth: 440, minHeight: 480)
         #endif
         .accessibilityIdentifier("account-picker-root")
     }
