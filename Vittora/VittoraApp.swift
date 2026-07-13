@@ -146,7 +146,18 @@ struct VittoraApp: App {
     var body: some Scene {
         WindowGroup {
             if let modelContainer {
-                ContentView()
+                // The banner lives ABOVE the content in a VStack — an overlay
+                // (or safeAreaInset, which NavigationSplitView columns ignore)
+                // floats over the sidebar and screen titles.
+                VStack(spacing: 0) {
+                    if let startupErrorMessage {
+                        StartupRecoveryBanner(message: startupErrorMessage)
+                            .padding(.horizontal, VSpacing.screenPadding)
+                            .padding(.vertical, VSpacing.sm)
+                    }
+
+                    ContentView()
+                }
                     .vittoraAppEnvironments(
                         appState: appState,
                         dependencies: dependencies,
@@ -159,13 +170,6 @@ struct VittoraApp: App {
                     #if os(macOS)
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
-                    .overlay(alignment: .top) {
-                        if let startupErrorMessage {
-                            StartupRecoveryBanner(message: startupErrorMessage)
-                                .padding(.horizontal, VSpacing.screenPadding)
-                                .padding(.top, VSpacing.sm)
-                        }
-                    }
                     .task {
                         await performStartupTasksIfNeeded()
                     }
