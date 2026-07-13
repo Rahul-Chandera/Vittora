@@ -34,7 +34,7 @@ struct SettingsView: View {
                             Text(vm.userName.isEmpty ? String(localized: "Your Name") : vm.userName)
                                 .font(VTypography.bodyBold)
                                 .foregroundStyle(VColors.textPrimary)
-                            Text(String(localized: "Tap to edit profile"))
+                            Text(String(localized: "Edit profile"))
                                 .font(VTypography.caption1)
                                 .foregroundStyle(VColors.textSecondary)
                         }

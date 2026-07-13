@@ -76,10 +76,13 @@ struct TransactionListView: View {
         // macOS renders a split view nested there with a phantom leading
         // offset in its detail pane (content shifted right by ~a column).
         HSplitView {
+            // maxHeight fill: List reports a small ideal height, and HSplitView
+            // vertically centers a non-expanding child — the short list floated
+            // mid-pane with blank bands above and below.
             transactionList(vm, selection: $selectedTransactionID)
-                .frame(minWidth: 280, idealWidth: 340, maxWidth: 420)
+                .frame(minWidth: 280, idealWidth: 340, maxWidth: 420, maxHeight: .infinity)
             splitDetailPane
-                .frame(minWidth: 400, maxWidth: .infinity)
+                .frame(minWidth: 400, maxWidth: .infinity, maxHeight: .infinity)
         }
         #else
         NavigationSplitView {

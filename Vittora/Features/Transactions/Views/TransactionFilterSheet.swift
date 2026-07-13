@@ -107,7 +107,17 @@ struct TransactionFilterSheet: View {
             #endif
             .navigationTitle(String(localized: "Filters"))
             .toolbar {
+                // A true Cancel (cancellationAction) closes without applying
+                // and gives the sheet Escape-to-dismiss on macOS; Clear only
+                // resets fields, so it must not occupy that slot.
                 ToolbarItem(placement: .cancellationAction) {
+                    Button(String(localized: "Cancel")) {
+                        dismiss()
+                    }
+                    .accessibilityIdentifier("transaction-filter-cancel-button")
+                }
+
+                ToolbarItem(placement: .destructiveAction) {
                     Button(String(localized: "Clear")) {
                         localVM.clearAll()
                     }
