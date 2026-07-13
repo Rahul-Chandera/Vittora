@@ -32,6 +32,7 @@ struct AccountPickerView: View {
                             .font(.system(size: 14, weight: .semibold))
                     }
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("\(accessibilityIdentifierPrefix)-\(sanitizedIdentifier(for: account.name))")

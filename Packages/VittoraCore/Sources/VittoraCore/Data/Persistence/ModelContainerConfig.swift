@@ -19,6 +19,13 @@ public enum ModelContainerConfig {
             isStoredInMemoryOnly: inMemory,
             cloudKitDatabase: cloudKitDatabase
         )
+        if !inMemory {
+            // On a fresh install the app-group container has no
+            // Library/Application Support yet; without this, addPersistentStore
+            // fails (Cocoa 512) and relies on CoreData's noisy error recovery
+            // to create the directory on every first launch.
+            ensureStoreDirectoryExists(for: config)
+        }
         let container = try ModelContainer(
             for: schema,
             migrationPlan: VittoraMigrationPlan.self,
@@ -45,6 +52,20 @@ public enum ModelContainerConfig {
             cloudKitDatabase: .none
         )
         return try ModelContainer(for: schema, configurations: [config])
+    }
+
+    /// Creates the store's parent directory (with intermediates) if missing.
+    /// No-op when it already exists.
+    nonisolated private static func ensureStoreDirectoryExists(for configuration: ModelConfiguration) {
+        let directory = configuration.url.deletingLastPathComponent()
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        } catch {
+            // Non-fatal: CoreData's own recovery can still create it.
+            logger.error(
+                "Could not pre-create store directory \(directory.path, privacy: .public): \(error.localizedDescription, privacy: .public)"
+            )
+        }
     }
 
     // MARK: - Store file hardening

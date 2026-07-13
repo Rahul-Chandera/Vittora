@@ -115,6 +115,7 @@ struct PayeeListView: View {
                 .multilineTextAlignment(.center)
             Button(String(localized: "Add Payee")) { showAddPayee = true }
                 .buttonStyle(.borderedProminent)
+                .tint(VColors.primary)
             Button {
                 Task { await vm.importContacts() }
             } label: {
@@ -175,11 +176,15 @@ struct PayeeListView: View {
     @ViewBuilder
     private func payeeRows(for payees: [PayeeEntity]) -> some View {
         ForEach(payees) { payee in
-            NavigationLink(value: NavigationDestination.payeeDetail(id: payee.id)) {
+            NavigationLink {
+                PayeeDetailView(payeeID: payee.id)
+            } label: {
                 PayeeRowView(payee: payee)
             }
             .contextMenu {
-                NavigationLink(value: NavigationDestination.payeeDetail(id: payee.id)) {
+                NavigationLink {
+                    PayeeDetailView(payeeID: payee.id)
+                } label: {
                     Label(String(localized: "Edit"), systemImage: "pencil")
                 }
                 Button(role: .destructive) {

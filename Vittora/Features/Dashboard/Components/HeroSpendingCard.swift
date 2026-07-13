@@ -22,6 +22,8 @@ struct HeroSpendingCard: View {
                     Text(CurrencyFormatter.format(monthSpending, currencyCode: currencyCode))
                         .font(VTypography.amountLarge)
                         .foregroundColor(VColors.expense)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                     if let comp = comparison {
                         spendingTrendLabel(percent: comp.spendingChangePercent)
                     }
@@ -36,6 +38,8 @@ struct HeroSpendingCard: View {
                     Text(CurrencyFormatter.format(monthIncome, currencyCode: currencyCode))
                         .font(VTypography.amountMedium)
                         .foregroundColor(VColors.income)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                     if let comp = comparison {
                         incomeTrendLabel(percent: comp.incomeChangePercent)
                     }

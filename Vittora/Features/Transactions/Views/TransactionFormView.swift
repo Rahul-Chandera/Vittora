@@ -14,13 +14,23 @@ struct TransactionFormView: View {
     @State private var showAccountPicker = false
     @State private var showCategoryPicker = false
     @State private var showPayeePicker = false
+    @State private var showAddPayee = false
+    @State private var showAddAccount = false
 
     let transactionID: UUID?
     let initialType: TransactionType?
+    /// Show a Cancel button. Only pass `true` when presenting modally; a pushed
+    /// form already has a back button, so Cancel would be a duplicate.
+    let showsCancelButton: Bool
 
-    init(transactionID: UUID? = nil, initialType: TransactionType? = nil) {
+    init(
+        transactionID: UUID? = nil,
+        initialType: TransactionType? = nil,
+        showsCancelButton: Bool = false
+    ) {
         self.transactionID = transactionID
         self.initialType = initialType
+        self.showsCancelButton = showsCancelButton
     }
 
     var body: some View {
@@ -67,11 +77,15 @@ struct TransactionFormView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(String(localized: "Cancel")) {
-                            dismiss()
+                    // Only when presented modally — a pushed form already has a
+                    // back button, so Cancel would be a duplicate top-left button.
+                    if showsCancelButton {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(String(localized: "Cancel")) {
+                                dismiss()
+                            }
+                            .accessibilityIdentifier("transaction-form-cancel-button")
                         }
-                        .accessibilityIdentifier("transaction-form-cancel-button")
                     }
 
                     ToolbarItem(placement: .confirmationAction) {
@@ -115,6 +129,20 @@ struct TransactionFormView: View {
         }
         .accessibilityIdentifier("transaction-form-root")
         .errorAlert(message: transactionErrorBinding)
+        .sheet(isPresented: $showAddPayee) {
+            NavigationStack {
+                PayeeFormView {
+                    Task { await reloadPayeesSelectingNewest() }
+                }
+            }
+        }
+        .sheet(isPresented: $showAddAccount) {
+            NavigationStack {
+                AccountFormView(showsCancelButton: true) {
+                    Task { await reloadAccountsSelectingNewest() }
+                }
+            }
+        }
         .task {
             if vm == nil {
                 vm = createViewModel()
@@ -182,6 +210,13 @@ struct TransactionFormView: View {
             }
             .accessibilityIdentifier("transaction-account-picker")
 
+            Button {
+                showAddAccount = true
+            } label: {
+                Label(String(localized: "Add Account"), systemImage: "plus.circle")
+            }
+            .accessibilityIdentifier("transaction-add-account-button")
+
             Picker(String(localized: "Payee"), selection: Bindable(vm).selectedPayeeID) {
                 Text(String(localized: "None")).tag(UUID?.none)
                 ForEach(payees) { payee in
@@ -195,6 +230,13 @@ struct TransactionFormView: View {
                     await vm.checkDuplicates()
                 }
             }
+
+            Button {
+                showAddPayee = true
+            } label: {
+                Label(String(localized: "Add Payee"), systemImage: "plus.circle")
+            }
+            .accessibilityIdentifier("transaction-add-payee-button")
 
             if let suggestedID = vm.suggestedCategoryID,
                let suggested = (categories.expense + categories.income).first(where: { $0.id == suggestedID }) {
@@ -310,9 +352,7 @@ struct TransactionFormView: View {
     private func applyDefaultSelectionsIfNeeded() {
         guard let vm else { return }
 
-        if vm.selectedAccountID == nil, accounts.count == 1, let first = accounts.first {
-            vm.selectedAccountID = first.id
-        }
+        vm.selectDefaultAccountIfNeeded(from: accounts)
 
         let relevantCategories = vm.type == .income ? categories.income : categories.expense
         if vm.selectedCategoryID == nil, relevantCategories.count == 1, let first = relevantCategories.first {
@@ -323,6 +363,32 @@ struct TransactionFormView: View {
     private func payeeName(for payeeID: UUID?) -> String? {
         guard let payeeID else { return nil }
         return payees.first(where: { $0.id == payeeID })?.name
+    }
+
+    /// Refreshes the payee list after inline creation and auto-selects the newly
+    /// added payee (the one absent from the list before the add sheet ran), so the
+    /// user doesn't have to re-open the picker to pick what they just created.
+    private func reloadPayeesSelectingNewest() async {
+        let previousIDs = Set(payees.map(\.id))
+        let fetchPayeesUseCase = FetchPayeesUseCase(repository: dependencies.payeeRepository)
+        guard let refreshed = try? await fetchPayeesUseCase.execute() else { return }
+        payees = refreshed
+        if let newPayee = refreshed.first(where: { !previousIDs.contains($0.id) }) {
+            vm?.selectedPayeeID = newPayee.id
+        }
+    }
+
+    /// Mirror of `reloadPayeesSelectingNewest` for inline account creation: refresh
+    /// the account list and select the just-added account (absent before the sheet),
+    /// which also satisfies the required-account rule so Save enables immediately.
+    private func reloadAccountsSelectingNewest() async {
+        let previousIDs = Set(accounts.map(\.id))
+        let fetchAccountsUseCase = FetchAccountsUseCase(accountRepository: dependencies.accountRepository)
+        guard let refreshed = try? await fetchAccountsUseCase.execute() else { return }
+        accounts = refreshed
+        if let newAccount = refreshed.first(where: { !previousIDs.contains($0.id) }) {
+            vm?.selectedAccountID = newAccount.id
+        }
     }
 
     private func createViewModel() -> TransactionFormViewModel {

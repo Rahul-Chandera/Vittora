@@ -138,6 +138,7 @@ struct CategorizationRulesView: View {
             .multilineTextAlignment(.center)
             Button(String(localized: "Add Rule")) { showAddRule = true }
                 .buttonStyle(.borderedProminent)
+                .tint(VColors.primary)
         }
         .padding(VSpacing.screenPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

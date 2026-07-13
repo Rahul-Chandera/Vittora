@@ -42,10 +42,18 @@ final class TransactionFlowUITests: XCTestCase {
             ? app.textFields["transaction-amount-field"]
             : app.textFields.firstMatch
         XCTAssertTrue(amountField.waitForExistence(timeout: 8))
+
+        // Pushed from the Transactions tab → only the back button, no Cancel.
+        XCTAssertFalse(
+            app.buttons["transaction-form-cancel-button"].exists,
+            "A pushed add-transaction form should not show a Cancel button."
+        )
+
         amountField.tap()
         amountField.typeText("42.75")
 
         let noteField = app.descendants(matching: .any)["transaction-note-field"]
+        UITestSupport.scrollToElement(noteField, in: app)
         XCTAssertTrue(noteField.waitForExistence(timeout: 8))
         noteField.tap()
         noteField.typeText("UI Test Dinner")
@@ -68,6 +76,55 @@ final class TransactionFlowUITests: XCTestCase {
         XCTAssertTrue(
             UITestSupport.waitForTransactionRowCount(in: app, initialTransactionCount + 1, timeout: 20),
             "The transaction list should show one additional row after saving a new entry."
+        )
+    }
+
+    @MainActor
+    func testTapOutsideDismissesKeyboard() throws {
+        navigateToTransactionsTab()
+
+        let addButton = app.buttons["transaction-add-button"]
+        UITestSupport.tapWhenReady(addButton, timeout: 15)
+
+        let amountField = app.textFields["transaction-amount-field"]
+        XCTAssertTrue(amountField.waitForExistence(timeout: 8))
+        amountField.tap()
+        XCTAssertTrue(
+            app.keyboards.firstMatch.waitForExistence(timeout: 8),
+            "Keyboard should appear when the amount field is focused."
+        )
+
+        // Tap a non-input area of the form (the "Details" section header — above
+        // the keyboard, not a control) — the global tap-to-dismiss gesture
+        // should hide the keyboard (decimal pads have no return key).
+        let detailsHeader = app.staticTexts["Details"]
+        XCTAssertTrue(detailsHeader.waitForExistence(timeout: 5), "Details section header should be visible.")
+        detailsHeader.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+
+        XCTAssertTrue(
+            UITestSupport.waitForDisappearance(app.keyboards.firstMatch, timeout: 8),
+            "Tapping outside a text input should dismiss the keyboard."
+        )
+    }
+
+    @MainActor
+    func testEditFromTransactionDetailOpensForm() throws {
+        navigateToTransactionsTab()
+
+        let coffeeRow = app.descendants(matching: .any)["transaction-row-coffee-run"]
+        XCTAssertTrue(coffeeRow.waitForExistence(timeout: 15), "Seeded transaction should appear.")
+        UITestSupport.tapWhenReady(coffeeRow, timeout: 10)
+
+        let editButton = app.buttons["transaction-detail-edit-button"]
+        XCTAssertTrue(editButton.waitForExistence(timeout: 10), "Detail should show the edit button.")
+        UITestSupport.tapWhenReady(editButton, timeout: 10)
+
+        // The amount field only exists in the form, so its presence proves edit
+        // opened the form rather than re-pushing the detail screen (the bug).
+        let amountField = app.textFields["transaction-amount-field"]
+        XCTAssertTrue(
+            amountField.waitForExistence(timeout: 10),
+            "Tapping edit should open the transaction form, not the detail screen again."
         )
     }
 
@@ -149,6 +206,32 @@ final class TransactionFlowUITests: XCTestCase {
                 timeout: 20
             ),
             "Search should hide transactions whose notes do not match."
+        )
+    }
+
+    @MainActor
+    func testSearchWithNoMatchesKeepsSearchField() throws {
+        navigateToTransactionsTab()
+        waitForSeededTransactionRows()
+
+        let searchField = app.searchFields["Search transactions"]
+        XCTAssertTrue(
+            UITestSupport.waitForElement(searchField, timeout: 12, requireHittable: true),
+            "Search field should be ready."
+        )
+        searchField.tap()
+        searchField.typeText("zzznomatchxyz")
+
+        // A zero-result search must keep the search field mounted and show an
+        // in-list "No Results" state — not swap to the full empty state that
+        // removed the search bar and stranded the user.
+        XCTAssertTrue(
+            app.staticTexts["No Results"].waitForExistence(timeout: 12),
+            "A zero-result search should show 'No Results', not the full empty state."
+        )
+        XCTAssertTrue(
+            searchField.exists,
+            "The search field must remain after a zero-result search so the user can recover."
         )
     }
 

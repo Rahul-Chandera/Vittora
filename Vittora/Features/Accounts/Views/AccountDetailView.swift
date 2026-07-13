@@ -29,7 +29,7 @@ struct AccountDetailView: View {
         .sheet(isPresented: $showEditSheet) {
             if let account = viewModel?.account {
                 NavigationStack {
-                    AccountFormView(editingAccount: account) {
+                    AccountFormView(editingAccount: account, showsCancelButton: true) {
                         Task { await viewModel?.loadAccount(id: accountID) }
                     }
                 }
@@ -89,6 +89,7 @@ struct AccountDetailView: View {
                             .foregroundColor(VColors.textSecondary)
                         Text(account.balance.formatted(.currency(code: account.currencyCode)))
                             .font(VTypography.amountLarge)
+                            .amountScaling()
                             .foregroundColor(account.balance >= 0 ? VColors.textPrimary : VColors.expense)
                     }
                 }

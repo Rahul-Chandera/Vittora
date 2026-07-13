@@ -4,19 +4,54 @@ import VittoraCore
 struct AccountsSummaryScroll: View {
     let accounts: [AccountEntity]
     let onSelect: (UUID) -> Void
+    /// Opens account management (list / edit / delete). Optional so existing call sites compile.
+    var onManage: (() -> Void)?
+    /// Creates the first/next account. Optional so existing call sites compile.
+    var onAdd: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text(String(localized: "Accounts"))
-                .font(VTypography.subheadline)
-                .foregroundColor(VColors.textSecondary)
+            Button {
+                onManage?()
+            } label: {
+                HStack {
+                    Text(String(localized: "Accounts"))
+                        .font(VTypography.subheadline)
+                        .foregroundColor(VColors.textSecondary)
+                    Spacer()
+                    if onManage != nil {
+                        Text(String(localized: "Manage"))
+                            .font(VTypography.caption1)
+                            .foregroundColor(VColors.primary)
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                            .foregroundColor(VColors.primary)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            .disabled(onManage == nil)
+            .accessibilityIdentifier("dashboard-accounts-manage")
 
             if accounts.isEmpty {
-                Text(String(localized: "No accounts yet"))
-                    .font(VTypography.caption1)
-                    .foregroundColor(VColors.textTertiary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(VSpacing.lg)
+                VStack(spacing: VSpacing.sm) {
+                    Text(String(localized: "No accounts yet"))
+                        .font(VTypography.caption1)
+                        .foregroundColor(VColors.textTertiary)
+                    if onAdd != nil {
+                        Button {
+                            onAdd?()
+                        } label: {
+                            Label(String(localized: "Add Account"), systemImage: "plus.circle.fill")
+                                .font(VTypography.subheadline)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(VColors.primary)
+                        .accessibilityIdentifier("dashboard-accounts-add")
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(VSpacing.lg)
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: VSpacing.md) {
@@ -58,6 +93,8 @@ private struct AccountMiniCard: View {
                 Text(formattedBalance(account.balance))
                     .font(VTypography.amountSmall)
                     .foregroundColor(account.type.isAsset ? VColors.textPrimary : VColors.expense)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
 
                 Text(account.type.displayName)
                     .font(VTypography.caption2)

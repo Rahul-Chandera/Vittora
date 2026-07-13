@@ -62,6 +62,44 @@ struct SettingsViewModelTests {
         #expect(SettingsViewModel.AppearanceMode.allCases.count == 3)
     }
 
+    @Test("appearanceMode change notifies observers (theme actually switches)")
+    func appearanceModeIsObservable() {
+        final class Flag: @unchecked Sendable { var value = false }
+        let flag = Flag()
+
+        let vm = makeViewModel(keychainService: MockKeychainService())
+        vm.appearanceMode = .light
+
+        withObservationTracking {
+            _ = vm.appearanceMode
+        } onChange: {
+            flag.value = true
+        }
+
+        vm.appearanceMode = .dark
+        // Fails if the UserDefaults-backed property lacks access/withMutation,
+        // which is why the theme never changed off Light.
+        #expect(flag.value)
+    }
+
+    @Test("reloadPersistedProfile republishes currency so the UI refreshes")
+    func reloadPersistedProfileNotifiesCurrency() {
+        final class Flag: @unchecked Sendable { var value = false }
+        let flag = Flag()
+
+        let vm = makeViewModel(keychainService: MockKeychainService())
+        withObservationTracking {
+            _ = vm.selectedCurrencyCode
+        } onChange: {
+            flag.value = true
+        }
+
+        // Onboarding writes the currency straight to UserDefaults; reload must
+        // notify observers so .environment(\.currencyCode) re-reads it.
+        vm.reloadPersistedProfile()
+        #expect(flag.value)
+    }
+
     // MARK: - ExportSchedule
 
     @Test("ExportSchedule has 3 cases")

@@ -24,7 +24,11 @@ struct TransactionListView: View {
     var body: some View {
         ZStack {
             if let vm = vm {
-                if vm.groupedTransactions.isEmpty {
+                // Full-screen empty state only when there's genuinely no data and
+                // no active search/filter. During a search/filter the list (with
+                // its search bar) must stay mounted, otherwise a zero-result query
+                // removes the search field and strands the user.
+                if vm.groupedTransactions.isEmpty && !hasQueryOrFilter(vm) {
                     emptyState
                 } else {
                     listView(vm)
@@ -46,9 +50,13 @@ struct TransactionListView: View {
             await vm?.loadTransactions()
         }
         .navigationDestination(item: $navigateDestination) { dest in
-            navigationView(for: dest)
+            NavigationDestinationView(destination: dest)
         }
         .errorAlert(message: transactionListErrorBinding)
+    }
+
+    private func hasQueryOrFilter(_ vm: TransactionListViewModel) -> Bool {
+        !vm.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || vm.hasActiveFilter
     }
 
     @ViewBuilder
@@ -66,14 +74,19 @@ struct TransactionListView: View {
             transactionList(vm, selection: $selectedTransactionID)
                 .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
         } detail: {
-            if let selectedTransactionID {
-                TransactionDetailView(transactionID: selectedTransactionID)
-            } else {
-                ContentUnavailableView(
-                    String(localized: "Select a Transaction"),
-                    systemImage: "list.bullet.rectangle",
-                    description: Text(String(localized: "Choose a transaction from the list to view its details."))
-                )
+            // The detail column needs its own NavigationStack so pushes from
+            // within it (e.g. the detail's edit button) have a stack to land on.
+            NavigationStack {
+                if let selectedTransactionID {
+                    TransactionDetailView(transactionID: selectedTransactionID)
+                        .id(selectedTransactionID)
+                } else {
+                    ContentUnavailableView(
+                        String(localized: "Select a Transaction"),
+                        systemImage: "list.bullet.rectangle",
+                        description: Text(String(localized: "Choose a transaction from the list to view its details."))
+                    )
+                }
             }
         }
     }
@@ -104,6 +117,15 @@ struct TransactionListView: View {
         .listStyle(.inset)
         #endif
         .searchable(text: Bindable(vm).searchQuery, prompt: String(localized: "Search transactions"))
+        .overlay {
+            if vm.groupedTransactions.isEmpty {
+                ContentUnavailableView {
+                    Label(String(localized: "No Results"), systemImage: "magnifyingglass")
+                } description: {
+                    Text(String(localized: "No transactions match your search or filters."))
+                }
+            }
+        }
         .task(id: vm.searchQuery) {
             let query = vm.searchQuery
             try? await Task.sleep(for: .milliseconds(250))
@@ -117,7 +139,13 @@ struct TransactionListView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
-                NavigationLink(value: NavigationDestination.addTransaction) {
+                // Button + navigateDestination instead of a value-based
+                // NavigationLink: inside the iPad split view's sidebar column the
+                // shared navigationDestination(for:) isn't in scope, so the value
+                // link did nothing there (same family as #51/#60).
+                Button {
+                    navigateDestination = .addTransaction
+                } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.title2)
                 }
@@ -128,7 +156,7 @@ struct TransactionListView: View {
                 Button {
                     showFilterSheet = true
                 } label: {
-                    Image(systemName: "funnel.fill")
+                    Image(systemName: vm.hasActiveFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
                         .font(.title2)
                         .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
                 }
@@ -206,7 +234,10 @@ struct TransactionListView: View {
                 #endif
             }
         }
-        .if(vm.isLoading) { view in
+        // Only show the full-screen spinner on the very first load. On refreshes
+        // (e.g. returning from a detail page, which re-runs .task), we already
+        // have rows to show, so flashing the overlay just makes it blink.
+        .if(vm.isLoading && vm.groupedTransactions.isEmpty) { view in
             view.overlay {
                 ProgressView()
                     .tint(VColors.primary)
@@ -242,19 +273,32 @@ struct TransactionListView: View {
     ) -> some View {
         let row = TransactionRowView(
             transaction: transaction,
+            category: vm.category(for: transaction),
             currencyCode: currencyCode,
             showSelection: vm.isMultiSelectMode,
             isSelected: vm.selectedTransactionIDs.contains(transaction.id)
         )
 
-        if selection != nil {
-            row
-                .tag(Optional(transaction.id))
-                .transactionRowModifiers(
-                    vm: vm,
-                    transaction: transaction,
-                    onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
-                )
+        if let selection {
+            // Drive the split-view selection explicitly. Tag-based List selection
+            // doesn't respond to taps in this nested context (split view inside
+            // the tab's NavigationStack), so a plain row was un-tappable on iPad.
+            Button {
+                if vm.isMultiSelectMode {
+                    vm.toggleSelection(transaction.id)
+                } else {
+                    selection.wrappedValue = transaction.id
+                }
+            } label: {
+                row
+            }
+            .buttonStyle(.plain)
+            .tag(Optional(transaction.id))
+            .transactionRowModifiers(
+                vm: vm,
+                transaction: transaction,
+                onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
+            )
         } else {
             Button {
                 if vm.isMultiSelectMode {
@@ -275,34 +319,13 @@ struct TransactionListView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: VSpacing.lg) {
-            Image(systemName: "list.dash")
-                .font(.system(size: 48))
-                .foregroundColor(VColors.textTertiary)
-
-            Text(String(localized: "No transactions"))
-                .font(VTypography.bodyBold)
-                .foregroundColor(VColors.textPrimary)
-
-            Text(String(localized: "Add your first transaction to get started"))
-                .font(VTypography.caption1)
-                .foregroundColor(VColors.textSecondary)
-                .multilineTextAlignment(.center)
-
-            NavigationLink(value: NavigationDestination.addTransaction) {
-                Text(String(localized: "Add Transaction"))
-                    .font(VTypography.body)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(VSpacing.md)
-                    .background(VColors.primary)
-                    .cornerRadius(VSpacing.cornerRadiusSM)
-            }
-            .padding(.top, VSpacing.lg)
-
-            Spacer()
-        }
-        .padding(VSpacing.screenPadding)
+        VEmptyState(
+            icon: "list.bullet.rectangle",
+            title: String(localized: "No transactions"),
+            subtitle: String(localized: "Add your first transaction to get started"),
+            actionLabel: String(localized: "Add Transaction"),
+            action: { navigateDestination = .addTransaction }
+        )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.background)
         .accessibilityIdentifier("transaction-empty-state")
@@ -324,23 +347,6 @@ struct TransactionListView: View {
         Text(title)
             .foregroundColor(VColors.textSecondary)
             .accessibilityAddTraits(.isHeader)
-    }
-
-    @ViewBuilder
-    private func navigationView(for destination: NavigationDestination) -> some View {
-        switch destination {
-        case .transactionDetail(let id):
-            TransactionDetailView(transactionID: id)
-
-        case .addTransaction:
-            TransactionFormView()
-
-        case .editTransaction(let id):
-            TransactionFormView(transactionID: id)
-
-        default:
-            EmptyView()
-        }
     }
 
     private func createViewModel() -> TransactionListViewModel {

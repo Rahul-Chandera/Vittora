@@ -11,6 +11,8 @@ struct RecurringFormView: View {
     @State private var payees: [PayeeEntity] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
+    /// When set, the form opens pre-filled and saves as an edit of this rule.
+    var editingRule: RecurringRuleEntity? = nil
     var onDismiss: (() -> Void)? = nil
 
     var body: some View {
@@ -284,11 +286,15 @@ struct RecurringFormView: View {
         let createUseCase = CreateRecurringRuleUseCase(repository: recurringRepo)
         let updateUseCase = UpdateRecurringRuleUseCase(repository: recurringRepo)
 
-        viewModel = RecurringFormViewModel(
+        let vm = RecurringFormViewModel(
             createUseCase: createUseCase,
             updateUseCase: updateUseCase,
             repository: recurringRepo
         )
+        if let editingRule {
+            vm.loadRule(editingRule)
+        }
+        viewModel = vm
     }
 
     @MainActor

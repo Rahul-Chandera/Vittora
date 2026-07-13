@@ -15,7 +15,11 @@ struct QuickEntryButton: View {
                 .background(Color("VPrimary"), in: Circle())
                 .shadow(color: Color("VPrimary").opacity(0.3), radius: 8, y: 4)
         }
+        // .plain: the label is fully custom; without it macOS draws the
+        // standard AppKit bezel behind the circle.
+        .buttonStyle(.plain)
         .accessibilityLabel(String(localized: "Add Transaction"))
+        .accessibilityIdentifier("quick-entry-floating-button")
     }
 }
 

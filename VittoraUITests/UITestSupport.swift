@@ -159,6 +159,22 @@ enum UITestSupport {
         return false
     }
 
+    /// Swipe up until `element` is rendered and hittable. SwiftUI `Form`/`List`
+    /// rows below the viewport aren't in the accessibility tree, so a field in a
+    /// lower section must be scrolled into view before it can be found or tapped.
+    @MainActor
+    static func scrollToElement(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        maxSwipes: Int = 8
+    ) {
+        var swipes = 0
+        while !(element.exists && hasValidFrame(element)) && swipes < maxSwipes {
+            app.swipeUp()
+            swipes += 1
+        }
+    }
+
     @MainActor
     private static func hasValidFrame(_ element: XCUIElement) -> Bool {
         let frame = element.frame

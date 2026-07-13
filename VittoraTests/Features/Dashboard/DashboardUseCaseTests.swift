@@ -210,6 +210,31 @@ struct DashboardUseCaseTests {
             #expect(data.monthBudgetProgress <= 1.0)
         }
 
+        @Test("Budget progress is computed from transactions, not stored spent")
+        func testBudgetProgressReflectsTransactionSpending() async throws {
+            let category = CategoryEntity(name: "Food", icon: "fork.knife", type: .expense)
+            // Stored spent stays 0; the dashboard must derive it from transactions.
+            let budget = BudgetEntity(
+                amount: 1000,
+                period: .monthly,
+                startDate: Date(timeIntervalSinceNow: -86_400),
+                categoryID: category.id
+            )
+            let expense = TransactionEntity(
+                amount: 500, date: .now, type: .expense, categoryID: category.id
+            )
+
+            let useCase = await makeDashboardUseCase(
+                transactions: [expense],
+                categories: [category],
+                budgets: [budget]
+            )
+            let data = try await useCase.execute()
+
+            // 500 spent / 1000 budget → 0.5 (would be 0 if it read the stored spent).
+            #expect(data.monthBudgetProgress == 0.5)
+        }
+
         @Test("Top categories are ordered by spend descending")
         func testTopCategoriesOrderedBySpend() async throws {
             let cat1 = CategoryEntity(name: "Food", icon: "fork.knife", type: .expense)

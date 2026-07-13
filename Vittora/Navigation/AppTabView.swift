@@ -4,12 +4,44 @@ import VittoraCore
 #if os(iOS)
 struct AppTabView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var showAddTransaction = false
 
+    /// Tabs kept on the compact iPhone bar. Everything else lives in the "More"
+    /// hub so we never overflow into the system "More" tab, which nests a second
+    /// navigation controller and produces a duplicate back button.
+    private static let primaryCompactTabs: Set<AppState.AppTab> =
+        [.dashboard, .transactions, .budgets, .reports]
+
     var body: some View {
+        Group {
+            if horizontalSizeClass == .compact {
+                compactTabView
+            } else {
+                regularTabView
+            }
+        }
+        // Match the dashboard quick actions: a centered sheet on regular width
+        // (iPad), full-screen cover only on compact (iPhone).
+        .if(horizontalSizeClass == .regular) { view in
+            view.sheet(isPresented: $showAddTransaction) {
+                QuickEntryView()
+            }
+        }
+        .if(horizontalSizeClass != .regular) { view in
+            view.fullScreenCover(isPresented: $showAddTransaction) {
+                QuickEntryView()
+            }
+        }
+        .handlesAppCommands(appState: appState, showAddTransaction: $showAddTransaction)
+    }
+
+    // MARK: - Regular width (iPad / macOS Catalyst): full sectioned sidebar
+
+    private var regularTabView: some View {
         @Bindable var appState = appState
 
-        TabView(selection: $appState.selectedTab) {
+        return TabView(selection: $appState.selectedTab) {
             TabSection {
                 Tab(AppState.AppTab.dashboard.title,
                     systemImage: AppState.AppTab.dashboard.systemImage,
@@ -106,10 +138,103 @@ struct AppTabView: View {
             }
         }
         .tabViewStyle(.sidebarAdaptable)
-        .fullScreenCover(isPresented: $showAddTransaction) {
-            QuickEntryView()
+    }
+
+    // MARK: - Compact width (iPhone): 4 primary tabs + a self-owned More hub
+
+    private var compactTabView: some View {
+        TabView(selection: compactSelection) {
+            Tab(AppState.AppTab.dashboard.title,
+                systemImage: AppState.AppTab.dashboard.systemImage,
+                value: AppState.AppTab.dashboard) {
+                NavigationStack {
+                    DashboardView()
+                        .withNavigationDestinations()
+                }
+            }
+            Tab(AppState.AppTab.transactions.title,
+                systemImage: AppState.AppTab.transactions.systemImage,
+                value: AppState.AppTab.transactions) {
+                NavigationStack {
+                    TransactionListView()
+                        .withNavigationDestinations()
+                }
+            }
+            Tab(AppState.AppTab.budgets.title,
+                systemImage: AppState.AppTab.budgets.systemImage,
+                value: AppState.AppTab.budgets) {
+                NavigationStack {
+                    BudgetListView()
+                        .withNavigationDestinations()
+                }
+            }
+            Tab(AppState.AppTab.reports.title,
+                systemImage: AppState.AppTab.reports.systemImage,
+                value: AppState.AppTab.reports) {
+                NavigationStack {
+                    ReportsHomeView()
+                        .withNavigationDestinations()
+                }
+            }
+            Tab(String(localized: "More"),
+                systemImage: "ellipsis",
+                value: AppState.AppTab.settings) {
+                NavigationStack {
+                    MoreHubView()
+                        .withNavigationDestinations()
+                }
+            }
         }
-        .handlesAppCommands(appState: appState, showAddTransaction: $showAddTransaction)
+    }
+
+    /// Selection for the compact bar. Deep-links to overflow destinations
+    /// (debt/splits/savings/tax/settings) resolve to the More tab rather than a
+    /// non-existent tab, so the bar never lands on a blank selection.
+    /// ponytail: overflow deep-links land on the More hub root, not the exact
+    /// screen; add per-destination routing only if that shortcut matters.
+    private var compactSelection: Binding<AppState.AppTab> {
+        Binding(
+            get: {
+                Self.primaryCompactTabs.contains(appState.selectedTab)
+                    ? appState.selectedTab
+                    : .settings
+            },
+            set: { appState.selectedTab = $0 }
+        )
+    }
+}
+
+// MARK: - More hub
+
+/// Single-NavigationStack list of the destinations that don't fit the compact
+/// tab bar. One nav bar → one back button on every screen reached from here.
+private struct MoreHubView: View {
+    private static let destinations: [AppState.AppTab] =
+        [.savings, .tax, .debt, .splits, .settings]
+
+    var body: some View {
+        List {
+            ForEach(Self.destinations) { tab in
+                NavigationLink {
+                    destinationView(for: tab)
+                } label: {
+                    Label(tab.title, systemImage: tab.systemImage)
+                }
+            }
+        }
+        .navigationTitle(String(localized: "More"))
+    }
+
+    @ViewBuilder
+    private func destinationView(for tab: AppState.AppTab) -> some View {
+        switch tab {
+        case .savings:  SavingsGoalListView()
+        case .tax:      TaxDashboardView()
+        case .debt:     DebtLedgerView()
+        case .splits:   SplitGroupListView()
+        case .settings: SettingsView()
+        default:        EmptyView()
+        }
     }
 }
 #endif

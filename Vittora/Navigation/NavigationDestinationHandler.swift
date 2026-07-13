@@ -2,42 +2,54 @@ import SwiftUI
 import VittoraCore
 
 struct NavigationDestinationHandler: ViewModifier {
-    @Environment(SettingsViewModel.self) private var settingsVM
-
     func body(content: Content) -> some View {
         content
             .navigationDestination(for: NavigationDestination.self) { destination in
-                switch destination {
-                case .accountDetail(let id):
-                    AccountDetailView(accountID: id)
-                case .addAccount:
-                    AccountFormView()
-                case .addTransfer:
-                    TransferFormView()
-                case .transactionDetail(let id):
-                    TransactionDetailView(transactionID: id)
-                case .addTransaction:
-                    TransactionFormView()
-                case .editTransaction(let id):
-                    TransactionFormView(transactionID: id)
-                case .categoryDetail(let id):
-                    CategoryDetailView(categoryID: id)
-                case .addCategory:
-                    CategoryFormView()
-                case .budgetDetail(let id):
-                    BudgetDetailView(budgetID: id)
-                case .addBudget:
-                    BudgetFormView(isPresented: .constant(false))
-                case .payeeDetail(let id):
-                    PayeeDetailView(payeeID: id)
-                case .recurringDetail(let id):
-                    RecurringDetailView(ruleID: id)
-                case .reportDetail(let type):
-                    reportView(for: type)
-                case .settingsDetail(let section):
-                    settingsView(for: section)
-                }
+                NavigationDestinationView(destination: destination)
             }
+    }
+}
+
+/// Single source of truth mapping a `NavigationDestination` to its view. Used both
+/// by the shared `.navigationDestination(for:)` handler and by screens that push
+/// programmatically (e.g. `DashboardView`), so routing can't drift between them.
+struct NavigationDestinationView: View {
+    let destination: NavigationDestination
+    @Environment(SettingsViewModel.self) private var settingsVM
+
+    var body: some View {
+        switch destination {
+        case .accountList:
+            AccountListView()
+        case .accountDetail(let id):
+            AccountDetailView(accountID: id)
+        case .addAccount:
+            AccountFormView()
+        case .addTransfer:
+            TransferFormView()
+        case .transactionDetail(let id):
+            TransactionDetailView(transactionID: id)
+        case .addTransaction:
+            TransactionFormView()
+        case .editTransaction(let id):
+            TransactionFormView(transactionID: id)
+        case .categoryDetail(let id):
+            CategoryDetailView(categoryID: id)
+        case .addCategory:
+            CategoryFormView()
+        case .budgetDetail(let id):
+            BudgetDetailView(budgetID: id)
+        case .addBudget:
+            BudgetFormView(isPresented: .constant(false))
+        case .payeeDetail(let id):
+            PayeeDetailView(payeeID: id)
+        case .recurringDetail(let id):
+            RecurringDetailView(ruleID: id)
+        case .reportDetail(let type):
+            reportView(for: type)
+        case .settingsDetail(let section):
+            settingsView(for: section)
+        }
     }
 
     // MARK: - Report routing

@@ -10,42 +10,92 @@ final class SettingsViewModel {
 
     // Non-sensitive preferences remain in UserDefaults
     var selectedCurrencyCode: String {
-        get { UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.currencyCode) ?? CurrencyDefaults.code }
-        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.currencyCode) }
+        get {
+            access(keyPath: \.selectedCurrencyCode)
+            return UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.currencyCode) ?? CurrencyDefaults.code
+        }
+        set {
+            withMutation(keyPath: \.selectedCurrencyCode) {
+                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.currencyCode)
+            }
+        }
     }
 
     var appearanceMode: AppearanceMode {
         get {
-            AppearanceMode(
+            // access/withMutation so @Observable tracks this UserDefaults-backed
+            // property; without them, changing the theme never refreshes the
+            // checkmark or the app's preferredColorScheme.
+            access(keyPath: \.appearanceMode)
+            return AppearanceMode(
                 rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.appearanceMode) ?? ""
             ) ?? .system
         }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appearanceMode) }
+        set {
+            withMutation(keyPath: \.appearanceMode) {
+                UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appearanceMode)
+            }
+        }
     }
 
     var isNotificationsEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: AppUserDefaults.StandardKey.notificationsEnabled) }
-        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notificationsEnabled) }
+        get {
+            access(keyPath: \.isNotificationsEnabled)
+            return UserDefaults.standard.bool(forKey: AppUserDefaults.StandardKey.notificationsEnabled)
+        }
+        set {
+            withMutation(keyPath: \.isNotificationsEnabled) {
+                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notificationsEnabled)
+            }
+        }
     }
 
     var notifyBillsDue: Bool {
-        get { UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyBillsDue) as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyBillsDue) }
+        get {
+            access(keyPath: \.notifyBillsDue)
+            return UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyBillsDue) as? Bool ?? true
+        }
+        set {
+            withMutation(keyPath: \.notifyBillsDue) {
+                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyBillsDue)
+            }
+        }
     }
 
     var notifyBudgetAlerts: Bool {
-        get { UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyBudgetAlerts) as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyBudgetAlerts) }
+        get {
+            access(keyPath: \.notifyBudgetAlerts)
+            return UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyBudgetAlerts) as? Bool ?? true
+        }
+        set {
+            withMutation(keyPath: \.notifyBudgetAlerts) {
+                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyBudgetAlerts)
+            }
+        }
     }
 
     var notifyGoalMilestones: Bool {
-        get { UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyGoalMilestones) as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyGoalMilestones) }
+        get {
+            access(keyPath: \.notifyGoalMilestones)
+            return UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyGoalMilestones) as? Bool ?? true
+        }
+        set {
+            withMutation(keyPath: \.notifyGoalMilestones) {
+                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyGoalMilestones)
+            }
+        }
     }
 
     var notifyRecurringTransactions: Bool {
-        get { UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyRecurring) as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyRecurring) }
+        get {
+            access(keyPath: \.notifyRecurringTransactions)
+            return UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyRecurring) as? Bool ?? true
+        }
+        set {
+            withMutation(keyPath: \.notifyRecurringTransactions) {
+                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyRecurring)
+            }
+        }
     }
 
     @ObservationIgnored private var _allowPasscodeFallback: Bool
@@ -58,25 +108,42 @@ final class SettingsViewModel {
 
     var exportSchedule: ExportSchedule {
         get {
-            ExportSchedule(
+            access(keyPath: \.exportSchedule)
+            return ExportSchedule(
                 rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.exportSchedule) ?? ""
             ) ?? .off
         }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.exportSchedule) }
+        set {
+            withMutation(keyPath: \.exportSchedule) {
+                UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.exportSchedule)
+            }
+        }
     }
 
     var isCloudSyncEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: AppUserDefaults.StandardKey.cloudSyncEnabled) }
-        set { UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.cloudSyncEnabled) }
+        get {
+            access(keyPath: \.isCloudSyncEnabled)
+            return UserDefaults.standard.bool(forKey: AppUserDefaults.StandardKey.cloudSyncEnabled)
+        }
+        set {
+            withMutation(keyPath: \.isCloudSyncEnabled) {
+                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.cloudSyncEnabled)
+            }
+        }
     }
 
     var appLockTimeout: AppLockTimeout {
         get {
-            AppLockTimeout(
+            access(keyPath: \.appLockTimeout)
+            return AppLockTimeout(
                 rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.appLockTimeout) ?? ""
             ) ?? .fiveMinutes
         }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appLockTimeout) }
+        set {
+            withMutation(keyPath: \.appLockTimeout) {
+                UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appLockTimeout)
+            }
+        }
     }
 
     enum ExportSchedule: String, CaseIterable, Sendable {
@@ -195,6 +262,24 @@ final class SettingsViewModel {
         withMutation(keyPath: \.userName) {
             _userName = ""
         }
+    }
+
+    /// Re-reads the display name (keychain) and re-publishes the currency
+    /// (UserDefaults) after they were written outside this view model — e.g.
+    /// during onboarding — so the live UI reflects them without an app restart.
+    func reloadPersistedProfile() {
+        let name: String
+        if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.userName),
+           let decoded = String(data: data, encoding: .utf8) {
+            name = decoded
+        } else {
+            name = ""
+        }
+        withMutation(keyPath: \.userName) {
+            _userName = name
+        }
+        // selectedCurrencyCode reads UserDefaults live; nudge observers to re-read.
+        withMutation(keyPath: \.selectedCurrencyCode) {}
     }
 
     // App version

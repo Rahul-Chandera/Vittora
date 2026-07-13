@@ -44,7 +44,7 @@ struct DashboardView: View {
             await vm?.refresh()
         }
         .navigationDestination(item: $navigateDestination) { dest in
-            navigationView(for: dest)
+            NavigationDestinationView(destination: dest)
         }
         #if os(iOS)
         .if(shouldPresentQuickActionsAsSheet) { view in
@@ -149,7 +149,7 @@ struct DashboardView: View {
 
                 RecentTransactionsList(
                     transactions: data.recentTransactions,
-                    onSeeAll: { navigateDestination = .addTransaction },
+                    onSeeAll: { appState.selectedTab = .transactions },
                     onSelect: { id in navigateDestination = .transactionDetail(id: id) }
                 )
 
@@ -157,7 +157,9 @@ struct DashboardView: View {
 
                 AccountsSummaryScroll(
                     accounts: data.accountSummary,
-                    onSelect: { id in navigateDestination = .accountDetail(id: id) }
+                    onSelect: { id in navigateDestination = .accountDetail(id: id) },
+                    onManage: { navigateDestination = .accountList },
+                    onAdd: { navigateDestination = .addAccount }
                 )
 
                 netWorthSection(netWorth: data.netWorth)
@@ -197,7 +199,7 @@ struct DashboardView: View {
                     VStack(spacing: VSpacing.sectionSpacing) {
                         RecentTransactionsList(
                             transactions: data.recentTransactions,
-                            onSeeAll: { navigateDestination = .addTransaction },
+                            onSeeAll: { appState.selectedTab = .transactions },
                             onSelect: { id in navigateDestination = .transactionDetail(id: id) }
                         )
                         UpcomingRecurringList(rules: data.upcomingRecurring)
@@ -207,7 +209,9 @@ struct DashboardView: View {
 
                 AccountsSummaryScroll(
                     accounts: data.accountSummary,
-                    onSelect: { id in navigateDestination = .accountDetail(id: id) }
+                    onSelect: { id in navigateDestination = .accountDetail(id: id) },
+                    onManage: { navigateDestination = .accountList },
+                    onAdd: { navigateDestination = .addAccount }
                 )
             }
             .padding(VSpacing.screenPadding)
@@ -224,14 +228,19 @@ struct DashboardView: View {
                     .foregroundColor(VColors.textSecondary)
                 Spacer()
                 Button {
-                    activeQuickActionModal = .addBudget
+                    appState.selectedTab = .budgets
                 } label: {
-                    Text(String(localized: "Manage"))
-                        .font(VTypography.caption1)
-                        .foregroundColor(VColors.primary)
+                    HStack(spacing: VSpacing.xxs) {
+                        Text(String(localized: "Manage"))
+                            .font(VTypography.caption1)
+                            .foregroundColor(VColors.primary)
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                            .foregroundColor(VColors.primary)
+                    }
                 }
                 .buttonStyle(.plain)
-                .accessibilityHint(String(localized: "Opens the budget form"))
+                .accessibilityHint(String(localized: "Opens the Budgets tab"))
             }
 
             VStack(spacing: VSpacing.sm) {
@@ -279,6 +288,7 @@ struct DashboardView: View {
                     .foregroundColor(VColors.textSecondary)
                 Text(CurrencyFormatter.format(netWorth, currencyCode: currencyCode))
                     .font(VTypography.amountMedium)
+                    .amountScaling()
                     .foregroundColor(netWorth >= 0 ? VColors.income : VColors.expense)
             }
             Spacer()
@@ -331,11 +341,11 @@ struct DashboardView: View {
         switch modal {
         case .addTransaction(let type):
             NavigationStack {
-                TransactionFormView(initialType: type)
+                TransactionFormView(initialType: type, showsCancelButton: true)
             }
         case .addTransfer:
             NavigationStack {
-                TransferFormView()
+                TransferFormView(showsCancelButton: true)
             }
         case .addBudget:
             BudgetFormView(isPresented: budgetPresentationBinding)
@@ -356,26 +366,6 @@ struct DashboardView: View {
                 }
             }
         )
-    }
-
-    @ViewBuilder
-    private func navigationView(for destination: NavigationDestination) -> some View {
-        switch destination {
-        case .transactionDetail(let id):
-            TransactionDetailView(transactionID: id)
-        case .addTransaction:
-            TransactionFormView()
-        case .editTransaction(let id):
-            TransactionFormView(transactionID: id)
-        case .addTransfer:
-            TransferFormView()
-        case .addBudget:
-            BudgetFormView(isPresented: .constant(false))
-        case .accountDetail(let id):
-            AccountDetailView(accountID: id)
-        default:
-            EmptyView()
-        }
     }
 
     private func createViewModel() -> DashboardViewModel {
