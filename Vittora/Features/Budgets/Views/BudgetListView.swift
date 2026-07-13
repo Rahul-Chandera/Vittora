@@ -55,7 +55,7 @@ struct BudgetListView: View {
                                 BudgetCardView(
                                     budget: budget,
                                     progress: viewModel.budgetProgress[budget.id],
-                                    category: nil  // Categories loaded in list
+                                    category: budget.categoryID.flatMap { viewModel.categoriesByID[$0] }
                                 )
                                 .listRowInsets(EdgeInsets())
                                 .listRowSeparator(.hidden)

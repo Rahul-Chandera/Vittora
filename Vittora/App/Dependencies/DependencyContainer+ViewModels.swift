@@ -100,7 +100,8 @@ extension DependencyContainer {
                 transactionRepository: transactionRepository
             ),
             deleteUseCase: DeleteBudgetUseCase(budgetRepository: budgetRepository),
-            calculateProgressUseCase: CalculateBudgetProgressUseCase()
+            calculateProgressUseCase: CalculateBudgetProgressUseCase(),
+            categoryRepository: categoryRepository
         )
     }
 

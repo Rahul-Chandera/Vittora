@@ -6,6 +6,7 @@ import VittoraCore
 final class BudgetListViewModel {
     var budgets: [BudgetEntity] = []
     var budgetProgress: [UUID: BudgetProgress] = [:]
+    var categoriesByID: [UUID: CategoryEntity] = [:]
     var overallSpent: Decimal = 0
     var overallBudget: Decimal = 0
     /// True when at least one budget exists in any period. Lets the view show a
@@ -19,21 +20,27 @@ final class BudgetListViewModel {
     private let fetchUseCase: FetchBudgetsUseCase
     private let deleteUseCase: DeleteBudgetUseCase
     private let calculateProgressUseCase: CalculateBudgetProgressUseCase
+    private let categoryRepository: any CategoryRepository
 
     init(
         fetchUseCase: FetchBudgetsUseCase,
         deleteUseCase: DeleteBudgetUseCase,
-        calculateProgressUseCase: CalculateBudgetProgressUseCase
+        calculateProgressUseCase: CalculateBudgetProgressUseCase,
+        categoryRepository: any CategoryRepository
     ) {
         self.fetchUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
         self.calculateProgressUseCase = calculateProgressUseCase
+        self.categoryRepository = categoryRepository
     }
 
     func loadBudgets() async {
         isLoading = true
         error = nil
         do {
+            let categories = try await categoryRepository.fetchAll()
+            categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+
             var allBudgets = try await fetchUseCase.execute()
             hasAnyBudgets = !allBudgets.isEmpty
 

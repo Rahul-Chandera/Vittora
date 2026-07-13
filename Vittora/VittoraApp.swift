@@ -30,6 +30,7 @@ struct VittoraApp: App {
     private let bypassOnboardingForUITesting: Bool
     private let seedsTransactionsForUITesting: Bool
     private let seedsTransfersForUITesting: Bool
+    private let seedsDemoShowcaseForUITesting: Bool
     private let exercisesAppLockPolicy: Bool
     private let startupErrorMessage: String?
     private let startupFailureMessage: String?
@@ -44,6 +45,7 @@ struct VittoraApp: App {
         bypassOnboardingForUITesting = isUITesting && !showsOnboardingForUITesting
         seedsTransactionsForUITesting = launchArguments.contains("--ui-test-seed-transactions")
         seedsTransfersForUITesting = launchArguments.contains("--ui-test-seed-transfers")
+        seedsDemoShowcaseForUITesting = launchArguments.contains("--ui-test-seed-demo")
         exercisesAppLockPolicy = launchArguments.contains("--ui-test-app-lock")
 
         if exercisesAppLockPolicy {
@@ -308,6 +310,11 @@ struct VittoraApp: App {
         guard !hasCompletedStartup else { return }
         hasCompletedStartup = true
 
+        if seedsDemoShowcaseForUITesting {
+            await seedUITestDemoShowcaseIfNeeded()
+            return
+        }
+
         if seedsTransfersForUITesting {
             await seedUITestTransferScenarioIfNeeded()
             return
@@ -351,6 +358,32 @@ struct VittoraApp: App {
             appState.notifyChanged([.transactions, .accounts, .categories])
         } catch {
             Self.logger.error("Failed to seed UI test transaction data: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+
+    private func seedUITestDemoShowcaseIfNeeded() async {
+        let seeder = UITestDataSeeder(
+            accountRepository: dependencies.accountRepository,
+            categoryRepository: dependencies.categoryRepository,
+            transactionRepository: dependencies.transactionRepository,
+            ledgerWriting: dependencies.ledgerWriteStore
+        )
+
+        do {
+            try await seeder.seedDemoShowcaseIfNeeded(
+                budgetRepository: dependencies.budgetRepository,
+                savingsGoalRepository: dependencies.savingsGoalRepository,
+                debtRepository: dependencies.debtRepository,
+                recurringRuleRepository: dependencies.recurringRuleRepository,
+                payeeRepository: dependencies.payeeRepository,
+                dataSeeder: dependencies.dataSeeder
+            )
+            appState.notifyChanged([
+                .transactions, .accounts, .categories, .budgets,
+                .savings, .debt, .recurring, .payees
+            ])
+        } catch {
+            Self.logger.error("Failed to seed demo showcase data: \(error.localizedDescription, privacy: .public)")
         }
     }
 
