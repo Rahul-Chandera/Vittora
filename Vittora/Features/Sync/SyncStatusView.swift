@@ -25,6 +25,12 @@ struct SyncStatusView: View {
                 .font(VTypography.caption2)
                 .foregroundStyle(iconColor)
         }
+        #if os(macOS)
+        // The macOS toolbar wraps this in a bezel that hugs the content;
+        // without inner padding the icon and text touch the capsule edges.
+        .padding(.horizontal, VSpacing.xs)
+        .padding(.vertical, 2)
+        #endif
         .accessibilityElement(children: .combine)
         .accessibilityLabel(String(localized: "Sync status: \(statusText)"))
     }
