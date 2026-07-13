@@ -35,7 +35,10 @@ struct CreateAccountUseCase: Sendable {
         }
 
         if isDuplicate {
-            throw VittoraError.validationFailed("An account with this name already exists")
+            // duplicateEntry (not validationFailed) so callers can treat an
+            // existing account as idempotent success — onboarding must not
+            // dead-end when CloudKit already restored the user's accounts.
+            throw VittoraError.duplicateEntry("An account with this name already exists")
         }
 
         // Create the account. A brand-new account has no transactions yet, so
