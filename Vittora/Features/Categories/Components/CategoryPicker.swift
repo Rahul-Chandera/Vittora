@@ -40,6 +40,11 @@ struct CategoryPicker: View {
         .navigationTitle(title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #else
+        // A macOS sheet resizes to the pushed view's ideal size, and List
+        // reports a near-zero ideal height — without this the whole sheet
+        // collapses to a sliver when the picker is pushed inside a form sheet.
+        .frame(minWidth: 440, minHeight: 480)
         #endif
     }
 

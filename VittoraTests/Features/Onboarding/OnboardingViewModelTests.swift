@@ -162,6 +162,37 @@ struct OnboardingViewModelTests {
         #expect(accounts.first?.type == .digitalWallet)
     }
 
+    @Test("complete succeeds when the account already exists (CloudKit-restored data or retry)")
+    func completeIsIdempotentWhenAccountAlreadyExists() async throws {
+        let keychain = MockKeychainService()
+        let repository = TestOnboardingAccountRepository()
+        try await repository.create(AccountEntity(
+            name: "Axis",
+            type: .bank,
+            balance: 100,
+            openingBalance: 100,
+            currencyCode: "INR"
+        ))
+
+        let vm = OnboardingViewModel(
+            createAccountUseCase: CreateAccountUseCase(accountRepository: repository),
+            keychainService: keychain
+        )
+        let appState = AppState(isOnboardingComplete: false)
+
+        vm.accountName = "Axis"
+        vm.openingBalance = "500"
+
+        await vm.complete(appState: appState)
+
+        #expect(vm.error == nil)
+        #expect(appState.isOnboardingComplete == true)
+
+        // The pre-existing account is kept; no duplicate is created.
+        let accounts = await repository.accounts
+        #expect(accounts.count == 1)
+    }
+
     @Test("complete surfaces first account creation failures")
     func completeSurfacesAccountCreationFailures() async throws {
         let keychain = MockKeychainService()
