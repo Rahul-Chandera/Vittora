@@ -107,5 +107,17 @@ Welcome to Vittora 1.0 — private personal finance for iPhone, iPad, and Mac.
 
 ## Screenshots
 
-`Docs/Store/screenshots/` — iphone-69 (1320×2868), ipad-13 (2752×2064),
-mac (1440×900). US demo dataset (USD, American names).
+Upload the **marketing** sets (device frame + headline + background) from
+`Docs/Store/screenshots/marketing/`:
+
+- `iphone-69/` 1320×2868 → ASC "iPhone 6.9" Display" slot
+- `iphone-65/` 1284×2778 → ASC "iPhone 6.5" Display" slot (use whichever slot
+  ASC marks required; the sizes are slot-specific, which is what the
+  "wrong dimensions" upload error means)
+- `ipad-13/` 2752×2064 → "iPad 13" Display" slot
+- `mac/` 1440×900 → Mac App Store
+
+Raw un-framed captures live one level up in `Docs/Store/screenshots/`;
+regenerate the marketing sets after retaking raws with
+`python3 Scripts/store/make_marketing.py` (needs `pip install pillow`).
+US demo dataset (USD, American names).
