@@ -48,6 +48,17 @@ struct VittoraApp: App {
         seedsDemoShowcaseForUITesting = launchArguments.contains("--ui-test-seed-demo")
         exercisesAppLockPolicy = launchArguments.contains("--ui-test-app-lock")
 
+        if launchArguments.contains("--ui-test-seed-demo") {
+            // The currency environment is captured from Settings at first
+            // render, before async seeding runs — set it up front so demo
+            // screenshots show the right symbol.
+            let region = ProcessInfo.processInfo.environment["UITEST_DEMO_REGION"] ?? "US"
+            UserDefaults.standard.set(
+                region == "IN" ? "INR" : "USD",
+                forKey: AppUserDefaults.StandardKey.currencyCode
+            )
+        }
+
         if exercisesAppLockPolicy {
             KeychainService.syncSave(Data([1]), forKey: AppUserDefaults.KeychainKey.appLockEnabled)
             UserDefaults.standard.set(
