@@ -133,7 +133,11 @@ struct DataManagementServiceTests {
             savingsGoalRepository: goalRepo,
             splitGroupRepository: splitRepo,
             documentRepository: docRepo,
-            keychainService: MockKeychainService()
+            keychainService: MockKeychainService(),
+            ledgerWriting: MockLedgerWriting(
+                transactionRepository: txRepo,
+                accountRepository: accRepo
+            )
         )
         return (service, txRepo, accRepo, catRepo, budRepo, debtRepo, goalRepo, splitRepo, docRepo)
     }
@@ -204,6 +208,58 @@ struct DataManagementServiceTests {
         let stats = try await service.fetchStats()
         #expect(stats.transactionCount == 0)
         #expect(stats.accountCount == 1)
+    }
+
+    @Test("clearData(.transactions) reverses account balance effects")
+    func clearTransactionsReversesBalances() async throws {
+        let (service, txRepo, accRepo, _, _, _, _, _, _) = makeService()
+        let account = AccountEntity(
+            name: "Checking",
+            type: .bank,
+            balance: 900,
+            openingBalance: 1_000
+        )
+        try await accRepo.create(account)
+        try await txRepo.create(
+            TransactionEntity(
+                amount: 100,
+                type: .expense,
+                paymentMethod: .cash,
+                accountID: account.id
+            )
+        )
+
+        try await service.clearData(scope: .transactions)
+
+        let stats = try await service.fetchStats()
+        #expect(stats.transactionCount == 0)
+        #expect(stats.accountCount == 1)
+        #expect(accRepo.accounts.first?.balance == 1_000)
+    }
+
+    @Test("clearData(.all) reverses balances on kept accounts")
+    func clearAllReversesBalancesOnKeptAccounts() async throws {
+        let (service, txRepo, accRepo, _, _, _, _, _, _) = makeService()
+        let account = AccountEntity(
+            name: "Wallet",
+            type: .cash,
+            balance: 750,
+            openingBalance: 1_000
+        )
+        try await accRepo.create(account)
+        try await txRepo.create(
+            TransactionEntity(
+                amount: 250,
+                type: .expense,
+                paymentMethod: .cash,
+                accountID: account.id
+            )
+        )
+
+        try await service.clearData(scope: .all)
+
+        #expect((try await txRepo.fetchAll(filter: nil)).isEmpty)
+        #expect(accRepo.accounts.first?.balance == 1_000)
     }
 
     @Test("clearData(.budgets) deletes all budgets")
@@ -307,7 +363,11 @@ struct DataManagementServiceTests {
             recurringRuleRepository: recurringRepo,
             taxProfileRepository: taxRepo,
             documentStorageService: documentStorage,
-            keychainService: keychain
+            keychainService: keychain,
+            ledgerWriting: MockLedgerWriting(
+                transactionRepository: txRepo,
+                accountRepository: accRepo
+            )
         )
 
         try await service.factoryReset()
@@ -353,7 +413,11 @@ struct DataManagementServiceTests {
             splitGroupRepository: splitRepo,
             documentRepository: docRepo,
             keychainService: keychain,
-            dataSeeder: seeder
+            dataSeeder: seeder,
+            ledgerWriting: MockLedgerWriting(
+                transactionRepository: txRepo,
+                accountRepository: accRepo
+            )
         )
 
         try await service.factoryReset()

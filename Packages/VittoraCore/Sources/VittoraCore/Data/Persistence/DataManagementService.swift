@@ -53,6 +53,9 @@ public final class DataManagementService: Sendable {
     private let documentStorageService: (any DocumentStorageServiceProtocol)?
     private let keychainService: any KeychainServiceProtocol
     private let dataSeeder: (any DataSeederProtocol)?
+    /// Required for transaction clears: raw repository deletes leave account
+    /// balances still reflecting the removed rows (DATAINTEGRITY-2/4).
+    private let ledgerWriting: any LedgerWriting
 
     public init(
         transactionRepository: any TransactionRepository,
@@ -68,7 +71,8 @@ public final class DataManagementService: Sendable {
         taxProfileRepository: (any TaxProfileRepository)? = nil,
         documentStorageService: (any DocumentStorageServiceProtocol)? = nil,
         keychainService: any KeychainServiceProtocol,
-        dataSeeder: (any DataSeederProtocol)? = nil
+        dataSeeder: (any DataSeederProtocol)? = nil,
+        ledgerWriting: any LedgerWriting
     ) {
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
@@ -84,6 +88,7 @@ public final class DataManagementService: Sendable {
         self.documentStorageService = documentStorageService
         self.keychainService = keychainService
         self.dataSeeder = dataSeeder
+        self.ledgerWriting = ledgerWriting
     }
 
     // MARK: - Statistics
@@ -115,7 +120,7 @@ public final class DataManagementService: Sendable {
     public func clearData(scope: ClearDataScope) async throws {
         switch scope {
         case .transactions:
-            try await deleteAll(from: transactionRepository)
+            try await clearAllTransactionsViaLedger()
         case .budgets:
             try await deleteAll(from: budgetRepository)
         case .debts:
@@ -128,7 +133,7 @@ public final class DataManagementService: Sendable {
                 try await splitGroupRepository.deleteGroup(group.id)
             }
         case .all:
-            try await deleteAll(from: transactionRepository)
+            try await clearAllTransactionsViaLedger()
             try await deleteAll(from: budgetRepository)
             try await deleteAll(from: debtRepository)
             try await deleteAll(from: savingsGoalRepository)
@@ -191,11 +196,24 @@ public final class DataManagementService: Sendable {
 
     // MARK: - Helpers
 
-    private func deleteAll(from repo: any TransactionRepository) async throws {
+    /// Deletes every transaction through `LedgerWriting.performDelete` so each
+    /// row's balance effect is reversed. A raw repository wipe would leave
+    /// accounts with balances that no longer match any stored history.
+    ///
+    /// Transfer pairs: `performDelete` removes both legs; a subsequent
+    /// `notFound` for the already-removed partner is ignored.
+    private func clearAllTransactionsViaLedger() async throws {
         while true {
-            let items = try await repo.fetchAll(filter: nil)
+            let items = try await transactionRepository.fetchAll(filter: nil)
             if items.isEmpty { break }
-            for item in items { try await repo.delete(item.id) }
+            for item in items {
+                do {
+                    try await ledgerWriting.performDelete(transactionID: item.id)
+                } catch let error as VittoraError {
+                    if case .notFound = error { continue }
+                    throw error
+                }
+            }
         }
     }
 

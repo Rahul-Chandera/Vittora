@@ -228,7 +228,8 @@ extension DependencyContainer {
             taxProfileRepository: taxProfileRepository,
             documentStorageService: documentStorageService,
             keychainService: keychainService,
-            dataSeeder: dataSeeder
+            dataSeeder: dataSeeder,
+            ledgerWriting: ledgerWriteStore
         )
     }
 }

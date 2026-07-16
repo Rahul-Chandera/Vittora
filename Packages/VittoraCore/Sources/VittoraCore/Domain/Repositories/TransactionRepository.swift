@@ -12,6 +12,8 @@ public protocol TransactionRepository: Sendable {
     func fetchAllForReconciliation() async throws -> [TransactionEntity]
     func fetchByID(_ id: UUID) async throws -> TransactionEntity?
     func fetchForAccount(id: UUID, limit: Int) async throws -> [TransactionEntity]
+    /// Every transaction linked to the rule. Must not silently truncate —
+    /// recurring catch-up idempotency depends on seeing all existing occurrence days.
     func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity]
     func hasTransactions(forAccountID id: UUID) async throws -> Bool
     func create(_ entity: TransactionEntity) async throws
