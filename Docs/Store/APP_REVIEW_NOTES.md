@@ -5,6 +5,11 @@ the iOS and macOS submissions (same underlying app, same answers — only
 item 2 below differs per platform). Apple's request had 7 items; items are
 numbered to match.
 
+The Notes field has a **4000-character limit**. Use the paste-ready
+compressed version at the bottom of this doc (§ Paste-ready version,
+~3,530 characters) — the expanded sections above it are for editing only
+and run over the limit combined.
+
 ---
 
 ## 1. Screen recording
@@ -190,3 +195,50 @@ device list in §2 filled in) into **both** the iOS and macOS app's Review
 Information → Notes field before resubmitting. Since both platforms got
 the identical templated 2.1 request, the same notes apply to both — no
 need to write two different responses.
+
+---
+
+## Paste-ready version (fits the 4000-character limit)
+
+Fill in the device list in item 2, then paste this whole block as-is —
+~3,530 characters, well under the limit. Same facts as above, tightened.
+
+```
+1. Screen recording = video is attached
+
+2. Devices and OS tested on
+- iPhone 17 Pro Max, iOS 26.x (physical device)
+- iPad Pro 13" (M5), iPadOS 26.x (physical device)
+- [Mac model], macOS 26.x (Apple Silicon)
+
+3. App purpose and target audience
+Vittora is a personal finance app for iPhone, iPad, and Mac. It helps individuals and households track income/expenses, manage category budgets, save toward goals, split shared expenses, track informal debts (money lent/borrowed between individuals), and get a lightweight income-tax estimate (U.S. federal or India old-vs-new-regime).
+
+Target audience: salaried individuals, freelancers, and households in the U.S. and India who want manual, privacy-first expense tracking without linking a bank account or handing data to a third-party aggregator. Most finance apps require bank-account linking via an aggregator or upload data to a vendor cloud; Vittora works fully offline, storing data on-device and, optionally, syncing only through the user's own private iCloud — never a server we operate.
+
+4. Setup and access instructions
+No login, account, or demo credentials exist or are needed — Vittora has no accounts, sign-up, or auth server. On first launch the user completes local onboarding (name, currency) and lands in the app with an empty state.
+
+To populate it, add a transaction via the "+" Quick Action on the Dashboard (Expense/Income/Transfer), or create a Budget/Savings Goal from their tabs — immediate, no wizard or file needed.
+
+App Lock (Face ID/Touch ID) is optional and off by default, so it won't block reviewers unless enabled in Settings.
+
+5. External services, tools, or platforms
+Only first-party Apple frameworks — no third-party SDKs, analytics, ad networks, or backend servers:
+- iCloud (CloudKit) — optional private-database sync between the user's own devices (NSPersistentCloudKitContainer). Syncs only their iCloud account, never a server we control.
+- VisionKit (VNDocumentCameraViewController) — on-device receipt scanning. Nothing is sent anywhere; it's stored in the local transaction record (and iCloud, if sync is on).
+- Contacts — optional, user-initiated import of a contact's name/photo to label a Payee or Debt record. Copied locally only.
+- LocalAuthentication (Face ID/Touch ID) — optional App Lock; the app receives only a pass/fail result, never biometric data.
+
+No payment processor (app is free, no IAP yet), no data providers, no AI/ML services beyond Apple's on-device VisionKit.
+
+6. Regional differences
+Vittora functions identically across regions for all core features (transactions, budgets, savings, debts, splits, sync, App Lock). The only region-aware behavior:
+- Currency: user picks one in Settings (USD, INR, EUR, GBP, JPY, CAD, AUD, SGD, AED) — changes formatting only, not features.
+- Tax Estimator: shows a U.S. federal estimate or an India old-vs-new-regime comparison, based on the user's own selection — available to any user regardless of storefront; nothing is geofenced.
+
+No other content, pricing, or feature differs by region.
+
+7. Regulated industry / protected material
+Vittora is not a financial institution and needs no special authorization. It does not connect to bank accounts, move money, process payments, or provide licensed financial, tax, legal, or investment advice — stated explicitly in the Terms of Service and on the Tax Estimator screen. All calculations (budgets, tax estimates, reports) derive solely from data the user manually enters and are presented as informational tools, not professional advice. No third-party protected material is used.
+```
