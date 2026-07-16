@@ -14,13 +14,22 @@ and run over the limit combined.
 
 ## 1. Screen recording
 
-*(Capture this yourself on a physical device — see the shot list below, not
+*(Capture this yourself on a physical device — see the shot lists below, not
 paste-able text.)*
+
+**Record separately per platform, not once for both.** iOS and macOS are
+separate submissions in App Store Connect, each with its own Review
+Information/attachment slot — a reviewer evaluating the Mac binary only
+sees what's attached to that submission. The Mac UI is also a genuinely
+different shell (`SidebarNavigation` + `HSplitView` panes, not a tab bar),
+so an iPhone recording doesn't stand in for it.
 
 Vittora has no account registration/login, no paid/subscription flow (the
 app is 100% free at launch, no IAP), no user-generated content shared with
 other users, and no runtime permission prompts other than the three listed
-in item 5. So the recording only needs to cover the core flow:
+in item 5. So each recording only needs to cover the core flow:
+
+### iOS/iPadOS recording
 
 1. Launch the app (fresh install or existing data — either is fine, no
    login screen will appear).
@@ -36,12 +45,30 @@ in item 5. So the recording only needs to cover the core flow:
 9. Settings → Currency (show the picker) and Settings → App Lock (show the
    Face ID/Touch ID toggle — this is where the Face ID prompt in item 1's
    checklist applies).
-10. If you scan a receipt on camera-equipped hardware: Add Transaction →
-    attach receipt → camera opens (VisionKit document scanner) — this is
-    where the camera prompt applies.
+10. Add Transaction → attach receipt → camera opens (VisionKit document
+    scanner) — this is where the camera prompt applies.
+
+### macOS recording
+
+Same flow, adapted for the Mac shell — **skip the camera step**: receipt
+scanning is gated `#if os(iOS)` in `ReceiptScannerView.swift` and doesn't
+exist on Mac at all.
+
+1. Launch → Dashboard (sidebar navigation visible).
+2. Add a transaction via Quick Actions.
+3. Transactions → click a row, show the split-view detail pane populate.
+4. Budgets → open one, show spent/remaining.
+5. Savings goal → show progress.
+6. Reports → Category Breakdown.
+7. Settings → Currency picker.
+8. Settings → App Lock toggle (Touch ID prompt if this Mac has one paired;
+   otherwise just showing the toggle is fine).
+9. Payees → Import from Contacts (this feature does work on Mac, unlike
+   the camera scan) — this is where the Contacts prompt applies.
 
 No account deletion flow to show beyond Settings → Data → Delete All Data,
-which is worth including since it's a distinctive privacy feature.
+which is worth including on either platform since it's a distinctive
+privacy feature.
 
 ---
 
