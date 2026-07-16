@@ -289,12 +289,15 @@ public actor SwiftDataTransactionRepository: TransactionRepository {
         return try modelContext.fetch(descriptor).map(TransactionMapper.toEntity)
     }
 
+    /// All occurrences for a recurring rule. Must be uncapped: catch-up
+    /// generation keys idempotency off this set, and a stale `nextDate` after an
+    /// interrupted run can legitimately span more than a page of history. A
+    /// `fetchLimit` here silently drops older days and double-charges on retry.
     public func fetchForRecurringRule(_ id: UUID) async throws -> [TransactionEntity] {
-        var descriptor = FetchDescriptor<SDTransaction>(
+        let descriptor = FetchDescriptor<SDTransaction>(
             predicate: #Predicate { $0.recurringRuleID == id },
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
-        descriptor.fetchLimit = 20
         return try modelContext.fetch(descriptor).map(TransactionMapper.toEntity)
     }
 

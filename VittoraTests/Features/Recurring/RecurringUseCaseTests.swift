@@ -336,6 +336,53 @@ struct RecurringUseCaseTests {
         #expect(updatedRule?.nextDate == makeRecurringDate(year: 2026, month: 4, day: 1))
     }
 
+    @Test("Interrupted catch-up of >20 occurrences self-heals without double-charging older days")
+    func generateRecurringTransactionsSelfHealsLongCatchUpWithoutTruncation() async throws {
+        let ruleRepository = MockRecurringRuleRepository()
+        let transactionRepository = MockTransactionRepository()
+        let accountRepository = MockAccountRepository()
+        let startingBalance = Decimal(10_000)
+        let account = AccountEntity(name: "Main Account", type: .bank, balance: startingBalance)
+        try await accountRepository.create(account)
+
+        // 25 daily occurrences overdue — above the former fetchLimit of 20.
+        let start = makeRecurringDate(year: 2026, month: 1, day: 1)
+        let now = makeRecurringDate(year: 2026, month: 1, day: 25)
+        let rule = RecurringRuleEntity(
+            frequency: .daily,
+            nextDate: start,
+            templateAmount: 10,
+            templateAccountID: account.id
+        )
+        await ruleRepository.seed(rule)
+        await ruleRepository.configureUpdateFailure(true)
+
+        let useCase = makeUseCase(
+            ruleRepository: ruleRepository,
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            now: now
+        )
+
+        await #expect(throws: (any Error).self) {
+            try await useCase.execute()
+        }
+        var transactions = await transactionRepository.transactions
+        #expect(transactions.count == 25)
+        #expect(accountRepository.accounts.first?.balance == startingBalance - 250)
+
+        // Retry with a working pointer update: must skip all 25 existing days,
+        // including the oldest ones that a fetchLimit of 20 would have dropped.
+        await ruleRepository.configureUpdateFailure(false)
+        let generatedCount = try await useCase.execute()
+        #expect(generatedCount == 0)
+        transactions = await transactionRepository.transactions
+        #expect(transactions.count == 25)
+        #expect(accountRepository.accounts.first?.balance == startingBalance - 250)
+        let updatedRule = try await ruleRepository.fetchByID(rule.id)
+        #expect(updatedRule?.nextDate == makeRecurringDate(year: 2026, month: 1, day: 26))
+    }
+
     @Test("Concurrent launch + background runs never duplicate an occurrence")
     func recurringCoordinatorCoalescesConcurrentRuns() async throws {
         let ruleRepository = MockRecurringRuleRepository()

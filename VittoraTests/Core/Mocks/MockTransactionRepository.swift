@@ -90,8 +90,6 @@ actor MockTransactionRepository: TransactionRepository {
         return transactions
             .filter { $0.recurringRuleID == id }
             .sorted { $0.date > $1.date }
-            .prefix(20)
-            .map { $0 }
     }
 
     func hasTransactions(forAccountID id: UUID) async throws -> Bool {
