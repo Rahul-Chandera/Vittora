@@ -104,7 +104,23 @@ public final class CloudKitSyncMonitor {
             return
         }
 
-        syncStatusService.markError(error.localizedDescription)
+        syncStatusService.markError(friendlySyncMessage(for: error))
+    }
+
+    /// Raw CloudKit descriptions ("CKErrorDomain error 2") read as crashes to
+    /// users (and App Review — surfaced in the 2026-07-16 Mac review). Map the
+    /// common codes to plain language; data is always safe locally.
+    public func friendlySyncMessage(for error: Error) -> String {
+        switch extractCKError(from: error)?.code {
+        case .notAuthenticated:
+            return String(localized: "Sign in to iCloud to sync your data across devices.")
+        case .networkUnavailable, .networkFailure:
+            return String(localized: "Sync will resume when you're back online.")
+        case .quotaExceeded:
+            return String(localized: "Your iCloud storage is full. Sync will resume once space is available.")
+        default:
+            return String(localized: "iCloud sync is temporarily unavailable. Your data is safe on this device.")
+        }
     }
 
     /// Returns true when the error chain contains a CKError indicating a record conflict.
