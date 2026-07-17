@@ -365,4 +365,51 @@ struct DataManagementServiceTests {
         // here; the real DefaultDataSeeder repopulates them in production.
         #expect((try await catRepo.fetchAll()).isEmpty)
     }
+
+    @Test("recovery factoryReset clears seeded gate and does not reseed ephemeral store")
+    func recoveryFactoryResetClearsSeededGateWithoutReseeding() async throws {
+        let txRepo = MockTransactionRepository()
+        let accRepo = MockAccountRepository()
+        let catRepo = MockCategoryRepository()
+        let budRepo = MockBudgetRepo()
+        let debtRepo = MockDebtRepo()
+        let goalRepo = MockSavingsGoalRepo()
+        let splitRepo = MockSplitGroupRepo()
+        let docRepo = MockDocumentRepo()
+        let keychain = MockKeychainService()
+        let seeder = MockDataSeeder()
+
+        let seededKey = AppUserDefaults.StandardKey.defaultDataSeeded
+        let previousSeeded = UserDefaults.standard.object(forKey: seededKey)
+        UserDefaults.standard.set(true, forKey: seededKey)
+        defer {
+            if let previousSeeded {
+                UserDefaults.standard.set(previousSeeded, forKey: seededKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: seededKey)
+            }
+        }
+
+        let service = DataManagementService(
+            transactionRepository: txRepo,
+            accountRepository: accRepo,
+            categoryRepository: catRepo,
+            budgetRepository: budRepo,
+            debtRepository: debtRepo,
+            savingsGoalRepository: goalRepo,
+            splitGroupRepository: splitRepo,
+            documentRepository: docRepo,
+            keychainService: keychain,
+            dataSeeder: seeder
+        )
+
+        // alsoDestroyOnDiskStore mirrors recovery mode: repositories only touch
+        // the ephemeral container, so reseeding there would poison the gate.
+        try await service.factoryReset(alsoDestroyOnDiskStore: true)
+
+        let reseedCount = await seeder.reseedCallCount
+        #expect(reseedCount == 0)
+        #expect(UserDefaults.standard.bool(forKey: seededKey) == false)
+        #expect(UserDefaults.standard.object(forKey: seededKey) == nil)
+    }
 }

@@ -12,24 +12,22 @@ public protocol DataSeederProtocol: Sendable {
 
 @ModelActor
 public actor DefaultDataSeeder: DataSeederProtocol {
-    private let seededKey = "com.vittora.defaultDataSeeded"
-
     public func seedDefaultCategoriesIfNeeded() async throws {
         let userDefaults = UserDefaults.standard
-        guard !userDefaults.bool(forKey: seededKey) else {
+        guard !userDefaults.bool(forKey: AppUserDefaults.StandardKey.defaultDataSeeded) else {
             return
         }
 
         try await seedExpenseCategories()
         try await seedIncomeCategories()
 
-        userDefaults.set(true, forKey: seededKey)
+        userDefaults.set(true, forKey: AppUserDefaults.StandardKey.defaultDataSeeded)
     }
 
     public func reseedDefaultCategories() async throws {
         try await seedExpenseCategories()
         try await seedIncomeCategories()
-        UserDefaults.standard.set(true, forKey: seededKey)
+        UserDefaults.standard.set(true, forKey: AppUserDefaults.StandardKey.defaultDataSeeded)
     }
 
     private func seedExpenseCategories() async throws {

@@ -154,7 +154,7 @@ public final class DataManagementService: Sendable {
     ///   the repositories only clear the in-memory container and the unopenable
     ///   on-disk store must be deleted too or the next launch lands straight
     ///   back in recovery. Never pass `true` while an on-disk container is open.
-    ///   ponytail: CloudKit server records are not purged; stale rows can
+    ///   Note: CloudKit server records are not purged; stale rows can
     ///   re-sync after a recovery reset and can be deleted normally then.
     public func factoryReset(alsoDestroyOnDiskStore: Bool = false) async throws {
         try await clearData(scope: .all)
@@ -162,12 +162,6 @@ public final class DataManagementService: Sendable {
         for account in accounts { try await accountRepository.delete(account.id) }
         let categories = try await categoryRepository.fetchAll()
         for category in categories { try await categoryRepository.delete(category.id) }
-
-        // Restore the out-of-the-box default categories so the app remains
-        // immediately usable post-reset (matches a fresh-install experience).
-        if let dataSeeder {
-            try await dataSeeder.reseedDefaultCategories()
-        }
 
         // Clear sensitive Keychain entries
         try await keychainService.delete(forKey: AppUserDefaults.KeychainKey.onboardingComplete)
@@ -185,7 +179,17 @@ public final class DataManagementService: Sendable {
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.savedTransactionFilters)
 
         if alsoDestroyOnDiskStore {
+            // Recovery mode only mutates the ephemeral in-memory container.
+            // Reseeding there would set the "already seeded" gate while the
+            // rows die with process exit — next launch would open an empty
+            // on-disk store and skip default categories. Clear the gate and
+            // let startup seed into the fresh store after destroy.
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.defaultDataSeeded)
             try ModelContainerConfig.destroyPersistentStore()
+        } else if let dataSeeder {
+            // Restore the out-of-the-box default categories so the app remains
+            // immediately usable post-reset (matches a fresh-install experience).
+            try await dataSeeder.reseedDefaultCategories()
         }
     }
 

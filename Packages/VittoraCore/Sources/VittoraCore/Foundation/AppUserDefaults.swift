@@ -31,6 +31,8 @@ public enum AppUserDefaults {
         public nonisolated static let categorizationRules = "vittora.categorizationRules"
         public nonisolated static let transactionEditHistory = "vittora.transactionEditHistory"
         public nonisolated static let savedTransactionFilters = "vittora.savedTransactionFilters"
+        /// Gate for one-time default category seeding (`DefaultDataSeeder`).
+        public nonisolated static let defaultDataSeeded = "com.vittora.defaultDataSeeded"
     }
 
     public enum KeychainKey {
