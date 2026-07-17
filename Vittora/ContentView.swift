@@ -68,7 +68,9 @@ private struct PrivacyShieldOverlay: View {
                     .foregroundStyle(VColors.textPrimary)
             }
         }
-        .privacySensitive()
+        // Deliberately NOT .privacySensitive(): this overlay IS the privacy
+        // cover. Marking it sensitive made the system redact its own icon and
+        // label into a box + bar during Face ID auth (scene inactive).
         .accessibilityElement(children: .combine)
         .accessibilityLabel(String(localized: "Private financial data is hidden"))
     }

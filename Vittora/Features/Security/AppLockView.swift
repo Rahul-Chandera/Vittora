@@ -94,7 +94,9 @@ struct AppLockView: View {
             }
         }
         .accessibilityIdentifier("app-lock-root")
-        .privacySensitive()
+        // Deliberately NOT .privacySensitive(): the lock screen shows no user
+        // data, and redacting it during the Face ID prompt (scene inactive)
+        // collapsed it into placeholder shapes.
         .task {
             guard isLockServiceAvailable else {
                 applyMissingServiceFailClosed()
