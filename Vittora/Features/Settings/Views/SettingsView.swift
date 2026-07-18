@@ -9,6 +9,8 @@ struct SettingsView: View {
     @State private var showDeleteAccountConfirm = false
     @State private var deleteConfirmationText = ""
     @State private var isDeletingAllData = false
+    @State private var deleteAllDataError: String?
+    @State private var showRestartAfterRecoveryReset = false
 
     private let deleteConfirmationPhrase = String(localized: "DELETE")
 
@@ -32,7 +34,7 @@ struct SettingsView: View {
                             Text(vm.userName.isEmpty ? String(localized: "Your Name") : vm.userName)
                                 .font(VTypography.bodyBold)
                                 .foregroundStyle(VColors.textPrimary)
-                            Text(String(localized: "Tap to edit profile"))
+                            Text(String(localized: "Edit profile"))
                                 .font(VTypography.caption1)
                                 .foregroundStyle(VColors.textSecondary)
                         }
@@ -166,8 +168,24 @@ struct SettingsView: View {
             get: { vm.keychainError },
             set: { vm.keychainError = $0 }
         ))
-        .sheet(isPresented: $showDeleteAccountConfirm) {
+        .sheet(isPresented: $showDeleteAccountConfirm, onDismiss: {
+            deleteConfirmationText = ""
+            deleteAllDataError = nil
+        }) {
             deleteAllDataConfirmationSheet
+        }
+        .alert(
+            String(localized: "Data Erased"),
+            isPresented: $showRestartAfterRecoveryReset
+        ) {
+            #if os(macOS)
+            Button(String(localized: "Quit Vittora")) {
+                NSApp.terminate(nil)
+            }
+            #endif
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "Quit and reopen Vittora to finish leaving recovery mode with a fresh data store."))
         }
     }
 
@@ -184,6 +202,9 @@ struct SettingsView: View {
                         .foregroundStyle(VColors.textSecondary)
 
                     TextField(deleteConfirmationPhrase, text: $deleteConfirmationText)
+                        // On macOS the grouped form renders the title as a
+                        // redundant leading label next to the caption above.
+                        .labelsHidden()
                         #if os(iOS)
                         .textInputAutocapitalization(.characters)
                         #endif
@@ -191,6 +212,15 @@ struct SettingsView: View {
 
                     if !deleteConfirmationText.isEmpty && !canConfirmDeleteAllData {
                         VInlineErrorText(String(localized: "The confirmation text must match exactly."))
+                    }
+                }
+
+                // Errors must render inside the sheet: the errorAlert on the
+                // underlying SettingsView cannot present while this sheet is up,
+                // so routing failures there swallows them silently.
+                if let deleteAllDataError {
+                    Section {
+                        VInlineErrorText(deleteAllDataError)
                     }
                 }
             }
@@ -221,6 +251,7 @@ struct SettingsView: View {
 
     private func confirmDeleteAllData() async {
         isDeletingAllData = true
+        deleteAllDataError = nil
         defer { isDeletingAllData = false }
 
         do {
@@ -231,7 +262,7 @@ struct SettingsView: View {
                 return
             }
         } catch {
-            vm.keychainError = error.localizedDescription
+            deleteAllDataError = error.localizedDescription
             return
         }
 
@@ -239,6 +270,9 @@ struct SettingsView: View {
         if didDelete {
             resetRuntimeStateAfterFactoryReset()
             showDeleteAccountConfirm = false
+            if appState.isRecoveryMode {
+                showRestartAfterRecoveryReset = true
+            }
         }
     }
 
@@ -255,10 +289,13 @@ struct SettingsView: View {
     private func deleteAllData() async -> Bool {
         let service = dependencies.makeDataManagementService()
         do {
-            try await service.factoryReset()
+            // In recovery mode the repositories only clear the in-memory
+            // container; the unopenable on-disk store must be deleted too or
+            // the next launch lands straight back in recovery.
+            try await service.factoryReset(alsoDestroyOnDiskStore: appState.isRecoveryMode)
             return true
         } catch {
-            vm.keychainError = error.localizedDescription
+            deleteAllDataError = error.localizedDescription
             return false
         }
     }

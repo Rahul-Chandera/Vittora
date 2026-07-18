@@ -73,12 +73,10 @@ struct SidebarNavigation: View {
                 .withNavigationDestinations()
             }
         }
+        // No window-global "+" here: it stacks with each screen's own add
+        // button (Categories, Budgets, …) so every pushed screen showed two.
+        // Quick entry stays reachable via ⌘N and the dashboard floating +.
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: { showAddTransaction = true }) {
-                    Label(String(localized: "New Transaction"), systemImage: "plus")
-                }
-            }
             ToolbarItem(placement: .status) {
                 SyncStatusView()
             }

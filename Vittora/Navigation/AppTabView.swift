@@ -126,6 +126,10 @@ struct AppTabView: View {
                 Text(String(localized: "Social"))
             }
 
+            // The header is load-bearing: the sidebarAdaptable style renders a
+            // header-less TabSection as an empty disclosure (no row, no
+            // top-bar item), leaving Settings unreachable on iPad. A bare Tab
+            // works but floats to the top of the sidebar, out of order.
             TabSection {
                 Tab(AppState.AppTab.settings.title,
                     systemImage: AppState.AppTab.settings.systemImage,
@@ -135,6 +139,8 @@ struct AppTabView: View {
                             .withNavigationDestinations()
                     }
                 }
+            } header: {
+                Text(String(localized: "General"))
             }
         }
         .tabViewStyle(.sidebarAdaptable)

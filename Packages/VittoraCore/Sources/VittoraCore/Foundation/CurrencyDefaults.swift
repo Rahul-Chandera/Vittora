@@ -3,8 +3,14 @@ import Foundation
 public enum CurrencyDefaults {
     public nonisolated static let fallbackCode = "USD"
 
+    /// The user's chosen app currency, falling back to the device locale.
+    /// Components default their `currencyCode` parameter to this, so it must
+    /// reflect the Settings choice — locale alone shows the wrong symbol for
+    /// anyone whose device region differs from their selected currency.
     public nonisolated static var code: String {
-        Locale.current.currency?.identifier ?? fallbackCode
+        UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.currencyCode)
+            ?? Locale.current.currency?.identifier
+            ?? fallbackCode
     }
 
     public nonisolated static var symbol: String {

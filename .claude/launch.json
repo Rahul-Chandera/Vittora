@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vittora-website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Volumes/Data/Projects/Vittora/VittoraWebsite", "run", "dev"],
+      "port": 4321
+    }
+  ]
+}
