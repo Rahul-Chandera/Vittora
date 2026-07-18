@@ -35,7 +35,7 @@ struct AnnualReportView: View {
             .padding(VSpacing.screenPadding)
         }
         .background(VColors.background)
-        .navigationTitle(String(localized: "Annual Report"))
+        .navigationTitle(String(localized: "Annual Summary"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -43,18 +43,21 @@ struct AnnualReportView: View {
             ToolbarItem(placement: .primaryAction) {
                 if let vm, hasReportData(vm) {
                     ReportPDFShareLink(
-                        fileName: "annual-report-\(selectedYear)",
+                        fileName: "annual-summary-\(selectedYear)",
                         contentVersion: annualReportContentVersion(vm),
                         isEnabled: !vm.isLoading
                     ) {
-                        MonthlyReportExportDocument(
-                            reportTitle: String(localized: "Annual Report"),
-                            subtitle: String(localized: "Year \(selectedYear)"),
-                            monthlyData: vm.monthlyData,
-                            currencyCode: currencyCode,
-                            totalIncome: vm.totalIncome,
-                            totalExpense: vm.totalExpense,
-                            netSavings: vm.netSavings
+                        try ReportPDFRenderer.export(
+                            pages: MonthlyReportPDFDocument.pages(
+                                reportTitle: String(localized: "Annual Summary"),
+                                period: String(localized: "Year \(selectedYear)"),
+                                monthlyData: vm.monthlyData,
+                                currencyCode: currencyCode,
+                                totalIncome: vm.totalIncome,
+                                totalExpense: vm.totalExpense,
+                                netSavings: vm.netSavings
+                            ),
+                            fileName: "annual-summary-\(selectedYear)"
                         )
                     }
                 }

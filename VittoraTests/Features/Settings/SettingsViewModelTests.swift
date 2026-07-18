@@ -154,6 +154,14 @@ struct SettingsViewModelTests {
 
     @Test("Keychain error reverts app lock state and sets keychainError")
     func keychainErrorRevertsAppLockState() async throws {
+        // Init still hydrates from the real keychain; clear so "previous" is known.
+        KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
+        defer {
+            KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
+        }
+
         let keychain = MockKeychainService()
         keychain.shouldThrowError = true
         let vm = makeViewModel(keychainService: keychain)
