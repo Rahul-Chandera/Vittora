@@ -53,6 +53,23 @@ public enum AppLockPasscodeFallbackPolicy {
     }
 }
 
+/// Whether any scene should show `AppLockView` instead of financial UI.
+/// Shared by the main window and the macOS Settings scene so Settings cannot
+/// bypass lock while the main window is locked.
+public enum AppLockPresentationPolicy {
+    public nonisolated static func shouldPresentLock(
+        isAppLockEnabled: Bool,
+        isLocked: Bool,
+        isAuthenticated: Bool,
+        isUITesting: Bool,
+        exercisesAppLockPolicy: Bool
+    ) -> Bool {
+        (!isUITesting || exercisesAppLockPolicy)
+            && isAppLockEnabled
+            && (isLocked || !isAuthenticated)
+    }
+}
+
 @MainActor
 public final class AppLockService: AppLockServiceProtocol, Sendable {
     private let biometricService: any BiometricServiceProtocol

@@ -260,16 +260,31 @@ struct VittoraApp: App {
         #if os(macOS)
         Settings {
             if let modelContainer {
-                SettingsView()
-                    .vittoraAppEnvironments(
-                        appState: appState,
-                        dependencies: dependencies,
-                        settingsVM: settingsVM,
-                        syncService: syncService,
-                        syncConflictHandler: syncConflictHandler,
-                        modelContainer: modelContainer
-                    )
-                    .frame(minWidth: 520, minHeight: 480)
+                Group {
+                    // Gate Settings the same way as ContentView — the Settings
+                    // scene is a separate window and otherwise bypasses App Lock,
+                    // exposing Accounts/Payees/etc. while the main window is locked.
+                    if AppLockPresentationPolicy.shouldPresentLock(
+                        isAppLockEnabled: settingsVM.isAppLockEnabled,
+                        isLocked: appState.isLocked,
+                        isAuthenticated: appState.isAuthenticated,
+                        isUITesting: appState.isUITesting,
+                        exercisesAppLockPolicy: appState.exercisesAppLockPolicy
+                    ) {
+                        AppLockView()
+                    } else {
+                        SettingsView()
+                    }
+                }
+                .vittoraAppEnvironments(
+                    appState: appState,
+                    dependencies: dependencies,
+                    settingsVM: settingsVM,
+                    syncService: syncService,
+                    syncConflictHandler: syncConflictHandler,
+                    modelContainer: modelContainer
+                )
+                .frame(minWidth: 520, minHeight: 480)
             } else {
                 ContentUnavailableView {
                     Label(String(localized: "Settings Unavailable"), systemImage: "gearshape")

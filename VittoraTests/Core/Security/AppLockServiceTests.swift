@@ -310,6 +310,56 @@ struct AppLockServiceTests {
         #expect(AppLockPasscodeFallbackPolicy.showsPasscodeButton(allowPasscodeFallback: false) == false)
     }
 
+    // MARK: - Presentation policy (Settings + main window)
+
+    @Test("presents lock when enabled and session is locked")
+    func presentsLockWhenLocked() {
+        #expect(
+            AppLockPresentationPolicy.shouldPresentLock(
+                isAppLockEnabled: true,
+                isLocked: true,
+                isAuthenticated: false,
+                isUITesting: false,
+                exercisesAppLockPolicy: false
+            )
+        )
+    }
+
+    @Test("hides lock when authenticated and unlocked")
+    func hidesLockWhenAuthenticated() {
+        #expect(
+            !AppLockPresentationPolicy.shouldPresentLock(
+                isAppLockEnabled: true,
+                isLocked: false,
+                isAuthenticated: true,
+                isUITesting: false,
+                exercisesAppLockPolicy: false
+            )
+        )
+    }
+
+    @Test("UI testing skips lock unless exercisesAppLockPolicy is set")
+    func uiTestingSkipsUnlessExercisingPolicy() {
+        #expect(
+            !AppLockPresentationPolicy.shouldPresentLock(
+                isAppLockEnabled: true,
+                isLocked: true,
+                isAuthenticated: false,
+                isUITesting: true,
+                exercisesAppLockPolicy: false
+            )
+        )
+        #expect(
+            AppLockPresentationPolicy.shouldPresentLock(
+                isAppLockEnabled: true,
+                isLocked: true,
+                isAuthenticated: false,
+                isUITesting: true,
+                exercisesAppLockPolicy: true
+            )
+        )
+    }
+
     @Test("unlock forwards allowPasscodeFallback to biometrics")
     func unlockForwardsFallbackFlag() async throws {
         let (service, biometric, _) = makeService()
