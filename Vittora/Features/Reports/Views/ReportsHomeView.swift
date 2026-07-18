@@ -13,7 +13,8 @@ struct ReportsHomeView: View {
         (.custom, String(localized: "Custom Report"), String(localized: "Filter by date, group by category or account"), "slider.horizontal.3", .teal),
         (.annual, String(localized: "Annual Summary"), String(localized: "Review yearly income, spending, and monthly totals"), "calendar", .indigo),
         (.cashFlow, String(localized: "Cash Flow"), String(localized: "Track inflows and outflows over time"), "waveform.path.ecg", .green),
-        (.netWorth, String(localized: "Net Worth"), String(localized: "See how your total balance changes over time"), "chart.line.uptrend.xyaxis.circle.fill", .pink)
+        (.netWorth, String(localized: "Net Worth"), String(localized: "See how your total balance changes over time"), "chart.line.uptrend.xyaxis.circle.fill", .pink),
+        (.subscriptionAudit, String(localized: "Subscription Audit"), String(localized: "What recurring expenses cost each month"), "arrow.triangle.2.circlepath", .cyan)
     ]
 
     var body: some View {
@@ -117,6 +118,8 @@ struct ReportsHomeView: View {
             CashFlowReportView()
         case .netWorth:
             NetWorthReportView()
+        case .subscriptionAudit:
+            SubscriptionAuditReportView()
         }
     }
 
