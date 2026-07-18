@@ -44,13 +44,17 @@ struct SubscriptionCostNormalizationTests {
         #expect(SubscriptionCostNormalization.annualEquivalent(amount: 120, frequency: .yearly) == 120)
     }
 
-    @Test("custom days annualizes via 365/(days×12)")
+    @Test("custom days annualizes via 365/days then ÷12")
     func customDaysNormalization() {
-        let monthly = SubscriptionCostNormalization.monthlyEquivalent(
+        let annual = SubscriptionCostNormalization.annualEquivalent(
             amount: 30,
             frequency: .custom(days: 10)
         )
-        #expect(monthly == Decimal(30) * 365 / (Decimal(10) * 12))
+        #expect(annual == Decimal(30) * 365 / Decimal(10))
+        #expect(
+            SubscriptionCostNormalization.monthlyEquivalent(amount: 30, frequency: .custom(days: 10))
+                == annual / 12
+        )
     }
 
     @Test("custom zero days yields zero")

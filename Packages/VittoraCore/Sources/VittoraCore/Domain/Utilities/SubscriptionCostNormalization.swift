@@ -10,30 +10,30 @@ public enum SubscriptionCostNormalization {
         amount: Decimal,
         frequency: RecurrenceFrequency
     ) -> Decimal {
-        switch frequency {
-        case .daily:
-            return amount * 365 / 12
-        case .weekly:
-            return amount * 52 / 12
-        case .biweekly:
-            return amount * 26 / 12
-        case .monthly:
-            return amount
-        case .quarterly:
-            return amount / 3
-        case .yearly:
-            return amount / 12
-        case .custom(let days):
-            guard days > 0 else { return 0 }
-            return amount * 365 / (Decimal(days) * 12)
-        }
+        annualEquivalent(amount: amount, frequency: frequency) / 12
     }
 
-    /// Annual cost from the monthly equivalent (monthly × 12).
+    /// Annualized cost for a recurring amount.
     public nonisolated static func annualEquivalent(
         amount: Decimal,
         frequency: RecurrenceFrequency
     ) -> Decimal {
-        monthlyEquivalent(amount: amount, frequency: frequency) * 12
+        switch frequency {
+        case .daily:
+            return amount * 365
+        case .weekly:
+            return amount * 52
+        case .biweekly:
+            return amount * 26
+        case .monthly:
+            return amount * 12
+        case .quarterly:
+            return amount * 4
+        case .yearly:
+            return amount
+        case .custom(let days):
+            guard days > 0 else { return 0 }
+            return amount * 365 / Decimal(days)
+        }
     }
 }
