@@ -10,7 +10,7 @@
 		B7735C152FF2BFEF000CABD6 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = D72FE9022F8B93AA00B6FF9D /* VittoraCore */; };
 		B7735C162FF2BFEF000CABD6 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = D72FE9032F8B93AA00B6FF9D /* VittoraCore */; };
 		1459CCAE375044EDA72035F2 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = A8F5003D38B14A1DB173235D /* VittoraCore */; };
-		E9A1B2C3D4E5F60718293A4B /* VittoraWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E9A1B2C3D4E5F60718293A4B /* VittoraWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -385,6 +385,7 @@
 		};
 		56FEB248FB4249B1A724F407 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = 011F8C4246E3434AA504D0DF /* VittoraWidgets */;
 			targetProxy = 38F25EE5E27B4D328420BD71 /* PBXContainerItemProxy */;
 		};
