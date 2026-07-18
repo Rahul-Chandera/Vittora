@@ -51,7 +51,7 @@ Use `Makefile` targets for consistency:
 
 ## CI (Epic L1)
 
-GitHub Actions workflow **CI / build-and-test** runs on push/PR to `refactoring` and `develop`:
+GitHub Actions workflow **CI / build-and-test** runs on push/PR to `develop`, `staging`, and `main` (flow: develop → staging for QA → main for release):
 
 - `make build-ios`, `make build-macos`, `make test` (unit + UI on iOS Simulator; see `.github/BRANCH_PROTECTION.md`)
 - Uploads `.build-ci/*.xcresult` artifacts; US locale pinned on the runner
