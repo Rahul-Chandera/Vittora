@@ -3,12 +3,14 @@ name: CI
 on:
   push:
     branches:
-      - refactoring
       - develop
+      - staging
+      - main
   pull_request:
     branches:
-      - refactoring
       - develop
+      - staging
+      - main
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}

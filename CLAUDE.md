@@ -31,7 +31,7 @@ Use `AGENTS.md` as the canonical version.
 
 ## CI (Epic L1)
 
-GitHub Actions **CI / build-and-test** on push/PR to `refactoring` and `develop`: `make build-ios`, `make build-macos`, `make test`. See `.github/BRANCH_PROTECTION.md`.
+GitHub Actions **CI / build-and-test** on push/PR to `develop`, `staging`, and `main` (flow: develop → staging for QA → main for release): `make build-ios`, `make build-macos`, `make test`. See `.github/BRANCH_PROTECTION.md`.
 
 ## Architecture/Runbook Docs
 

@@ -1,11 +1,13 @@
 # Branch protection — required CI (L1)
 
-Gate merges into **`refactoring`** and **`develop`** on a green **CI / build-and-test** check.
+Gate merges into **`develop`**, **`staging`**, and **`main`** on a green **CI / build-and-test** check.
+
+Branch flow: feature branches → `develop` (ongoing development) → `staging` (QA testing) → `main` (release).
 
 ## GitHub settings (repo admin)
 
 1. **Settings → Branches → Add branch ruleset** (or classic protection rule).
-2. **Branch name pattern:** `refactoring` and `develop` (not all branches — feature branches push freely; checks gate merges into protected branches).
+2. **Branch name pattern:** `develop`, `staging`, and `main` (not all branches — feature branches push freely; checks gate merges into protected branches).
 3. Enable **Require status checks to pass before merging**.
 4. Search and select status check: **`build-and-test`** (workflow job name under the **CI** workflow).
 5. Enable **Require branches to be up to date before merging** (recommended).
@@ -13,7 +15,7 @@ Gate merges into **`refactoring`** and **`develop`** on a green **CI / build-and
 
 ## What CI runs
 
-On every push/PR to `refactoring` or `develop`:
+On every push/PR to `develop`, `staging`, or `main`:
 
 - `make build-ios`
 - `make build-macos`
