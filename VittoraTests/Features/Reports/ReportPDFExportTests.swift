@@ -29,17 +29,13 @@ struct ReportPDFExportTests {
         #expect(bytes.starts(with: Data("%PDF".utf8)))
         #expect(ReportPDFRenderer.pageCount(at: url) >= 2)
 
-        if let samplePath = ProcessInfo.processInfo.environment["R1_SAMPLE_PDF_PATH"], !samplePath.isEmpty {
-            let destination = URL(fileURLWithPath: samplePath)
-            try? FileManager.default.createDirectory(
-                at: destination.deletingLastPathComponent(),
-                withIntermediateDirectories: true
-            )
-            if FileManager.default.fileExists(atPath: destination.path) {
-                try FileManager.default.removeItem(at: destination)
-            }
-            try FileManager.default.copyItem(at: url, to: destination)
+        // Always leave a copy for PR verification (temp dir is sandbox-writable).
+        let sampleURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("R1-sample-monthly-overview.pdf")
+        if FileManager.default.fileExists(atPath: sampleURL.path) {
+            try FileManager.default.removeItem(at: sampleURL)
         }
+        try FileManager.default.copyItem(at: url, to: sampleURL)
     }
 
     @Test("Annual summary export produces multi-page PDF with magic bytes")
