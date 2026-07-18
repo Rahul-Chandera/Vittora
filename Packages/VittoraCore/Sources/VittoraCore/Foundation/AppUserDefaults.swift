@@ -62,6 +62,23 @@ public enum AppUserDefaults {
         return .standard
     }
 
+    /// App Group suite shared with extensions (widgets). Falls back to `.standard` if unavailable.
+    public nonisolated static var appGroup: UserDefaults {
+        if let suite = UserDefaults(suiteName: AppGroupConfiguration.identifier) {
+            return suite
+        }
+        return .standard
+    }
+
+    /// Mirrors the app currency into the App Group suite without moving `.standard` storage.
+    /// Extensions cannot see the host app's `.standard` defaults.
+    public nonisolated static func mirrorCurrencyCodeToAppGroup() {
+        let key = StandardKey.currencyCode
+        if let code = UserDefaults.standard.string(forKey: key) {
+            appGroup.set(code, forKey: key)
+        }
+    }
+
     /// One-time migration of `vittora.lastSyncDate` from `.standard` into the sync suite.
     public static func migrateLastSyncDateIfNeeded() {
         let standard = UserDefaults.standard
