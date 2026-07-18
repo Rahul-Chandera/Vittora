@@ -44,6 +44,9 @@ struct ReportsHomeView: View {
                                 )
                             }
                             .buttonStyle(.plain)
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel(card.title)
+                            .accessibilityIdentifier("report-card-\(card.type.rawValue)")
                         }
                     }
                 }
