@@ -59,6 +59,38 @@ struct SettingsView: View {
                 }
             }
 
+            // Manage
+            Section(String(localized: "Manage")) {
+                NavigationLink {
+                    AccountListView()
+                } label: {
+                    SettingsRow(icon: "building.columns.fill", iconColor: .blue,
+                                title: String(localized: "Accounts"), value: "")
+                }
+                .accessibilityIdentifier("settings-manage-accounts")
+                NavigationLink {
+                    CategoryListView()
+                } label: {
+                    SettingsRow(icon: "tag.fill", iconColor: .pink,
+                                title: String(localized: "Categories"), value: "")
+                }
+                .accessibilityIdentifier("settings-manage-categories")
+                NavigationLink {
+                    PayeeListView()
+                } label: {
+                    SettingsRow(icon: "person.2.fill", iconColor: .teal,
+                                title: String(localized: "Payees"), value: "")
+                }
+                .accessibilityIdentifier("settings-manage-payees")
+                NavigationLink {
+                    RecurringListView()
+                } label: {
+                    SettingsRow(icon: "arrow.triangle.2.circlepath", iconColor: .indigo,
+                                title: String(localized: "Recurring"), value: "")
+                }
+                .accessibilityIdentifier("settings-manage-recurring")
+            }
+
             // Security
             Section(String(localized: "Security")) {
                 NavigationLink {

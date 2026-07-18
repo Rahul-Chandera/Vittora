@@ -8,6 +8,10 @@ final class BudgetListViewModel {
     var budgetProgress: [UUID: BudgetProgress] = [:]
     var overallSpent: Decimal = 0
     var overallBudget: Decimal = 0
+    /// True when at least one budget exists in any period. Lets the view show a
+    /// full-screen "No Budgets Yet" only on genuine first run, versus an
+    /// in-place "none for this period" message that keeps the period selector.
+    var hasAnyBudgets = false
     var selectedPeriod: BudgetPeriod = .monthly
     var isLoading = false
     var error: String?
@@ -31,6 +35,7 @@ final class BudgetListViewModel {
         error = nil
         do {
             var allBudgets = try await fetchUseCase.execute()
+            hasAnyBudgets = !allBudgets.isEmpty
 
             // Filter by selected period
             allBudgets = allBudgets.filter { $0.period == selectedPeriod }

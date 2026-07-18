@@ -49,6 +49,8 @@ struct CurrencySettingsView: View {
                                     .foregroundStyle(VColors.primary)
                             }
                         }
+                        // Make the whole row tappable, not just the text.
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -82,6 +84,8 @@ struct AppearanceSettingsView: View {
                                     .foregroundStyle(VColors.primary)
                             }
                         }
+                        // Make the whole row tappable, not just the text.
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -149,6 +153,8 @@ struct SecuritySettingsView: View {
                                         .foregroundStyle(VColors.primary)
                                 }
                             }
+                            // Make the whole row tappable, not just the text.
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -364,9 +370,12 @@ struct AboutView: View {
 
             Section {
                 VStack(spacing: VSpacing.sm) {
-                    Image(systemName: "indianrupeesign.circle.fill")
-                        .font(.system(size: 44))
-                        .foregroundStyle(VColors.primary)
+                    Image("OnboardingAppLogo")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 64, height: 64)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         .accessibilityHidden(true)
                     Text(String(localized: "Vittora"))
                         .font(VTypography.title3.bold())

@@ -99,6 +99,7 @@ struct ExportView: View {
                                     .foregroundStyle(VColors.primary)
                             }
                         }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }

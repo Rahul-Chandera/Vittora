@@ -8,7 +8,7 @@ struct TransactionDetailView: View {
     @Environment(\.currencyCode) private var currencyCode
     @State private var vm: TransactionDetailViewModel?
     let transactionID: UUID
-    @State private var navigateDestination: NavigationDestination?
+    @State private var showEditSheet = false
 
     var body: some View {
         ZStack {
@@ -165,7 +165,9 @@ struct TransactionDetailView: View {
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         HStack(spacing: VSpacing.md) {
-                            NavigationLink(value: NavigationDestination.editTransaction(id: transaction.id)) {
+                            Button {
+                                showEditSheet = true
+                            } label: {
                                 Image(systemName: "pencil")
                             }
                             .accessibilityIdentifier("transaction-detail-edit-button")
@@ -221,8 +223,15 @@ struct TransactionDetailView: View {
                 await vm?.loadTransaction(id: transactionID)
             }
         }
-        .navigationDestination(item: $navigateDestination) { dest in
-            navigationView(for: dest)
+        // Edit as a sheet (like Account/Payee detail): a push via
+        // navigationDestination silently fails inside the iPad split view's
+        // detail column, and the sheet works identically on iPhone.
+        .sheet(isPresented: $showEditSheet, onDismiss: {
+            Task { await vm?.loadTransaction(id: transactionID) }
+        }) {
+            NavigationStack {
+                TransactionFormView(transactionID: transactionID, showsCancelButton: true)
+            }
         }
     }
 
@@ -311,20 +320,6 @@ struct TransactionDetailView: View {
             return "arrow.left.arrow.right"
         case .adjustment:
             return "equal"
-        }
-    }
-
-    @ViewBuilder
-    private func navigationView(for destination: NavigationDestination) -> some View {
-        switch destination {
-        case .transactionDetail(let id):
-            TransactionDetailView(transactionID: id)
-
-        case .editTransaction(let id):
-            TransactionFormView(transactionID: id)
-
-        default:
-            EmptyView()
         }
     }
 

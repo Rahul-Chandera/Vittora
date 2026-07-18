@@ -4,7 +4,11 @@ import VittoraCore
 extension DependencyContainer {
     func makeTransactionListViewModel() -> TransactionListViewModel {
         let fetchUseCase = FetchTransactionsUseCase(transactionRepository: transactionRepository)
-        let searchUseCase = SearchTransactionsUseCase(transactionRepository: transactionRepository)
+        let searchUseCase = SearchTransactionsUseCase(
+            transactionRepository: transactionRepository,
+            categoryRepository: categoryRepository,
+            payeeRepository: payeeRepository
+        )
         let deleteUseCase = DeleteTransactionUseCase(
             transactionRepository: transactionRepository,
             documentRepository: documentRepository,
@@ -21,7 +25,8 @@ extension DependencyContainer {
                 accountRepository: accountRepository,
                 categoryRepository: categoryRepository,
                 ledgerWriting: ledgerWriteStore
-            )
+            ),
+            categoryRepository: categoryRepository
         )
     }
 
@@ -83,7 +88,8 @@ extension DependencyContainer {
                 ledgerWriting: ledgerWriteStore
             ),
             pauseResumeUseCase: PauseResumeRuleUseCase(repository: recurringRuleRepository),
-            calculateCostUseCase: CalculateSubscriptionCostUseCase()
+            calculateCostUseCase: CalculateSubscriptionCostUseCase(),
+            categoryRepository: categoryRepository
         )
     }
 

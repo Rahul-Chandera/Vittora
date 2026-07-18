@@ -16,6 +16,7 @@ struct NetWorthCard: View {
 
                 Text(netWorth.formatted(.currency(code: currencyCode)))
                     .font(VTypography.amountLarge)
+                    .amountScaling()
                     .foregroundColor(.white)
 
                 Divider()

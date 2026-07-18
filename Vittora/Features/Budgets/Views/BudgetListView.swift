@@ -10,7 +10,7 @@ struct BudgetListView: View {
 
     var body: some View {
         ZStack {
-            if let viewModel = viewModel, viewModel.budgets.isEmpty && !viewModel.isLoading {
+            if let viewModel = viewModel, !viewModel.hasAnyBudgets && !viewModel.isLoading {
                 VEmptyState(
                     icon: "target",
                     title: String(localized: "No Budgets Yet"),
@@ -84,6 +84,21 @@ struct BudgetListView: View {
                                     Label("Delete", systemImage: "trash")
                                 }
                             }
+                        }
+                    }
+
+                    // No budgets for the selected period (others exist) — keep the
+                    // selector visible so the user isn't stranded on an empty tab.
+                    if let viewModel = viewModel, viewModel.budgets.isEmpty && !viewModel.isLoading {
+                        Section {
+                            Text(String(localized: "No budgets for this period"))
+                                .font(VTypography.subheadline)
+                                .foregroundColor(VColors.textSecondary)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.vertical, VSpacing.xl)
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .accessibilityIdentifier("budget-period-empty-state")
                         }
                     }
                 }

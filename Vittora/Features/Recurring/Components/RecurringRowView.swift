@@ -57,13 +57,18 @@ struct RecurringRowView: View {
                     Text(category?.name ?? "Uncategorized")
                         .font(VTypography.calloutBold)
                         .foregroundColor(VColors.textPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
 
                     Spacer()
 
-                    // Amount with bold styling
+                    // Amount with bold styling; keeps its width so the name
+                    // truncates/scales instead of the amount wrapping.
                     Text(rule.templateAmount.formatted(currencyCode: currencyCode))
                         .font(VTypography.calloutBold)
                         .foregroundColor(VColors.expense)
+                        .amountScaling()
+                        .layoutPriority(1)
                 }
 
                 HStack {

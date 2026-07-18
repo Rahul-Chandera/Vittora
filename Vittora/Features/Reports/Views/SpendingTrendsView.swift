@@ -81,6 +81,7 @@ struct SpendingTrendsView: View {
                 .foregroundColor(VColors.textSecondary)
             Text(CurrencyFormatter.formatCompact(amount, currencyCode: currencyCode))
                 .font(VTypography.amountSmall)
+                .amountScaling()
                 .foregroundColor(VColors.textPrimary)
         }
         .padding(VSpacing.md)

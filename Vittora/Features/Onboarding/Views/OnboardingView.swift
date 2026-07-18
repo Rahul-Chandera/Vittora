@@ -1,5 +1,8 @@
 import SwiftUI
 import VittoraCore
+#if os(iOS)
+import UIKit
+#endif
 
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
@@ -8,6 +11,10 @@ struct OnboardingView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
     @State private var vm: OnboardingViewModel
+
+    /// Widest the onboarding content column (fields, grids, summary, CTA) may
+    /// grow on wide layouts; narrower screens are unaffected.
+    private static let contentMaxWidth: CGFloat = 480
 
     init(createAccountUseCase: CreateAccountUseCase? = nil) {
         _vm = State(initialValue: OnboardingViewModel(createAccountUseCase: createAccountUseCase))
@@ -24,30 +31,38 @@ struct OnboardingView: View {
                         .padding(.top, VSpacing.xl)
                 }
 
-                // Step content
-                TabView(selection: currentStepBinding) {
-                    WelcomeStepView()
-                        .tag(OnboardingViewModel.Step.welcome)
-                    CurrencyStepView(vm: vm)
-                        .tag(OnboardingViewModel.Step.currency)
-                    ProfileStepView(vm: vm)
-                        .tag(OnboardingViewModel.Step.profile)
-                    AccountSetupStepView(vm: vm)
-                        .tag(OnboardingViewModel.Step.account)
-                    NotificationsStepView(vm: vm)
-                        .tag(OnboardingViewModel.Step.notifications)
-                    DoneStepView(vm: vm)
-                        .tag(OnboardingViewModel.Step.done)
+                // Step content. Deliberately NOT a paging TabView: the pager
+                // keeps neighboring pages (each with text fields → its own
+                // keyboard host) alive at once, which broke keyboard layout on
+                // iPad and let it write a wrong page back mid-animation,
+                // skipping the account step. Swiping would also bypass the
+                // canAdvance validation gating. One step view at a time.
+                Group {
+                    switch vm.currentStep {
+                    case .welcome:       WelcomeStepView()
+                    case .currency:      CurrencyStepView(vm: vm)
+                    case .profile:       ProfileStepView(vm: vm)
+                    case .account:       AccountSetupStepView(vm: vm)
+                    case .notifications: NotificationsStepView(vm: vm)
+                    case .done:          DoneStepView(vm: vm)
+                    }
                 }
-                #if os(iOS)
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                #else
-                .tabViewStyle(.automatic)
-                #endif
+                // Same width cap as the CTA so fields, the account-type grid,
+                // and the summary rows don't stretch edge-to-edge on wide
+                // layouts (Mac windows, iPad). The outer frame keeps the capped
+                // column centered and the transition area full-size.
+                .frame(maxWidth: Self.contentMaxWidth)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(reduceMotion ? .opacity : .asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
+                .id(vm.currentStep)
                 .animation(reduceMotion ? .none : .easeInOut, value: vm.currentStep)
 
-                // CTA button
+                // CTA button, same cap.
                 ctaButton
+                    .frame(maxWidth: Self.contentMaxWidth)
                     .padding(.horizontal, VSpacing.screenPadding)
                     .padding(.bottom, VSpacing.xxxl)
             }
@@ -62,11 +77,25 @@ struct OnboardingView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("onboarding-root")
+        .onChange(of: vm.currentStep) { _, _ in
+            // The step views own their FocusStates; when the CTA advances the
+            // step, nothing clears them and the keyboard stays up over the next
+            // step. Resign globally on every step change.
+            dismissKeyboard()
+        }
         #if os(iOS)
         .onChange(of: horizontalSizeClass, initial: true) { _, new in
             vm.isAccountSubStepEnabled = new == .compact
             if new != .compact { vm.accountSubStep = .type }
         }
+        #endif
+    }
+
+    private func dismissKeyboard() {
+        #if os(iOS)
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
+        )
         #endif
     }
 
@@ -115,6 +144,9 @@ struct OnboardingView: View {
             .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD))
             .opacity((vm.canAdvance && !vm.isSaving) ? 1 : 0.55)
         }
+        // .plain: the label is fully custom; without this, macOS wraps it in
+        // the standard AppKit button bezel (a gray rounded container).
+        .buttonStyle(.plain)
         .disabled(!vm.canAdvance || vm.isSaving)
         .accessibilityIdentifier("onboarding-next-button")
     }
@@ -133,12 +165,6 @@ struct OnboardingView: View {
         }
     }
 
-    private var currentStepBinding: Binding<OnboardingViewModel.Step> {
-        Binding(
-            get: { vm.currentStep },
-            set: { vm.currentStep = $0 }
-        )
-    }
 }
 
 // MARK: - Step Views
@@ -485,6 +511,7 @@ private struct AccountSetupStepView: View {
     }
 
     private var accountDetailsStep: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: VSpacing.lg) {
                 Spacer(minLength: VSpacing.xl)
@@ -549,8 +576,18 @@ private struct AccountSetupStepView: View {
                     }
                 }
                 .padding(.horizontal, VSpacing.screenPadding)
+                .id("account-fields")
 
                 Spacer(minLength: VSpacing.xl)
+            }
+        }
+        // With the keyboard up, the header eats the small visible window and
+        // the balance field sits clipped below the fold. Bring the fields
+        // group to the top whenever either field gains focus.
+        .onChange(of: focusedField) { _, newValue in
+            guard newValue != nil else { return }
+            withAnimation {
+                proxy.scrollTo("account-fields", anchor: .top)
             }
         }
         #if os(iOS)
@@ -562,6 +599,7 @@ private struct AccountSetupStepView: View {
             }
         }
         #endif
+        }
     }
 
     @ViewBuilder

@@ -35,6 +35,7 @@ struct DebtSummaryCard: View {
                 Spacer()
                 Text(CurrencyFormatter.format(balance.netBalance, currencyCode: currencyCode))
                     .font(VTypography.amountSmall)
+                    .amountScaling()
                     .foregroundColor(balance.netBalance >= 0 ? VColors.income : VColors.expense)
             }
         }
@@ -50,6 +51,7 @@ struct DebtSummaryCard: View {
                 .foregroundColor(color)
             Text(CurrencyFormatter.format(amount, currencyCode: currencyCode))
                 .font(VTypography.amountMedium)
+                .amountScaling()
                 .foregroundColor(color)
             Text(title)
                 .font(VTypography.caption2)

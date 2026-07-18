@@ -17,6 +17,8 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<!-- CloudKit silent pushes for SwiftData sync (NSPersistentCloudKitContainer). -->
+		<string>remote-notification</string>
 	</array>
 	<key>NSUserActivityTypes</key>
 	<array>

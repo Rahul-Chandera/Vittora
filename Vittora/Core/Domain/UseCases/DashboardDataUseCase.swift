@@ -40,7 +40,14 @@ struct DashboardDataUseCase: Sendable {
         async let allAccountsTask = accountRepository.fetchAll()
         async let monthTransactionsTask = transactionRepository.fetchAll(filter: monthFilter)
         async let allCategoriesTask = categoryRepository.fetchAll()
-        async let activeBudgetsTask = budgetRepository.fetchActive()
+        // Use FetchBudgetsUseCase (not the raw repository) so each budget's
+        // `spent` is computed from its period's transactions. The raw repository
+        // returns the stored spent (always 0), which made the dashboard's budget
+        // progress read 0% regardless of actual spending.
+        async let activeBudgetsTask = FetchBudgetsUseCase(
+            budgetRepository: budgetRepository,
+            transactionRepository: transactionRepository
+        ).execute()
         async let upcomingRulesTask = recurringRuleRepository.fetchActive()
 
         let (allAccounts, monthTransactions, allCategories, activeBudgets, activeRules) =
