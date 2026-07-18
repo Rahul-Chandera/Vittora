@@ -15,7 +15,7 @@ Branch flow: feature branches → `develop` (ongoing development) → `staging` 
 
 ## What CI runs
 
-On every push/PR to `develop`, `staging`, or `main`:
+On every PR to `develop`, `staging`, or `main` (and direct pushes to `develop`):
 
 - `make build-ios`
 - `make build-macos`
