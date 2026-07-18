@@ -61,7 +61,8 @@ public protocol LedgerWriting: Sendable {
     ) async throws
 
     /// Delete a transaction and reverse its balance effects atomically.
-    /// (Body lands in A4.)
+    /// Also undoes any debt settlement that listed the transaction as a linked
+    /// cash leg (settledAmount / isSettled / linked IDs) in the same save.
     func performDelete(transactionID: UUID) async throws
 
     /// Delete a category after nullifying all references to it (A10,

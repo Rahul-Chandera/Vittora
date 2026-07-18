@@ -271,6 +271,89 @@ struct LedgerWriteStoreTests {
         #expect(saveCount == 0)
     }
 
+    @Test("performDelete undoes a full debt settlement linked to the cash leg")
+    func performDeleteReversesLinkedDebtSettlement() async throws {
+        let container = try makeContainer()
+        let accountID = try seedAccount(container, balance: 1000)
+        let debtID = try seedDebt(container, amount: 300, direction: .lent)
+        let store = LedgerWriteStore(modelContainer: container)
+
+        let leg = TransactionEntity(amount: 300, type: .income, accountID: accountID)
+        try await store.performSettle(debtID: debtID, settlementAmount: 300, transaction: leg)
+
+        let before = await store.saveCount
+        try await store.performDelete(transactionID: leg.id)
+        let after = await store.saveCount
+        #expect(after - before == 1)
+
+        let verify = ModelContext(container)
+        #expect(try verify.fetch(FetchDescriptor<SDTransaction>()).isEmpty)
+        #expect(try verify.fetch(FetchDescriptor<SDAccount>()).first?.balance == 1000)
+        let debt = try #require(try verify.fetch(FetchDescriptor<SDDebt>()).first)
+        #expect(debt.id == debtID)
+        #expect(debt.settledAmount == 0)
+        #expect(debt.isSettled == false)
+        #expect(debt.linkedTransactionIDs.isEmpty)
+    }
+
+    @Test("performDelete undoes only the matching partial settlement leg")
+    func performDeleteReversesOneOfTwoPartialSettlements() async throws {
+        let container = try makeContainer()
+        let accountID = try seedAccount(container, balance: 1000)
+        let debtID = try seedDebt(container, amount: 1000, direction: .lent)
+        let store = LedgerWriteStore(modelContainer: container)
+
+        let first = TransactionEntity(amount: 300, type: .income, accountID: accountID)
+        let second = TransactionEntity(amount: 200, type: .income, accountID: accountID)
+        try await store.performSettle(debtID: debtID, settlementAmount: 300, transaction: first)
+        try await store.performSettle(debtID: debtID, settlementAmount: 200, transaction: second)
+
+        try await store.performDelete(transactionID: first.id)
+
+        let verify = ModelContext(container)
+        let txs = try verify.fetch(FetchDescriptor<SDTransaction>())
+        #expect(txs.count == 1)
+        #expect(txs.first?.id == second.id)
+        #expect(try verify.fetch(FetchDescriptor<SDAccount>()).first?.balance == 1200)
+        let debt = try #require(try verify.fetch(FetchDescriptor<SDDebt>()).first)
+        #expect(debt.settledAmount == 200)
+        #expect(debt.isSettled == false)
+        #expect(debt.linkedTransactionIDs == [second.id])
+    }
+
+    @Test("performDelete undoes settlement linked via legacy linkedTransactionID")
+    func performDeleteReversesLegacyLinkedDebtSettlement() async throws {
+        let container = try makeContainer()
+        let accountID = try seedAccount(container, balance: 500)
+        let store = LedgerWriteStore(modelContainer: container)
+
+        let leg = TransactionEntity(amount: 150, type: .expense, accountID: accountID)
+        try await store.performAdd(leg)
+
+        let seed = ModelContext(container)
+        let debt = SDDebt(
+            payeeID: UUID(),
+            amount: 150,
+            settledAmount: 150,
+            direction: .borrowed,
+            isSettled: true,
+            linkedTransactionID: leg.id
+        )
+        seed.insert(debt)
+        try seed.save()
+
+        try await store.performDelete(transactionID: leg.id)
+
+        let verify = ModelContext(container)
+        #expect(try verify.fetch(FetchDescriptor<SDTransaction>()).isEmpty)
+        #expect(try verify.fetch(FetchDescriptor<SDAccount>()).first?.balance == 500)
+        let updated = try #require(try verify.fetch(FetchDescriptor<SDDebt>()).first)
+        #expect(updated.settledAmount == 0)
+        #expect(updated.isSettled == false)
+        #expect(updated.linkedTransactionIDs.isEmpty)
+        #expect(updated.linkedTransactionID == nil)
+    }
+
     @Test("performUpdate nets the effect on the same account in one save")
     func performUpdateNetsSameAccount() async throws {
         let container = try makeContainer()

@@ -318,6 +318,12 @@ public actor LedgerWriteStore: LedgerWriting {
     /// matching the historical behavior; the symmetric partner row (unlinkable
     /// without a pair id) is left untouched. An account that can no longer be
     /// resolved is skipped (nothing to reverse) rather than failing the delete.
+    ///
+    /// When a deleted leg is linked to a debt settlement (`linkedTransactionIDs`
+    /// / legacy `linkedTransactionID`), that settlement is undone in the same
+    /// save: the link is removed, `settledAmount` is reduced by the leg amount,
+    /// and `isSettled` is recomputed — otherwise deleting a settlement cash leg
+    /// would leave the debt marked repaid while the money returns to the account.
     public func performDelete(transactionID: UUID) throws {
         try commit { ctx in
             guard let model = try Self.fetchTransaction(transactionID, in: ctx) else {
@@ -335,7 +341,9 @@ public actor LedgerWriteStore: LedgerWriting {
                 }
             }
 
+            var deletedAmounts: [UUID: Decimal] = [:]
             for leg in legs {
+                deletedAmounts[leg.id] = leg.amount
                 if let accountID = leg.accountID,
                    let account = try Self.fetchAccount(accountID, in: ctx) {
                     account.balance -= TransactionMapper.toEntity(leg).signedBalanceEffect
@@ -343,6 +351,42 @@ public actor LedgerWriteStore: LedgerWriting {
                 }
                 ctx.delete(leg)
             }
+
+            try Self.reverseDebtSettlements(
+                forDeletedTransactionIDs: Set(deletedAmounts.keys),
+                amountsByID: deletedAmounts,
+                in: ctx
+            )
+        }
+    }
+
+    /// Undo debt settlement links that pointed at cash legs being deleted.
+    /// Debts store links as a JSON UUID array (plus a legacy single UUID), so
+    /// this scans debts in the same context rather than using a SQL predicate.
+    nonisolated private static func reverseDebtSettlements(
+        forDeletedTransactionIDs deletedIDs: Set<UUID>,
+        amountsByID: [UUID: Decimal],
+        in context: ModelContext
+    ) throws {
+        guard !deletedIDs.isEmpty else { return }
+        let debts = try context.fetch(FetchDescriptor<SDDebt>())
+        for debt in debts {
+            var linkedIDs = DebtMapper.linkedTransactionIDs(from: debt)
+            let matching = linkedIDs.filter { deletedIDs.contains($0) }
+            guard !matching.isEmpty else { continue }
+
+            var settled = debt.settledAmount
+            for id in matching {
+                settled -= amountsByID[id] ?? 0
+            }
+            linkedIDs.removeAll { deletedIDs.contains($0) }
+            debt.settledAmount = max(0, settled)
+            debt.isSettled = debt.settledAmount >= debt.amount && debt.amount > 0
+            debt.linkedTransactionIDs = linkedIDs
+            if let legacy = debt.linkedTransactionID, deletedIDs.contains(legacy) {
+                debt.linkedTransactionID = nil
+            }
+            debt.updatedAt = .now
         }
     }
 
