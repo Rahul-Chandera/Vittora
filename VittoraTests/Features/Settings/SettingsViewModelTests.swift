@@ -155,9 +155,14 @@ struct SettingsViewModelTests {
     @Test("Keychain error reverts app lock state and sets keychainError")
     func keychainErrorRevertsAppLockState() async throws {
         let keychain = MockKeychainService()
-        keychain.shouldThrowError = true
         let vm = makeViewModel(keychainService: keychain)
 
+        // Init may hydrate from the real keychain; normalize through the mock first
+        // so a parallel suite cannot leave previous=true and mask the revert.
+        await vm.updateAppLockEnabled(false)
+        #expect(vm.isAppLockEnabled == false)
+
+        keychain.shouldThrowError = true
         await vm.updateAppLockEnabled(true)
 
         #expect(vm.isAppLockEnabled == false)
