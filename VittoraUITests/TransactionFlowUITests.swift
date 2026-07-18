@@ -129,6 +129,33 @@ final class TransactionFlowUITests: XCTestCase {
     }
 
     @MainActor
+    func testFilterSheetCancelDismissesWithoutApplying() throws {
+        navigateToTransactionsTab()
+        waitForSeededTransactionRows()
+
+        XCTAssertTrue(
+            UITestSupport.waitForElement(app.buttons["transaction-add-button"], timeout: 25, requireHittable: true),
+            "Transaction toolbar should finish loading before filtering."
+        )
+        openFilterSheet()
+
+        let cancelButton = app.buttons["transaction-filter-cancel-button"]
+        XCTAssertTrue(cancelButton.waitForExistence(timeout: 10), "Filter sheet should offer Cancel.")
+        UITestSupport.tapWhenReady(cancelButton, timeout: 10)
+
+        XCTAssertTrue(
+            UITestSupport.waitForDisappearance(app.buttons["transaction-filter-apply-button"], timeout: 10),
+            "Cancel should close the filter sheet."
+        )
+
+        // No filter was applied: the seeded rows are still listed.
+        XCTAssertTrue(
+            app.descendants(matching: .any)["transaction-row-coffee-run"].waitForExistence(timeout: 10),
+            "Cancelling filters must not filter the list."
+        )
+    }
+
+    @MainActor
     func testCanSearchAndFilterTransactions() throws {
         navigateToTransactionsTab()
         waitForSeededTransactionRows()

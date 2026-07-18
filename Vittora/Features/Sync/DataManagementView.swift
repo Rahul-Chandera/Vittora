@@ -41,12 +41,12 @@ final class DataManagementViewModel {
         }
     }
 
-    func factoryReset() async -> Bool {
+    func factoryReset(alsoDestroyOnDiskStore: Bool = false) async -> Bool {
         isClearing = true
         error = nil
         defer { isClearing = false }
         do {
-            try await service.factoryReset()
+            try await service.factoryReset(alsoDestroyOnDiskStore: alsoDestroyOnDiskStore)
             await loadStats()
             return true
         } catch {
@@ -56,7 +56,10 @@ final class DataManagementViewModel {
     }
 
     /// Factory reset gated by device authentication; aborts on cancel or failure (SECURITY-3).
-    func factoryReset(confirmWith biometricService: any BiometricServiceProtocol) async -> Bool {
+    func factoryReset(
+        confirmWith biometricService: any BiometricServiceProtocol,
+        alsoDestroyOnDiskStore: Bool = false
+    ) async -> Bool {
         do {
             guard try await SensitiveActionAuthenticator.confirm(
                 action: .factoryReset,
@@ -68,7 +71,7 @@ final class DataManagementViewModel {
             self.error = error.localizedDescription
             return false
         }
-        return await factoryReset()
+        return await factoryReset(alsoDestroyOnDiskStore: alsoDestroyOnDiskStore)
     }
 }
 
@@ -227,7 +230,10 @@ struct DataManagementView: View {
         ) {
             Button(String(localized: "Reset Everything"), role: .destructive) {
                 Task {
-                    let didReset = await vm.factoryReset(confirmWith: dependencies.biometricService)
+                    let didReset = await vm.factoryReset(
+                        confirmWith: dependencies.biometricService,
+                        alsoDestroyOnDiskStore: appState.isRecoveryMode
+                    )
                     if didReset {
                         resetRuntimeStateAfterFactoryReset()
                     }

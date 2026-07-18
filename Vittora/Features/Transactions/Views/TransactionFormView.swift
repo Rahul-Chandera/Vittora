@@ -73,6 +73,11 @@ struct TransactionFormView: View {
                         }
                     }
                 }
+                // Without an explicit title the pushed form inherits the
+                // window's ("Vittora") on macOS.
+                .navigationTitle(transactionID != nil
+                    ? String(localized: "Edit Transaction")
+                    : String(localized: "New Transaction"))
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif

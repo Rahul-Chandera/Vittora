@@ -41,7 +41,7 @@ public repo is fine), then fill in:
 | **Support URL** | `https://<your-host>/support.html` |
 | **Marketing URL** (optional) | `https://<your-host>/` |
 
-- [ ] ⚠️ Confirm the contact address on the site (`support@enerjiktech.com`) is a
+- [ ] ⚠️ Confirm the contact address on the site (`support@vittora.app`) is a
   real mailbox you monitor — replace across the three HTML files if not.
 
 **GitHub Pages in 3 steps:** create a public repo (e.g. `vittora-site`) → copy the

@@ -37,6 +37,43 @@ public enum ModelContainerConfig {
         return container
     }
 
+    /// File URL of the on-disk store — the same one `makeContainer` opens.
+    public nonisolated static var persistentStoreURL: URL {
+        ModelConfiguration(
+            schema: Schema(allModels),
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .none
+        ).url
+    }
+
+    /// Deletes the on-disk store and its WAL/SHM sidecars so the next launch
+    /// starts from a fresh store. Only safe while no on-disk container is open
+    /// — i.e. recovery mode, where the store couldn't be opened at all (the
+    /// escape hatch from an unopenable store, e.g. unknown model version).
+    ///
+    /// Also removes the legacy store in the app's own Application Support:
+    /// SwiftData silently re-copies it (attributes intact) into the group
+    /// container whenever the group store is missing, so deleting only the
+    /// group store resurrects the broken legacy store on the next launch.
+    public nonisolated static func destroyPersistentStore() throws {
+        let fm = FileManager.default
+        var storeURLs = [persistentStoreURL]
+        if let legacyDirectory = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let legacyURL = legacyDirectory.appendingPathComponent("default.store")
+            if legacyURL != persistentStoreURL {
+                storeURLs.append(legacyURL)
+            }
+        }
+        for storeURL in storeURLs {
+            for suffix in ["", "-wal", "-shm"] {
+                let url = URL(fileURLWithPath: storeURL.path + suffix)
+                if fm.fileExists(atPath: url.path) {
+                    try fm.removeItem(at: url)
+                }
+            }
+        }
+    }
+
     /// In-memory container for previews and tests
     public nonisolated static func makePreviewContainer() throws -> ModelContainer {
         try makeContainer(inMemory: true)

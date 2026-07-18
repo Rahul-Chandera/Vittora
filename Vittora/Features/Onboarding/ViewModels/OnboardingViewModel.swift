@@ -95,13 +95,20 @@ final class OnboardingViewModel {
 
         do {
             if let createAccountUseCase, let openingBalance = normalizedOpeningBalance {
-                try await createAccountUseCase.execute(
-                    name: accountName.trimmingCharacters(in: .whitespacesAndNewlines),
-                    type: selectedAccountType,
-                    balance: openingBalance,
-                    currencyCode: selectedCurrencyCode,
-                    icon: selectedAccountType.onboardingIconName
-                )
+                do {
+                    try await createAccountUseCase.execute(
+                        name: accountName.trimmingCharacters(in: .whitespacesAndNewlines),
+                        type: selectedAccountType,
+                        balance: openingBalance,
+                        currencyCode: selectedCurrencyCode,
+                        icon: selectedAccountType.onboardingIconName
+                    )
+                } catch VittoraError.duplicateEntry {
+                    // The account already exists — CloudKit restored the user's
+                    // data into the fresh store mid-onboarding, or a previous
+                    // completion attempt got this far before failing. Either
+                    // way completion is idempotent: keep the existing account.
+                }
             }
 
             // currencyCode is non-sensitive; UserDefaults is acceptable

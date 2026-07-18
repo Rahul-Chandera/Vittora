@@ -30,6 +30,7 @@ struct VittoraApp: App {
     private let bypassOnboardingForUITesting: Bool
     private let seedsTransactionsForUITesting: Bool
     private let seedsTransfersForUITesting: Bool
+    private let seedsDemoShowcaseForUITesting: Bool
     private let exercisesAppLockPolicy: Bool
     private let startupErrorMessage: String?
     private let startupFailureMessage: String?
@@ -44,7 +45,19 @@ struct VittoraApp: App {
         bypassOnboardingForUITesting = isUITesting && !showsOnboardingForUITesting
         seedsTransactionsForUITesting = launchArguments.contains("--ui-test-seed-transactions")
         seedsTransfersForUITesting = launchArguments.contains("--ui-test-seed-transfers")
+        seedsDemoShowcaseForUITesting = launchArguments.contains("--ui-test-seed-demo")
         exercisesAppLockPolicy = launchArguments.contains("--ui-test-app-lock")
+
+        if launchArguments.contains("--ui-test-seed-demo") {
+            // The currency environment is captured from Settings at first
+            // render, before async seeding runs — set it up front so demo
+            // screenshots show the right symbol.
+            let region = ProcessInfo.processInfo.environment["UITEST_DEMO_REGION"] ?? "US"
+            UserDefaults.standard.set(
+                region == "IN" ? "INR" : "USD",
+                forKey: AppUserDefaults.StandardKey.currencyCode
+            )
+        }
 
         if exercisesAppLockPolicy {
             KeychainService.syncSave(Data([1]), forKey: AppUserDefaults.KeychainKey.appLockEnabled)
@@ -95,7 +108,8 @@ struct VittoraApp: App {
                 ),
                 selectedTab: Self.initialSelectedTab(isUITesting: isUITesting),
                 isUITesting: isUITesting,
-                exercisesAppLockPolicy: exercisesAppLockPolicy
+                exercisesAppLockPolicy: exercisesAppLockPolicy,
+                isRecoveryMode: startupErrorMessage != nil
             )
         )
 
@@ -307,6 +321,11 @@ struct VittoraApp: App {
         guard !hasCompletedStartup else { return }
         hasCompletedStartup = true
 
+        if seedsDemoShowcaseForUITesting {
+            await seedUITestDemoShowcaseIfNeeded()
+            return
+        }
+
         if seedsTransfersForUITesting {
             await seedUITestTransferScenarioIfNeeded()
             return
@@ -353,6 +372,32 @@ struct VittoraApp: App {
         }
     }
 
+    private func seedUITestDemoShowcaseIfNeeded() async {
+        let seeder = UITestDataSeeder(
+            accountRepository: dependencies.accountRepository,
+            categoryRepository: dependencies.categoryRepository,
+            transactionRepository: dependencies.transactionRepository,
+            ledgerWriting: dependencies.ledgerWriteStore
+        )
+
+        do {
+            try await seeder.seedDemoShowcaseIfNeeded(
+                budgetRepository: dependencies.budgetRepository,
+                savingsGoalRepository: dependencies.savingsGoalRepository,
+                debtRepository: dependencies.debtRepository,
+                recurringRuleRepository: dependencies.recurringRuleRepository,
+                payeeRepository: dependencies.payeeRepository,
+                dataSeeder: dependencies.dataSeeder
+            )
+            appState.notifyChanged([
+                .transactions, .accounts, .categories, .budgets,
+                .savings, .debt, .recurring, .payees
+            ])
+        } catch {
+            Self.logger.error("Failed to seed demo showcase data: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+
     private func seedUITestTransferScenarioIfNeeded() async {
         let seeder = UITestDataSeeder(
             accountRepository: dependencies.accountRepository,
@@ -393,6 +438,15 @@ struct VittoraApp: App {
 private struct StartupRecoveryBanner: View {
     let message: String
 
+    // The banner must carry its own escape hatch: recovery mode can coincide
+    // with incomplete onboarding, where Settings → Delete All Data is
+    // unreachable and the unopenable store would otherwise persist forever.
+    @Environment(\.dependencies) private var dependencies
+    @State private var showEraseConfirm = false
+    @State private var showRestartPrompt = false
+    @State private var isErasing = false
+    @State private var eraseError: String?
+
     var body: some View {
         HStack(alignment: .top, spacing: VSpacing.sm) {
             Image(systemName: "exclamationmark.triangle.fill")
@@ -407,7 +461,21 @@ private struct StartupRecoveryBanner: View {
                     .font(VTypography.caption2)
                     .foregroundStyle(VColors.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+                if let eraseError {
+                    Text(eraseError)
+                        .font(VTypography.caption2)
+                        .foregroundStyle(VColors.expense)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
+
+            Spacer(minLength: VSpacing.sm)
+
+            Button(String(localized: "Erase & Start Fresh…")) {
+                showEraseConfirm = true
+            }
+            .font(VTypography.caption1Bold)
+            .disabled(isErasing)
         }
         .padding(VSpacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -417,7 +485,51 @@ private struct StartupRecoveryBanner: View {
                 .stroke(VColors.warning.opacity(0.35), lineWidth: 1)
         }
         .cornerRadius(VSpacing.cornerRadiusMD)
-        .accessibilityElement(children: .combine)
+        .confirmationDialog(
+            String(localized: "Erase the unopenable data store?"),
+            isPresented: $showEraseConfirm,
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Erase Everything"), role: .destructive) {
+                Task { await eraseAndStartFresh() }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "This permanently deletes the data store Vittora couldn't open, along with saved settings. This cannot be undone."))
+        }
+        .alert(
+            String(localized: "Data Erased"),
+            isPresented: $showRestartPrompt
+        ) {
+            #if os(macOS)
+            Button(String(localized: "Quit Vittora")) {
+                NSApp.terminate(nil)
+            }
+            #endif
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "Quit and reopen Vittora to finish leaving recovery mode with a fresh data store."))
+        }
+    }
+
+    private func eraseAndStartFresh() async {
+        isErasing = true
+        eraseError = nil
+        defer { isErasing = false }
+
+        do {
+            guard try await SensitiveActionAuthenticator.confirm(
+                action: .factoryReset,
+                using: dependencies.biometricService
+            ) else {
+                return
+            }
+            try await dependencies.makeDataManagementService()
+                .factoryReset(alsoDestroyOnDiskStore: true)
+            showRestartPrompt = true
+        } catch {
+            eraseError = error.localizedDescription
+        }
     }
 }
 

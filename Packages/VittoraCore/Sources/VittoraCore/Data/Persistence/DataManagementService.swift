@@ -150,7 +150,13 @@ public final class DataManagementService: Sendable {
         }
     }
 
-    public func factoryReset() async throws {
+    /// - Parameter alsoDestroyOnDiskStore: pass `true` in recovery mode, where
+    ///   the repositories only clear the in-memory container and the unopenable
+    ///   on-disk store must be deleted too or the next launch lands straight
+    ///   back in recovery. Never pass `true` while an on-disk container is open.
+    ///   ponytail: CloudKit server records are not purged; stale rows can
+    ///   re-sync after a recovery reset and can be deleted normally then.
+    public func factoryReset(alsoDestroyOnDiskStore: Bool = false) async throws {
         try await clearData(scope: .all)
         let accounts = try await accountRepository.fetchAll()
         for account in accounts { try await accountRepository.delete(account.id) }
@@ -177,6 +183,10 @@ public final class DataManagementService: Sendable {
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.categorizationRules)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.transactionEditHistory)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.savedTransactionFilters)
+
+        if alsoDestroyOnDiskStore {
+            try ModelContainerConfig.destroyPersistentStore()
+        }
     }
 
     // MARK: - Helpers
