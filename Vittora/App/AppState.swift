@@ -33,6 +33,9 @@ final class AppState {
     var pendingNotificationDeepLink: VittoraNotificationDeepLink?
     /// Split group to open from a shared `vittora://splits/group/…` link (K3).
     var pendingSplitGroupID: UUID?
+    /// Quick-add destination from `vittora://add?type=…` (W4). Survives App Lock —
+    /// consumed after unlock when the main UI mounts.
+    var pendingQuickAdd: QuickAddDeepLink.Destination?
     /// Typed global command requests (keyboard shortcuts, dashboard quick actions).
     private(set) var pendingCommand: AppCommandRequest?
 
@@ -138,6 +141,22 @@ final class AppState {
         }
     }
 
+    /// Routes `vittora://` URLs: quick-add (W4) or split-group (K3). Unknown/malformed
+    /// links are ignored so the app opens without crashing.
+    func openFromURL(_ url: URL) {
+        if QuickAddDeepLink.isQuickAddURL(url) {
+            if let destination = QuickAddDeepLink.destination(from: url) {
+                pendingQuickAdd = destination
+                selectedTab = .dashboard
+                // Also enqueue a command so already-mounted shells present immediately
+                // (pending alone is for App Lock / cold start before AppTabView exists).
+                request(.presentQuickAdd(destination))
+            }
+            return
+        }
+        openSplitGroup(from: url)
+    }
+
     /// Routes to the Splits tab and queues a group detail navigation (K3 share-out).
     func openSplitGroup(from url: URL) {
         guard let groupID = SplitGroupDeepLink.groupID(from: url) else { return }
@@ -147,6 +166,10 @@ final class AppState {
 
     func clearPendingSplitGroupID() {
         pendingSplitGroupID = nil
+    }
+
+    func clearPendingQuickAdd() {
+        pendingQuickAdd = nil
     }
 
     enum AppTab: String, CaseIterable, Identifiable, Sendable {

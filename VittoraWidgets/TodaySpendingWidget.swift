@@ -128,11 +128,23 @@ struct TodaySpendingWidgetView: View {
                     .lineLimit(1)
                 trendLabel
                 Spacer(minLength: 0)
+                addExpenseLink
             }
             sparkline
                 .frame(maxWidth: .infinity)
         }
         .padding()
+    }
+
+    /// W4: opens the app straight into quick entry via the `vittora://add` link.
+    /// Medium only — the small family has no room for it.
+    private var addExpenseLink: some View {
+        Link(destination: QuickAddDeepLink.url(for: .expense)) {
+            Label(String(localized: "Add expense"), systemImage: "plus.circle.fill")
+                .font(WidgetTypography.caption)
+                .foregroundStyle(WidgetColors.primary)
+        }
+        .accessibilityLabel(String(localized: "Add expense"))
     }
 
     @ViewBuilder
