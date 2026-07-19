@@ -103,14 +103,14 @@ struct AppStateQuickAddRoutingTests {
 
     @Test("pending quick add survives until cleared after unlock")
     func pendingSurvivesUntilCleared() {
-        let state = AppState(isLocked: true, isAuthenticated: false)
+        let state = AppState(isAuthenticated: false, isLocked: true)
         state.openFromURL(QuickAddDeepLink.url(for: .expense))
 
-        #expect(state.pendingQuickAdd == .expense)
+        #expect(state.pendingQuickAdd == QuickAddDeepLink.Destination.expense)
 
         state.isLocked = false
         state.isAuthenticated = true
-        #expect(state.pendingQuickAdd == .expense)
+        #expect(state.pendingQuickAdd == QuickAddDeepLink.Destination.expense)
 
         state.clearPendingQuickAdd()
         #expect(state.pendingQuickAdd == nil)

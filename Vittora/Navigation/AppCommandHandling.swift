@@ -76,6 +76,7 @@ extension View {
         _ item: Binding<PresentedQuickAdd?>,
         asSheet: Bool
     ) -> some View {
+        #if os(iOS)
         if asSheet {
             sheet(item: item) { presentation in
                 quickAddContent(for: presentation)
@@ -85,6 +86,11 @@ extension View {
                 quickAddContent(for: presentation)
             }
         }
+        #else
+        sheet(item: item) { presentation in
+            quickAddContent(for: presentation)
+        }
+        #endif
     }
 }
 
