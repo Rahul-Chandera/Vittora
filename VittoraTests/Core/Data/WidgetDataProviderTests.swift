@@ -13,20 +13,22 @@ struct WidgetDataProviderTests {
 
     /// Pin currency so parallel suites cannot race `CurrencyDefaults.code`
     /// (App Group mirror vs `.standard`) mid-assertion.
-    private func withPinnedCurrency<T>(
+    private func withPinnedCurrency<T: Sendable>(
         _ code: String = "USD",
-        _ body: () async throws -> T
+        _ body: @Sendable () async throws -> T
     ) async rethrows -> T {
-        let key = AppUserDefaults.StandardKey.currencyCode
-        let originalStandard = UserDefaults.standard.string(forKey: key)
-        let originalGroup = AppUserDefaults.appGroup.string(forKey: key)
-        defer {
-            restore(key, originalStandard, on: .standard)
-            restore(key, originalGroup, on: AppUserDefaults.appGroup)
+        try await TestCurrencyLock.shared.run {
+            let key = AppUserDefaults.StandardKey.currencyCode
+            let originalStandard = UserDefaults.standard.string(forKey: key)
+            let originalGroup = AppUserDefaults.appGroup.string(forKey: key)
+            defer {
+                restore(key, originalStandard, on: .standard)
+                restore(key, originalGroup, on: AppUserDefaults.appGroup)
+            }
+            UserDefaults.standard.set(code, forKey: key)
+            AppUserDefaults.appGroup.set(code, forKey: key)
+            return try await body()
         }
-        UserDefaults.standard.set(code, forKey: key)
-        AppUserDefaults.appGroup.set(code, forKey: key)
-        return try await body()
     }
 
     private func restore(_ key: String, _ value: String?, on defaults: UserDefaults) {
