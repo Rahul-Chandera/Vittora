@@ -5,7 +5,7 @@ import VittoraCore
 struct AppTabView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var showAddTransaction = false
+    @State private var presentedQuickAdd: PresentedQuickAdd?
 
     /// Tabs kept on the compact iPhone bar. Everything else lives in the "More"
     /// hub so we never overflow into the system "More" tab, which nests a second
@@ -23,17 +23,11 @@ struct AppTabView: View {
         }
         // Match the dashboard quick actions: a centered sheet on regular width
         // (iPad), full-screen cover only on compact (iPhone).
-        .if(horizontalSizeClass == .regular) { view in
-            view.sheet(isPresented: $showAddTransaction) {
-                QuickEntryView()
-            }
-        }
-        .if(horizontalSizeClass != .regular) { view in
-            view.fullScreenCover(isPresented: $showAddTransaction) {
-                QuickEntryView()
-            }
-        }
-        .handlesAppCommands(appState: appState, showAddTransaction: $showAddTransaction)
+        .quickAddPresentation(
+            $presentedQuickAdd,
+            asSheet: horizontalSizeClass == .regular
+        )
+        .handlesAppCommands(appState: appState, presentedQuickAdd: $presentedQuickAdd)
     }
 
     // MARK: - Regular width (iPad / macOS Catalyst): full sectioned sidebar
