@@ -3,6 +3,32 @@ import XCTest
 /// Shared waits and taps for VittoraUITests (L9 / TESTING-10).
 enum UITestSupport {
 
+    /// Relaunches with `--ui-test-reset-app-lock` so Keychain / App Group App Lock
+    /// state cannot leak across XCTest cases (simulator Keychain survives relaunch).
+    /// Call from the main thread (XCTest setUp/tearDown) or hop via `DispatchQueue.main`.
+    @MainActor
+    static func resetPersistedAppLockState() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitesting", "--ui-test-reset-app-lock"]
+        app.launch()
+        _ = app.wait(for: .runningForeground, timeout: 10)
+        app.terminate()
+    }
+
+    /// Safe from nonisolated XCTest lifecycle methods.
+    static func resetPersistedAppLockStateFromTearDown() {
+        let work = {
+            MainActor.assumeIsolated {
+                resetPersistedAppLockState()
+            }
+        }
+        if Thread.isMainThread {
+            work()
+        } else {
+            DispatchQueue.main.sync(execute: work)
+        }
+    }
+
     @MainActor
     static func waitForContentRoot(
         in app: XCUIApplication,

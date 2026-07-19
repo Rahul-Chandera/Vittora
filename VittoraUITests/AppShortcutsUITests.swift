@@ -3,13 +3,19 @@ import XCTest
 /// W5 verification: App Shortcuts appear under Vittora; spending query + App Lock gate.
 final class AppShortcutsUITests: XCTestCase {
 
+    override func tearDownWithError() throws {
+        // Clear Keychain/App Group App Lock so later cases/suites do not inherit it.
+        UITestSupport.resetPersistedAppLockStateFromTearDown()
+        try super.tearDownWithError()
+    }
+
     @MainActor
     func testVittoraShortcutsAppearInLibrary() throws {
         #if !os(iOS)
         throw XCTSkip("Shortcuts verification runs on iOS Simulator only")
         #else
         let vittora = XCUIApplication(bundleIdentifier: "com.enerjiktech.vittora")
-        vittora.launchArguments = ["--uitesting"]
+        vittora.launchArguments = ["--uitesting", "--ui-test-reset-app-lock"]
         vittora.launch()
         sleep(2)
         vittora.terminate()
@@ -59,7 +65,11 @@ final class AppShortcutsUITests: XCTestCase {
         #else
         // Same destination as AddExpenseIntent → QuickAddDeepLink.requestFromIntent(.expense).
         let app = XCUIApplication()
-        app.launchArguments = ["--uitesting", "--ui-test-quick-add=expense"]
+        app.launchArguments = [
+            "--uitesting",
+            "--ui-test-reset-app-lock",
+            "--ui-test-quick-add=expense",
+        ]
         app.launch()
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app, timeout: 15))
 
@@ -103,8 +113,10 @@ final class AppShortcutsUITests: XCTestCase {
         throw XCTSkip("Spending query UI verification runs on iOS Simulator only")
         #else
         let app = XCUIApplication()
+        // Explicit unlocked starting state — do not inherit Keychain from prior cases.
         app.launchArguments = [
             "--uitesting",
+            "--ui-test-reset-app-lock",
             "--ui-test-show-spending-intent-result",
         ]
         app.launch()

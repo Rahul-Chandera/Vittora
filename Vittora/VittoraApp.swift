@@ -62,6 +62,12 @@ struct VittoraApp: App {
         // Keep the App Group currency mirror current for widget extensions.
         AppUserDefaults.mirrorCurrencyCodeToAppGroup()
 
+        // Keychain + App Group App Lock state survives relaunch; UI tests must
+        // declare unlocked vs locked rather than inheriting the previous case.
+        if launchArguments.contains("--ui-test-reset-app-lock") {
+            Self.resetAppLockUITestState()
+        }
+
         if exercisesAppLockPolicy {
             KeychainService.syncSave(Data([1]), forKey: AppUserDefaults.KeychainKey.appLockEnabled)
             UserDefaults.standard.set(
@@ -123,6 +129,14 @@ struct VittoraApp: App {
             BackgroundTaskScheduler.register(coordinator: recurringGenerationCoordinator)
         }
         #endif
+    }
+
+    /// Clears persisted App Lock intent + policy mirrors for UI-test isolation.
+    private static func resetAppLockUITestState() {
+        KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockTimeout)
+        AppLockSessionMirror.clearAll()
     }
 
     private static func initialOnboardingCompletionState(
@@ -381,7 +395,16 @@ struct VittoraApp: App {
                 timeout: AppLockTimeout.immediately.timeInterval
             )
         }
-        let message = await TodaySpendingQuery.run()
+        // UI tests use an in-memory host store; the App Group on-disk store may be
+        // absent. Prefer the test container so unlocked queries still return a summary.
+        let message: String
+        if isUITesting, let modelContainer {
+            message = await TodaySpendingQuery.run(
+                provider: WidgetDataProvider(container: modelContainer)
+            )
+        } else {
+            message = await TodaySpendingQuery.run()
+        }
         appState.uiTestIntentResultMessage = message
     }
 

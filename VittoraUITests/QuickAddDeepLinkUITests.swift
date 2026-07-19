@@ -14,7 +14,10 @@ final class QuickAddDeepLinkUITests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
+        // Clear Keychain/App Group App Lock so later cases/suites do not inherit it.
+        UITestSupport.resetPersistedAppLockStateFromTearDown()
         app = nil
+        try super.tearDownWithError()
     }
 
     @MainActor
@@ -122,7 +125,11 @@ final class QuickAddDeepLinkUITests: XCTestCase {
 
     @MainActor
     private func launchWithQuickAdd(_ type: String) {
-        app.launchArguments = ["--uitesting", "--ui-test-quick-add=\(type)"]
+        app.launchArguments = [
+            "--uitesting",
+            "--ui-test-reset-app-lock",
+            "--ui-test-quick-add=\(type)",
+        ]
         app.launch()
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app, timeout: 15))
     }
