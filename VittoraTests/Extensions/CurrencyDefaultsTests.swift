@@ -39,9 +39,12 @@ struct CurrencyDefaultsTests {
 
         // Clear both stores: `.standard` is authoritative in-app, but the App
         // Group mirror (written for widgets) must also be empty or it shadows
-        // the locale fallback.
+        // the locale fallback. Synchronize so CFPreferences doesn't serve a
+        // stale mirrored value from a prior process write.
         UserDefaults.standard.removeObject(forKey: key)
         AppUserDefaults.appGroup.removeObject(forKey: key)
+        UserDefaults.standard.synchronize()
+        AppUserDefaults.appGroup.synchronize()
         let expected = Locale.current.currency?.identifier ?? CurrencyDefaults.fallbackCode
         #expect(CurrencyDefaults.code == expected)
     }

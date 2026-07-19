@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct VittoraWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        PlaceholderWidget()
+        TodaySpendingWidget()
+        BudgetRemainingWidget()
     }
 }
