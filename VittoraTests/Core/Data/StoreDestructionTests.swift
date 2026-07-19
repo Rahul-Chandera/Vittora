@@ -12,11 +12,13 @@ struct StoreDestructionTests {
     func destroysStoreAndSidecars() throws {
         let fm = FileManager.default
         var storeURLs = [ModelContainerConfig.persistentStoreURL]
-        // A leftover 1.0 app-container store is re-copied into the group on
-        // next launch when the group store is missing, so destroy covers both.
-        let legacyURL = ModelContainerConfig.legacyPersistentStoreURL
-        if legacyURL != ModelContainerConfig.persistentStoreURL {
-            storeURLs.append(legacyURL)
+        // SwiftData re-copies a store left at the legacy app-container default
+        // location back into the group container, so destroy must cover both.
+        if let legacyDirectory = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let legacyURL = legacyDirectory.appendingPathComponent("default.store")
+            if legacyURL != ModelContainerConfig.persistentStoreURL {
+                storeURLs.append(legacyURL)
+            }
         }
 
         var paths: [String] = []
