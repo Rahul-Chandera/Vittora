@@ -40,8 +40,9 @@ struct LockScreenAccessoryTimelineProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping @Sendable (LockScreenAccessoryEntry) -> Void) {
+        let isPreview = context.isPreview
         Task {
-            if context.isPreview {
+            if isPreview {
                 completion(.placeholder)
                 return
             }
