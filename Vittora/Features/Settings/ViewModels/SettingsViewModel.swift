@@ -17,6 +17,8 @@ final class SettingsViewModel {
         set {
             withMutation(keyPath: \.selectedCurrencyCode) {
                 UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.currencyCode)
+                // Mirror for widget/extension processes (do not move primary storage).
+                AppUserDefaults.mirrorCurrencyCodeToAppGroup()
             }
         }
     }

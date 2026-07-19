@@ -13,13 +13,11 @@ struct CurrencyDefaultsTests {
     @Test("code prefers the persisted app currency over the locale")
     func testCodePrefersPersistedCurrency() {
         let key = AppUserDefaults.StandardKey.currencyCode
-        let original = UserDefaults.standard.string(forKey: key)
+        let originalStandard = UserDefaults.standard.string(forKey: key)
+        let originalGroup = AppUserDefaults.appGroup.string(forKey: key)
         defer {
-            if let original {
-                UserDefaults.standard.set(original, forKey: key)
-            } else {
-                UserDefaults.standard.removeObject(forKey: key)
-            }
+            restore(key, originalStandard, on: .standard)
+            restore(key, originalGroup, on: AppUserDefaults.appGroup)
         }
 
         UserDefaults.standard.set("USD", forKey: key)
@@ -32,15 +30,27 @@ struct CurrencyDefaultsTests {
     @Test("code falls back to the locale when no currency is persisted")
     func testCodeFallsBackToLocale() {
         let key = AppUserDefaults.StandardKey.currencyCode
-        let original = UserDefaults.standard.string(forKey: key)
+        let originalStandard = UserDefaults.standard.string(forKey: key)
+        let originalGroup = AppUserDefaults.appGroup.string(forKey: key)
         defer {
-            if let original {
-                UserDefaults.standard.set(original, forKey: key)
-            }
+            restore(key, originalStandard, on: .standard)
+            restore(key, originalGroup, on: AppUserDefaults.appGroup)
         }
 
+        // Clear both stores: `.standard` is authoritative in-app, but the App
+        // Group mirror (written for widgets) must also be empty or it shadows
+        // the locale fallback.
         UserDefaults.standard.removeObject(forKey: key)
+        AppUserDefaults.appGroup.removeObject(forKey: key)
         let expected = Locale.current.currency?.identifier ?? CurrencyDefaults.fallbackCode
         #expect(CurrencyDefaults.code == expected)
+    }
+
+    private func restore(_ key: String, _ value: String?, on defaults: UserDefaults) {
+        if let value {
+            defaults.set(value, forKey: key)
+        } else {
+            defaults.removeObject(forKey: key)
+        }
     }
 }
