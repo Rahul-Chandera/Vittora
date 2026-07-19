@@ -1,5 +1,8 @@
 import SwiftUI
 import VittoraCore
+#if os(iOS)
+import WidgetKit
+#endif
 
 @Observable
 @MainActor
@@ -96,6 +99,11 @@ final class AppState {
         case .splits: splitsRefreshVersion &+= 1
         case .savings: savingsRefreshVersion &+= 1
         }
+        #if os(iOS)
+        if domain == .transactions || domain == .budgets {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+        #endif
     }
 
     func notifyChanged(_ domains: some Sequence<DataRefreshDomain>) {
