@@ -72,7 +72,10 @@ struct TransactionMapperTests {
         #expect(entity.amount == Decimal(50.0))
         #expect(entity.type == .expense)
         #expect(entity.paymentMethod == .cash)
-        #expect(entity.currencyCode == CurrencyDefaults.code)
+        // Assert faithful mapping, not ambient global state: CurrencyDefaults.code
+        // reads UserDefaults.standard, so a parallel suite mutating the currency key
+        // could flip this between SDTransaction() and the assert.
+        #expect(entity.currencyCode == model.currencyCode)
         #expect(entity.tags == [])
         #expect(entity.categoryID == nil)
         #expect(entity.accountID == nil)

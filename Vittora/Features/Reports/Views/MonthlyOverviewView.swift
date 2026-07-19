@@ -37,14 +37,17 @@ struct MonthlyOverviewView: View {
                         contentVersion: monthlyReportContentVersion(vm),
                         isEnabled: !vm.isLoading
                     ) {
-                        MonthlyReportExportDocument(
-                            reportTitle: String(localized: "Monthly Overview"),
-                            subtitle: String(localized: "Last 12 months"),
-                            monthlyData: vm.monthlyData,
-                            currencyCode: currencyCode,
-                            totalIncome: vm.totalIncome,
-                            totalExpense: vm.totalExpense,
-                            netSavings: vm.netSavings
+                        try ReportPDFRenderer.export(
+                            pages: MonthlyReportPDFDocument.pages(
+                                reportTitle: String(localized: "Monthly Overview"),
+                                period: String(localized: "Last 12 months"),
+                                monthlyData: vm.monthlyData,
+                                currencyCode: currencyCode,
+                                totalIncome: vm.totalIncome,
+                                totalExpense: vm.totalExpense,
+                                netSavings: vm.netSavings
+                            ),
+                            fileName: "monthly-overview"
                         )
                     }
                 }
