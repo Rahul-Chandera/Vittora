@@ -22,6 +22,9 @@ public enum ModelContainerConfig {
             cloudKitDatabase: cloudKitDatabase
         )
         if !inMemory {
+            // 1.0 stores lived in the app container (no groupContainer). Copy them
+            // into the App Group before opening so existing ledgers are not orphaned.
+            _ = try migrateLegacyStoreToGroupContainerIfNeeded()
             // On a fresh install the app-group container has no
             // Library/Application Support yet; without this, addPersistentStore
             // fails (Cocoa 512) and relies on CoreData's noisy error recovery
@@ -63,23 +66,63 @@ public enum ModelContainerConfig {
         ).url
     }
 
+    /// File URL of the 1.0 store (app container, no App Group).
+    /// Derived the same way as `persistentStoreURL`, but with `groupContainer: .none`.
+    public nonisolated static var legacyPersistentStoreURL: URL {
+        ModelConfiguration(
+            schema: Schema(allModels),
+            isStoredInMemoryOnly: false,
+            groupContainer: .none,
+            cloudKitDatabase: .none
+        ).url
+    }
+
+    /// One-time, idempotent copy of the 1.0 app-container store into the App Group.
+    ///
+    /// - Returns: `true` when files were copied; `false` when already migrated,
+    ///   nothing to migrate, or source and destination are the same path.
+    /// - Note: Copies (does not delete) legacy files so they remain a fallback
+    ///   until the group store has opened successfully at least once.
+    @discardableResult
+    public nonisolated static func migrateLegacyStoreToGroupContainerIfNeeded() throws -> Bool {
+        let fm = FileManager.default
+        let groupURL = persistentStoreURL
+        let legacyURL = legacyPersistentStoreURL
+
+        guard groupURL != legacyURL else { return false }
+        // Idempotent: group store already present → leave legacy untouched.
+        guard !fm.fileExists(atPath: groupURL.path) else { return false }
+        guard fm.fileExists(atPath: legacyURL.path) else { return false }
+
+        let destinationDirectory = groupURL.deletingLastPathComponent()
+        try fm.createDirectory(at: destinationDirectory, withIntermediateDirectories: true)
+
+        for suffix in ["", "-wal", "-shm"] {
+            let source = URL(fileURLWithPath: legacyURL.path + suffix)
+            guard fm.fileExists(atPath: source.path) else { continue }
+            let destination = URL(fileURLWithPath: groupURL.path + suffix)
+            if fm.fileExists(atPath: destination.path) {
+                try fm.removeItem(at: destination)
+            }
+            try fm.copyItem(at: source, to: destination)
+        }
+        return true
+    }
+
     /// Deletes the on-disk store and its WAL/SHM sidecars so the next launch
     /// starts from a fresh store. Only safe while no on-disk container is open
     /// — i.e. recovery mode, where the store couldn't be opened at all (the
     /// escape hatch from an unopenable store, e.g. unknown model version).
     ///
-    /// Also removes the legacy store in the app's own Application Support:
-    /// SwiftData silently re-copies it (attributes intact) into the group
-    /// container whenever the group store is missing, so deleting only the
-    /// group store resurrects the broken legacy store on the next launch.
+    /// Also removes the legacy app-container store: a leftover there would be
+    /// re-copied into the group container on the next launch when the group
+    /// store is missing, resurrecting a broken store after factory reset.
     public nonisolated static func destroyPersistentStore() throws {
         let fm = FileManager.default
         var storeURLs = [persistentStoreURL]
-        if let legacyDirectory = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            let legacyURL = legacyDirectory.appendingPathComponent("default.store")
-            if legacyURL != persistentStoreURL {
-                storeURLs.append(legacyURL)
-            }
+        let legacyURL = legacyPersistentStoreURL
+        if legacyURL != persistentStoreURL {
+            storeURLs.append(legacyURL)
         }
         for storeURL in storeURLs {
             for suffix in ["", "-wal", "-shm"] {
