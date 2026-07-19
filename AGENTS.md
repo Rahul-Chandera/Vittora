@@ -29,6 +29,14 @@ This file is the primary in-repo guidance for AI agents and contributors.
 5. Do not add third-party SDKs/services without explicit approval.
 6. Treat finance, tax, security, sync, and deletion flows as high-risk: add/update tests.
 7. Preserve offline-first behavior; local workflows must not depend on network presence.
+8. Never build a `Decimal` money value from a float literal. `Decimal(15.49)` and a bare
+   `15.49` in a `Decimal` context both round-trip through `Double` and are imprecise, so
+   exact equality fails even when the printed values match — and whether an expression like
+   `15.49 * 12` folds as `Double` or as `Decimal` differs between local Xcode and CI, so it
+   can pass locally and fail on CI. Use `Decimal(string: "15.49")!` (or integer literals,
+   which are exact) in production, tests, and fixtures. Do not paper over a mismatch with an
+   epsilon/tolerance comparison: exact equality is the correct assertion for money — the
+   inputs are what must be built precisely.
 
 ## High-Risk Modules (extra caution)
 
