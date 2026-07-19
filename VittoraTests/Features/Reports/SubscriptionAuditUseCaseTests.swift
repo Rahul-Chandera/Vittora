@@ -46,7 +46,38 @@ struct SubscriptionAuditUseCaseTests {
         #expect(report.rows[1].name == "Netflix")
         #expect(report.rows[1].monthlyCost == 15.49)
         #expect(report.monthlyTotal == report.rows.reduce(0) { $0 + $1.monthlyCost })
-        #expect(report.annualTotal == report.monthlyTotal * 12)
+        #expect(report.annualTotal == report.rows.reduce(0) { $0 + $1.annualCost })
+    }
+
+    @Test("yearly subscription annual total equals billed amount exactly (no ÷12×12 drift)")
+    func yearlySubscriptionAnnualTotalExact() async throws {
+        let recurring = MockRecurringRuleRepository()
+        let categories = MockCategoryRepository()
+        let transactions = MockTransactionRepository()
+
+        let subscriptions = CategoryEntity(name: "Subscriptions", icon: "tv.fill", type: .expense)
+        try await categories.create(subscriptions)
+
+        await recurring.seed(RecurringRuleEntity(
+            frequency: .yearly,
+            nextDate: now,
+            templateAmount: 899,
+            templateNote: "Annual Plan",
+            templateCategoryID: subscriptions.id,
+            templateAccountID: UUID()
+        ))
+
+        let report = try await makeUseCase(
+            recurring: recurring,
+            categories: categories,
+            transactions: transactions
+        ).execute()
+
+        let expected = Decimal(string: "899")!
+        #expect(report.rows.count == 1)
+        #expect(report.rows[0].annualCost == expected)
+        #expect(report.annualTotal == expected)
+        #expect(report.monthlyTotal == report.rows[0].monthlyCost)
     }
 
     @Test("excludes paused and ended rules")
@@ -131,6 +162,7 @@ struct SubscriptionAuditUseCaseTests {
         #expect(report.rows.map(\.name) == ["Netflix"])
         #expect(report.monthlyTotal == 15.49)
         #expect(report.annualTotal == 15.49 * 12)
+        #expect(report.annualTotal == report.rows.reduce(0) { $0 + $1.annualCost })
     }
 
     @Test("empty when no active expense rules")

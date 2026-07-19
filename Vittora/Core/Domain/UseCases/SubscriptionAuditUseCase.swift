@@ -9,6 +9,7 @@ struct SubscriptionAuditRow: Identifiable, Sendable, Equatable {
     nonisolated let frequency: RecurrenceFrequency
     nonisolated let amount: Decimal
     nonisolated let monthlyCost: Decimal
+    nonisolated let annualCost: Decimal
     nonisolated let lastRan: Date?
 }
 
@@ -73,6 +74,10 @@ struct SubscriptionAuditUseCase: Sendable {
                 }
                 return categoryName
             }()
+            let annualCost = SubscriptionCostNormalization.annualEquivalent(
+                amount: rule.templateAmount,
+                frequency: rule.frequency
+            )
             let monthlyCost = SubscriptionCostNormalization.monthlyEquivalent(
                 amount: rule.templateAmount,
                 frequency: rule.frequency
@@ -84,6 +89,7 @@ struct SubscriptionAuditUseCase: Sendable {
                 frequency: rule.frequency,
                 amount: rule.templateAmount,
                 monthlyCost: monthlyCost,
+                annualCost: annualCost,
                 lastRan: lastRanByRule[rule.id]
             )
         }
@@ -94,11 +100,13 @@ struct SubscriptionAuditUseCase: Sendable {
             return lhs.monthlyCost > rhs.monthlyCost
         }
 
+        // Sum columns independently — Decimal ÷12 then ×12 does not round-trip.
         let monthlyTotal = rows.reduce(Decimal(0)) { $0 + $1.monthlyCost }
+        let annualTotal = rows.reduce(Decimal(0)) { $0 + $1.annualCost }
         return SubscriptionAuditReport(
             rows: rows,
             monthlyTotal: monthlyTotal,
-            annualTotal: monthlyTotal * 12
+            annualTotal: annualTotal
         )
     }
 }

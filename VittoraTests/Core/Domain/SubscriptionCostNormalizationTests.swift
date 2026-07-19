@@ -64,7 +64,7 @@ struct SubscriptionCostNormalizationTests {
         )
     }
 
-    @Test("totals equal sum of per-row monthly equivalents")
+    @Test("totals equal sum of per-row monthly and annual equivalents")
     func totalsEqualSumOfRows() {
         let rows: [(Decimal, RecurrenceFrequency)] = [
             (15.49, .monthly),
@@ -79,13 +79,27 @@ struct SubscriptionCostNormalizationTests {
         let monthlyTotal = rows.reduce(Decimal(0)) { partial, row in
             partial + SubscriptionCostNormalization.monthlyEquivalent(amount: row.0, frequency: row.1)
         }
-        let annualTotal = monthlyTotal * 12
+        let annualTotal = rows.reduce(Decimal(0)) { partial, row in
+            partial + SubscriptionCostNormalization.annualEquivalent(amount: row.0, frequency: row.1)
+        }
 
         let expectedMonthly = rows.reduce(Decimal(0)) { partial, row in
             partial + SubscriptionCostNormalization.monthlyEquivalent(amount: row.0, frequency: row.1)
         }
+        let expectedAnnual = rows.reduce(Decimal(0)) { partial, row in
+            partial + SubscriptionCostNormalization.annualEquivalent(amount: row.0, frequency: row.1)
+        }
 
         #expect(monthlyTotal == expectedMonthly)
-        #expect(annualTotal == expectedMonthly * 12)
+        #expect(annualTotal == expectedAnnual)
+    }
+
+    @Test("yearly 899 annual equivalent is exact (no monthly round-trip)")
+    func yearlyAmountSurvivesWithoutMonthlyRoundTrip() {
+        let amount = Decimal(string: "899")!
+        let annual = SubscriptionCostNormalization.annualEquivalent(amount: amount, frequency: .yearly)
+        let viaMonthly = SubscriptionCostNormalization.monthlyEquivalent(amount: amount, frequency: .yearly) * 12
+        #expect(annual == amount)
+        #expect(viaMonthly != amount)
     }
 }
