@@ -42,8 +42,16 @@ Lock Screen families (W3), interactivity (W4), configuration intents.
 
 ## Verification steps
 
+> **Launch note (learned in W1 review):** verify with `--ui-test-seed-demo`
+> **alone**. Adding `--uitesting` forces an in-memory store, so widgets
+> correctly show the `—` placeholder and look broken. Seed the on-disk
+> store, then confirm the widget shows a **live non-zero value** matching
+> the app — this end-to-end render check was deferred from W1 and is
+> required here.
+
 1. Screenshots: both widgets × both sizes × light/dark (8 total) on the
-   simulator, with the US demo dataset (`--ui-test-seed-demo`).
+   simulator, with the US demo dataset (`--ui-test-seed-demo`), at least
+   one showing a non-zero today's-spend value that matches the Dashboard.
 2. Change currency in Settings → reload widgets → screenshot showing the
    new symbol.
 3. `make test` summary in the PR.
