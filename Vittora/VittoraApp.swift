@@ -59,6 +59,9 @@ struct VittoraApp: App {
             )
         }
 
+        // Keep the App Group currency mirror current for widget extensions.
+        AppUserDefaults.mirrorCurrencyCodeToAppGroup()
+
         if exercisesAppLockPolicy {
             KeychainService.syncSave(Data([1]), forKey: AppUserDefaults.KeychainKey.appLockEnabled)
             UserDefaults.standard.set(
