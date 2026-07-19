@@ -17,6 +17,9 @@ Use `AGENTS.md` as the canonical version.
 - Do not use force unwraps in production code.
 - Keep third-party dependencies out unless explicitly requested.
 - Preserve offline-first behavior and secure handling of financial data.
+- Never build a `Decimal` money value from a float literal (`15.49`); use
+  `Decimal(string: "15.49")!` or integer literals. Float literals go via `Double`,
+  break exact equality, and fold differently on CI than locally.
 - Add targeted tests for tax/sync/security/deletion changes.
 
 ## Fast Command Surface
