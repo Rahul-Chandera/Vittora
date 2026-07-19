@@ -13,6 +13,7 @@ struct ReportsHomeView: View {
         (.custom, String(localized: "Custom Report"), String(localized: "Filter by date, group by category or account"), "slider.horizontal.3", .teal),
         (.annual, String(localized: "Annual Summary"), String(localized: "Review yearly income, spending, and monthly totals"), "calendar", .indigo),
         (.cashFlow, String(localized: "Cash Flow"), String(localized: "Track inflows and outflows over time"), "waveform.path.ecg", .green),
+        (.cashFlowForecast, String(localized: "Cash Flow Forecast"), String(localized: "90-day projected balance estimate"), "chart.xyaxis.line", .mint),
         (.netWorth, String(localized: "Net Worth"), String(localized: "See how your total balance changes over time"), "chart.line.uptrend.xyaxis.circle.fill", .pink),
         (.subscriptionAudit, String(localized: "Subscription Audit"), String(localized: "What recurring expenses cost each month"), "arrow.triangle.2.circlepath", .cyan)
     ]
@@ -119,6 +120,8 @@ struct ReportsHomeView: View {
             AnnualReportView()
         case .cashFlow:
             CashFlowReportView()
+        case .cashFlowForecast:
+            CashFlowForecastReportView()
         case .netWorth:
             NetWorthReportView()
         case .subscriptionAudit:
