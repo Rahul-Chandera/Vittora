@@ -117,3 +117,40 @@ struct AppStateQuickAddRoutingTests {
         #expect(state.pendingQuickAdd == nil)
     }
 }
+
+@Suite("Quick Add Intent Bridge Tests")
+@MainActor
+struct QuickAddIntentBridgeTests {
+
+    @Test("consumePendingIntentDestination returns and clears the App Group stash")
+    func consumeClearsStash() {
+        let key = QuickAddDeepLink.pendingIntentDestinationKey
+        AppUserDefaults.appGroup.set(
+            QuickAddDeepLink.Destination.income.rawValue,
+            forKey: key
+        )
+        defer { AppUserDefaults.appGroup.removeObject(forKey: key) }
+
+        #expect(QuickAddDeepLink.consumePendingIntentDestination() == .income)
+        #expect(QuickAddDeepLink.consumePendingIntentDestination() == nil)
+    }
+
+    @Test("registerOpenHandler delivers pending stash then requestFromIntent")
+    func registerConsumesPendingAndHandlesRequest() {
+        let key = QuickAddDeepLink.pendingIntentDestinationKey
+        AppUserDefaults.appGroup.set(
+            QuickAddDeepLink.Destination.transfer.rawValue,
+            forKey: key
+        )
+        defer { AppUserDefaults.appGroup.removeObject(forKey: key) }
+
+        var received: [QuickAddDeepLink.Destination] = []
+        QuickAddDeepLink.registerOpenHandler { received.append($0) }
+
+        #expect(received == [.transfer])
+        #expect(AppUserDefaults.appGroup.string(forKey: key) == nil)
+
+        QuickAddDeepLink.requestFromIntent(.expense)
+        #expect(received == [.transfer, .expense])
+    }
+}
