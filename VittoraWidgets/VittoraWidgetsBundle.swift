@@ -5,5 +5,6 @@ import SwiftUI
 struct VittoraWidgetsBundle: WidgetBundle {
     var body: some Widget {
         PlaceholderWidget()
+        LockScreenAccessoryWidget()
     }
 }
