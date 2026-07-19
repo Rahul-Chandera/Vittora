@@ -191,7 +191,7 @@ struct VittoraApp: App {
                         await performStartupTasksIfNeeded()
                     }
                     .onOpenURL { url in
-                        appState.openSplitGroup(from: url)
+                        appState.openFromURL(url)
                     }
             } else {
                 StartupFailureView(

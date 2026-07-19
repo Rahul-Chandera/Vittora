@@ -55,11 +55,12 @@ struct PlaceholderWidget: Widget {
         }
         .configurationDisplayName(String(localized: "Vittora"))
         .description(String(localized: "Today's spending at a glance."))
-        .supportedFamilies([.systemSmall])
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
 
 struct PlaceholderWidgetView: View {
+    @Environment(\.widgetFamily) private var family
     let entry: PlaceholderEntry
 
     var body: some View {
@@ -73,7 +74,18 @@ struct PlaceholderWidgetView: View {
                 .font(.title2.weight(.semibold))
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
-            Spacer(minLength: 0)
+
+            if family == .systemMedium {
+                Spacer(minLength: 0)
+                Link(destination: QuickAddDeepLink.url(for: .expense)) {
+                    Label(String(localized: "+ Add expense"), systemImage: "plus.circle.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                }
+                .accessibilityLabel(String(localized: "Add expense"))
+            } else {
+                Spacer(minLength: 0)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding()
@@ -82,6 +94,12 @@ struct PlaceholderWidgetView: View {
 
 #if DEBUG
 #Preview(as: .systemSmall) {
+    PlaceholderWidget()
+} timeline: {
+    PlaceholderEntry(date: .now, todaySpendingText: "$42.00")
+}
+
+#Preview(as: .systemMedium) {
     PlaceholderWidget()
 } timeline: {
     PlaceholderEntry(date: .now, todaySpendingText: "$42.00")
