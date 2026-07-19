@@ -1,6 +1,9 @@
 import Foundation
 import SwiftUI
 import VittoraCore
+#if os(iOS)
+import WidgetKit
+#endif
 
 @Observable
 @MainActor
@@ -19,6 +22,9 @@ final class SettingsViewModel {
                 UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.currencyCode)
                 // Mirror for widget/extension processes (do not move primary storage).
                 AppUserDefaults.mirrorCurrencyCodeToAppGroup()
+                #if os(iOS)
+                WidgetCenter.shared.reloadAllTimelines()
+                #endif
             }
         }
     }
