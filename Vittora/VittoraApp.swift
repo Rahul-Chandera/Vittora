@@ -255,11 +255,11 @@ struct VittoraApp: App {
             case .inactive:
                 // UI-test harness: home press often stops at .inactive on Simulator.
                 if exercisesAppLockPolicy, settingsVM.isAppLockEnabled {
-                    dependencies.appLockService.recordBackgrounded(at: .now)
+                    recordAppLockBackgrounded()
                 }
             case .background:
                 if settingsVM.isAppLockEnabled {
-                    dependencies.appLockService.recordBackgrounded(at: .now)
+                    recordAppLockBackgrounded()
                 }
             case .active:
                 applyAppLockPolicyOnBecomeActive()
@@ -305,6 +305,16 @@ struct VittoraApp: App {
             return KeyEquivalent(Character("1"))
         }
         return KeyEquivalent(Character(scalar))
+    }
+
+    /// Persists background stamp + timeout into the App Group so Siri/intents
+    /// apply the same `AppLockPolicy.shouldLock` rule as become-active.
+    private func recordAppLockBackgrounded(at date: Date = .now) {
+        dependencies.appLockService.recordBackgrounded(at: date)
+        AppLockSessionMirror.mirrorBackgrounded(
+            at: date,
+            timeout: settingsVM.appLockTimeout.timeInterval
+        )
     }
 
     /// Re-lock only when background duration meets the configured timeout (B1).
@@ -367,7 +377,8 @@ struct VittoraApp: App {
             AppLockSessionMirror.mirrorFromAppState(
                 isAppLockEnabled: true,
                 isLocked: true,
-                isAuthenticated: false
+                isAuthenticated: false,
+                timeout: AppLockTimeout.immediately.timeInterval
             )
         }
         let message = await TodaySpendingQuery.run()

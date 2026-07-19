@@ -46,6 +46,9 @@ struct ContentView: View {
         .onChange(of: settingsVM.isAppLockEnabled) { _, _ in
             mirrorAppLockSession()
         }
+        .onChange(of: settingsVM.appLockTimeout) { _, _ in
+            mirrorAppLockSession()
+        }
         .onChange(of: appState.isLocked) { _, _ in
             mirrorAppLockSession()
         }
@@ -65,7 +68,8 @@ struct ContentView: View {
         AppLockSessionMirror.mirrorFromAppState(
             isAppLockEnabled: settingsVM.isAppLockEnabled,
             isLocked: appState.isLocked,
-            isAuthenticated: appState.isAuthenticated
+            isAuthenticated: appState.isAuthenticated,
+            timeout: settingsVM.appLockTimeout.timeInterval
         )
     }
 }
