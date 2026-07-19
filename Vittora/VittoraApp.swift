@@ -191,9 +191,23 @@ struct VittoraApp: App {
                         registerQuickAddIntentHandler()
                         await performStartupTasksIfNeeded()
                         openUITestURLIfNeeded()
+                        await showSpendingIntentResultIfNeeded()
                     }
                     .onOpenURL { url in
                         appState.openFromURL(url)
+                    }
+                    .alert(
+                        String(localized: "Today's Spending"),
+                        isPresented: Binding(
+                            get: { appState.uiTestIntentResultMessage != nil },
+                            set: { if !$0 { appState.uiTestIntentResultMessage = nil } }
+                        )
+                    ) {
+                        Button(String(localized: "OK"), role: .cancel) {
+                            appState.uiTestIntentResultMessage = nil
+                        }
+                    } message: {
+                        Text(appState.uiTestIntentResultMessage ?? "")
                     }
             } else {
                 StartupFailureView(
@@ -341,6 +355,23 @@ struct VittoraApp: App {
             try? await Task.sleep(for: .milliseconds(400))
             appState.openFromURL(QuickAddDeepLink.url(for: destination))
         }
+    }
+
+    /// Runs `TodaySpendingQuery` (same path as GetTodaySpendingIntent) for screenshot verification.
+    private func showSpendingIntentResultIfNeeded() async {
+        guard ProcessInfo.processInfo.arguments.contains("--ui-test-show-spending-intent-result") else {
+            return
+        }
+        // Mirror locked session when exercising App Lock so the gate matches Shortcuts.
+        if exercisesAppLockPolicy {
+            AppLockSessionMirror.mirrorFromAppState(
+                isAppLockEnabled: true,
+                isLocked: true,
+                isAuthenticated: false
+            )
+        }
+        let message = await TodaySpendingQuery.run()
+        appState.uiTestIntentResultMessage = message
     }
 
     private func performStartupTasksIfNeeded() async {

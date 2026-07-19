@@ -33,6 +33,8 @@ final class AppState {
     /// Quick-add destination from `vittora://add?type=…` (W4). Survives App Lock —
     /// consumed after unlock when the main UI mounts.
     var pendingQuickAdd: QuickAddDeepLink.Destination?
+    /// UI-test surface for W5 intent result verification (`--ui-test-show-spending-intent-result`).
+    var uiTestIntentResultMessage: String?
     /// Typed global command requests (keyboard shortcuts, dashboard quick actions).
     private(set) var pendingCommand: AppCommandRequest?
 

@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import SwiftData
 import VittoraCore
 
 @Suite("AppLockDisclosureGate")
@@ -114,5 +115,28 @@ struct TodaySpendingQueryTests {
     func runRespectsLockGate() async {
         let message = await TodaySpendingQuery.run(isAppLockEnabled: true, isAppLocked: true)
         #expect(message == AppLockDisclosureGate.unlockRequiredMessage)
+    }
+
+    @Test("run formats today's spending from an injected provider")
+    func runFormatsProviderAmount() async throws {
+        let container = try ModelContainerConfig.makePreviewContainer()
+        let provider = WidgetDataProvider(container: container)
+        let repo = SwiftDataTransactionRepository(modelContainer: container)
+        let amount = Decimal(string: "132.50") ?? 0
+        try await repo.create(TransactionEntity(amount: amount, date: .now, type: .expense))
+
+        let message = await TodaySpendingQuery.run(
+            isAppLockEnabled: false,
+            isAppLocked: false,
+            provider: provider
+        )
+
+        let expected = AppLockDisclosureGate.todaySpendingMessage(
+            isAppLockEnabled: false,
+            isAppLocked: false,
+            amount: amount,
+            currencyCode: CurrencyDefaults.code
+        )
+        #expect(message == expected)
     }
 }
