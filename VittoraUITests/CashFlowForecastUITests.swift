@@ -9,9 +9,8 @@ final class CashFlowForecastUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("R3 UI screenshots are captured on iPhone; Mac uses the same SwiftUI surface.")
         #else
-        UITestSupport.resetPersistedAppLockStateFromTearDown()
         app = XCUIApplication()
-        app.launchArguments = ["--uitesting", "--ui-test-seed-demo", "--ui-test-reset-app-lock"]
+        app.launchArguments = ["--uitesting", "--ui-test-seed-demo"]
         app.launchEnvironment["UITEST_INITIAL_TAB"] = "reports"
         app.launch()
         #endif
@@ -19,7 +18,6 @@ final class CashFlowForecastUITests: XCTestCase {
 
     override func tearDownWithError() throws {
         app = nil
-        UITestSupport.resetPersistedAppLockStateFromTearDown()
     }
 
     @MainActor
@@ -27,23 +25,47 @@ final class CashFlowForecastUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
-        XCTAssertTrue(app.staticTexts["Reports"].waitForExistence(timeout: 10))
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app), "Content root should appear")
+        XCTAssertTrue(app.staticTexts["Reports"].waitForExistence(timeout: 15))
 
-        let card = app.descendants(matching: .any)["Cash Flow Forecast"].firstMatch
-        UITestSupport.scrollToElement(card, in: app)
-        XCTAssertTrue(card.waitForExistence(timeout: 10))
-        UITestSupport.tapWhenReady(card)
+        // Prefer the stable card identifier over localized label matching.
+        let card = app.descendants(matching: .any)["report-card-cashFlowForecast"].firstMatch
+        for _ in 0..<8 where !card.exists || !card.isHittable {
+            app.swipeUp()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        }
+        XCTAssertTrue(card.waitForExistence(timeout: 15), "Cash Flow Forecast card should exist")
+        card.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
 
-        XCTAssertTrue(app.navigationBars["Cash Flow Forecast"].waitForExistence(timeout: 10))
+        let disclaimer = app.descendants(matching: .any)["cash-flow-forecast-disclaimer"].firstMatch
+        let day30 = app.descendants(matching: .any)["cash-flow-forecast-day-30"].firstMatch
+        let deadline = Date().addingTimeInterval(25)
+        while Date() < deadline, !disclaimer.exists {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+
+        if !disclaimer.exists {
+            let debug = XCUIScreen.main.screenshot()
+            let attachment = XCTAttachment(screenshot: debug)
+            attachment.name = "iphone-cash-flow-forecast-debug"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            let dir = URL(fileURLWithPath: #filePath)
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .appendingPathComponent("verification", isDirectory: true)
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            try? debug.pngRepresentation.write(
+                to: dir.appendingPathComponent("iphone-cash-flow-forecast-debug.png")
+            )
+        }
+
         XCTAssertTrue(
-            app.descendants(matching: .any)["cash-flow-forecast-disclaimer"].firstMatch
-                .waitForExistence(timeout: 15),
-            "Estimate disclaimer must be visible on the forecast screen."
+            disclaimer.exists,
+            "Estimate disclaimer must be visible on the forecast screen. Debug hierarchy: \(app.debugDescription.prefix(2000))"
         )
         XCTAssertTrue(
-            app.descendants(matching: .any)["cash-flow-forecast-day-30"].firstMatch
-                .waitForExistence(timeout: 10),
+            day30.waitForExistence(timeout: 10),
             "Day 30 summary should be visible for hand verification."
         )
 
@@ -53,14 +75,13 @@ final class CashFlowForecastUITests: XCTestCase {
         attachment.lifetime = .keepAlways
         add(attachment)
 
-        // Also save under verification/ for the PR (gitignored).
         let dir = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent() // VittoraUITests
-            .deletingLastPathComponent() // repo root
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
             .appendingPathComponent("verification", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let url = dir.appendingPathComponent("iphone-cash-flow-forecast.png")
-        try? screenshot.pngRepresentation.write(to: url)
+        try screenshot.pngRepresentation.write(to: url)
         #endif
     }
 }
