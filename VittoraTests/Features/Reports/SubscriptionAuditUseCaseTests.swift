@@ -6,6 +6,9 @@ import VittoraCore
 @Suite("Subscription Audit Use Case Tests")
 struct SubscriptionAuditUseCaseTests {
     private let now = makeDate(year: 2026, month: 7, day: 15)
+    private let netflixAmount = Decimal(string: "15.49")!
+    private let pausedAmount = Decimal(string: "9.99")!
+    private let endedAmount = Decimal(string: "12.99")!
 
     @Test("includes active expense rules sorted by monthly cost descending")
     func sortsByMonthlyCostDescending() async throws {
@@ -21,7 +24,7 @@ struct SubscriptionAuditUseCaseTests {
         await recurring.seed(RecurringRuleEntity(
             frequency: .monthly,
             nextDate: now,
-            templateAmount: 15.49,
+            templateAmount: netflixAmount,
             templateNote: "Netflix",
             templateCategoryID: subscriptions.id,
             templateAccountID: UUID()
@@ -44,7 +47,7 @@ struct SubscriptionAuditUseCaseTests {
         #expect(report.rows.count == 2)
         #expect(report.rows[0].name == "Rent")
         #expect(report.rows[1].name == "Netflix")
-        #expect(report.rows[1].monthlyCost == 15.49)
+        #expect(report.rows[1].monthlyCost == netflixAmount)
         #expect(report.monthlyTotal == report.rows.reduce(0) { $0 + $1.monthlyCost })
         #expect(report.annualTotal == report.rows.reduce(0) { $0 + $1.annualCost })
     }
@@ -92,7 +95,7 @@ struct SubscriptionAuditUseCaseTests {
             frequency: .monthly,
             nextDate: now,
             isActive: false,
-            templateAmount: 9.99,
+            templateAmount: pausedAmount,
             templateNote: "Paused",
             templateCategoryID: expense.id,
             templateAccountID: UUID()
@@ -102,7 +105,7 @@ struct SubscriptionAuditUseCaseTests {
             nextDate: now,
             isActive: true,
             endDate: makeDate(year: 2026, month: 1, day: 1),
-            templateAmount: 12.99,
+            templateAmount: endedAmount,
             templateNote: "Ended",
             templateCategoryID: expense.id,
             templateAccountID: UUID()
@@ -110,7 +113,7 @@ struct SubscriptionAuditUseCaseTests {
         await recurring.seed(RecurringRuleEntity(
             frequency: .monthly,
             nextDate: now,
-            templateAmount: 15.49,
+            templateAmount: netflixAmount,
             templateNote: "Netflix",
             templateCategoryID: expense.id,
             templateAccountID: UUID()
@@ -147,7 +150,7 @@ struct SubscriptionAuditUseCaseTests {
         await recurring.seed(RecurringRuleEntity(
             frequency: .monthly,
             nextDate: now,
-            templateAmount: 15.49,
+            templateAmount: netflixAmount,
             templateNote: "Netflix",
             templateCategoryID: subscriptions.id,
             templateAccountID: UUID()
@@ -160,8 +163,8 @@ struct SubscriptionAuditUseCaseTests {
         ).execute()
 
         #expect(report.rows.map(\.name) == ["Netflix"])
-        #expect(report.monthlyTotal == 15.49)
-        #expect(report.annualTotal == 15.49 * 12)
+        #expect(report.monthlyTotal == netflixAmount)
+        #expect(report.annualTotal == netflixAmount * 12)
         #expect(report.annualTotal == report.rows.reduce(0) { $0 + $1.annualCost })
     }
 
@@ -191,7 +194,7 @@ struct SubscriptionAuditUseCaseTests {
             id: ruleID,
             frequency: .monthly,
             nextDate: now,
-            templateAmount: 15.49,
+            templateAmount: netflixAmount,
             templateNote: "Netflix",
             templateCategoryID: expense.id,
             templateAccountID: UUID()
@@ -200,13 +203,13 @@ struct SubscriptionAuditUseCaseTests {
         let earlier = makeDate(year: 2026, month: 5, day: 10)
         let later = makeDate(year: 2026, month: 6, day: 10)
         try await transactions.create(TransactionEntity(
-            amount: 15.49,
+            amount: netflixAmount,
             date: earlier,
             type: .expense,
             recurringRuleID: ruleID
         ))
         try await transactions.create(TransactionEntity(
-            amount: 15.49,
+            amount: netflixAmount,
             date: later,
             type: .expense,
             recurringRuleID: ruleID

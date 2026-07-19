@@ -28,8 +28,9 @@ struct SubscriptionCostNormalizationTests {
 
     @Test("monthly amount is unchanged")
     func monthlyNormalization() {
-        #expect(SubscriptionCostNormalization.monthlyEquivalent(amount: 15.49, frequency: .monthly) == 15.49)
-        #expect(SubscriptionCostNormalization.annualEquivalent(amount: 15.49, frequency: .monthly) == 15.49 * 12)
+        let amount = Decimal(string: "15.49")!
+        #expect(SubscriptionCostNormalization.monthlyEquivalent(amount: amount, frequency: .monthly) == amount)
+        #expect(SubscriptionCostNormalization.annualEquivalent(amount: amount, frequency: .monthly) == amount * 12)
     }
 
     @Test("quarterly amount divides by 3")
@@ -67,7 +68,7 @@ struct SubscriptionCostNormalizationTests {
     @Test("totals equal sum of per-row monthly and annual equivalents")
     func totalsEqualSumOfRows() {
         let rows: [(Decimal, RecurrenceFrequency)] = [
-            (15.49, .monthly),
+            (Decimal(string: "15.49")!, .monthly),
             (10, .weekly),
             (120, .yearly),
             (90, .quarterly),
