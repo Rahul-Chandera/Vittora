@@ -178,6 +178,9 @@ public final class DataManagementService: Sendable {
         try await keychainService.delete(forKey: "com.vittora.encryption.key")
         try await keychainService.delete(forKey: "com.vittora.encryption.key.se_wrapped")
 
+        AppLockSessionMirror.mirrorSessionUnlocked(false)
+        AppUserDefaults.appGroup.removeObject(forKey: QuickAddDeepLink.pendingIntentDestinationKey)
+
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
         AppUserDefaults.sync.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.categorizationRules)
