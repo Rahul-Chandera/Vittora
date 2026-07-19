@@ -62,6 +62,12 @@ struct VittoraApp: App {
         // Keep the App Group currency mirror current for widget extensions.
         AppUserDefaults.mirrorCurrencyCodeToAppGroup()
 
+        // Keychain + App Group App Lock state survives relaunch; UI tests must
+        // declare unlocked vs locked rather than inheriting the previous case.
+        if launchArguments.contains("--ui-test-reset-app-lock") {
+            Self.resetAppLockUITestState()
+        }
+
         if exercisesAppLockPolicy {
             KeychainService.syncSave(Data([1]), forKey: AppUserDefaults.KeychainKey.appLockEnabled)
             UserDefaults.standard.set(
@@ -123,6 +129,14 @@ struct VittoraApp: App {
             BackgroundTaskScheduler.register(coordinator: recurringGenerationCoordinator)
         }
         #endif
+    }
+
+    /// Clears persisted App Lock intent + policy mirrors for UI-test isolation.
+    private static func resetAppLockUITestState() {
+        KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockTimeout)
+        AppLockSessionMirror.clearAll()
     }
 
     private static func initialOnboardingCompletionState(
@@ -188,11 +202,26 @@ struct VittoraApp: App {
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
                     .task {
+                        registerQuickAddIntentHandler()
                         await performStartupTasksIfNeeded()
                         openUITestURLIfNeeded()
+                        await showSpendingIntentResultIfNeeded()
                     }
                     .onOpenURL { url in
                         appState.openFromURL(url)
+                    }
+                    .alert(
+                        String(localized: "Today's Spending"),
+                        isPresented: Binding(
+                            get: { appState.uiTestIntentResultMessage != nil },
+                            set: { if !$0 { appState.uiTestIntentResultMessage = nil } }
+                        )
+                    ) {
+                        Button(String(localized: "OK"), role: .cancel) {
+                            appState.uiTestIntentResultMessage = nil
+                        }
+                    } message: {
+                        Text(appState.uiTestIntentResultMessage ?? "")
                     }
             } else {
                 StartupFailureView(
@@ -240,11 +269,11 @@ struct VittoraApp: App {
             case .inactive:
                 // UI-test harness: home press often stops at .inactive on Simulator.
                 if exercisesAppLockPolicy, settingsVM.isAppLockEnabled {
-                    dependencies.appLockService.recordBackgrounded(at: .now)
+                    recordAppLockBackgrounded()
                 }
             case .background:
                 if settingsVM.isAppLockEnabled {
-                    dependencies.appLockService.recordBackgrounded(at: .now)
+                    recordAppLockBackgrounded()
                 }
             case .active:
                 applyAppLockPolicyOnBecomeActive()
@@ -292,6 +321,16 @@ struct VittoraApp: App {
         return KeyEquivalent(Character(scalar))
     }
 
+    /// Persists background stamp + timeout into the App Group so Siri/intents
+    /// apply the same `AppLockPolicy.shouldLock` rule as become-active.
+    private func recordAppLockBackgrounded(at date: Date = .now) {
+        dependencies.appLockService.recordBackgrounded(at: date)
+        AppLockSessionMirror.mirrorBackgrounded(
+            at: date,
+            timeout: settingsVM.appLockTimeout.timeInterval
+        )
+    }
+
     /// Re-lock only when background duration meets the configured timeout (B1).
     private func applyAppLockPolicyOnBecomeActive() {
         guard settingsVM.isAppLockEnabled else {
@@ -321,6 +360,13 @@ struct VittoraApp: App {
         await dependencies.notificationService.registerCategories()
     }
 
+    /// W5: AddExpenseIntent → same `openFromURL` path as widget / `vittora://add` links.
+    private func registerQuickAddIntentHandler() {
+        QuickAddDeepLink.registerOpenHandler { [appState] destination in
+            appState.openFromURL(QuickAddDeepLink.url(for: destination))
+        }
+    }
+
     private func openUITestURLIfNeeded() {
         let prefix = "--ui-test-quick-add="
         guard let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }) else {
@@ -333,6 +379,33 @@ struct VittoraApp: App {
             try? await Task.sleep(for: .milliseconds(400))
             appState.openFromURL(QuickAddDeepLink.url(for: destination))
         }
+    }
+
+    /// Runs `TodaySpendingQuery` (same path as GetTodaySpendingIntent) for screenshot verification.
+    private func showSpendingIntentResultIfNeeded() async {
+        guard ProcessInfo.processInfo.arguments.contains("--ui-test-show-spending-intent-result") else {
+            return
+        }
+        // Mirror locked session when exercising App Lock so the gate matches Shortcuts.
+        if exercisesAppLockPolicy {
+            AppLockSessionMirror.mirrorFromAppState(
+                isAppLockEnabled: true,
+                isLocked: true,
+                isAuthenticated: false,
+                timeout: AppLockTimeout.immediately.timeInterval
+            )
+        }
+        // UI tests use an in-memory host store; the App Group on-disk store may be
+        // absent. Prefer the test container so unlocked queries still return a summary.
+        let message: String
+        if isUITesting, let modelContainer {
+            message = await TodaySpendingQuery.run(
+                provider: WidgetDataProvider(container: modelContainer)
+            )
+        } else {
+            message = await TodaySpendingQuery.run()
+        }
+        appState.uiTestIntentResultMessage = message
     }
 
     private func performStartupTasksIfNeeded() async {
