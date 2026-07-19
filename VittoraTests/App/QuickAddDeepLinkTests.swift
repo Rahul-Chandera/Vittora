@@ -70,6 +70,7 @@ struct AppStateQuickAddRoutingTests {
 
         #expect(state.pendingQuickAdd == .income)
         #expect(state.selectedTab == .dashboard)
+        #expect(state.pendingCommand?.command == .presentQuickAdd(.income))
     }
 
     @Test("unknown add type opens the app without queuing a destination")

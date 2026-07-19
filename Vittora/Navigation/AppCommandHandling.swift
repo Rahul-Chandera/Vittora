@@ -49,6 +49,8 @@ private struct AppCommandHandlingModifier: ViewModifier {
                 switch request.command {
                 case .presentNewTransaction:
                     presentedQuickAdd = .quickEntry
+                case .presentQuickAdd(let destination):
+                    presentedQuickAdd = .destination(destination)
                 case .openSettings:
                     #if os(macOS)
                     openSettings()
@@ -66,6 +68,10 @@ private struct AppCommandHandlingModifier: ViewModifier {
         guard let destination = appState.pendingQuickAdd else { return }
         presentedQuickAdd = .destination(destination)
         appState.clearPendingQuickAdd()
+        // Drop a duplicate command if openFromURL also requested one.
+        if case .presentQuickAdd = appState.pendingCommand?.command {
+            appState.clearPendingCommand()
+        }
     }
 }
 

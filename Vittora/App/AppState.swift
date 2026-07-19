@@ -140,6 +140,9 @@ final class AppState {
             if let destination = QuickAddDeepLink.destination(from: url) {
                 pendingQuickAdd = destination
                 selectedTab = .dashboard
+                // Also enqueue a command so already-mounted shells present immediately
+                // (pending alone is for App Lock / cold start before AppTabView exists).
+                request(.presentQuickAdd(destination))
             }
             return
         }

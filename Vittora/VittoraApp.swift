@@ -189,6 +189,7 @@ struct VittoraApp: App {
                     #endif
                     .task {
                         await performStartupTasksIfNeeded()
+                        openUITestURLIfNeeded()
                     }
                     .onOpenURL { url in
                         appState.openFromURL(url)
@@ -318,6 +319,20 @@ struct VittoraApp: App {
             appState.openFromNotification(deepLink)
         }
         await dependencies.notificationService.registerCategories()
+    }
+
+    private func openUITestURLIfNeeded() {
+        let prefix = "--ui-test-quick-add="
+        guard let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }) else {
+            return
+        }
+        let type = String(raw.dropFirst(prefix.count)).lowercased()
+        guard let destination = QuickAddDeepLink.Destination(rawValue: type) else { return }
+        // Defer until navigation shells have attached command handlers.
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(400))
+            appState.openFromURL(QuickAddDeepLink.url(for: destination))
+        }
     }
 
     private func performStartupTasksIfNeeded() async {
