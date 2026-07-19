@@ -188,6 +188,7 @@ struct VittoraApp: App {
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
                     .task {
+                        registerQuickAddIntentHandler()
                         await performStartupTasksIfNeeded()
                         openUITestURLIfNeeded()
                     }
@@ -319,6 +320,13 @@ struct VittoraApp: App {
             appState.openFromNotification(deepLink)
         }
         await dependencies.notificationService.registerCategories()
+    }
+
+    /// W5: AddExpenseIntent → same `openFromURL` path as widget / `vittora://add` links.
+    private func registerQuickAddIntentHandler() {
+        QuickAddDeepLink.registerOpenHandler { [appState] destination in
+            appState.openFromURL(QuickAddDeepLink.url(for: destination))
+        }
     }
 
     private func openUITestURLIfNeeded() {

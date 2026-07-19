@@ -40,6 +40,18 @@ struct ContentView: View {
             KeyboardDismissGesture.installIfNeeded()
         }
         #endif
+        .onAppear {
+            mirrorAppLockSession()
+        }
+        .onChange(of: settingsVM.isAppLockEnabled) { _, _ in
+            mirrorAppLockSession()
+        }
+        .onChange(of: appState.isLocked) { _, _ in
+            mirrorAppLockSession()
+        }
+        .onChange(of: appState.isAuthenticated) { _, _ in
+            mirrorAppLockSession()
+        }
         .onChange(of: appState.isOnboardingComplete) { _, isComplete in
             // Onboarding writes the name/currency straight to storage; refresh the
             // shared view model so the main app shows them without a restart.
@@ -47,6 +59,14 @@ struct ContentView: View {
                 settingsVM.reloadPersistedProfile()
             }
         }
+    }
+
+    private func mirrorAppLockSession() {
+        AppLockSessionMirror.mirrorFromAppState(
+            isAppLockEnabled: settingsVM.isAppLockEnabled,
+            isLocked: appState.isLocked,
+            isAuthenticated: appState.isAuthenticated
+        )
     }
 }
 
