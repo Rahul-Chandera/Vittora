@@ -35,6 +35,10 @@ struct ContentView: View {
             }
         }
         .accessibilityIdentifier("content-root")
+        .errorAlert(message: Binding(
+            get: { appState.watchBridgeErrorMessage },
+            set: { appState.watchBridgeErrorMessage = $0 }
+        ))
         #if os(iOS)
         .onAppear {
             KeyboardDismissGesture.installIfNeeded()

@@ -38,6 +38,8 @@ final class AppState {
     var pendingQuickAdd: QuickAddDeepLink.Destination?
     /// UI-test surface for W5 intent result verification (`--ui-test-show-spending-intent-result`).
     var uiTestIntentResultMessage: String?
+    /// WatchConnectivity commit failures (queued expense rejected on the phone).
+    var watchBridgeErrorMessage: String?
     /// Typed global command requests (keyboard shortcuts, dashboard quick actions).
     private(set) var pendingCommand: AppCommandRequest?
 
@@ -104,9 +106,15 @@ final class AppState {
         #if os(iOS)
         if domain == .transactions || domain == .budgets {
             WidgetCenter.shared.reloadAllTimelines()
+            watchBridge?.pushSnapshot()
         }
         #endif
     }
+
+    #if os(iOS)
+    /// Set once after DI is ready; pushes snapshots on transaction/budget changes.
+    weak var watchBridge: WatchBridgeService?
+    #endif
 
     func notifyChanged(_ domains: some Sequence<DataRefreshDomain>) {
         for domain in domains {
