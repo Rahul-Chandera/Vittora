@@ -8,13 +8,11 @@ final class SpotlightDeepLinkUITests: XCTestCase {
 
     var app: XCUIApplication!
 
-    @MainActor
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
     }
 
-    @MainActor
     override func tearDownWithError() throws {
         UITestSupport.resetPersistedAppLockStateFromTearDown()
         app = nil
