@@ -192,7 +192,7 @@ struct TransactionFormView: View {
 
     @ViewBuilder
     private func fullFormContent(_ vm: TransactionFormViewModel) -> some View {
-        Section(String(localized: "Details")) {
+        Section {
             Picker(String(localized: "Category"), selection: Bindable(vm).selectedCategoryID) {
                 Text(String(localized: "None")).tag(UUID?.none)
                 let relevantCategories = vm.type == .income ? categories.income : categories.expense
@@ -200,6 +200,7 @@ struct TransactionFormView: View {
                     HStack {
                         Image(systemName: category.icon)
                             .foregroundColor(Color(hex: category.colorHex) ?? .blue)
+                            .accessibilityHidden(true)
                         Text(category.name)
                     }
                     .tag(UUID?(category.id))
@@ -218,9 +219,10 @@ struct TransactionFormView: View {
             Button {
                 showAddAccount = true
             } label: {
-                Label(String(localized: "Add Account"), systemImage: "plus.circle")
+                Text(String(localized: "Add Account"))
             }
             .accessibilityIdentifier("transaction-add-account-button")
+            .accessibilityLabel(String(localized: "Add Account"))
 
             Picker(String(localized: "Payee"), selection: Bindable(vm).selectedPayeeID) {
                 Text(String(localized: "None")).tag(UUID?.none)
@@ -239,9 +241,10 @@ struct TransactionFormView: View {
             Button {
                 showAddPayee = true
             } label: {
-                Label(String(localized: "Add Payee"), systemImage: "plus.circle")
+                Text(String(localized: "Add Payee"))
             }
             .accessibilityIdentifier("transaction-add-payee-button")
+            .accessibilityLabel(String(localized: "Add Payee"))
 
             if let suggestedID = vm.suggestedCategoryID,
                let suggested = (categories.expense + categories.income).first(where: { $0.id == suggestedID }) {
@@ -251,15 +254,19 @@ struct TransactionFormView: View {
                     HStack {
                         Image(systemName: "lightbulb.fill")
                             .foregroundColor(.yellow)
+                            .accessibilityHidden(true)
                         Text(String(localized: "Suggested: \(suggested.name)"))
                             .foregroundColor(VColors.textPrimary)
                         Spacer()
                     }
                 }
+                .accessibilityLabel(String(localized: "Suggested category: \(suggested.name)"))
             }
+        } header: {
+            formSectionHeader(String(localized: "Details"))
         }
 
-        Section(String(localized: "Date & Payment")) {
+        Section {
             DatePicker(
                 String(localized: "Date"),
                 selection: Bindable(vm).date,
@@ -271,9 +278,11 @@ struct TransactionFormView: View {
                     Text(method.displayName).tag(method)
                 }
             }
+        } header: {
+            formSectionHeader(String(localized: "Date & Payment"))
         }
 
-        Section(String(localized: "Notes")) {
+        Section {
             TextField(String(localized: "Notes"), text: Bindable(vm).note, axis: .vertical)
                 .lineLimit(3...5)
                 .accessibilityIdentifier("transaction-note-field")
@@ -282,15 +291,26 @@ struct TransactionFormView: View {
                         await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
                     }
                 }
+        } header: {
+            formSectionHeader(String(localized: "Notes"))
         }
 
-        Section(String(localized: "Tags")) {
+        Section {
             TagInputView(
                 tags: Bindable(vm).tags,
                 tagInput: Bindable(vm).tagInput,
                 onAddTag: { vm.addTag() }
             )
+        } header: {
+            formSectionHeader(String(localized: "Tags"))
         }
+    }
+
+    private func formSectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(VTypography.caption1)
+            .foregroundColor(VColors.textSecondary)
+            .textCase(nil)
     }
 
     private func loadTransactionData(_ vm: TransactionFormViewModel?, transactionID: UUID) async {

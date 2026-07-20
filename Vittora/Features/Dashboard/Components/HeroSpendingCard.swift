@@ -14,35 +14,15 @@ struct HeroSpendingCard: View {
                 .font(VTypography.subheadline)
                 .foregroundColor(VColors.textSecondary)
 
-            HStack(alignment: .bottom, spacing: VSpacing.xl) {
-                VStack(alignment: .leading, spacing: VSpacing.xs) {
-                    Text(String(localized: "Spent"))
-                        .font(VTypography.caption2)
-                        .foregroundColor(VColors.textSecondary)
-                    Text(CurrencyFormatter.format(monthSpending, currencyCode: currencyCode))
-                        .font(VTypography.amountLarge)
-                        .foregroundColor(VColors.expense)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                    if let comp = comparison {
-                        spendingTrendLabel(percent: comp.spendingChangePercent)
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .bottom, spacing: VSpacing.xl) {
+                    spentColumn
+                    Spacer(minLength: 0)
+                    incomeColumn
                 }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: VSpacing.xs) {
-                    Text(String(localized: "Income"))
-                        .font(VTypography.caption2)
-                        .foregroundColor(VColors.textSecondary)
-                    Text(CurrencyFormatter.format(monthIncome, currencyCode: currencyCode))
-                        .font(VTypography.amountMedium)
-                        .foregroundColor(VColors.income)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                    if let comp = comparison {
-                        incomeTrendLabel(percent: comp.incomeChangePercent)
-                    }
+                VStack(alignment: .leading, spacing: VSpacing.md) {
+                    spentColumn
+                    incomeColumn
                 }
             }
 
@@ -56,6 +36,36 @@ struct HeroSpendingCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(String(localized: "Monthly summary"))
         .accessibilityValue(accessibilitySummary)
+    }
+
+    private var spentColumn: some View {
+        VStack(alignment: .leading, spacing: VSpacing.xs) {
+            Text(String(localized: "Spent"))
+                .font(VTypography.caption2)
+                .foregroundColor(VColors.textSecondary)
+            Text(CurrencyFormatter.format(monthSpending, currencyCode: currencyCode))
+                .font(VTypography.amountLarge)
+                .foregroundColor(VColors.expense)
+                .amountScaling()
+            if let comp = comparison {
+                spendingTrendLabel(percent: comp.spendingChangePercent)
+            }
+        }
+    }
+
+    private var incomeColumn: some View {
+        VStack(alignment: .trailing, spacing: VSpacing.xs) {
+            Text(String(localized: "Income"))
+                .font(VTypography.caption2)
+                .foregroundColor(VColors.textSecondary)
+            Text(CurrencyFormatter.format(monthIncome, currencyCode: currencyCode))
+                .font(VTypography.amountMedium)
+                .foregroundColor(VColors.income)
+                .amountScaling()
+            if let comp = comparison {
+                incomeTrendLabel(percent: comp.incomeChangePercent)
+            }
+        }
     }
 
     @ViewBuilder
@@ -110,6 +120,7 @@ struct HeroSpendingCard: View {
                 }
             }
             .frame(height: 6)
+            .accessibilityHidden(true)
         }
         .padding(.top, VSpacing.xs)
     }
@@ -130,13 +141,13 @@ struct HeroSpendingCard: View {
 
 #Preview {
     HeroSpendingCard(
-        monthSpending: 1450.75,
-        monthIncome: 3200.00,
+        monthSpending: Decimal(string: "1450.75") ?? 0,
+        monthIncome: Decimal(string: "3200.00") ?? 0,
         comparison: MonthComparison(
-            currentMonthSpending: 1450.75,
-            lastMonthSpending: 1200.00,
-            currentMonthIncome: 3200.00,
-            lastMonthIncome: 3000.00
+            currentMonthSpending: Decimal(string: "1450.75") ?? 0,
+            lastMonthSpending: Decimal(string: "1200.00") ?? 0,
+            currentMonthIncome: Decimal(string: "3200.00") ?? 0,
+            lastMonthIncome: Decimal(string: "3000.00") ?? 0
         )
     )
     .padding()

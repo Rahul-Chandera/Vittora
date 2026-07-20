@@ -50,10 +50,14 @@ struct AmountInputView: View {
     }
 
     private var amountAccessibilityValue: String {
-        if amountString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        let trimmed = amountString.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
             return String(localized: "Empty")
         }
-        return amountString
+        guard let amount = Decimal(string: trimmed) else {
+            return trimmed
+        }
+        return CurrencyFormatter.format(amount, currencyCode: currencyCode)
     }
 
     private func transactionColor(for type: TransactionType) -> Color {

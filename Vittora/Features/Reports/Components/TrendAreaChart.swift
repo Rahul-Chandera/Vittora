@@ -36,6 +36,8 @@ struct TrendAreaChart: View {
             )
             .foregroundStyle(color)
             .symbolSize(dataPoints.count < 15 ? 30 : 0)
+            .accessibilityLabel(point.date.formatted(.dateTime.month(.abbreviated).day().year()))
+            .accessibilityValue(point.amount.formatted(.currency(code: currencyCode)))
         }
         .chartXAxis {
             AxisMarks { value in
