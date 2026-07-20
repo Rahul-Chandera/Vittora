@@ -33,7 +33,10 @@ enum WidgetColors {
 
 enum WidgetTypography {
     static let title = Font.system(.title2, design: .rounded).weight(.semibold)
+    /// Larger amount for StandBy / no-container contexts (legible at distance).
+    static let titleStandBy = Font.system(.largeTitle, design: .rounded).weight(.semibold)
     static let amount = Font.system(.title3, design: .rounded).weight(.semibold)
+    static let amountStandBy = Font.system(.title, design: .rounded).weight(.semibold)
     static let headline = Font.headline
     static let caption = Font.caption
     static let caption2 = Font.caption2
