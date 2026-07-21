@@ -57,6 +57,10 @@ struct VittoraApp: App {
         seedsDemoShowcaseForUITesting = launchArguments.contains("--ui-test-seed-demo")
         exercisesAppLockPolicy = launchArguments.contains("--ui-test-app-lock")
 
+        if isUITesting {
+            Self.configureAppearanceForUITesting(arguments: launchArguments)
+        }
+
         if launchArguments.contains("--ui-test-seed-demo") {
             // The currency environment is captured from Settings at first
             // render, before async seeding runs — set it up front so demo
@@ -70,6 +74,7 @@ struct VittoraApp: App {
 
         // Keep the App Group currency mirror current for widget extensions.
         AppUserDefaults.mirrorCurrencyCodeToAppGroup()
+        AppUserDefaults.mirrorAccentColorToAppGroup()
 
         // Keychain + App Group App Lock state survives relaunch; UI tests must
         // declare unlocked vs locked rather than inheriting the previous case.
@@ -156,6 +161,30 @@ struct VittoraApp: App {
         AppLockSessionMirror.clearAll()
     }
 
+    private static func configureAppearanceForUITesting(arguments: [String]) {
+        let appearancePrefix = "--ui-test-appearance="
+        let accentPrefix = "--ui-test-accent="
+        let appearance = arguments.first { $0.hasPrefix(appearancePrefix) }
+            .map { String($0.dropFirst(appearancePrefix.count)) }
+        let accent = arguments.first { $0.hasPrefix(accentPrefix) }
+            .map { String($0.dropFirst(accentPrefix.count)) }
+
+        if let appearance, appearanceModeRawValues.contains(appearance) {
+            UserDefaults.standard.set(appearance, forKey: AppUserDefaults.StandardKey.appearanceMode)
+        } else {
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appearanceMode)
+        }
+
+        if let accent, accentColorRawValues.contains(accent) {
+            UserDefaults.standard.set(accent, forKey: AppUserDefaults.StandardKey.accentColor)
+        } else {
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.accentColor)
+        }
+    }
+
+    private static let appearanceModeRawValues = Set(["system", "light", "dark", "oledBlack"])
+    private static let accentColorRawValues = Set(["brandGreen", "blue", "purple", "orange"])
+
     private static func initialOnboardingCompletionState(
         showsOnboardingForUITesting: Bool,
         bypassOnboardingForUITesting: Bool
@@ -215,6 +244,7 @@ struct VittoraApp: App {
                         modelContainer: modelContainer
                     )
                     .restoresSceneState(appState: appState)
+                    .background(VColors.background.ignoresSafeArea())
                     #if os(macOS)
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
@@ -260,6 +290,7 @@ struct VittoraApp: App {
                         ?? String(localized: "Vittora couldn't open its data store or create a recovery store.")
                 )
                 .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
+                .tint(VColors.accent(settingsVM.accentColor))
             }
         }
         #if os(macOS)

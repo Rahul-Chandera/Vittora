@@ -4,7 +4,7 @@ import Testing
 import VittoraCore
 @testable import Vittora
 
-@Suite("SettingsViewModel Tests")
+@Suite("SettingsViewModel Tests", .serialized)
 @MainActor
 struct SettingsViewModelTests {
 
@@ -57,13 +57,15 @@ struct SettingsViewModelTests {
         #expect(SettingsViewModel.AppearanceMode.dark.colorScheme == .dark)
     }
 
-    @Test("AppearanceMode has 3 cases")
-    func appearanceModeThreeCases() {
-        #expect(SettingsViewModel.AppearanceMode.allCases.count == 3)
+    @Test("AppearanceMode has OLED black case")
+    func appearanceModeHasOLEDBlack() {
+        #expect(SettingsViewModel.AppearanceMode.allCases.count == 4)
+        #expect(SettingsViewModel.AppearanceMode.oledBlack.colorScheme == .dark)
     }
 
     @Test("appearanceMode change notifies observers (theme actually switches)")
     func appearanceModeIsObservable() {
+        defer { UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appearanceMode) }
         final class Flag: @unchecked Sendable { var value = false }
         let flag = Flag()
 
@@ -80,6 +82,46 @@ struct SettingsViewModelTests {
         // Fails if the UserDefaults-backed property lacks access/withMutation,
         // which is why the theme never changed off Light.
         #expect(flag.value)
+    }
+
+    @Test("accent change notifies the app environment wiring")
+    func accentColorIsObservable() {
+        defer { UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.accentColor) }
+        final class Flag: @unchecked Sendable { var value = false }
+        let flag = Flag()
+        let vm = makeViewModel(keychainService: MockKeychainService())
+        vm.accentColor = .brandGreen
+
+        withObservationTracking {
+            _ = vm.accentColor
+        } onChange: {
+            flag.value = true
+        }
+
+        vm.accentColor = .blue
+        #expect(flag.value)
+    }
+
+    @Test("appearance and accent persist across view model recreation")
+    func appearanceAndAccentPersist() {
+        let appearanceKey = AppUserDefaults.StandardKey.appearanceMode
+        let accentKey = AppUserDefaults.StandardKey.accentColor
+        UserDefaults.standard.removeObject(forKey: appearanceKey)
+        UserDefaults.standard.removeObject(forKey: accentKey)
+        defer {
+            UserDefaults.standard.removeObject(forKey: appearanceKey)
+            UserDefaults.standard.removeObject(forKey: accentKey)
+            AppUserDefaults.appGroup.removeObject(forKey: accentKey)
+        }
+
+        let first = makeViewModel(keychainService: MockKeychainService())
+        first.appearanceMode = .oledBlack
+        first.accentColor = .purple
+
+        let relaunched = makeViewModel(keychainService: MockKeychainService())
+        #expect(relaunched.appearanceMode == .oledBlack)
+        #expect(relaunched.accentColor == .purple)
+        #expect(AppUserDefaults.appGroup.string(forKey: accentKey) == "purple")
     }
 
     @Test("reloadPersistedProfile republishes currency so the UI refreshes")
