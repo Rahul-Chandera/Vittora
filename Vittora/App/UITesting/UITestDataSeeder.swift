@@ -290,7 +290,8 @@ final class UITestDataSeeder {
         )
 
         _ = try await addTransactionUseCase.execute(
-            amount: 12.50,
+            id: fixedUUID("C0FFEE01-A24C-4C32-A4BE-53C6D9951D01"),
+            amount: Decimal(string: "12.50")!,
             type: .expense,
             date: Date.now,
             categoryID: groceriesCategory.id,
@@ -303,7 +304,7 @@ final class UITestDataSeeder {
         )
 
         _ = try await addTransactionUseCase.execute(
-            amount: 3_200,
+            amount: Decimal(string: "3200")!,
             type: .income,
             date: Calendar.current.date(byAdding: .day, value: -2, to: Date.now) ?? Date.now,
             categoryID: salaryCategory.id,
