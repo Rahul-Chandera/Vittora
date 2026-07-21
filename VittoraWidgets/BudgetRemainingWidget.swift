@@ -151,6 +151,8 @@ struct BudgetRemainingWidgetView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Budget remaining, no budget set"))
     }
 
     private var smallContent: some View {
@@ -170,6 +172,8 @@ struct BudgetRemainingWidgetView: View {
             Spacer(minLength: 0)
         }
         .padding()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilitySummary)
     }
 
     private var mediumContent: some View {
@@ -196,6 +200,8 @@ struct BudgetRemainingWidgetView: View {
             }
         }
         .padding()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilitySummary)
     }
 
     private func progressRing(size: CGFloat, lineWidth: CGFloat) -> some View {
@@ -261,6 +267,14 @@ struct BudgetRemainingWidgetView: View {
 
     private func formatted(_ amount: Decimal) -> String {
         amount.formatted(.currency(code: entry.snapshot.currencyCode))
+    }
+
+    private var accessibilitySummary: String {
+        WidgetAccessibilityLabels.budgetRemaining(
+            amount: entry.snapshot.remaining,
+            progress: entry.snapshot.progress,
+            currencyCode: entry.snapshot.currencyCode
+        )
     }
 }
 

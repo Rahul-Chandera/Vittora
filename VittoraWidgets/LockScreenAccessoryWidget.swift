@@ -146,7 +146,8 @@ struct LockScreenAccessoryWidgetView: View {
                 .privacySensitive()
         }
         .gaugeStyle(.accessoryCircularCapacity)
-        .accessibilityLabel(String(localized: "Budget used \(entry.budgetUsedPercentText)"))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(WidgetAccessibilityLabels.lockScreenBudget)
     }
 
     /// Today's spent + remaining, two lines.
@@ -170,11 +171,15 @@ struct LockScreenAccessoryWidgetView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(WidgetAccessibilityLabels.lockScreenSpending)
     }
 
     private var inlineContent: some View {
         Text(String(localized: "Spent \(entry.todaySpentText) today"))
             .privacySensitive()
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(WidgetAccessibilityLabels.lockScreenSpending)
     }
 }
 
