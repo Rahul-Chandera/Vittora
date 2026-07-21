@@ -6,6 +6,7 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
     public var todaySpend: Decimal
     public var budgetSpent: Decimal
     public var budgetTotal: Decimal
+    public var budgetPeriodKey: String
     public var recentTransactions: [WatchSnapshotTransaction]
     public var quickCategories: [WatchSnapshotCategory]
     public var currencyCode: String
@@ -15,6 +16,7 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
         todaySpend: Decimal,
         budgetSpent: Decimal,
         budgetTotal: Decimal,
+        budgetPeriodKey: String? = nil,
         recentTransactions: [WatchSnapshotTransaction],
         quickCategories: [WatchSnapshotCategory] = [],
         currencyCode: String,
@@ -23,6 +25,7 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
         self.todaySpend = todaySpend
         self.budgetSpent = budgetSpent
         self.budgetTotal = budgetTotal
+        self.budgetPeriodKey = budgetPeriodKey ?? Self.monthlyPeriodKey(for: generatedAt)
         self.recentTransactions = Array(recentTransactions.prefix(Self.maxRecentTransactions))
         self.quickCategories = Array(quickCategories.prefix(Self.maxQuickCategories))
         self.currencyCode = currencyCode
@@ -33,6 +36,14 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
     public static let maxQuickCategories = 8
 
     public var budgetRemaining: Decimal { budgetTotal - budgetSpent }
+
+    public static func monthlyPeriodKey(
+        for date: Date,
+        calendar: Calendar = .current
+    ) -> String {
+        let components = calendar.dateComponents([.year, .month], from: date)
+        return "\(components.year ?? 0)-\(components.month ?? 0)"
+    }
 
     public func isStale(at date: Date, maximumAge: TimeInterval = 24 * 60 * 60) -> Bool {
         date.timeIntervalSince(generatedAt) > maximumAge
@@ -60,22 +71,32 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case todaySpend, budgetSpent, budgetTotal, recentTransactions
-        case quickCategories, currencyCode, generatedAt
+        case todaySpend
+        case budgetSpent
+        case budgetTotal
+        case budgetPeriodKey
+        case recentTransactions
+        case quickCategories
+        case currencyCode
+        case generatedAt
     }
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        todaySpend = try container.decode(Decimal.self, forKey: .todaySpend)
-        budgetSpent = try container.decode(Decimal.self, forKey: .budgetSpent)
-        budgetTotal = try container.decode(Decimal.self, forKey: .budgetTotal)
-        recentTransactions = try container.decode([WatchSnapshotTransaction].self, forKey: .recentTransactions)
-        quickCategories = try container.decodeIfPresent(
-            [WatchSnapshotCategory].self,
-            forKey: .quickCategories
-        ) ?? []
-        currencyCode = try container.decode(String.self, forKey: .currencyCode)
-        generatedAt = try container.decode(Date.self, forKey: .generatedAt)
+        let generatedAt = try container.decode(Date.self, forKey: .generatedAt)
+        self.init(
+            todaySpend: try container.decode(Decimal.self, forKey: .todaySpend),
+            budgetSpent: try container.decode(Decimal.self, forKey: .budgetSpent),
+            budgetTotal: try container.decode(Decimal.self, forKey: .budgetTotal),
+            budgetPeriodKey: try container.decodeIfPresent(String.self, forKey: .budgetPeriodKey),
+            recentTransactions: try container.decode([WatchSnapshotTransaction].self, forKey: .recentTransactions),
+            quickCategories: try container.decodeIfPresent(
+                [WatchSnapshotCategory].self,
+                forKey: .quickCategories
+            ) ?? [],
+            currencyCode: try container.decode(String.self, forKey: .currencyCode),
+            generatedAt: generatedAt
+        )
     }
 }
 
@@ -83,6 +104,7 @@ public struct WatchSnapshotTransaction: Codable, Sendable, Equatable, Identifiab
     public var id: UUID
     public var date: Date
     public var name: String
+    public var categoryIcon: String
     public var amount: Decimal
     public var type: TransactionType
     public var categoryID: UUID?
@@ -91,6 +113,7 @@ public struct WatchSnapshotTransaction: Codable, Sendable, Equatable, Identifiab
         id: UUID = UUID(),
         date: Date,
         name: String,
+        categoryIcon: String? = nil,
         amount: Decimal,
         type: TransactionType,
         categoryID: UUID? = nil
@@ -98,9 +121,43 @@ public struct WatchSnapshotTransaction: Codable, Sendable, Equatable, Identifiab
         self.id = id
         self.date = date
         self.name = name
+        self.categoryIcon = categoryIcon ?? Self.fallbackIcon(for: type)
         self.amount = amount
         self.type = type
         self.categoryID = categoryID
+    }
+
+    private static func fallbackIcon(for type: TransactionType) -> String {
+        switch type {
+        case .expense: "arrow.down.circle.fill"
+        case .income: "arrow.up.circle.fill"
+        case .transfer: "arrow.left.arrow.right.circle.fill"
+        case .adjustment: "plusminus.circle.fill"
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case date
+        case name
+        case categoryIcon
+        case amount
+        case type
+        case categoryID
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(TransactionType.self, forKey: .type)
+        self.init(
+            id: try container.decode(UUID.self, forKey: .id),
+            date: try container.decode(Date.self, forKey: .date),
+            name: try container.decode(String.self, forKey: .name),
+            categoryIcon: try container.decodeIfPresent(String.self, forKey: .categoryIcon),
+            amount: try container.decode(Decimal.self, forKey: .amount),
+            type: type,
+            categoryID: try container.decodeIfPresent(UUID.self, forKey: .categoryID)
+        )
     }
 }
 
