@@ -246,7 +246,10 @@ final class UITestDataSeeder {
         }
     }
 
-    func seedTransactionScenarioIfNeeded() async throws {
+    func seedTransactionScenarioIfNeeded(
+        payeeRepository: any PayeeRepository,
+        recurringRuleRepository: any RecurringRuleRepository
+    ) async throws {
         let existingAccounts = try await accountRepository.fetchAll()
         let existingTransactions = try await transactionRepository.fetchAll(filter: nil)
         guard existingAccounts.isEmpty, existingTransactions.isEmpty else {
@@ -285,6 +288,19 @@ final class UITestDataSeeder {
         try await categoryRepository.create(groceriesCategory)
         try await categoryRepository.create(salaryCategory)
 
+        let merchant = PayeeEntity(name: String(localized: "UI Test Merchant"))
+        try await payeeRepository.create(merchant)
+        try await recurringRuleRepository.create(RecurringRuleEntity(
+            id: fixedUUID("DB8D2197-FD80-4A39-8EB7-28D1AB42C901"),
+            frequency: .monthly,
+            nextDate: Calendar.current.date(byAdding: .month, value: 1, to: .now) ?? .now,
+            templateAmount: 25,
+            templateNote: String(localized: "UI Test Subscription"),
+            templateCategoryID: groceriesCategory.id,
+            templateAccountID: checkingAccount.id,
+            templatePayeeID: merchant.id
+        ))
+
         let addTransactionUseCase = AddTransactionUseCase(
             accountRepository: accountRepository,
             categoryRepository: categoryRepository,
@@ -298,7 +314,7 @@ final class UITestDataSeeder {
             date: Date.now,
             categoryID: groceriesCategory.id,
             accountID: checkingAccount.id,
-            payeeID: nil,
+            payeeID: merchant.id,
             note: "Coffee Run",
             tags: ["coffee"],
             paymentMethod: .debitCard,
