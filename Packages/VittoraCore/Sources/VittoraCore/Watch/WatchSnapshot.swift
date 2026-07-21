@@ -8,6 +8,7 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
     public var budgetTotal: Decimal
     public var budgetPeriodKey: String
     public var recentTransactions: [WatchSnapshotTransaction]
+    public var quickCategories: [WatchSnapshotCategory]
     public var currencyCode: String
     public var generatedAt: Date
 
@@ -17,6 +18,7 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
         budgetTotal: Decimal,
         budgetPeriodKey: String? = nil,
         recentTransactions: [WatchSnapshotTransaction],
+        quickCategories: [WatchSnapshotCategory] = [],
         currencyCode: String,
         generatedAt: Date = .now
     ) {
@@ -25,11 +27,13 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
         self.budgetTotal = budgetTotal
         self.budgetPeriodKey = budgetPeriodKey ?? Self.monthlyPeriodKey(for: generatedAt)
         self.recentTransactions = Array(recentTransactions.prefix(Self.maxRecentTransactions))
+        self.quickCategories = Array(quickCategories.prefix(Self.maxQuickCategories))
         self.currencyCode = currencyCode
         self.generatedAt = generatedAt
     }
 
     public static let maxRecentTransactions = 10
+    public static let maxQuickCategories = 8
 
     public var budgetRemaining: Decimal { budgetTotal - budgetSpent }
 
@@ -39,6 +43,10 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
     ) -> String {
         let components = calendar.dateComponents([.year, .month], from: date)
         return "\(components.year ?? 0)-\(components.month ?? 0)"
+    }
+
+    public func isStale(at date: Date, maximumAge: TimeInterval = 24 * 60 * 60) -> Bool {
+        date.timeIntervalSince(generatedAt) > maximumAge
     }
 
     /// Encodes for `WCSession` application-context / disk cache (JSON `Data`).
@@ -68,6 +76,7 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
         case budgetTotal
         case budgetPeriodKey
         case recentTransactions
+        case quickCategories
         case currencyCode
         case generatedAt
     }
@@ -81,6 +90,10 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
             budgetTotal: try container.decode(Decimal.self, forKey: .budgetTotal),
             budgetPeriodKey: try container.decodeIfPresent(String.self, forKey: .budgetPeriodKey),
             recentTransactions: try container.decode([WatchSnapshotTransaction].self, forKey: .recentTransactions),
+            quickCategories: try container.decodeIfPresent(
+                [WatchSnapshotCategory].self,
+                forKey: .quickCategories
+            ) ?? [],
             currencyCode: try container.decode(String.self, forKey: .currencyCode),
             generatedAt: generatedAt
         )
@@ -94,6 +107,7 @@ public struct WatchSnapshotTransaction: Codable, Sendable, Equatable, Identifiab
     public var categoryIcon: String
     public var amount: Decimal
     public var type: TransactionType
+    public var categoryID: UUID?
 
     public init(
         id: UUID = UUID(),
@@ -101,7 +115,8 @@ public struct WatchSnapshotTransaction: Codable, Sendable, Equatable, Identifiab
         name: String,
         categoryIcon: String? = nil,
         amount: Decimal,
-        type: TransactionType
+        type: TransactionType,
+        categoryID: UUID? = nil
     ) {
         self.id = id
         self.date = date
@@ -109,6 +124,7 @@ public struct WatchSnapshotTransaction: Codable, Sendable, Equatable, Identifiab
         self.categoryIcon = categoryIcon ?? Self.fallbackIcon(for: type)
         self.amount = amount
         self.type = type
+        self.categoryID = categoryID
     }
 
     private static func fallbackIcon(for type: TransactionType) -> String {
@@ -127,6 +143,7 @@ public struct WatchSnapshotTransaction: Codable, Sendable, Equatable, Identifiab
         case categoryIcon
         case amount
         case type
+        case categoryID
     }
 
     public init(from decoder: any Decoder) throws {
@@ -138,8 +155,69 @@ public struct WatchSnapshotTransaction: Codable, Sendable, Equatable, Identifiab
             name: try container.decode(String.self, forKey: .name),
             categoryIcon: try container.decodeIfPresent(String.self, forKey: .categoryIcon),
             amount: try container.decode(Decimal.self, forKey: .amount),
-            type: type
+            type: type,
+            categoryID: try container.decodeIfPresent(UUID.self, forKey: .categoryID)
         )
+    }
+}
+
+public struct WatchSnapshotCategory: Codable, Sendable, Equatable, Identifiable {
+    public var id: UUID
+    public var name: String
+    public var icon: String
+    public var colorHex: String
+
+    public init(id: UUID, name: String, icon: String, colorHex: String) {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.colorHex = colorHex
+    }
+}
+
+/// Exact watch-entry amount. Digital Crown movement is retained as integer cents.
+public struct WatchExpenseAmount: Sendable, Equatable {
+    public static let crownStepCents = 50
+    public static let maximumCents = 1_000_000
+
+    public private(set) var cents: Int
+
+    public init(crownSteps: Int = 0) {
+        let clampedSteps = min(max(crownSteps, 0), Self.maximumCents / Self.crownStepCents)
+        cents = clampedSteps * Self.crownStepCents
+    }
+
+    public var crownSteps: Int { cents / Self.crownStepCents }
+    public var decimal: Decimal { Decimal(cents) / 100 }
+
+    public mutating func setCrownSteps(_ steps: Int) {
+        let clampedSteps = min(max(steps, 0), Self.maximumCents / Self.crownStepCents)
+        cents = clampedSteps * Self.crownStepCents
+    }
+
+    public mutating func applyCrownSteps(_ steps: Int) {
+        let (newSteps, overflow) = crownSteps.addingReportingOverflow(steps)
+        setCrownSteps(overflow ? (steps > 0 ? .max : .min) : newSteps)
+    }
+
+    public mutating func setTypedAmount(_ text: String, locale: Locale = .current) -> Bool {
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.numberStyle = .decimal
+        formatter.generatesDecimalNumbers = true
+        guard let decimal = formatter.number(from: text)?.decimalValue, decimal > 0 else {
+            return false
+        }
+
+        var scaled = decimal * 100
+        var rounded = Decimal()
+        NSDecimalRound(&rounded, &scaled, 0, .plain)
+        guard rounded == scaled,
+              rounded <= Decimal(Self.maximumCents) else {
+            return false
+        }
+        cents = NSDecimalNumber(decimal: rounded).intValue
+        return true
     }
 }
 

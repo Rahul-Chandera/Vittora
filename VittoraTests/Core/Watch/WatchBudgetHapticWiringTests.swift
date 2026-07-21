@@ -21,7 +21,7 @@ struct WatchBudgetHapticWiringTests {
 
         var played: [BudgetAlertThreshold] = []
         let store = WatchSnapshotStore(
-            fileURL: cacheURL,
+            cache: WatchSnapshotCache(fileURL: cacheURL),
             defaults: defaults,
             playHaptic: { played.append($0) }
         )
@@ -31,7 +31,7 @@ struct WatchBudgetHapticWiringTests {
         #expect(played == [.ninety])
 
         let relaunchedStore = WatchSnapshotStore(
-            fileURL: cacheURL,
+            cache: WatchSnapshotCache(fileURL: cacheURL),
             defaults: defaults,
             playHaptic: { played.append($0) }
         )

@@ -5,6 +5,15 @@ import VittoraCore
 @Suite("WatchSnapshot")
 struct WatchSnapshotTests {
 
+    @Test("500 crown steps of 50 cents equal exactly 250.00")
+    func crownStepsRemainExact() {
+        var amount = WatchExpenseAmount()
+        amount.applyCrownSteps(500)
+
+        #expect(amount.cents == 25_000)
+        #expect(amount.decimal == Decimal(string: "250.00"))
+    }
+
     @Test("encode/decode round-trip preserves Decimal precision")
     func roundTripPreservesDecimal() throws {
         let amount = Decimal(string: "15.49") ?? 0
@@ -41,6 +50,28 @@ struct WatchSnapshotTests {
         #expect(decoded.recentTransactions[0].categoryIcon == "cup.and.saucer.fill")
         #expect(decoded.budgetPeriodKey == snapshot.budgetPeriodKey)
         #expect(decoded.generatedAt == snapshot.generatedAt)
+    }
+
+    @Test("snapshot caps quick categories at eight")
+    func capsQuickCategories() {
+        let categories = (0..<10).map { index in
+            WatchSnapshotCategory(
+                id: UUID(),
+                name: "Category \(index)",
+                icon: "tag",
+                colorHex: "#007AFF"
+            )
+        }
+        let snapshot = WatchSnapshot(
+            todaySpend: 0,
+            budgetSpent: 0,
+            budgetTotal: 0,
+            recentTransactions: [],
+            quickCategories: categories,
+            currencyCode: "USD"
+        )
+
+        #expect(snapshot.quickCategories.count == 8)
     }
 
     @Test("caps recent transactions at 10")
@@ -97,6 +128,46 @@ struct WatchSnapshotTests {
         let decoded = try QueuedWatchExpense.fromUserInfo(expense.userInfoDictionary())
         #expect(decoded.amount == amount)
         #expect(decoded.categoryID == categoryID)
+    }
+
+    @Test("complication snapshot becomes stale only after 24 hours")
+    func complicationStalenessUsesInjectedDate() {
+        let generatedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let snapshot = WatchSnapshot(
+            todaySpend: 42,
+            budgetSpent: 250,
+            budgetTotal: 1_000,
+            recentTransactions: [],
+            currencyCode: "USD",
+            generatedAt: generatedAt
+        )
+
+        #expect(!snapshot.isStale(at: generatedAt.addingTimeInterval(24 * 60 * 60)))
+        #expect(snapshot.isStale(at: generatedAt.addingTimeInterval(24 * 60 * 60 + 1)))
+    }
+
+    @Test("watch complication cache reads the snapshot written by the watch app path")
+    func complicationCacheWiringRoundTrip() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let cache = WatchSnapshotCache(
+            fileURL: directory.appendingPathComponent("watch-snapshot.json")
+        )
+        let snapshot = WatchSnapshot(
+            todaySpend: Decimal(string: "15.49") ?? 0,
+            budgetSpent: 250,
+            budgetTotal: 1_000,
+            recentTransactions: [],
+            currencyCode: "USD",
+            generatedAt: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+
+        try cache.save(snapshot)
+
+        #expect(cache.load() == snapshot)
     }
 
     @Test("invalid queued amount fails without producing an expense")

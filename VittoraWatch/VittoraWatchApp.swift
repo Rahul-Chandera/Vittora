@@ -20,12 +20,12 @@ struct VittoraWatchApp: App {
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: snapshotStore.budgetAlert)
-                .task {
-                    snapshotStore.activate()
-                    // Wait for WCSession activation before verification transfers.
-                    try? await Task.sleep(for: .seconds(3))
-                    enqueueVerificationExpenseIfNeeded()
-                }
+            .task {
+                snapshotStore.activate()
+                // Wait for WCSession activation before verification transfers.
+                try? await Task.sleep(for: .seconds(3))
+                enqueueVerificationExpenseIfNeeded()
+            }
         }
     }
 
