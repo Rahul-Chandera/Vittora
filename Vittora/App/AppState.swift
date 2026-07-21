@@ -41,6 +41,8 @@ final class AppState {
     var pendingTransactionDetailID: UUID?
     /// UI-test surface for W5 intent result verification (`--ui-test-show-spending-intent-result`).
     var uiTestIntentResultMessage: String?
+    /// WatchConnectivity commit failures (queued expense rejected on the phone).
+    var watchBridgeErrorMessage: String?
     /// Spotlight reindex hook (set by the app shell). Avoids Core Spotlight in unit tests.
     @ObservationIgnored
     var onTransactionsChangedForSpotlight: (() -> Void)?
@@ -110,12 +112,18 @@ final class AppState {
         #if os(iOS)
         if domain == .transactions || domain == .budgets {
             WidgetCenter.shared.reloadAllTimelines()
+            watchBridge?.pushSnapshot()
         }
         #endif
         if domain == .transactions {
             onTransactionsChangedForSpotlight?()
         }
     }
+
+    #if os(iOS)
+    /// Set once after DI is ready; pushes snapshots on transaction/budget changes.
+    weak var watchBridge: WatchBridgeService?
+    #endif
 
     func notifyChanged(_ domains: some Sequence<DataRefreshDomain>) {
         for domain in domains {

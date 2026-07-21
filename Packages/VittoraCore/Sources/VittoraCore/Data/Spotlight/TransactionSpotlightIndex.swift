@@ -1,6 +1,8 @@
-import CoreSpotlight
 import Foundation
+#if canImport(CoreSpotlight)
+import CoreSpotlight
 import UniformTypeIdentifiers
+#endif
 
 /// On-device Core Spotlight index for transactions (P2 / M2.7.6).
 ///
@@ -71,6 +73,7 @@ public enum TransactionSpotlightIndex: Sendable {
         )
     }
 
+    #if canImport(CoreSpotlight)
     public nonisolated static func searchableItem(from draft: ItemDraft) -> CSSearchableItem {
         let attributes = CSSearchableItemAttributeSet(contentType: .content)
         attributes.displayName = draft.title
@@ -85,6 +88,7 @@ public enum TransactionSpotlightIndex: Sendable {
             attributeSet: attributes
         )
     }
+    #endif
 
     /// Whether Settings allows indexing (default ON when unset).
     public nonisolated static func isIndexingEnabled(
@@ -114,6 +118,7 @@ public enum TransactionSpotlightIndex: Sendable {
 
     /// Removes every Vittora transaction from Spotlight (factory reset / toggle OFF).
     public static func deleteAllIndexedTransactions() async {
+        #if canImport(CoreSpotlight)
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             CSSearchableIndex.default().deleteSearchableItems(
                 withDomainIdentifiers: [domainIdentifier]
@@ -121,6 +126,7 @@ public enum TransactionSpotlightIndex: Sendable {
                 continuation.resume()
             }
         }
+        #endif
     }
 
     /// Batch-indexes drafts (replaces prior domain contents when `replaceDomain` is true).
@@ -128,6 +134,7 @@ public enum TransactionSpotlightIndex: Sendable {
         drafts: [ItemDraft],
         replaceDomain: Bool
     ) async {
+        #if canImport(CoreSpotlight)
         if replaceDomain {
             await deleteAllIndexedTransactions()
         }
@@ -138,15 +145,20 @@ public enum TransactionSpotlightIndex: Sendable {
                 continuation.resume()
             }
         }
+        #endif
     }
 
     /// Parses a Spotlight tap into a transaction UUID.
     public nonisolated static func transactionID(fromUserActivity activity: NSUserActivity) -> UUID? {
+        #if canImport(CoreSpotlight)
         guard activity.activityType == CSSearchableItemActionType,
               let identifier = activity.userInfo?[CSSearchableItemActivityIdentifier] as? String
         else {
             return nil
         }
         return UUID(uuidString: identifier)
+        #else
+        return nil
+        #endif
     }
 }

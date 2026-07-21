@@ -11,6 +11,8 @@
 		B7735C152FF2BFEF000CABD6 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = D72FE9022F8B93AA00B6FF9D /* VittoraCore */; };
 		B7735C162FF2BFEF000CABD6 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = D72FE9032F8B93AA00B6FF9D /* VittoraCore */; };
 		E9A1B2C3D4E5F60718293A4B /* VittoraWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F101A001A2B30000000007 /* VittoraWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = F101A001A2B30000000001 /* VittoraWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F101A001A2B30000000008 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = F101A001A2B30000000009 /* VittoraCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +37,13 @@
 			remoteGlobalIDString = B72FE7E52F8B92F900B6FF9D;
 			remoteInfo = Vittora;
 		};
+		F101A001A2B3000000000C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B72FE7DE2F8B92F900B6FF9D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F101A001A2B30000000002;
+			remoteInfo = VittoraWatch;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -49,6 +58,17 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F101A001A2B30000000006 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				F101A001A2B30000000007 /* VittoraWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +76,7 @@
 		B72FE7F72F8B92FA00B6FF9D /* VittoraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VittoraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B72FE8012F8B92FA00B6FF9D /* VittoraUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VittoraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VittoraWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F101A001A2B30000000001 /* VittoraWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VittoraWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -72,6 +93,13 @@
 				Info.plist,
 			);
 			target = B72FE7E52F8B92F900B6FF9D /* Vittora */;
+		};
+		F101A001A2B3000000000B /* Exceptions for "VittoraWatch" folder in "VittoraWatch" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F101A001A2B30000000002 /* VittoraWatch */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -100,6 +128,14 @@
 		B72FE8042F8B92FA00B6FF9D /* VittoraUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = VittoraUITests;
+			sourceTree = "<group>";
+		};
+		F101A001A2B3000000000A /* VittoraWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F101A001A2B3000000000B /* Exceptions for "VittoraWatch" folder in "VittoraWatch" target */,
+			);
+			path = VittoraWatch;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -136,6 +172,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F101A001A2B30000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F101A001A2B30000000008 /* VittoraCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -146,6 +190,7 @@
 				B72FE7FA2F8B92FA00B6FF9D /* VittoraTests */,
 				B72FE8042F8B92FA00B6FF9D /* VittoraUITests */,
 				ABE20936CD32497384B7F9CC /* VittoraWidgets */,
+				F101A001A2B3000000000A /* VittoraWatch */,
 				B72FE7E72F8B92F900B6FF9D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -157,6 +202,7 @@
 				B72FE7F72F8B92FA00B6FF9D /* VittoraTests.xctest */,
 				B72FE8012F8B92FA00B6FF9D /* VittoraUITests.xctest */,
 				CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */,
+				F101A001A2B30000000001 /* VittoraWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -195,11 +241,13 @@
 				B72FE7E32F8B92F900B6FF9D /* Frameworks */,
 				B72FE7E42F8B92F900B6FF9D /* Resources */,
 				F7781BDABC6D45CEBA23A801 /* Embed Foundation Extensions */,
+				F101A001A2B30000000006 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				56FEB248FB4249B1A724F407 /* PBXTargetDependency */,
+				F101A001A2B3000000000D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B72FE7E82F8B92F900B6FF9D /* Vittora */,
@@ -259,6 +307,29 @@
 			productReference = B72FE8012F8B92FA00B6FF9D /* VittoraUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		F101A001A2B30000000002 /* VittoraWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F101A001A2B3000000000E /* Build configuration list for PBXNativeTarget "VittoraWatch" */;
+			buildPhases = (
+				F101A001A2B30000000003 /* Sources */,
+				F101A001A2B30000000004 /* Frameworks */,
+				F101A001A2B30000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F101A001A2B3000000000A /* VittoraWatch */,
+			);
+			name = VittoraWatch;
+			packageProductDependencies = (
+				F101A001A2B30000000009 /* VittoraCore */,
+			);
+			productName = VittoraWatch;
+			productReference = F101A001A2B30000000001 /* VittoraWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -283,6 +354,9 @@
 						CreatedOnToolsVersion = 26.4;
 						TestTargetID = B72FE7E52F8B92F900B6FF9D;
 					};
+					F101A001A2B30000000002 = {
+						CreatedOnToolsVersion = 26.4;
+					};
 				};
 			};
 			buildConfigurationList = B72FE7E12F8B92F900B6FF9D /* Build configuration list for PBXProject "Vittora" */;
@@ -306,6 +380,7 @@
 				B72FE7F62F8B92FA00B6FF9D /* VittoraTests */,
 				B72FE8002F8B92FA00B6FF9D /* VittoraUITests */,
 				011F8C4246E3434AA504D0DF /* VittoraWidgets */,
+				F101A001A2B30000000002 /* VittoraWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -333,6 +408,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B72FE7FF2F8B92FA00B6FF9D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F101A001A2B30000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -370,6 +452,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F101A001A2B30000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -388,6 +477,12 @@
 			isa = PBXTargetDependency;
 			target = B72FE7E52F8B92F900B6FF9D /* Vittora */;
 			targetProxy = B72FE8022F8B92FA00B6FF9D /* PBXContainerItemProxy */;
+		};
+		F101A001A2B3000000000D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = F101A001A2B30000000002 /* VittoraWatch */;
+			targetProxy = F101A001A2B3000000000C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -784,6 +879,76 @@
 			};
 			name = Debug;
 		};
+		F101A001A2B3000000000F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = VittoraWatch/VittoraWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 5467B6PB2R;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VittoraWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Vittora;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.enerjiktech.vittora;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.vittora.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		F101A001A2B30000000010 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = VittoraWatch/VittoraWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 5467B6PB2R;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VittoraWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Vittora;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.enerjiktech.vittora;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.vittora.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -832,6 +997,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		F101A001A2B3000000000E /* Build configuration list for PBXNativeTarget "VittoraWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F101A001A2B3000000000F /* Debug */,
+				F101A001A2B30000000010 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
@@ -853,6 +1027,11 @@
 			productName = VittoraCore;
 		};
 		D72FE9032F8B93AA00B6FF9D /* VittoraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "Packages/VittoraCore" */;
+			productName = VittoraCore;
+		};
+		F101A001A2B30000000009 /* VittoraCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "Packages/VittoraCore" */;
 			productName = VittoraCore;
