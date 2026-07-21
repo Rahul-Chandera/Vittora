@@ -14,18 +14,20 @@ struct BudgetCardView: View {
                 HStack(spacing: VSpacing.md) {
                     if let category = category {
                         Image(systemName: category.icon)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(VTypography.bodyBold)
                             .foregroundColor(Color(hex: category.colorHex) ?? .blue)
                             .frame(width: 40, height: 40)
                             .background(Color(hex: category.colorHex)?.opacity(0.15) ?? Color.blue.opacity(0.15))
                             .cornerRadius(VSpacing.cornerRadiusXL)
+                            .accessibilityHidden(true)
                     } else {
                         Image(systemName: "target")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(VTypography.bodyBold)
                             .foregroundColor(VColors.primary)
                             .frame(width: 40, height: 40)
                             .background(VColors.primary.opacity(0.15))
                             .cornerRadius(VSpacing.cornerRadiusXL)
+                            .accessibilityHidden(true)
                     }
 
                     VStack(alignment: .leading, spacing: VSpacing.xs) {

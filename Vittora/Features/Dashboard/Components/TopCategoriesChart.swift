@@ -41,6 +41,8 @@ struct TopCategoriesChart: View {
             )
             .cornerRadius(3)
             .foregroundStyle(categoryColor(at: index))
+            .accessibilityLabel(item.category.name)
+            .accessibilityValue(item.amount.formatted(.currency(code: currencyCode)))
         }
         .accessibilityChartDescriptor(
             CategorySpendChartDescriptor(
@@ -57,6 +59,7 @@ struct TopCategoriesChart: View {
                     Circle()
                         .fill(categoryColor(at: index))
                         .frame(width: 8, height: 8)
+                        .accessibilityHidden(true)
 
                     Text(item.category.name)
                         .font(VTypography.caption2)
@@ -68,7 +71,11 @@ struct TopCategoriesChart: View {
                     Text(CurrencyFormatter.formatCompact(item.amount, currencyCode: currencyCode))
                         .font(VTypography.caption2Bold)
                         .foregroundColor(VColors.textSecondary)
+                        .amountScaling()
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(item.category.name)
+                .accessibilityValue(item.amount.formatted(.currency(code: currencyCode)))
             }
         }
     }

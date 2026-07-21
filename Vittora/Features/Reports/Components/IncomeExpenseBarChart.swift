@@ -68,6 +68,7 @@ struct IncomeExpenseBarChart: View {
             RoundedRectangle(cornerRadius: 2)
                 .fill(color)
                 .frame(width: 12, height: 8)
+                .accessibilityHidden(true)
             Text(label)
                 .font(VTypography.caption2)
                 .foregroundColor(VColors.textSecondary)

@@ -65,10 +65,17 @@ struct MonthlyOverviewView: View {
 
     @ViewBuilder
     private func summaryRow(_ vm: MonthlyOverviewViewModel) -> some View {
-        HStack(spacing: VSpacing.md) {
-            statCard(title: String(localized: "Total Income"), amount: vm.totalIncome, color: VColors.income)
-            statCard(title: String(localized: "Total Expense"), amount: vm.totalExpense, color: VColors.expense)
-            statCard(title: String(localized: "Net Savings"), amount: vm.netSavings, color: vm.netSavings >= 0 ? VColors.income : VColors.expense)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: VSpacing.md) {
+                statCard(title: String(localized: "Total Income"), amount: vm.totalIncome, color: VColors.income)
+                statCard(title: String(localized: "Total Expense"), amount: vm.totalExpense, color: VColors.expense)
+                statCard(title: String(localized: "Net Savings"), amount: vm.netSavings, color: vm.netSavings >= 0 ? VColors.income : VColors.expense)
+            }
+            VStack(spacing: VSpacing.md) {
+                statCard(title: String(localized: "Total Income"), amount: vm.totalIncome, color: VColors.income)
+                statCard(title: String(localized: "Total Expense"), amount: vm.totalExpense, color: VColors.expense)
+                statCard(title: String(localized: "Net Savings"), amount: vm.netSavings, color: vm.netSavings >= 0 ? VColors.income : VColors.expense)
+            }
         }
     }
 
@@ -77,7 +84,6 @@ struct MonthlyOverviewView: View {
             Text(title)
                 .font(VTypography.caption2)
                 .foregroundColor(VColors.textSecondary)
-                .adaptiveLineLimit(1)
             Text(CurrencyFormatter.formatCompact(amount, currencyCode: currencyCode))
                 .font(VTypography.amountSmall)
                 .amountScaling()
@@ -87,6 +93,9 @@ struct MonthlyOverviewView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(VColors.secondaryBackground)
         .cornerRadius(VSpacing.cornerRadiusMD)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(CurrencyFormatter.format(amount, currencyCode: currencyCode))
     }
 
     @ViewBuilder
