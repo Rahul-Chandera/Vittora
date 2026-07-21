@@ -103,6 +103,7 @@ struct RecurringListView: View {
                                         } label: {
                                             RecurringRowView(rule: rule, category: viewModel.category(for: rule))
                                         }
+                                        .accessibilityIdentifier("recurring-row-\(rule.id.uuidString)")
                                         .contextMenu {
                                             NavigationLink {
                                                 RecurringDetailView(ruleID: rule.id)
@@ -178,6 +179,8 @@ struct RecurringListView: View {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .semibold))
                 }
+                .accessibilityIdentifier("recurring-add-button")
+                .accessibilityLabel(String(localized: "Add Recurring Transaction"))
             }
         }
         .sheet(isPresented: $showAddSheet) {

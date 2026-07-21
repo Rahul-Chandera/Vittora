@@ -665,8 +665,11 @@ struct VittoraApp: App {
         )
 
         do {
-            try await seeder.seedTransactionScenarioIfNeeded()
-            appState.notifyChanged([.transactions, .accounts, .categories])
+            try await seeder.seedTransactionScenarioIfNeeded(
+                payeeRepository: dependencies.payeeRepository,
+                recurringRuleRepository: dependencies.recurringRuleRepository
+            )
+            appState.notifyChanged([.transactions, .accounts, .categories, .recurring, .payees])
         } catch {
             Self.logger.error("Failed to seed UI test transaction data: \(error.localizedDescription, privacy: .public)")
         }
