@@ -30,6 +30,10 @@ public struct WatchSnapshot: Codable, Sendable, Equatable {
 
     public var budgetRemaining: Decimal { budgetTotal - budgetSpent }
 
+    public func isStale(at date: Date, maximumAge: TimeInterval = 24 * 60 * 60) -> Bool {
+        date.timeIntervalSince(generatedAt) > maximumAge
+    }
+
     /// Encodes for `WCSession` application-context / disk cache (JSON `Data`).
     public func encodeForTransport() throws -> Data {
         try Self.makeEncoder().encode(self)
