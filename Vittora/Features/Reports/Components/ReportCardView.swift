@@ -25,7 +25,7 @@ struct ReportCardView: View {
                 Text(subtitle)
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
-                    .adaptiveLineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer()

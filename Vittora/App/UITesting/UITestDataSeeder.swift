@@ -43,7 +43,8 @@ final class UITestDataSeeder {
         try await dataSeeder.reseedDefaultCategories()
         let categories = try await categoryRepository.fetchAll()
         func category(_ name: String) -> UUID? {
-            categories.first { $0.name == name }?.id
+            let localizedName = String(localized: String.LocalizationValue(name))
+            return categories.first { $0.name == localizedName }?.id
         }
 
         // Region-specific dataset. US is the default (primary market for App
