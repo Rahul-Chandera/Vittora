@@ -36,6 +36,7 @@ public enum AppUserDefaults {
         public nonisolated static let categorizationRules = "vittora.categorizationRules"
         public nonisolated static let transactionEditHistory = "vittora.transactionEditHistory"
         public nonisolated static let savedTransactionFilters = "vittora.savedTransactionFilters"
+        public nonisolated static let emergencyFundAccountIDs = "vittora.emergencyFundAccountIDs"
         /// When false, transactions are removed from Spotlight (default ON / unset).
         public nonisolated static let spotlightIndexingEnabled = "vittora.spotlightIndexingEnabled"
     }

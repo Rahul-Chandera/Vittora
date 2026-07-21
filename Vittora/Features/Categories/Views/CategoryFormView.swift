@@ -103,6 +103,14 @@ struct CategoryFormView: View {
                     Text(String(localized: "Income")).tag(CategoryType.income)
                 }
                 .pickerStyle(.segmented)
+
+                if vm.selectedType == .expense {
+                    Picker(String(localized: "Spending Bucket"), selection: Bindable(vm).selectedSpendingBucket) {
+                        ForEach(SpendingBucket.allCases, id: \.self) { bucket in
+                            Text(bucket.displayName).tag(bucket)
+                        }
+                    }
+                }
             }
 
             Section(String(localized: "Appearance")) {

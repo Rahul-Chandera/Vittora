@@ -4,6 +4,20 @@ public enum CategoryType: String, Sendable, Hashable, CaseIterable, Codable {
     case expense, income
 }
 
+public enum SpendingBucket: String, Sendable, Hashable, CaseIterable, Codable {
+    case needs
+    case wants
+    case savings
+
+    public var displayName: String {
+        switch self {
+        case .needs: String(localized: "Needs")
+        case .wants: String(localized: "Wants")
+        case .savings: String(localized: "Savings")
+        }
+    }
+}
+
 public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
     public nonisolated let id: UUID
     public nonisolated var name: String
@@ -13,6 +27,7 @@ public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
     public nonisolated var isDefault: Bool
     public nonisolated var sortOrder: Int
     public nonisolated var parentID: UUID?
+    public nonisolated var spendingBucket: SpendingBucket?
     public nonisolated var createdAt: Date
     public nonisolated var updatedAt: Date
 
@@ -25,6 +40,7 @@ public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
         isDefault: Bool = false,
         sortOrder: Int = 0,
         parentID: UUID? = nil,
+        spendingBucket: SpendingBucket? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -36,6 +52,7 @@ public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
         self.isDefault = isDefault
         self.sortOrder = sortOrder
         self.parentID = parentID
+        self.spendingBucket = spendingBucket
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
