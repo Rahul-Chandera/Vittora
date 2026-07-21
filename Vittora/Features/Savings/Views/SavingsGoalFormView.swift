@@ -17,6 +17,7 @@ struct SavingsGoalFormView: View {
     @State private var hasDeadline = false
     @State private var targetDate = Calendar.current.date(byAdding: .month, value: 12, to: .now) ?? .now
     @State private var note = ""
+    @State private var isEmergencyFund = false
     @State private var selectedColor = "#5856D6"
     @State private var isSaving = false
     @State private var error: String?
@@ -87,6 +88,12 @@ struct SavingsGoalFormView: View {
                             .multilineTextAlignment(.trailing)
                             .frame(width: 140)
                     }
+                }
+
+                Section {
+                    Toggle(String(localized: "Count toward emergency fund"), isOn: $isEmergencyFund)
+                } footer: {
+                    Text(String(localized: "The saved amount in this goal will count toward your emergency-fund coverage."))
                 }
 
                 // Deadline
@@ -188,6 +195,7 @@ struct SavingsGoalFormView: View {
                 hasDeadline = goal.targetDate != nil
                 targetDate = goal.targetDate ?? Calendar.current.date(byAdding: .month, value: 12, to: .now) ?? .now
                 note = goal.note ?? ""
+                isEmergencyFund = goal.isEmergencyFund
                 selectedColor = goal.colorHex
             }
         }
@@ -221,6 +229,7 @@ struct SavingsGoalFormView: View {
                 updated.currentAmount = currentAmount
                 updated.targetDate = hasDeadline ? targetDate : nil
                 updated.note = note.isEmpty ? nil : note
+                updated.isEmergencyFund = isEmergencyFund
                 updated.colorHex = selectedColor
                 try await useCase.executeUpdate(updated)
             } else {
@@ -232,7 +241,8 @@ struct SavingsGoalFormView: View {
                     targetDate: hasDeadline ? targetDate : nil,
                     linkedAccountID: nil,
                     note: note.isEmpty ? nil : note,
-                    colorHex: selectedColor
+                    colorHex: selectedColor,
+                    isEmergencyFund: isEmergencyFund
                 )
             }
             appState.notifyChanged(.savings)

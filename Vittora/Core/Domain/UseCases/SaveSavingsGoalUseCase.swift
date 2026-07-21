@@ -29,7 +29,8 @@ struct SaveSavingsGoalUseCase: Sendable {
         targetDate: Date?,
         linkedAccountID: UUID?,
         note: String?,
-        colorHex: String
+        colorHex: String,
+        isEmergencyFund: Bool = false
     ) async throws -> SavingsGoalEntity {
         try validate(name: name, targetAmount: targetAmount, currentAmount: currentAmount)
         let goal = SavingsGoalEntity(
@@ -40,6 +41,7 @@ struct SaveSavingsGoalUseCase: Sendable {
             targetDate: targetDate,
             linkedAccountID: linkedAccountID,
             note: note?.trimmingCharacters(in: .whitespaces),
+            isEmergencyFund: isEmergencyFund,
             colorHex: colorHex
         )
         try await savingsGoalRepository.create(goal)
