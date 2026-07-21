@@ -46,6 +46,24 @@ final class SettingsViewModel {
         }
     }
 
+    var accentColor: AccentColor {
+        get {
+            access(keyPath: \.accentColor)
+            return AccentColor(
+                rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.accentColor) ?? ""
+            ) ?? .brandGreen
+        }
+        set {
+            withMutation(keyPath: \.accentColor) {
+                UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.accentColor)
+                AppUserDefaults.mirrorAccentColorToAppGroup()
+                #if os(iOS)
+                WidgetCenter.shared.reloadAllTimelines()
+                #endif
+            }
+        }
+    }
+
     var isNotificationsEnabled: Bool {
         get {
             access(keyPath: \.isNotificationsEnabled)
@@ -376,13 +394,14 @@ final class SettingsViewModel {
     }
 
     enum AppearanceMode: String, CaseIterable, Sendable {
-        case system, light, dark
+        case system, light, dark, oledBlack
 
         var displayName: String {
             switch self {
             case .system: return String(localized: "System")
             case .light:  return String(localized: "Light")
             case .dark:   return String(localized: "Dark")
+            case .oledBlack: return String(localized: "OLED Black")
             }
         }
 
@@ -390,7 +409,20 @@ final class SettingsViewModel {
             switch self {
             case .system: return nil
             case .light:  return .light
-            case .dark:   return .dark
+            case .dark, .oledBlack: return .dark
+            }
+        }
+    }
+
+    enum AccentColor: String, CaseIterable, Sendable {
+        case brandGreen, blue, purple, orange
+
+        var displayName: String {
+            switch self {
+            case .brandGreen: return String(localized: "Brand Green")
+            case .blue: return String(localized: "Blue")
+            case .purple: return String(localized: "Purple")
+            case .orange: return String(localized: "Orange")
             }
         }
     }

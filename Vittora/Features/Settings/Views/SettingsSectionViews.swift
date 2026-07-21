@@ -67,21 +67,24 @@ struct CurrencySettingsView: View {
 
 struct AppearanceSettingsView: View {
     @Bindable var vm: SettingsViewModel
+    @Environment(\.colorScheme) private var systemColorScheme
+    @State private var draftMode: SettingsViewModel.AppearanceMode?
+    @State private var draftAccent: SettingsViewModel.AccentColor?
 
     var body: some View {
         Form {
             Section(String(localized: "Theme")) {
                 ForEach(SettingsViewModel.AppearanceMode.allCases, id: \.self) { mode in
                     Button {
-                        vm.appearanceMode = mode
+                        draftMode = mode
                     } label: {
                         HStack {
                             Text(mode.displayName)
                                 .foregroundStyle(VColors.textPrimary)
                             Spacer()
-                            if vm.appearanceMode == mode {
+                            if selectedMode == mode {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(VColors.primary)
+                                    .foregroundStyle(previewAccent)
                             }
                         }
                         // Make the whole row tappable, not just the text.
@@ -90,11 +93,116 @@ struct AppearanceSettingsView: View {
                     .buttonStyle(.plain)
                 }
             }
+
+            Section(String(localized: "Accent Colour")) {
+                ForEach(SettingsViewModel.AccentColor.allCases, id: \.self) { accent in
+                    Button {
+                        draftAccent = accent
+                    } label: {
+                        HStack {
+                            Circle()
+                                .fill(VColors.accent(accent, for: previewColorScheme))
+                                .frame(width: 20, height: 20)
+                                .accessibilityHidden(true)
+                            Text(accent.displayName)
+                                .foregroundStyle(VColors.textPrimary)
+                            Spacer()
+                            if selectedAccent == accent {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(previewAccent)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            Section(String(localized: "Live Preview")) {
+                VStack(alignment: .leading, spacing: VSpacing.md) {
+                    HStack {
+                        Image(systemName: "chart.line.uptrend.xyaxis")
+                            .foregroundStyle(previewAccent)
+                        Text(String(localized: "Monthly overview"))
+                            .font(VTypography.bodyBold)
+                            .foregroundStyle(previewTextPrimary)
+                        Spacer()
+                        Text("72%")
+                            .foregroundStyle(previewTextSecondary)
+                    }
+
+                    ProgressView(value: 0.72)
+                        .tint(previewAccent)
+
+                    Text(String(localized: "See how text, surfaces, and your accent work together."))
+                        .font(VTypography.caption1)
+                        .foregroundStyle(previewTextSecondary)
+                }
+                .padding(VSpacing.md)
+                .background(previewSurface)
+                .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD, style: .continuous))
+                .padding(.vertical, VSpacing.xs)
+                .listRowBackground(previewBackground)
+                .accessibilityIdentifier("appearance-live-preview")
+            }
+
+            Section {
+                Button(String(localized: "Apply Appearance")) {
+                    vm.appearanceMode = selectedMode
+                    vm.accentColor = selectedAccent
+                }
+                .frame(maxWidth: .infinity)
+                .disabled(selectedMode == vm.appearanceMode && selectedAccent == vm.accentColor)
+                .accessibilityIdentifier("appearance-apply-button")
+            }
         }
         .navigationTitle(String(localized: "Appearance"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .onAppear {
+            draftMode = vm.appearanceMode
+            draftAccent = vm.accentColor
+        }
+    }
+
+    private var selectedMode: SettingsViewModel.AppearanceMode {
+        draftMode ?? vm.appearanceMode
+    }
+
+    private var selectedAccent: SettingsViewModel.AccentColor {
+        draftAccent ?? vm.accentColor
+    }
+
+    private var previewColorScheme: ColorScheme {
+        selectedMode.colorScheme ?? systemColorScheme
+    }
+
+    private var previewAccent: Color {
+        VColors.accent(selectedAccent, for: previewColorScheme)
+    }
+
+    private var previewBackground: Color {
+        if selectedMode == .oledBlack { return .black }
+        return previewColorScheme == .dark
+            ? Color(red: 0.11, green: 0.11, blue: 0.12)
+            : .white
+    }
+
+    private var previewSurface: Color {
+        previewColorScheme == .dark
+            ? Color(red: 0.17, green: 0.17, blue: 0.18)
+            : Color(red: 0.95, green: 0.95, blue: 0.97)
+    }
+
+    private var previewTextPrimary: Color {
+        previewColorScheme == .dark ? .white : .black
+    }
+
+    private var previewTextSecondary: Color {
+        previewColorScheme == .dark
+            ? Color(red: 0.773, green: 0.773, blue: 0.788)
+            : Color(red: 0.235, green: 0.235, blue: 0.263)
     }
 }
 
