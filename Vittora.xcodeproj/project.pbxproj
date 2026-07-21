@@ -13,6 +13,7 @@
 		E9A1B2C3D4E5F60718293A4B /* VittoraWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F101A001A2B30000000007 /* VittoraWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = F101A001A2B30000000001 /* VittoraWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F101A001A2B30000000008 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = F101A001A2B30000000009 /* VittoraCore */; };
+		F104A001A2B30000000001 /* WatchSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F104A001A2B30000000002 /* WatchSnapshotStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		B72FE8012F8B92FA00B6FF9D /* VittoraUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VittoraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VittoraWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		F101A001A2B30000000001 /* VittoraWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VittoraWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F104A001A2B30000000002 /* WatchSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VittoraWatch/WatchSnapshotStore.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -442,6 +444,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F104A001A2B30000000001 /* WatchSnapshotStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

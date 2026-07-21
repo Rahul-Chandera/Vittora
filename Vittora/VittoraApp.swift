@@ -414,7 +414,8 @@ struct VittoraApp: App {
             buildSnapshot: {
                 try await WatchSnapshotBuilder.build(
                     provider: provider,
-                    transactionRepository: transactionRepository
+                    transactionRepository: transactionRepository,
+                    categoryRepository: categoryRepository
                 )
             },
             commitExpense: { expense in

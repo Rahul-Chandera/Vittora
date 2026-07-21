@@ -18,6 +18,7 @@ struct WatchSnapshotTests {
                 WatchSnapshotTransaction(
                     date: Date(timeIntervalSince1970: 1_700_000_000),
                     name: "Coffee",
+                    categoryIcon: "cup.and.saucer.fill",
                     amount: Decimal(string: "4.50") ?? 0,
                     type: .expense
                 ),
@@ -37,6 +38,8 @@ struct WatchSnapshotTests {
         #expect(decoded.recentTransactions.count == 1)
         #expect(decoded.recentTransactions[0].amount == Decimal(string: "4.50"))
         #expect(decoded.recentTransactions[0].name == "Coffee")
+        #expect(decoded.recentTransactions[0].categoryIcon == "cup.and.saucer.fill")
+        #expect(decoded.budgetPeriodKey == snapshot.budgetPeriodKey)
         #expect(decoded.generatedAt == snapshot.generatedAt)
     }
 

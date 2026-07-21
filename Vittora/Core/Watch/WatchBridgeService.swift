@@ -197,10 +197,13 @@ enum WatchSnapshotBuilder {
     @MainActor
     static func build(
         provider: WidgetDataProvider,
-        transactionRepository: any TransactionRepository
+        transactionRepository: any TransactionRepository,
+        categoryRepository: any CategoryRepository
     ) async throws -> WatchSnapshot {
         let spending = try await provider.todaySpendingSnapshot()
         let budget = try await provider.budgetRemainingSnapshot()
+        let categories = try await categoryRepository.fetchAll()
+        let categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
 
         let recent = try await transactionRepository.fetchPage(
             filter: nil,
@@ -213,18 +216,21 @@ enum WatchSnapshotBuilder {
                 date: transaction.date,
                 name: transaction.note?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
                     ?? transaction.type.displayName,
+                categoryIcon: transaction.categoryID.flatMap { categoriesByID[$0]?.icon },
                 amount: transaction.amount,
                 type: transaction.type
             )
         }
 
+        let generatedAt = Date.now
         return WatchSnapshot(
             todaySpend: spending.todayAmount,
             budgetSpent: budget.spent,
             budgetTotal: budget.total,
+            budgetPeriodKey: WatchSnapshot.monthlyPeriodKey(for: generatedAt),
             recentTransactions: recent,
             currencyCode: spending.currencyCode,
-            generatedAt: .now
+            generatedAt: generatedAt
         )
     }
 }

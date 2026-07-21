@@ -23,6 +23,15 @@ struct WatchSnapshotView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier("watch-last-updated")
+                    NavigationLink {
+                        WatchRecentTransactionsView(store: store)
+                    } label: {
+                        Label(
+                            String(localized: "Recent transactions"),
+                            systemImage: "list.bullet"
+                        )
+                    }
+                    .accessibilityIdentifier("watch-recent-transactions-link")
                 } else {
                     Text(String(localized: "Waiting for iPhone…"))
                         .font(.footnote)

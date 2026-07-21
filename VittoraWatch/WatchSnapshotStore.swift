@@ -3,22 +3,39 @@ import Observation
 import WatchConnectivity
 import VittoraCore
 
+enum BudgetAlertThreshold: Int, CaseIterable, Sendable {
+    case seventyFive = 75
+    case ninety = 90
+    case oneHundred = 100
+}
+
 /// Last phone snapshot cached on-watch for offline glances. No money writes.
 @Observable
 @MainActor
 final class WatchSnapshotStore: NSObject {
     private(set) var snapshot: WatchSnapshot?
     private(set) var lastErrorMessage: String?
+    private(set) var budgetAlert: BudgetAlertThreshold?
 
     private let fileURL: URL
     private let session: WCSession
+    private let defaults: UserDefaults
+    private let playHaptic: @MainActor (BudgetAlertThreshold) -> Void
+    @ObservationIgnored private var dismissAlertTask: Task<Void, Never>?
+
+    private static let notifiedPeriodKey = "watchBudgetNotifiedPeriod"
+    private static let notifiedThresholdKey = "watchBudgetNotifiedThreshold"
 
     init(
         fileURL: URL = WatchSnapshotStore.defaultCacheURL(),
-        session: WCSession = .default
+        session: WCSession = .default,
+        defaults: UserDefaults = .standard,
+        playHaptic: @escaping @MainActor (BudgetAlertThreshold) -> Void = { _ in }
     ) {
         self.fileURL = fileURL
         self.session = session
+        self.defaults = defaults
+        self.playHaptic = playHaptic
         super.init()
         snapshot = Self.loadCache(from: fileURL)
     }
@@ -53,11 +70,62 @@ final class WatchSnapshotStore: NSObject {
     private func applySnapshotData(_ data: Data) {
         do {
             let decoded = try WatchSnapshot.decodeFromTransport(data)
-            snapshot = decoded
-            try Self.writeCache(decoded, to: fileURL)
+            applySnapshot(decoded)
+        } catch {
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    func applySnapshot(_ newSnapshot: WatchSnapshot) {
+        let previousSnapshot = snapshot
+        snapshot = newSnapshot
+
+        do {
+            try Self.writeCache(newSnapshot, to: fileURL)
             lastErrorMessage = nil
         } catch {
             lastErrorMessage = error.localizedDescription
+        }
+
+        notifyBudgetCrossing(from: previousSnapshot, to: newSnapshot)
+    }
+
+    private func notifyBudgetCrossing(
+        from previousSnapshot: WatchSnapshot?,
+        to newSnapshot: WatchSnapshot
+    ) {
+        let storedPeriod = defaults.string(forKey: Self.notifiedPeriodKey)
+        if storedPeriod != newSnapshot.budgetPeriodKey {
+            defaults.set(newSnapshot.budgetPeriodKey, forKey: Self.notifiedPeriodKey)
+            defaults.removeObject(forKey: Self.notifiedThresholdKey)
+        }
+
+        guard let previousSnapshot,
+              previousSnapshot.budgetPeriodKey == newSnapshot.budgetPeriodKey,
+              previousSnapshot.budgetTotal > 0,
+              newSnapshot.budgetTotal > 0 else {
+            return
+        }
+
+        let lastNotified = defaults.integer(forKey: Self.notifiedThresholdKey)
+        let crossed = BudgetAlertThreshold.allCases.last { threshold in
+            threshold.rawValue > lastNotified
+                && previousSnapshot.budgetSpent * 100
+                    < previousSnapshot.budgetTotal * Decimal(threshold.rawValue)
+                && newSnapshot.budgetSpent * 100
+                    >= newSnapshot.budgetTotal * Decimal(threshold.rawValue)
+        }
+        guard let crossed else { return }
+
+        defaults.set(crossed.rawValue, forKey: Self.notifiedThresholdKey)
+        budgetAlert = crossed
+        playHaptic(crossed)
+
+        dismissAlertTask?.cancel()
+        dismissAlertTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled, self?.budgetAlert == crossed else { return }
+            self?.budgetAlert = nil
         }
     }
 
@@ -80,6 +148,14 @@ final class WatchSnapshotStore: NSObject {
 }
 
 extension WatchSnapshotStore: WCSessionDelegate {
+    #if os(iOS)
+    nonisolated func sessionDidBecomeInactive(_ session: WCSession) {}
+
+    nonisolated func sessionDidDeactivate(_ session: WCSession) {
+        session.activate()
+    }
+    #endif
+
     nonisolated func session(
         _ session: WCSession,
         activationDidCompleteWith activationState: WCSessionActivationState,
