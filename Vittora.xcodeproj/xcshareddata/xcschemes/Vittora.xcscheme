@@ -49,6 +49,20 @@
                ReferencedContainer = "container:Vittora.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F103A001A2B30000000002"
+               BuildableName = "VittoraWatchWidgets.appex"
+               BlueprintName = "VittoraWatchWidgets"
+               ReferencedContainer = "container:Vittora.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
