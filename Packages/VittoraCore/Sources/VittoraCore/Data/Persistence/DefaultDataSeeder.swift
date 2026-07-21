@@ -33,28 +33,28 @@ public actor DefaultDataSeeder: DataSeederProtocol {
     }
 
     private func seedExpenseCategories() async throws {
-        let expenseCategories: [(name: String, icon: String, color: String)] = [
-            ("Groceries", "cart.fill", "#FF6B6B"),
-            ("Dining", "fork.knife", "#FFA94D"),
-            ("Transport", "car.fill", "#FFD93D"),
-            ("Entertainment", "film.fill", "#6BCB77"),
-            ("Shopping", "bag.fill", "#4D96FF"),
-            ("Health", "heart.fill", "#FF1493"),
-            ("Education", "book.fill", "#9D4EDD"),
-            ("Utilities", "bolt.fill", "#FFB703"),
-            ("Rent", "house.fill", "#FB5607"),
-            ("EMI", "indianrupeesign.circle.fill", "#5A189A"),
-            ("Insurance", "shield.fill", "#3A0CA3"),
-            ("Personal Care", "figure.walk", "#E76F51"),
-            ("Gifts", "gift.fill", "#F4A261"),
-            ("Travel", "airplane", "#2A9D8F"),
-            ("Subscriptions", "repeat", "#264653"),
-            ("Phone", "phone.fill", "#E9C46A"),
-            ("Internet", "wifi", "#D4A574"),
-            ("Clothing", "tshirt.fill", "#B8860B"),
-            ("Pets", "pawprint.fill", "#D2691E"),
-            ("Charity", "heart.circle.fill", "#CD5C5C"),
-            ("Other", "ellipsis.circle.fill", "#808080")
+        let expenseCategories: [(name: String, icon: String, color: String, bucket: SpendingBucket)] = [
+            ("Groceries", "cart.fill", "#FF6B6B", .needs),
+            ("Dining", "fork.knife", "#FFA94D", .wants),
+            ("Transport", "car.fill", "#FFD93D", .needs),
+            ("Entertainment", "film.fill", "#6BCB77", .wants),
+            ("Shopping", "bag.fill", "#4D96FF", .wants),
+            ("Health", "heart.fill", "#FF1493", .needs),
+            ("Education", "book.fill", "#9D4EDD", .needs),
+            ("Utilities", "bolt.fill", "#FFB703", .needs),
+            ("Rent", "house.fill", "#FB5607", .needs),
+            ("EMI", "indianrupeesign.circle.fill", "#5A189A", .needs),
+            ("Insurance", "shield.fill", "#3A0CA3", .needs),
+            ("Personal Care", "figure.walk", "#E76F51", .needs),
+            ("Gifts", "gift.fill", "#F4A261", .wants),
+            ("Travel", "airplane", "#2A9D8F", .wants),
+            ("Subscriptions", "repeat", "#264653", .wants),
+            ("Phone", "phone.fill", "#E9C46A", .needs),
+            ("Internet", "wifi", "#D4A574", .needs),
+            ("Clothing", "tshirt.fill", "#B8860B", .needs),
+            ("Pets", "pawprint.fill", "#D2691E", .needs),
+            ("Charity", "heart.circle.fill", "#CD5C5C", .wants),
+            ("Other", "ellipsis.circle.fill", "#808080", .wants)
         ]
 
         for (index, category) in expenseCategories.enumerated() {
@@ -65,7 +65,8 @@ public actor DefaultDataSeeder: DataSeederProtocol {
                 colorHex: category.color,
                 type: .expense,
                 isDefault: true,
-                sortOrder: index
+                sortOrder: index,
+                spendingBucket: category.bucket
             )
             modelContext.insert(sdCategory)
         }

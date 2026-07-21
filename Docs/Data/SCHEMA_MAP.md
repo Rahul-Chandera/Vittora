@@ -1,6 +1,6 @@
 # Vittora SwiftData Schema Map
 
-Current schema version: **`VittoraSchemaV6`** (baseline **`VittoraSchemaV1`**) in `Vittora/Core/Data/Persistence/VittoraMigrationPlan.swift`.
+Current schema version: **`VittoraSchemaV7`** (baseline **`VittoraSchemaV1`**) in `Packages/VittoraCore/Sources/VittoraCore/Data/Persistence/VittoraMigrationPlan.swift`.
 
 ## Schema Versions
 
@@ -20,6 +20,8 @@ Current schema version: **`VittoraSchemaV6`** (baseline **`VittoraSchemaV1`**) i
   opening (`balance − Σ effects`) on read rather than persisting a baseline.
 - **V5** — adds `SDDebt.linkedTransactionIDsJSON` for multi-leg settlement links (A11).
 - **V6** — adds optional `SDAccount.statementDayOfMonth` / `dueDayOfMonth` (C4).
+- **V7** — adds optional `SDCategory.spendingBucketRawValue` (G1 coupling) and
+  `SDSavingsGoal.isEmergencyFund` with a `false` default (G2).
 
 > **Merge-order versioning (resolved):** A3 (`transferDirection`) merged into
 > `refactoring` first and kept V3; A7 (`openingBalance`) rebased onto that tip and
@@ -49,7 +51,7 @@ seeds `VittoraSchemaV1.SDTransaction` on disk, reopens at V2 with
 `VittoraMigrationPlan`, and asserts data preservation plus `transferPairID == nil`
 until set post-migrate.
 
-## Registered Models (current / V6)
+## Registered Models (current / V7)
 
 - `SDTransaction`
 - `SDAccount`

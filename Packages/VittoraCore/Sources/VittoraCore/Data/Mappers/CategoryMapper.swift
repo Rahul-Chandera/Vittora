@@ -12,6 +12,7 @@ public enum CategoryMapper {
             isDefault: model.isDefault,
             sortOrder: model.sortOrder,
             parentID: model.parentID,
+            spendingBucket: model.spendingBucket,
             createdAt: model.createdAt,
             updatedAt: model.updatedAt
         )
@@ -25,6 +26,7 @@ public enum CategoryMapper {
         model.isDefault = entity.isDefault
         model.sortOrder = entity.sortOrder
         model.parentID = entity.parentID
+        model.spendingBucket = entity.spendingBucket
         model.updatedAt = .now
     }
 }

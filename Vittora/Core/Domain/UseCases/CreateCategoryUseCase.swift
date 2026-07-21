@@ -13,7 +13,8 @@ struct CreateCategoryUseCase: Sendable {
         icon: String,
         colorHex: String,
         type: CategoryType,
-        parentID: UUID? = nil
+        parentID: UUID? = nil,
+        spendingBucket: SpendingBucket? = nil
     ) async throws {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else {
@@ -48,7 +49,8 @@ struct CreateCategoryUseCase: Sendable {
             type: type,
             isDefault: false,
             sortOrder: sortOrder,
-            parentID: parentID
+            parentID: parentID,
+            spendingBucket: spendingBucket
         )
         try await repository.create(entity)
     }
