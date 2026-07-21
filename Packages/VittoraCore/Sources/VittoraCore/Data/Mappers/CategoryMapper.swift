@@ -9,10 +9,10 @@ public enum CategoryMapper {
             icon: model.icon,
             colorHex: model.colorHex,
             type: model.type,
-            spendingBucket: model.spendingBucket,
             isDefault: model.isDefault,
             sortOrder: model.sortOrder,
             parentID: model.parentID,
+            spendingBucket: model.spendingBucket,
             createdAt: model.createdAt,
             updatedAt: model.updatedAt
         )
@@ -23,10 +23,10 @@ public enum CategoryMapper {
         model.icon = entity.icon
         model.colorHex = entity.colorHex
         model.type = entity.type
-        model.spendingBucket = entity.spendingBucket
         model.isDefault = entity.isDefault
         model.sortOrder = entity.sortOrder
         model.parentID = entity.parentID
+        model.spendingBucket = entity.spendingBucket
         model.updatedAt = .now
     }
 }

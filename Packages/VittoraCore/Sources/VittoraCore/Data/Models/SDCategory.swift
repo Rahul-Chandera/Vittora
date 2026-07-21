@@ -10,10 +10,10 @@ public final class SDCategory {
     public var icon: String = ""
     public var colorHex: String = "#007AFF"
     public var typeRawValue: String = CategoryType.expense.rawValue
-    public var spendingBucketRawValue: String = SpendingBucket.wants.rawValue
     public var isDefault: Bool = false
     public var sortOrder: Int = 0
     public var parentID: UUID?
+    public var spendingBucketRawValue: String?
     public var createdAt: Date = Date.now
     public var updatedAt: Date = Date.now
 
@@ -25,10 +25,10 @@ public final class SDCategory {
         icon: String,
         colorHex: String = "#007AFF",
         type: CategoryType = .expense,
-        spendingBucket: SpendingBucket = .wants,
         isDefault: Bool = false,
         sortOrder: Int = 0,
         parentID: UUID? = nil,
+        spendingBucket: SpendingBucket? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -37,10 +37,10 @@ public final class SDCategory {
         self.icon = icon
         self.colorHex = colorHex
         self.typeRawValue = type.rawValue
-        self.spendingBucketRawValue = spendingBucket.rawValue
         self.isDefault = isDefault
         self.sortOrder = sortOrder
         self.parentID = parentID
+        self.spendingBucketRawValue = spendingBucket?.rawValue
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -50,8 +50,8 @@ public final class SDCategory {
         set { typeRawValue = newValue.rawValue }
     }
 
-    public var spendingBucket: SpendingBucket {
-        get { SpendingBucket(rawValue: spendingBucketRawValue) ?? .wants }
-        set { spendingBucketRawValue = newValue.rawValue }
+    public var spendingBucket: SpendingBucket? {
+        get { spendingBucketRawValue.flatMap(SpendingBucket.init(rawValue:)) }
+        set { spendingBucketRawValue = newValue?.rawValue }
     }
 }

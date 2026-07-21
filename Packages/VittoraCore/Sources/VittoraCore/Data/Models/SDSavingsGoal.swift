@@ -14,6 +14,7 @@ public final class SDSavingsGoal {
     public var linkedAccountID: UUID? = nil
     public var note: String? = nil
     public var statusRawValue: String = GoalStatus.active.rawValue
+    public var isEmergencyFund: Bool = false
     public var colorHex: String = "#5856D6"
     public var createdAt: Date = Date.now
     public var updatedAt: Date = Date.now
@@ -30,6 +31,7 @@ public final class SDSavingsGoal {
         linkedAccountID: UUID? = nil,
         note: String? = nil,
         status: GoalStatus = .active,
+        isEmergencyFund: Bool = false,
         colorHex: String = "#5856D6",
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -43,6 +45,7 @@ public final class SDSavingsGoal {
         self.linkedAccountID = linkedAccountID
         self.note = note
         self.statusRawValue = status.rawValue
+        self.isEmergencyFund = isEmergencyFund
         self.colorHex = colorHex
         self.createdAt = createdAt
         self.updatedAt = updatedAt

@@ -24,7 +24,10 @@ struct FiftyThirtyTwentyReportTests {
 
     @Test("seeded category names receive the specified defaults")
     func defaultClassification() {
-        for name in ["Rent", "Groceries", "Utilities", "Transport", "Health", "Insurance"] {
+        for name in [
+            "Groceries", "Transport", "Health", "Education", "Utilities", "Rent",
+            "EMI", "Insurance", "Personal Care", "Phone", "Internet", "Clothing", "Pets",
+        ] {
             #expect(SpendingBucket.defaultBucket(categoryName: name, type: .expense) == .needs)
         }
         for name in ["Dining", "Entertainment", "Shopping", "Subscriptions", "Travel"] {

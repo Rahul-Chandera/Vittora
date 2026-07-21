@@ -75,6 +75,7 @@ public struct SavingsGoalEntity: Identifiable, Hashable, Equatable, Sendable {
     public nonisolated var linkedAccountID: UUID?
     public nonisolated var note: String?
     public nonisolated var status: GoalStatus
+    public nonisolated var isEmergencyFund: Bool
     public nonisolated var colorHex: String
     public nonisolated var createdAt: Date
     public nonisolated var updatedAt: Date
@@ -131,6 +132,7 @@ public struct SavingsGoalEntity: Identifiable, Hashable, Equatable, Sendable {
         linkedAccountID: UUID? = nil,
         note: String? = nil,
         status: GoalStatus = .active,
+        isEmergencyFund: Bool = false,
         colorHex: String = "#5856D6",
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -144,6 +146,7 @@ public struct SavingsGoalEntity: Identifiable, Hashable, Equatable, Sendable {
         self.linkedAccountID = linkedAccountID
         self.note = note
         self.status = status
+        self.isEmergencyFund = isEmergencyFund
         self.colorHex = colorHex
         self.createdAt = createdAt
         self.updatedAt = updatedAt

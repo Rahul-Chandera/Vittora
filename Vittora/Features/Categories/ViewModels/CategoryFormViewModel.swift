@@ -33,7 +33,7 @@ final class CategoryFormViewModel {
         selectedIcon = entity.icon
         selectedColorHex = entity.colorHex
         selectedType = entity.type
-        selectedSpendingBucket = entity.spendingBucket
+        selectedSpendingBucket = entity.spendingBucket ?? .wants
         selectedParentID = entity.parentID
     }
 
@@ -46,10 +46,10 @@ final class CategoryFormViewModel {
                 icon: selectedIcon,
                 colorHex: selectedColorHex,
                 type: selectedType,
-                spendingBucket: selectedSpendingBucket,
                 isDefault: false,
                 sortOrder: 0,
-                parentID: selectedParentID
+                parentID: selectedParentID,
+                spendingBucket: selectedType == .expense ? selectedSpendingBucket : nil
             )
             try await updateUseCase.execute(entity)
         } else {
@@ -58,8 +58,8 @@ final class CategoryFormViewModel {
                 icon: selectedIcon,
                 colorHex: selectedColorHex,
                 type: selectedType,
-                spendingBucket: selectedSpendingBucket,
-                parentID: selectedParentID
+                parentID: selectedParentID,
+                spendingBucket: selectedType == .expense ? selectedSpendingBucket : nil
             )
         }
     }

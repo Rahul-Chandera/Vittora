@@ -25,9 +25,9 @@ struct SwiftDataCategoryRepositoryTests {
             icon: "fork.knife",
             colorHex: "#FF6B6B",
             type: .expense,
-            spendingBucket: .needs,
             isDefault: false,
             sortOrder: 1,
+            spendingBucket: .needs,
             createdAt: Date(timeIntervalSince1970: 1_000_000),
             updatedAt: Date(timeIntervalSince1970: 1_000_000)
         )

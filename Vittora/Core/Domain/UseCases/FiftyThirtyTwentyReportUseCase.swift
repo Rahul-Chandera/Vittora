@@ -34,7 +34,9 @@ struct FiftyThirtyTwentyReportUseCase: Sendable {
             debtFetch
         )
         let bucketsByCategory = Dictionary(
-            uniqueKeysWithValues: categories.map { ($0.id, $0.spendingBucket) }
+            uniqueKeysWithValues: categories.compactMap { category in
+                category.spendingBucket.map { (category.id, $0) }
+            }
         )
         let borrowedRepaymentIDs = Set(
             debts

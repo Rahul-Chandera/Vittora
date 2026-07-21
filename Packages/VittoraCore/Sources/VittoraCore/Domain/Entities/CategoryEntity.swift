@@ -5,7 +5,9 @@ public enum CategoryType: String, Sendable, Hashable, CaseIterable, Codable {
 }
 
 public enum SpendingBucket: String, Sendable, Hashable, CaseIterable, Codable {
-    case needs, wants, savings
+    case needs
+    case wants
+    case savings
 
     public var displayName: String {
         switch self {
@@ -20,7 +22,10 @@ public enum SpendingBucket: String, Sendable, Hashable, CaseIterable, Codable {
         type: CategoryType
     ) -> SpendingBucket {
         guard type == .expense else { return .wants }
-        let needs = ["Rent", "Groceries", "Utilities", "Transport", "Health", "Insurance"]
+        let needs = [
+            "Groceries", "Transport", "Health", "Education", "Utilities", "Rent",
+            "EMI", "Insurance", "Personal Care", "Phone", "Internet", "Clothing", "Pets",
+        ]
         return needs.contains(categoryName) ? .needs : .wants
     }
 }
@@ -31,10 +36,10 @@ public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
     public nonisolated var icon: String
     public nonisolated var colorHex: String
     public nonisolated var type: CategoryType
-    public nonisolated var spendingBucket: SpendingBucket
     public nonisolated var isDefault: Bool
     public nonisolated var sortOrder: Int
     public nonisolated var parentID: UUID?
+    public nonisolated var spendingBucket: SpendingBucket?
     public nonisolated var createdAt: Date
     public nonisolated var updatedAt: Date
 
@@ -44,10 +49,10 @@ public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
         icon: String,
         colorHex: String = "#007AFF",
         type: CategoryType = .expense,
-        spendingBucket: SpendingBucket = .wants,
         isDefault: Bool = false,
         sortOrder: Int = 0,
         parentID: UUID? = nil,
+        spendingBucket: SpendingBucket? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -56,10 +61,10 @@ public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
         self.icon = icon
         self.colorHex = colorHex
         self.type = type
-        self.spendingBucket = spendingBucket
         self.isDefault = isDefault
         self.sortOrder = sortOrder
         self.parentID = parentID
+        self.spendingBucket = spendingBucket
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

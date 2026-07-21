@@ -31,10 +31,10 @@ public actor SwiftDataCategoryRepository: CategoryRepository {
             icon: entity.icon,
             colorHex: entity.colorHex,
             type: entity.type,
-            spendingBucket: entity.spendingBucket,
             isDefault: entity.isDefault,
             sortOrder: entity.sortOrder,
             parentID: entity.parentID,
+            spendingBucket: entity.spendingBucket,
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt
         )

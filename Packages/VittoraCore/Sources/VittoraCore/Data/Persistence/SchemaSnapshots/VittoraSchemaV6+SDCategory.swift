@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 extension VittoraSchemaV6 {
-    /// Frozen category shape through V6, before `spendingBucketRawValue`.
+    /// Frozen category shape for Schemas V1–V6, before spending buckets.
     @Model
     public final class SDCategory {
         #Index<SDCategory>([\.typeRawValue], [\.parentID])

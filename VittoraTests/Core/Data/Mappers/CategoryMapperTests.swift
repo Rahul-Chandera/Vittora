@@ -28,10 +28,10 @@ struct CategoryMapperTests {
             icon: icon,
             colorHex: colorHex,
             type: type,
-            spendingBucket: spendingBucket,
             isDefault: isDefault,
             sortOrder: sortOrder,
             parentID: parentID,
+            spendingBucket: .needs,
             createdAt: createdAt,
             updatedAt: updatedAt
         )
@@ -47,6 +47,7 @@ struct CategoryMapperTests {
         #expect(entity.isDefault == isDefault)
         #expect(entity.sortOrder == sortOrder)
         #expect(entity.parentID == parentID)
+        #expect(entity.spendingBucket == .needs)
         #expect(entity.createdAt == createdAt)
         #expect(entity.updatedAt == updatedAt)
     }
@@ -73,10 +74,10 @@ struct CategoryMapperTests {
             icon: "car.fill",
             colorHex: "#34C759",
             type: .expense,
-            spendingBucket: .needs,
             isDefault: false,
             sortOrder: 5,
-            parentID: parentID
+            parentID: parentID,
+            spendingBucket: .wants
         )
 
         CategoryMapper.updateModel(model, from: entity)
@@ -87,10 +88,10 @@ struct CategoryMapperTests {
         #expect(model.icon == "car.fill")
         #expect(model.colorHex == "#34C759")
         #expect(model.type == .expense)
-        #expect(model.spendingBucket == .needs)
         #expect(model.isDefault == false)
         #expect(model.sortOrder == 5)
         #expect(model.parentID == parentID)
+        #expect(model.spendingBucket == .wants)
         #expect(model.updatedAt > originalCreatedAt)
     }
 

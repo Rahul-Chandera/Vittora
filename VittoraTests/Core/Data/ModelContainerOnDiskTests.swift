@@ -451,4 +451,58 @@ struct ModelContainerOnDiskTests {
         // V5's JSON column arrives with its default on migrated rows.
         #expect(debt.linkedTransactionIDs.isEmpty)
     }
+
+    @Test("on-disk V6 savings goal migrates to V7 with emergency-fund flag")
+    func onDiskStoreMigratesSavingsGoalFlag() throws {
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let storeURL = dir.appendingPathComponent("vittora-v7-emergency-fund.store")
+        let goalID = UUID()
+
+        do {
+            let schema = Schema(VittoraSchemaV6.models)
+            let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+            let container = try ModelContainer(for: schema, configurations: [config])
+            let context = ModelContext(container)
+            context.insert(VittoraSchemaV6.SDSavingsGoal(
+                id: goalID,
+                name: "Legacy Goal",
+                category: .emergency,
+                targetAmount: 12_000,
+                currentAmount: 4_000
+            ))
+            try context.save()
+        }
+
+        let schema = Schema(VittoraSchemaV7.models)
+        let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let context = ModelContext(container)
+        let migrated = try #require(
+            try context.fetch(FetchDescriptor<SDSavingsGoal>()).first { $0.id == goalID }
+        )
+        #expect(migrated.name == "Legacy Goal")
+        #expect(migrated.currentAmount == 4_000)
+        #expect(migrated.isEmergencyFund == false)
+
+        migrated.isEmergencyFund = true
+        try context.save()
+
+        let reopened = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let reloadContext = ModelContext(reopened)
+        let reloaded = try #require(
+            try reloadContext.fetch(FetchDescriptor<SDSavingsGoal>()).first { $0.id == goalID }
+        )
+        #expect(reloaded.isEmergencyFund)
+    }
 }
