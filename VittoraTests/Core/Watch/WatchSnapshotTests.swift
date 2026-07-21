@@ -5,6 +5,15 @@ import VittoraCore
 @Suite("WatchSnapshot")
 struct WatchSnapshotTests {
 
+    @Test("500 crown steps of 50 cents equal exactly 250.00")
+    func crownStepsRemainExact() {
+        var amount = WatchExpenseAmount()
+        amount.applyCrownSteps(500)
+
+        #expect(amount.cents == 25_000)
+        #expect(amount.decimal == Decimal(string: "250.00"))
+    }
+
     @Test("encode/decode round-trip preserves Decimal precision")
     func roundTripPreservesDecimal() throws {
         let amount = Decimal(string: "15.49") ?? 0
@@ -38,6 +47,28 @@ struct WatchSnapshotTests {
         #expect(decoded.recentTransactions[0].amount == Decimal(string: "4.50"))
         #expect(decoded.recentTransactions[0].name == "Coffee")
         #expect(decoded.generatedAt == snapshot.generatedAt)
+    }
+
+    @Test("snapshot caps quick categories at eight")
+    func capsQuickCategories() {
+        let categories = (0..<10).map { index in
+            WatchSnapshotCategory(
+                id: UUID(),
+                name: "Category \(index)",
+                icon: "tag",
+                colorHex: "#007AFF"
+            )
+        }
+        let snapshot = WatchSnapshot(
+            todaySpend: 0,
+            budgetSpent: 0,
+            budgetTotal: 0,
+            recentTransactions: [],
+            quickCategories: categories,
+            currencyCode: "USD"
+        )
+
+        #expect(snapshot.quickCategories.count == 8)
     }
 
     @Test("caps recent transactions at 10")

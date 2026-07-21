@@ -4,6 +4,7 @@ import VittoraCore
 /// WA1 proof UI: today's spend + budget remaining + last-updated footer.
 struct WatchSnapshotView: View {
     @Bindable var store: WatchSnapshotStore
+    @State private var isEnteringExpense = false
 
     var body: some View {
         ScrollView {
@@ -23,6 +24,15 @@ struct WatchSnapshotView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier("watch-last-updated")
+
+                    if let pending = store.pendingExpense {
+                        pendingStatus(pending, currencyCode: snapshot.currencyCode)
+                    } else {
+                        Button(String(localized: "Add expense")) {
+                            isEnteringExpense = true
+                        }
+                        .accessibilityHint(String(localized: "Enter an expense using the Digital Crown."))
+                    }
                 } else {
                     Text(String(localized: "Waiting for iPhone…"))
                         .font(.footnote)
@@ -35,6 +45,9 @@ struct WatchSnapshotView: View {
         }
         .navigationTitle(String(localized: "Vittora"))
         .accessibilityIdentifier("watch-snapshot-root")
+        .sheet(isPresented: $isEnteringExpense) {
+            WatchQuickExpenseView(store: store)
+        }
     }
 
     private func labeledAmount(title: String, amount: Decimal, currencyCode: String) -> some View {
@@ -53,5 +66,27 @@ struct WatchSnapshotView: View {
         formatter.unitsStyle = .abbreviated
         let relative = formatter.localizedString(for: date, relativeTo: .now)
         return String(localized: "Updated \(relative)")
+    }
+
+    private func pendingStatus(_ expense: QueuedWatchExpense, currencyCode: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Label(
+                store.isPhoneReachable
+                    ? String(localized: "Queued — syncing with iPhone…")
+                    : String(localized: "Queued until iPhone reconnects"),
+                systemImage: store.isPhoneReachable ? "arrow.triangle.2.circlepath" : "iphone.slash"
+            )
+            .font(.caption)
+            Text(expense.amount, format: .currency(code: currencyCode))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(
+            store.isPhoneReachable
+                ? String(localized: "Expense is queued and syncing with iPhone")
+                : String(localized: "Expense is queued until iPhone reconnects")
+        )
+        .accessibilityIdentifier("watch-pending-expense")
     }
 }

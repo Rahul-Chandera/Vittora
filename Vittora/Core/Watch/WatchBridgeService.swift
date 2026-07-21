@@ -197,32 +197,58 @@ enum WatchSnapshotBuilder {
     @MainActor
     static func build(
         provider: WidgetDataProvider,
-        transactionRepository: any TransactionRepository
+        transactionRepository: any TransactionRepository,
+        categoryRepository: any CategoryRepository
     ) async throws -> WatchSnapshot {
         let spending = try await provider.todaySpendingSnapshot()
         let budget = try await provider.budgetRemainingSnapshot()
 
-        let recent = try await transactionRepository.fetchPage(
+        let recentEntities = try await transactionRepository.fetchPage(
             filter: nil,
             offset: 0,
-            limit: WatchSnapshot.maxRecentTransactions
+            limit: 100
         )
-        .map { transaction in
+        let recent = recentEntities.prefix(WatchSnapshot.maxRecentTransactions).map { transaction in
             WatchSnapshotTransaction(
                 id: transaction.id,
                 date: transaction.date,
                 name: transaction.note?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
                     ?? transaction.type.displayName,
                 amount: transaction.amount,
-                type: transaction.type
+                type: transaction.type,
+                categoryID: transaction.categoryID
             )
+        }
+        let expenseCategories = try await categoryRepository.fetchByType(.expense)
+        let recentExpenseCategoryIDs = recentEntities.compactMap { transaction in
+            transaction.type == .expense ? transaction.categoryID : nil
+        }
+        let usageCounts = Dictionary(grouping: recentExpenseCategoryIDs, by: { $0 }).mapValues(\.count)
+        let firstUsage = Dictionary(
+            recentExpenseCategoryIDs.enumerated().map { ($0.element, $0.offset) },
+            uniquingKeysWith: min
+        )
+        let quickCategories = expenseCategories.sorted { lhs, rhs in
+            let lhsCount = usageCounts[lhs.id, default: 0]
+            let rhsCount = usageCounts[rhs.id, default: 0]
+            if lhsCount != rhsCount { return lhsCount > rhsCount }
+            let lhsUsage = firstUsage[lhs.id, default: .max]
+            let rhsUsage = firstUsage[rhs.id, default: .max]
+            if lhsUsage != rhsUsage { return lhsUsage < rhsUsage }
+            if lhs.sortOrder != rhs.sortOrder { return lhs.sortOrder < rhs.sortOrder }
+            return lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
+        }
+        .prefix(WatchSnapshot.maxQuickCategories)
+        .map {
+            WatchSnapshotCategory(id: $0.id, name: $0.name, icon: $0.icon, colorHex: $0.colorHex)
         }
 
         return WatchSnapshot(
             todaySpend: spending.todayAmount,
             budgetSpent: budget.spent,
             budgetTotal: budget.total,
-            recentTransactions: recent,
+            recentTransactions: Array(recent),
+            quickCategories: Array(quickCategories),
             currencyCode: spending.currencyCode,
             generatedAt: .now
         )

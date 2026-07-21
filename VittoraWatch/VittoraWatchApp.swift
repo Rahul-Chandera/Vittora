@@ -7,13 +7,15 @@ struct VittoraWatchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            WatchSnapshotView(store: snapshotStore)
-                .task {
-                    snapshotStore.activate()
-                    // Wait for WCSession activation before verification transfers.
-                    try? await Task.sleep(for: .seconds(3))
-                    enqueueVerificationExpenseIfNeeded()
-                }
+            NavigationStack {
+                WatchSnapshotView(store: snapshotStore)
+            }
+            .task {
+                snapshotStore.activate()
+                // Wait for WCSession activation before verification transfers.
+                try? await Task.sleep(for: .seconds(3))
+                enqueueVerificationExpenseIfNeeded()
+            }
         }
     }
 
