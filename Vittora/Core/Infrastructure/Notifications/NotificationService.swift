@@ -28,6 +28,7 @@ protocol NotificationServiceProtocol: Sendable {
     func cancel(identifiers: [String]) async
     func cancelAllPending() async
     func pendingRequests() async -> [ScheduledNotificationRequest]
+    func reschedulePending() async
     func setDeepLinkHandler(_ handler: (@MainActor (VittoraNotificationDeepLink) -> Void)?)
 }
 
@@ -35,11 +36,19 @@ protocol NotificationServiceProtocol: Sendable {
 final class NotificationService: NotificationServiceProtocol, Sendable {
     private let center: any UserNotificationCenterProtocol
     private let delegateProxy: NotificationCenterDelegateProxy
+    private let userDefaults: UserDefaults
+    private let calendarProvider: @MainActor @Sendable () -> Calendar
     private var deepLinkHandler: (@MainActor (VittoraNotificationDeepLink) -> Void)?
 
-    init(center: any UserNotificationCenterProtocol) {
+    init(
+        center: any UserNotificationCenterProtocol,
+        userDefaults: UserDefaults = .standard,
+        calendarProvider: @escaping @MainActor @Sendable () -> Calendar = { .current }
+    ) {
         self.center = center
         self.delegateProxy = NotificationCenterDelegateProxy()
+        self.userDefaults = userDefaults
+        self.calendarProvider = calendarProvider
         center.delegate = delegateProxy
         delegateProxy.onDeepLink = { [weak self] deepLink in
             self?.deepLinkHandler?(deepLink)
@@ -77,7 +86,13 @@ final class NotificationService: NotificationServiceProtocol, Sendable {
     }
 
     func schedule(_ request: ScheduledNotificationRequest) async throws {
-        try await center.add(request.makeUNRequest())
+        let preferences = NotificationSchedulePreferences(userDefaults: userDefaults)
+        let adjustedFireDate = preferences.adjustedFireDate(
+            for: request.fireDate,
+            category: request.category,
+            calendar: calendarProvider()
+        )
+        try await center.add(request.makeUNRequest(adjustedFireDate: adjustedFireDate))
     }
 
     func cancel(identifiers: [String]) async {
@@ -91,6 +106,27 @@ final class NotificationService: NotificationServiceProtocol, Sendable {
 
     func pendingRequests() async -> [ScheduledNotificationRequest] {
         await center.pendingNotificationRequests().compactMap(ScheduledNotificationRequest.init)
+    }
+
+    func reschedulePending() async {
+        let pending = await center.pendingNotificationRequests()
+        for notificationRequest in pending {
+            guard let request = ScheduledNotificationRequest(notificationRequest: notificationRequest) else {
+                continue
+            }
+            let originalFireDate = ScheduledNotificationRequest.originalFireDate(from: notificationRequest)
+                ?? request.fireDate
+            try? await schedule(
+                ScheduledNotificationRequest(
+                    identifier: request.identifier,
+                    title: request.title,
+                    body: request.body,
+                    fireDate: originalFireDate,
+                    category: request.category,
+                    deepLink: request.deepLink
+                )
+            )
+        }
     }
 }
 
