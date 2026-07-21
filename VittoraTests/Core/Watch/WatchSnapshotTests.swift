@@ -96,6 +96,46 @@ struct WatchSnapshotTests {
         #expect(decoded.categoryID == categoryID)
     }
 
+    @Test("complication snapshot becomes stale only after 24 hours")
+    func complicationStalenessUsesInjectedDate() {
+        let generatedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let snapshot = WatchSnapshot(
+            todaySpend: 42,
+            budgetSpent: 250,
+            budgetTotal: 1_000,
+            recentTransactions: [],
+            currencyCode: "USD",
+            generatedAt: generatedAt
+        )
+
+        #expect(!snapshot.isStale(at: generatedAt.addingTimeInterval(24 * 60 * 60)))
+        #expect(snapshot.isStale(at: generatedAt.addingTimeInterval(24 * 60 * 60 + 1)))
+    }
+
+    @Test("watch complication cache reads the snapshot written by the watch app path")
+    func complicationCacheWiringRoundTrip() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let cache = WatchSnapshotCache(
+            fileURL: directory.appendingPathComponent("watch-snapshot.json")
+        )
+        let snapshot = WatchSnapshot(
+            todaySpend: Decimal(string: "15.49") ?? 0,
+            budgetSpent: 250,
+            budgetTotal: 1_000,
+            recentTransactions: [],
+            currencyCode: "USD",
+            generatedAt: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+
+        try cache.save(snapshot)
+
+        #expect(cache.load() == snapshot)
+    }
+
     @Test("invalid queued amount fails without producing an expense")
     func invalidQueuedAmountThrows() {
         let info: [String: Any] = [

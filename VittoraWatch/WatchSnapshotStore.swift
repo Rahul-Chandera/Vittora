@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import WatchConnectivity
+import WidgetKit
 import VittoraCore
 
 /// Last phone snapshot cached on-watch for offline glances. No money writes.
@@ -10,17 +11,17 @@ final class WatchSnapshotStore: NSObject {
     private(set) var snapshot: WatchSnapshot?
     private(set) var lastErrorMessage: String?
 
-    private let fileURL: URL
+    private let cache: WatchSnapshotCache?
     private let session: WCSession
 
     init(
-        fileURL: URL = WatchSnapshotStore.defaultCacheURL(),
+        cache: WatchSnapshotCache? = try? .watchAppGroup(),
         session: WCSession = .default
     ) {
-        self.fileURL = fileURL
+        self.cache = cache
         self.session = session
         super.init()
-        snapshot = Self.loadCache(from: fileURL)
+        snapshot = cache?.load()
     }
 
     func activate() {
@@ -54,28 +55,13 @@ final class WatchSnapshotStore: NSObject {
         do {
             let decoded = try WatchSnapshot.decodeFromTransport(data)
             snapshot = decoded
-            try Self.writeCache(decoded, to: fileURL)
+            guard let cache else { throw CocoaError(.fileNoSuchFile) }
+            try cache.save(decoded)
+            WidgetCenter.shared.reloadAllTimelines()
             lastErrorMessage = nil
         } catch {
             lastErrorMessage = error.localizedDescription
         }
-    }
-
-    private static func defaultCacheURL() -> URL {
-        let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? FileManager.default.temporaryDirectory
-        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        return directory.appendingPathComponent("watch-snapshot.json", isDirectory: false)
-    }
-
-    private static func loadCache(from url: URL) -> WatchSnapshot? {
-        guard let data = try? Data(contentsOf: url) else { return nil }
-        return try? WatchSnapshot.decodeFromTransport(data)
-    }
-
-    private static func writeCache(_ snapshot: WatchSnapshot, to url: URL) throws {
-        let data = try snapshot.encodeForTransport()
-        try data.write(to: url, options: [.atomic])
     }
 }
 
