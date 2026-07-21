@@ -33,6 +33,7 @@ struct SavingsGoalMapperTests {
             linkedAccountID: linkedAccountID,
             note: note,
             status: status,
+            isEmergencyFund: true,
             colorHex: colorHex,
             createdAt: createdAt,
             updatedAt: updatedAt
@@ -49,6 +50,7 @@ struct SavingsGoalMapperTests {
         #expect(entity.linkedAccountID == linkedAccountID)
         #expect(entity.note == note)
         #expect(entity.status == status)
+        #expect(entity.isEmergencyFund)
         #expect(entity.colorHex == colorHex)
         #expect(entity.createdAt == createdAt)
         #expect(entity.updatedAt == updatedAt)
@@ -86,6 +88,7 @@ struct SavingsGoalMapperTests {
             linkedAccountID: linkedAccountID,
             note: "Down payment savings",
             status: .active,
+            isEmergencyFund: true,
             colorHex: "#5AC8FA"
         )
 
@@ -101,6 +104,7 @@ struct SavingsGoalMapperTests {
         #expect(model.linkedAccountID == linkedAccountID)
         #expect(model.note == "Down payment savings")
         #expect(model.status == .active)
+        #expect(model.isEmergencyFund)
         #expect(model.colorHex == "#5AC8FA")
         #expect(model.updatedAt > originalCreatedAt)
     }

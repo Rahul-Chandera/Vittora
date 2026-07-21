@@ -12,6 +12,7 @@ public enum SavingsGoalMapper {
             linkedAccountID: model.linkedAccountID,
             note: model.note,
             status: model.status,
+            isEmergencyFund: model.isEmergencyFund,
             colorHex: model.colorHex,
             createdAt: model.createdAt,
             updatedAt: model.updatedAt
@@ -27,6 +28,7 @@ public enum SavingsGoalMapper {
         model.linkedAccountID = entity.linkedAccountID
         model.note = entity.note
         model.status = entity.status
+        model.isEmergencyFund = entity.isEmergencyFund
         model.colorHex = entity.colorHex
         model.updatedAt = .now
     }
