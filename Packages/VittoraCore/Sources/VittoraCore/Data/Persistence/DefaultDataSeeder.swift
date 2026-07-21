@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import SwiftData
 
@@ -15,25 +16,39 @@ public actor DefaultDataSeeder: DataSeederProtocol {
     private let seededKey = "com.vittora.defaultDataSeeded"
 
     public func seedDefaultCategoriesIfNeeded() async throws {
-        let userDefaults = UserDefaults.standard
-        guard !userDefaults.bool(forKey: seededKey) else {
-            return
-        }
-
-        try await seedExpenseCategories()
-        try await seedIncomeCategories()
-
-        userDefaults.set(true, forKey: seededKey)
-    }
-
-    public func reseedDefaultCategories() async throws {
-        try await seedExpenseCategories()
-        try await seedIncomeCategories()
+        try reconcileDefaultCategories()
         UserDefaults.standard.set(true, forKey: seededKey)
     }
 
-    private func seedExpenseCategories() async throws {
-        let expenseCategories: [(name: String, icon: String, color: String, bucket: SpendingBucket)] = [
+    public func reseedDefaultCategories() async throws {
+        try reconcileDefaultCategories()
+        UserDefaults.standard.set(true, forKey: seededKey)
+    }
+
+    private struct DefaultCategory: Sendable {
+        let name: String
+        let icon: String
+        let color: String
+        let type: CategoryType
+        let sortOrder: Int
+        let spendingBucket: SpendingBucket?
+
+        var id: UUID {
+            let canonicalIdentity = "com.vittora.default-category.v1|\(type.rawValue)|\(name)"
+            var bytes = Array(SHA256.hash(data: Data(canonicalIdentity.utf8)).prefix(16))
+            bytes[6] = (bytes[6] & 0x0F) | 0x80
+            bytes[8] = (bytes[8] & 0x3F) | 0x80
+            return UUID(uuid: (
+                bytes[0], bytes[1], bytes[2], bytes[3],
+                bytes[4], bytes[5], bytes[6], bytes[7],
+                bytes[8], bytes[9], bytes[10], bytes[11],
+                bytes[12], bytes[13], bytes[14], bytes[15]
+            ))
+        }
+    }
+
+    private static let defaultCategories: [DefaultCategory] = {
+        let expenses: [(String, String, String, SpendingBucket)] = [
             ("Groceries", "cart.fill", "#FF6B6B", .needs),
             ("Dining", "fork.knife", "#FFA94D", .wants),
             ("Transport", "car.fill", "#FFD93D", .needs),
@@ -56,46 +71,105 @@ public actor DefaultDataSeeder: DataSeederProtocol {
             ("Charity", "heart.circle.fill", "#CD5C5C", .wants),
             ("Other", "ellipsis.circle.fill", "#808080", .wants)
         ]
-
-        for (index, category) in expenseCategories.enumerated() {
-            let sdCategory = SDCategory(
-                id: UUID(),
-                name: category.name,
-                icon: category.icon,
-                colorHex: category.color,
-                type: .expense,
-                isDefault: true,
-                sortOrder: index,
-                spendingBucket: category.bucket
-            )
-            modelContext.insert(sdCategory)
-        }
-
-        try modelContext.save()
-    }
-
-    private func seedIncomeCategories() async throws {
-        let incomeCategories: [(name: String, icon: String, color: String)] = [
+        let incomes: [(String, String, String)] = [
             ("Salary", "briefcase.fill", "#06D6A0"),
             ("Freelance", "laptopcomputer", "#118AB2"),
             ("Investments", "chart.line.uptrend.xyaxis", "#073B4C"),
             ("Gifts Received", "gift.fill", "#EF476F"),
             ("Other Income", "dollarsign.circle.fill", "#FFD60A")
         ]
-
-        for (index, category) in incomeCategories.enumerated() {
-            let sdCategory = SDCategory(
-                id: UUID(),
-                name: category.name,
-                icon: category.icon,
-                colorHex: category.color,
-                type: .income,
-                isDefault: true,
-                sortOrder: index
+        return expenses.enumerated().map { index, category in
+            DefaultCategory(
+                name: category.0,
+                icon: category.1,
+                color: category.2,
+                type: .expense,
+                sortOrder: index,
+                spendingBucket: category.3
             )
-            modelContext.insert(sdCategory)
+        } + incomes.enumerated().map { index, category in
+            DefaultCategory(
+                name: category.0,
+                icon: category.1,
+                color: category.2,
+                type: .income,
+                sortOrder: index,
+                spendingBucket: nil
+            )
+        }
+    }()
+
+    private func reconcileDefaultCategories() throws {
+        let existingDefaults = try modelContext.fetch(
+            FetchDescriptor<SDCategory>(predicate: #Predicate { $0.isDefault })
+        )
+        var replacementIDs: [UUID: UUID] = [:]
+        var duplicatesToDelete: [SDCategory] = []
+
+        for definition in Self.defaultCategories {
+            let matches = existingDefaults
+                .filter { $0.name == definition.name && $0.type == definition.type }
+                .sorted {
+                    $0.createdAt == $1.createdAt
+                        ? $0.id.uuidString < $1.id.uuidString
+                        : $0.createdAt < $1.createdAt
+                }
+
+            guard let survivor = matches.first else {
+                modelContext.insert(SDCategory(
+                    id: definition.id,
+                    name: definition.name,
+                    icon: definition.icon,
+                    colorHex: definition.color,
+                    type: definition.type,
+                    isDefault: true,
+                    sortOrder: definition.sortOrder,
+                    spendingBucket: definition.spendingBucket
+                ))
+                continue
+            }
+
+            for oldID in matches.map(\.id) where oldID != definition.id {
+                replacementIDs[oldID] = definition.id
+            }
+            if survivor.id != definition.id {
+                survivor.id = definition.id
+                survivor.updatedAt = .now
+            }
+            duplicatesToDelete.append(contentsOf: matches.dropFirst())
         }
 
+        if !replacementIDs.isEmpty {
+            try repointCategoryReferences(using: replacementIDs)
+        }
+        for duplicate in duplicatesToDelete {
+            modelContext.delete(duplicate)
+        }
         try modelContext.save()
+    }
+
+    private func repointCategoryReferences(using replacementIDs: [UUID: UUID]) throws {
+        let now = Date.now
+        for transaction in try modelContext.fetch(FetchDescriptor<SDTransaction>()) {
+            if let categoryID = transaction.categoryID,
+               let survivorID = replacementIDs[categoryID] {
+                transaction.categoryID = survivorID
+                transaction.updatedAt = now
+            }
+        }
+        for budget in try modelContext.fetch(FetchDescriptor<SDBudget>()) {
+            if let categoryID = budget.categoryID,
+               let survivorID = replacementIDs[categoryID] {
+                budget.categoryID = survivorID
+                budget.updatedAt = now
+            }
+        }
+        for rule in try modelContext.fetch(FetchDescriptor<SDRecurringRule>()) {
+            if let categoryID = rule.templateCategoryID,
+               let survivorID = replacementIDs[categoryID] {
+                rule.templateCategoryID = survivorID
+                rule.updatedAt = now
+            }
+        }
     }
 }
