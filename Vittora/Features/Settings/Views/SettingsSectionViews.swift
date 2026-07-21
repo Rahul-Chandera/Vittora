@@ -318,6 +318,61 @@ struct NotificationsSettingsView: View {
                             Task { await applySubToggleChange() }
                         }
                 }
+
+                Section(String(localized: "Schedule")) {
+                    DatePicker(
+                        String(localized: "Preferred Delivery Time"),
+                        selection: $vm.notificationDeliveryTime,
+                        displayedComponents: .hourAndMinute
+                    )
+                    .onChange(of: vm.notificationDeliveryTime) { _, _ in
+                        Task { await applySchedulingChange() }
+                    }
+
+                    Picker(String(localized: "Bill Reminder"), selection: $vm.billReminderLeadDays) {
+                        ForEach(NotificationSchedulePreferences.supportedBillLeadDays, id: \.self) { days in
+                            Text(billLeadTimeLabel(days))
+                                .tag(days)
+                        }
+                    }
+                    .onChange(of: vm.billReminderLeadDays) { _, _ in
+                        Task { await applySchedulingChange() }
+                    }
+                }
+
+                Section {
+                    Toggle(
+                        String(localized: "Enable Quiet Hours"),
+                        isOn: $vm.notificationQuietHoursEnabled
+                    )
+                    .onChange(of: vm.notificationQuietHoursEnabled) { _, _ in
+                        Task { await applySchedulingChange() }
+                    }
+
+                    if vm.notificationQuietHoursEnabled {
+                        DatePicker(
+                            String(localized: "Start"),
+                            selection: $vm.notificationQuietHoursStart,
+                            displayedComponents: .hourAndMinute
+                        )
+                        .onChange(of: vm.notificationQuietHoursStart) { _, _ in
+                            Task { await applySchedulingChange() }
+                        }
+                        DatePicker(
+                            String(localized: "End"),
+                            selection: $vm.notificationQuietHoursEnd,
+                            displayedComponents: .hourAndMinute
+                        )
+                        .onChange(of: vm.notificationQuietHoursEnd) { _, _ in
+                            Task { await applySchedulingChange() }
+                        }
+                    }
+                } header: {
+                    Text(String(localized: "Quiet Hours"))
+                } footer: {
+                    Text(String(localized: "Notifications scheduled during quiet hours are delivered when quiet hours end."))
+                        .foregroundStyle(VColors.textSecondary)
+                }
             }
         }
         .navigationTitle(String(localized: "Notifications"))
@@ -380,6 +435,22 @@ struct NotificationsSettingsView: View {
     @MainActor
     private func applySubToggleChange() async {
         await notificationPreferencesUseCase().applySubToggleChange()
+    }
+
+    @MainActor
+    private func applySchedulingChange() async {
+        await notificationPreferencesUseCase().applySchedulingChange()
+    }
+
+    private func billLeadTimeLabel(_ days: Int) -> String {
+        switch days {
+        case 0:
+            String(localized: "Same day")
+        case 1:
+            String(localized: "1 day before")
+        default:
+            String(localized: "\(days) days before")
+        }
     }
 }
 
