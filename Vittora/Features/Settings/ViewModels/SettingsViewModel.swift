@@ -46,6 +46,24 @@ final class SettingsViewModel {
         }
     }
 
+    var accentColor: AccentColor {
+        get {
+            access(keyPath: \.accentColor)
+            return AccentColor(
+                rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.accentColor) ?? ""
+            ) ?? .brandGreen
+        }
+        set {
+            withMutation(keyPath: \.accentColor) {
+                UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.accentColor)
+                AppUserDefaults.mirrorAccentColorToAppGroup()
+                #if os(iOS)
+                WidgetCenter.shared.reloadAllTimelines()
+                #endif
+            }
+        }
+    }
+
     var isNotificationsEnabled: Bool {
         get {
             access(keyPath: \.isNotificationsEnabled)
@@ -104,6 +122,110 @@ final class SettingsViewModel {
                 UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyRecurring)
             }
         }
+    }
+
+    var notificationDeliveryTime: Date {
+        get {
+            access(keyPath: \.notificationDeliveryTime)
+            return notificationTime(
+                forKey: AppUserDefaults.StandardKey.notificationDeliveryTime,
+                defaultMinutes: NotificationSchedulePreferences.defaultDeliveryMinutes
+            )
+        }
+        set {
+            withMutation(keyPath: \.notificationDeliveryTime) {
+                storeNotificationTime(
+                    newValue,
+                    forKey: AppUserDefaults.StandardKey.notificationDeliveryTime
+                )
+            }
+        }
+    }
+
+    var notificationQuietHoursEnabled: Bool {
+        get {
+            access(keyPath: \.notificationQuietHoursEnabled)
+            return UserDefaults.standard.bool(
+                forKey: AppUserDefaults.StandardKey.notificationQuietHoursEnabled
+            )
+        }
+        set {
+            withMutation(keyPath: \.notificationQuietHoursEnabled) {
+                UserDefaults.standard.set(
+                    newValue,
+                    forKey: AppUserDefaults.StandardKey.notificationQuietHoursEnabled
+                )
+            }
+        }
+    }
+
+    var notificationQuietHoursStart: Date {
+        get {
+            access(keyPath: \.notificationQuietHoursStart)
+            return notificationTime(
+                forKey: AppUserDefaults.StandardKey.notificationQuietHoursStart,
+                defaultMinutes: NotificationSchedulePreferences.defaultQuietStartMinutes
+            )
+        }
+        set {
+            withMutation(keyPath: \.notificationQuietHoursStart) {
+                storeNotificationTime(
+                    newValue,
+                    forKey: AppUserDefaults.StandardKey.notificationQuietHoursStart
+                )
+            }
+        }
+    }
+
+    var notificationQuietHoursEnd: Date {
+        get {
+            access(keyPath: \.notificationQuietHoursEnd)
+            return notificationTime(
+                forKey: AppUserDefaults.StandardKey.notificationQuietHoursEnd,
+                defaultMinutes: NotificationSchedulePreferences.defaultQuietEndMinutes
+            )
+        }
+        set {
+            withMutation(keyPath: \.notificationQuietHoursEnd) {
+                storeNotificationTime(
+                    newValue,
+                    forKey: AppUserDefaults.StandardKey.notificationQuietHoursEnd
+                )
+            }
+        }
+    }
+
+    var billReminderLeadDays: Int {
+        get {
+            access(keyPath: \.billReminderLeadDays)
+            return NotificationSchedulePreferences.billLeadDays(in: .standard)
+        }
+        set {
+            withMutation(keyPath: \.billReminderLeadDays) {
+                UserDefaults.standard.set(
+                    newValue,
+                    forKey: AppUserDefaults.StandardKey.billReminderLeadDays
+                )
+            }
+        }
+    }
+
+    private func notificationTime(forKey key: String, defaultMinutes: Int) -> Date {
+        let minutes = UserDefaults.standard.object(forKey: key) as? Int ?? defaultMinutes
+        return Calendar.current.date(
+            bySettingHour: minutes / 60,
+            minute: minutes % 60,
+            second: 0,
+            of: .now
+        ) ?? .now
+    }
+
+    private func storeNotificationTime(_ date: Date, forKey key: String) {
+        let components = Calendar.current.dateComponents([.hour, .minute], from: date)
+        UserDefaults.standard.set(
+            (components.hour ?? 0) * 60 + (components.minute ?? 0),
+            forKey: key
+        )
     }
 
     @ObservationIgnored private var _allowPasscodeFallback: Bool
@@ -376,13 +498,14 @@ final class SettingsViewModel {
     }
 
     enum AppearanceMode: String, CaseIterable, Sendable {
-        case system, light, dark
+        case system, light, dark, oledBlack
 
         var displayName: String {
             switch self {
             case .system: return String(localized: "System")
             case .light:  return String(localized: "Light")
             case .dark:   return String(localized: "Dark")
+            case .oledBlack: return String(localized: "OLED Black")
             }
         }
 
@@ -390,7 +513,20 @@ final class SettingsViewModel {
             switch self {
             case .system: return nil
             case .light:  return .light
-            case .dark:   return .dark
+            case .dark, .oledBlack: return .dark
+            }
+        }
+    }
+
+    enum AccentColor: String, CaseIterable, Sendable {
+        case brandGreen, blue, purple, orange
+
+        var displayName: String {
+            switch self {
+            case .brandGreen: return String(localized: "Brand Green")
+            case .blue: return String(localized: "Blue")
+            case .purple: return String(localized: "Purple")
+            case .orange: return String(localized: "Orange")
             }
         }
     }

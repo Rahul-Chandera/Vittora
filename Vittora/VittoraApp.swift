@@ -10,6 +10,9 @@ import SwiftData
 import OSLog
 import CoreSpotlight
 import VittoraCore
+#if os(iOS)
+import UIKit
+#endif
 
 @main
 struct VittoraApp: App {
@@ -24,6 +27,7 @@ struct VittoraApp: App {
     #if os(iOS)
     @State private var watchBridge: WatchBridgeService?
     #endif
+    @State private var notificationTimeChangeObservers: [NSObjectProtocol] = []
     @State private var spotlightCoordinator: TransactionSpotlightCoordinator?
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
@@ -53,6 +57,10 @@ struct VittoraApp: App {
         seedsDemoShowcaseForUITesting = launchArguments.contains("--ui-test-seed-demo")
         exercisesAppLockPolicy = launchArguments.contains("--ui-test-app-lock")
 
+        if isUITesting {
+            Self.configureAppearanceForUITesting(arguments: launchArguments)
+        }
+
         if launchArguments.contains("--ui-test-seed-demo") {
             // The currency environment is captured from Settings at first
             // render, before async seeding runs — set it up front so demo
@@ -66,6 +74,7 @@ struct VittoraApp: App {
 
         // Keep the App Group currency mirror current for widget extensions.
         AppUserDefaults.mirrorCurrencyCodeToAppGroup()
+        AppUserDefaults.mirrorAccentColorToAppGroup()
 
         // Keychain + App Group App Lock state survives relaunch; UI tests must
         // declare unlocked vs locked rather than inheriting the previous case.
@@ -152,6 +161,30 @@ struct VittoraApp: App {
         AppLockSessionMirror.clearAll()
     }
 
+    private static func configureAppearanceForUITesting(arguments: [String]) {
+        let appearancePrefix = "--ui-test-appearance="
+        let accentPrefix = "--ui-test-accent="
+        let appearance = arguments.first { $0.hasPrefix(appearancePrefix) }
+            .map { String($0.dropFirst(appearancePrefix.count)) }
+        let accent = arguments.first { $0.hasPrefix(accentPrefix) }
+            .map { String($0.dropFirst(accentPrefix.count)) }
+
+        if let appearance, appearanceModeRawValues.contains(appearance) {
+            UserDefaults.standard.set(appearance, forKey: AppUserDefaults.StandardKey.appearanceMode)
+        } else {
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appearanceMode)
+        }
+
+        if let accent, accentColorRawValues.contains(accent) {
+            UserDefaults.standard.set(accent, forKey: AppUserDefaults.StandardKey.accentColor)
+        } else {
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.accentColor)
+        }
+    }
+
+    private static let appearanceModeRawValues = Set(["system", "light", "dark", "oledBlack"])
+    private static let accentColorRawValues = Set(["brandGreen", "blue", "purple", "orange"])
+
     private static func initialOnboardingCompletionState(
         showsOnboardingForUITesting: Bool,
         bypassOnboardingForUITesting: Bool
@@ -211,6 +244,7 @@ struct VittoraApp: App {
                         modelContainer: modelContainer
                     )
                     .restoresSceneState(appState: appState)
+                    .background(VColors.background.ignoresSafeArea())
                     #if os(macOS)
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
@@ -256,6 +290,7 @@ struct VittoraApp: App {
                         ?? String(localized: "Vittora couldn't open its data store or create a recovery store.")
                 )
                 .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
+                .tint(VColors.accent(settingsVM.accentColor))
             }
         }
         #if os(macOS)
@@ -386,6 +421,56 @@ struct VittoraApp: App {
             appState.openFromNotification(deepLink)
         }
         await dependencies.notificationService.registerCategories()
+        registerNotificationTimeChangeObservers()
+        await scheduleVerificationNotificationIfNeeded()
+    }
+
+    private func registerNotificationTimeChangeObservers() {
+        guard notificationTimeChangeObservers.isEmpty else { return }
+        var names = [Notification.Name.NSSystemTimeZoneDidChange]
+        #if os(iOS)
+        names.append(UIApplication.significantTimeChangeNotification)
+        #endif
+        notificationTimeChangeObservers = names.map { name in
+            NotificationCenter.default.addObserver(
+                forName: name,
+                object: nil,
+                queue: .main
+            ) { _ in
+                Task { @MainActor in
+                    refreshNotificationSchedulesAfterTimeChange()
+                }
+            }
+        }
+    }
+
+    private func refreshNotificationSchedulesAfterTimeChange() {
+        guard !isRunningAutomatedTests, settingsVM.isNotificationsEnabled else { return }
+        Task {
+            await dependencies.notificationService.reschedulePending()
+            await dependencies.refreshAllNotificationSchedules()
+        }
+    }
+
+    private func scheduleVerificationNotificationIfNeeded() async {
+        let prefix = "--verify-notification-delay="
+        guard let argument = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }),
+              let delay = TimeInterval(argument.dropFirst(prefix.count)),
+              delay >= 2,
+              (try? await dependencies.notificationService.requestAuthorization()) == true
+        else {
+            return
+        }
+        try? await dependencies.notificationService.schedule(
+            ScheduledNotificationRequest(
+                identifier: "notification-schedule-verification",
+                title: String(localized: "Vittora Notification"),
+                body: String(localized: "Scheduled delivery verified."),
+                fireDate: .now.addingTimeInterval(delay),
+                category: .budgetAlert,
+                deepLink: VittoraNotificationDeepLink(destination: .budgets)
+            )
+        )
     }
 
     /// W5: AddExpenseIntent → same `openFromURL` path as widget / `vittora://add` links.

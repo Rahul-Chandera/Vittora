@@ -355,7 +355,7 @@ struct RecurringCategoryPickerView: View {
                     Image(systemName: category.icon)
                         .foregroundColor(Color(hex: category.colorHex) ?? .blue)
 
-                    Text(category.name)
+                    Text(category.displayName)
                         .font(VTypography.callout)
                         .foregroundColor(VColors.textPrimary)
 

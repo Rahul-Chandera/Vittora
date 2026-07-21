@@ -37,7 +37,7 @@ struct RecurringDetailView: View {
                                 .frame(width: 52, height: 52)
 
                                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                                    Text(category?.name ?? String(localized: "Uncategorized"))
+                                    Text(category?.displayName ?? String(localized: "Uncategorized"))
                                         .font(VTypography.title2)
                                         .foregroundColor(VColors.textPrimary)
                                         .lineLimit(1)

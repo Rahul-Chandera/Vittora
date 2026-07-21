@@ -31,6 +31,7 @@ final class MockUserNotificationCenter: UserNotificationCenterProtocol {
         if shouldThrowOnAdd {
             throw NSError(domain: "MockUserNotificationCenter", code: 1)
         }
+        addedRequests.removeAll { $0.identifier == request.identifier }
         addedRequests.append(request)
     }
 

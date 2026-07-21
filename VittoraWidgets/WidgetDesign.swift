@@ -1,8 +1,20 @@
 import SwiftUI
+import VittoraCore
 
 /// Minimal design tokens for the widget extension (cannot import the app target).
 enum WidgetColors {
-    static let primary = Color(red: 58 / 255, green: 215 / 255, blue: 166 / 255)
+    static var primary: Color {
+        switch AppUserDefaults.appGroup.string(forKey: AppUserDefaults.StandardKey.accentColor) {
+        case "blue":
+            Color(red: 58 / 255, green: 118 / 255, blue: 200 / 255)
+        case "purple":
+            Color(red: 142 / 255, green: 92 / 255, blue: 200 / 255)
+        case "orange":
+            Color(red: 185 / 255, green: 91 / 255, blue: 0 / 255)
+        default:
+            Color(red: 0 / 255, green: 134 / 255, blue: 103 / 255)
+        }
+    }
     static let expense = Color(red: 197 / 255, green: 34 / 255, blue: 31 / 255)
     static let income = Color(red: 27 / 255, green: 127 / 255, blue: 55 / 255)
     static let warning = Color.orange

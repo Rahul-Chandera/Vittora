@@ -56,6 +56,7 @@ final class UITestDataSeeder {
         // The dashboard formats amounts with the user's selected currency;
         // align it with the seeded data so symbols match.
         UserDefaults.standard.set(currency, forKey: AppUserDefaults.StandardKey.currencyCode)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.emergencyFundAccountIDs)
 
         let bank = AccountEntity(
             name: isIndia ? "HDFC Salary" : "Chase Checking",
@@ -210,6 +211,7 @@ final class UITestDataSeeder {
             name: "Emergency Fund", category: .emergency,
             targetAmount: isIndia ? 150_000 : 15_000,
             currentAmount: isIndia ? 95_000 : 9_500,
+            isEmergencyFund: true,
             colorHex: "#34C759"
         ))
         try await savingsGoalRepository.create(SavingsGoalEntity(

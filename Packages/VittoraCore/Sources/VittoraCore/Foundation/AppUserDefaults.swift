@@ -12,11 +12,17 @@ public enum AppUserDefaults {
     public enum StandardKey {
         public nonisolated static let currencyCode = "vittora.currencyCode"
         public nonisolated static let appearanceMode = "vittora.appearanceMode"
+        public nonisolated static let accentColor = "vittora.accentColor"
         public nonisolated static let notificationsEnabled = "vittora.notificationsEnabled"
         public nonisolated static let notifyBillsDue = "vittora.notifyBillsDue"
         public nonisolated static let notifyBudgetAlerts = "vittora.notifyBudgetAlerts"
         public nonisolated static let notifyGoalMilestones = "vittora.notifyGoalMilestones"
         public nonisolated static let notifyRecurring = "vittora.notifyRecurring"
+        public nonisolated static let notificationDeliveryTime = "vittora.notificationDeliveryTime"
+        public nonisolated static let notificationQuietHoursEnabled = "vittora.notificationQuietHoursEnabled"
+        public nonisolated static let notificationQuietHoursStart = "vittora.notificationQuietHoursStart"
+        public nonisolated static let notificationQuietHoursEnd = "vittora.notificationQuietHoursEnd"
+        public nonisolated static let billReminderLeadDays = "vittora.billReminderLeadDays"
         public nonisolated static let exportSchedule = "vittora.exportSchedule"
         public nonisolated static let cloudSyncEnabled = "vittora.cloudSyncEnabled"
         public nonisolated static let appLockTimeout = "vittora.appLockTimeout"
@@ -31,6 +37,7 @@ public enum AppUserDefaults {
         public nonisolated static let categorizationRules = "vittora.categorizationRules"
         public nonisolated static let transactionEditHistory = "vittora.transactionEditHistory"
         public nonisolated static let savedTransactionFilters = "vittora.savedTransactionFilters"
+        public nonisolated static let emergencyFundAccountIDs = "vittora.emergencyFundAccountIDs"
         /// When false, transactions are removed from Spotlight (default ON / unset).
         public nonisolated static let spotlightIndexingEnabled = "vittora.spotlightIndexingEnabled"
     }
@@ -78,6 +85,16 @@ public enum AppUserDefaults {
         let key = StandardKey.currencyCode
         if let code = UserDefaults.standard.string(forKey: key) {
             appGroup.set(code, forKey: key)
+        }
+    }
+
+    /// Mirrors the app accent into the App Group suite without moving `.standard` storage.
+    public nonisolated static func mirrorAccentColorToAppGroup() {
+        let key = StandardKey.accentColor
+        if let accent = UserDefaults.standard.string(forKey: key) {
+            appGroup.set(accent, forKey: key)
+        } else {
+            appGroup.removeObject(forKey: key)
         }
     }
 

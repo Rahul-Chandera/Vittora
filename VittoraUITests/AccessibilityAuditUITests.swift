@@ -108,6 +108,79 @@ final class AccessibilityAuditUITests: XCTestCase {
         #endif
     }
 
+    @MainActor
+    func testOLEDBlackAccessibilityAuditForCoreFlows() throws {
+        #if os(macOS)
+        throw XCTSkip("iOS only")
+        #else
+        launchSeeded(
+            initialTab: "dashboard",
+            extraArguments: ["--ui-test-appearance=oledBlack", "--ui-test-accent=purple"]
+        )
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
+        XCTAssertTrue(app.navigationBars["Dashboard"].waitForExistence(timeout: 15))
+        try performCoreFlowAudit()
+        captureFlowScreenshot(named: "oled-dashboard-purple")
+
+        XCTAssertTrue(UITestSupport.navigateToTab(named: "Transactions", in: app))
+        XCTAssertTrue(
+            app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 15)
+        )
+        try performCoreFlowAudit()
+
+        let row = firstTransactionRow()
+        XCTAssertTrue(row.waitForExistence(timeout: 15))
+        UITestSupport.tapWhenReady(row)
+        try performCoreFlowAudit()
+        app.navigationBars.buttons.firstMatch.tap()
+
+        openAddTransactionForm()
+        try performCoreFlowAudit()
+        app.navigationBars.buttons.firstMatch.tap()
+
+        XCTAssertTrue(UITestSupport.navigateToTab(named: "Budgets", in: app))
+        try performCoreFlowAudit()
+
+        XCTAssertTrue(UITestSupport.navigateToTab(named: "Reports", in: app))
+        XCTAssertTrue(app.navigationBars["Reports"].waitForExistence(timeout: 15))
+        try performCoreFlowAudit()
+
+        let card = app.descendants(matching: .any)["report-card-monthly"].firstMatch
+        UITestSupport.scrollToElement(card, in: app)
+        XCTAssertTrue(card.waitForExistence(timeout: 15))
+        UITestSupport.tapWhenReady(card)
+        XCTAssertTrue(app.navigationBars["Monthly Overview"].waitForExistence(timeout: 15))
+        try performCoreFlowAudit()
+        captureFlowScreenshot(named: "oled-monthly-overview-purple")
+        #endif
+    }
+
+    @MainActor
+    func testOLEDAccentDashboardAndReportScreenshots() throws {
+        #if os(macOS)
+        throw XCTSkip("iOS only")
+        #else
+        for accent in ["brandGreen", "blue", "purple", "orange"] {
+            launchSeeded(
+                initialTab: "dashboard",
+                extraArguments: ["--ui-test-appearance=oledBlack", "--ui-test-accent=\(accent)"]
+            )
+            XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
+            XCTAssertTrue(app.navigationBars["Dashboard"].waitForExistence(timeout: 15))
+            captureFlowScreenshot(named: "oled-dashboard-\(accent)")
+
+            XCTAssertTrue(UITestSupport.navigateToTab(named: "Reports", in: app))
+            let card = app.descendants(matching: .any)["report-card-monthly"].firstMatch
+            UITestSupport.scrollToElement(card, in: app)
+            XCTAssertTrue(card.waitForExistence(timeout: 15))
+            UITestSupport.tapWhenReady(card)
+            XCTAssertTrue(app.navigationBars["Monthly Overview"].waitForExistence(timeout: 15))
+            captureFlowScreenshot(named: "oled-monthly-overview-\(accent)")
+            app.terminate()
+        }
+        #endif
+    }
+
     // MARK: - Dynamic Type screenshots (.accessibility3)
 
     @MainActor

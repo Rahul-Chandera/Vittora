@@ -8,6 +8,7 @@ final class CategoryFormViewModel {
     var selectedIcon: String = "tag.fill"
     var selectedColorHex: String = "#007AFF"
     var selectedType: CategoryType = .expense
+    var selectedSpendingBucket: SpendingBucket = .needs
     var selectedParentID: UUID?
     var isEditing = false
     var editingID: UUID?
@@ -32,6 +33,7 @@ final class CategoryFormViewModel {
         selectedIcon = entity.icon
         selectedColorHex = entity.colorHex
         selectedType = entity.type
+        selectedSpendingBucket = entity.spendingBucket ?? .needs
         selectedParentID = entity.parentID
     }
 
@@ -46,7 +48,8 @@ final class CategoryFormViewModel {
                 type: selectedType,
                 isDefault: false,
                 sortOrder: 0,
-                parentID: selectedParentID
+                parentID: selectedParentID,
+                spendingBucket: selectedType == .expense ? selectedSpendingBucket : nil
             )
             try await updateUseCase.execute(entity)
         } else {
@@ -55,7 +58,8 @@ final class CategoryFormViewModel {
                 icon: selectedIcon,
                 colorHex: selectedColorHex,
                 type: selectedType,
-                parentID: selectedParentID
+                parentID: selectedParentID,
+                spendingBucket: selectedType == .expense ? selectedSpendingBucket : nil
             )
         }
     }
