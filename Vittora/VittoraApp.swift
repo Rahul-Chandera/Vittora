@@ -21,6 +21,9 @@ struct VittoraApp: App {
     @State private var syncService: SyncStatusService
     @State private var syncConflictHandler: SyncConflictHandler
     @State private var cloudKitSyncMonitor: CloudKitSyncMonitor?
+    #if os(iOS)
+    @State private var watchBridge: WatchBridgeService?
+    #endif
     @State private var spotlightCoordinator: TransactionSpotlightCoordinator?
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
@@ -213,8 +216,16 @@ struct VittoraApp: App {
                     #endif
                     .task {
                         registerQuickAddIntentHandler()
+                        #if os(iOS)
+                        activateWatchBridgeIfNeeded()
+                        #endif
                         registerSpotlightSyncHook()
                         await performStartupTasksIfNeeded()
+                        #if os(iOS)
+                        // Seed (and other startup writes) finish after activate; push once more
+                        // so the watch gets a post-seed snapshot without waiting for a later edit.
+                        watchBridge?.pushSnapshot()
+                        #endif
                         openUITestURLIfNeeded()
                         await showSpendingIntentResultIfNeeded()
                     }
@@ -299,6 +310,7 @@ struct VittoraApp: App {
                     await syncService.checkiCloudStatus()
                     #if os(iOS)
                     BackgroundTaskScheduler.scheduleNextRefresh()
+                    watchBridge?.pushSnapshot()
                     #endif
                 }
             default:
@@ -382,6 +394,81 @@ struct VittoraApp: App {
             appState.openFromURL(QuickAddDeepLink.url(for: destination))
         }
     }
+
+    #if os(iOS)
+    private func activateWatchBridgeIfNeeded() {
+        guard watchBridge == nil, let modelContainer else { return }
+
+        let provider = WidgetDataProvider(container: modelContainer)
+        let transactionRepository = dependencies.transactionRepository
+        let accountRepository = dependencies.accountRepository
+        let categoryRepository = dependencies.categoryRepository
+        let ledgerWriting = dependencies.ledgerWriteStore
+        let addUseCase = AddTransactionUseCase(
+            accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
+            ledgerWriting: ledgerWriting
+        )
+
+        let bridge = WatchBridgeService(
+            buildSnapshot: {
+                try await WatchSnapshotBuilder.build(
+                    provider: provider,
+                    transactionRepository: transactionRepository,
+                    categoryRepository: categoryRepository
+                )
+            },
+            commitExpense: { expense in
+                let accounts = try await accountRepository.fetchActive()
+                guard let account = accounts.first else {
+                    throw VittoraError.validationFailed(
+                        String(localized: "No account available for Watch expenses.")
+                    )
+                }
+                _ = try await addUseCase.execute(
+                    amount: expense.amount,
+                    type: .expense,
+                    date: expense.createdAt,
+                    categoryID: expense.categoryID,
+                    accountID: account.id,
+                    payeeID: nil,
+                    note: String(localized: "Apple Watch"),
+                    tags: [],
+                    paymentMethod: .other,
+                    currencyCode: CurrencyDefaults.code
+                )
+            },
+            presentError: { [appState] message in
+                appState.watchBridgeErrorMessage = message
+            },
+            notifyCommitted: { [appState] in
+                appState.notifyChanged([.transactions, .accounts, .budgets])
+            }
+        )
+        watchBridge = bridge
+        appState.watchBridge = bridge
+        bridge.activate()
+        bridge.pushSnapshot()
+        commitVerificationWatchExpenseIfNeeded(using: bridge)
+    }
+
+    /// WA1 verification only — injects a queued-expense payload through the same
+    /// `handleIncomingUserInfo` path WCSession uses, so screenshots don't depend
+    /// on flaky Simulator `transferUserInfo` delivery.
+    private func commitVerificationWatchExpenseIfNeeded(using bridge: WatchBridgeService) {
+        let prefix = "--verify-commit-watch-expense="
+        guard let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }) else {
+            return
+        }
+        let amountRaw = String(raw.dropFirst(prefix.count))
+        guard let amount = Decimal(string: amountRaw), amount > 0 else { return }
+        let payload = QueuedWatchExpense(amount: amount, categoryID: nil)
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1))
+            await bridge.handleIncomingUserInfo(payload.userInfoDictionary())
+        }
+    }
+    #endif
 
     /// P2: keep Spotlight in sync with transaction mutations (batch, background).
     private func registerSpotlightSyncHook() {
