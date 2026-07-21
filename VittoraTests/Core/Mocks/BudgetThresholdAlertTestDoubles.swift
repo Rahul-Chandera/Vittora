@@ -9,6 +9,7 @@ final class MockNotificationService: NotificationServiceProtocol {
     private(set) var scheduledRequests: [ScheduledNotificationRequest] = []
     private(set) var cancelledIdentifiers: [[String]] = []
     private(set) var cancelAllPendingCallCount = 0
+    private(set) var reschedulePendingCallCount = 0
 
     var authorizationStatusValue: NotificationAuthorizationStatus = .notDetermined
     var requestAuthorizationResult = true
@@ -40,6 +41,10 @@ final class MockNotificationService: NotificationServiceProtocol {
 
     func pendingRequests() async -> [ScheduledNotificationRequest] {
         scheduledRequests
+    }
+
+    func reschedulePending() async {
+        reschedulePendingCallCount += 1
     }
 
     func setDeepLinkHandler(_ handler: (@MainActor (VittoraNotificationDeepLink) -> Void)?) {}

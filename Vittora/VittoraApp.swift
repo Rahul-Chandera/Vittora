@@ -10,6 +10,9 @@ import SwiftData
 import OSLog
 import CoreSpotlight
 import VittoraCore
+#if os(iOS)
+import UIKit
+#endif
 
 @main
 struct VittoraApp: App {
@@ -24,6 +27,7 @@ struct VittoraApp: App {
     #if os(iOS)
     @State private var watchBridge: WatchBridgeService?
     #endif
+    @State private var notificationTimeChangeObservers: [NSObjectProtocol] = []
     @State private var spotlightCoordinator: TransactionSpotlightCoordinator?
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
@@ -386,6 +390,56 @@ struct VittoraApp: App {
             appState.openFromNotification(deepLink)
         }
         await dependencies.notificationService.registerCategories()
+        registerNotificationTimeChangeObservers()
+        await scheduleVerificationNotificationIfNeeded()
+    }
+
+    private func registerNotificationTimeChangeObservers() {
+        guard notificationTimeChangeObservers.isEmpty else { return }
+        var names = [Notification.Name.NSSystemTimeZoneDidChange]
+        #if os(iOS)
+        names.append(UIApplication.significantTimeChangeNotification)
+        #endif
+        notificationTimeChangeObservers = names.map { name in
+            NotificationCenter.default.addObserver(
+                forName: name,
+                object: nil,
+                queue: .main
+            ) { _ in
+                Task { @MainActor in
+                    refreshNotificationSchedulesAfterTimeChange()
+                }
+            }
+        }
+    }
+
+    private func refreshNotificationSchedulesAfterTimeChange() {
+        guard !isRunningAutomatedTests, settingsVM.isNotificationsEnabled else { return }
+        Task {
+            await dependencies.notificationService.reschedulePending()
+            await dependencies.refreshAllNotificationSchedules()
+        }
+    }
+
+    private func scheduleVerificationNotificationIfNeeded() async {
+        let prefix = "--verify-notification-delay="
+        guard let argument = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }),
+              let delay = TimeInterval(argument.dropFirst(prefix.count)),
+              delay >= 2,
+              (try? await dependencies.notificationService.requestAuthorization()) == true
+        else {
+            return
+        }
+        try? await dependencies.notificationService.schedule(
+            ScheduledNotificationRequest(
+                identifier: "notification-schedule-verification",
+                title: String(localized: "Vittora Notification"),
+                body: String(localized: "Scheduled delivery verified."),
+                fireDate: .now.addingTimeInterval(delay),
+                category: .budgetAlert,
+                deepLink: VittoraNotificationDeepLink(destination: .budgets)
+            )
+        )
     }
 
     /// W5: AddExpenseIntent → same `openFromURL` path as widget / `vittora://add` links.

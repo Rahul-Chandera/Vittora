@@ -4,7 +4,6 @@ import VittoraCore
 struct ScheduleSelfDebtDueRemindersUseCase: Sendable {
     private static let notificationsEnabledKey = AppUserDefaults.StandardKey.notificationsEnabled
     private static let notifyBillsDueKey = AppUserDefaults.StandardKey.notifyBillsDue
-    static let leadDays = 3
 
     let debtRepository: any DebtRepository
     let payeeRepository: any PayeeRepository
@@ -39,7 +38,7 @@ struct ScheduleSelfDebtDueRemindersUseCase: Sendable {
                   let dueDate = debt.dueDate,
                   let fireDate = PaymentReminderDateCalculator.preNotificationFireDate(
                     occurrence: dueDate,
-                    leadDays: Self.leadDays,
+                    leadDays: billLeadDays,
                     calendar: calendar,
                     from: now
                   )
@@ -54,7 +53,7 @@ struct ScheduleSelfDebtDueRemindersUseCase: Sendable {
                     identifier: identifier,
                     title: String(localized: "Debt Payment Due Soon"),
                     body: String(
-                        localized: "You owe \(payeeName) \(Self.leadDays) days before the due date."
+                        localized: "You owe \(payeeName) \(billLeadDays) days before the due date."
                     ),
                     fireDate: fireDate,
                     category: .debt,
@@ -81,5 +80,9 @@ struct ScheduleSelfDebtDueRemindersUseCase: Sendable {
     private var isSelfDebtRemindersEnabled: Bool {
         userDefaults.bool(forKey: Self.notificationsEnabledKey)
             && (userDefaults.object(forKey: Self.notifyBillsDueKey) as? Bool ?? true)
+    }
+
+    private var billLeadDays: Int {
+        NotificationSchedulePreferences.billLeadDays(in: userDefaults)
     }
 }

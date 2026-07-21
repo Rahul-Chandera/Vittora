@@ -41,4 +41,10 @@ struct ApplyNotificationPreferencesUseCase: Sendable {
         guard userDefaults.bool(forKey: Self.notificationsEnabledKey) else { return }
         await refreshAllSchedules()
     }
+
+    func applySchedulingChange() async {
+        guard userDefaults.bool(forKey: Self.notificationsEnabledKey) else { return }
+        await notificationService.reschedulePending()
+        await refreshAllSchedules()
+    }
 }
