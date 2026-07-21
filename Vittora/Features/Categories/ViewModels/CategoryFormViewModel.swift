@@ -8,6 +8,7 @@ final class CategoryFormViewModel {
     var selectedIcon: String = "tag.fill"
     var selectedColorHex: String = "#007AFF"
     var selectedType: CategoryType = .expense
+    var selectedSpendingBucket: SpendingBucket = .wants
     var selectedParentID: UUID?
     var isEditing = false
     var editingID: UUID?
@@ -32,6 +33,7 @@ final class CategoryFormViewModel {
         selectedIcon = entity.icon
         selectedColorHex = entity.colorHex
         selectedType = entity.type
+        selectedSpendingBucket = entity.spendingBucket
         selectedParentID = entity.parentID
     }
 
@@ -44,6 +46,7 @@ final class CategoryFormViewModel {
                 icon: selectedIcon,
                 colorHex: selectedColorHex,
                 type: selectedType,
+                spendingBucket: selectedSpendingBucket,
                 isDefault: false,
                 sortOrder: 0,
                 parentID: selectedParentID
@@ -55,6 +58,7 @@ final class CategoryFormViewModel {
                 icon: selectedIcon,
                 colorHex: selectedColorHex,
                 type: selectedType,
+                spendingBucket: selectedSpendingBucket,
                 parentID: selectedParentID
             )
         }

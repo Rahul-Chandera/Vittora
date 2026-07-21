@@ -64,6 +64,10 @@ public actor DefaultDataSeeder: DataSeederProtocol {
                 icon: category.icon,
                 colorHex: category.color,
                 type: .expense,
+                spendingBucket: SpendingBucket.defaultBucket(
+                    categoryName: category.name,
+                    type: .expense
+                ),
                 isDefault: true,
                 sortOrder: index
             )

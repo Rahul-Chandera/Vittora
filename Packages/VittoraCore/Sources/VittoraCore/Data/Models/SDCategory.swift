@@ -10,6 +10,7 @@ public final class SDCategory {
     public var icon: String = ""
     public var colorHex: String = "#007AFF"
     public var typeRawValue: String = CategoryType.expense.rawValue
+    public var spendingBucketRawValue: String = SpendingBucket.wants.rawValue
     public var isDefault: Bool = false
     public var sortOrder: Int = 0
     public var parentID: UUID?
@@ -24,6 +25,7 @@ public final class SDCategory {
         icon: String,
         colorHex: String = "#007AFF",
         type: CategoryType = .expense,
+        spendingBucket: SpendingBucket = .wants,
         isDefault: Bool = false,
         sortOrder: Int = 0,
         parentID: UUID? = nil,
@@ -35,6 +37,7 @@ public final class SDCategory {
         self.icon = icon
         self.colorHex = colorHex
         self.typeRawValue = type.rawValue
+        self.spendingBucketRawValue = spendingBucket.rawValue
         self.isDefault = isDefault
         self.sortOrder = sortOrder
         self.parentID = parentID
@@ -45,5 +48,10 @@ public final class SDCategory {
     public var type: CategoryType {
         get { CategoryType(rawValue: typeRawValue) ?? .expense }
         set { typeRawValue = newValue.rawValue }
+    }
+
+    public var spendingBucket: SpendingBucket {
+        get { SpendingBucket(rawValue: spendingBucketRawValue) ?? .wants }
+        set { spendingBucketRawValue = newValue.rawValue }
     }
 }

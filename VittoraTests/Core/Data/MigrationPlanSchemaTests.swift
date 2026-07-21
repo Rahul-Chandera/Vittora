@@ -53,5 +53,8 @@ struct MigrationPlanSchemaTests {
             "SDAccount.statementDayOfMonth",
             "SDAccount.dueDayOfMonth",
         ])
+        #expect(added(VittoraSchemaV6.self, VittoraSchemaV7.self) == [
+            "SDCategory.spendingBucketRawValue",
+        ])
     }
 }

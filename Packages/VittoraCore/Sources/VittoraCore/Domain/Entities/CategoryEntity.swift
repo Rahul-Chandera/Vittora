@@ -4,12 +4,34 @@ public enum CategoryType: String, Sendable, Hashable, CaseIterable, Codable {
     case expense, income
 }
 
+public enum SpendingBucket: String, Sendable, Hashable, CaseIterable, Codable {
+    case needs, wants, savings
+
+    public var displayName: String {
+        switch self {
+        case .needs: String(localized: "Needs")
+        case .wants: String(localized: "Wants")
+        case .savings: String(localized: "Savings")
+        }
+    }
+
+    public nonisolated static func defaultBucket(
+        categoryName: String,
+        type: CategoryType
+    ) -> SpendingBucket {
+        guard type == .expense else { return .wants }
+        let needs = ["Rent", "Groceries", "Utilities", "Transport", "Health", "Insurance"]
+        return needs.contains(categoryName) ? .needs : .wants
+    }
+}
+
 public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
     public nonisolated let id: UUID
     public nonisolated var name: String
     public nonisolated var icon: String
     public nonisolated var colorHex: String
     public nonisolated var type: CategoryType
+    public nonisolated var spendingBucket: SpendingBucket
     public nonisolated var isDefault: Bool
     public nonisolated var sortOrder: Int
     public nonisolated var parentID: UUID?
@@ -22,6 +44,7 @@ public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
         icon: String,
         colorHex: String = "#007AFF",
         type: CategoryType = .expense,
+        spendingBucket: SpendingBucket = .wants,
         isDefault: Bool = false,
         sortOrder: Int = 0,
         parentID: UUID? = nil,
@@ -33,6 +56,7 @@ public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
         self.icon = icon
         self.colorHex = colorHex
         self.type = type
+        self.spendingBucket = spendingBucket
         self.isDefault = isDefault
         self.sortOrder = sortOrder
         self.parentID = parentID

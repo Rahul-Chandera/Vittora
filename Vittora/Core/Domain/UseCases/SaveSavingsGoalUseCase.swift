@@ -3,6 +3,7 @@ import VittoraCore
 
 struct SaveSavingsGoalUseCase: Sendable {
     let savingsGoalRepository: any SavingsGoalRepository
+    var transactionRepository: (any TransactionRepository)? = nil
 
     enum GoalError: LocalizedError {
         case nameTooShort
@@ -57,17 +58,32 @@ struct SaveSavingsGoalUseCase: Sendable {
     }
 
     func executeAddContribution(goalID: UUID, amount: Decimal) async throws -> SavingsGoalEntity {
-        guard var goal = try await savingsGoalRepository.fetchByID(goalID) else {
+        guard let originalGoal = try await savingsGoalRepository.fetchByID(goalID) else {
             throw VittoraError.notFound(String(localized: "Savings goal not found"))
         }
         guard amount > 0 else {
             throw GoalError.negativeCurrentAmount
         }
+        var goal = originalGoal
         goal.currentAmount += amount
         if goal.currentAmount >= goal.targetAmount {
             goal.status = .achieved
         }
         try await savingsGoalRepository.update(goal)
+        if let transactionRepository {
+            do {
+                try await transactionRepository.create(TransactionEntity(
+                    amount: amount,
+                    date: .now,
+                    note: String(localized: "Savings goal contribution"),
+                    type: .adjustment,
+                    tags: [FiftyThirtyTwentyReportUseCase.savingsContributionTag]
+                ))
+            } catch {
+                try? await savingsGoalRepository.update(originalGoal)
+                throw error
+            }
+        }
         return goal
     }
 

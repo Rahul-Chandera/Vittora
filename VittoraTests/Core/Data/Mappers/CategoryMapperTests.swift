@@ -15,6 +15,7 @@ struct CategoryMapperTests {
         let icon = "cart.fill"
         let colorHex = "#FF3B30"
         let type = CategoryType.expense
+        let spendingBucket = SpendingBucket.needs
         let isDefault = true
         let sortOrder = 3
         let parentID = UUID()
@@ -27,6 +28,7 @@ struct CategoryMapperTests {
             icon: icon,
             colorHex: colorHex,
             type: type,
+            spendingBucket: spendingBucket,
             isDefault: isDefault,
             sortOrder: sortOrder,
             parentID: parentID,
@@ -41,6 +43,7 @@ struct CategoryMapperTests {
         #expect(entity.icon == icon)
         #expect(entity.colorHex == colorHex)
         #expect(entity.type == type)
+        #expect(entity.spendingBucket == spendingBucket)
         #expect(entity.isDefault == isDefault)
         #expect(entity.sortOrder == sortOrder)
         #expect(entity.parentID == parentID)
@@ -70,6 +73,7 @@ struct CategoryMapperTests {
             icon: "car.fill",
             colorHex: "#34C759",
             type: .expense,
+            spendingBucket: .needs,
             isDefault: false,
             sortOrder: 5,
             parentID: parentID
@@ -83,6 +87,7 @@ struct CategoryMapperTests {
         #expect(model.icon == "car.fill")
         #expect(model.colorHex == "#34C759")
         #expect(model.type == .expense)
+        #expect(model.spendingBucket == .needs)
         #expect(model.isDefault == false)
         #expect(model.sortOrder == 5)
         #expect(model.parentID == parentID)

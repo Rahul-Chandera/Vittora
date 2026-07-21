@@ -7,6 +7,7 @@ struct ReportsHomeView: View {
     @State private var vm: ReportsHomeViewModel?
 
     private let reportCards: [(type: ReportType, title: String, subtitle: String, icon: String, color: Color)] = [
+        (.fiftyThirtyTwenty, String(localized: "50/30/20"), String(localized: "Compare needs, wants, and savings with the guideline"), "chart.bar.xaxis", VColors.savings),
         (.monthly, String(localized: "Monthly Overview"), String(localized: "Income vs expenses over 12 months"), "chart.bar.fill", VColors.primary),
         (.category, String(localized: "Category Breakdown"), String(localized: "Spending by category with percentages"), "chart.pie.fill", VColors.warning),
         (.trends, String(localized: "Spending Trends"), String(localized: "Daily, weekly, or monthly trend chart"), "chart.line.uptrend.xyaxis", VColors.savings),
@@ -128,6 +129,8 @@ struct ReportsHomeView: View {
     @ViewBuilder
     private func reportView(for type: ReportType) -> some View {
         switch type {
+        case .fiftyThirtyTwenty:
+            FiftyThirtyTwentyReportView()
         case .monthly:
             MonthlyOverviewView()
         case .category:

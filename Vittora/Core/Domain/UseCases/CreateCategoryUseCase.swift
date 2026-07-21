@@ -13,6 +13,7 @@ struct CreateCategoryUseCase: Sendable {
         icon: String,
         colorHex: String,
         type: CategoryType,
+        spendingBucket: SpendingBucket = .wants,
         parentID: UUID? = nil
     ) async throws {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
@@ -46,6 +47,7 @@ struct CreateCategoryUseCase: Sendable {
             icon: icon,
             colorHex: colorHex,
             type: type,
+            spendingBucket: spendingBucket,
             isDefault: false,
             sortOrder: sortOrder,
             parentID: parentID

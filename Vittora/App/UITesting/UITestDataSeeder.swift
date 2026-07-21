@@ -217,6 +217,14 @@ final class UITestDataSeeder {
             currentAmount: isIndia ? 12_500 : 1_800,
             colorHex: "#007AFF"
         ))
+        try await transactionRepository.create(TransactionEntity(
+            amount: isIndia ? 8_000 : 600,
+            date: monthDay(0, 12),
+            note: "Emergency Fund contribution",
+            type: .adjustment,
+            currencyCode: currency,
+            tags: [FiftyThirtyTwentyReportUseCase.savingsContributionTag]
+        ))
 
         try await debtRepository.create(DebtEntry(
             payeeID: friend.id,
@@ -224,6 +232,22 @@ final class UITestDataSeeder {
             settledAmount: isIndia ? 2_000 : 100,
             direction: .lent, note: "Concert tickets"
         ))
+        let borrowedDebt = DebtEntry(
+            payeeID: friend.id,
+            amount: isIndia ? 10_000 : 500,
+            direction: .borrowed,
+            note: "Moving costs"
+        )
+        try await debtRepository.create(borrowedDebt)
+        try await SettleDebtUseCase(
+            debtRepository: debtRepository,
+            accountRepository: accountRepository,
+            ledgerWriting: ledgerWriting
+        ).execute(
+            debtID: borrowedDebt.id,
+            settlementAmount: isIndia ? 4_000 : 200,
+            accountID: bank.id
+        )
 
         func daysAhead(_ days: Int) -> Date {
             Calendar.current.date(byAdding: .day, value: days, to: .now) ?? .now
