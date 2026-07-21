@@ -8,9 +8,12 @@ import VittoraCore
 @MainActor
 final class WatchSnapshotStore: NSObject {
     private(set) var snapshot: WatchSnapshot?
+    private(set) var pendingExpense: QueuedWatchExpense?
+    private(set) var isPhoneReachable = false
     private(set) var lastErrorMessage: String?
 
     private let fileURL: URL
+    private let pendingURL: URL
     private let session: WCSession
 
     init(
@@ -18,30 +21,38 @@ final class WatchSnapshotStore: NSObject {
         session: WCSession = .default
     ) {
         self.fileURL = fileURL
+        pendingURL = fileURL.deletingPathExtension().appendingPathExtension("pending")
         self.session = session
         super.init()
         snapshot = Self.loadCache(from: fileURL)
+        pendingExpense = Self.loadPending(from: pendingURL)
     }
 
     func activate() {
         guard WCSession.isSupported() else { return }
         session.delegate = self
         session.activate()
+        isPhoneReachable = session.isReachable
         applyReceivedContextIfPresent()
     }
 
-    func enqueueExpense(amount: Decimal, categoryID: UUID?) {
+    @discardableResult
+    func enqueueExpense(amount: Decimal, categoryID: UUID?) -> Bool {
         guard amount > 0 else {
             lastErrorMessage = String(localized: "Amount must be greater than zero")
-            return
+            return false
         }
         guard WCSession.isSupported() else {
             lastErrorMessage = String(localized: "Watch connectivity is unavailable.")
-            return
+            return false
         }
         let payload = QueuedWatchExpense(amount: amount, categoryID: categoryID)
+        pendingExpense = payload
+        try? payload.encodeForTransport().write(to: pendingURL, options: [.atomic])
         _ = session.transferUserInfo(payload.userInfoDictionary())
+        isPhoneReachable = session.isReachable
         lastErrorMessage = nil
+        return true
     }
 
     private func applyReceivedContextIfPresent() {
@@ -55,6 +66,7 @@ final class WatchSnapshotStore: NSObject {
             let decoded = try WatchSnapshot.decodeFromTransport(data)
             snapshot = decoded
             try Self.writeCache(decoded, to: fileURL)
+            clearPendingIfConfirmed(by: decoded)
             lastErrorMessage = nil
         } catch {
             lastErrorMessage = error.localizedDescription
@@ -77,6 +89,24 @@ final class WatchSnapshotStore: NSObject {
         let data = try snapshot.encodeForTransport()
         try data.write(to: url, options: [.atomic])
     }
+
+    private static func loadPending(from url: URL) -> QueuedWatchExpense? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return try? QueuedWatchExpense.decodeFromTransport(data)
+    }
+
+    private func clearPendingIfConfirmed(by snapshot: WatchSnapshot) {
+        guard let pendingExpense else { return }
+        let matchingTransaction = snapshot.recentTransactions.contains { transaction in
+            transaction.type == .expense
+                && transaction.amount == pendingExpense.amount
+                && transaction.categoryID == pendingExpense.categoryID
+                && transaction.date >= pendingExpense.createdAt.addingTimeInterval(-1)
+        }
+        guard matchingTransaction else { return }
+        self.pendingExpense = nil
+        try? FileManager.default.removeItem(at: pendingURL)
+    }
 }
 
 extension WatchSnapshotStore: WCSessionDelegate {
@@ -97,6 +127,13 @@ extension WatchSnapshotStore: WCSessionDelegate {
         guard let data = applicationContext[WatchConnectivityPayloadKey.snapshotData] as? Data else { return }
         Task { @MainActor in
             applySnapshotData(data)
+        }
+    }
+
+    nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
+        let isReachable = session.isReachable
+        Task { @MainActor in
+            isPhoneReachable = isReachable
         }
     }
 }

@@ -87,7 +87,7 @@ struct WatchBridgeAddTransactionWiringTests {
             ledgerWriting: ledger
         )
 
-        let amount = Decimal(string: "18.25") ?? 0
+        let amount = WatchExpenseAmount(crownSteps: 25).decimal
         var presented: String?
         let bridge = WatchBridgeService(
             session: StubWatchSession(),
@@ -126,6 +126,7 @@ struct WatchBridgeAddTransactionWiringTests {
         #expect(presented == nil)
         #expect(saved.count == 1)
         #expect(saved[0].amount == amount)
+        #expect(saved[0].amount == Decimal(string: "12.50"))
         #expect(saved[0].categoryID == category.id)
         #expect(saved[0].type == .expense)
     }
