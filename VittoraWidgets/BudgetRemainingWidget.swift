@@ -104,7 +104,21 @@ struct BudgetRemainingWidget: Widget {
 
 struct BudgetRemainingWidgetView: View {
     @Environment(\.widgetFamily) private var family
+    @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.showsWidgetContainerBackground) private var showsContainerBackground
     let entry: BudgetRemainingEntry
+
+    /// StandBy / distance layouts omit the standard container — bump amount size.
+    private var isStandByContext: Bool { !showsContainerBackground }
+
+    private var usesAccentedRendering: Bool { renderingMode == .accented }
+
+    private var remainingAmountFont: Font {
+        if isStandByContext && family == .systemSmall {
+            return WidgetTypography.amountStandBy
+        }
+        return WidgetTypography.amount
+    }
 
     var body: some View {
         Group {
@@ -141,14 +155,15 @@ struct BudgetRemainingWidgetView: View {
 
     private var smallContent: some View {
         HStack(spacing: 12) {
-            progressRing(size: 52, lineWidth: 6)
+            progressRing(size: isStandByContext ? 60 : 52, lineWidth: 6)
             VStack(alignment: .leading, spacing: 4) {
                 Text(String(localized: "Remaining"))
                     .font(WidgetTypography.caption)
                     .foregroundStyle(WidgetColors.textSecondary)
                 Text(formatted(entry.snapshot.remaining))
-                    .font(WidgetTypography.amount)
+                    .font(remainingAmountFont)
                     .foregroundStyle(remainingColor)
+                    .widgetAccentable(usesAccentedRendering)
                     .minimumScaleFactor(0.6)
                     .lineLimit(1)
             }
@@ -162,8 +177,9 @@ struct BudgetRemainingWidgetView: View {
             VStack(spacing: 8) {
                 progressRing(size: 64, lineWidth: 7)
                 Text(formatted(entry.snapshot.remaining))
-                    .font(WidgetTypography.caption)
+                    .font(isStandByContext ? WidgetTypography.amount : WidgetTypography.caption)
                     .foregroundStyle(remainingColor)
+                    .widgetAccentable(usesAccentedRendering)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
             }
@@ -184,15 +200,19 @@ struct BudgetRemainingWidgetView: View {
 
     private func progressRing(size: CGFloat, lineWidth: CGFloat) -> some View {
         let progress = min(max(entry.snapshot.progress, 0), 1)
+        let ringColor = usesAccentedRendering
+            ? WidgetColors.textPrimary
+            : WidgetColors.budgetStatus(progress: entry.snapshot.progress)
         return ZStack {
             Circle()
                 .stroke(WidgetColors.textSecondary.opacity(0.2), lineWidth: lineWidth)
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(
-                    WidgetColors.budgetStatus(progress: entry.snapshot.progress),
+                    ringColor,
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
+                .widgetAccentable(usesAccentedRendering)
                 .rotationEffect(.degrees(-90))
             Text("\(Int(min(entry.snapshot.progress * 100, 999)))%")
                 .font(WidgetTypography.caption2)
@@ -221,7 +241,12 @@ struct BudgetRemainingWidgetView: View {
                     Capsule()
                         .fill(WidgetColors.textSecondary.opacity(0.15))
                     Capsule()
-                        .fill(WidgetColors.hex(category.colorHex))
+                        .fill(
+                            usesAccentedRendering
+                                ? WidgetColors.textPrimary
+                                : WidgetColors.hex(category.colorHex)
+                        )
+                        .widgetAccentable(usesAccentedRendering)
                         .frame(width: geo.size.width * CGFloat(min(category.progress, 1)))
                 }
             }
@@ -230,7 +255,8 @@ struct BudgetRemainingWidgetView: View {
     }
 
     private var remainingColor: Color {
-        entry.snapshot.remaining < 0 ? WidgetColors.budgetDanger : WidgetColors.budgetSafe
+        if usesAccentedRendering { return WidgetColors.textPrimary }
+        return entry.snapshot.remaining < 0 ? WidgetColors.budgetDanger : WidgetColors.budgetSafe
     }
 
     private func formatted(_ amount: Decimal) -> String {

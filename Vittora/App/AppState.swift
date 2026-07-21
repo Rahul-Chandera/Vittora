@@ -36,8 +36,14 @@ final class AppState {
     /// Quick-add destination from `vittora://add?type=…` (W4). Survives App Lock —
     /// consumed after unlock when the main UI mounts.
     var pendingQuickAdd: QuickAddDeepLink.Destination?
+    /// Transaction detail from Spotlight / `vittora://transaction/<id>` (P2). Survives
+    /// App Lock like W4 — consumed after unlock when Transactions mounts.
+    var pendingTransactionDetailID: UUID?
     /// UI-test surface for W5 intent result verification (`--ui-test-show-spending-intent-result`).
     var uiTestIntentResultMessage: String?
+    /// Spotlight reindex hook (set by the app shell). Avoids Core Spotlight in unit tests.
+    @ObservationIgnored
+    var onTransactionsChangedForSpotlight: (() -> Void)?
     /// Typed global command requests (keyboard shortcuts, dashboard quick actions).
     private(set) var pendingCommand: AppCommandRequest?
 
@@ -106,6 +112,9 @@ final class AppState {
             WidgetCenter.shared.reloadAllTimelines()
         }
         #endif
+        if domain == .transactions {
+            onTransactionsChangedForSpotlight?()
+        }
     }
 
     func notifyChanged(_ domains: some Sequence<DataRefreshDomain>) {
@@ -143,8 +152,9 @@ final class AppState {
         }
     }
 
-    /// Routes `vittora://` URLs: quick-add (W4) or split-group (K3). Unknown/malformed
-    /// links are ignored so the app opens without crashing.
+    /// Routes `vittora://` URLs: quick-add (W4), transaction Spotlight (P2), or
+    /// split-group (K3). Unknown/malformed links are ignored so the app opens
+    /// without crashing.
     func openFromURL(_ url: URL) {
         if QuickAddDeepLink.isQuickAddURL(url) {
             if let destination = QuickAddDeepLink.destination(from: url) {
@@ -156,7 +166,24 @@ final class AppState {
             }
             return
         }
+        if TransactionSpotlightDeepLink.isTransactionURL(url) {
+            if let id = TransactionSpotlightDeepLink.transactionID(from: url) {
+                openFromSpotlight(transactionID: id)
+            }
+            return
+        }
         openSplitGroup(from: url)
+    }
+
+    /// Queues transaction detail navigation from a Spotlight tap (CSSearchableItem
+    /// or `vittora://transaction/…`). Survives App Lock — resolve after unlock.
+    func openFromSpotlight(transactionID: UUID) {
+        pendingTransactionDetailID = transactionID
+        selectedTab = .transactions
+    }
+
+    func clearPendingTransactionDetailID() {
+        pendingTransactionDetailID = nil
     }
 
     /// Routes to the Splits tab and queues a group detail navigation (K3 share-out).

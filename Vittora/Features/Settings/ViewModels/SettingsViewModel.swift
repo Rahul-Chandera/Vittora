@@ -140,6 +140,20 @@ final class SettingsViewModel {
         }
     }
 
+    /// Show transactions in system Search / Spotlight (default ON). Amounts are
+    /// visible outside App Lock by OS design — turning OFF clears the index.
+    var isSpotlightIndexingEnabled: Bool {
+        get {
+            access(keyPath: \.isSpotlightIndexingEnabled)
+            return TransactionSpotlightIndex.isIndexingEnabled()
+        }
+        set {
+            withMutation(keyPath: \.isSpotlightIndexingEnabled) {
+                TransactionSpotlightIndex.setIndexingEnabled(newValue)
+            }
+        }
+    }
+
     var appLockTimeout: AppLockTimeout {
         get {
             access(keyPath: \.appLockTimeout)

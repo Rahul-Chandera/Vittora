@@ -84,7 +84,25 @@ struct TodaySpendingWidget: Widget {
 
 struct TodaySpendingWidgetView: View {
     @Environment(\.widgetFamily) private var family
+    @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.showsWidgetContainerBackground) private var showsContainerBackground
     let entry: TodaySpendingEntry
+
+    /// StandBy / distance layouts omit the standard container — bump amount size.
+    private var isStandByContext: Bool { !showsContainerBackground }
+
+    private var usesAccentedRendering: Bool { renderingMode == .accented }
+
+    private var amountFont: Font {
+        if isStandByContext && family == .systemSmall {
+            return WidgetTypography.titleStandBy
+        }
+        return WidgetTypography.title
+    }
+
+    private var amountColor: Color {
+        usesAccentedRendering ? WidgetColors.textPrimary : WidgetColors.expense
+    }
 
     var body: some View {
         Group {
@@ -104,8 +122,9 @@ struct TodaySpendingWidgetView: View {
                 .font(WidgetTypography.caption)
                 .foregroundStyle(WidgetColors.textSecondary)
             Text(formatted(entry.snapshot.todayAmount))
-                .font(WidgetTypography.title)
-                .foregroundStyle(WidgetColors.expense)
+                .font(amountFont)
+                .foregroundStyle(amountColor)
+                .widgetAccentable(usesAccentedRendering)
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
             trendLabel
@@ -122,8 +141,9 @@ struct TodaySpendingWidgetView: View {
                     .font(WidgetTypography.caption)
                     .foregroundStyle(WidgetColors.textSecondary)
                 Text(formatted(entry.snapshot.todayAmount))
-                    .font(WidgetTypography.title)
-                    .foregroundStyle(WidgetColors.expense)
+                    .font(isStandByContext ? WidgetTypography.titleStandBy : WidgetTypography.title)
+                    .foregroundStyle(amountColor)
+                    .widgetAccentable(usesAccentedRendering)
                     .minimumScaleFactor(0.6)
                     .lineLimit(1)
                 trendLabel
@@ -158,7 +178,11 @@ struct TodaySpendingWidgetView: View {
                 Text(String(format: "%.0f%%", abs(percent)))
                     .font(WidgetTypography.caption2)
             }
-            .foregroundStyle(flat ? WidgetColors.textSecondary : (up ? WidgetColors.expense : WidgetColors.income))
+            .foregroundStyle(
+                usesAccentedRendering
+                    ? WidgetColors.textSecondary
+                    : (flat ? WidgetColors.textSecondary : (up ? WidgetColors.expense : WidgetColors.income))
+            )
         }
     }
 
@@ -168,8 +192,14 @@ struct TodaySpendingWidgetView: View {
         return HStack(alignment: .bottom, spacing: 4) {
             ForEach(Array(amounts.enumerated()), id: \.offset) { index, amount in
                 let height = sparkHeight(amount: amount, maxAmount: maxAmount)
+                let isToday = index == amounts.count - 1
                 Capsule()
-                    .fill(index == amounts.count - 1 ? WidgetColors.expense : WidgetColors.primary.opacity(0.45))
+                    .fill(
+                        usesAccentedRendering
+                            ? (isToday ? WidgetColors.textPrimary : WidgetColors.textSecondary.opacity(0.45))
+                            : (isToday ? WidgetColors.expense : WidgetColors.primary.opacity(0.45))
+                    )
+                    .widgetAccentable(usesAccentedRendering && isToday)
                     .frame(maxWidth: .infinity)
                     .frame(height: height)
             }
