@@ -105,7 +105,9 @@ struct ScheduledNotificationRequest: Sendable, Equatable, Identifiable {
 }
 
 extension ScheduledNotificationRequest {
-    func makeUNRequest() -> UNNotificationRequest {
+    static let originalFireDateKey = "vittora.originalFireDate"
+
+    func makeUNRequest(adjustedFireDate: Date? = nil) -> UNNotificationRequest {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -113,10 +115,18 @@ extension ScheduledNotificationRequest {
         for (key, value) in deepLink.userInfoValues() {
             content.userInfo[key] = value
         }
+        content.userInfo[Self.originalFireDateKey] = fireDate.timeIntervalSince1970
 
-        let interval = max(1, fireDate.timeIntervalSinceNow)
+        let interval = max(1, (adjustedFireDate ?? fireDate).timeIntervalSinceNow)
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false)
         return UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+    }
+
+    static func originalFireDate(from notificationRequest: UNNotificationRequest) -> Date? {
+        guard let timestamp = notificationRequest.content.userInfo[originalFireDateKey] as? TimeInterval else {
+            return nil
+        }
+        return Date(timeIntervalSince1970: timestamp)
     }
 
     init?(notificationRequest: UNNotificationRequest) {
