@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import OSLog
+import CoreSpotlight
 import VittoraCore
 
 @main
@@ -23,6 +24,7 @@ struct VittoraApp: App {
     #if os(iOS)
     @State private var watchBridge: WatchBridgeService?
     #endif
+    @State private var spotlightCoordinator: TransactionSpotlightCoordinator?
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
 
@@ -110,6 +112,14 @@ struct VittoraApp: App {
                     )
                 }
         )
+        let spotlight: TransactionSpotlightCoordinator? = isRunningAutomatedTests
+            ? nil
+            : TransactionSpotlightCoordinator(
+                transactionRepository: dependencyContainer.transactionRepository,
+                payeeRepository: dependencyContainer.payeeRepository,
+                categoryRepository: dependencyContainer.categoryRepository
+            )
+        _spotlightCoordinator = State(initialValue: spotlight)
         _appState = State(
             initialValue: AppState(
                 isAuthenticated: isUITesting,
@@ -209,6 +219,7 @@ struct VittoraApp: App {
                         #if os(iOS)
                         activateWatchBridgeIfNeeded()
                         #endif
+                        registerSpotlightSyncHook()
                         await performStartupTasksIfNeeded()
                         #if os(iOS)
                         // Seed (and other startup writes) finish after activate; push once more
@@ -220,6 +231,11 @@ struct VittoraApp: App {
                     }
                     .onOpenURL { url in
                         appState.openFromURL(url)
+                    }
+                    .onContinueUserActivity(CSSearchableItemActionType) { activity in
+                        if let id = TransactionSpotlightIndex.transactionID(fromUserActivity: activity) {
+                            appState.openFromSpotlight(transactionID: id)
+                        }
                     }
                     .alert(
                         String(localized: "Today's Spending"),
@@ -453,17 +469,38 @@ struct VittoraApp: App {
     }
     #endif
 
-    private func openUITestURLIfNeeded() {
-        let prefix = "--ui-test-quick-add="
-        guard let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }) else {
-            return
+    /// P2: keep Spotlight in sync with transaction mutations (batch, background).
+    private func registerSpotlightSyncHook() {
+        guard let spotlightCoordinator else { return }
+        appState.onTransactionsChangedForSpotlight = { [spotlightCoordinator] in
+            spotlightCoordinator.scheduleSync()
         }
-        let type = String(raw.dropFirst(prefix.count)).lowercased()
-        guard let destination = QuickAddDeepLink.Destination(rawValue: type) else { return }
-        // Defer until navigation shells have attached command handlers.
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(400))
-            appState.openFromURL(QuickAddDeepLink.url(for: destination))
+        // First launch after Spotlight update does a full domain replace.
+        spotlightCoordinator.scheduleSync(forceFullReindex: TransactionSpotlightIndex.needsFullReindex())
+    }
+
+    private func openUITestURLIfNeeded() {
+        let quickAddPrefix = "--ui-test-quick-add="
+        if let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(quickAddPrefix) }) {
+            let type = String(raw.dropFirst(quickAddPrefix.count)).lowercased()
+            if let destination = QuickAddDeepLink.Destination(rawValue: type) {
+                // Defer until navigation shells have attached command handlers.
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(400))
+                    appState.openFromURL(QuickAddDeepLink.url(for: destination))
+                }
+            }
+        }
+
+        let transactionPrefix = "--ui-test-open-transaction="
+        if let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(transactionPrefix) }) {
+            let idString = String(raw.dropFirst(transactionPrefix.count))
+            if let id = UUID(uuidString: idString) {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(400))
+                    appState.openFromURL(TransactionSpotlightDeepLink.url(for: id))
+                }
+            }
         }
     }
 

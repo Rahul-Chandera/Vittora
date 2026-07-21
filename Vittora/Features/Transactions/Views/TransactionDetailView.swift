@@ -216,6 +216,7 @@ struct TransactionDetailView: View {
                 .padding(VSpacing.lg)
             }
         }
+        .accessibilityIdentifier("transaction-detail-root")
         .errorAlert(message: transactionDetailErrorBinding)
         .task {
             if vm == nil {

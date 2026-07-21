@@ -203,6 +203,57 @@ struct SecuritySettingsView: View {
     }
 }
 
+// MARK: - Search Privacy (Spotlight)
+
+struct PrivacySearchSettingsView: View {
+    @Bindable var vm: SettingsViewModel
+    @Environment(\.dependencies) private var dependencies
+    @State private var isUpdatingIndex = false
+
+    private var spotlightBinding: Binding<Bool> {
+        Binding(
+            get: { vm.isSpotlightIndexingEnabled },
+            set: { newValue in
+                Task { await applySpotlightToggle(enabled: newValue) }
+            }
+        )
+    }
+
+    var body: some View {
+        Form {
+            Section {
+                Toggle(String(localized: "Show transactions in Search"), isOn: spotlightBinding)
+                    .disabled(isUpdatingIndex)
+                    .accessibilityIdentifier("settings-spotlight-indexing-toggle")
+            } footer: {
+                Text(String(localized: "When on, recent transactions appear in Spotlight and system Search. Amounts can be visible without unlocking Vittora. Turning this off removes them from Search immediately."))
+                    .foregroundStyle(VColors.textSecondary)
+            }
+        }
+        .navigationTitle(String(localized: "Search Privacy"))
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+    }
+
+    private func applySpotlightToggle(enabled: Bool) async {
+        isUpdatingIndex = true
+        defer { isUpdatingIndex = false }
+        vm.isSpotlightIndexingEnabled = enabled
+        if enabled {
+            UserDefaults.standard.set(true, forKey: TransactionSpotlightIndex.needsFullReindexKey)
+            let coordinator = TransactionSpotlightCoordinator(
+                transactionRepository: dependencies.transactionRepository,
+                payeeRepository: dependencies.payeeRepository,
+                categoryRepository: dependencies.categoryRepository
+            )
+            await coordinator.syncNow(forceFullReindex: true)
+        } else {
+            await TransactionSpotlightIndex.deleteAllIndexedTransactions()
+        }
+    }
+}
+
 // MARK: - Sync Settings
 
 struct SyncSettingsView: View {

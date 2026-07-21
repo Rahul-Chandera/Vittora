@@ -7,15 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1459CCAE375044EDA72035F2 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = A8F5003D38B14A1DB173235D /* VittoraCore */; };
 		B7735C152FF2BFEF000CABD6 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = D72FE9022F8B93AA00B6FF9D /* VittoraCore */; };
 		B7735C162FF2BFEF000CABD6 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = D72FE9032F8B93AA00B6FF9D /* VittoraCore */; };
-		1459CCAE375044EDA72035F2 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = A8F5003D38B14A1DB173235D /* VittoraCore */; };
 		E9A1B2C3D4E5F60718293A4B /* VittoraWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F101A001A2B30000000007 /* VittoraWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = F101A001A2B30000000001 /* VittoraWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F101A001A2B30000000008 /* VittoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = F101A001A2B30000000009 /* VittoraCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		38F25EE5E27B4D328420BD71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B72FE7DE2F8B92F900B6FF9D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 011F8C4246E3434AA504D0DF;
+			remoteInfo = VittoraWidgets;
+		};
 		B72FE7F82F8B92FA00B6FF9D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B72FE7DE2F8B92F900B6FF9D /* Project object */;
@@ -30,13 +37,6 @@
 			remoteGlobalIDString = B72FE7E52F8B92F900B6FF9D;
 			remoteInfo = Vittora;
 		};
-		38F25EE5E27B4D328420BD71 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B72FE7DE2F8B92F900B6FF9D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 011F8C4246E3434AA504D0DF;
-			remoteInfo = VittoraWidgets;
-		};
 		F101A001A2B3000000000C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B72FE7DE2F8B92F900B6FF9D /* Project object */;
@@ -45,117 +45,6 @@
 			remoteInfo = VittoraWatch;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXFileReference section */
-		B72FE7E62F8B92F900B6FF9D /* Vittora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vittora.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B72FE7F72F8B92FA00B6FF9D /* VittoraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VittoraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B72FE8012F8B92FA00B6FF9D /* VittoraUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VittoraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VittoraWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		F101A001A2B30000000001 /* VittoraWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VittoraWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-/* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		B72FE8092F8B92FA00B6FF9D /* Exceptions for "Vittora" folder in "Vittora" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = B72FE7E52F8B92F900B6FF9D /* Vittora */;
-		};
-		5F5905F888CB461D8CC97BF9 /* Exceptions for "VittoraWidgets" folder in "VittoraWidgets" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 011F8C4246E3434AA504D0DF /* VittoraWidgets */;
-		};
-		F101A001A2B3000000000B /* Exceptions for "VittoraWatch" folder in "VittoraWatch" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = F101A001A2B30000000002 /* VittoraWatch */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		B72FE7E82F8B92F900B6FF9D /* Vittora */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				B72FE8092F8B92FA00B6FF9D /* Exceptions for "Vittora" folder in "Vittora" target */,
-			);
-			path = Vittora;
-			sourceTree = "<group>";
-		};
-		B72FE7FA2F8B92FA00B6FF9D /* VittoraTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = VittoraTests;
-			sourceTree = "<group>";
-		};
-		B72FE8042F8B92FA00B6FF9D /* VittoraUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = VittoraUITests;
-			sourceTree = "<group>";
-		};
-		ABE20936CD32497384B7F9CC /* VittoraWidgets */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				5F5905F888CB461D8CC97BF9 /* Exceptions for "VittoraWidgets" folder in "VittoraWidgets" target */,
-			);
-			path = VittoraWidgets;
-			sourceTree = "<group>";
-		};
-		F101A001A2B3000000000A /* VittoraWatch */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				F101A001A2B3000000000B /* Exceptions for "VittoraWatch" folder in "VittoraWatch" target */,
-			);
-			path = VittoraWatch;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		B72FE7E32F8B92F900B6FF9D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B7735C152FF2BFEF000CABD6 /* VittoraCore in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B72FE7F42F8B92FA00B6FF9D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B7735C162FF2BFEF000CABD6 /* VittoraCore in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B72FE7FE2F8B92FA00B6FF9D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		45935FE375B74CFCB6695D9B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1459CCAE375044EDA72035F2 /* VittoraCore in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F101A001A2B30000000004 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F101A001A2B30000000008 /* VittoraCore in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		F7781BDABC6D45CEBA23A801 /* Embed Foundation Extensions */ = {
@@ -181,6 +70,117 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		B72FE7E62F8B92F900B6FF9D /* Vittora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vittora.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B72FE7F72F8B92FA00B6FF9D /* VittoraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VittoraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B72FE8012F8B92FA00B6FF9D /* VittoraUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VittoraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VittoraWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F101A001A2B30000000001 /* VittoraWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VittoraWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5F5905F888CB461D8CC97BF9 /* Exceptions for "VittoraWidgets" folder in "VittoraWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 011F8C4246E3434AA504D0DF /* VittoraWidgets */;
+		};
+		B72FE8092F8B92FA00B6FF9D /* Exceptions for "Vittora" folder in "Vittora" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B72FE7E52F8B92F900B6FF9D /* Vittora */;
+		};
+		F101A001A2B3000000000B /* Exceptions for "VittoraWatch" folder in "VittoraWatch" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F101A001A2B30000000002 /* VittoraWatch */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		ABE20936CD32497384B7F9CC /* VittoraWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5F5905F888CB461D8CC97BF9 /* Exceptions for "VittoraWidgets" folder in "VittoraWidgets" target */,
+			);
+			path = VittoraWidgets;
+			sourceTree = "<group>";
+		};
+		B72FE7E82F8B92F900B6FF9D /* Vittora */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B72FE8092F8B92FA00B6FF9D /* Exceptions for "Vittora" folder in "Vittora" target */,
+			);
+			path = Vittora;
+			sourceTree = "<group>";
+		};
+		B72FE7FA2F8B92FA00B6FF9D /* VittoraTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = VittoraTests;
+			sourceTree = "<group>";
+		};
+		B72FE8042F8B92FA00B6FF9D /* VittoraUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = VittoraUITests;
+			sourceTree = "<group>";
+		};
+		F101A001A2B3000000000A /* VittoraWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F101A001A2B3000000000B /* Exceptions for "VittoraWatch" folder in "VittoraWatch" target */,
+			);
+			path = VittoraWatch;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		45935FE375B74CFCB6695D9B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1459CCAE375044EDA72035F2 /* VittoraCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B72FE7E32F8B92F900B6FF9D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B7735C152FF2BFEF000CABD6 /* VittoraCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B72FE7F42F8B92FA00B6FF9D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B7735C162FF2BFEF000CABD6 /* VittoraCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B72FE7FE2F8B92FA00B6FF9D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F101A001A2B30000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F101A001A2B30000000008 /* VittoraCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		B72FE7DD2F8B92F900B6FF9D = {
@@ -210,6 +210,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		011F8C4246E3434AA504D0DF /* VittoraWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A23204D6149F427989EA5AE7 /* Build configuration list for PBXNativeTarget "VittoraWidgets" */;
+			buildPhases = (
+				4BD9317EB0DE4EB3A1CD2C78 /* Sources */,
+				45935FE375B74CFCB6695D9B /* Frameworks */,
+				8A6CA9175A2149E8B0FBF1E6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				ABE20936CD32497384B7F9CC /* VittoraWidgets */,
+			);
+			name = VittoraWidgets;
+			packageProductDependencies = (
+				A8F5003D38B14A1DB173235D /* VittoraCore */,
+			);
+			productName = VittoraWidgets;
+			productReference = CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		B72FE7E52F8B92F900B6FF9D /* Vittora */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B72FE80A2F8B92FA00B6FF9D /* Build configuration list for PBXNativeTarget "Vittora" */;
@@ -284,29 +307,6 @@
 			productReference = B72FE8012F8B92FA00B6FF9D /* VittoraUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		011F8C4246E3434AA504D0DF /* VittoraWidgets */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A23204D6149F427989EA5AE7 /* Build configuration list for PBXNativeTarget "VittoraWidgets" */;
-			buildPhases = (
-				4BD9317EB0DE4EB3A1CD2C78 /* Sources */,
-				45935FE375B74CFCB6695D9B /* Frameworks */,
-				8A6CA9175A2149E8B0FBF1E6 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				ABE20936CD32497384B7F9CC /* VittoraWidgets */,
-			);
-			name = VittoraWidgets;
-			packageProductDependencies = (
-				A8F5003D38B14A1DB173235D /* VittoraCore */,
-			);
-			productName = VittoraWidgets;
-			productReference = CD6C9E6E8EB24E8296EE10C8 /* VittoraWidgets.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		F101A001A2B30000000002 /* VittoraWatch */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F101A001A2B3000000000E /* Build configuration list for PBXNativeTarget "VittoraWatch" */;
@@ -340,6 +340,9 @@
 				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
+					011F8C4246E3434AA504D0DF = {
+						CreatedOnToolsVersion = 26.4;
+					};
 					B72FE7E52F8B92F900B6FF9D = {
 						CreatedOnToolsVersion = 26.4;
 					};
@@ -350,9 +353,6 @@
 					B72FE8002F8B92FA00B6FF9D = {
 						CreatedOnToolsVersion = 26.4;
 						TestTargetID = B72FE7E52F8B92F900B6FF9D;
-					};
-					011F8C4246E3434AA504D0DF = {
-						CreatedOnToolsVersion = 26.4;
 					};
 					F101A001A2B30000000002 = {
 						CreatedOnToolsVersion = 26.4;
@@ -386,6 +386,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		8A6CA9175A2149E8B0FBF1E6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B72FE7E42F8B92F900B6FF9D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -407,13 +414,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		8A6CA9175A2149E8B0FBF1E6 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F101A001A2B30000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -424,6 +424,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4BD9317EB0DE4EB3A1CD2C78 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B72FE7E22F8B92F900B6FF9D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -445,13 +452,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4BD9317EB0DE4EB3A1CD2C78 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F101A001A2B30000000003 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -462,6 +462,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		56FEB248FB4249B1A724F407 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = 011F8C4246E3434AA504D0DF /* VittoraWidgets */;
+			targetProxy = 38F25EE5E27B4D328420BD71 /* PBXContainerItemProxy */;
+		};
 		B72FE7F92F8B92FA00B6FF9D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B72FE7E52F8B92F900B6FF9D /* Vittora */;
@@ -472,12 +478,6 @@
 			target = B72FE7E52F8B92F900B6FF9D /* Vittora */;
 			targetProxy = B72FE8022F8B92FA00B6FF9D /* PBXContainerItemProxy */;
 		};
-		56FEB248FB4249B1A724F407 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			platformFilter = ios;
-			target = 011F8C4246E3434AA504D0DF /* VittoraWidgets */;
-			targetProxy = 38F25EE5E27B4D328420BD71 /* PBXContainerItemProxy */;
-		};
 		F101A001A2B3000000000D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			platformFilter = ios;
@@ -487,6 +487,41 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		86ADF786299C4464848D2A2D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = VittoraWidgets/VittoraWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = 5467B6PB2R;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VittoraWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Vittora;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.vittora.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		B72FE80B2F8B92FA00B6FF9D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -495,7 +530,7 @@
 				CODE_SIGN_ENTITLEMENTS = Vittora/Vittora.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Vittora/Vittora-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5467B6PB2R;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -520,7 +555,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.vittora;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -545,7 +580,7 @@
 				CODE_SIGN_ENTITLEMENTS = Vittora/Vittora.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Vittora/Vittora-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5467B6PB2R;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -570,7 +605,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.vittora;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -708,12 +743,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5467B6PB2R;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.VittoraTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -735,12 +770,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5467B6PB2R;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.VittoraTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -761,12 +796,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5467B6PB2R;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.VittoraUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -787,12 +822,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5467B6PB2R;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.VittoraUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -809,13 +844,12 @@
 			};
 			name = Release;
 		};
-
 		FA2EEA77C919451890F924E0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = VittoraWidgets/VittoraWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5467B6PB2R;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VittoraWidgets/Info.plist;
@@ -827,7 +861,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.vittora.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -844,41 +878,6 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
-		};
-		86ADF786299C4464848D2A2D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = VittoraWidgets/VittoraWidgets.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = 5467B6PB2R;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = VittoraWidgets/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Vittora;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.enerjiktech.vittora.widgets;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				REGISTER_APP_GROUPS = YES;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
 		};
 		F101A001A2B3000000000F /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -953,6 +952,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A23204D6149F427989EA5AE7 /* Build configuration list for PBXNativeTarget "VittoraWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA2EEA77C919451890F924E0 /* Debug */,
+				86ADF786299C4464848D2A2D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B72FE7E12F8B92F900B6FF9D /* Build configuration list for PBXProject "Vittora" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -989,16 +997,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-
-		A23204D6149F427989EA5AE7 /* Build configuration list for PBXNativeTarget "VittoraWidgets" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				FA2EEA77C919451890F924E0 /* Debug */,
-				86ADF786299C4464848D2A2D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		F101A001A2B3000000000E /* Build configuration list for PBXNativeTarget "VittoraWatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1018,17 +1016,17 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A8F5003D38B14A1DB173235D /* VittoraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "Packages/VittoraCore" */;
+			productName = VittoraCore;
+		};
 		D72FE9022F8B93AA00B6FF9D /* VittoraCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "Packages/VittoraCore" */;
 			productName = VittoraCore;
 		};
 		D72FE9032F8B93AA00B6FF9D /* VittoraCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "Packages/VittoraCore" */;
-			productName = VittoraCore;
-		};
-		A8F5003D38B14A1DB173235D /* VittoraCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D72FE9012F8B93AA00B6FF9D /* XCLocalSwiftPackageReference "Packages/VittoraCore" */;
 			productName = VittoraCore;

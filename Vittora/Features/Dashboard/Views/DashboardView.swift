@@ -238,9 +238,11 @@ struct DashboardView: View {
                         Image(systemName: "chevron.right")
                             .font(.caption2)
                             .foregroundColor(VColors.primary)
+                            .accessibilityHidden(true)
                     }
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(String(localized: "Manage budgets"))
                 .accessibilityHint(String(localized: "Opens the Budgets tab"))
             }
 
@@ -269,15 +271,19 @@ struct DashboardView: View {
 
                         RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
                             .fill(progressColor(progress))
-                            .frame(width: geometry.size.width * CGFloat(progress), height: 8)
+                            .frame(width: geometry.size.width * CGFloat(min(progress, 1.0)), height: 8)
                             .animation(reduceMotion ? .none : .easeOut(duration: VSpacing.animationStandard), value: progress)
                     }
                 }
                 .frame(height: 8)
+                .accessibilityHidden(true)
             }
             .padding(VSpacing.md)
             .background(VColors.secondaryBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(String(localized: "Budget overall progress"))
+            .accessibilityValue(String(localized: "\(Int(min(progress * 100, 999))) percent"))
         }
     }
 

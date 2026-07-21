@@ -26,12 +26,15 @@ struct AccountsSummaryScroll: View {
                         Image(systemName: "chevron.right")
                             .font(.caption2)
                             .foregroundColor(VColors.primary)
+                            .accessibilityHidden(true)
                     }
                 }
             }
             .buttonStyle(.plain)
             .disabled(onManage == nil)
             .accessibilityIdentifier("dashboard-accounts-manage")
+            .accessibilityLabel(String(localized: "Manage accounts"))
+            .accessibilityHint(String(localized: "Opens the accounts list"))
 
             if accounts.isEmpty {
                 VStack(spacing: VSpacing.sm) {
@@ -78,11 +81,12 @@ private struct AccountMiniCard: View {
             VStack(alignment: .leading, spacing: VSpacing.sm) {
                 HStack(spacing: VSpacing.sm) {
                     Image(systemName: account.icon)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(VTypography.caption1Bold)
                         .foregroundColor(VColors.primary)
                         .frame(width: 28, height: 28)
                         .background(VColors.primary.opacity(0.12))
                         .clipShape(Circle())
+                        .accessibilityHidden(true)
 
                     Text(account.name)
                         .font(VTypography.caption1Bold)
@@ -93,8 +97,7 @@ private struct AccountMiniCard: View {
                 Text(formattedBalance(account.balance))
                     .font(VTypography.amountSmall)
                     .foregroundColor(account.type.isAsset ? VColors.textPrimary : VColors.expense)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
+                    .amountScaling()
 
                 Text(account.type.displayName)
                     .font(VTypography.caption2)

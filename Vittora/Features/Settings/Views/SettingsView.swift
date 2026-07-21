@@ -103,6 +103,13 @@ struct SettingsView: View {
                                 value: vm.isAppLockEnabled ? String(localized: "On") : String(localized: "Off"))
                 }
                 NavigationLink {
+                    PrivacySearchSettingsView(vm: vm)
+                } label: {
+                    SettingsRow(icon: "magnifyingglass", iconColor: .cyan,
+                                title: String(localized: "Search Privacy"),
+                                value: vm.isSpotlightIndexingEnabled ? String(localized: "On") : String(localized: "Off"))
+                }
+                NavigationLink {
                     SecurityAuditLogView()
                 } label: {
                     SettingsRow(icon: "list.bullet.rectangle", iconColor: .gray,

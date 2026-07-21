@@ -49,6 +49,12 @@ struct TransactionListView: View {
             guard vm != nil, appState.refreshVersion(for: .transactions) > 0 else { return }
             await vm?.loadTransactions()
         }
+        .task(id: appState.pendingTransactionDetailID) {
+            guard let id = appState.pendingTransactionDetailID else { return }
+            navigateDestination = .transactionDetail(id: id)
+            selectedTransactionID = id
+            appState.clearPendingTransactionDetailID()
+        }
         .navigationDestination(item: $navigateDestination) { dest in
             NavigationDestinationView(destination: dest)
         }

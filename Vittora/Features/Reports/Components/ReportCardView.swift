@@ -10,11 +10,12 @@ struct ReportCardView: View {
     var body: some View {
         HStack(spacing: VSpacing.md) {
             Image(systemName: icon)
-                .font(.system(size: 24, weight: .semibold))
+                .font(VTypography.title3)
                 .foregroundColor(color)
                 .frame(width: 48, height: 48)
                 .background(color.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD))
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
                 Text(title)
@@ -24,7 +25,7 @@ struct ReportCardView: View {
                 Text(subtitle)
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
-                    .lineLimit(2)
+                    .adaptiveLineLimit(2)
             }
 
             Spacer()

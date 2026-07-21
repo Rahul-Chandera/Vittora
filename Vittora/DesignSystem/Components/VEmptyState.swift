@@ -30,7 +30,7 @@ struct VEmptyState: View {
 
             VStack(spacing: VSpacing.md) {
                 Image(systemName: iconName)
-                    .font(.system(size: 56, weight: .light))
+                    .font(VTypography.largeTitle)
                     .foregroundColor(VColors.textTertiary)
                     .padding(VSpacing.lg)
                     .background(VColors.tertiaryBackground)

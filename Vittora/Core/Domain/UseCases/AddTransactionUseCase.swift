@@ -19,6 +19,7 @@ struct AddTransactionUseCase: Sendable {
     }
 
     func execute(
+        id: UUID = UUID(),
         amount: Decimal,
         type: TransactionType,
         date: Date,
@@ -53,6 +54,7 @@ struct AddTransactionUseCase: Sendable {
 
         // Create transaction entity
         let transaction = TransactionEntity(
+            id: id,
             amount: amount,
             date: date,
             note: note,
