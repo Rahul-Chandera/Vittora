@@ -9,9 +9,11 @@ import AppKit
 
 enum VColors {
     // Primary brand
-    static let primary = Color("VPrimary")
-    static let primaryLight = Color("VPrimaryLight")
-    static let primaryDark = Color("VPrimaryDark")
+    static var primary: Color {
+        accent(currentAccent)
+    }
+    static var primaryLight: Color { accent(currentAccent) }
+    static var primaryDark: Color { accent(currentAccent) }
 
     // Semantic
     static let income = Color("VIncome")
@@ -22,18 +24,34 @@ enum VColors {
 
     // Surfaces - use platform-adaptive colors
     #if os(macOS)
-    static let background = Color(nsColor: .windowBackgroundColor)
+    static var background: Color {
+        isOLEDBlack ? .black : Color(nsColor: .windowBackgroundColor)
+    }
     // Cards must contrast with the white detail area the way iOS's
     // secondarySystemBackground contrasts with systemBackground —
     // controlBackgroundColor is white-on-white and made every card invisible.
-    static let secondaryBackground = Color(nsColor: .quaternarySystemFill)
-    static let tertiaryBackground = Color(nsColor: .textBackgroundColor)
-    static let groupedBackground = Color(nsColor: .windowBackgroundColor)
+    static var secondaryBackground: Color {
+        isOLEDBlack ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(nsColor: .quaternarySystemFill)
+    }
+    static var tertiaryBackground: Color {
+        isOLEDBlack ? Color(red: 0.16, green: 0.16, blue: 0.17) : Color(nsColor: .textBackgroundColor)
+    }
+    static var groupedBackground: Color {
+        isOLEDBlack ? .black : Color(nsColor: .windowBackgroundColor)
+    }
     #else
-    static let background = Color(uiColor: .systemBackground)
-    static let secondaryBackground = Color(uiColor: .secondarySystemBackground)
-    static let tertiaryBackground = Color(uiColor: .tertiarySystemBackground)
-    static let groupedBackground = Color(uiColor: .systemGroupedBackground)
+    static var background: Color {
+        isOLEDBlack ? .black : Color(uiColor: .systemBackground)
+    }
+    static var secondaryBackground: Color {
+        isOLEDBlack ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(uiColor: .secondarySystemBackground)
+    }
+    static var tertiaryBackground: Color {
+        isOLEDBlack ? Color(red: 0.16, green: 0.16, blue: 0.17) : Color(uiColor: .tertiarySystemBackground)
+    }
+    static var groupedBackground: Color {
+        isOLEDBlack ? .black : Color(uiColor: .systemGroupedBackground)
+    }
     #endif
 
     // Text — WCAG AA (≥4.5:1) on systemBackground and secondarySystemBackground.
@@ -82,4 +100,33 @@ enum VColors {
         Color(red: 0.10, green: 0.45, blue: 0.40), // mint
         Color(red: 0.45, green: 0.30, blue: 0.15)  // brown
     ]
+
+    static func accent(
+        _ accent: SettingsViewModel.AccentColor,
+        for _: ColorScheme
+    ) -> Color {
+        return self.accent(accent)
+    }
+
+    static func accent(_ accent: SettingsViewModel.AccentColor) -> Color {
+        // These fixed values clear 4.5:1 against both white and OLED black,
+        // so UIKit/AppKit dynamic providers are unnecessary and Sendable-safe.
+        switch accent {
+        case .brandGreen: return Color(red: 0.00, green: 0.525490, blue: 0.403922) // #008667
+        case .blue:       return Color(red: 0.227451, green: 0.462745, blue: 0.784314) // #3A76C8
+        case .purple:     return Color(red: 0.556863, green: 0.360784, blue: 0.784314) // #8E5CC8
+        case .orange:     return Color(red: 0.725490, green: 0.356863, blue: 0.00) // #B95B00
+        }
+    }
+
+    private static var currentAccent: SettingsViewModel.AccentColor {
+        SettingsViewModel.AccentColor(
+            rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.accentColor) ?? ""
+        ) ?? .brandGreen
+    }
+
+    private static var isOLEDBlack: Bool {
+        UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.appearanceMode)
+            == SettingsViewModel.AppearanceMode.oledBlack.rawValue
+    }
 }

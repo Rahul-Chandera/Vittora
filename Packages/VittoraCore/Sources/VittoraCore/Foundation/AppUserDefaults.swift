@@ -12,6 +12,7 @@ public enum AppUserDefaults {
     public enum StandardKey {
         public nonisolated static let currencyCode = "vittora.currencyCode"
         public nonisolated static let appearanceMode = "vittora.appearanceMode"
+        public nonisolated static let accentColor = "vittora.accentColor"
         public nonisolated static let notificationsEnabled = "vittora.notificationsEnabled"
         public nonisolated static let notifyBillsDue = "vittora.notifyBillsDue"
         public nonisolated static let notifyBudgetAlerts = "vittora.notifyBudgetAlerts"
@@ -84,6 +85,16 @@ public enum AppUserDefaults {
         let key = StandardKey.currencyCode
         if let code = UserDefaults.standard.string(forKey: key) {
             appGroup.set(code, forKey: key)
+        }
+    }
+
+    /// Mirrors the app accent into the App Group suite without moving `.standard` storage.
+    public nonisolated static func mirrorAccentColorToAppGroup() {
+        let key = StandardKey.accentColor
+        if let accent = UserDefaults.standard.string(forKey: key) {
+            appGroup.set(accent, forKey: key)
+        } else {
+            appGroup.removeObject(forKey: key)
         }
     }
 
