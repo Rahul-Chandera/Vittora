@@ -47,12 +47,12 @@ struct SubscriptionSummaryViewModelTests {
         let rule1 = RecurringRuleEntity(
             frequency: .monthly,
             nextDate: Date(),
-            templateAmount: 9.99
+            templateAmount: Decimal(string: "9.99")!
         )
         let rule2 = RecurringRuleEntity(
             frequency: .monthly,
             nextDate: Date(),
-            templateAmount: 14.99
+            templateAmount: Decimal(string: "14.99")!
         )
         await repo.seed(rule1)
         await repo.seed(rule2)
@@ -69,7 +69,7 @@ struct SubscriptionSummaryViewModelTests {
         let rule = RecurringRuleEntity(
             frequency: .monthly,
             nextDate: Date(),
-            templateAmount: 9.99
+            templateAmount: Decimal(string: "9.99")!
         )
         await repo.seed(rule)
 

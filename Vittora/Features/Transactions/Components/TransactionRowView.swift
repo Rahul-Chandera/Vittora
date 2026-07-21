@@ -69,13 +69,13 @@ struct TransactionRowView: View {
             ZStack {
                 Circle()
                     .fill(
-                        Color(hex: category?.colorHex ?? "#007AFF") ?? .blue
+                        (Color(hex: category?.colorHex ?? "#007AFF") ?? .blue).opacity(0.15)
                     )
                     .frame(width: categoryIconSize, height: categoryIconSize)
 
                 Image(systemName: category?.icon ?? "circle")
                     .font(.body)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(hex: category?.colorHex ?? "#007AFF") ?? .blue)
             }
             .accessibilityHidden(true)
 
@@ -111,7 +111,6 @@ struct TransactionRowView: View {
                 Text(typeLabel)
                     .font(VTypography.caption2)
                     .foregroundColor(amountColor)
-                    .opacity(0.7)
             }
         }
         .padding(VSpacing.md)

@@ -1,7 +1,8 @@
 import CoreGraphics
 import SwiftUI
 
-/// Renders a SwiftUI report layout to a temporary PDF file for ShareLink export (K4).
+/// Renders a SwiftUI report layout to a temporary PDF file for ShareLink export.
+/// Prefer `ReportPDFRenderer` for paginated A4 monthly/annual reports (R1).
 @MainActor
 enum ReportPDFExporter {
     enum ExportError: LocalizedError {

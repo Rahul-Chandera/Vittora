@@ -116,6 +116,7 @@ public final class DataManagementService: Sendable {
         switch scope {
         case .transactions:
             try await deleteAll(from: transactionRepository)
+            await clearSpotlightAfterTransactionDeletion()
         case .budgets:
             try await deleteAll(from: budgetRepository)
         case .debts:
@@ -147,6 +148,7 @@ public final class DataManagementService: Sendable {
                 try await taxProfileRepository.delete()
             }
             // Keep accounts and categories in clear-all mode for structural retention.
+            await clearSpotlightAfterTransactionDeletion()
         }
     }
 
@@ -178,11 +180,19 @@ public final class DataManagementService: Sendable {
         try await keychainService.delete(forKey: "com.vittora.encryption.key")
         try await keychainService.delete(forKey: "com.vittora.encryption.key.se_wrapped")
 
+        AppLockSessionMirror.clearAll()
+        AppUserDefaults.appGroup.removeObject(forKey: QuickAddDeepLink.pendingIntentDestinationKey)
+
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
         AppUserDefaults.sync.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.categorizationRules)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.transactionEditHistory)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.savedTransactionFilters)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled)
+        UserDefaults.standard.removeObject(forKey: TransactionSpotlightIndex.needsFullReindexKey)
+
+        // Financial amounts must not outlive the ledger in Spotlight.
+        await TransactionSpotlightIndex.deleteAllIndexedTransactions()
 
         if alsoDestroyOnDiskStore {
             try ModelContainerConfig.destroyPersistentStore()
@@ -236,6 +246,13 @@ public final class DataManagementService: Sendable {
             for document in documents {
                 try await documentRepository.delete(document.id)
             }
+        }
+    }
+
+    private func clearSpotlightAfterTransactionDeletion() async {
+        await TransactionSpotlightIndex.deleteAllIndexedTransactions()
+        if TransactionSpotlightIndex.isIndexingEnabled() {
+            UserDefaults.standard.set(true, forKey: TransactionSpotlightIndex.needsFullReindexKey)
         }
     }
 }

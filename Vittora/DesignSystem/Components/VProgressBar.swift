@@ -46,7 +46,7 @@ struct VProgressBar: View {
                         HStack {
                             Spacer()
                             Image(systemName: progress > 1.0 ? "exclamationmark.circle.fill" : "exclamationmark.triangle.fill")
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(VTypography.caption1Bold)
                                 .foregroundColor(statusColor)
                                 .padding(.horizontal, VSpacing.xs)
                                 .accessibilityLabel(progress > 1.0

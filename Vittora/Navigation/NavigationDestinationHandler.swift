@@ -63,7 +63,9 @@ struct NavigationDestinationView: View {
         case .custom:    CustomReportView()
         case .annual:    AnnualReportView()
         case .cashFlow:  CashFlowReportView()
+        case .cashFlowForecast: CashFlowForecastReportView()
         case .netWorth:  NetWorthReportView()
+        case .subscriptionAudit: SubscriptionAuditReportView()
         }
     }
 

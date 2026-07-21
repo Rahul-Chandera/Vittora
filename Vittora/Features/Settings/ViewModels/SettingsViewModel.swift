@@ -1,6 +1,9 @@
 import Foundation
 import SwiftUI
 import VittoraCore
+#if os(iOS)
+import WidgetKit
+#endif
 
 @Observable
 @MainActor
@@ -17,6 +20,11 @@ final class SettingsViewModel {
         set {
             withMutation(keyPath: \.selectedCurrencyCode) {
                 UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.currencyCode)
+                // Mirror for widget/extension processes (do not move primary storage).
+                AppUserDefaults.mirrorCurrencyCodeToAppGroup()
+                #if os(iOS)
+                WidgetCenter.shared.reloadAllTimelines()
+                #endif
             }
         }
     }
@@ -128,6 +136,20 @@ final class SettingsViewModel {
         set {
             withMutation(keyPath: \.isCloudSyncEnabled) {
                 UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.cloudSyncEnabled)
+            }
+        }
+    }
+
+    /// Show transactions in system Search / Spotlight (default ON). Amounts are
+    /// visible outside App Lock by OS design — turning OFF clears the index.
+    var isSpotlightIndexingEnabled: Bool {
+        get {
+            access(keyPath: \.isSpotlightIndexingEnabled)
+            return TransactionSpotlightIndex.isIndexingEnabled()
+        }
+        set {
+            withMutation(keyPath: \.isSpotlightIndexingEnabled) {
+                TransactionSpotlightIndex.setIndexingEnabled(newValue)
             }
         }
     }

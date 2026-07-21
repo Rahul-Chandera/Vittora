@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import OSLog
+import CoreSpotlight
 import VittoraCore
 
 @main
@@ -20,6 +21,7 @@ struct VittoraApp: App {
     @State private var syncService: SyncStatusService
     @State private var syncConflictHandler: SyncConflictHandler
     @State private var cloudKitSyncMonitor: CloudKitSyncMonitor?
+    @State private var spotlightCoordinator: TransactionSpotlightCoordinator?
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
 
@@ -57,6 +59,15 @@ struct VittoraApp: App {
                 region == "IN" ? "INR" : "USD",
                 forKey: AppUserDefaults.StandardKey.currencyCode
             )
+        }
+
+        // Keep the App Group currency mirror current for widget extensions.
+        AppUserDefaults.mirrorCurrencyCodeToAppGroup()
+
+        // Keychain + App Group App Lock state survives relaunch; UI tests must
+        // declare unlocked vs locked rather than inheriting the previous case.
+        if launchArguments.contains("--ui-test-reset-app-lock") {
+            Self.resetAppLockUITestState()
         }
 
         if exercisesAppLockPolicy {
@@ -98,6 +109,14 @@ struct VittoraApp: App {
                     )
                 }
         )
+        let spotlight: TransactionSpotlightCoordinator? = isRunningAutomatedTests
+            ? nil
+            : TransactionSpotlightCoordinator(
+                transactionRepository: dependencyContainer.transactionRepository,
+                payeeRepository: dependencyContainer.payeeRepository,
+                categoryRepository: dependencyContainer.categoryRepository
+            )
+        _spotlightCoordinator = State(initialValue: spotlight)
         _appState = State(
             initialValue: AppState(
                 isAuthenticated: isUITesting,
@@ -120,6 +139,14 @@ struct VittoraApp: App {
             BackgroundTaskScheduler.register(coordinator: recurringGenerationCoordinator)
         }
         #endif
+    }
+
+    /// Clears persisted App Lock intent + policy mirrors for UI-test isolation.
+    private static func resetAppLockUITestState() {
+        KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockTimeout)
+        AppLockSessionMirror.clearAll()
     }
 
     private static func initialOnboardingCompletionState(
@@ -185,10 +212,32 @@ struct VittoraApp: App {
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
                     .task {
+                        registerQuickAddIntentHandler()
+                        registerSpotlightSyncHook()
                         await performStartupTasksIfNeeded()
+                        openUITestURLIfNeeded()
+                        await showSpendingIntentResultIfNeeded()
                     }
                     .onOpenURL { url in
-                        appState.openSplitGroup(from: url)
+                        appState.openFromURL(url)
+                    }
+                    .onContinueUserActivity(CSSearchableItemActionType) { activity in
+                        if let id = TransactionSpotlightIndex.transactionID(fromUserActivity: activity) {
+                            appState.openFromSpotlight(transactionID: id)
+                        }
+                    }
+                    .alert(
+                        String(localized: "Today's Spending"),
+                        isPresented: Binding(
+                            get: { appState.uiTestIntentResultMessage != nil },
+                            set: { if !$0 { appState.uiTestIntentResultMessage = nil } }
+                        )
+                    ) {
+                        Button(String(localized: "OK"), role: .cancel) {
+                            appState.uiTestIntentResultMessage = nil
+                        }
+                    } message: {
+                        Text(appState.uiTestIntentResultMessage ?? "")
                     }
             } else {
                 StartupFailureView(
@@ -236,11 +285,11 @@ struct VittoraApp: App {
             case .inactive:
                 // UI-test harness: home press often stops at .inactive on Simulator.
                 if exercisesAppLockPolicy, settingsVM.isAppLockEnabled {
-                    dependencies.appLockService.recordBackgrounded(at: .now)
+                    recordAppLockBackgrounded()
                 }
             case .background:
                 if settingsVM.isAppLockEnabled {
-                    dependencies.appLockService.recordBackgrounded(at: .now)
+                    recordAppLockBackgrounded()
                 }
             case .active:
                 applyAppLockPolicyOnBecomeActive()
@@ -288,6 +337,16 @@ struct VittoraApp: App {
         return KeyEquivalent(Character(scalar))
     }
 
+    /// Persists background stamp + timeout into the App Group so Siri/intents
+    /// apply the same `AppLockPolicy.shouldLock` rule as become-active.
+    private func recordAppLockBackgrounded(at date: Date = .now) {
+        dependencies.appLockService.recordBackgrounded(at: date)
+        AppLockSessionMirror.mirrorBackgrounded(
+            at: date,
+            timeout: settingsVM.appLockTimeout.timeInterval
+        )
+    }
+
     /// Re-lock only when background duration meets the configured timeout (B1).
     private func applyAppLockPolicyOnBecomeActive() {
         guard settingsVM.isAppLockEnabled else {
@@ -315,6 +374,75 @@ struct VittoraApp: App {
             appState.openFromNotification(deepLink)
         }
         await dependencies.notificationService.registerCategories()
+    }
+
+    /// W5: AddExpenseIntent → same `openFromURL` path as widget / `vittora://add` links.
+    private func registerQuickAddIntentHandler() {
+        QuickAddDeepLink.registerOpenHandler { [appState] destination in
+            appState.openFromURL(QuickAddDeepLink.url(for: destination))
+        }
+    }
+
+    /// P2: keep Spotlight in sync with transaction mutations (batch, background).
+    private func registerSpotlightSyncHook() {
+        guard let spotlightCoordinator else { return }
+        appState.onTransactionsChangedForSpotlight = { [spotlightCoordinator] in
+            spotlightCoordinator.scheduleSync()
+        }
+        // First launch after Spotlight update does a full domain replace.
+        spotlightCoordinator.scheduleSync(forceFullReindex: TransactionSpotlightIndex.needsFullReindex())
+    }
+
+    private func openUITestURLIfNeeded() {
+        let quickAddPrefix = "--ui-test-quick-add="
+        if let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(quickAddPrefix) }) {
+            let type = String(raw.dropFirst(quickAddPrefix.count)).lowercased()
+            if let destination = QuickAddDeepLink.Destination(rawValue: type) {
+                // Defer until navigation shells have attached command handlers.
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(400))
+                    appState.openFromURL(QuickAddDeepLink.url(for: destination))
+                }
+            }
+        }
+
+        let transactionPrefix = "--ui-test-open-transaction="
+        if let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(transactionPrefix) }) {
+            let idString = String(raw.dropFirst(transactionPrefix.count))
+            if let id = UUID(uuidString: idString) {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(400))
+                    appState.openFromURL(TransactionSpotlightDeepLink.url(for: id))
+                }
+            }
+        }
+    }
+
+    /// Runs `TodaySpendingQuery` (same path as GetTodaySpendingIntent) for screenshot verification.
+    private func showSpendingIntentResultIfNeeded() async {
+        guard ProcessInfo.processInfo.arguments.contains("--ui-test-show-spending-intent-result") else {
+            return
+        }
+        // Mirror locked session when exercising App Lock so the gate matches Shortcuts.
+        if exercisesAppLockPolicy {
+            AppLockSessionMirror.mirrorFromAppState(
+                isAppLockEnabled: true,
+                isLocked: true,
+                isAuthenticated: false,
+                timeout: AppLockTimeout.immediately.timeInterval
+            )
+        }
+        // UI tests use an in-memory host store; the App Group on-disk store may be
+        // absent. Prefer the test container so unlocked queries still return a summary.
+        let message: String
+        if isUITesting, let modelContainer {
+            message = await TodaySpendingQuery.run(
+                provider: WidgetDataProvider(container: modelContainer)
+            )
+        } else {
+            message = await TodaySpendingQuery.run()
+        }
+        appState.uiTestIntentResultMessage = message
     }
 
     private func performStartupTasksIfNeeded() async {

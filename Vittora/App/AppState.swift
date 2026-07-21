@@ -1,5 +1,8 @@
 import SwiftUI
 import VittoraCore
+#if os(iOS)
+import WidgetKit
+#endif
 
 @Observable
 @MainActor
@@ -30,6 +33,17 @@ final class AppState {
     var pendingNotificationDeepLink: VittoraNotificationDeepLink?
     /// Split group to open from a shared `vittora://splits/group/…` link (K3).
     var pendingSplitGroupID: UUID?
+    /// Quick-add destination from `vittora://add?type=…` (W4). Survives App Lock —
+    /// consumed after unlock when the main UI mounts.
+    var pendingQuickAdd: QuickAddDeepLink.Destination?
+    /// Transaction detail from Spotlight / `vittora://transaction/<id>` (P2). Survives
+    /// App Lock like W4 — consumed after unlock when Transactions mounts.
+    var pendingTransactionDetailID: UUID?
+    /// UI-test surface for W5 intent result verification (`--ui-test-show-spending-intent-result`).
+    var uiTestIntentResultMessage: String?
+    /// Spotlight reindex hook (set by the app shell). Avoids Core Spotlight in unit tests.
+    @ObservationIgnored
+    var onTransactionsChangedForSpotlight: (() -> Void)?
     /// Typed global command requests (keyboard shortcuts, dashboard quick actions).
     private(set) var pendingCommand: AppCommandRequest?
 
@@ -93,6 +107,14 @@ final class AppState {
         case .splits: splitsRefreshVersion &+= 1
         case .savings: savingsRefreshVersion &+= 1
         }
+        #if os(iOS)
+        if domain == .transactions || domain == .budgets {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+        #endif
+        if domain == .transactions {
+            onTransactionsChangedForSpotlight?()
+        }
     }
 
     func notifyChanged(_ domains: some Sequence<DataRefreshDomain>) {
@@ -130,6 +152,40 @@ final class AppState {
         }
     }
 
+    /// Routes `vittora://` URLs: quick-add (W4), transaction Spotlight (P2), or
+    /// split-group (K3). Unknown/malformed links are ignored so the app opens
+    /// without crashing.
+    func openFromURL(_ url: URL) {
+        if QuickAddDeepLink.isQuickAddURL(url) {
+            if let destination = QuickAddDeepLink.destination(from: url) {
+                pendingQuickAdd = destination
+                selectedTab = .dashboard
+                // Also enqueue a command so already-mounted shells present immediately
+                // (pending alone is for App Lock / cold start before AppTabView exists).
+                request(.presentQuickAdd(destination))
+            }
+            return
+        }
+        if TransactionSpotlightDeepLink.isTransactionURL(url) {
+            if let id = TransactionSpotlightDeepLink.transactionID(from: url) {
+                openFromSpotlight(transactionID: id)
+            }
+            return
+        }
+        openSplitGroup(from: url)
+    }
+
+    /// Queues transaction detail navigation from a Spotlight tap (CSSearchableItem
+    /// or `vittora://transaction/…`). Survives App Lock — resolve after unlock.
+    func openFromSpotlight(transactionID: UUID) {
+        pendingTransactionDetailID = transactionID
+        selectedTab = .transactions
+    }
+
+    func clearPendingTransactionDetailID() {
+        pendingTransactionDetailID = nil
+    }
+
     /// Routes to the Splits tab and queues a group detail navigation (K3 share-out).
     func openSplitGroup(from url: URL) {
         guard let groupID = SplitGroupDeepLink.groupID(from: url) else { return }
@@ -139,6 +195,10 @@ final class AppState {
 
     func clearPendingSplitGroupID() {
         pendingSplitGroupID = nil
+    }
+
+    func clearPendingQuickAdd() {
+        pendingQuickAdd = nil
     }
 
     enum AppTab: String, CaseIterable, Identifiable, Sendable {

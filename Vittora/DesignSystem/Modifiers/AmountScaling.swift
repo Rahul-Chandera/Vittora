@@ -1,10 +1,10 @@
 import SwiftUI
 
 extension View {
-    /// Keep a currency amount on a single line, shrinking to fit its container
-    /// instead of wrapping. Large values (e.g. ₹3,11,000) otherwise wrap and
-    /// break the height alignment of side-by-side summary cards.
+    /// Keep a currency amount on a single line at standard sizes, shrinking to fit.
+    /// At accessibility Dynamic Type sizes, allow wrapping instead of shrinking
+    /// (prefer readable type over compressed glyphs).
     func amountScaling(_ minimumScale: CGFloat = 0.5) -> some View {
-        self.lineLimit(1).minimumScaleFactor(minimumScale)
+        self.adaptiveLineLimit(1).adaptiveMinimumScaleFactor(minimumScale)
     }
 }

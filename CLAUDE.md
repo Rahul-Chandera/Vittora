@@ -17,6 +17,9 @@ Use `AGENTS.md` as the canonical version.
 - Do not use force unwraps in production code.
 - Keep third-party dependencies out unless explicitly requested.
 - Preserve offline-first behavior and secure handling of financial data.
+- Never build a `Decimal` money value from a float literal (`15.49`); use
+  `Decimal(string: "15.49")!` or integer literals. Float literals go via `Double`,
+  break exact equality, and fold differently on CI than locally.
 - Add targeted tests for tax/sync/security/deletion changes.
 
 ## Fast Command Surface
@@ -31,7 +34,7 @@ Use `AGENTS.md` as the canonical version.
 
 ## CI (Epic L1)
 
-GitHub Actions **CI / build-and-test** on push/PR to `refactoring` and `develop`: `make build-ios`, `make build-macos`, `make test`. See `.github/BRANCH_PROTECTION.md`.
+GitHub Actions **CI / build-and-test** on push/PR to `develop`, `staging`, and `main` (flow: develop → staging for QA → main for release): `make build-ios`, `make build-macos`, `make test`. See `.github/BRANCH_PROTECTION.md`.
 
 ## Architecture/Runbook Docs
 
