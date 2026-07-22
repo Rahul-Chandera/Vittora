@@ -107,15 +107,17 @@ struct ContactSupportView: View {
             }
 
             Section {
-                Link(destination: DiagnosticPayload.supportURL) {
-                    SettingsRow(
-                        icon: "questionmark.circle.fill",
-                        iconColor: .blue,
-                        title: String(localized: "FAQ & Troubleshooting"),
-                        value: ""
-                    )
+                if let supportURL = DiagnosticPayload.supportURL {
+                    Link(destination: supportURL) {
+                        SettingsRow(
+                            icon: "questionmark.circle.fill",
+                            iconColor: .blue,
+                            title: String(localized: "FAQ & Troubleshooting"),
+                            value: ""
+                        )
+                    }
+                    .accessibilityIdentifier("contact-support-faq")
                 }
-                .accessibilityIdentifier("contact-support-faq")
             }
 
             Section {

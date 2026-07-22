@@ -71,8 +71,7 @@ public struct DiagnosticSnapshot: Sendable, Equatable {
 
 public enum DiagnosticPayload {
     public static let supportEmail = "support@vittora.app"
-    public static let supportURL = URL(string: "https://www.vittora.app/support")
-        ?? URL(fileURLWithPath: "/")
+    public static let supportURL: URL? = URL(string: "https://www.vittora.app/support")
 
     /// Renders the exact text the user reviews before sending via their mail composer.
     public static func render(_ snapshot: DiagnosticSnapshot) -> String {
