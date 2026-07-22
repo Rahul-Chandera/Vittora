@@ -31,6 +31,27 @@ public enum WidgetAccessibilityLabels {
         return String(localized: "Budget remaining, \(amountText), \(percent)% used")
     }
 
+    /// Combined label for surfaces that show both today's spend and budget left.
+    public static func todaySpendingAndBudgetRemaining(
+        todayAmount: Decimal,
+        remainingAmount: Decimal,
+        progress: Double,
+        currencyCode: String
+    ) -> String {
+        [
+            todaySpending(
+                amount: todayAmount,
+                changePercentVsYesterday: nil,
+                currencyCode: currencyCode
+            ),
+            budgetRemaining(
+                amount: remainingAmount,
+                progress: progress,
+                currencyCode: currencyCode
+            ),
+        ].joined(separator: ". ")
+    }
+
     // Never accept formatted values here: these labels remain safe when the
     // corresponding privacySensitive widget content is redacted while locked.
     public static let lockScreenBudget = String(localized: "Budget progress, values hidden while locked")

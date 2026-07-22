@@ -86,6 +86,7 @@ struct VittoraWatchComplication: Widget {
 
 private struct WatchComplicationView: View {
     @Environment(\.widgetFamily) private var family
+    @Environment(\.redactionReasons) private var redactionReasons
     let entry: WatchComplicationEntry
 
     var body: some View {
@@ -140,7 +141,19 @@ private struct WatchComplicationView: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(WidgetAccessibilityLabels.watchComplication)
+        .accessibilityLabel(accessibilityLabel(for: snapshot))
+    }
+
+    private func accessibilityLabel(for snapshot: WatchSnapshot) -> String {
+        if redactionReasons.contains(.privacy) {
+            return WidgetAccessibilityLabels.watchComplication
+        }
+        return WidgetAccessibilityLabels.todaySpendingAndBudgetRemaining(
+            todayAmount: snapshot.todaySpend,
+            remainingAmount: snapshot.budgetRemaining,
+            progress: budgetProgress(snapshot),
+            currencyCode: snapshot.currencyCode
+        )
     }
 
     @ViewBuilder
