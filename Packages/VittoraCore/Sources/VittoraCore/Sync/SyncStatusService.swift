@@ -160,6 +160,11 @@ public final class SyncStatusService: Sendable {
 
     public func markError(_ message: String) {
         syncState = .error(message)
+        // Code path only — never the sync message (may mention account/CloudKit detail).
+        RecentErrorLogStore.shared.record(
+            errorType: "SyncError",
+            codePath: "SyncStatusService.markError"
+        )
     }
 
     // MARK: - Formatted last sync

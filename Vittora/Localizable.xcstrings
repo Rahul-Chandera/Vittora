@@ -1,6 +1,186 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Contact Support" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सपोर्ट से संपर्क करें"
+          }
+        }
+      }
+    },
+    "FAQ & Troubleshooting" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FAQ और समस्या निवारण"
+          }
+        }
+      }
+    },
+    "This is everything that will be included." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भेजने से पहले यही सब शामिल होगा।"
+          }
+        }
+      }
+    },
+    "Diagnostic Summary" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डायग्नोस्टिक सारांश"
+          }
+        }
+      }
+    },
+    "Send Email" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ईमेल भेजें"
+          }
+        }
+      }
+    },
+    "Copy Diagnostics" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डायग्नोस्टिक्स कॉपी करें"
+          }
+        }
+      }
+    },
+    "Clear Recent Errors" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हाल की त्रुटियाँ साफ़ करें"
+          }
+        }
+      }
+    },
+    "Nothing is sent automatically. Email goes through your own mail app, which you can edit or cancel." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कुछ भी अपने आप नहीं भेजा जाता। ईमेल आपके अपने मेल ऐप से जाता है, जिसे आप संपादित या रद्द कर सकते हैं।"
+          }
+        }
+      }
+    },
+    "Describe your issue in email. A diagnostic summary is included so we can help — you can edit or remove it before sending." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ईमेल में अपनी समस्या लिखें। मदद के लिए एक डायग्नोस्टिक सारांश शामिल है — भेजने से पहले आप इसे संपादित या हटा सकते हैं।"
+          }
+        }
+      }
+    },
+    "Loading diagnostics" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डायग्नोस्टिक्स लोड हो रहे हैं"
+          }
+        }
+      }
+    },
+    "Diagnostic summary" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डायग्नोस्टिक सारांश"
+          }
+        }
+      }
+    },
+    "Copied" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कॉपी हो गया"
+          }
+        }
+      }
+    },
+    "Diagnostics copied to the clipboard." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डायग्नोस्टिक्स क्लिपबोर्ड पर कॉपी हो गए।"
+          }
+        }
+      }
+    },
+    "Mail Not Configured" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मेल कॉन्फ़िगर नहीं है"
+          }
+        }
+      }
+    },
+    "No mail account is set up on this device. Copy the diagnostics and email %@ from another app." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर कोई मेल अकाउंट सेट नहीं है। डायग्नोस्टिक्स कॉपी करें और किसी अन्य ऐप से %@ पर ईमेल करें।"
+          }
+        }
+      }
+    },
+    "Recent Errors Cleared" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हाल की त्रुटियाँ साफ़ हो गईं"
+          }
+        }
+      }
+    },
+    "Vittora Support" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora सपोर्ट"
+          }
+        }
+      }
+    },
+    "Please describe what happened:" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कृपया बताएँ क्या हुआ:"
+          }
+        }
+      }
+    },
     "" : {
       "localizations" : {
         "hi" : {
