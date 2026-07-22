@@ -4,6 +4,9 @@ import VittoraCore
 
 struct LockScreenAccessoryEntry: TimelineEntry {
     let date: Date
+    let todaySpent: Decimal
+    let budgetRemaining: Decimal
+    let currencyCode: String
     let todaySpentText: String
     let budgetRemainingText: String
     let budgetUsedFraction: Double
@@ -11,10 +14,16 @@ struct LockScreenAccessoryEntry: TimelineEntry {
     let hasBudget: Bool
 
     static var placeholder: LockScreenAccessoryEntry {
-        LockScreenAccessoryEntry(
+        let currencyCode = "USD"
+        let todaySpent = Decimal(string: "42.00") ?? 42
+        let budgetRemaining = Decimal(string: "250.00") ?? 250
+        return LockScreenAccessoryEntry(
             date: .now,
-            todaySpentText: "$42.00",
-            budgetRemainingText: "$250.00",
+            todaySpent: todaySpent,
+            budgetRemaining: budgetRemaining,
+            currencyCode: currencyCode,
+            todaySpentText: todaySpent.formatted(.currency(code: currencyCode)),
+            budgetRemainingText: budgetRemaining.formatted(.currency(code: currencyCode)),
             budgetUsedFraction: 0.75,
             budgetUsedPercentText: "75%",
             hasBudget: true
@@ -23,8 +32,12 @@ struct LockScreenAccessoryEntry: TimelineEntry {
 
     static var empty: LockScreenAccessoryEntry {
         let dash = String(localized: "—")
+        let currencyCode = Locale.current.currency?.identifier ?? "USD"
         return LockScreenAccessoryEntry(
             date: .now,
+            todaySpent: 0,
+            budgetRemaining: 0,
+            currencyCode: currencyCode,
             todaySpentText: dash,
             budgetRemainingText: dash,
             budgetUsedFraction: 0,
@@ -75,6 +88,9 @@ struct LockScreenAccessoryTimelineProvider: TimelineProvider {
 
             return LockScreenAccessoryEntry(
                 date: .now,
+                todaySpent: spending.amount,
+                budgetRemaining: remaining,
+                currencyCode: spending.currencyCode,
                 todaySpentText: spentText,
                 budgetRemainingText: remainingText,
                 budgetUsedFraction: fraction,
@@ -121,6 +137,7 @@ struct LockScreenAccessoryWidget: Widget {
 
 struct LockScreenAccessoryWidgetView: View {
     @Environment(\.widgetFamily) private var family
+    @Environment(\.redactionReasons) private var redactionReasons
     let entry: LockScreenAccessoryEntry
 
     var body: some View {
@@ -137,7 +154,11 @@ struct LockScreenAccessoryWidgetView: View {
         }
     }
 
-    /// Budget progress ring; label is privacy-sensitive.
+    private var isPrivacyRedacted: Bool {
+        redactionReasons.contains(.privacy)
+    }
+
+    /// Budget progress ring; label follows privacy redaction.
     private var circularContent: some View {
         Gauge(value: entry.budgetUsedFraction) {
             Text(String(localized: "Budget"))
@@ -146,7 +167,8 @@ struct LockScreenAccessoryWidgetView: View {
                 .privacySensitive()
         }
         .gaugeStyle(.accessoryCircularCapacity)
-        .accessibilityLabel(String(localized: "Budget used \(entry.budgetUsedPercentText)"))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(circularAccessibilityLabel)
     }
 
     /// Today's spent + remaining, two lines.
@@ -170,11 +192,46 @@ struct LockScreenAccessoryWidgetView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(spendingAccessibilityLabel)
     }
 
     private var inlineContent: some View {
         Text(String(localized: "Spent \(entry.todaySpentText) today"))
             .privacySensitive()
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(spendingAccessibilityLabel)
+    }
+
+    private var circularAccessibilityLabel: String {
+        if isPrivacyRedacted {
+            return WidgetAccessibilityLabels.lockScreenBudget
+        }
+        return WidgetAccessibilityLabels.budgetRemaining(
+            amount: entry.budgetRemaining,
+            progress: entry.budgetUsedFraction,
+            currencyCode: entry.currencyCode
+        )
+    }
+
+    private var spendingAccessibilityLabel: String {
+        if isPrivacyRedacted {
+            return WidgetAccessibilityLabels.lockScreenSpending
+        }
+        // Inline only shows today's spend; rectangular can include remaining.
+        if family == .accessoryInline || !entry.hasBudget {
+            return WidgetAccessibilityLabels.todaySpending(
+                amount: entry.todaySpent,
+                changePercentVsYesterday: nil,
+                currencyCode: entry.currencyCode
+            )
+        }
+        return WidgetAccessibilityLabels.todaySpendingAndBudgetRemaining(
+            todayAmount: entry.todaySpent,
+            remainingAmount: entry.budgetRemaining,
+            progress: entry.budgetUsedFraction,
+            currencyCode: entry.currencyCode
+        )
     }
 }
 

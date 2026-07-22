@@ -132,26 +132,33 @@ struct TodaySpendingWidgetView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilitySummary)
     }
 
     private var mediumContent: some View {
-        HStack(alignment: .top, spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(String(localized: "Today's Spending"))
-                    .font(WidgetTypography.caption)
-                    .foregroundStyle(WidgetColors.textSecondary)
-                Text(formatted(entry.snapshot.todayAmount))
-                    .font(isStandByContext ? WidgetTypography.titleStandBy : WidgetTypography.title)
-                    .foregroundStyle(amountColor)
-                    .widgetAccentable(usesAccentedRendering)
-                    .minimumScaleFactor(0.6)
-                    .lineLimit(1)
-                trendLabel
-                Spacer(minLength: 0)
-                addExpenseLink
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top, spacing: 16) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(String(localized: "Today's Spending"))
+                        .font(WidgetTypography.caption)
+                        .foregroundStyle(WidgetColors.textSecondary)
+                    Text(formatted(entry.snapshot.todayAmount))
+                        .font(isStandByContext ? WidgetTypography.titleStandBy : WidgetTypography.title)
+                        .foregroundStyle(amountColor)
+                        .widgetAccentable(usesAccentedRendering)
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(1)
+                    trendLabel
+                    Spacer(minLength: 0)
+                }
+                sparkline
+                    .frame(maxWidth: .infinity)
             }
-            sparkline
-                .frame(maxWidth: .infinity)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilitySummary)
+
+            addExpenseLink
         }
         .padding()
     }
@@ -216,6 +223,14 @@ struct TodaySpendingWidgetView: View {
 
     private func formatted(_ amount: Decimal) -> String {
         amount.formatted(.currency(code: entry.snapshot.currencyCode))
+    }
+
+    private var accessibilitySummary: String {
+        WidgetAccessibilityLabels.todaySpending(
+            amount: entry.snapshot.todayAmount,
+            changePercentVsYesterday: entry.snapshot.changePercentVsYesterday,
+            currencyCode: entry.snapshot.currencyCode
+        )
     }
 }
 

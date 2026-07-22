@@ -21,6 +21,8 @@ struct ReportCardView: View {
                 Text(title)
                     .font(VTypography.bodyBold)
                     .foregroundColor(VColors.textPrimary)
+                    .adaptiveLineLimit(2)
+                    .adaptiveMinimumScaleFactor(0.8)
 
                 Text(subtitle)
                     .font(VTypography.caption1)
@@ -28,7 +30,7 @@ struct ReportCardView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            Spacer()
+            Spacer(minLength: VSpacing.sm)
 
             Image(systemName: "chevron.right")
                 .font(.caption)
