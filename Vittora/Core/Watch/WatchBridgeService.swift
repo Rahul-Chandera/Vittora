@@ -243,7 +243,7 @@ enum WatchSnapshotBuilder {
         }
         .prefix(WatchSnapshot.maxQuickCategories)
         .map {
-            WatchSnapshotCategory(id: $0.id, name: $0.name, icon: $0.icon, colorHex: $0.colorHex)
+            WatchSnapshotCategory(id: $0.id, name: $0.displayName, icon: $0.icon, colorHex: $0.colorHex)
         }
 
         let generatedAt = Date.now
