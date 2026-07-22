@@ -182,6 +182,7 @@ public final class DataManagementService: Sendable {
 
         AppLockSessionMirror.clearAll()
         AppUserDefaults.appGroup.removeObject(forKey: QuickAddDeepLink.pendingIntentDestinationKey)
+        RecentErrorLogStore.shared.clear()
 
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
         AppUserDefaults.sync.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)

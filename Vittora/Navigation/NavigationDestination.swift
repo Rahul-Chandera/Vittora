@@ -39,5 +39,5 @@ enum ReportType: String, Hashable, Sendable, CaseIterable {
 }
 
 enum SettingsSection: String, Hashable, Sendable {
-    case profile, security, sync, notifications, appearance, data, about
+    case profile, security, sync, notifications, appearance, data, about, support
 }

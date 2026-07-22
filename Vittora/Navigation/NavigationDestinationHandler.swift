@@ -16,6 +16,8 @@ struct NavigationDestinationHandler: ViewModifier {
 struct NavigationDestinationView: View {
     let destination: NavigationDestination
     @Environment(SettingsViewModel.self) private var settingsVM
+    @Environment(SyncStatusService.self) private var syncService
+    @Environment(\.dependencies) private var dependencies
 
     var body: some View {
         switch destination {
@@ -82,6 +84,12 @@ struct NavigationDestinationView: View {
         case .appearance:    AppearanceSettingsView(vm: settingsVM)
         case .data:          DataSettingsView()
         case .about:         AboutView(vm: settingsVM)
+        case .support:
+            ContactSupportView(
+                settingsVM: settingsVM,
+                dependencies: dependencies,
+                syncService: syncService
+            )
         }
     }
 }
