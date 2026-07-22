@@ -221,7 +221,7 @@ final class UITestDataSeeder {
         ))
         try await transactionRepository.create(TransactionEntity(
             amount: isIndia ? 8_000 : 600,
-            date: monthDay(0, 4),
+            date: monthDay(0, 12),
             note: "Emergency Fund contribution",
             type: .adjustment,
             currencyCode: currency,
@@ -248,8 +248,7 @@ final class UITestDataSeeder {
         ).execute(
             debtID: borrowedDebt.id,
             settlementAmount: isIndia ? 4_000 : 200,
-            accountID: bank.id,
-            date: monthDay(0, 4)
+            accountID: bank.id
         )
 
         func daysAhead(_ days: Int) -> Date {
