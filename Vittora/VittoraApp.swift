@@ -353,11 +353,7 @@ struct VittoraApp: App {
             }
         }
         .onChange(of: syncService.iCloudAccountAvailable) { _, available in
-            if available {
-                AppHandoff.resumeAdvertising()
-            } else {
-                AppHandoff.invalidateCurrent()
-            }
+            appState.isHandoffAdvertisingSuspended = !available
         }
 
         #if os(macOS)

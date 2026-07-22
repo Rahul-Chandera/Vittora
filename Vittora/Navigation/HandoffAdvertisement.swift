@@ -18,7 +18,7 @@ private struct HandoffAdvertisementModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         Group {
-            if let route, isActive, !appState.isUITesting, !AppHandoff.isAdvertisingSuspended {
+            if let route, appState.shouldAdvertiseHandoff(isActive: isActive) {
                 content
                     .userActivity(AppHandoff.activityType(for: route), isActive: true) { activity in
                         AppHandoff.configure(activity, route: route)

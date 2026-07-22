@@ -13,6 +13,9 @@ final class AppState {
     var selectedTab: AppTab
     var isLoading: Bool
     var isUITesting: Bool
+    /// When true, screens stop advertising Continuity activities (iCloud signed out).
+    /// Observable so `HandoffAdvertisementModifier` re-evaluates immediately.
+    var isHandoffAdvertisingSuspended: Bool
     /// When true, UI tests exercise real background/foreground app-lock policy despite `--uitesting`.
     var exercisesAppLockPolicy: Bool
     /// True when the on-disk store failed to open and the app is running on an
@@ -66,6 +69,7 @@ final class AppState {
         selectedTab: AppTab = .dashboard,
         isLoading: Bool = false,
         isUITesting: Bool = false,
+        isHandoffAdvertisingSuspended: Bool = false,
         exercisesAppLockPolicy: Bool = false,
         isRecoveryMode: Bool = false,
         isPrivacyShieldVisible: Bool = false,
@@ -77,10 +81,16 @@ final class AppState {
         self.selectedTab = selectedTab
         self.isLoading = isLoading
         self.isUITesting = isUITesting
+        self.isHandoffAdvertisingSuspended = isHandoffAdvertisingSuspended
         self.exercisesAppLockPolicy = exercisesAppLockPolicy
         self.isRecoveryMode = isRecoveryMode
         self.isPrivacyShieldVisible = isPrivacyShieldVisible
         self.pendingNotificationDeepLink = pendingNotificationDeepLink
+    }
+
+    /// Whether Continuity activities may be advertised for the current screen.
+    func shouldAdvertiseHandoff(isActive: Bool = true) -> Bool {
+        isActive && !isUITesting && !isHandoffAdvertisingSuspended
     }
 
     func refreshVersion(for domain: DataRefreshDomain) -> Int {

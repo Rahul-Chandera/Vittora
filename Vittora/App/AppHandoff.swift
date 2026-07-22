@@ -19,10 +19,6 @@ nonisolated enum AppHandoff {
     static let mainType = "com.enerjiktech.vittora.main"
     static let tabKey = "selectedTab"
 
-    /// When true, screens stop advertising Continuity activities (iCloud signed out).
-    /// ponytail: flag is flipped only from the main-actor UI; unsafe for Swift 6 default isolation.
-    nonisolated(unsafe) static var isAdvertisingSuspended = false
-
     static let allContinuableTypes: [String] = [
         transactionsType,
         transactionType,
@@ -91,14 +87,5 @@ nonisolated enum AppHandoff {
             return HandoffDeepLink.route(from: url)
         }
         return nil
-    }
-
-    /// Stops advertising so a signed-out iCloud account cannot continue a dangling ID.
-    static func invalidateCurrent() {
-        isAdvertisingSuspended = true
-    }
-
-    static func resumeAdvertising() {
-        isAdvertisingSuspended = false
     }
 }

@@ -101,18 +101,23 @@ public enum HandoffDeepLink: Sendable {
     public static let dateKey = "date"
     public static let typeKey = "type"
 
-    /// Keys that must never appear in a Handoff payload (aggregates / balances).
-    public static let forbiddenUserInfoKeys: Set<String> = [
-        "balance",
-        "spent",
-        "remaining",
-        "netWorth",
-        "total",
-        "aggregate",
-        "totalAssets",
-        "totalLiabilities",
-        "overallSpent",
-        "overallBudget",
+    /// Known-safe keys permitted in a Handoff payload (identifiers / draft fields only).
+    /// Anything else is a leak by definition — fail closed.
+    public static let allowedUserInfoKeys: Set<String> = [
+        kindKey,
+        idKey,
+        startKey,
+        endKey,
+        typesKey,
+        categoryIDsKey,
+        accountIDsKey,
+        reportTypeKey,
+        amountKey,
+        noteKey,
+        categoryIDKey,
+        accountIDKey,
+        dateKey,
+        typeKey,
     ]
 
     // MARK: - URL
@@ -280,12 +285,12 @@ public enum HandoffDeepLink: Sendable {
         }
     }
 
-    /// `true` when `userInfo` contains a forbidden aggregate/balance key.
+    /// `true` when `userInfo` contains any key outside the allowlist.
     public static func userInfoContainsForbiddenKeys(_ userInfo: [AnyHashable: Any]?) -> Bool {
         guard let userInfo else { return false }
         for key in userInfo.keys {
-            let raw = String(describing: key).lowercased()
-            if forbiddenUserInfoKeys.contains(where: { raw == $0.lowercased() }) {
+            let raw = String(describing: key)
+            if !allowedUserInfoKeys.contains(raw) {
                 return true
             }
         }

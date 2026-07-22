@@ -69,8 +69,8 @@ struct HandoffDeepLinkTests {
         }
     }
 
-    @Test("activity userInfo never contains balance or aggregate keys")
-    func userInfoOmitsBalancesAndAggregates() {
+    @Test("activity userInfo keys are all on the allowlist (fail closed)")
+    func userInfoKeysAreAllowlisted() {
         let routes: [HandoffDeepLink.Route] = [
             .transactionList(HandoffDeepLink.ListFilter()),
             .transactionDetail(UUID()),
@@ -86,11 +86,15 @@ struct HandoffDeepLinkTests {
             #expect(activity.isEligibleForSearch == false)
             #expect(HandoffDeepLink.userInfoContainsForbiddenKeys(activity.userInfo) == false)
 
-            let keys = Set((activity.userInfo ?? [:]).keys.map { String(describing: $0).lowercased() })
-            for forbidden in HandoffDeepLink.forbiddenUserInfoKeys {
-                #expect(!keys.contains(forbidden.lowercased()))
-            }
+            let keys = Set((activity.userInfo ?? [:]).keys.map { String(describing: $0) })
+            #expect(keys.isSubset(of: HandoffDeepLink.allowedUserInfoKeys))
         }
+
+        // Fail closed: a novel key (e.g. accountBalance) is forbidden even if
+        // it is not one of the old denylist spellings.
+        #expect(HandoffDeepLink.userInfoContainsForbiddenKeys(["kind": "transaction", "accountBalance": "1"]))
+        #expect(HandoffDeepLink.userInfoContainsForbiddenKeys(["monthTotal": "100"]))
+        #expect(HandoffDeepLink.userInfoContainsForbiddenKeys(["balance": "50"]))
     }
 
     @Test("deleted transaction resolves to the transaction list")
@@ -126,6 +130,24 @@ struct HandoffDeepLinkTests {
 @Suite("AppState Handoff Routing Tests")
 @MainActor
 struct AppStateHandoffRoutingTests {
+
+    @Test("flipping isHandoffAdvertisingSuspended stops advertisement")
+    func flippingSuspendedStopsAdvertisement() {
+        let state = AppState()
+        #expect(state.shouldAdvertiseHandoff(isActive: true))
+
+        state.isHandoffAdvertisingSuspended = true
+        #expect(!state.shouldAdvertiseHandoff(isActive: true))
+
+        state.isHandoffAdvertisingSuspended = false
+        #expect(state.shouldAdvertiseHandoff(isActive: true))
+
+        // UI testing and inactive still gate independently.
+        state.isUITesting = true
+        #expect(!state.shouldAdvertiseHandoff(isActive: true))
+        state.isUITesting = false
+        #expect(!state.shouldAdvertiseHandoff(isActive: false))
+    }
 
     @Test("activity encode → decode → openFromURL routes to the source screen")
     func activityEncodeDecodeRoutesThroughOpenFromURL() {
