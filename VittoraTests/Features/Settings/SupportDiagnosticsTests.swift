@@ -238,6 +238,126 @@ struct SupportDiagnosticsTests {
     func supportEmailConstantExists() {
         #expect(DiagnosticPayload.supportEmail == "support@vittora.app")
     }
+
+    @Test("DiagnosticSnapshotBuilder from demo dataset omits amounts, notes, payees, account and category names")
+    @MainActor
+    func builderPayloadOmitsSensitiveDemoFields() async throws {
+        let container = try ModelContainerConfig.makeContainer(inMemory: true)
+        let accountRepo = SwiftDataAccountRepository(modelContainer: container)
+        let categoryRepo = SwiftDataCategoryRepository(modelContainer: container)
+        let transactionRepo = SwiftDataTransactionRepository(modelContainer: container)
+        let budgetRepo = SwiftDataBudgetRepository(modelContainer: container)
+        let savingsRepo = SwiftDataSavingsGoalRepository(modelContainer: container)
+        let debtRepo = SwiftDataDebtRepository(modelContainer: container)
+        let recurringRepo = SwiftDataRecurringRuleRepository(modelContainer: container)
+        let payeeRepo = SwiftDataPayeeRepository(modelContainer: container)
+        let ledger = LedgerWriteStore(modelContainer: container)
+        let seeder = DefaultDataSeeder(modelContainer: container)
+
+        let demo = UITestDataSeeder(
+            accountRepository: accountRepo,
+            categoryRepository: categoryRepo,
+            transactionRepository: transactionRepo,
+            ledgerWriting: ledger
+        )
+        try await demo.seedDemoShowcaseIfNeeded(
+            budgetRepository: budgetRepo,
+            savingsGoalRepository: savingsRepo,
+            debtRepository: debtRepo,
+            recurringRuleRepository: recurringRepo,
+            payeeRepository: payeeRepo,
+            dataSeeder: seeder
+        )
+
+        let accounts = try await accountRepo.fetchAll()
+        let categories = try await categoryRepo.fetchAll()
+        let payees = try await payeeRepo.fetchAll()
+        let transactions = try await transactionRepo.fetchAll(filter: nil)
+        #expect(!accounts.isEmpty)
+        #expect(!transactions.isEmpty)
+
+        let errorSuite = "SupportDiagnosticsTests.builder.\(UUID().uuidString)"
+        let errorDefaults = UserDefaults(suiteName: errorSuite)!
+        defer { errorDefaults.removePersistentDomain(forName: errorSuite) }
+        let errorLog = RecentErrorLogStore(defaults: errorDefaults)
+        errorLog.record(errorType: "TestError", codePath: "SupportDiagnosticsTests.builder")
+
+        let syncKey = AppUserDefaults.StandardKey.cloudSyncEnabled
+        let previousSync = UserDefaults.standard.object(forKey: syncKey)
+        UserDefaults.standard.set(false, forKey: syncKey)
+        defer {
+            if let previousSync {
+                UserDefaults.standard.set(previousSync, forKey: syncKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: syncKey)
+            }
+        }
+
+        let service = DataManagementService(
+            transactionRepository: transactionRepo,
+            accountRepository: accountRepo,
+            categoryRepository: categoryRepo,
+            budgetRepository: budgetRepo,
+            debtRepository: debtRepo,
+            savingsGoalRepository: savingsRepo,
+            splitGroupRepository: MockSplitGroupRepository(),
+            documentRepository: MockDocumentRepository(),
+            keychainService: MockKeychainService()
+        )
+        let stats = try await service.fetchStats()
+        let settingsVM = SettingsViewModel(keychainService: MockKeychainService())
+        let snapshot = DiagnosticSnapshotBuilder.make(
+            settingsVM: settingsVM,
+            stats: stats,
+            payeeCount: payees.count,
+            recurringRuleCount: try await recurringRepo.fetchAll().count,
+            errorLog: errorLog
+        )
+        let payload = DiagnosticPayload.render(snapshot)
+
+        let forbiddenAmounts = [
+            "15.49", "128.40", "96.20", "42.75", "142.10", "48.30", "89.65",
+            "28.90", "132.80", "101.50", "36.40", "189.99", "118.25", "24.50",
+            "54.20", "52.75", "27.35", "18.60", "6400", "1850", "4200",
+        ]
+        for amount in forbiddenAmounts {
+            #expect(!payload.contains(amount), "payload must not contain amount \(amount)")
+        }
+
+        let forbiddenNotes = [
+            "Weekly Groceries", "Dinner Delivery", "Groceries Restock", "Netflix",
+            "Monthly Salary", "Monthly Rent", "Electric Bill", "Running Shoes",
+            "Uber to Airport", "Weekend Brunch", "Movie Night", "Monthly Staples",
+            "Pharmacy", "Lunch Order", "Concert tickets", "Gas",
+        ]
+        for note in forbiddenNotes {
+            #expect(!payload.contains(note), "payload must not contain note \(note)")
+        }
+
+        for payee in payees {
+            #expect(
+                !containsWholeWord(payload, payee.name),
+                "payload must not contain payee \(payee.name)"
+            )
+        }
+        for account in accounts {
+            #expect(
+                !containsWholeWord(payload, account.name),
+                "payload must not contain account \(account.name)"
+            )
+        }
+        for category in categories {
+            #expect(
+                !containsWholeWord(payload, category.name),
+                "payload must not contain category \(category.name)"
+            )
+        }
+
+        #expect(payload.contains("Transactions: \(snapshot.transactionCount)"))
+        #expect(payload.contains("Accounts: \(snapshot.accountCount)"))
+        #expect(payload.contains("Last Sync Result: disabled"))
+        #expect(payload.contains(DiagnosticPayload.supportEmail) == false)
+    }
 }
 
 /// Whole-word match so device model `iPhone17,1` does not false-positive category `Phone`.
