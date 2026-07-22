@@ -8,7 +8,7 @@ final class CategoryFormViewModel {
     var selectedIcon: String = "tag.fill"
     var selectedColorHex: String = "#007AFF"
     var selectedType: CategoryType = .expense
-    var selectedSpendingBucket: SpendingBucket = .needs
+    var selectedSpendingBucket: SpendingBucket = .wants
     var selectedParentID: UUID?
     var isEditing = false
     var editingID: UUID?
@@ -33,7 +33,7 @@ final class CategoryFormViewModel {
         selectedIcon = entity.icon
         selectedColorHex = entity.colorHex
         selectedType = entity.type
-        selectedSpendingBucket = entity.spendingBucket ?? .needs
+        selectedSpendingBucket = entity.spendingBucket ?? .wants
         selectedParentID = entity.parentID
     }
 

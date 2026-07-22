@@ -99,6 +99,7 @@ struct BudgetFormView: View {
                     Button(String(localized: "Cancel")) {
                         isPresented = false
                     }
+                    .keyboardShortcut(.cancelAction)
                     .accessibilityIdentifier("budget-cancel-button")
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -117,6 +118,7 @@ struct BudgetFormView: View {
                         }
                     }
                     .disabled(viewModel?.canSave != true)
+                    .keyboardShortcut(.defaultAction)
                     .accessibilityIdentifier("budget-save-button")
                 }
             }

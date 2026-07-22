@@ -1,0 +1,64 @@
+import Foundation
+
+public enum WidgetAccessibilityLabels {
+    public static func todaySpending(
+        amount: Decimal,
+        changePercentVsYesterday: Double?,
+        currencyCode: String
+    ) -> String {
+        let amountText = amount.formatted(.currency(code: currencyCode))
+        guard let changePercentVsYesterday else {
+            return String(localized: "Today's spending, \(amountText)")
+        }
+
+        let percent = Int(abs(changePercentVsYesterday).rounded())
+        if percent == 0 {
+            return String(localized: "Today's spending, \(amountText), unchanged from yesterday")
+        }
+        if changePercentVsYesterday > 0 {
+            return String(localized: "Today's spending, \(amountText), \(percent)% above yesterday")
+        }
+        return String(localized: "Today's spending, \(amountText), \(percent)% below yesterday")
+    }
+
+    public static func budgetRemaining(
+        amount: Decimal,
+        progress: Double,
+        currencyCode: String
+    ) -> String {
+        let amountText = amount.formatted(.currency(code: currencyCode))
+        let percent = Int(min(max(progress * 100, 0), 999).rounded())
+        return String(localized: "Budget remaining, \(amountText), \(percent)% used")
+    }
+
+    /// Combined label for surfaces that show both today's spend and budget left.
+    public static func todaySpendingAndBudgetRemaining(
+        todayAmount: Decimal,
+        remainingAmount: Decimal,
+        progress: Double,
+        currencyCode: String
+    ) -> String {
+        [
+            todaySpending(
+                amount: todayAmount,
+                changePercentVsYesterday: nil,
+                currencyCode: currencyCode
+            ),
+            budgetRemaining(
+                amount: remainingAmount,
+                progress: progress,
+                currencyCode: currencyCode
+            ),
+        ].joined(separator: ". ")
+    }
+
+    // Never accept formatted values here: these labels remain safe when the
+    // corresponding privacySensitive widget content is redacted while locked.
+    public static let lockScreenBudget = String(localized: "Budget progress, values hidden while locked")
+    public static let lockScreenSpending = String(
+        localized: "Today's spending and budget remaining, values hidden while locked"
+    )
+    public static let watchComplication = String(
+        localized: "Today's spending and budget remaining, values hidden while locked"
+    )
+}
