@@ -34,7 +34,7 @@ struct TransactionRowView: View {
         typeLabel = transaction.type.displayName
 
         let note = transaction.note ?? String(localized: "Transaction")
-        let cat = category.map { ", \($0.name)" } ?? ""
+        let cat = category.map { ", \($0.displayName)" } ?? ""
         var description = "\(note)\(cat), \(typeLabel), \(formattedTimeText), \(formattedAmount)"
         if showSelection {
             description += isSelected
@@ -54,7 +54,7 @@ struct TransactionRowView: View {
     /// the list reads as the category instead of a generic "Transaction".
     private var displayTitle: String {
         if hasNote, let note = transaction.note { return note }
-        return category?.name ?? String(localized: "Transaction")
+        return category?.displayName ?? String(localized: "Transaction")
     }
 
     var body: some View {
@@ -88,7 +88,7 @@ struct TransactionRowView: View {
                 HStack(spacing: VSpacing.sm) {
                     // Only as a subtitle when the title is the note; otherwise the
                     // title already is the category name — don't repeat it.
-                    if hasNote, let categoryName = category?.name {
+                    if hasNote, let categoryName = category?.displayName {
                         Text(categoryName)
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)

@@ -31,16 +31,13 @@ struct SavingsGoalCardView: View {
                     }
 
                     // Amount progress
-                    HStack(spacing: 4) {
-                        Text(goal.currentAmount.formatted(.currency(code: currencyCode)))
-                            .font(VTypography.caption1.bold())
-                            .foregroundStyle(goalColor)
-                        Text(String(localized: "of"))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
-                        Text(goal.targetAmount.formatted(.currency(code: currencyCode)))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 4) {
+                            amountProgress
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            amountProgress
+                        }
                     }
 
                     // Deadline / days remaining
@@ -75,6 +72,19 @@ struct SavingsGoalCardView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(cardAccessibilityLabel)
         .accessibilityHint(String(localized: "Tap to view goal details"))
+    }
+
+    @ViewBuilder
+    private var amountProgress: some View {
+        Text(goal.currentAmount.formatted(.currency(code: currencyCode)))
+            .font(VTypography.caption1.bold())
+            .foregroundStyle(goalColor)
+        Text(String(localized: "of"))
+            .font(VTypography.caption1)
+            .foregroundStyle(VColors.textSecondary)
+        Text(goal.targetAmount.formatted(.currency(code: currencyCode)))
+            .font(VTypography.caption1)
+            .foregroundStyle(VColors.textSecondary)
     }
 
     private var cardAccessibilityLabel: String {
