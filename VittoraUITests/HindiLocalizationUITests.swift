@@ -94,15 +94,29 @@ final class HindiLocalizationUITests: XCTestCase {
         UITestSupport.tapWhenReady(app.buttons["टैक्स"], timeout: 15)
         XCTAssertTrue(app.navigationBars["टैक्स कैलकुलेटर"].waitForExistence(timeout: 15))
         // Demo seed includes an India tax profile so audits and localization both
-        // exercise the populated estimator (empty state is not the seeded path).
+        // exercise the populated estimator.
         XCTAssertTrue(app.staticTexts["टैक्स ब्रैकेट वितरण"].waitForExistence(timeout: 15))
         capture(named: "hi-india-tax-dashboard")
 
-        UITestSupport.tapWhenReady(app.buttons["tax-profile-button"], timeout: 10)
+        let taxProfileButton = app.buttons["tax-profile-button"]
+        XCTAssertTrue(taxProfileButton.waitForExistence(timeout: 10))
+        XCTAssertTrue(
+            taxProfileButton.label.contains("प्रोफ़ाइल"),
+            "Tax profile control must expose a Hindi accessibility label, not only an identifier."
+        )
+        UITestSupport.tapWhenReady(taxProfileButton, timeout: 10)
         XCTAssertTrue(app.navigationBars["टैक्स प्रोफ़ाइल"].waitForExistence(timeout: 10))
         let regimePicker = app.buttons["कर व्यवस्था, नई कर व्यवस्था"]
         XCTAssertTrue(regimePicker.waitForExistence(timeout: 10))
         capture(named: "hi-india-tax-profile")
+
+        // Unseeded launch keeps coverage of the Hindi empty state that the demo
+        // seed no longer reaches.
+        launchUnseeded(initialTab: "tax")
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
+        UITestSupport.tapWhenReady(app.buttons["टैक्स"], timeout: 15)
+        XCTAssertTrue(app.staticTexts["कोई टैक्स प्रोफ़ाइल नहीं"].waitForExistence(timeout: 15))
+        capture(named: "hi-india-tax-empty")
         #endif
     }
 
@@ -130,6 +144,24 @@ final class HindiLocalizationUITests: XCTestCase {
         app.launchArguments = [
             "--uitesting",
             "--ui-test-seed-demo",
+            "--ui-test-reset-app-lock",
+            "-AppleLanguages", "(hi)",
+            "-AppleLocale", "hi_IN"
+        ]
+        app.launchEnvironment["UITEST_INITIAL_TAB"] = initialTab
+        app.launchEnvironment["UITEST_DEMO_REGION"] = "IN"
+        app.launch()
+        XCTAssertTrue(UITestSupport.waitForAppForeground(in: app))
+    }
+
+    @MainActor
+    private func launchUnseeded(initialTab: String) {
+        if app.state != .notRunning {
+            app.terminate()
+        }
+        app = XCUIApplication()
+        app.launchArguments = [
+            "--uitesting",
             "--ui-test-reset-app-lock",
             "-AppleLanguages", "(hi)",
             "-AppleLocale", "hi_IN"

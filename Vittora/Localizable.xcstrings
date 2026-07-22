@@ -3871,6 +3871,16 @@
         }
       }
     },
+    "Edit tax profile" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स प्रोफ़ाइल संपादित करें"
+          }
+        }
+      }
+    },
     "Edit transaction" : {
       "localizations" : {
         "hi" : {
@@ -6623,6 +6633,16 @@
         }
       }
     },
+    "Opens the tax profile form" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स प्रोफ़ाइल फ़ॉर्म खोलता है"
+          }
+        }
+      }
+    },
     "Opens the transaction form" : {
       "localizations" : {
         "hi" : {
@@ -8661,6 +8681,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "अपना पहला अकाउंट सेट अप करें"
+          }
+        }
+      }
+    },
+    "Set up tax profile" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स प्रोफ़ाइल सेट अप करें"
           }
         }
       }
