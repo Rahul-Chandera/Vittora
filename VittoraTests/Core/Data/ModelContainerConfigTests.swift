@@ -35,7 +35,7 @@ struct ModelContainerConfigTests {
         #expect(doc.transactionID == nil)
     }
 
-    @Test("migration plan declares V1–V7 with lightweight stages")
+    @Test("migration plan declares V1–V7")
     func migrationPlanShape() {
         #expect(VittoraMigrationPlan.schemas.count == 7)
         #expect(VittoraMigrationPlan.stages.count == 6)

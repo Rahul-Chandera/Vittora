@@ -336,6 +336,59 @@ struct ModelContainerOnDiskTests {
         #expect(entity.dueDayOfMonth == 20)
     }
 
+    @Test("V6 categories migrate to default spending buckets without data loss")
+    func onDiskStoreMigratesCategoryBuckets() throws {
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let storeURL = dir.appendingPathComponent("vittora-category-bucket-migration.store")
+        let rentID = UUID()
+        let customID = UUID()
+
+        do {
+            let schema = Schema(VittoraSchemaV6.models)
+            let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+            let container = try ModelContainer(for: schema, configurations: [config])
+            let context = ModelContext(container)
+            context.insert(VittoraSchemaV6.SDCategory(
+                id: rentID,
+                name: "Rent",
+                icon: "house.fill",
+                colorHex: "#123456",
+                type: .expense,
+                isDefault: true,
+                sortOrder: 8
+            ))
+            context.insert(VittoraSchemaV6.SDCategory(
+                id: customID,
+                name: "Coffee",
+                icon: "cup.and.saucer.fill",
+                type: .expense
+            ))
+            try context.save()
+        }
+
+        let schema = Schema(VittoraSchemaV7.models)
+        let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let rows = try ModelContext(container).fetch(FetchDescriptor<SDCategory>())
+        let rent = try #require(rows.first { $0.id == rentID })
+        let custom = try #require(rows.first { $0.id == customID })
+
+        #expect(rent.spendingBucket == .needs)
+        #expect(custom.spendingBucket == .wants)
+        #expect(rent.name == "Rent")
+        #expect(rent.icon == "house.fill")
+        #expect(rent.colorHex == "#123456")
+        #expect(rent.isDefault)
+        #expect(rent.sortOrder == 8)
+    }
+
     /// Regression for the "Duplicate version checksums detected" launch crash:
     /// a store created at the true V3 shape (pre-`openingBalance` account,
     /// pre-JSON debt) must stage-migrate V3→V6 on open. Before the schemas
