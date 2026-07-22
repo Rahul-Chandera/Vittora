@@ -39,6 +39,16 @@ final class AppState {
     /// Transaction detail from Spotlight / `vittora://transaction/<id>` (P2). Survives
     /// App Lock like W4 — consumed after unlock when Transactions mounts.
     var pendingTransactionDetailID: UUID?
+    /// Transaction list filter from Handoff (`vittora://transactions?…`).
+    var pendingTransactionListFilter: HandoffDeepLink.ListFilter?
+    /// Budget detail from Handoff / notification-style deep link.
+    var pendingBudgetDetailID: UUID?
+    /// Account detail from Handoff (`vittora://account/<id>`).
+    var pendingAccountDetailID: UUID?
+    /// Report detail from Handoff (`vittora://report/<type>?…`).
+    var pendingReportHandoff: PendingReportHandoff?
+    /// Unsaved transaction form draft from Handoff (identifiers + field values only).
+    var pendingTransactionDraft: HandoffDeepLink.Draft?
     /// UI-test surface for W5 intent result verification (`--ui-test-show-spending-intent-result`).
     var uiTestIntentResultMessage: String?
     /// WatchConnectivity commit failures (queued expense rejected on the phone).
@@ -160,17 +170,18 @@ final class AppState {
         }
     }
 
-    /// Routes `vittora://` URLs: quick-add (W4), transaction Spotlight (P2), or
-    /// split-group (K3). Unknown/malformed links are ignored so the app opens
+    /// Routes `vittora://` URLs: Handoff / quick-add (W4), transaction Spotlight (P2),
+    /// or split-group (K3). Unknown/malformed links are ignored so the app opens
     /// without crashing.
     func openFromURL(_ url: URL) {
+        if let route = HandoffDeepLink.route(from: url) {
+            openFromHandoffRoute(route)
+            return
+        }
+        // Legacy quick-add / Spotlight hosts that HandoffDeepLink didn't claim.
         if QuickAddDeepLink.isQuickAddURL(url) {
             if let destination = QuickAddDeepLink.destination(from: url) {
-                pendingQuickAdd = destination
-                selectedTab = .dashboard
-                // Also enqueue a command so already-mounted shells present immediately
-                // (pending alone is for App Lock / cold start before AppTabView exists).
-                request(.presentQuickAdd(destination))
+                openQuickAdd(destination)
             }
             return
         }
@@ -183,6 +194,47 @@ final class AppState {
         openSplitGroup(from: url)
     }
 
+    /// Continues a Handoff activity through the same URL routing path.
+    func openFromHandoffActivity(_ activity: NSUserActivity) {
+        if activity.activityType == AppHandoff.mainType {
+            if let raw = activity.userInfo?[AppHandoff.tabKey] as? String,
+               let tab = AppTab(rawValue: raw) {
+                selectedTab = tab
+            }
+            return
+        }
+        guard let route = AppHandoff.route(from: activity) else { return }
+        openFromURL(HandoffDeepLink.url(for: route))
+    }
+
+    /// Applies a Handoff route (also used after encode → decode in tests).
+    func openFromHandoffRoute(_ route: HandoffDeepLink.Route) {
+        switch route {
+        case .transactionList(let filter):
+            pendingTransactionListFilter = filter
+            selectedTab = .transactions
+        case .transactionDetail(let id):
+            openFromSpotlight(transactionID: id)
+        case .budgetsList:
+            pendingBudgetDetailID = nil
+            selectedTab = .budgets
+        case .budgetDetail(let id):
+            pendingBudgetDetailID = id
+            selectedTab = .budgets
+        case .accountsList:
+            pendingAccountDetailID = nil
+            selectedTab = .dashboard
+        case .accountDetail(let id):
+            pendingAccountDetailID = id
+            selectedTab = .dashboard
+        case .reportDetail(let type, let start, let end):
+            pendingReportHandoff = PendingReportHandoff(typeRaw: type, start: start, end: end)
+            selectedTab = .reports
+        case .transactionDraft(let draft):
+            applyTransactionDraft(draft)
+        }
+    }
+
     /// Queues transaction detail navigation from a Spotlight tap (CSSearchableItem
     /// or `vittora://transaction/…`). Survives App Lock — resolve after unlock.
     func openFromSpotlight(transactionID: UUID) {
@@ -192,6 +244,26 @@ final class AppState {
 
     func clearPendingTransactionDetailID() {
         pendingTransactionDetailID = nil
+    }
+
+    func clearPendingTransactionListFilter() {
+        pendingTransactionListFilter = nil
+    }
+
+    func clearPendingBudgetDetailID() {
+        pendingBudgetDetailID = nil
+    }
+
+    func clearPendingAccountDetailID() {
+        pendingAccountDetailID = nil
+    }
+
+    func clearPendingReportHandoff() {
+        pendingReportHandoff = nil
+    }
+
+    func clearPendingTransactionDraft() {
+        pendingTransactionDraft = nil
     }
 
     /// Routes to the Splits tab and queues a group detail navigation (K3 share-out).
@@ -207,6 +279,33 @@ final class AppState {
 
     func clearPendingQuickAdd() {
         pendingQuickAdd = nil
+    }
+
+    private func openQuickAdd(_ destination: QuickAddDeepLink.Destination) {
+        pendingQuickAdd = destination
+        selectedTab = .dashboard
+        request(.presentQuickAdd(destination))
+    }
+
+    private func applyTransactionDraft(_ draft: HandoffDeepLink.Draft) {
+        let hasFieldValues = draft.amount != nil
+            || draft.note != nil
+            || draft.categoryID != nil
+            || draft.accountID != nil
+            || draft.date != nil
+        if hasFieldValues {
+            pendingTransactionDraft = draft
+            let destination = QuickAddDeepLink.Destination(rawValue: draft.type ?? QuickAddDeepLink.Destination.expense.rawValue)
+                ?? .expense
+            openQuickAdd(destination)
+            return
+        }
+        guard let typeRaw = draft.type,
+              let destination = QuickAddDeepLink.Destination(rawValue: typeRaw)
+        else {
+            return
+        }
+        openQuickAdd(destination)
     }
 
     enum AppTab: String, CaseIterable, Identifiable, Sendable {
@@ -249,5 +348,21 @@ final class AppState {
             case .settings:     "gearshape.fill"
             }
         }
+    }
+}
+
+/// Report continuation payload (type + optional period). Identifiers / dates only.
+struct PendingReportHandoff: Equatable, Sendable {
+    var typeRaw: String
+    var start: Date?
+    var end: Date?
+
+    var reportType: ReportType? {
+        ReportType(rawValue: typeRaw)
+    }
+
+    var dateRange: ClosedRange<Date>? {
+        guard let start, let end, start <= end else { return nil }
+        return start...end
     }
 }

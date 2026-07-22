@@ -352,6 +352,13 @@ struct VittoraApp: App {
                 break
             }
         }
+        .onChange(of: syncService.iCloudAccountAvailable) { _, available in
+            if available {
+                AppHandoff.resumeAdvertising()
+            } else {
+                AppHandoff.invalidateCurrent()
+            }
+        }
 
         #if os(macOS)
         Settings {

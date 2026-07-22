@@ -2,7 +2,8 @@ import SwiftUI
 import VittoraCore
 
 extension View {
-    /// Persists selected tab via `@SceneStorage` and publishes Handoff user activity.
+    /// Persists selected tab via `@SceneStorage` and continues Handoff activities
+    /// through the existing deep-link routing path.
     func restoresSceneState(appState: AppState) -> some View {
         modifier(SceneStateRestorationModifier(appState: appState))
     }
@@ -19,17 +20,17 @@ private struct SceneStateRestorationModifier: ViewModifier {
                 guard !appState.isUITesting else { return }
                 storedTabRaw = tab.rawValue
             }
-            .userActivity(AppHandoff.activityType, isActive: !appState.isUITesting) { activity in
-                activity.title = String(localized: "Vittora")
-                activity.isEligibleForHandoff = true
-                activity.userInfo = [AppHandoff.tabKey: appState.selectedTab.rawValue]
-                activity.requiredUserInfoKeys = Set([AppHandoff.tabKey])
-            }
-            .onContinueUserActivity(AppHandoff.activityType) { activity in
-                guard let raw = activity.userInfo?[AppHandoff.tabKey] as? String,
-                      let tab = AppState.AppTab(rawValue: raw) else { return }
-                appState.selectedTab = tab
-            }
+            .onContinueUserActivity(AppHandoff.transactionsType, perform: continueHandoff)
+            .onContinueUserActivity(AppHandoff.transactionType, perform: continueHandoff)
+            .onContinueUserActivity(AppHandoff.budgetType, perform: continueHandoff)
+            .onContinueUserActivity(AppHandoff.reportType, perform: continueHandoff)
+            .onContinueUserActivity(AppHandoff.accountType, perform: continueHandoff)
+            .onContinueUserActivity(AppHandoff.transactionDraftType, perform: continueHandoff)
+            .onContinueUserActivity(AppHandoff.mainType, perform: continueHandoff)
+    }
+
+    private func continueHandoff(_ activity: NSUserActivity) {
+        appState.openFromHandoffActivity(activity)
     }
 
     private func restoreSelectedTabIfNeeded() {

@@ -7,6 +7,7 @@ struct BudgetListView: View {
     @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: BudgetListViewModel?
     @State private var showAddBudget = false
+    @State private var navigateDestination: NavigationDestination?
 
     var body: some View {
         ZStack {
@@ -140,6 +141,21 @@ struct BudgetListView: View {
         .task(id: appState.refreshVersion(for: .budgets)) {
             guard viewModel != nil, appState.refreshVersion(for: .budgets) > 0 else { return }
             await viewModel?.loadBudgets()
+        }
+        .task(id: appState.pendingBudgetDetailID) {
+            guard let id = appState.pendingBudgetDetailID else { return }
+            appState.clearPendingBudgetDetailID()
+            if viewModel?.budgets.contains(where: { $0.id == id }) == true {
+                navigateDestination = .budgetDetail(id: id)
+                return
+            }
+            guard let found = try? await dependencies.budgetRepository.fetchByID(id), found != nil else {
+                return
+            }
+            navigateDestination = .budgetDetail(id: id)
+        }
+        .navigationDestination(item: $navigateDestination) { dest in
+            NavigationDestinationView(destination: dest)
         }
         .accessibilityIdentifier("budget-list-root")
     }

@@ -50,6 +50,13 @@ struct SpendingTrendsView: View {
             }
         }
         .errorAlert(message: spendingTrendsErrorBinding)
+        .advertisesHandoff(
+            .reportDetail(
+                type: ReportType.trends.rawValue,
+                start: vm?.dateRange?.lowerBound,
+                end: vm?.dateRange?.upperBound
+            )
+        )
     }
 
     @ViewBuilder

@@ -38,6 +38,10 @@ struct AccountDetailView: View {
         .task {
             await setupViewModel()
         }
+        .advertisesHandoff(
+            viewModel?.account == nil ? nil : .accountDetail(accountID),
+            isActive: viewModel?.account != nil
+        )
     }
 
     @MainActor
