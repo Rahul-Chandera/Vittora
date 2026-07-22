@@ -117,16 +117,13 @@ struct SavingsGoalListView: View {
                     Text(String(localized: "Overall Progress"))
                         .font(VTypography.subheadline)
                         .foregroundStyle(VColors.textSecondary)
-                    HStack(spacing: 4) {
-                        Text(summary.totalSavedAmount.formatted(.currency(code: currencyCode)))
-                            .font(VTypography.bodyBold)
-                            .foregroundStyle(VColors.income)
-                        Text(String(localized: "of"))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
-                        Text(summary.totalTargetAmount.formatted(.currency(code: currencyCode)))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 4) {
+                            summaryAmounts(summary)
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            summaryAmounts(summary)
+                        }
                     }
                     Text(String(localized: "\(summary.activeGoals) active · \(summary.achievedGoals) achieved"))
                         .font(VTypography.caption2)
@@ -135,6 +132,19 @@ struct SavingsGoalListView: View {
                 Spacer()
             }
         }
+    }
+
+    @ViewBuilder
+    private func summaryAmounts(_ summary: GoalProgressSummary) -> some View {
+        Text(summary.totalSavedAmount.formatted(.currency(code: currencyCode)))
+            .font(VTypography.bodyBold)
+            .foregroundStyle(VColors.income)
+        Text(String(localized: "of"))
+            .font(VTypography.caption1)
+            .foregroundStyle(VColors.textSecondary)
+        Text(summary.totalTargetAmount.formatted(.currency(code: currencyCode)))
+            .font(VTypography.caption1)
+            .foregroundStyle(VColors.textSecondary)
     }
 
     private func goalSection(title: String, goals: [SavingsGoalEntity], vm: SavingsGoalListViewModel) -> some View {

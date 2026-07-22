@@ -62,7 +62,7 @@ struct BudgetFormView: View {
                                     HStack(spacing: VSpacing.xs) {
                                         Image(systemName: category.icon)
                                             .foregroundColor(Color(hex: category.colorHex) ?? .blue)
-                                        Text(category.name)
+                                        Text(category.displayName)
                                             .foregroundColor(VColors.textPrimary)
                                     }
                                 } else {

@@ -56,7 +56,7 @@ struct SubscriptionCard: View {
 
                 // Title and Frequency
                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                    Text(category?.name ?? "Uncategorized")
+                    Text(category?.displayName ?? String(localized: "Uncategorized"))
                         .font(VTypography.calloutBold)
                         .foregroundColor(VColors.textPrimary)
 

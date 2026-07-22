@@ -33,6 +33,44 @@ struct DefaultDataSeederTests {
         #expect(secondGroceriesID == firstGroceriesID)
     }
 
+    @Test("locale changes preserve canonical defaults and IDs while updating display names")
+    func localeChangePreservesDefaultsAndUpdatesDisplayNames() async throws {
+        UserDefaults.standard.removeObject(forKey: seededKey)
+        defer { UserDefaults.standard.removeObject(forKey: seededKey) }
+        let container = try ModelContainerConfig.makeContainer(inMemory: true)
+        let seeder = DefaultDataSeeder(modelContainer: container)
+
+        try await seeder.seedDefaultCategoriesIfNeeded()
+        let firstDefaults = try defaultCategories(in: container.mainContext)
+        let firstIDs = Dictionary(uniqueKeysWithValues: firstDefaults.map {
+            ("\($0.type.rawValue)|\($0.name)", $0.id)
+        })
+        let firstGroceries = try #require(
+            firstDefaults.first { $0.name == "Groceries" && $0.type == .expense }
+        )
+        let firstEntity = CategoryMapper.toEntity(firstGroceries)
+
+        try await seeder.seedDefaultCategoriesIfNeeded()
+        let secondDefaults = try defaultCategories(in: container.mainContext)
+        let secondIDs = Dictionary(uniqueKeysWithValues: secondDefaults.map {
+            ("\($0.type.rawValue)|\($0.name)", $0.id)
+        })
+        let secondGroceries = try #require(
+            secondDefaults.first { $0.name == "Groceries" && $0.type == .expense }
+        )
+        let secondEntity = CategoryMapper.toEntity(secondGroceries)
+        let appBundle = try #require(
+            Bundle.allBundles.first { $0.bundleIdentifier == "com.enerjiktech.vittora" }
+        )
+
+        #expect(firstDefaults.count == 26)
+        #expect(secondDefaults.count == 26)
+        #expect(secondIDs == firstIDs)
+        #expect(firstEntity.displayName(locale: Locale(identifier: "en"), bundle: appBundle) == "Groceries")
+        #expect(secondEntity.displayName(locale: Locale(identifier: "hi"), bundle: appBundle) == "किराना")
+        #expect(secondGroceries.name == "Groceries")
+    }
+
     @Test("partial defaults add only missing records and leave custom categories untouched")
     func partialDefaultsAreCompleted() async throws {
         UserDefaults.standard.removeObject(forKey: seededKey)

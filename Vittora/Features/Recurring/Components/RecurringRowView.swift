@@ -54,7 +54,7 @@ struct RecurringRowView: View {
             // Content
             VStack(alignment: .leading, spacing: VSpacing.xs) {
                 HStack {
-                    Text(category?.name ?? "Uncategorized")
+                    Text(category?.displayName ?? String(localized: "Uncategorized"))
                         .font(VTypography.calloutBold)
                         .foregroundColor(VColors.textPrimary)
                         .lineLimit(1)

@@ -2,16 +2,17 @@ import SwiftUI
 import VittoraCore
 
 struct PeriodSelectorView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Binding var selectedPeriod: BudgetPeriod
 
+    @ViewBuilder
     var body: some View {
         #if os(iOS)
-        Picker(String(localized: "Period"), selection: $selectedPeriod) {
-            ForEach(BudgetPeriod.allCases, id: \.self) { period in
-                Text(period.displayName).tag(period)
-            }
+        if horizontalSizeClass == .compact {
+            periodPicker.pickerStyle(.menu)
+        } else {
+            periodPicker.pickerStyle(.segmented)
         }
-        .pickerStyle(.segmented)
         #else
         HStack(spacing: VSpacing.md) {
             ForEach(BudgetPeriod.allCases, id: \.self) { period in
@@ -28,6 +29,14 @@ struct PeriodSelectorView: View {
             }
         }
         #endif
+    }
+
+    private var periodPicker: some View {
+        Picker(String(localized: "Period"), selection: $selectedPeriod) {
+            ForEach(BudgetPeriod.allCases, id: \.self) { period in
+                Text(period.displayName).tag(period)
+            }
+        }
     }
 }
 
