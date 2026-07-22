@@ -181,9 +181,20 @@ public enum VittoraMigrationPlan: SchemaMigrationPlan {
                 fromVersion: VittoraSchemaV5.self,
                 toVersion: VittoraSchemaV6.self
             ),
-            .lightweight(
+            .custom(
                 fromVersion: VittoraSchemaV6.self,
-                toVersion: VittoraSchemaV7.self
+                toVersion: VittoraSchemaV7.self,
+                willMigrate: nil,
+                didMigrate: { context in
+                    let categories = try context.fetch(FetchDescriptor<SDCategory>())
+                    for category in categories {
+                        category.spendingBucket = SpendingBucket.defaultBucket(
+                            categoryName: category.name,
+                            type: category.type
+                        )
+                    }
+                    try context.save()
+                }
             ),
         ]
     }
