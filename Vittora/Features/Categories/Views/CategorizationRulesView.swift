@@ -192,7 +192,7 @@ struct CategorizationRuleFormView: View {
                                 HStack {
                                     Image(systemName: category.icon)
                                         .foregroundStyle(Color(hex: category.colorHex) ?? .blue)
-                                    Text(category.name)
+                                    Text(category.displayName)
                                 }
                                 .tag(UUID?(category.id))
                             }

@@ -23,6 +23,29 @@ struct CategoryEntityTests {
         #expect(entity.parentID == nil)
     }
 
+    @Test("Display names localize only known defaults")
+    func displayNamesLocalizeOnlyKnownDefaults() throws {
+        let defaultCategory = CategoryEntity(
+            name: "Groceries",
+            icon: "cart.fill",
+            isDefault: true
+        )
+        let customCategory = CategoryEntity(
+            name: "Groceries",
+            icon: "cart.fill"
+        )
+        let appBundle = try #require(
+            Bundle.allBundles.first { $0.bundleIdentifier == "com.enerjiktech.vittora" }
+        )
+
+        #expect(
+            defaultCategory.displayName(locale: Locale(identifier: "hi"), bundle: appBundle) == "किराना"
+        )
+        #expect(
+            customCategory.displayName(locale: Locale(identifier: "hi"), bundle: appBundle) == "Groceries"
+        )
+    }
+
     @Test("Custom initializer values")
     func testCustomInitializerValues() {
         let parentID = UUID()

@@ -4,6 +4,7 @@ import VittoraCore
 struct TaxProfileFormView: View {
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var vm: TaxProfileFormViewModel?
 
     let existingProfile: TaxProfile?
@@ -111,13 +112,7 @@ struct TaxProfileFormView: View {
             // Regime / Filing Status
             if vm.country == .india {
                 Section(String(localized: "Tax Regime")) {
-                    Picker(String(localized: "Regime"), selection: Bindable(vm).indiaRegime) {
-                        ForEach(IndiaRegime.allCases, id: \.self) { r in
-                            Text(r.displayName).tag(r)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .onChange(of: vm.indiaRegime) { _, _ in vm.recalculateLive() }
+                    indiaRegimePicker(vm)
 
                     Picker(String(localized: "Income Type"), selection: Bindable(vm).incomeSourceType) {
                         ForEach(IncomeSourceType.allCases, id: \.self) { t in
@@ -394,6 +389,28 @@ struct TaxProfileFormView: View {
                     .listRowBackground(Color.clear)
             }
         }
+    }
+
+    @ViewBuilder
+    private func indiaRegimePicker(_ vm: TaxProfileFormViewModel) -> some View {
+        #if os(iOS)
+        if horizontalSizeClass == .compact {
+            regimePicker(vm).pickerStyle(.menu)
+        } else {
+            regimePicker(vm).pickerStyle(.segmented)
+        }
+        #else
+        regimePicker(vm).pickerStyle(.segmented)
+        #endif
+    }
+
+    private func regimePicker(_ vm: TaxProfileFormViewModel) -> some View {
+        Picker(String(localized: "Regime"), selection: Bindable(vm).indiaRegime) {
+            ForEach(IndiaRegime.allCases, id: \.self) { regime in
+                Text(regime.displayName).tag(regime)
+            }
+        }
+        .onChange(of: vm.indiaRegime) { _, _ in vm.recalculateLive() }
     }
 
     @ViewBuilder

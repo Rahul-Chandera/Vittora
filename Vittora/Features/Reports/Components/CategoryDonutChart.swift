@@ -19,7 +19,7 @@ struct CategoryDonutChart: View {
             .cornerRadius(4)
             .foregroundStyle(categoryColor(at: index))
             .opacity(selectedCategory == nil || selectedCategory == item.id ? 1.0 : 0.5)
-            .accessibilityLabel(item.category.name)
+            .accessibilityLabel(item.category.displayName)
             .accessibilityValue(item.amount.formatted(.currency(code: currencyCode)))
         }
         .chartAngleSelection(value: Binding(

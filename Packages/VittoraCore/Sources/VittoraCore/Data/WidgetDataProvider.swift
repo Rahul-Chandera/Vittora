@@ -90,7 +90,7 @@ public struct WidgetDataProvider: Sendable {
             let spent = try await spent(for: budget, transactionRepository: transactionRepository)
             totalBudget += budget.amount
             totalSpent += spent
-            let name = budget.categoryID.flatMap { categoriesByID[$0]?.name }
+            let name = budget.categoryID.flatMap { categoriesByID[$0]?.displayName }
                 ?? String(localized: "Overall")
             let colorHex = budget.categoryID.flatMap { categoriesByID[$0]?.colorHex }
                 ?? "#34C759"

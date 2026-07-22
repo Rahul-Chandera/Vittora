@@ -81,7 +81,7 @@ struct TaxAnnualSummaryCard: View {
                             .frame(width: 10, height: 10)
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(item.category.name)
+                            Text(item.category.displayName)
                                 .font(VTypography.body)
                                 .foregroundStyle(VColors.textPrimary)
                             Text(
@@ -113,7 +113,7 @@ struct TaxAnnualSummaryCard: View {
             Text(
                 summary.taxRelevantCategories
                     .prefix(6)
-                    .map(\.name)
+                    .map(\.displayName)
                     .joined(separator: ", ")
             )
             .font(VTypography.caption1)

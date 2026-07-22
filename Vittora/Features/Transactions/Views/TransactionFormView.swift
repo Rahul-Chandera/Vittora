@@ -173,7 +173,7 @@ struct TransactionFormView: View {
                     HStack {
                         Image(systemName: category.icon)
                             .foregroundColor(Color(hex: category.colorHex) ?? .blue)
-                        Text(category.name)
+                        Text(category.displayName)
                     }
                     .tag(UUID?(category.id))
                 }
@@ -201,7 +201,7 @@ struct TransactionFormView: View {
                         Image(systemName: category.icon)
                             .foregroundColor(Color(hex: category.colorHex) ?? .blue)
                             .accessibilityHidden(true)
-                        Text(category.name)
+                        Text(category.displayName)
                     }
                     .tag(UUID?(category.id))
                 }
@@ -255,12 +255,12 @@ struct TransactionFormView: View {
                         Image(systemName: "lightbulb.fill")
                             .foregroundColor(.yellow)
                             .accessibilityHidden(true)
-                        Text(String(localized: "Suggested: \(suggested.name)"))
+                        Text(String(localized: "Suggested: \(suggested.displayName)"))
                             .foregroundColor(VColors.textPrimary)
                         Spacer()
                     }
                 }
-                .accessibilityLabel(String(localized: "Suggested category: \(suggested.name)"))
+                .accessibilityLabel(String(localized: "Suggested category: \(suggested.displayName)"))
             }
         } header: {
             formSectionHeader(String(localized: "Details"))

@@ -43,6 +43,48 @@ public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
     public nonisolated var createdAt: Date
     public nonisolated var updatedAt: Date
 
+    public nonisolated var displayName: String {
+        displayName(locale: .current)
+    }
+
+    public nonisolated func displayName(locale: Locale, bundle: Bundle = .main) -> String {
+        guard isDefault else { return name }
+        let localizedBundle = locale.language.languageCode
+            .flatMap { bundle.url(forResource: $0.identifier, withExtension: "lproj") }
+            .flatMap(Bundle.init(url:))
+            ?? bundle
+
+        return switch name {
+        case "Groceries": String(localized: "Groceries", bundle: localizedBundle)
+        case "Dining": String(localized: "Dining", bundle: localizedBundle)
+        case "Transport": String(localized: "Transport", bundle: localizedBundle)
+        case "Entertainment": String(localized: "Entertainment", bundle: localizedBundle)
+        case "Shopping": String(localized: "Shopping", bundle: localizedBundle)
+        case "Health": String(localized: "Health", bundle: localizedBundle)
+        case "Education": String(localized: "Education", bundle: localizedBundle)
+        case "Utilities": String(localized: "Utilities", bundle: localizedBundle)
+        case "Rent": String(localized: "Rent", bundle: localizedBundle)
+        case "EMI": String(localized: "EMI", bundle: localizedBundle)
+        case "Insurance": String(localized: "Insurance", bundle: localizedBundle)
+        case "Personal Care": String(localized: "Personal Care", bundle: localizedBundle)
+        case "Gifts": String(localized: "Gifts", bundle: localizedBundle)
+        case "Travel": String(localized: "Travel", bundle: localizedBundle)
+        case "Subscriptions": String(localized: "Subscriptions", bundle: localizedBundle)
+        case "Phone": String(localized: "Phone", bundle: localizedBundle)
+        case "Internet": String(localized: "Internet", bundle: localizedBundle)
+        case "Clothing": String(localized: "Clothing", bundle: localizedBundle)
+        case "Pets": String(localized: "Pets", bundle: localizedBundle)
+        case "Charity": String(localized: "Charity", bundle: localizedBundle)
+        case "Other": String(localized: "Other", bundle: localizedBundle)
+        case "Salary": String(localized: "Salary", bundle: localizedBundle)
+        case "Freelance": String(localized: "Freelance", bundle: localizedBundle)
+        case "Investments": String(localized: "Investments", bundle: localizedBundle)
+        case "Gifts Received": String(localized: "Gifts Received", bundle: localizedBundle)
+        case "Other Income": String(localized: "Other Income", bundle: localizedBundle)
+        default: name
+        }
+    }
+
     public nonisolated init(
         id: UUID = UUID(),
         name: String,

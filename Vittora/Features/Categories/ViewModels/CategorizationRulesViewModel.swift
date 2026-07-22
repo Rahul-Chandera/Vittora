@@ -43,7 +43,7 @@ struct CategorizationRuleRowModel: Identifiable, Sendable {
                 return CategorizationRuleRowModel(
                     id: rule.id,
                     keyword: rule.keyword,
-                    categoryName: category?.name ?? String(localized: "Unknown category"),
+                    categoryName: category?.displayName ?? String(localized: "Unknown category"),
                     categoryIcon: category?.icon ?? "tag.fill",
                     categoryColorHex: category?.colorHex ?? "#888888",
                     isEnabled: rule.isEnabled,
