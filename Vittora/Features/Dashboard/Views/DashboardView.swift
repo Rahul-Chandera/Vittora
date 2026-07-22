@@ -46,6 +46,13 @@ struct DashboardView: View {
         .navigationDestination(item: $navigateDestination) { dest in
             NavigationDestinationView(destination: dest)
         }
+        .task(id: appState.pendingAccountDetailID) {
+            guard let id = appState.pendingAccountDetailID else { return }
+            appState.clearPendingAccountDetailID()
+            let exists = (try? await dependencies.accountRepository.fetchByID(id)) != nil
+            guard exists else { return }
+            navigateDestination = .accountDetail(id: id)
+        }
         #if os(iOS)
         .if(shouldPresentQuickActionsAsSheet) { view in
             view

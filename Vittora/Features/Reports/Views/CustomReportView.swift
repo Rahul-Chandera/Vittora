@@ -63,6 +63,13 @@ struct CustomReportView: View {
             }
         }
         .errorAlert(message: customReportErrorBinding)
+        .advertisesHandoff(
+            .reportDetail(
+                type: ReportType.custom.rawValue,
+                start: vm?.dateRange?.lowerBound,
+                end: vm?.dateRange?.upperBound
+            )
+        )
     }
 
     @ViewBuilder
