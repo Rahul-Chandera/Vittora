@@ -58,6 +58,27 @@ import VittoraCore
         self.currencyCode = currencyCode
     }
 
+    func applyHandoffDraft(_ draft: HandoffDeepLink.Draft) {
+        if let amount = draft.amount {
+            amountString = amount
+        }
+        if let note = draft.note {
+            self.note = note
+        }
+        if let categoryID = draft.categoryID {
+            selectedCategoryID = categoryID
+        }
+        if let accountID = draft.accountID {
+            selectedAccountID = accountID
+        }
+        if let date = draft.date {
+            self.date = date
+        }
+        if let typeRaw = draft.type, let parsed = TransactionType(rawValue: typeRaw) {
+            type = parsed
+        }
+    }
+
     func loadTransaction(_ entity: TransactionEntity) {
         isEditing = true
         editingID = entity.id

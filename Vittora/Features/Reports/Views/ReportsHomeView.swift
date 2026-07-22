@@ -2,9 +2,13 @@ import SwiftUI
 import VittoraCore
 
 struct ReportsHomeView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.currencyCode) private var currencyCode
     @State private var vm: ReportsHomeViewModel?
+    @State private var pendingReportType: ReportType?
+    @State private var pendingReportStart: Date?
+    @State private var pendingReportEnd: Date?
 
     private let reportCards: [(type: ReportType, title: String, subtitle: String, icon: String, color: Color)] = [
         (.monthly, String(localized: "Monthly Overview"), String(localized: "Income vs expenses over 12 months"), "chart.bar.fill", VColors.primary),
@@ -60,6 +64,17 @@ struct ReportsHomeView: View {
             .navigationTitle(String(localized: "Reports"))
             .navigationDestination(for: ReportType.self) { type in
                 reportView(for: type)
+                    .advertisesHandoff(.reportDetail(type: type.rawValue, start: nil, end: nil))
+            }
+            .navigationDestination(item: $pendingReportType) { type in
+                reportView(for: type)
+                    .advertisesHandoff(
+                        .reportDetail(
+                            type: type.rawValue,
+                            start: pendingReportStart,
+                            end: pendingReportEnd
+                        )
+                    )
             }
         }
         .task {
@@ -68,6 +83,17 @@ struct ReportsHomeView: View {
                 await vm?.load()
             }
             dependencies.conversionEventRecorder.afterReportOpened()
+        }
+        .task(id: appState.pendingReportHandoff?.typeRaw) {
+            guard let pending = appState.pendingReportHandoff,
+                  let type = pending.reportType
+            else {
+                return
+            }
+            pendingReportStart = pending.start
+            pendingReportEnd = pending.end
+            pendingReportType = type
+            appState.clearPendingReportHandoff()
         }
         .errorAlert(message: reportsHomeErrorBinding)
     }

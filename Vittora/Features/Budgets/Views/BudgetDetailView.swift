@@ -208,6 +208,10 @@ struct BudgetDetailView: View {
                 await viewModel.loadBudget(id: budgetID)
             }
         }
+        .advertisesHandoff(
+            viewModel?.budget == nil ? nil : .budgetDetail(budgetID),
+            isActive: viewModel?.budget != nil
+        )
     }
 
     private func calculateDaysInPeriod(for budget: BudgetEntity) -> Int {
