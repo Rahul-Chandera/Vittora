@@ -101,6 +101,8 @@ struct FiftyThirtyTwentyReportView: View {
             )
             .font(VTypography.caption1)
             .foregroundStyle(VColors.textSecondary)
+            .adaptiveLineLimit(3)
+            .adaptiveMinimumScaleFactor(0.8)
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityIdentifier("fifty-thirty-twenty-disclaimer")
         }
@@ -129,14 +131,17 @@ struct FiftyThirtyTwentyReportView: View {
     private func rows(_ result: FiftyThirtyTwentyResult) -> some View {
         VStack(spacing: 0) {
             ForEach(result.rows) { row in
-                HStack(spacing: VSpacing.md) {
+                HStack(alignment: .top, spacing: VSpacing.md) {
                     Circle()
                         .fill(colors[row.bucket] ?? VColors.textTertiary)
                         .frame(width: 10, height: 10)
+                        .padding(.top, 6)
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(row.bucket.displayName)
                             .font(VTypography.bodyBold)
+                            .adaptiveLineLimit(1)
+                            .adaptiveMinimumScaleFactor(0.8)
                         Text(
                             String(
                                 localized: "\(percent(row.actualPercent)) actual · \(percent(row.targetPercent)) target"
@@ -144,8 +149,10 @@ struct FiftyThirtyTwentyReportView: View {
                         )
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textSecondary)
+                        .adaptiveLineLimit(2)
+                        .adaptiveMinimumScaleFactor(0.75)
                     }
-                    Spacer()
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     VStack(alignment: .trailing, spacing: 2) {
                         Text(CurrencyFormatter.format(row.amount, currencyCode: currencyCode))
                             .font(VTypography.bodyBold)
@@ -153,7 +160,11 @@ struct FiftyThirtyTwentyReportView: View {
                         Text(varianceLabel(row.variancePoints))
                             .font(VTypography.caption1)
                             .foregroundStyle(row.variancePoints > 0 ? VColors.expense : VColors.income)
+                            .adaptiveLineLimit(1)
+                            .adaptiveMinimumScaleFactor(0.75)
+                            .multilineTextAlignment(.trailing)
                     }
+                    .layoutPriority(1)
                 }
                 .padding(VSpacing.cardPadding)
                 if row.id != result.rows.last?.id { Divider() }
@@ -169,6 +180,8 @@ struct FiftyThirtyTwentyReportView: View {
             Text(row.map(verdictText) ?? "")
                 .font(VTypography.calloutBold)
                 .foregroundStyle(VColors.textPrimary)
+                .adaptiveLineLimit(4)
+                .adaptiveMinimumScaleFactor(0.8)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -180,6 +193,8 @@ struct FiftyThirtyTwentyReportView: View {
                 systemImage: "plus.circle"
             )
             .font(VTypography.bodyBold)
+            .adaptiveLineLimit(3)
+            .adaptiveMinimumScaleFactor(0.8)
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityIdentifier("fifty-thirty-twenty-zero-income")
         }
@@ -189,6 +204,8 @@ struct FiftyThirtyTwentyReportView: View {
         Text(String(localized: "Uncategorized expenses count as wants."))
             .font(VTypography.caption1)
             .foregroundStyle(VColors.textSecondary)
+            .adaptiveLineLimit(3)
+            .adaptiveMinimumScaleFactor(0.8)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 

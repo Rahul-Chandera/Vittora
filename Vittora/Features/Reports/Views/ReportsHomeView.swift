@@ -7,7 +7,6 @@ struct ReportsHomeView: View {
     @State private var vm: ReportsHomeViewModel?
 
     private let reportCards: [(type: ReportType, title: String, subtitle: String, icon: String, color: Color)] = [
-        (.fiftyThirtyTwenty, String(localized: "50/30/20"), String(localized: "Compare needs, wants, and savings with the guideline"), "chart.bar.xaxis", VColors.savings),
         (.monthly, String(localized: "Monthly Overview"), String(localized: "Income vs expenses over 12 months"), "chart.bar.fill", VColors.primary),
         (.category, String(localized: "Category Breakdown"), String(localized: "Spending by category with percentages"), "chart.pie.fill", VColors.warning),
         (.trends, String(localized: "Spending Trends"), String(localized: "Daily, weekly, or monthly trend chart"), "chart.line.uptrend.xyaxis", VColors.savings),
@@ -17,6 +16,7 @@ struct ReportsHomeView: View {
         (.cashFlowForecast, String(localized: "Cash Flow Forecast"), String(localized: "90-day projected balance estimate"), "chart.xyaxis.line", VColors.primary),
         (.netWorth, String(localized: "Net Worth"), String(localized: "See how your total balance changes over time"), "chart.line.uptrend.xyaxis.circle.fill", VColors.savings),
         (.subscriptionAudit, String(localized: "Subscription Audit"), String(localized: "What recurring expenses cost each month"), "arrow.triangle.2.circlepath", VColors.transfer),
+        (.fiftyThirtyTwenty, String(localized: "50/30/20"), String(localized: "Compare needs, wants, and savings with the guideline"), "chart.bar.xaxis", VColors.savings),
         (.emergencyFund, String(localized: "Emergency Fund"), String(localized: "See how many months of essentials you could cover"), "shield.lefthalf.filled", VColors.savings)
     ]
 

@@ -12,7 +12,8 @@ struct SettleDebtUseCase: Sendable {
     func execute(
         debtID: UUID,
         settlementAmount: Decimal,
-        accountID: UUID?
+        accountID: UUID?,
+        date: Date = .now
     ) async throws {
         guard let entry = try await debtRepository.fetchByID(debtID) else {
             throw VittoraError.notFound(String(localized: "Debt entry not found"))
@@ -32,7 +33,7 @@ struct SettleDebtUseCase: Sendable {
             let transactionType: TransactionType = entry.direction == .lent ? .income : .expense
             transaction = TransactionEntity(
                 amount: settlementAmount,
-                date: .now,
+                date: date,
                 note: entry.note.map { "Settlement: \($0)" } ?? String(localized: "Debt Settlement"),
                 type: transactionType,
                 paymentMethod: .bankTransfer,
