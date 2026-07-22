@@ -86,6 +86,7 @@ struct VittoraWatchComplication: Widget {
 
 private struct WatchComplicationView: View {
     @Environment(\.widgetFamily) private var family
+    @Environment(\.redactionReasons) private var redactionReasons
     let entry: WatchComplicationEntry
 
     var body: some View {
@@ -101,42 +102,58 @@ private struct WatchComplicationView: View {
 
     @ViewBuilder
     private func content(for snapshot: WatchSnapshot) -> some View {
-        switch family {
-        case .accessoryCircular:
-            Gauge(value: budgetProgress(snapshot)) {
-                Text(String(localized: "Budget"))
-            } currentValueLabel: {
-                amount(snapshot.budgetRemaining, currencyCode: snapshot.currencyCode)
-                    .font(.caption2)
-            }
-            .gaugeStyle(.accessoryCircularCapacity)
-        case .accessoryCorner:
-            amount(snapshot.todaySpend, currencyCode: snapshot.currencyCode)
-                .font(.headline)
-                .widgetLabel {
-                    Label(String(localized: "Today"), systemImage: "creditcard")
+        Group {
+            switch family {
+            case .accessoryCircular:
+                Gauge(value: budgetProgress(snapshot)) {
+                    Text(String(localized: "Budget"))
+                } currentValueLabel: {
+                    amount(snapshot.budgetRemaining, currencyCode: snapshot.currencyCode)
+                        .font(.caption2)
                 }
-        case .accessoryInline:
-            Text(
-                "\(String(localized: "Today")) \(formatted(snapshot.todaySpend, snapshot.currencyCode)) · "
+                .gaugeStyle(.accessoryCircularCapacity)
+            case .accessoryCorner:
+                amount(snapshot.todaySpend, currencyCode: snapshot.currencyCode)
+                    .font(.headline)
+                    .widgetLabel {
+                        Label(String(localized: "Today"), systemImage: "creditcard")
+                    }
+            case .accessoryInline:
+                Text(
+                    "\(String(localized: "Today")) \(formatted(snapshot.todaySpend, snapshot.currencyCode)) · "
                     + "\(String(localized: "Left")) \(formatted(snapshot.budgetRemaining, snapshot.currencyCode))"
-            )
-            .privacySensitive()
-        default:
-            VStack(alignment: .leading, spacing: 2) {
-                labeledAmount(
-                    String(localized: "Today"),
-                    snapshot.todaySpend,
-                    currencyCode: snapshot.currencyCode
                 )
-                labeledAmount(
-                    String(localized: "Budget left"),
-                    snapshot.budgetRemaining,
-                    currencyCode: snapshot.currencyCode
-                )
+                .privacySensitive()
+            default:
+                VStack(alignment: .leading, spacing: 2) {
+                    labeledAmount(
+                        String(localized: "Today"),
+                        snapshot.todaySpend,
+                        currencyCode: snapshot.currencyCode
+                    )
+                    labeledAmount(
+                        String(localized: "Budget left"),
+                        snapshot.budgetRemaining,
+                        currencyCode: snapshot.currencyCode
+                    )
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel(for: snapshot))
+    }
+
+    private func accessibilityLabel(for snapshot: WatchSnapshot) -> String {
+        if redactionReasons.contains(.privacy) {
+            return WidgetAccessibilityLabels.watchComplication
+        }
+        return WidgetAccessibilityLabels.todaySpendingAndBudgetRemaining(
+            todayAmount: snapshot.todaySpend,
+            remainingAmount: snapshot.budgetRemaining,
+            progress: budgetProgress(snapshot),
+            currencyCode: snapshot.currencyCode
+        )
     }
 
     @ViewBuilder

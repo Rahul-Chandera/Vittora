@@ -25,6 +25,8 @@ struct WatchQuickExpenseView: View {
                     Text(amount.decimal, format: .currency(code: currencyCode))
                         .font(.title2.weight(.semibold))
                         .frame(maxWidth: .infinity)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                 }
                 .buttonStyle(.bordered)
                 .focusable()
@@ -61,6 +63,11 @@ struct WatchQuickExpenseView: View {
                 if !isTyping {
                     amountIsFocused = true
                 }
+            }
+            .onChange(of: amount.cents) { _, _ in
+                AccessibilityNotification.Announcement(
+                    amount.decimal.formatted(.currency(code: currencyCode))
+                ).post()
             }
             .sheet(isPresented: $isTyping) {
                 VStack {

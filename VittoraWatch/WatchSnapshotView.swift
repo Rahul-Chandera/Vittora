@@ -66,8 +66,14 @@ struct WatchSnapshotView: View {
                 .foregroundStyle(.secondary)
             Text(amount, format: .currency(code: currencyCode))
                 .font(.title3.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
                 .accessibilityIdentifier("watch-\(title.lowercased().replacingOccurrences(of: " ", with: "-"))")
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(
+            String(localized: "\(title), \(amount.formatted(.currency(code: currencyCode)))")
+        )
     }
 
     private func lastUpdatedText(_ date: Date) -> String {
