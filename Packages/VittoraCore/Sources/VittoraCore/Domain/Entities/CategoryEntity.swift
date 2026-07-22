@@ -16,6 +16,18 @@ public enum SpendingBucket: String, Sendable, Hashable, CaseIterable, Codable {
         case .savings: String(localized: "Savings")
         }
     }
+
+    public nonisolated static func defaultBucket(
+        categoryName: String,
+        type: CategoryType
+    ) -> SpendingBucket {
+        guard type == .expense else { return .wants }
+        let needs = [
+            "Groceries", "Transport", "Health", "Education", "Utilities", "Rent",
+            "EMI", "Insurance", "Personal Care", "Phone", "Internet", "Clothing", "Pets",
+        ]
+        return needs.contains(categoryName) ? .needs : .wants
+    }
 }
 
 public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
