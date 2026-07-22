@@ -8081,6 +8081,17 @@
         }
       }
     },
+    "Saves this transaction" : {
+      "comment" : "VoiceOver hint for the transaction form Save button when the form is complete.",
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह लेन-देन सहेजता है"
+          }
+        }
+      }
+    },
     "Save" : {
       "localizations" : {
         "hi" : {
@@ -12185,6 +12196,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "आपातकालीन फंड"
+          }
+        }
+      }
+    },
+    "Enter an amount first" : {
+      "comment" : "VoiceOver hint for the transaction form Save button when amount is still empty.",
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पहले एक राशि दर्ज करें"
+          }
+        }
+      }
+    },
+    "Enter an amount to save this transaction." : {
+      "comment" : "Validation alert when Save is tapped on an incomplete transaction form.",
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह लेन-देन सहेजने के लिए एक राशि दर्ज करें।"
           }
         }
       }

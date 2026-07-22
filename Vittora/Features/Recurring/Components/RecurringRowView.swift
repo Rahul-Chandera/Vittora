@@ -50,7 +50,7 @@ struct RecurringRowView: View {
                     .opacity(0.15)
 
                 Image(systemName: categoryIcon)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundColor(categoryColor)
             }
             .frame(width: 44, height: 44)
@@ -65,8 +65,8 @@ struct RecurringRowView: View {
                     Text(category?.displayName ?? String(localized: "Uncategorized"))
                         .font(VTypography.calloutBold)
                         .foregroundColor(VColors.textPrimary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                        .adaptiveLineLimit(1)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     if !dynamicTypeSize.isAccessibilitySize {
                         Spacer()
@@ -107,7 +107,7 @@ struct RecurringRowView: View {
             VStack(spacing: VSpacing.xxs) {
                 Image(systemName: rule.isActive ? "checkmark.circle.fill" : "pause.circle.fill")
                     .foregroundColor(rule.isActive ? .green : .orange)
-                    .font(.system(size: 20))
+                    .font(.title3)
                     .accessibilityHidden(true)
             }
         }

@@ -205,8 +205,8 @@ struct SplitGroupDetailView: View {
     private var emptyState: some View {
         VStack(spacing: VSpacing.lg) {
             Image(systemName: "cart.badge.plus")
-                .font(.system(size: 48))
-                .foregroundStyle(VColors.textTertiary)
+                .font(.largeTitle)
+                .foregroundStyle(VColors.textSecondary)
                 .accessibilityHidden(true)
             Text(String(localized: "No expenses yet"))
                 .font(VTypography.bodyBold)

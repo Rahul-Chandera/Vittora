@@ -66,15 +66,18 @@ struct SettingsView: View {
             }
             .headerProminence(.increased)
 
-            // Manage
-            Section(String(localized: "Manage")) {
+            // Manage — keep title StaticTexts queryable for UI tests. Icons in
+            // SettingsRow are already accessibilityHidden, so combining children
+            // only produced XCTest type-mismatch ghosts (Other vs StaticText),
+            // especially for the Recurring row on CI.
+            Section {
                 NavigationLink {
                     AccountListView()
                 } label: {
                     SettingsRow(icon: "building.columns.fill", iconColor: .blue,
                                 title: String(localized: "Accounts"), value: "")
                 }
-                .accessibilityElement(children: .combine)
+                .accessibilityLabel(String(localized: "Accounts"))
                 .accessibilityIdentifier("settings-manage-accounts")
                 NavigationLink {
                     CategoryListView()
@@ -82,7 +85,7 @@ struct SettingsView: View {
                     SettingsRow(icon: "tag.fill", iconColor: .pink,
                                 title: String(localized: "Categories"), value: "")
                 }
-                .accessibilityElement(children: .combine)
+                .accessibilityLabel(String(localized: "Categories"))
                 .accessibilityIdentifier("settings-manage-categories")
                 NavigationLink {
                     PayeeListView()
@@ -90,7 +93,7 @@ struct SettingsView: View {
                     SettingsRow(icon: "person.2.fill", iconColor: .teal,
                                 title: String(localized: "Payees"), value: "")
                 }
-                .accessibilityElement(children: .combine)
+                .accessibilityLabel(String(localized: "Payees"))
                 .accessibilityIdentifier("settings-manage-payees")
                 NavigationLink {
                     RecurringListView()
@@ -98,13 +101,18 @@ struct SettingsView: View {
                     SettingsRow(icon: "arrow.triangle.2.circlepath", iconColor: .indigo,
                                 title: String(localized: "Recurring"), value: "")
                 }
-                .accessibilityElement(children: .combine)
+                .accessibilityLabel(String(localized: "Recurring"))
                 .accessibilityIdentifier("settings-manage-recurring")
+            } header: {
+                Text(String(localized: "Manage"))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                    .textCase(nil)
             }
             .headerProminence(.increased)
 
             // Security
-            Section(String(localized: "Security")) {
+            Section {
                 NavigationLink {
                     SecuritySettingsView(vm: vm)
                 } label: {
@@ -125,6 +133,11 @@ struct SettingsView: View {
                     SettingsRow(icon: "list.bullet.rectangle", iconColor: .gray,
                                 title: String(localized: "Security audit log"), value: "")
                 }
+            } header: {
+                Text(String(localized: "Security"))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                    .textCase(nil)
             }
             .headerProminence(.increased)
 
@@ -372,6 +385,7 @@ struct SettingsRow: View {
                 : AnyLayout(HStackLayout(spacing: VSpacing.sm))
             layout {
                 Text(title)
+                    .font(VTypography.body)
                     .foregroundStyle(VColors.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
                 if !dynamicTypeSize.isAccessibilitySize {

@@ -2,6 +2,8 @@ import SwiftUI
 import VittoraCore
 
 struct AmountInputView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     @Binding var amountString: String
     var currencyCode: String = CurrencyDefaults.code
     var type: TransactionType = .expense
@@ -9,7 +11,10 @@ struct AmountInputView: View {
 
     var body: some View {
         VStack(spacing: VSpacing.md) {
-            HStack(spacing: VSpacing.xs) {
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+                : AnyLayout(HStackLayout(spacing: VSpacing.xs))
+            layout {
                 Text(String.currencySymbol(for: currencyCode))
                     .font(VTypography.amountLarge)
                     .foregroundColor(transactionColor(for: type))
@@ -41,7 +46,9 @@ struct AmountInputView: View {
                         }
                     }
 
-                Spacer()
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Spacer()
+                }
             }
             .padding(VSpacing.lg)
             .background(VColors.secondaryBackground)

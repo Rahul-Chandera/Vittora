@@ -6,6 +6,7 @@ struct TransactionFormView: View {
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
     @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: TransactionFormViewModel?
     @State private var accounts: [AccountEntity] = []
     @State private var categories: (expense: [CategoryEntity], income: [CategoryEntity]) = ([], [])
@@ -98,7 +99,15 @@ struct TransactionFormView: View {
 
                     ToolbarItem(placement: .confirmationAction) {
                         Button {
-                            guard vm.canSave else { return }
+                            guard vm.canSave else {
+                                // Keep Save tappable and full-contrast: `.disabled`
+                                // on liquid-glass toolbars dims the label below AA
+                                // (Apple's contrast sampler fails the empty form).
+                                vm.error = String(
+                                    localized: "Enter an amount to save this transaction."
+                                )
+                                return
+                            }
                             Task {
                                 do {
                                     try await vm.save()
@@ -118,11 +127,14 @@ struct TransactionFormView: View {
                             }
                         } label: {
                             Text(String(localized: "Save"))
-                                .foregroundColor(VColors.textPrimary)
+                                .foregroundStyle(VColors.textPrimary)
                         }
-                        .disabled(!vm.canSave)
                         .keyboardShortcut(.defaultAction)
-                        .accessibilityRespondsToUserInteraction(vm.canSave)
+                        .accessibilityHint(
+                            vm.canSave
+                                ? String(localized: "Saves this transaction")
+                                : String(localized: "Enter an amount first")
+                        )
                         .accessibilityIdentifier("transaction-form-save-button")
                     }
                 }
@@ -249,10 +261,7 @@ struct TransactionFormView: View {
             .accessibilityIdentifier("transaction-add-account-button")
             .accessibilityLabel(String(localized: "Add Account"))
 
-            HStack {
-                Text(String(localized: "Payee"))
-                    .foregroundStyle(.primary)
-                Spacer()
+            adaptiveLabeledControl(label: String(localized: "Payee")) {
                 Picker("", selection: Bindable(vm).selectedPayeeID) {
                     Text(String(localized: "None")).tag(UUID?.none)
                     ForEach(payees) { payee in
@@ -261,6 +270,9 @@ struct TransactionFormView: View {
                 }
                 .labelsHidden()
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(String(localized: "Payee"))
+            .accessibilityValue(payeeName(for: vm.selectedPayeeID) ?? String(localized: "None"))
             .accessibilityIdentifier("transaction-payee-picker")
             .onChange(of: vm.selectedPayeeID) { _, _ in
                 Task {
@@ -298,10 +310,7 @@ struct TransactionFormView: View {
         }
 
         Section {
-            HStack {
-                Text(String(localized: "Date"))
-                    .foregroundStyle(.primary)
-                Spacer()
+            adaptiveLabeledControl(label: String(localized: "Date")) {
                 DatePicker(
                     "",
                     selection: Bindable(vm).date,
@@ -310,6 +319,7 @@ struct TransactionFormView: View {
                 .labelsHidden()
             }
             .accessibilityElement(children: .combine)
+            .accessibilityLabel(String(localized: "Date"))
 
             Picker(String(localized: "Payment Method"), selection: Bindable(vm).paymentMethod) {
                 ForEach(PaymentMethod.allCases, id: \.self) { method in
@@ -349,6 +359,27 @@ struct TransactionFormView: View {
             .font(.headline)
             .foregroundStyle(.primary)
             .textCase(nil)
+    }
+
+    /// Label + control: horizontal at standard sizes, vertical at accessibility
+    /// Dynamic Type so the control value is not clipped beside the label.
+    @ViewBuilder
+    private func adaptiveLabeledControl<Control: View>(
+        label: String,
+        @ViewBuilder control: () -> Control
+    ) -> some View {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+            : AnyLayout(HStackLayout())
+        layout {
+            Text(label)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+            if !dynamicTypeSize.isAccessibilitySize {
+                Spacer(minLength: 0)
+            }
+            control()
+        }
     }
 
     private func loadTransactionData(_ vm: TransactionFormViewModel?, transactionID: UUID) async {

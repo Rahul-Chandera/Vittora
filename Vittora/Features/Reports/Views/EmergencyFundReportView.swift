@@ -109,8 +109,8 @@ struct EmergencyFundReportView: View {
                 )
 
                 VStack(alignment: .leading, spacing: VSpacing.xs) {
-                    Label(String(localized: "3-month target"), systemImage: "circle.fill")
-                    Label(String(localized: "6-month target"), systemImage: "circle.fill")
+                    targetLegendRow(String(localized: "3-month target"))
+                    targetLegendRow(String(localized: "6-month target"))
                 }
                 .font(VTypography.bodyBold)
                 .foregroundStyle(VColors.textPrimary)
@@ -258,6 +258,17 @@ struct EmergencyFundReportView: View {
         .font(VTypography.caption1)
         .foregroundStyle(VColors.textSecondary)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func targetLegendRow(_ title: String) -> some View {
+        HStack(spacing: VSpacing.sm) {
+            Circle()
+                .fill(VColors.textPrimary)
+                .frame(width: 8, height: 8)
+                .accessibilityHidden(true)
+            Text(title)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     private var emptyState: some View {

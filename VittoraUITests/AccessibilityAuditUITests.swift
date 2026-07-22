@@ -585,6 +585,15 @@ final class AccessibilityAuditUITests: XCTestCase {
         extraEnvironment: [String: String] = [:]
     ) {
         app.launchArguments = ["--uitesting", "--ui-test-seed-demo", "--ui-test-reset-app-lock"] + extraArguments
+        // a11y3 screenshot cases pass AccessibilityXL via extraArguments. Without an
+        // explicit category here, some simulator hosts retain that XL size across
+        // XCTest relaunches and the following audits sample a size they did not opt into.
+        if !extraArguments.contains("-UIPreferredContentSizeCategoryName") {
+            app.launchArguments += [
+                "-UIPreferredContentSizeCategoryName",
+                "UICTContentSizeCategoryLarge"
+            ]
+        }
         app.launchEnvironment["UITEST_INITIAL_TAB"] = initialTab
         for (key, value) in extraEnvironment {
             app.launchEnvironment[key] = value
