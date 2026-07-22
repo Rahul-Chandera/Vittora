@@ -15,9 +15,24 @@ struct BudgetRemainingEntry: TimelineEntry {
                 total: 1000,
                 currencyCode: "USD",
                 categories: [
-                    BudgetCategoryProgress(name: "Groceries", spent: 320, amount: 400, colorHex: "#34C759"),
-                    BudgetCategoryProgress(name: "Dining", spent: 180, amount: 200, colorHex: "#FF9500"),
-                    BudgetCategoryProgress(name: "Transport", spent: 90, amount: 150, colorHex: "#007AFF"),
+                    BudgetCategoryProgress(
+                        name: String(localized: "Groceries"),
+                        spent: 320,
+                        amount: 400,
+                        colorHex: "#34C759"
+                    ),
+                    BudgetCategoryProgress(
+                        name: String(localized: "Dining"),
+                        spent: 180,
+                        amount: 200,
+                        colorHex: "#FF9500"
+                    ),
+                    BudgetCategoryProgress(
+                        name: String(localized: "Transport"),
+                        spent: 90,
+                        amount: 150,
+                        colorHex: "#007AFF"
+                    ),
                 ],
                 hasBudgets: true
             ),

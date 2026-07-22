@@ -66,7 +66,7 @@ struct SubscriptionAuditUseCase: Sendable {
 
         let rows: [SubscriptionAuditRow] = expenseRules.map { rule in
             let category = rule.templateCategoryID.flatMap { categoryByID[$0] }
-            let categoryName = category?.name ?? String(localized: "Uncategorized")
+            let categoryName = category?.displayName ?? String(localized: "Uncategorized")
             let name: String = {
                 if let note = rule.templateNote?.trimmingCharacters(in: .whitespacesAndNewlines),
                    !note.isEmpty {

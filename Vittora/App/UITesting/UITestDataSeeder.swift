@@ -43,7 +43,8 @@ final class UITestDataSeeder {
         try await dataSeeder.reseedDefaultCategories()
         let categories = try await categoryRepository.fetchAll()
         func category(_ name: String) -> UUID? {
-            categories.first { $0.name == name }?.id
+            let localizedName = String(localized: String.LocalizationValue(name))
+            return categories.first { $0.name == localizedName }?.id
         }
 
         // Region-specific dataset. US is the default (primary market for App
@@ -219,6 +220,14 @@ final class UITestDataSeeder {
             currentAmount: isIndia ? 12_500 : 1_800,
             colorHex: "#007AFF"
         ))
+        try await transactionRepository.create(TransactionEntity(
+            amount: isIndia ? 8_000 : 600,
+            date: monthDay(0, 12),
+            note: "Emergency Fund contribution",
+            type: .adjustment,
+            currencyCode: currency,
+            tags: [FiftyThirtyTwentyReportUseCase.savingsContributionTag]
+        ))
 
         try await debtRepository.create(DebtEntry(
             payeeID: friend.id,
@@ -226,6 +235,22 @@ final class UITestDataSeeder {
             settledAmount: isIndia ? 2_000 : 100,
             direction: .lent, note: "Concert tickets"
         ))
+        let borrowedDebt = DebtEntry(
+            payeeID: friend.id,
+            amount: isIndia ? 10_000 : 500,
+            direction: .borrowed,
+            note: "Moving costs"
+        )
+        try await debtRepository.create(borrowedDebt)
+        try await SettleDebtUseCase(
+            debtRepository: debtRepository,
+            accountRepository: accountRepository,
+            ledgerWriting: ledgerWriting
+        ).execute(
+            debtID: borrowedDebt.id,
+            settlementAmount: isIndia ? 4_000 : 200,
+            accountID: bank.id
+        )
 
         func daysAhead(_ days: Int) -> Date {
             Calendar.current.date(byAdding: .day, value: days, to: .now) ?? .now
@@ -246,7 +271,10 @@ final class UITestDataSeeder {
         }
     }
 
-    func seedTransactionScenarioIfNeeded() async throws {
+    func seedTransactionScenarioIfNeeded(
+        payeeRepository: any PayeeRepository,
+        recurringRuleRepository: any RecurringRuleRepository
+    ) async throws {
         let existingAccounts = try await accountRepository.fetchAll()
         let existingTransactions = try await transactionRepository.fetchAll(filter: nil)
         guard existingAccounts.isEmpty, existingTransactions.isEmpty else {
@@ -285,6 +313,19 @@ final class UITestDataSeeder {
         try await categoryRepository.create(groceriesCategory)
         try await categoryRepository.create(salaryCategory)
 
+        let merchant = PayeeEntity(name: String(localized: "UI Test Merchant"))
+        try await payeeRepository.create(merchant)
+        try await recurringRuleRepository.create(RecurringRuleEntity(
+            id: fixedUUID("DB8D2197-FD80-4A39-8EB7-28D1AB42C901"),
+            frequency: .monthly,
+            nextDate: Calendar.current.date(byAdding: .month, value: 1, to: .now) ?? .now,
+            templateAmount: 25,
+            templateNote: String(localized: "UI Test Subscription"),
+            templateCategoryID: groceriesCategory.id,
+            templateAccountID: checkingAccount.id,
+            templatePayeeID: merchant.id
+        ))
+
         let addTransactionUseCase = AddTransactionUseCase(
             accountRepository: accountRepository,
             categoryRepository: categoryRepository,
@@ -298,7 +339,7 @@ final class UITestDataSeeder {
             date: Date.now,
             categoryID: groceriesCategory.id,
             accountID: checkingAccount.id,
-            payeeID: nil,
+            payeeID: merchant.id,
             note: "Coffee Run",
             tags: ["coffee"],
             paymentMethod: .debitCard,

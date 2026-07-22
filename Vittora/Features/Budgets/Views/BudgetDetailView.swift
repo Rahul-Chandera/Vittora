@@ -22,7 +22,7 @@ struct BudgetDetailView: View {
                             }
 
                             VStack(spacing: VSpacing.xs) {
-                                Text(viewModel.category?.name ?? String(localized: "Budget"))
+                                Text(viewModel.category?.displayName ?? String(localized: "Budget"))
                                     .font(VTypography.bodyBold)
                                     .foregroundColor(VColors.textPrimary)
 

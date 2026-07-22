@@ -55,7 +55,7 @@ struct CustomReportUseCase: Sendable {
         switch grouping {
         case .category:
             let categories = try await categoryRepository.fetchAll()
-            let categoryNames = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.name) })
+            let categoryNames = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.displayName) })
             for t in transactions {
                 let name = t.categoryID
                     .flatMap { categoryNames[$0] }

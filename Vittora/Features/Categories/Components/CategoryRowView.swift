@@ -21,7 +21,7 @@ struct CategoryRowView: View {
             }
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                Text(category.name)
+                Text(category.displayName)
                     .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)
                 Text(category.type == .expense ? String(localized: "Expense") : String(localized: "Income"))

@@ -171,6 +171,13 @@ struct OnboardingView: View {
 
 private struct WelcomeStepView: View {
     var body: some View {
+        ViewThatFits(in: .vertical) {
+            content
+            ScrollView { content }
+        }
+    }
+
+    private var content: some View {
         VStack(spacing: VSpacing.lg) {
             Spacer()
 
@@ -636,6 +643,14 @@ private struct NotificationsStepView: View {
     @Bindable var vm: OnboardingViewModel
 
     var body: some View {
+        ViewThatFits(in: .vertical) {
+            content
+            ScrollView { content }
+        }
+        .accessibilityIdentifier("onboarding-notifications-step")
+    }
+
+    private var content: some View {
         VStack(spacing: VSpacing.lg) {
             Spacer()
 
@@ -689,7 +704,6 @@ private struct NotificationsStepView: View {
 
             Spacer()
         }
-        .accessibilityIdentifier("onboarding-notifications-step")
     }
 }
 

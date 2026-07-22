@@ -27,6 +27,7 @@ struct SwiftDataCategoryRepositoryTests {
             type: .expense,
             isDefault: false,
             sortOrder: 1,
+            spendingBucket: .needs,
             createdAt: Date(timeIntervalSince1970: 1_000_000),
             updatedAt: Date(timeIntervalSince1970: 1_000_000)
         )
@@ -40,6 +41,7 @@ struct SwiftDataCategoryRepositoryTests {
         #expect(all.first?.icon == "fork.knife")
         #expect(all.first?.colorHex == "#FF6B6B")
         #expect(all.first?.type == .expense)
+        #expect(all.first?.spendingBucket == .needs)
     }
 
     @Test("fetchByID returns correct entity")
@@ -93,6 +95,7 @@ struct SwiftDataCategoryRepositoryTests {
         entity.name = "Online Shopping"
         entity.colorHex = "#F7DC6F"
         entity.sortOrder = 5
+        entity.spendingBucket = .savings
         entity.updatedAt = Date(timeIntervalSince1970: 3_100_000)
         try await repo.update(entity)
 
@@ -100,6 +103,7 @@ struct SwiftDataCategoryRepositoryTests {
         #expect(updated?.name == "Online Shopping")
         #expect(updated?.colorHex == "#F7DC6F")
         #expect(updated?.sortOrder == 5)
+        #expect(updated?.spendingBucket == .savings)
     }
 
     @Test("update throws notFound for missing ID")
