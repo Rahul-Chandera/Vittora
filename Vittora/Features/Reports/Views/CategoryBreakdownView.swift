@@ -54,6 +54,13 @@ struct CategoryBreakdownView: View {
             }
         }
         .errorAlert(message: categoryBreakdownErrorBinding)
+        .advertisesHandoff(
+            .reportDetail(
+                type: ReportType.category.rawValue,
+                start: vm?.dateRange?.lowerBound,
+                end: vm?.dateRange?.upperBound
+            )
+        )
     }
 
     @ViewBuilder

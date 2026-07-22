@@ -23,6 +23,12 @@
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>com.enerjiktech.vittora.main</string>
+		<string>com.enerjiktech.vittora.transactions</string>
+		<string>com.enerjiktech.vittora.transaction</string>
+		<string>com.enerjiktech.vittora.budget</string>
+		<string>com.enerjiktech.vittora.report</string>
+		<string>com.enerjiktech.vittora.account</string>
+		<string>com.enerjiktech.vittora.transactionDraft</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
