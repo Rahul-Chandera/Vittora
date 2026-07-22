@@ -124,6 +124,7 @@ struct RecurringDetailView: View {
                                     .foregroundColor(VColors.primary)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                             }
+                            .accessibilityIdentifier("recurring-edit-button")
                         }
 
                         // Details Section

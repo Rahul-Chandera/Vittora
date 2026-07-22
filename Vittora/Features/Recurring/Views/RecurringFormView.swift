@@ -8,6 +8,7 @@ struct RecurringFormView: View {
     @Environment(\.currencySymbol) private var currencySymbol
     @State private var viewModel: RecurringFormViewModel?
     @State private var accounts: [AccountEntity] = []
+    @State private var categories: [CategoryEntity] = []
     @State private var payees: [PayeeEntity] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -112,8 +113,8 @@ struct RecurringFormView: View {
                                     )
                                 ) {
                                     HStack {
-                                        if viewModel.selectedAccountID != nil {
-                                            Text(String(localized: "Selected"))
+                                        if let account = selectedAccount(for: viewModel) {
+                                            Text(account.name)
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
                                         } else {
@@ -132,6 +133,10 @@ struct RecurringFormView: View {
                                     .background(VColors.secondaryBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
+                                .accessibilityIdentifier("recurring-account-picker")
+                                .accessibilityLabel(
+                                    selectedAccount(for: viewModel)?.name ?? String(localized: "Choose Account")
+                                )
                             }
 
                             // Category Selection
@@ -143,12 +148,16 @@ struct RecurringFormView: View {
                                 NavigationLink(
                                     destination: RecurringCategoryPickerView(
                                         selectedID: Bindable(viewModel).selectedCategoryID,
+                                        categories: categories,
                                         categoryType: .expense
                                     )
                                 ) {
                                     HStack {
-                                        if viewModel.selectedCategoryID != nil {
-                                            Text(String(localized: "Selected"))
+                                        if let category = selectedCategory(for: viewModel) {
+                                            Image(systemName: category.icon)
+                                                .foregroundColor(Color(hex: category.colorHex) ?? .blue)
+                                                .accessibilityHidden(true)
+                                            Text(category.name)
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
                                         } else {
@@ -167,6 +176,10 @@ struct RecurringFormView: View {
                                     .background(VColors.secondaryBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
+                                .accessibilityIdentifier("recurring-category-picker")
+                                .accessibilityLabel(
+                                    selectedCategory(for: viewModel)?.name ?? String(localized: "Choose Category")
+                                )
                             }
 
                             // Payee Selection
@@ -182,8 +195,8 @@ struct RecurringFormView: View {
                                     )
                                 ) {
                                     HStack {
-                                        if viewModel.selectedPayeeID != nil {
-                                            Text(String(localized: "Selected"))
+                                        if let payee = selectedPayee(for: viewModel) {
+                                            Text(payee.name)
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
                                         } else {
@@ -202,6 +215,10 @@ struct RecurringFormView: View {
                                     .background(VColors.secondaryBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
+                                .accessibilityIdentifier("recurring-payee-picker")
+                                .accessibilityLabel(
+                                    selectedPayee(for: viewModel)?.name ?? String(localized: "Choose Payee")
+                                )
                             }
 
                             // Note Input
@@ -269,6 +286,7 @@ struct RecurringFormView: View {
                 setupViewModel()
                 Task {
                     await loadAccounts()
+                    await loadCategories()
                     await loadPayees()
                 }
             }
@@ -317,6 +335,27 @@ struct RecurringFormView: View {
         }
     }
 
+    @MainActor
+    private func loadCategories() async {
+        do {
+            categories = try await dependencies.categoryRepository.fetchAll()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func selectedAccount(for viewModel: RecurringFormViewModel) -> AccountEntity? {
+        accounts.first { $0.id == viewModel.selectedAccountID }
+    }
+
+    private func selectedCategory(for viewModel: RecurringFormViewModel) -> CategoryEntity? {
+        categories.first { $0.id == viewModel.selectedCategoryID }
+    }
+
+    private func selectedPayee(for viewModel: RecurringFormViewModel) -> PayeeEntity? {
+        payees.first { $0.id == viewModel.selectedPayeeID }
+    }
+
     private func save() {
         Task {
             isLoading = true
@@ -338,15 +377,13 @@ struct RecurringFormView: View {
 }
 
 struct RecurringCategoryPickerView: View {
-    @Environment(\.dependencies) var dependencies
     @Environment(\.dismiss) var dismiss
     @Binding var selectedID: UUID?
+    let categories: [CategoryEntity]
     var categoryType: CategoryType = .expense
-    @State private var categories: [CategoryEntity] = []
-    @State private var loadError: String?
 
     var body: some View {
-        List(categories, id: \.id) { category in
+        List(categories.filter { $0.type == categoryType }, id: \.id) { category in
             Button(action: {
                 selectedID = category.id
                 dismiss()
@@ -369,23 +406,6 @@ struct RecurringCategoryPickerView: View {
             }
         }
         .navigationTitle(String(localized: "Select Category"))
-        .overlay {
-            if let loadError {
-                Text(loadError)
-                    .foregroundStyle(VColors.expense)
-                    .padding()
-            }
-        }
-        .onAppear {
-            Task {
-                do {
-                    let allCategories = try await dependencies.categoryRepository.fetchAll()
-                    categories = allCategories.filter { $0.type == categoryType }
-                } catch {
-                    loadError = error.localizedDescription
-                }
-            }
-        }
     }
 }
 
