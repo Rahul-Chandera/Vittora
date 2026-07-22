@@ -53,6 +53,11 @@ struct TaxDashboardView: View {
                     compareUseCase: CompareTaxRegimesUseCase(),
                     saveUseCase: SaveTaxProfileUseCase(taxProfileRepository: dependencies.taxProfileRepository),
                     summaryUseCase: summaryUseCase,
+                    complianceTipsUseCase: EvaluateIndiaComplianceTipsUseCase(
+                        transactionRepository: dependencies.transactionRepository,
+                        accountRepository: dependencies.accountRepository,
+                        categoryRepository: dependencies.categoryRepository
+                    ),
                     exportService: dependencies.exportService
                 )
                 await vm?.load()
@@ -110,6 +115,10 @@ struct TaxDashboardView: View {
 
                 if let summary = vm.summary {
                     TaxAnnualSummaryCard(summary: summary, country: vm.profile.country)
+                }
+
+                IndiaComplianceTipsSection(tips: vm.complianceTips) { tip in
+                    vm.dismissComplianceTip(tip)
                 }
 
                 actionButton(

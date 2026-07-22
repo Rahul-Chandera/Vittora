@@ -8,12 +8,14 @@ final class TaxEstimateViewModel {
     private let compareUseCase: CompareTaxRegimesUseCase
     private let saveUseCase: SaveTaxProfileUseCase
     private let summaryUseCase: GenerateTaxSummaryUseCase?
+    private let complianceTipsUseCase: EvaluateIndiaComplianceTipsUseCase?
     private let exportService: (any DataExportServiceProtocol)?
 
     var profile: TaxProfile = TaxProfile()
     var estimate: TaxEstimate?
     var comparison: TaxComparison?
     var summary: TaxSummary?
+    var complianceTips: [IndiaComplianceTip] = []
     var isLoading = false
     var isExporting = false
     var exportURL: URL?
@@ -24,12 +26,14 @@ final class TaxEstimateViewModel {
         compareUseCase: CompareTaxRegimesUseCase,
         saveUseCase: SaveTaxProfileUseCase,
         summaryUseCase: GenerateTaxSummaryUseCase? = nil,
+        complianceTipsUseCase: EvaluateIndiaComplianceTipsUseCase? = nil,
         exportService: (any DataExportServiceProtocol)? = nil
     ) {
         self.estimateUseCase = estimateUseCase
         self.compareUseCase = compareUseCase
         self.saveUseCase = saveUseCase
         self.summaryUseCase = summaryUseCase
+        self.complianceTipsUseCase = complianceTipsUseCase
         self.exportService = exportService
     }
 
@@ -47,10 +51,16 @@ final class TaxEstimateViewModel {
                 } else {
                     summary = nil
                 }
+                if let complianceTipsUseCase {
+                    complianceTips = try await complianceTipsUseCase.execute(profile: profile)
+                } else {
+                    complianceTips = []
+                }
             } else {
                 estimate = nil
                 comparison = nil
                 summary = nil
+                complianceTips = []
             }
         } catch {
             self.error = error.userFacingMessage(
@@ -60,11 +70,17 @@ final class TaxEstimateViewModel {
         isLoading = false
     }
 
+    func dismissComplianceTip(_ tip: IndiaComplianceTip) {
+        complianceTipsUseCase?.dismiss(tip: tip, financialYear: profile.financialYear)
+        complianceTips.removeAll { $0.ruleID == tip.ruleID }
+    }
+
     func recalculate() {
         guard profile.annualIncome > 0 else {
             estimate = nil
             comparison = nil
             summary = nil
+            complianceTips = []
             return
         }
         estimate = estimateUseCase.execute(profile: profile)
