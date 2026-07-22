@@ -48,7 +48,10 @@ struct SavingsGoalDetailView: View {
             guard vm == nil else { return }
             vm = SavingsGoalDetailViewModel(
                 goal: initialGoal,
-                saveUseCase: SaveSavingsGoalUseCase(savingsGoalRepository: dependencies.savingsGoalRepository)
+                saveUseCase: SaveSavingsGoalUseCase(
+                    savingsGoalRepository: dependencies.savingsGoalRepository,
+                    transactionRepository: dependencies.transactionRepository
+                )
             )
         }
         .sheet(isPresented: $showEditForm) {

@@ -268,13 +268,21 @@ struct SavingsGoalUseCaseTests {
         @Test("Adds contribution and updates goal's current amount")
         func testAddContribution() async throws {
             let repo = MockSavingsGoalRepository()
+            let transactionRepo = MockTransactionRepository()
             let goal = SavingsGoalEntity(name: "Vacation", targetAmount: 3000, currentAmount: 1000)
             await repo.seed(goal)
 
-            let useCase = SaveSavingsGoalUseCase(savingsGoalRepository: repo)
+            let useCase = SaveSavingsGoalUseCase(
+                savingsGoalRepository: repo,
+                transactionRepository: transactionRepo
+            )
             let updated = try await useCase.executeAddContribution(goalID: goal.id, amount: 500)
 
             #expect(updated.currentAmount == 1500)
+            let records = await transactionRepo.transactions
+            #expect(records.count == 1)
+            #expect(records[0].amount == 500)
+            #expect(records[0].tags == [FiftyThirtyTwentyReportUseCase.savingsContributionTag])
         }
 
         @Test("Auto-achieves goal when contribution reaches target")

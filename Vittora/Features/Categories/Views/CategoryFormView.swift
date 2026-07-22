@@ -114,11 +114,21 @@ struct CategoryFormView: View {
                 .pickerStyle(.menu)
 
                 if vm.selectedType == .expense {
-                    Picker(String(localized: "Spending Bucket"), selection: Bindable(vm).selectedSpendingBucket) {
+                    Picker(
+                        String(localized: "50/30/20 Bucket"),
+                        selection: Bindable(vm).selectedSpendingBucket
+                    ) {
                         ForEach(SpendingBucket.allCases, id: \.self) { bucket in
                             Text(bucket.displayName).tag(bucket)
                         }
                     }
+                    Text(
+                        String(
+                            localized: "Choose how this category appears in the 50/30/20 report."
+                        )
+                    )
+                    .font(VTypography.caption1)
+                    .foregroundStyle(VColors.textSecondary)
                 }
             }
             .headerProminence(.increased)

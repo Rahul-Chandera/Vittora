@@ -91,6 +91,7 @@ struct TransactionFormView: View {
                             Button(String(localized: "Cancel")) {
                                 dismiss()
                             }
+                            .keyboardShortcut(.cancelAction)
                             .accessibilityIdentifier("transaction-form-cancel-button")
                         }
                     }
@@ -119,6 +120,8 @@ struct TransactionFormView: View {
                             Text(String(localized: "Save"))
                                 .foregroundColor(VColors.textPrimary)
                         }
+                        .disabled(!vm.canSave)
+                        .keyboardShortcut(.defaultAction)
                         .accessibilityRespondsToUserInteraction(vm.canSave)
                         .accessibilityIdentifier("transaction-form-save-button")
                     }
