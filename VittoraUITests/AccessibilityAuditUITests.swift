@@ -459,15 +459,18 @@ final class AccessibilityAuditUITests: XCTestCase {
         )
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
 
+        try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-dashboard")
 
         XCTAssertTrue(UITestSupport.navigateToTab(named: "Transactions", in: app))
         XCTAssertTrue(
             app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 15)
         )
+        try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-transaction-list")
 
         openAddTransactionForm()
+        try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-add-transaction")
         app.navigationBars.buttons.firstMatch.tap()
 
@@ -475,16 +478,19 @@ final class AccessibilityAuditUITests: XCTestCase {
         if row.waitForExistence(timeout: 10) {
             UITestSupport.tapWhenReady(row, timeout: 10)
             RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+            try performCoreFlowAudit()
             captureFlowScreenshot(named: "a11y3-transaction-detail")
             app.navigationBars.buttons.firstMatch.tap()
         }
 
         XCTAssertTrue(UITestSupport.navigateToTab(named: "Budgets", in: app))
         RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-budgets")
 
         XCTAssertTrue(UITestSupport.navigateToTab(named: "Reports", in: app))
         XCTAssertTrue(app.navigationBars["Reports"].waitForExistence(timeout: 15))
+        try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-reports-home")
 
         let card = app.descendants(matching: .any)["report-card-monthly"].firstMatch
@@ -495,6 +501,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         if card.waitForExistence(timeout: 10) {
             card.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
             _ = app.navigationBars["Monthly Overview"].waitForExistence(timeout: 15)
+            try performCoreFlowAudit()
             captureFlowScreenshot(named: "a11y3-monthly-overview")
         }
         #endif
@@ -515,6 +522,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         for surface in overflowSurfaces {
             launchSeeded(initialTab: "settings", extraArguments: accessibility3)
             openOverflowDestination(named: surface.0, navigationTitle: surface.1)
+            try performCoreFlowAudit()
             captureFlowScreenshot(named: surface.2)
             app.terminate()
         }
@@ -527,6 +535,7 @@ final class AccessibilityAuditUITests: XCTestCase {
             )
             openOverflowDestination(named: "Tax", navigationTitle: "Tax Estimator")
             XCTAssertTrue(app.staticTexts["Bracket Distribution"].waitForExistence(timeout: 20))
+            try performCoreFlowAudit()
             captureFlowScreenshot(named: "a11y3-tax-\(region.lowercased())")
             app.terminate()
         }
@@ -535,6 +544,7 @@ final class AccessibilityAuditUITests: XCTestCase {
             launchSeeded(initialTab: "settings", extraArguments: accessibility3)
             openOverflowDestination(named: "Settings", navigationTitle: "Settings")
             tapText(managed)
+            try performCoreFlowAudit()
             captureFlowScreenshot(named: "a11y3-\(managed.lowercased())")
             app.terminate()
         }
@@ -542,6 +552,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         launchSeeded(initialTab: "transactions", extraArguments: accessibility3)
         UITestSupport.tapWhenReady(firstTransactionRow(), timeout: 15)
         UITestSupport.scrollToElement(app.staticTexts["Attachments"], in: app)
+        try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-documents")
         app.terminate()
 
@@ -560,6 +571,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         UITestSupport.scrollToElement(emergency, in: app)
         emergency.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         _ = app.navigationBars["Emergency Fund"].waitForExistence(timeout: 15)
+        try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-emergency-fund")
         app.terminate()
 
@@ -572,6 +584,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         XCTAssertTrue(
             app.staticTexts["onboarding-welcome-title"].waitForExistence(timeout: 30)
         )
+        try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-onboarding")
         #endif
     }
