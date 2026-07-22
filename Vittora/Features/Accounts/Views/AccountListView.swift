@@ -45,7 +45,10 @@ struct AccountListView: View {
                 if let id = accountToDelete, let vm = viewModel {
                     Task {
                         await vm.deleteAccount(id: id)
-                        appState.notifyChanged(.accounts)
+                        if vm.error == nil {
+                            accountToDelete = nil
+                            appState.notifyChanged(.accounts)
+                        }
                     }
                 }
             }
@@ -72,13 +75,29 @@ struct AccountListView: View {
 
     @ViewBuilder
     private func content(vm: AccountListViewModel) -> some View {
-        if vm.isLoading {
-            ProgressView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if vm.accounts.isEmpty {
-            emptyState
-        } else {
-            accountList(vm: vm)
+        Group {
+            if vm.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if vm.accounts.isEmpty {
+                emptyState
+            } else {
+                accountList(vm: vm)
+            }
+        }
+        .errorAlert(message: accountListErrorBinding) {
+            if accountToDelete != nil {
+                Button(String(localized: "Archive Instead")) {
+                    archivePendingAccount()
+                }
+                Button(String(localized: "Cancel"), role: .cancel) {
+                    accountToDelete = nil
+                }
+            } else {
+                Button(String(localized: "OK")) {
+                    viewModel?.error = nil
+                }
+            }
         }
     }
 
@@ -133,6 +152,7 @@ struct AccountListView: View {
                             } label: {
                                 AccountRowView(account: account)
                             }
+                            .accessibilityIdentifier("account-row-\(account.name)")
                             .contextMenu {
                                 NavigationLink {
                                     AccountDetailView(accountID: account.id)
@@ -182,18 +202,22 @@ struct AccountListView: View {
         .listStyle(.inset)
         #endif
         .refreshable { await vm.loadAccounts() }
-        .overlay {
-            if let error = vm.error {
-                VStack {
-                    Spacer()
-                    Text(error)
-                        .font(VTypography.caption1)
-                        .foregroundColor(.white)
-                        .padding(VSpacing.md)
-                        .background(VColors.expense)
-                        .cornerRadius(VSpacing.cornerRadiusCard)
-                        .padding(VSpacing.screenPadding)
-                }
+    }
+
+    private var accountListErrorBinding: Binding<String?> {
+        Binding(
+            get: { viewModel?.error },
+            set: { viewModel?.error = $0 }
+        )
+    }
+
+    private func archivePendingAccount() {
+        guard let id = accountToDelete, let vm = viewModel else { return }
+        Task {
+            await vm.archiveAccount(id: id)
+            if vm.error == nil {
+                accountToDelete = nil
+                appState.notifyChanged(.accounts)
             }
         }
     }
