@@ -253,7 +253,7 @@ struct CategoryBreakdownChartDescriptor: AXChartDescriptorRepresentable, Sendabl
 
     nonisolated func makeChartDescriptor() -> AXChartDescriptor {
         let categories = Array(breakdowns.prefix(8))
-        let labels = categories.map(\.category.name)
+        let labels = categories.map(\.category.displayName)
         let values = categories.map { Double(truncating: $0.amount as NSDecimalNumber) }
         let range = ChartAccessibilitySupport.numericRange(for: values, includeZero: true)
         let xAxis = AXCategoricalDataAxisDescriptor(
@@ -273,9 +273,9 @@ struct CategoryBreakdownChartDescriptor: AXChartDescriptorRepresentable, Sendabl
             isContinuous: false,
             points: categories.map { item in
                 AXDataPoint(
-                    x: item.category.name,
+                    x: item.category.displayName,
                     y: Double(truncating: item.amount as NSDecimalNumber),
-                    label: String(localized: "\(item.category.name), \(item.transactionCount.formatted()) transactions")
+                    label: String(localized: "\(item.category.displayName), \(item.transactionCount.formatted()) transactions")
                 )
             }
         )
@@ -297,7 +297,7 @@ struct CategorySpendChartDescriptor: AXChartDescriptorRepresentable, Sendable {
     let currencyCode: String
 
     nonisolated func makeChartDescriptor() -> AXChartDescriptor {
-        let labels = categories.map(\.category.name)
+        let labels = categories.map(\.category.displayName)
         let values = categories.map { Double(truncating: $0.amount as NSDecimalNumber) }
         let range = ChartAccessibilitySupport.numericRange(for: values, includeZero: true)
         let xAxis = AXCategoricalDataAxisDescriptor(
@@ -317,9 +317,9 @@ struct CategorySpendChartDescriptor: AXChartDescriptorRepresentable, Sendable {
             isContinuous: false,
             points: categories.map { item in
                 AXDataPoint(
-                    x: item.category.name,
+                    x: item.category.displayName,
                     y: Double(truncating: item.amount as NSDecimalNumber),
-                    label: item.category.name
+                    label: item.category.displayName
                 )
             }
         )

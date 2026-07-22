@@ -15,7 +15,9 @@ struct ReportsHomeView: View {
         (.cashFlow, String(localized: "Cash Flow"), String(localized: "Track inflows and outflows over time"), "waveform.path.ecg", VColors.income),
         (.cashFlowForecast, String(localized: "Cash Flow Forecast"), String(localized: "90-day projected balance estimate"), "chart.xyaxis.line", VColors.primary),
         (.netWorth, String(localized: "Net Worth"), String(localized: "See how your total balance changes over time"), "chart.line.uptrend.xyaxis.circle.fill", VColors.savings),
-        (.subscriptionAudit, String(localized: "Subscription Audit"), String(localized: "What recurring expenses cost each month"), "arrow.triangle.2.circlepath", VColors.transfer)
+        (.subscriptionAudit, String(localized: "Subscription Audit"), String(localized: "What recurring expenses cost each month"), "arrow.triangle.2.circlepath", VColors.transfer),
+        (.fiftyThirtyTwenty, String(localized: "50/30/20"), String(localized: "Compare needs, wants, and savings with the guideline"), "chart.bar.xaxis", VColors.savings),
+        (.emergencyFund, String(localized: "Emergency Fund"), String(localized: "See how many months of essentials you could cover"), "shield.lefthalf.filled", VColors.savings)
     ]
 
     var body: some View {
@@ -128,6 +130,8 @@ struct ReportsHomeView: View {
     @ViewBuilder
     private func reportView(for type: ReportType) -> some View {
         switch type {
+        case .fiftyThirtyTwenty:
+            FiftyThirtyTwentyReportView()
         case .monthly:
             MonthlyOverviewView()
         case .category:
@@ -146,6 +150,8 @@ struct ReportsHomeView: View {
             NetWorthReportView()
         case .subscriptionAudit:
             SubscriptionAuditReportView()
+        case .emergencyFund:
+            EmergencyFundReportView()
         }
     }
 

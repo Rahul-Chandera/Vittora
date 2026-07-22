@@ -37,6 +37,15 @@ This file is the primary in-repo guidance for AI agents and contributors.
    which are exact) in production, tests, and fixtures. Do not paper over a mismatch with an
    epsilon/tolerance comparison: exact equality is the correct assertion for money — the
    inputs are what must be built precisely.
+9. To make a failing check pass, you may only change the code under test. Not the
+   assertion, not the audit/lint configuration, and not the test or demo fixture so that
+   the offending input stops being produced. Changing the fixture to dodge a check is the
+   same as disabling the check, and it is worse than leaving it red: the check goes green
+   while the defect and the supposed fix both go unexercised. Earned in 1.3, when an
+   accessibility audit caught a clipping row and the "fix" re-dated demo data so the row
+   fell off the audited screen — the real layout fix shipped untested. If a screen cannot
+   fit its content, fix the layout; if a fixture genuinely models the wrong thing, say so
+   in the PR and change it deliberately, not as a side effect of chasing green.
 
 ## High-Risk Modules (extra caution)
 

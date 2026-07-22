@@ -13,6 +13,7 @@ public final class SDCategory {
     public var isDefault: Bool = false
     public var sortOrder: Int = 0
     public var parentID: UUID?
+    public var spendingBucketRawValue: String?
     public var createdAt: Date = Date.now
     public var updatedAt: Date = Date.now
 
@@ -27,6 +28,7 @@ public final class SDCategory {
         isDefault: Bool = false,
         sortOrder: Int = 0,
         parentID: UUID? = nil,
+        spendingBucket: SpendingBucket? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -38,6 +40,7 @@ public final class SDCategory {
         self.isDefault = isDefault
         self.sortOrder = sortOrder
         self.parentID = parentID
+        self.spendingBucketRawValue = spendingBucket?.rawValue
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -45,5 +48,10 @@ public final class SDCategory {
     public var type: CategoryType {
         get { CategoryType(rawValue: typeRawValue) ?? .expense }
         set { typeRawValue = newValue.rawValue }
+    }
+
+    public var spendingBucket: SpendingBucket? {
+        get { spendingBucketRawValue.flatMap(SpendingBucket.init(rawValue:)) }
+        set { spendingBucketRawValue = newValue?.rawValue }
     }
 }

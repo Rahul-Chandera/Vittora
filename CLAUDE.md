@@ -21,6 +21,8 @@ Use `AGENTS.md` as the canonical version.
   `Decimal(string: "15.49")!` or integer literals. Float literals go via `Double`,
   break exact equality, and fold differently on CI than locally.
 - Add targeted tests for tax/sync/security/deletion changes.
+- To make a failing check pass, change only the code under test — never the assertion,
+  the audit config, or the fixture so the offending input stops being produced.
 
 ## Fast Command Surface
 

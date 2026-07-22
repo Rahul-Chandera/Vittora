@@ -91,14 +91,20 @@ struct PayeeListView: View {
 
     @ViewBuilder
     private func content(vm: PayeeListViewModel) -> some View {
-        if vm.isLoading {
-            ProgressView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if vm.payees.isEmpty {
-            emptyState(vm: vm)
-        } else {
-            payeeList(vm: vm)
+        Group {
+            if vm.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if vm.payees.isEmpty {
+                emptyState(vm: vm)
+            } else {
+                payeeList(vm: vm)
+            }
         }
+        .errorAlert(message: Binding(
+            get: { vm.error },
+            set: { vm.error = $0 }
+        ))
     }
 
     private func emptyState(vm: PayeeListViewModel) -> some View {
@@ -157,20 +163,6 @@ struct PayeeListView: View {
             set: { vm.searchQuery = $0 }
         ), prompt: "Search payees")
         .refreshable { await vm.loadPayees() }
-        .overlay {
-            if let error = vm.error {
-                VStack {
-                    Spacer()
-                    Text(error)
-                        .font(VTypography.caption1)
-                        .foregroundColor(.white)
-                        .padding(VSpacing.md)
-                        .background(VColors.expense)
-                        .cornerRadius(VSpacing.cornerRadiusCard)
-                        .padding(VSpacing.screenPadding)
-                }
-            }
-        }
     }
 
     @ViewBuilder

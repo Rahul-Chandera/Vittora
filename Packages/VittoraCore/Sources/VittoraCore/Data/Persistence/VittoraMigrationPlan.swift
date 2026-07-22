@@ -3,17 +3,16 @@ import SwiftData
 // MARK: - Shared model sets
 
 private enum VittoraSchemaModels {
-    /// Model types whose shape never changed across V1–V6; nonisolated so
+    /// Model types whose shape never changed across V1–V7; nonisolated so
     /// `VersionedSchema.models` stays Sendable-safe.
     ///
     /// IMPORTANT: models that changed between versions (SDTransaction,
-    /// SDAccount, SDDebt) must NOT live here. Each VersionedSchema has to
+    /// SDAccount, SDDebt, SDCategory, SDSavingsGoal) must NOT live here. Each VersionedSchema has to
     /// reference a *frozen snapshot* of the shape it actually had, never the
     /// live class — aliasing the live class made V3–V6 produce identical
     /// schema checksums, and CoreData aborts staged migration with
     /// "Duplicate version checksums detected" (crash on any store upgrade).
     nonisolated(unsafe) static let sharedBaseline: [any PersistentModel.Type] = [
-        SDCategory.self,
         SDBudget.self,
         SDPayee.self,
         SDRecurringRule.self,
@@ -21,7 +20,12 @@ private enum VittoraSchemaModels {
         SDSplitGroup.self,
         SDGroupExpense.self,
         SDTaxProfile.self,
-        SDSavingsGoal.self,
+    ]
+
+    /// Frozen shapes shared by V1–V6. Both models change in V7.
+    nonisolated(unsafe) static let preV7CategoryAndGoal: [any PersistentModel.Type] = [
+        VittoraSchemaV6.SDCategory.self,
+        VittoraSchemaV6.SDSavingsGoal.self,
     ]
 }
 
@@ -33,7 +37,7 @@ public enum VittoraSchemaV1: VersionedSchema {
             VittoraSchemaV1.SDTransaction.self,
             VittoraSchemaV1.SDAccount.self,
             VittoraSchemaV1.SDDebt.self,
-        ] + VittoraSchemaModels.sharedBaseline
+        ] + VittoraSchemaModels.sharedBaseline + VittoraSchemaModels.preV7CategoryAndGoal
     }
 }
 
@@ -49,7 +53,7 @@ public enum VittoraSchemaV2: VersionedSchema {
             VittoraSchemaV2.SDTransaction.self,
             VittoraSchemaV1.SDAccount.self,
             VittoraSchemaV1.SDDebt.self,
-        ] + VittoraSchemaModels.sharedBaseline
+        ] + VittoraSchemaModels.sharedBaseline + VittoraSchemaModels.preV7CategoryAndGoal
     }
 }
 
@@ -67,7 +71,7 @@ public enum VittoraSchemaV3: VersionedSchema {
             SDTransaction.self,
             VittoraSchemaV1.SDAccount.self,
             VittoraSchemaV1.SDDebt.self,
-        ] + VittoraSchemaModels.sharedBaseline
+        ] + VittoraSchemaModels.sharedBaseline + VittoraSchemaModels.preV7CategoryAndGoal
     }
 }
 
@@ -88,7 +92,7 @@ public enum VittoraSchemaV4: VersionedSchema {
             SDTransaction.self,
             VittoraSchemaV4.SDAccount.self,
             VittoraSchemaV1.SDDebt.self,
-        ] + VittoraSchemaModels.sharedBaseline
+        ] + VittoraSchemaModels.sharedBaseline + VittoraSchemaModels.preV7CategoryAndGoal
     }
 }
 
@@ -105,7 +109,7 @@ public enum VittoraSchemaV5: VersionedSchema {
             SDTransaction.self,
             VittoraSchemaV4.SDAccount.self,
             SDDebt.self,
-        ] + VittoraSchemaModels.sharedBaseline
+        ] + VittoraSchemaModels.sharedBaseline + VittoraSchemaModels.preV7CategoryAndGoal
     }
 }
 
@@ -116,12 +120,28 @@ public enum VittoraSchemaV5: VersionedSchema {
 public enum VittoraSchemaV6: VersionedSchema {
     public static let versionIdentifier = Schema.Version(6, 0, 0)
 
-    /// Current version — the only one that references the live model classes.
     public static var models: [any PersistentModel.Type] {
         [
             SDTransaction.self,
             SDAccount.self,
             SDDebt.self,
+        ] + VittoraSchemaModels.sharedBaseline + VittoraSchemaModels.preV7CategoryAndGoal
+    }
+}
+
+/// Schema V7 (G1/G2): classifies spending categories and flags emergency-fund
+/// savings goals. Both additions are CloudKit-safe lightweight columns.
+public enum VittoraSchemaV7: VersionedSchema {
+    public static let versionIdentifier = Schema.Version(7, 0, 0)
+
+    /// Current version — the only one that references the live changed models.
+    public static var models: [any PersistentModel.Type] {
+        [
+            SDTransaction.self,
+            SDAccount.self,
+            SDDebt.self,
+            SDCategory.self,
+            SDSavingsGoal.self,
         ] + VittoraSchemaModels.sharedBaseline
     }
 }
@@ -135,6 +155,7 @@ public enum VittoraMigrationPlan: SchemaMigrationPlan {
             VittoraSchemaV4.self,
             VittoraSchemaV5.self,
             VittoraSchemaV6.self,
+            VittoraSchemaV7.self,
         ]
     }
 
@@ -159,6 +180,21 @@ public enum VittoraMigrationPlan: SchemaMigrationPlan {
             .lightweight(
                 fromVersion: VittoraSchemaV5.self,
                 toVersion: VittoraSchemaV6.self
+            ),
+            .custom(
+                fromVersion: VittoraSchemaV6.self,
+                toVersion: VittoraSchemaV7.self,
+                willMigrate: nil,
+                didMigrate: { context in
+                    let categories = try context.fetch(FetchDescriptor<SDCategory>())
+                    for category in categories {
+                        category.spendingBucket = SpendingBucket.defaultBucket(
+                            categoryName: category.name,
+                            type: category.type
+                        )
+                    }
+                    try context.save()
+                }
             ),
         ]
     }

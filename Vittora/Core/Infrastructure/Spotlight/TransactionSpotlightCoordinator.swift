@@ -78,7 +78,7 @@ final class TransactionSpotlightCoordinator {
         let payees = try await payeeRepository.fetchAll()
         let categories = try await categoryRepository.fetchAll()
         let payeeNames = Dictionary(uniqueKeysWithValues: payees.map { ($0.id, $0.name) })
-        let categoryNames = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.name) })
+        let categoryNames = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.displayName) })
         let currencyCode = UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.currencyCode)
             ?? CurrencyDefaults.code
 

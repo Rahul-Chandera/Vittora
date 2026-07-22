@@ -15,9 +15,24 @@ struct BudgetRemainingEntry: TimelineEntry {
                 total: 1000,
                 currencyCode: "USD",
                 categories: [
-                    BudgetCategoryProgress(name: "Groceries", spent: 320, amount: 400, colorHex: "#34C759"),
-                    BudgetCategoryProgress(name: "Dining", spent: 180, amount: 200, colorHex: "#FF9500"),
-                    BudgetCategoryProgress(name: "Transport", spent: 90, amount: 150, colorHex: "#007AFF"),
+                    BudgetCategoryProgress(
+                        name: String(localized: "Groceries"),
+                        spent: 320,
+                        amount: 400,
+                        colorHex: "#34C759"
+                    ),
+                    BudgetCategoryProgress(
+                        name: String(localized: "Dining"),
+                        spent: 180,
+                        amount: 200,
+                        colorHex: "#FF9500"
+                    ),
+                    BudgetCategoryProgress(
+                        name: String(localized: "Transport"),
+                        spent: 90,
+                        amount: 150,
+                        colorHex: "#007AFF"
+                    ),
                 ],
                 hasBudgets: true
             ),
@@ -151,6 +166,8 @@ struct BudgetRemainingWidgetView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Budget remaining, no budget set"))
     }
 
     private var smallContent: some View {
@@ -170,6 +187,8 @@ struct BudgetRemainingWidgetView: View {
             Spacer(minLength: 0)
         }
         .padding()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilitySummary)
     }
 
     private var mediumContent: some View {
@@ -196,6 +215,8 @@ struct BudgetRemainingWidgetView: View {
             }
         }
         .padding()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilitySummary)
     }
 
     private func progressRing(size: CGFloat, lineWidth: CGFloat) -> some View {
@@ -261,6 +282,14 @@ struct BudgetRemainingWidgetView: View {
 
     private func formatted(_ amount: Decimal) -> String {
         amount.formatted(.currency(code: entry.snapshot.currencyCode))
+    }
+
+    private var accessibilitySummary: String {
+        WidgetAccessibilityLabels.budgetRemaining(
+            amount: entry.snapshot.remaining,
+            progress: entry.snapshot.progress,
+            currencyCode: entry.snapshot.currencyCode
+        )
     }
 }
 

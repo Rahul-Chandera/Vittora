@@ -31,7 +31,7 @@ struct BudgetCardView: View {
                     }
 
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        Text(category?.name ?? String(localized: "Budget"))
+                        Text(category?.displayName ?? String(localized: "Budget"))
                             .font(VTypography.bodyBold)
                             .foregroundColor(VColors.textPrimary)
 
@@ -93,7 +93,7 @@ struct BudgetCardView: View {
     }
 
     private var cardAccessibilityLabel: String {
-        let name = category?.name ?? String(localized: "Budget")
+        let name = category?.displayName ?? String(localized: "Budget")
         let spent = budget.spent.formatted(.currency(code: currencyCode))
         let limit = budget.amount.formatted(.currency(code: currencyCode))
         let pct = Int(budget.progress * 100)

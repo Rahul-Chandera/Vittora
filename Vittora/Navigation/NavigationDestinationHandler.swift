@@ -57,6 +57,7 @@ struct NavigationDestinationView: View {
     @ViewBuilder
     private func reportView(for type: ReportType) -> some View {
         switch type {
+        case .fiftyThirtyTwenty: FiftyThirtyTwentyReportView()
         case .monthly:   MonthlyOverviewView()
         case .category:  CategoryBreakdownView()
         case .trends:    SpendingTrendsView()
@@ -66,6 +67,7 @@ struct NavigationDestinationView: View {
         case .cashFlowForecast: CashFlowForecastReportView()
         case .netWorth:  NetWorthReportView()
         case .subscriptionAudit: SubscriptionAuditReportView()
+        case .emergencyFund: EmergencyFundReportView()
         }
     }
 

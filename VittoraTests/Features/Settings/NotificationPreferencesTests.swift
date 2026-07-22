@@ -134,4 +134,47 @@ struct ApplyNotificationPreferencesUseCaseTests {
 
         #expect(notifications.scheduledRequests.isEmpty)
     }
+
+    @Test("scheduling setting change reschedules an already-pending notification")
+    func schedulingChangeReschedulesPendingNotification() async throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .gmt
+        let defaults = isolatedDefaults()
+        defaults.set(true, forKey: ApplyNotificationPreferencesUseCase.notificationsEnabledKey)
+        let center = MockUserNotificationCenter()
+        let notifications = NotificationService(
+            center: center,
+            userDefaults: defaults,
+            calendarProvider: { calendar }
+        )
+        let futureDay = calendar.date(byAdding: .day, value: 30, to: .now) ?? .now
+        let original = calendar.date(bySettingHour: 14, minute: 0, second: 0, of: futureDay) ?? futureDay
+        try await notifications.schedule(
+            ScheduledNotificationRequest(
+                identifier: "already-pending",
+                title: "Bill",
+                body: "Due soon",
+                fireDate: original,
+                category: .billDue,
+                deepLink: VittoraNotificationDeepLink(destination: .transactions)
+            )
+        )
+        let before = try #require(await notifications.pendingRequests().first)
+        #expect(calendar.component(.hour, from: before.fireDate) == 9)
+
+        defaults.set(11 * 60, forKey: AppUserDefaults.StandardKey.notificationDeliveryTime)
+        let refreshCounter = RefreshCounter()
+        let useCase = ApplyNotificationPreferencesUseCase(
+            notificationService: notifications,
+            refreshAllSchedules: { refreshCounter.count += 1 },
+            userDefaults: defaults
+        )
+
+        await useCase.applySchedulingChange()
+
+        let after = try #require(await notifications.pendingRequests().first)
+        #expect(center.addedRequests.count == 1)
+        #expect(calendar.component(.hour, from: after.fireDate) == 11)
+        #expect(refreshCounter.count == 1)
+    }
 }
