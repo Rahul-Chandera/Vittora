@@ -5,15 +5,15 @@ import VittoraCore
 struct TaxBracketBarView: View {
     let estimate: TaxEstimate
 
-    private let bracketColors: [Color] = [
-        .green, .yellow, .orange, .red, .purple, .indigo, .pink
-    ]
+    /// WCAG-safe category tokens — system yellow/orange fail Apple's contrast sampler
+    /// when treated as on-screen paint even though the bar is decorative.
+    private var bracketColors: [Color] { VColors.categoryColors }
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.sm) {
             Text(String(localized: "Bracket Distribution"))
                 .font(VTypography.subheadline)
-                .foregroundStyle(VColors.textSecondary)
+                .foregroundStyle(VColors.textPrimary)
 
             // Stacked bar
             GeometryReader { geo in
@@ -22,7 +22,7 @@ struct TaxBracketBarView: View {
                     if estimate.totalDeductions > 0 {
                         let pct = fracOf(estimate.totalDeductions)
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.gray.opacity(0.3))
+                            .fill(VColors.textTertiary.opacity(0.35))
                             .frame(width: geo.size.width * pct)
                     }
 
@@ -40,7 +40,10 @@ struct TaxBracketBarView: View {
             // Legend
             TaxFlowLayout(spacing: VSpacing.xs) {
                 if estimate.totalDeductions > 0 {
-                    legendItem(color: .gray.opacity(0.4), label: String(localized: "Deductions"))
+                    legendItem(
+                        color: VColors.textTertiary.opacity(0.45),
+                        label: String(localized: "Deductions")
+                    )
                 }
                 ForEach(Array(estimate.bracketResults.enumerated()), id: \.element.id) { idx, result in
                     legendItem(
@@ -87,7 +90,7 @@ struct TaxBracketBarView: View {
                 .frame(width: 10, height: 10)
             Text(label)
                 .font(VTypography.caption2)
-                .foregroundStyle(VColors.textSecondary)
+                .foregroundStyle(VColors.textPrimary)
         }
     }
 }

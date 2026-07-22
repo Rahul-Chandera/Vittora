@@ -79,6 +79,9 @@ struct SettingsView: View {
             // SettingsRow are already accessibilityHidden, so combining children
             // only produced XCTest type-mismatch ghosts (Other vs StaticText),
             // especially for the Recurring row on CI.
+            // Use destination-based NavigationLink (not value-based): Settings is
+            // itself pushed from MoreHubView, and value-based links mark Selected
+            // without pushing when the destination registrar sits on this view.
             Section {
                 NavigationLink {
                     AccountListView()

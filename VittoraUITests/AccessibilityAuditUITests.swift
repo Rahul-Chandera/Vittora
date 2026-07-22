@@ -263,19 +263,22 @@ final class AccessibilityAuditUITests: XCTestCase {
         throw XCTSkip("iOS only")
         #else
         let surfaces = [
-            ("Accounts", "Accounts", "account-add-button", "New Account"),
-            ("Categories", "Categories", "category-add-button", "New Category"),
-            ("Payees", "Payees", "payee-add-button", "New Payee"),
-            ("Recurring", "Recurring Transactions", "recurring-add-button", "New Recurring")
+            ("Accounts", "settings-manage-accounts", "Accounts", "account-add-button", "New Account"),
+            ("Categories", "settings-manage-categories", "Categories", "category-add-button", "New Category"),
+            ("Payees", "settings-manage-payees", "Payees", "payee-add-button", "New Payee"),
+            ("Recurring", "settings-manage-recurring", "Recurring Transactions", "recurring-add-button", "New Recurring")
         ]
         for surface in surfaces {
             launchSeeded(initialTab: "settings")
             openOverflowDestination(named: "Settings", navigationTitle: "Settings")
-            tapText(surface.0)
-            XCTAssertTrue(app.navigationBars[surface.1].waitForExistence(timeout: 10))
+            openManagedSettingsDestination(
+                title: surface.0,
+                identifier: surface.1,
+                navigationTitle: surface.2
+            )
             try performCoreFlowAudit()
-            UITestSupport.tapWhenReady(app.buttons[surface.2], timeout: 10)
-            XCTAssertTrue(app.navigationBars[surface.3].waitForExistence(timeout: 10))
+            UITestSupport.tapWhenReady(app.buttons[surface.3], timeout: 10)
+            XCTAssertTrue(app.navigationBars[surface.4].waitForExistence(timeout: 10))
             try performCoreFlowAudit()
             app.terminate()
         }
@@ -540,12 +543,22 @@ final class AccessibilityAuditUITests: XCTestCase {
             app.terminate()
         }
 
-        for managed in ["Accounts", "Categories", "Payees", "Recurring"] {
+        let managedSurfaces = [
+            ("Accounts", "settings-manage-accounts", "Accounts"),
+            ("Categories", "settings-manage-categories", "Categories"),
+            ("Payees", "settings-manage-payees", "Payees"),
+            ("Recurring", "settings-manage-recurring", "Recurring Transactions")
+        ]
+        for managed in managedSurfaces {
             launchSeeded(initialTab: "settings", extraArguments: accessibility3)
             openOverflowDestination(named: "Settings", navigationTitle: "Settings")
-            tapText(managed)
+            openManagedSettingsDestination(
+                title: managed.0,
+                identifier: managed.1,
+                navigationTitle: managed.2
+            )
             try performCoreFlowAudit()
-            captureFlowScreenshot(named: "a11y3-\(managed.lowercased())")
+            captureFlowScreenshot(named: "a11y3-\(managed.0.lowercased())")
             app.terminate()
         }
 
@@ -642,6 +655,59 @@ final class AccessibilityAuditUITests: XCTestCase {
         }
         UITestSupport.scrollToElement(element, in: app)
         UITestSupport.tapWhenReady(element, timeout: 15)
+    }
+
+    /// Opens a Settings → Manage destination via its accessibility identifier.
+    ///
+    /// **Diagnosis (PR #155):** BROKEN TEST, not a broken Payees product screen.
+    /// Hierarchy dumps show `settings-manage-payees` present on Settings. The old
+    /// `tapText("Payees")` path hit the child StaticText whose center sat under
+    /// the large-title navigation bar (128pt at AccessibilityXL), so the
+    /// NavigationLink never activated. Accounts/Categories worked because they
+    /// settled further from the nav chrome after scrolling.
+    @MainActor
+    private func openManagedSettingsDestination(
+        title: String,
+        identifier: String,
+        navigationTitle: String
+    ) {
+        let destination = app.descendants(matching: .any)[identifier].firstMatch
+        UITestSupport.scrollToElement(destination, in: app, maxSwipes: 30)
+        XCTAssertTrue(
+            destination.waitForExistence(timeout: 10),
+            "Settings manage row '\(identifier)' should exist after scrolling."
+        )
+        // Second pass against the live nav-bar frame (XL large titles are ~128pt).
+        UITestSupport.scrollToElement(destination, in: app, maxSwipes: 8)
+
+        let frame = destination.frame
+        if frame.width > 1, frame.height > 1 {
+            // Accessibility activation — more reliable for NavigationLink than a
+            // raw coordinate that can still clip the large-title chrome.
+            destination.tap()
+        } else {
+            let titleElement = app.staticTexts[title].firstMatch
+            UITestSupport.scrollToElement(titleElement, in: app, maxSwipes: 8)
+            XCTAssertTrue(
+                titleElement.waitForExistence(timeout: 5),
+                "Settings manage row '\(title)' title should be visible."
+            )
+            titleElement.tap()
+        }
+
+        let addButtonID: String = switch identifier {
+        case "settings-manage-accounts": "account-add-button"
+        case "settings-manage-categories": "category-add-button"
+        case "settings-manage-payees": "payee-add-button"
+        case "settings-manage-recurring": "recurring-add-button"
+        default: ""
+        }
+        let navAppeared = app.navigationBars[navigationTitle].waitForExistence(timeout: 10)
+        let addAppeared = !addButtonID.isEmpty && app.buttons[addButtonID].waitForExistence(timeout: 2)
+        XCTAssertTrue(
+            navAppeared || addAppeared,
+            "\(navigationTitle) should open from Settings manage row '\(title)'."
+        )
     }
 
     @MainActor

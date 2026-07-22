@@ -56,29 +56,31 @@ enum VColors {
 
     // Text — WCAG AA (≥4.5:1) on systemBackground and secondarySystemBackground.
     // System secondaryLabel/tertiaryLabel fail Apple's contrast audit on card surfaces.
+    // Values keep extra headroom for AccessibilityXL and denser scripts (e.g. Devanagari),
+    // and stay AA on OLED black / OLED secondary surfaces as well as light mode.
     #if os(macOS)
     static let textPrimary = Color(nsColor: .labelColor)
     static let textSecondary = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(srgbRed: 0.773, green: 0.773, blue: 0.788, alpha: 1) // #C5C5C9
-            : NSColor(srgbRed: 0.235, green: 0.235, blue: 0.263, alpha: 1) // #3C3C43
+            ? NSColor(srgbRed: 0.820, green: 0.820, blue: 0.839, alpha: 1) // #D1D1D6
+            : NSColor(srgbRed: 0.184, green: 0.184, blue: 0.200, alpha: 1) // #2F2F33
     })
     static let textTertiary = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(srgbRed: 0.682, green: 0.682, blue: 0.698, alpha: 1) // #AEAEB2
-            : NSColor(srgbRed: 0.353, green: 0.353, blue: 0.369, alpha: 1) // #5A5A5E
+            ? NSColor(srgbRed: 0.753, green: 0.753, blue: 0.773, alpha: 1) // #C0C0C5
+            : NSColor(srgbRed: 0.282, green: 0.282, blue: 0.298, alpha: 1) // #48484C
     })
     #else
     static let textPrimary = Color(uiColor: .label)
     static let textSecondary = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.773, green: 0.773, blue: 0.788, alpha: 1) // #C5C5C9
-            : UIColor(red: 0.235, green: 0.235, blue: 0.263, alpha: 1) // #3C3C43
+            ? UIColor(red: 0.820, green: 0.820, blue: 0.839, alpha: 1) // #D1D1D6
+            : UIColor(red: 0.184, green: 0.184, blue: 0.200, alpha: 1) // #2F2F33
     })
     static let textTertiary = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.682, green: 0.682, blue: 0.698, alpha: 1) // #AEAEB2
-            : UIColor(red: 0.353, green: 0.353, blue: 0.369, alpha: 1) // #5A5A5E
+            ? UIColor(red: 0.753, green: 0.753, blue: 0.773, alpha: 1) // #C0C0C5
+            : UIColor(red: 0.282, green: 0.282, blue: 0.298, alpha: 1) // #48484C
     })
     #endif
 

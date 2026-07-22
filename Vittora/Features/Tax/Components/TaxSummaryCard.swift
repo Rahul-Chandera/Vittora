@@ -30,7 +30,7 @@ struct TaxSummaryCard: View {
                     Spacer()
                     Image(systemName: "building.columns.fill")
                         .font(.title2)
-                        .foregroundStyle(VColors.primary.opacity(0.7))
+                        .foregroundStyle(VColors.primary)
                         .accessibilityHidden(true)
                 }
 

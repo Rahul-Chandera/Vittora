@@ -254,8 +254,8 @@ struct AppearanceSettingsView: View {
 
     private var previewTextSecondary: Color {
         previewColorScheme == .dark
-            ? Color(red: 0.773, green: 0.773, blue: 0.788)
-            : Color(red: 0.235, green: 0.235, blue: 0.263)
+            ? Color(red: 0.820, green: 0.820, blue: 0.839)
+            : Color(red: 0.184, green: 0.184, blue: 0.200)
     }
 }
 

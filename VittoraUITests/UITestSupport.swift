@@ -185,29 +185,54 @@ enum UITestSupport {
         return false
     }
 
-    /// Swipe up until `element` is on-screen and clear of the compact tab bar.
+    /// Scroll until `element` is on-screen and clear of nav chrome / compact tab bar.
     /// Prefer frame geometry over `isHittable` — hittability queries can hang
     /// for tens of seconds on large SwiftUI hierarchies during UI tests.
+    /// Swipes down when the row sits under the navigation bar (swipe-up alone
+    /// would push it further off the top — that was the Payees/Categories miss).
+    /// Top clearance follows the live navigation bar frame: at AccessibilityXL
+    /// the large title bar is ~128pt tall, so a fixed 130pt inset is not enough.
     @MainActor
     static func scrollToElement(
         _ element: XCUIElement,
         in app: XCUIApplication,
-        maxSwipes: Int = 12
+        maxSwipes: Int = 24
     ) {
         var swipes = 0
-        let unobscuredBottom = app.frame.maxY - 120
         while swipes < maxSwipes {
+            let navBar = app.navigationBars.firstMatch
+            let unobscuredTop: CGFloat
+            if navBar.exists {
+                let navMaxY = navBar.frame.maxY
+                unobscuredTop = navMaxY > 1 ? navMaxY + 12 : app.frame.minY + 130
+            } else {
+                unobscuredTop = app.frame.minY + 130
+            }
+            let unobscuredBottom = app.frame.maxY - 140
+
             if element.exists {
                 let frame = element.frame
-                if frame.width > 1,
-                   frame.height > 1,
-                   frame.maxY <= unobscuredBottom,
-                   frame.minY >= app.frame.minY + 60 {
-                    return
+                if frame.width > 1, frame.height > 1 {
+                    if frame.minY >= unobscuredTop, frame.maxY <= unobscuredBottom {
+                        return
+                    }
+                    if frame.minY < unobscuredTop {
+                        app.swipeDown()
+                        swipes += 1
+                        RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+                        continue
+                    }
+                    if frame.maxY > unobscuredBottom {
+                        app.swipeUp()
+                        swipes += 1
+                        RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+                        continue
+                    }
                 }
             }
             app.swipeUp()
             swipes += 1
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
         }
     }
 

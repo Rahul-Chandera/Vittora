@@ -20,31 +20,41 @@ struct AmountInputView: View {
                     .foregroundColor(transactionColor(for: type))
                     .accessibilityHidden(true)
 
-                TextField(String(localized: "0.00"), text: $amountString)
-                    .font(VTypography.amountLarge)
-                    .foregroundColor(transactionColor(for: type))
-                    .accessibilityLabel(String(localized: "Amount"))
-                    .accessibilityValue(amountAccessibilityValue)
-                    .accessibilityIdentifier(textFieldAccessibilityIdentifier ?? "")
-                    #if os(iOS)
-                    .keyboardType(.decimalPad)
-                    .textContentType(nil)
-                    #elseif os(macOS)
-                    .textFieldStyle(.plain)
-                    #endif
-                    .onChange(of: amountString) { _, newValue in
-                        let filtered = newValue.filter { $0.isNumber || $0 == "." }
-                        if filtered != newValue {
-                            amountString = filtered
-                        }
-                        // Allow max 2 decimal places
-                        let parts = filtered.split(separator: ".")
-                        if parts.count > 2 {
-                            amountString = String(filtered.dropLast())
-                        } else if let decimalPart = parts.last, parts.count == 2, decimalPart.count > 2 {
-                            amountString = String(filtered.dropLast())
-                        }
+                // System TextField placeholder gray fails AA on secondaryBackground (~1.5:1).
+                // Draw the empty prompt ourselves with the WCAG text token.
+                ZStack(alignment: .leading) {
+                    if amountString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text(String(localized: "0.00"))
+                            .font(VTypography.amountLarge)
+                            .foregroundStyle(VColors.textPrimary)
+                            .accessibilityHidden(true)
                     }
+                    TextField("", text: $amountString)
+                        .font(VTypography.amountLarge)
+                        .foregroundColor(transactionColor(for: type))
+                        .accessibilityLabel(String(localized: "Amount"))
+                        .accessibilityValue(amountAccessibilityValue)
+                        .accessibilityIdentifier(textFieldAccessibilityIdentifier ?? "")
+                        #if os(iOS)
+                        .keyboardType(.decimalPad)
+                        .textContentType(nil)
+                        #elseif os(macOS)
+                        .textFieldStyle(.plain)
+                        #endif
+                        .onChange(of: amountString) { _, newValue in
+                            let filtered = newValue.filter { $0.isNumber || $0 == "." }
+                            if filtered != newValue {
+                                amountString = filtered
+                            }
+                            // Allow max 2 decimal places
+                            let parts = filtered.split(separator: ".")
+                            if parts.count > 2 {
+                                amountString = String(filtered.dropLast())
+                            } else if let decimalPart = parts.last, parts.count == 2, decimalPart.count > 2 {
+                                amountString = String(filtered.dropLast())
+                            }
+                        }
+                }
 
                 if !dynamicTypeSize.isAccessibilitySize {
                     Spacer()

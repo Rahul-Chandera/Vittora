@@ -9,6 +9,7 @@ struct SavingsProgressRingView: View {
     var lineWidth: CGFloat = 8
     var showLabel = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         ZStack {
@@ -26,7 +27,10 @@ struct SavingsProgressRingView: View {
                 .rotationEffect(.degrees(-90))
                 .animation(reduceMotion ? .none : .easeInOut(duration: 0.6), value: progress)
 
-            if showLabel {
+            // At accessibility sizes the percentage cannot fit the fixed ring
+            // without clipping; clipped glyphs fail Apple's contrast sampler.
+            // Parent cards already expose progress via accessibilityValue.
+            if showLabel, !dynamicTypeSize.isAccessibilitySize {
                 if progress >= 1 {
                     Image(systemName: "checkmark")
                         .font(.system(size: size * 0.28, weight: .bold))
@@ -35,8 +39,8 @@ struct SavingsProgressRingView: View {
                     Text("\(Int(progress * 100))%")
                         .font(size < 80 ? .caption.bold() : .title2.bold())
                         .foregroundStyle(VColors.textPrimary)
-                        .adaptiveLineLimit(1)
-                        .adaptiveMinimumScaleFactor(0.7)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
             }
         }
