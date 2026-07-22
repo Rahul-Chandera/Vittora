@@ -44,36 +44,51 @@ final class ContactSupportUITests: XCTestCase {
         XCTAssertTrue(payload.isHittable || payload.exists, "Payload preview should be on screen.")
 
         // Scrollable: swipe inside the preview and confirm it remains present.
+        // (Inner ScrollView only — does not bring Form actions into the tree.)
         payload.swipeUp()
         XCTAssertTrue(payload.exists, "Payload preview must remain after scrolling.")
 
+        // Form actions sit below a tall payload preview; CI simulators need a
+        // Form scroll before the controls enter the accessibility tree.
         let send = app.buttons["contact-support-send"]
+        UITestSupport.scrollToElement(send, in: app, maxSwipes: 12)
         XCTAssertTrue(send.waitForExistence(timeout: 5), "Send Email control must exist after the preview.")
         XCTAssertTrue(send.isEnabled, "Send should be enabled once the payload has loaded.")
 
-        // No mail composer yet — preview-first gate. Tapping Send on Simulator
-        // without a mail account must offer copy instead of failing silently.
+        let copy = app.buttons["contact-support-copy"]
+        UITestSupport.scrollToElement(copy, in: app, maxSwipes: 8)
+        XCTAssertTrue(
+            copy.waitForExistence(timeout: 5),
+            "Copy Diagnostics fallback must exist on the form."
+        )
+        XCTAssertTrue(copy.isEnabled, "Copy Diagnostics should be enabled once the payload has loaded.")
+
+        // No mail composer yet — preview-first gate. Simulators have
+        // MFMailComposeViewController.canSendMail() == false, so Send must
+        // offer the Copy Diagnostics fallback rather than failing silently.
         UITestSupport.tapWhenReady(send, timeout: 5)
         let noMail = app.alerts["Mail Not Configured"].firstMatch
         let mailSheet = app.navigationBars["New Message"].firstMatch
-        let copied = app.alerts["Copied"].firstMatch
-        let sawGracefulPath =
-            noMail.waitForExistence(timeout: 5)
-            || mailSheet.waitForExistence(timeout: 3)
-            || copied.waitForExistence(timeout: 3)
-            || app.alerts.firstMatch.waitForExistence(timeout: 3)
-        XCTAssertTrue(
-            sawGracefulPath || app.buttons["contact-support-copy"].exists,
-            "Without mail, Contact Support must offer a graceful copy path."
-        )
-
-        if noMail.exists {
-            UITestSupport.tapWhenReady(noMail.buttons["Copy Diagnostics"], timeout: 5)
-            XCTAssertTrue(
-                app.alerts["Copied"].waitForExistence(timeout: 5),
-                "Copy-from-no-mail path should confirm clipboard copy."
-            )
+        let sawMailComposer = mailSheet.waitForExistence(timeout: 3)
+        if sawMailComposer {
+            // Rare on CI; keep the branch for devices with a mail account.
+            return
         }
+
+        XCTAssertTrue(
+            noMail.waitForExistence(timeout: 8),
+            "Without a mail account, Send Email must present Mail Not Configured."
+        )
+        let alertCopy = noMail.buttons["Copy Diagnostics"]
+        XCTAssertTrue(
+            alertCopy.waitForExistence(timeout: 3),
+            "Mail Not Configured must offer Copy Diagnostics."
+        )
+        UITestSupport.tapWhenReady(alertCopy, timeout: 5)
+        XCTAssertTrue(
+            app.alerts["Copied"].waitForExistence(timeout: 5),
+            "Copy-from-no-mail path should confirm clipboard copy."
+        )
         #endif
     }
 
