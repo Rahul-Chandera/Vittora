@@ -17,6 +17,7 @@ struct DebtRowView: View {
                         .font(VTypography.bodyBold)
                         .foregroundColor(.white)
                 }
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
                 Text(entry.payee.name)
@@ -59,6 +60,14 @@ struct DebtRowView: View {
         .padding(.vertical, VSpacing.xs)
         .contentShape(Rectangle())
         .vittoraPointerHighlight()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(entry.payee.name)
+        .accessibilityValue(
+            entry.netBalance >= 0
+                ? String(localized: "Owes you \(CurrencyFormatter.format(entry.netBalance, currencyCode: currencyCode))")
+                : String(localized: "You owe \(CurrencyFormatter.format(abs(entry.netBalance), currencyCode: currencyCode))")
+        )
+        .accessibilityHint(String(localized: "Opens debt details"))
     }
 
     private var avatarColor: Color {

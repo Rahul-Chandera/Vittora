@@ -31,6 +31,8 @@ final class UITestDataSeeder {
         debtRepository: any DebtRepository,
         recurringRuleRepository: any RecurringRuleRepository,
         payeeRepository: any PayeeRepository,
+        splitGroupRepository: any SplitGroupRepository,
+        taxProfileRepository: any TaxProfileRepository,
         dataSeeder: any DataSeederProtocol
     ) async throws {
         let existingAccounts = try await accountRepository.fetchAll()
@@ -226,6 +228,30 @@ final class UITestDataSeeder {
             amount: isIndia ? 5_000 : 250,
             settledAmount: isIndia ? 2_000 : 100,
             direction: .lent, note: "Concert tickets"
+        ))
+
+        let splitGroup = SplitGroup(
+            name: isIndia ? "Goa Weekend" : "Lake House Weekend",
+            memberIDs: [friend.id, grocer.id]
+        )
+        try await splitGroupRepository.createGroup(splitGroup)
+        try await splitGroupRepository.createExpense(GroupExpense(
+            groupID: splitGroup.id,
+            paidByMemberID: friend.id,
+            amount: isIndia ? 4_000 : 120,
+            title: "Groceries",
+            shares: [
+                SplitShare(memberID: friend.id, amount: isIndia ? 2_000 : 60),
+                SplitShare(memberID: grocer.id, amount: isIndia ? 2_000 : 60)
+            ]
+        ))
+
+        try await taxProfileRepository.save(TaxProfile(
+            country: isIndia ? .india : .unitedStates,
+            annualIncome: isIndia ? 1_200_000 : 85_000,
+            financialYear: isIndia
+                ? TaxCountry.india.defaultFinancialYear
+                : TaxCountry.unitedStates.defaultFinancialYear
         ))
 
         func daysAhead(_ days: Int) -> Date {

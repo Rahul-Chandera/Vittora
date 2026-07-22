@@ -23,12 +23,12 @@ struct SettingsView: View {
                 } label: {
                     HStack(spacing: VSpacing.md) {
                         Circle()
-                            .fill(VColors.primary.opacity(0.15))
+                            .fill(VColors.tertiaryBackground)
                             .frame(width: 52, height: 52)
                             .overlay {
                                 Text(initials(vm.userName))
                                     .font(VTypography.title3.bold())
-                                    .foregroundStyle(VColors.primary)
+                                    .foregroundStyle(.primary)
                             }
                         VStack(alignment: .leading, spacing: 2) {
                             Text(vm.userName.isEmpty ? String(localized: "Your Name") : vm.userName)
@@ -36,8 +36,12 @@ struct SettingsView: View {
                                 .foregroundStyle(VColors.textPrimary)
                             Text(String(localized: "Edit profile"))
                                 .font(VTypography.caption1)
-                                .foregroundStyle(VColors.textSecondary)
+                                .foregroundStyle(.primary)
                         }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.primary)
+                            .accessibilityHidden(true)
                     }
                     .padding(.vertical, 4)
                 }
@@ -60,6 +64,7 @@ struct SettingsView: View {
                                 value: vm.appearanceMode.displayName)
                 }
             }
+            .headerProminence(.increased)
 
             // Manage
             Section(String(localized: "Manage")) {
@@ -69,6 +74,7 @@ struct SettingsView: View {
                     SettingsRow(icon: "building.columns.fill", iconColor: .blue,
                                 title: String(localized: "Accounts"), value: "")
                 }
+                .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("settings-manage-accounts")
                 NavigationLink {
                     CategoryListView()
@@ -76,6 +82,7 @@ struct SettingsView: View {
                     SettingsRow(icon: "tag.fill", iconColor: .pink,
                                 title: String(localized: "Categories"), value: "")
                 }
+                .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("settings-manage-categories")
                 NavigationLink {
                     PayeeListView()
@@ -83,6 +90,7 @@ struct SettingsView: View {
                     SettingsRow(icon: "person.2.fill", iconColor: .teal,
                                 title: String(localized: "Payees"), value: "")
                 }
+                .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("settings-manage-payees")
                 NavigationLink {
                     RecurringListView()
@@ -90,8 +98,10 @@ struct SettingsView: View {
                     SettingsRow(icon: "arrow.triangle.2.circlepath", iconColor: .indigo,
                                 title: String(localized: "Recurring"), value: "")
                 }
+                .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("settings-manage-recurring")
             }
+            .headerProminence(.increased)
 
             // Security
             Section(String(localized: "Security")) {
@@ -116,6 +126,7 @@ struct SettingsView: View {
                                 title: String(localized: "Security audit log"), value: "")
                 }
             }
+            .headerProminence(.increased)
 
             // Data
             Section(String(localized: "Data & Sync")) {
@@ -133,6 +144,7 @@ struct SettingsView: View {
                                 title: String(localized: "Manage Data"), value: "")
                 }
             }
+            .headerProminence(.increased)
 
             // Notifications
             Section {
@@ -155,21 +167,33 @@ struct SettingsView: View {
                                 title: String(localized: "Delete All Data"),
                                 value: "")
                 }
-            } footer: {
                 Text(String(localized: "Permanently deletes all financial data and resets the app."))
-                    .foregroundStyle(VColors.textSecondary)
+                    .font(.body)
+                    .foregroundStyle(VColors.textPrimary)
             }
 
             // About
-            Section(String(localized: "About")) {
+            Section {
                 NavigationLink {
                     AboutView(vm: vm)
                 } label: {
                     SettingsRow(icon: "info.circle.fill", iconColor: .blue,
                                 title: String(localized: "About Vittora"), value: "v\(vm.appVersion)")
                 }
+            } header: {
+                Text(String(localized: "About"))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
             }
+            .headerProminence(.increased)
         }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
+        }
+        .navigationLinkIndicatorVisibility(.hidden)
+        .tint(.primary)
         .navigationTitle(String(localized: "Settings"))
         .errorAlert(message: Binding(
             get: { vm.keychainError },
@@ -324,6 +348,8 @@ struct SettingsView: View {
 // MARK: - Settings Row
 
 struct SettingsRow: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     let icon: String
     let iconColor: Color
     let title: String
@@ -332,21 +358,37 @@ struct SettingsRow: View {
     var body: some View {
         HStack(spacing: VSpacing.md) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(iconColor)
-                .frame(width: 32, height: 32)
+                .fill(VColors.tertiaryBackground)
+                .frame(width: 44, height: 44)
                 .overlay {
                     Image(systemName: icon)
-                        .font(.caption.bold())
-                        .foregroundStyle(.white)
+                        .font(.body.bold())
+                        .foregroundStyle(VColors.textPrimary)
+                        .accessibilityHidden(true)
                 }
-            Text(title)
-                .foregroundStyle(VColors.textPrimary)
-            Spacer()
-            if !value.isEmpty {
-                Text(value)
-                    .foregroundStyle(VColors.textSecondary)
-                    .font(VTypography.caption1)
+                .accessibilityHidden(true)
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xxs))
+                : AnyLayout(HStackLayout(spacing: VSpacing.sm))
+            layout {
+                Text(title)
+                    .foregroundStyle(VColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Spacer(minLength: 0)
+                }
+                if !value.isEmpty {
+                    Text(value)
+                        .foregroundStyle(VColors.textPrimary)
+                        .font(VTypography.caption1)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.primary)
+                    .accessibilityHidden(true)
             }
         }
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }

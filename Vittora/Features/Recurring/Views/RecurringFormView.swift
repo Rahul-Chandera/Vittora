@@ -6,6 +6,7 @@ struct RecurringFormView: View {
     @Environment(\.dependencies) var dependencies
     @Environment(\.dismiss) var dismiss
     @Environment(\.currencySymbol) private var currencySymbol
+    @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: RecurringFormViewModel?
     @State private var accounts: [AccountEntity] = []
     @State private var categories: [CategoryEntity] = []
@@ -27,20 +28,26 @@ struct RecurringFormView: View {
                             // Amount Input
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
                                 Text(String(localized: "Amount"))
-                                    .font(VTypography.calloutBold)
-                                    .foregroundColor(VColors.textPrimary)
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
 
                                 HStack(spacing: VSpacing.sm) {
                                     Text(currencySymbol)
                                         .font(VTypography.callout)
-                                        .foregroundColor(VColors.textSecondary)
+                                        .foregroundColor(.primary)
+                                        .accessibilityHidden(true)
 
-                                    TextField("0.00", text: Bindable(viewModel).amount)
+                                    TextField(
+                                        "",
+                                        text: Bindable(viewModel).amount
+                                    )
                                         .font(VTypography.body)
                                         #if os(iOS)
                                         .keyboardType(.decimalPad)
                                         .textContentType(nil)
                                         #endif
+                                        .accessibilityLabel(String(localized: "Amount"))
+                                        .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
                                 }
                                 .padding(VSpacing.md)
                                 .background(VColors.secondaryBackground)
@@ -116,11 +123,11 @@ struct RecurringFormView: View {
                                         if let account = selectedAccount(for: viewModel) {
                                             Text(account.name)
                                                 .font(VTypography.callout)
-                                                .foregroundColor(VColors.textPrimary)
+                                                .foregroundColor(.primary)
                                         } else {
                                             Text(String(localized: "Choose Account"))
                                                 .font(VTypography.callout)
-                                                .foregroundColor(VColors.textSecondary)
+                                                .foregroundColor(.primary)
                                         }
 
                                         Spacer()
@@ -163,7 +170,7 @@ struct RecurringFormView: View {
                                         } else {
                                             Text(String(localized: "Choose Category"))
                                                 .font(VTypography.callout)
-                                                .foregroundColor(VColors.textSecondary)
+                                                .foregroundColor(VColors.textPrimary)
                                         }
 
                                         Spacer()
@@ -202,7 +209,7 @@ struct RecurringFormView: View {
                                         } else {
                                             Text(String(localized: "Choose Payee"))
                                                 .font(VTypography.callout)
-                                                .foregroundColor(VColors.textSecondary)
+                                                .foregroundColor(VColors.textPrimary)
                                         }
 
                                         Spacer()
@@ -256,6 +263,7 @@ struct RecurringFormView: View {
                     ProgressView()
                 }
             }
+            .tint(VColors.textPrimary)
             .navigationTitle(viewModel?.isEditing ?? false ? String(localized: "Edit Recurring") : String(localized: "New Recurring"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -265,6 +273,8 @@ struct RecurringFormView: View {
                     Button(String(localized: "Cancel")) {
                         dismiss()
                     }
+                    .font(.body)
+                    .foregroundStyle(VColors.textPrimary)
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -273,8 +283,8 @@ struct RecurringFormView: View {
                             ProgressView()
                         } else {
                             Text(String(localized: "Save"))
-                                .font(VTypography.calloutBold)
-                                .foregroundColor(viewModel?.canSave ?? false ? VColors.primary : VColors.textSecondary)
+                                .font(.body)
+                                .foregroundColor(VColors.textPrimary)
                         }
                     }
                     .disabled(!(viewModel?.canSave ?? false) || isLoading)

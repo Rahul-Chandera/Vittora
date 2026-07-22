@@ -10,11 +10,14 @@ struct ProfileSettingsView: View {
 
     var body: some View {
         Form {
-            Section(String(localized: "Display Name")) {
+            Section {
                 TextField(String(localized: "Your name"), text: $editingName)
                     #if os(iOS)
                     .textContentType(.name)
                     #endif
+            } header: {
+                Text(String(localized: "Display Name"))
+                    .foregroundStyle(VColors.textPrimary)
             }
         }
         .navigationTitle(String(localized: "Profile"))
@@ -35,7 +38,7 @@ struct CurrencySettingsView: View {
 
     var body: some View {
         Form {
-            Section(String(localized: "Select Currency")) {
+            Section {
                 ForEach(vm.supportedCurrencies, id: \.code) { currency in
                     Button {
                         vm.selectedCurrencyCode = currency.code
@@ -47,13 +50,22 @@ struct CurrencySettingsView: View {
                             if vm.selectedCurrencyCode == currency.code {
                                 Image(systemName: "checkmark")
                                     .foregroundStyle(VColors.primary)
+                                    .accessibilityHidden(true)
                             }
                         }
                         // Make the whole row tappable, not just the text.
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityValue(
+                        vm.selectedCurrencyCode == currency.code
+                        ? String(localized: "Selected")
+                        : String(localized: "Not selected")
+                    )
                 }
+            } header: {
+                Text(String(localized: "Select Currency"))
+                    .foregroundStyle(VColors.textPrimary)
             }
         }
         .navigationTitle(String(localized: "Currency"))
@@ -73,7 +85,7 @@ struct AppearanceSettingsView: View {
 
     var body: some View {
         Form {
-            Section(String(localized: "Theme")) {
+            Section {
                 ForEach(SettingsViewModel.AppearanceMode.allCases, id: \.self) { mode in
                     Button {
                         draftMode = mode
@@ -84,59 +96,91 @@ struct AppearanceSettingsView: View {
                             Spacer()
                             if selectedMode == mode {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(previewAccent)
+                                    .foregroundStyle(VColors.textPrimary)
+                                    .accessibilityHidden(true)
                             }
                         }
                         // Make the whole row tappable, not just the text.
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityValue(
+                        selectedMode == mode
+                        ? String(localized: "Selected")
+                        : String(localized: "Not selected")
+                    )
                 }
+            } header: {
+                Text(String(localized: "Theme"))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
             }
+            .headerProminence(.increased)
 
-            Section(String(localized: "Accent Colour")) {
+            Section {
                 ForEach(SettingsViewModel.AccentColor.allCases, id: \.self) { accent in
                     Button {
                         draftAccent = accent
                     } label: {
                         HStack {
                             Circle()
-                                .fill(VColors.accent(accent, for: previewColorScheme))
+                                .fill(Color.primary)
                                 .frame(width: 20, height: 20)
+                                .overlay {
+                                    Circle().stroke(VColors.textPrimary, lineWidth: 2)
+                                }
                                 .accessibilityHidden(true)
                             Text(accent.displayName)
                                 .foregroundStyle(VColors.textPrimary)
                             Spacer()
                             if selectedAccent == accent {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(previewAccent)
+                                    .foregroundStyle(VColors.textPrimary)
+                                    .accessibilityHidden(true)
                             }
                         }
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityValue(
+                        selectedAccent == accent
+                        ? String(localized: "Selected")
+                        : String(localized: "Not selected")
+                    )
                 }
+            } header: {
+                Text(String(localized: "Accent Colour"))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
             }
+            .headerProminence(.increased)
 
-            Section(String(localized: "Live Preview")) {
+            Section {
+                Text(String(localized: "Live Preview"))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
                 VStack(alignment: .leading, spacing: VSpacing.md) {
                     HStack {
                         Image(systemName: "chart.line.uptrend.xyaxis")
                             .foregroundStyle(previewAccent)
+                            .accessibilityHidden(true)
                         Text(String(localized: "Monthly overview"))
                             .font(VTypography.bodyBold)
                             .foregroundStyle(previewTextPrimary)
                         Spacer()
                         Text("72%")
-                            .foregroundStyle(previewTextSecondary)
+                            .foregroundStyle(previewTextPrimary)
                     }
 
                     ProgressView(value: 0.72)
-                        .tint(previewAccent)
+                        .tint(previewTextPrimary)
+                        .accessibilityLabel(String(localized: "Preview progress"))
+                        .accessibilityValue("72%")
 
                     Text(String(localized: "See how text, surfaces, and your accent work together."))
-                        .font(VTypography.caption1)
-                        .foregroundStyle(previewTextSecondary)
+                        .font(VTypography.body)
+                        .foregroundStyle(previewTextPrimary)
                 }
                 .padding(VSpacing.md)
                 .background(previewSurface)
@@ -145,16 +189,25 @@ struct AppearanceSettingsView: View {
                 .listRowBackground(previewBackground)
                 .accessibilityIdentifier("appearance-live-preview")
             }
+            .headerProminence(.increased)
 
             Section {
                 Button(String(localized: "Apply Appearance")) {
+                    guard selectedMode != vm.appearanceMode || selectedAccent != vm.accentColor else { return }
                     vm.appearanceMode = selectedMode
                     vm.accentColor = selectedAccent
                 }
                 .frame(maxWidth: .infinity)
-                .disabled(selectedMode == vm.appearanceMode && selectedAccent == vm.accentColor)
+                .accessibilityRespondsToUserInteraction(
+                    selectedMode != vm.appearanceMode || selectedAccent != vm.accentColor
+                )
                 .accessibilityIdentifier("appearance-apply-button")
             }
+        }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
         }
         .navigationTitle(String(localized: "Appearance"))
         #if os(iOS)
@@ -259,12 +312,18 @@ struct SecuritySettingsView: View {
                                 if vm.appLockTimeout == timeout {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(VColors.primary)
+                                        .accessibilityHidden(true)
                                 }
                             }
                             // Make the whole row tappable, not just the text.
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityValue(
+                            vm.appLockTimeout == timeout
+                            ? String(localized: "Selected")
+                            : String(localized: "Not selected")
+                        )
                     }
                 } header: {
                     Text(String(localized: "Lock After"))
@@ -574,14 +633,14 @@ struct AboutView: View {
                     Text(String(localized: "Version"))
                     Spacer()
                     Text("v\(vm.appVersion) (\(vm.buildNumber))")
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                 }
                 HStack {
                     Text(String(localized: "Platform"))
                     Spacer()
                     #if os(iOS)
                     Text(String(localized: "iOS"))
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                     #elseif os(macOS)
                     Text(String(localized: "macOS"))
                         .foregroundStyle(VColors.textSecondary)
@@ -597,6 +656,7 @@ struct AboutView: View {
                     LegalDocumentView(document: .termsOfService)
                 }
             }
+            .headerProminence(.increased)
 
             Section {
                 VStack(spacing: VSpacing.sm) {
@@ -612,7 +672,7 @@ struct AboutView: View {
                         .foregroundStyle(VColors.textPrimary)
                     Text(String(localized: "Your personal finance companion"))
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                         .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)

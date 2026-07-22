@@ -49,11 +49,11 @@ struct TaxComparisonView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(VTypography.subheadline)
+                .font(VTypography.bodyBold)
                 .foregroundStyle(VColors.textPrimary)
             Text(subtitle)
-                .font(VTypography.caption1)
-                .foregroundStyle(VColors.textSecondary)
+                .font(VTypography.body)
+                .foregroundStyle(VColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -61,7 +61,8 @@ struct TaxComparisonView: View {
     private var recommendationBanner: some View {
         HStack(spacing: VSpacing.sm) {
             Image(systemName: comparison.winner == .tie ? "equal.circle.fill" : "sparkles")
-                .foregroundStyle(comparison.winner == .tie ? VColors.textSecondary : VColors.primary)
+                .foregroundStyle(VColors.textPrimary)
+                .accessibilityHidden(true)
 
             Text(recommendationText)
                 .font(VTypography.caption1Bold)
@@ -90,7 +91,7 @@ struct TaxComparisonView: View {
                         .foregroundStyle(VColors.textPrimary)
                     Text(estimate.regimeLabel)
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -99,7 +100,7 @@ struct TaxComparisonView: View {
                 if isRecommended {
                     Text(String(localized: "Recommended"))
                         .font(VTypography.caption2Bold)
-                        .foregroundStyle(VColors.primary)
+                        .foregroundStyle(VColors.textPrimary)
                         .padding(.horizontal, VSpacing.sm)
                         .padding(.vertical, 6)
                         .background(VColors.primary.opacity(0.12))
@@ -110,7 +111,7 @@ struct TaxComparisonView: View {
             Text(estimate.finalTax.formatted(.currency(code: estimate.country.currencyCode)))
                 .font(VTypography.amountMedium)
                 .amountScaling()
-                .foregroundStyle(isRecommended ? VColors.primary : VColors.expense)
+                .foregroundStyle(VColors.textPrimary)
                 .adaptiveLineLimit(1)
                 .adaptiveMinimumScaleFactor(0.8)
 
@@ -148,8 +149,8 @@ struct TaxComparisonView: View {
     private func metricRow(title: String, value: String) -> some View {
         HStack {
             Text(title)
-                .font(VTypography.caption2)
-                .foregroundStyle(VColors.textSecondary)
+                .font(VTypography.body)
+                .foregroundStyle(VColors.textPrimary)
             Spacer()
             Text(value)
                 .font(VTypography.caption1Bold)

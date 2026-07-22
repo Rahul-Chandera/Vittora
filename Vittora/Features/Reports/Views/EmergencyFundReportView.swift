@@ -29,6 +29,11 @@ struct EmergencyFundReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
+        }
         .background(VColors.background)
         .navigationTitle(String(localized: "Emergency Fund"))
         #if os(iOS)
@@ -89,23 +94,26 @@ struct EmergencyFundReportView: View {
                             .amountScaling()
                         Text(String(localized: "months covered"))
                             .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
+                            .foregroundStyle(VColors.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 .frame(width: 210, height: 210)
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(String(localized: "Emergency fund coverage"))
+                .accessibilityIdentifier("emergency-fund-coverage-summary")
                 .accessibilityValue(
-                    String(localized: "\(snapshot.coverageMonths.formatted(.number.precision(.fractionLength(1)))) months")
+                    String(
+                        localized: "\(snapshot.coverageMonths.formatted(.number.precision(.fractionLength(1)))) months, \(statusTitle(snapshot.status))"
+                    )
                 )
 
-                HStack {
+                VStack(alignment: .leading, spacing: VSpacing.xs) {
                     Label(String(localized: "3-month target"), systemImage: "circle.fill")
-                    Spacer()
                     Label(String(localized: "6-month target"), systemImage: "circle.fill")
                 }
-                .font(VTypography.caption2)
-                .foregroundStyle(VColors.textSecondary)
+                .font(VTypography.bodyBold)
+                .foregroundStyle(VColors.textPrimary)
 
                 Text(statusTitle(snapshot.status))
                     .font(VTypography.title3)
@@ -151,6 +159,9 @@ struct EmergencyFundReportView: View {
                 .amountScaling()
                 .foregroundStyle(color)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(CurrencyFormatter.format(amount, currencyCode: currencyCode))
     }
 
     private func shortfallCard(_ snapshot: EmergencyFundSnapshot) -> some View {
@@ -159,6 +170,7 @@ struct EmergencyFundReportView: View {
                 Image(systemName: "arrow.up.right.circle.fill")
                     .font(.title2)
                     .foregroundStyle(VColors.warning)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: VSpacing.xxs) {
                     Text(String(localized: "To reach 3 months"))
                         .font(VTypography.caption1)
@@ -170,15 +182,22 @@ struct EmergencyFundReportView: View {
                 Spacer()
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Shortfall to reach three months"))
+        .accessibilityValue(
+            CurrencyFormatter.format(snapshot.shortfallToThreeMonths, currencyCode: currencyCode)
+        )
     }
 
     private func accountSources(_ vm: EmergencyFundViewModel) -> some View {
         VStack(alignment: .leading, spacing: VSpacing.sm) {
             Text(String(localized: "Contributing Accounts"))
                 .font(VTypography.calloutBold)
+                .foregroundStyle(VColors.textPrimary)
             Text(String(localized: "Choose accounts whose full balance should count toward this fund."))
                 .font(VTypography.caption1)
-                .foregroundStyle(VColors.textSecondary)
+                .foregroundStyle(VColors.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
 
             VCard {
                 VStack(spacing: 0) {
@@ -200,7 +219,7 @@ struct EmergencyFundReportView: View {
                                     Label(account.name, systemImage: account.icon)
                                     Spacer()
                                     Text(CurrencyFormatter.format(account.balance, currencyCode: currencyCode))
-                                        .foregroundStyle(VColors.textSecondary)
+                                        .foregroundStyle(VColors.textPrimary)
                                     Image(systemName: vm.selectedAccountIDs.contains(account.id)
                                           ? "checkmark.circle.fill" : "circle")
                                         .foregroundStyle(vm.selectedAccountIDs.contains(account.id)
@@ -210,9 +229,16 @@ struct EmergencyFundReportView: View {
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(account.name)
                             .accessibilityValue(
                                 vm.selectedAccountIDs.contains(account.id)
-                                ? String(localized: "Selected") : String(localized: "Not selected")
+                                ? String(
+                                    localized: "\(CurrencyFormatter.format(account.balance, currencyCode: currencyCode)), selected"
+                                )
+                                : String(
+                                    localized: "\(CurrencyFormatter.format(account.balance, currencyCode: currencyCode)), not selected"
+                                )
                             )
                             if account.id != vm.accounts.last?.id {
                                 Divider()

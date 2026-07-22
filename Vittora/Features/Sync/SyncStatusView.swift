@@ -48,14 +48,7 @@ struct SyncStatusView: View {
     }
 
     private var iconColor: Color {
-        if needsConflictReview { return VColors.warning }
-        switch syncService.syncState {
-        case .synced:   return VColors.income
-        case .syncing:  return VColors.primary
-        case .pending:  return VColors.textSecondary
-        case .offline:  return VColors.textTertiary
-        case .error:    return VColors.expense
-        }
+        .primary
     }
 }
 
@@ -64,6 +57,7 @@ struct SyncDetailView: View {
     @Environment(SyncStatusService.self) private var syncService
     @Environment(SyncConflictHandler.self) private var syncConflictHandler
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var isReconciling = false
     @State private var reconcileMessage: String?
@@ -78,14 +72,16 @@ struct SyncDetailView: View {
                     Button(String(localized: "Refresh")) {
                         Task { await syncService.checkiCloudStatus() }
                     }
-                    .font(VTypography.caption1)
+                    .font(.body)
+                    .foregroundStyle(VColors.textPrimary)
+                    .frame(minWidth: 44, minHeight: 44)
                 }
 
                 HStack {
                     Text(String(localized: "Last synced"))
                     Spacer()
                     Text(syncService.lastSyncFormatted)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                 }
 
                 HStack {
@@ -94,19 +90,18 @@ struct SyncDetailView: View {
                     Text(syncService.iCloudAccountAvailable
                          ? String(localized: "Connected")
                          : String(localized: "Not signed in"))
-                        .foregroundStyle(syncService.iCloudAccountAvailable
-                                         ? VColors.income
-                                         : VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                 }
 
                 if !syncService.iCloudAccountAvailable {
                     Text(String(localized: "Your data stays on this device. Sign in to iCloud in Settings to sync across devices."))
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                 }
             } header: {
                 Text(String(localized: "Status"))
             }
+            .headerProminence(.increased)
 
             if case .error(let msg) = syncService.syncState {
                 Section {
@@ -120,6 +115,7 @@ struct SyncDetailView: View {
                 } header: {
                     Text(String(localized: "Error"))
                 }
+                .headerProminence(.increased)
             }
 
             Section {
@@ -128,16 +124,17 @@ struct SyncDetailView: View {
                         .font(VTypography.bodyBold)
                         .foregroundStyle(VColors.textPrimary)
                     Text(String(localized: "When iCloud detects a merge conflict it applies its own last-writer-wins strategy. Vittora logs each event here. When modification timestamps are close together or unavailable, the outcome is shown as ambiguous."))
-                        .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .font(VTypography.body)
+                        .foregroundStyle(VColors.textPrimary)
+                    Text(String(localized: "The conflict log keeps the 20 most recent events. Conflicts within 60 seconds of each other are flagged as ambiguous due to possible clock skew."))
+                        .font(.body)
+                        .foregroundStyle(VColors.textPrimary)
                 }
                 .padding(.vertical, 2)
             } header: {
                 Text(String(localized: "Conflict Handling"))
-            } footer: {
-                Text(String(localized: "The conflict log keeps the 20 most recent events. Conflicts within 60 seconds of each other are flagged as ambiguous due to possible clock skew."))
-                    .foregroundStyle(VColors.textSecondary)
             }
+            .headerProminence(.increased)
 
             Section {
                 if syncConflictHandler.recentConflicts.isEmpty {
@@ -147,12 +144,13 @@ struct SyncDetailView: View {
                                 .font(VTypography.bodyBold)
                                 .foregroundStyle(VColors.textPrimary)
                             Text(String(localized: "Recent iCloud merges have completed without any logged conflicts."))
-                                .font(VTypography.caption1)
-                                .foregroundStyle(VColors.textSecondary)
+                                .font(VTypography.body)
+                                .foregroundStyle(VColors.textPrimary)
                         }
                     } icon: {
                         Image(systemName: "checkmark.shield.fill")
-                            .foregroundStyle(VColors.income)
+                            .foregroundStyle(VColors.textPrimary)
+                            .accessibilityHidden(true)
                     }
                     .padding(.vertical, 4)
                 } else {
@@ -165,19 +163,23 @@ struct SyncDetailView: View {
                     }
 
                     Button(role: .destructive) {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        if reduceMotion {
                             syncConflictHandler.clearLog()
+                        } else {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                syncConflictHandler.clearLog()
+                            }
                         }
                     } label: {
                         Label(String(localized: "Clear Reviewed Conflicts"), systemImage: "trash")
                     }
                 }
+                Text(String(localized: "The current CloudKit integration logs timestamps and outcomes for automatic resolutions. More detailed record snapshots can be added later without changing this review flow."))
+                    .foregroundStyle(VColors.textPrimary)
             } header: {
                 Text(String(localized: "Conflict Review"))
-            } footer: {
-                Text(String(localized: "The current CloudKit integration logs timestamps and outcomes for automatic resolutions. More detailed record snapshots can be added later without changing this review flow."))
-                    .foregroundStyle(VColors.textSecondary)
             }
+            .headerProminence(.increased)
 
             Section {
                 Button {
@@ -207,6 +209,11 @@ struct SyncDetailView: View {
             } header: {
                 Text(String(localized: "About iCloud Sync"))
             }
+        }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
         }
         .navigationTitle(String(localized: "iCloud Sync"))
         #if os(iOS)

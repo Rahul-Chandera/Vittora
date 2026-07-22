@@ -16,8 +16,10 @@ enum VTypography {
     static let subheadline = Font.system(.subheadline, design: .default).weight(.semibold)
     static let caption1 = Font.system(.caption, design: .default)
     static let caption1Bold = Font.system(.caption, design: .default).weight(.semibold)
-    static let caption2 = Font.system(.caption2, design: .default)
-    static let caption2Bold = Font.system(.caption2, design: .default).weight(.semibold)
+    // `.caption2` only partially scales at accessibility sizes and is flagged by
+    // XCTest's Dynamic Type audit. Use the fully scalable caption tier instead.
+    static let caption2 = Font.system(.caption, design: .default)
+    static let caption2Bold = Font.system(.caption, design: .default).weight(.semibold)
 
     // MARK: - Amount Text (Rounded Numbers for Financial Data)
     static let amountLarge = Font.system(.title, design: .rounded).weight(.semibold)
@@ -26,6 +28,6 @@ enum VTypography {
     static let amountCaption = Font.system(.callout, design: .rounded).weight(.semibold)
 
     // MARK: - Monospaced (for tables, codes)
-    static let monospacedSmall = Font.system(.caption2, design: .monospaced)
+    static let monospacedSmall = Font.system(.caption, design: .monospaced)
     static let monospacedBody = Font.system(.body, design: .monospaced)
 }

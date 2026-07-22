@@ -185,17 +185,27 @@ enum UITestSupport {
         return false
     }
 
-    /// Swipe up until `element` is rendered and hittable. SwiftUI `Form`/`List`
-    /// rows below the viewport aren't in the accessibility tree, so a field in a
-    /// lower section must be scrolled into view before it can be found or tapped.
+    /// Swipe up until `element` is on-screen and clear of the compact tab bar.
+    /// Prefer frame geometry over `isHittable` — hittability queries can hang
+    /// for tens of seconds on large SwiftUI hierarchies during UI tests.
     @MainActor
     static func scrollToElement(
         _ element: XCUIElement,
         in app: XCUIApplication,
-        maxSwipes: Int = 8
+        maxSwipes: Int = 12
     ) {
         var swipes = 0
-        while !(element.exists && hasValidFrame(element)) && swipes < maxSwipes {
+        let unobscuredBottom = app.frame.maxY - 120
+        while swipes < maxSwipes {
+            if element.exists {
+                let frame = element.frame
+                if frame.width > 1,
+                   frame.height > 1,
+                   frame.maxY <= unobscuredBottom,
+                   frame.minY >= app.frame.minY + 60 {
+                    return
+                }
+            }
             app.swipeUp()
             swipes += 1
         }

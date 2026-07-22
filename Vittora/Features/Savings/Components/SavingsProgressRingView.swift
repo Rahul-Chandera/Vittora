@@ -30,11 +30,11 @@ struct SavingsProgressRingView: View {
                 if progress >= 1 {
                     Image(systemName: "checkmark")
                         .font(.system(size: size * 0.28, weight: .bold))
-                        .foregroundStyle(VColors.income)
+                        .foregroundStyle(VColors.textPrimary)
                 } else {
                     Text("\(Int(progress * 100))%")
-                        .font(.system(size: size * 0.22, weight: .bold, design: .rounded))
-                        .foregroundStyle(color)
+                        .font(size < 80 ? .caption.bold() : .title2.bold())
+                        .foregroundStyle(VColors.textPrimary)
                         .adaptiveLineLimit(1)
                         .adaptiveMinimumScaleFactor(0.7)
                 }

@@ -93,10 +93,12 @@ final class HindiLocalizationUITests: XCTestCase {
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         UITestSupport.tapWhenReady(app.buttons["टैक्स"], timeout: 15)
         XCTAssertTrue(app.navigationBars["टैक्स कैलकुलेटर"].waitForExistence(timeout: 15))
-        XCTAssertTrue(app.staticTexts["कोई टैक्स प्रोफ़ाइल नहीं"].waitForExistence(timeout: 15))
-        capture(named: "hi-india-tax-empty")
+        // Demo seed includes an India tax profile so audits and localization both
+        // exercise the populated estimator (empty state is not the seeded path).
+        XCTAssertTrue(app.staticTexts["टैक्स ब्रैकेट वितरण"].waitForExistence(timeout: 15))
+        capture(named: "hi-india-tax-dashboard")
 
-        UITestSupport.tapWhenReady(app.buttons["प्रोफ़ाइल सेट अप करें"], timeout: 10)
+        UITestSupport.tapWhenReady(app.buttons["tax-profile-button"], timeout: 10)
         XCTAssertTrue(app.navigationBars["टैक्स प्रोफ़ाइल"].waitForExistence(timeout: 10))
         let regimePicker = app.buttons["कर व्यवस्था, नई कर व्यवस्था"]
         XCTAssertTrue(regimePicker.waitForExistence(timeout: 10))

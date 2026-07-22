@@ -3,9 +3,10 @@ import VittoraCore
 
 struct TaxDashboardView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: TaxEstimateViewModel?
     @State private var showProfileForm = false
-    @State private var showBreakdown = false
+    @State private var breakdownPresentation: TaxBreakdownPresentation?
     @State private var showExportSheet = false
 
     var body: some View {
@@ -30,6 +31,13 @@ struct TaxDashboardView: View {
                     } label: {
                         Image(systemName: vm?.estimate == nil ? "plus" : "pencil")
                     }
+                    .accessibilityLabel(
+                        vm?.estimate == nil
+                        ? String(localized: "Set up tax profile")
+                        : String(localized: "Edit tax profile")
+                    )
+                    .accessibilityHint(String(localized: "Opens the tax profile form"))
+                    .accessibilityIdentifier("tax-profile-button")
                 }
             }
         }
@@ -55,10 +63,8 @@ struct TaxDashboardView: View {
                 Task { await vm?.load() }
             }
         }
-        .sheet(isPresented: $showBreakdown) {
-            if let estimate = vm?.estimate {
-                TaxBreakdownView(estimate: estimate)
-            }
+        .sheet(item: $breakdownPresentation) { presentation in
+            TaxBreakdownView(estimate: presentation.estimate)
         }
         .sheet(isPresented: $showExportSheet, onDismiss: {
             Task { await vm?.cleanupExport() }
@@ -110,7 +116,7 @@ struct TaxDashboardView: View {
                     title: String(localized: "Full Bracket Breakdown"),
                     icon: "list.number"
                 ) {
-                    showBreakdown = true
+                    breakdownPresentation = TaxBreakdownPresentation(estimate: estimate)
                 }
 
                 actionButton(
@@ -136,52 +142,54 @@ struct TaxDashboardView: View {
             }
             .padding(VSpacing.screenPadding)
         }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
+        }
     }
 
     private func quickStatsGrid(estimate: TaxEstimate) -> some View {
         let code = estimate.country.currencyCode
-        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: VSpacing.md) {
+        let columns = dynamicTypeSize.isAccessibilitySize
+            ? [GridItem(.flexible())]
+            : [GridItem(.flexible()), GridItem(.flexible())]
+        return LazyVGrid(columns: columns, spacing: VSpacing.md) {
             StatTile(
                 title: String(localized: "Basic Tax"),
                 value: estimate.basicTax.formatted(.currency(code: code)),
-                icon: "percent",
-                color: VColors.expense
+                icon: "percent"
             )
             if estimate.rebate > 0 {
                 StatTile(
                     title: String(localized: "87A Rebate"),
                     value: "-" + estimate.rebate.formatted(.currency(code: code)),
-                    icon: "minus.circle.fill",
-                    color: VColors.income
+                    icon: "minus.circle.fill"
                 )
             }
             if estimate.surcharge > 0 {
                 StatTile(
                     title: String(localized: "Surcharge"),
                     value: estimate.surcharge.formatted(.currency(code: code)),
-                    icon: "arrow.up.circle.fill",
-                    color: .orange
+                    icon: "arrow.up.circle.fill"
                 )
             }
             if estimate.cess > 0 {
                 StatTile(
                     title: String(localized: "Cess (4%)"),
                     value: estimate.cess.formatted(.currency(code: code)),
-                    icon: "cross.circle.fill",
-                    color: .purple
+                    icon: "cross.circle.fill"
                 )
             }
             StatTile(
                 title: String(localized: "Marginal Rate"),
                 value: "\(estimate.marginalRate.formatted(.number.precision(.fractionLength(0))))%",
-                icon: "chart.line.uptrend.xyaxis",
-                color: VColors.primary
+                icon: "chart.line.uptrend.xyaxis"
             )
             StatTile(
                 title: String(localized: "Effective Rate"),
                 value: "\((estimate.effectiveRate * 100).formatted(.number.precision(.fractionLength(1))))%",
-                icon: "chart.pie.fill",
-                color: VColors.savings
+                icon: "chart.pie.fill"
             )
         }
     }
@@ -191,6 +199,7 @@ struct TaxDashboardView: View {
             Image(systemName: estimate.country == .india ? "flag.fill" : "building.columns")
                 .font(.title2)
                 .foregroundStyle(VColors.primary)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 Text(estimate.country.displayName)
                     .font(VTypography.bodyBold)
@@ -224,19 +233,25 @@ struct TaxDashboardView: View {
                         .tint(VColors.primary)
                 } else {
                     Image(systemName: icon)
+                        .accessibilityHidden(true)
                 }
                 Text(title)
+                    .foregroundStyle(Color.primary)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundStyle(VColors.textSecondary)
+                    .foregroundStyle(Color.primary)
                     .accessibilityHidden(true)
             }
             .padding(VSpacing.cardPadding)
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
             .background(VColors.secondaryBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
-            .foregroundStyle(VColors.primary)
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityHint(String(localized: "Opens the detail screen"))
     }
 
     // MARK: - Empty State
@@ -246,6 +261,7 @@ struct TaxDashboardView: View {
             Image(systemName: "building.columns.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(VColors.textTertiary)
+                .accessibilityHidden(true)
             Text(String(localized: "No Tax Profile"))
                 .font(VTypography.bodyBold)
                 .foregroundStyle(VColors.textPrimary)
@@ -264,34 +280,52 @@ struct TaxDashboardView: View {
     }
 }
 
+// MARK: - Breakdown presentation
+
+private struct TaxBreakdownPresentation: Identifiable {
+    let id = UUID()
+    let estimate: TaxEstimate
+}
+
 // MARK: - Stat Tile
 
 private struct StatTile: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let title: String
     let value: String
     let icon: String
-    let color: Color
+
+    private var highContrastText: Color {
+        colorScheme == .dark ? .white : .black
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.sm) {
             HStack {
                 Image(systemName: icon)
                     .font(.caption)
-                    .foregroundStyle(color)
+                    .foregroundStyle(highContrastText)
+                    .accessibilityHidden(true)
                 Spacer()
             }
             Text(value)
                 .font(VTypography.bodyBold)
-                .foregroundStyle(VColors.textPrimary)
+                .foregroundStyle(highContrastText)
                 .adaptiveLineLimit(1)
                 .adaptiveMinimumScaleFactor(0.8)
             Text(title)
-                .font(VTypography.caption2)
-                .foregroundStyle(VColors.textSecondary)
+                .font(VTypography.bodyBold)
+                .foregroundStyle(highContrastText)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(VSpacing.cardPadding)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
         .background(VColors.secondaryBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(value)
     }
 }
 

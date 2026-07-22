@@ -31,17 +31,11 @@ struct TaxBracketBarView: View {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(bracketColors[idx % bracketColors.count])
                             .frame(width: geo.size.width * pct)
-                            .overlay(alignment: .center) {
-                                if pct > 0.08 {
-                                    Text("\(result.ratePercent.formatted(.number.precision(.fractionLength(0))))%")
-                                        .font(.system(size: 9, weight: .bold))
-                                        .foregroundStyle(.white)
-                                }
-                            }
                     }
                 }
             }
             .frame(height: 32)
+            .accessibilityHidden(true)
 
             // Legend
             TaxFlowLayout(spacing: VSpacing.xs) {
@@ -55,7 +49,29 @@ struct TaxBracketBarView: View {
                     )
                 }
             }
+            .accessibilityHidden(true)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Tax bracket distribution"))
+        .accessibilityValue(accessibilitySummary)
+    }
+
+    private var accessibilitySummary: String {
+        let code = estimate.country.currencyCode
+        var parts: [String] = []
+        if estimate.totalDeductions > 0 {
+            parts.append(
+                String(
+                    localized: "Deductions \(estimate.totalDeductions.formatted(.currency(code: code)))"
+                )
+            )
+        }
+        parts += estimate.bracketResults.map { result in
+            String(
+                localized: "\(result.ratePercent.formatted(.number.precision(.fractionLength(0)))) percent bracket, \(result.taxableAmount.formatted(.currency(code: code)))"
+            )
+        }
+        return parts.joined(separator: String(localized: ", "))
     }
 
     private func fracOf(_ amount: Decimal) -> CGFloat {

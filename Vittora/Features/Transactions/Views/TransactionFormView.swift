@@ -73,6 +73,8 @@ struct TransactionFormView: View {
                         }
                     }
                 }
+                .headerProminence(.increased)
+                .tint(VColors.textPrimary)
                 // Without an explicit title the pushed form inherits the
                 // window's ("Vittora") on macOS.
                 .navigationTitle(transactionID != nil
@@ -95,6 +97,7 @@ struct TransactionFormView: View {
 
                     ToolbarItem(placement: .confirmationAction) {
                         Button {
+                            guard vm.canSave else { return }
                             Task {
                                 do {
                                     try await vm.save()
@@ -114,9 +117,9 @@ struct TransactionFormView: View {
                             }
                         } label: {
                             Text(String(localized: "Save"))
-                                .foregroundColor(vm.canSave ? VColors.primary : VColors.textTertiary)
+                                .foregroundColor(VColors.textPrimary)
                         }
-                        .disabled(!vm.canSave)
+                        .accessibilityRespondsToUserInteraction(vm.canSave)
                         .accessibilityIdentifier("transaction-form-save-button")
                     }
                 }
@@ -224,11 +227,17 @@ struct TransactionFormView: View {
             .accessibilityIdentifier("transaction-add-account-button")
             .accessibilityLabel(String(localized: "Add Account"))
 
-            Picker(String(localized: "Payee"), selection: Bindable(vm).selectedPayeeID) {
-                Text(String(localized: "None")).tag(UUID?.none)
-                ForEach(payees) { payee in
-                    Text(payee.name).tag(UUID?(payee.id))
+            HStack {
+                Text(String(localized: "Payee"))
+                    .foregroundStyle(.primary)
+                Spacer()
+                Picker("", selection: Bindable(vm).selectedPayeeID) {
+                    Text(String(localized: "None")).tag(UUID?.none)
+                    ForEach(payees) { payee in
+                        Text(payee.name).tag(UUID?(payee.id))
+                    }
                 }
+                .labelsHidden()
             }
             .accessibilityIdentifier("transaction-payee-picker")
             .onChange(of: vm.selectedPayeeID) { _, _ in
@@ -267,11 +276,18 @@ struct TransactionFormView: View {
         }
 
         Section {
-            DatePicker(
-                String(localized: "Date"),
-                selection: Bindable(vm).date,
-                displayedComponents: [.date]
-            )
+            HStack {
+                Text(String(localized: "Date"))
+                    .foregroundStyle(.primary)
+                Spacer()
+                DatePicker(
+                    "",
+                    selection: Bindable(vm).date,
+                    displayedComponents: [.date]
+                )
+                .labelsHidden()
+            }
+            .accessibilityElement(children: .combine)
 
             Picker(String(localized: "Payment Method"), selection: Bindable(vm).paymentMethod) {
                 ForEach(PaymentMethod.allCases, id: \.self) { method in
@@ -308,8 +324,8 @@ struct TransactionFormView: View {
 
     private func formSectionHeader(_ title: String) -> some View {
         Text(title)
-            .font(VTypography.caption1)
-            .foregroundColor(VColors.textSecondary)
+            .font(.headline)
+            .foregroundStyle(.primary)
             .textCase(nil)
     }
 
