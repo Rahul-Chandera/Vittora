@@ -189,6 +189,7 @@ public final class DataManagementService: Sendable {
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.categorizationRules)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.transactionEditHistory)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.savedTransactionFilters)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.indiaComplianceTipDismissals)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled)
         UserDefaults.standard.removeObject(forKey: TransactionSpotlightIndex.needsFullReindexKey)
 

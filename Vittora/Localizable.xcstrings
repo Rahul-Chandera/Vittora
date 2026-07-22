@@ -12419,6 +12419,136 @@
         }
       }
     },
+    "Compliance tips" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अनुपालन सुझाव"
+          }
+        }
+      }
+    },
+    "Dismiss tip" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सुझाव हटाएँ"
+          }
+        }
+      }
+    },
+    "Cash receipt limit (Section 269ST)" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नकद प्राप्ति सीमा (धारा 269ST)"
+          }
+        }
+      }
+    },
+    "Cash business expense (Section 40A(3))" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नकद व्यावसायिक व्यय (धारा 40A(3))"
+          }
+        }
+      }
+    },
+    "Large cash deposit reporting (SFT)" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बड़ी नकद जमा रिपोर्टिंग (SFT)"
+          }
+        }
+      }
+    },
+    "GST registration threshold" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GST पंजीकरण सीमा"
+          }
+        }
+      }
+    },
+    "TDS on rent (Section 194-IB)" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "किराए पर TDS (धारा 194-IB)"
+          }
+        }
+      }
+    },
+    "Recorded cash receipts of %@ from one person in a day meet or exceed the %@ statutory limit on receiving cash in aggregate from one person in a day." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एक व्यक्ति से एक दिन में दर्ज नकद प्राप्तियाँ %@ उस दिन एक व्यक्ति से कुल नकद प्राप्त करने की वैधानिक सीमा %@ के बराबर या उससे अधिक हैं।"
+          }
+        }
+      }
+    },
+    "Recorded cash business expenses of %@ in a day exceed the %@ threshold under which cash expenditure is not allowed as a deduction." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एक दिन में दर्ज नकद व्यावसायिक व्यय %@ उस सीमा %@ से अधिक हैं जिसके अंतर्गत नकद व्यय कटौती के रूप में अनुमत नहीं है।"
+          }
+        }
+      }
+    },
+    "Recorded cash deposits of %@ into current accounts in this financial year meet or exceed the %@ SFT reporting threshold for current accounts." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस वित्तीय वर्ष में चालू खातों में दर्ज नकद जमा %@ चालू खातों के लिए SFT रिपोर्टिंग सीमा %@ के बराबर या उससे अधिक हैं।"
+          }
+        }
+      }
+    },
+    "Recorded cash deposits of %@ into savings accounts in this financial year meet or exceed the %@ SFT reporting threshold for savings accounts." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस वित्तीय वर्ष में बचत खातों में दर्ज नकद जमा %@ बचत खातों के लिए SFT रिपोर्टिंग सीमा %@ के बराबर या उससे अधिक हैं।"
+          }
+        }
+      }
+    },
+    "Recorded annual turnover of %@ exceeds the %@ GST registration threshold for services (goods: %@; special-category states: services %@ / goods %@)." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "दर्ज वार्षिक टर्नओवर %@ सेवाओं के लिए GST पंजीकरण सीमा %@ से अधिक है (वस्तुएँ: %@; विशेष-श्रेणी राज्य: सेवाएँ %@ / वस्तुएँ %@)।"
+          }
+        }
+      }
+    },
+    "Recorded rent of %@ in a month exceeds the %@ monthly threshold at which tax is deductible at source on rent paid by an individual." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एक महीने में दर्ज किराया %@ उस मासिक सीमा %@ से अधिक है जिस पर किसी व्यक्ति द्वारा भुगतान किए गए किराए पर स्रोत पर कर कटौती योग्य है।"
+          }
+        }
+      }
+    },
     "Everything" : {
       "localizations" : {
         "hi" : {
