@@ -30,11 +30,13 @@ enum VColors {
     // Cards must contrast with the white detail area the way iOS's
     // secondarySystemBackground contrasts with systemBackground —
     // controlBackgroundColor is white-on-white and made every card invisible.
+    // OLED: secondary matches pure black so fill-safe accents still clear AA
+    // when used as chrome text/icons on cards (0.11 grey only yields ~3.7:1).
     static var secondaryBackground: Color {
-        isOLEDBlack ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(nsColor: .quaternarySystemFill)
+        isOLEDBlack ? .black : Color(nsColor: .quaternarySystemFill)
     }
     static var tertiaryBackground: Color {
-        isOLEDBlack ? Color(red: 0.16, green: 0.16, blue: 0.17) : Color(nsColor: .textBackgroundColor)
+        isOLEDBlack ? Color(red: 0.08, green: 0.08, blue: 0.085) : Color(nsColor: .textBackgroundColor)
     }
     static var groupedBackground: Color {
         isOLEDBlack ? .black : Color(nsColor: .windowBackgroundColor)
@@ -44,10 +46,10 @@ enum VColors {
         isOLEDBlack ? .black : Color(uiColor: .systemBackground)
     }
     static var secondaryBackground: Color {
-        isOLEDBlack ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(uiColor: .secondarySystemBackground)
+        isOLEDBlack ? .black : Color(uiColor: .secondarySystemBackground)
     }
     static var tertiaryBackground: Color {
-        isOLEDBlack ? Color(red: 0.16, green: 0.16, blue: 0.17) : Color(uiColor: .tertiarySystemBackground)
+        isOLEDBlack ? Color(red: 0.08, green: 0.08, blue: 0.085) : Color(uiColor: .tertiarySystemBackground)
     }
     static var groupedBackground: Color {
         isOLEDBlack ? .black : Color(uiColor: .systemGroupedBackground)
@@ -111,8 +113,11 @@ enum VColors {
     }
 
     static func accent(_ accent: SettingsViewModel.AccentColor) -> Color {
-        // These fixed values clear 4.5:1 against both white and OLED black,
-        // so UIKit/AppKit dynamic providers are unnecessary and Sendable-safe.
+        // Fill-safe accents: white glyphs on these clears AA, and the hue still
+        // clears AA as text on pure black / white. Do not lighten the dark
+        // variants further — that breaks white-on-accent controls (FAB).
+        // Icons/labels on elevated OLED secondary surfaces must not rely on
+        // these as the sole foreground; use textPrimary there instead.
         switch accent {
         case .brandGreen: return Color(red: 0.00, green: 0.525490, blue: 0.403922) // #008667
         case .blue:       return Color(red: 0.227451, green: 0.462745, blue: 0.784314) // #3A76C8

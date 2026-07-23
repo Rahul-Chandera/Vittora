@@ -22,10 +22,12 @@ enum VTypography {
     static let caption2Bold = Font.system(.caption, design: .default).weight(.semibold)
 
     // MARK: - Amount Text (Rounded Numbers for Financial Data)
-    static let amountLarge = Font.system(.title, design: .rounded).weight(.semibold)
-    static let amountMedium = Font.system(.title2, design: .rounded).weight(.semibold)
-    static let amountSmall = Font.system(.title3, design: .rounded).weight(.semibold)
-    static let amountCaption = Font.system(.callout, design: .rounded).weight(.semibold)
+    // Pass weight in the system initializer — chaining `.weight` after a design
+    // variant has been reported as non-scaling by XCTest's Dynamic Type audit.
+    static let amountLarge = Font.system(.title, design: .rounded, weight: .semibold)
+    static let amountMedium = Font.system(.title2, design: .rounded, weight: .semibold)
+    static let amountSmall = Font.system(.title3, design: .rounded, weight: .semibold)
+    static let amountCaption = Font.system(.callout, design: .rounded, weight: .semibold)
 
     // MARK: - Monospaced (for tables, codes)
     static let monospacedSmall = Font.system(.caption, design: .monospaced)

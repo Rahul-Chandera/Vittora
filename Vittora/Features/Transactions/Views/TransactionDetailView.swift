@@ -204,8 +204,9 @@ struct TransactionDetailView: View {
             } else if let vm = vm {
                 VStack(spacing: VSpacing.lg) {
                     Image(systemName: "doc.text.magnifyingglass")
-                        .font(.system(size: 48))
+                        .font(.system(.largeTitle))
                         .foregroundColor(VColors.textSecondary)
+                        .accessibilityHidden(true)
 
                     Text(String(localized: "Transaction unavailable"))
                         .font(VTypography.title3)

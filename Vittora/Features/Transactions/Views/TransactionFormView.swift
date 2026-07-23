@@ -126,7 +126,11 @@ struct TransactionFormView: View {
                                 }
                             }
                         } label: {
+                            // Explicit text style: a bare toolbar label with only
+                            // `.foregroundStyle` has been audited as a non-scaling
+                            // font on some iOS 26 hosts (Dynamic Type unsupported).
                             Text(String(localized: "Save"))
+                                .font(VTypography.bodyBold)
                                 .foregroundStyle(VColors.textPrimary)
                         }
                         .keyboardShortcut(.defaultAction)
@@ -296,7 +300,7 @@ struct TransactionFormView: View {
                 } label: {
                     HStack {
                         Image(systemName: "lightbulb.fill")
-                            .foregroundColor(.yellow)
+                            .foregroundColor(VColors.warning)
                             .accessibilityHidden(true)
                         Text(String(localized: "Suggested: \(suggested.displayName)"))
                             .foregroundColor(VColors.textPrimary)
