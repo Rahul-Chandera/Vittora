@@ -355,6 +355,8 @@ struct TransactionFormView: View {
 
     /// Label + control: horizontal at standard sizes, vertical at accessibility
     /// Dynamic Type so the control value is not clipped beside the label.
+    /// Explicit `.body` text style is required: without it, XCTest's Dynamic Type
+    /// audit treats the AnyLayout H→V flip as "font sizes are unsupported".
     @ViewBuilder
     private func adaptiveLabeledControl<Control: View>(
         label: String,
@@ -365,6 +367,7 @@ struct TransactionFormView: View {
             : AnyLayout(HStackLayout())
         layout {
             Text(label)
+                .font(VTypography.body)
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
             if !dynamicTypeSize.isAccessibilitySize {
