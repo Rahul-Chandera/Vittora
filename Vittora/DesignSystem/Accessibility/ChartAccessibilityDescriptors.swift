@@ -435,3 +435,46 @@ struct BalanceHistoryChartDescriptor: AXChartDescriptorRepresentable, Sendable {
         )
     }
 }
+
+struct YearInReviewMonthlySpendChartDescriptor: AXChartDescriptorRepresentable, Sendable {
+    let points: [YearInReviewMonthlyPoint]
+    let currencyCode: String
+
+    nonisolated func makeChartDescriptor() -> AXChartDescriptor {
+        let active = points.filter { $0.amount > 0 }
+        let labels = active.map { ChartAccessibilitySupport.monthLabel($0.monthStart) }
+        let values = active.map { Double(truncating: $0.amount as NSDecimalNumber) }
+        let range = ChartAccessibilitySupport.numericRange(for: values, includeZero: true)
+        let xAxis = AXCategoricalDataAxisDescriptor(
+            title: String(localized: "Month"),
+            categoryOrder: labels
+        )
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: String(localized: "Spent"),
+            range: range,
+            gridlinePositions: ChartAccessibilitySupport.gridlines(for: range)
+        ) { value in
+            ChartAccessibilitySupport.currencyString(for: value, currencyCode: currencyCode)
+        }
+
+        let series = ChartAccessibilitySupport.dataSeries(
+            name: String(localized: "Monthly spending"),
+            isContinuous: false,
+            points: zip(labels, active).map { label, point in
+                AXDataPoint(
+                    x: label,
+                    y: Double(truncating: point.amount as NSDecimalNumber),
+                    label: label
+                )
+            }
+        )
+
+        return AXChartDescriptor(
+            title: String(localized: "Monthly spending"),
+            summary: String(localized: "Shows how spending was distributed across months in the year."),
+            xAxis: xAxis,
+            yAxis: yAxis,
+            series: [series]
+        )
+    }
+}
