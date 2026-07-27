@@ -60,9 +60,15 @@ final class DeleteAndPickerLabelsUITests: XCTestCase {
             "The picker data must be seeded before opening the recurring form."
         )
         openSettingsDestination("settings-manage-recurring")
+        XCTAssertTrue(
+            app.navigationBars["Recurring Transactions"].waitForExistence(timeout: 15),
+            "Manage Recurring must open the recurring list, not another tab."
+        )
+
         let rule = app.descendants(matching: .any)[
             "recurring-row-DB8D2197-FD80-4A39-8EB7-28D1AB42C901"
         ]
+        UITestSupport.scrollToElement(rule, in: app)
         UITestSupport.tapWhenReady(rule, timeout: 20)
         UITestSupport.tapWhenReady(app.buttons["recurring-edit-button"], timeout: 15)
 
@@ -77,14 +83,34 @@ final class DeleteAndPickerLabelsUITests: XCTestCase {
     private func openSettingsDestination(_ identifier: String) {
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app), "The app shell should be visible.")
         let destination = app.descendants(matching: .any)[identifier]
-        if !destination.exists {
+        if !destination.waitForExistence(timeout: 2) {
             if app.tabBars.buttons["More"].exists {
                 UITestSupport.tapWhenReady(app.tabBars.buttons["More"])
             }
             UITestSupport.tapWhenReady(app.buttons["Settings"].firstMatch, timeout: 15)
+            XCTAssertTrue(
+                app.navigationBars["Settings"].waitForExistence(timeout: 10),
+                "Settings should be visible before opening a manage destination."
+            )
         }
-        UITestSupport.scrollToElement(destination, in: app)
-        UITestSupport.tapWhenReady(destination, timeout: 20)
+
+        // Keep the destination above the tab bar so coordinate taps don't select Budgets.
+        var swipes = 0
+        while swipes < 8 {
+            if destination.exists {
+                let frame = destination.frame
+                let tabBar = app.tabBars.firstMatch
+                let clearOfTabBar = !tabBar.exists || frame.maxY < tabBar.frame.minY - 8
+                if frame.width > 1, frame.height > 1, clearOfTabBar {
+                    break
+                }
+            }
+            app.swipeUp()
+            swipes += 1
+        }
+
+        XCTAssertTrue(destination.waitForExistence(timeout: 10), "Settings destination \(identifier) should exist.")
+        destination.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
 
     @MainActor
