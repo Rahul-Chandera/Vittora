@@ -6,7 +6,6 @@ struct TransactionFormView: View {
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
     @Environment(\.currencyCode) private var currencyCode
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: TransactionFormViewModel?
     @State private var accounts: [AccountEntity] = []
     @State private var categories: (expense: [CategoryEntity], income: [CategoryEntity]) = ([], [])
@@ -362,17 +361,19 @@ struct TransactionFormView: View {
         label: String,
         @ViewBuilder control: () -> Control
     ) -> some View {
-        let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
-            : AnyLayout(HStackLayout())
-        layout {
+        // A plain HStack, deliberately. Switching to a VStack at accessibility
+        // sizes via AnyLayout reads to XCTest's Dynamic Type audit as a
+        // non-scaling font on iPhone 16 / iOS 26.5 — the layout changes shape
+        // under the audit's resize probe, so the label's frame does not grow
+        // the way it expects, and it reports "font sizes are unsupported".
+        // Form rows already wrap their trailing control at large sizes, so the
+        // stacking was a refinement rather than a requirement.
+        HStack {
             Text(label)
                 .font(VTypography.body)
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
-            if !dynamicTypeSize.isAccessibilitySize {
-                Spacer(minLength: 0)
-            }
+            Spacer(minLength: 0)
             control()
         }
     }
