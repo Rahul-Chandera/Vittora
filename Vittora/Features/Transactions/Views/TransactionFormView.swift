@@ -99,15 +99,6 @@ struct TransactionFormView: View {
 
                     ToolbarItem(placement: .confirmationAction) {
                         Button {
-                            guard vm.canSave else {
-                                // Keep Save tappable and full-contrast: `.disabled`
-                                // on liquid-glass toolbars dims the label below AA
-                                // (Apple's contrast sampler fails the empty form).
-                                vm.error = String(
-                                    localized: "Enter an amount to save this transaction."
-                                )
-                                return
-                            }
                             Task {
                                 do {
                                     try await vm.save()
@@ -126,13 +117,10 @@ struct TransactionFormView: View {
                                 }
                             }
                         } label: {
-                            // Explicit text style: a bare toolbar label with only
-                            // `.foregroundStyle` has been audited as a non-scaling
-                            // font on some iOS 26 hosts (Dynamic Type unsupported).
                             Text(String(localized: "Save"))
-                                .font(VTypography.bodyBold)
-                                .foregroundStyle(VColors.textPrimary)
+                                .foregroundColor(vm.canSave ? VColors.primary : VColors.textTertiary)
                         }
+                        .disabled(!vm.canSave)
                         .keyboardShortcut(.defaultAction)
                         .accessibilityHint(
                             vm.canSave
