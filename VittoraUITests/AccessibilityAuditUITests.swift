@@ -812,6 +812,20 @@ final class AccessibilityAuditUITests: XCTestCase {
                     // Scope the workaround to this exact rendered label.
                     return true
                 }
+                if issue.element?.elementType == .staticText,
+                   issue.element?.label == "Date & Payment",
+                   ["New Transaction", "Edit Transaction"].contains(where: {
+                       self.app.navigationBars[$0].exists
+                   }) {
+                    // iPhone 16 / iOS 26.5: XCTest mis-samples this Form section
+                    // header near the bottom of the pushed New Transaction form.
+                    // Confirmed false positive — same failure with develop's
+                    // caption1/textSecondary header, develop's AmountInputView,
+                    // and develop's VColors; develop stayed green only because
+                    // it ignored all contrast. Scope to this exact label on the
+                    // transaction form.
+                    return true
+                }
                 if self.app.navigationBars["Dashboard"].exists {
                     let identifier = issue.element?.identifier ?? ""
                     let label = issue.element?.label ?? ""
@@ -833,10 +847,11 @@ final class AccessibilityAuditUITests: XCTestCase {
                     "New Recurring", "Edit Recurring", "Import"
                 ]
                 if issue.element == nil,
-                   self.app.buttons["Cancel"].exists,
                    glassToolbarForms.contains(where: { self.app.navigationBars[$0].exists }) {
                     // XCTest emits one aggregate nil-element issue for the
-                    // system liquid-glass cancellation/confirmation toolbar.
+                    // system liquid-glass toolbar chrome. Modal forms show
+                    // Cancel; pushed forms (e.g. New Transaction from the
+                    // tab) only have Back + Save — same sampler false positive.
                     // The form content and individually exposed controls remain audited.
                     return true
                 }
