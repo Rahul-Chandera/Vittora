@@ -1,6 +1,186 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Contact Support" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सपोर्ट से संपर्क करें"
+          }
+        }
+      }
+    },
+    "FAQ & Troubleshooting" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FAQ और समस्या निवारण"
+          }
+        }
+      }
+    },
+    "This is everything that will be included." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भेजने से पहले यही सब शामिल होगा।"
+          }
+        }
+      }
+    },
+    "Diagnostic Summary" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डायग्नोस्टिक सारांश"
+          }
+        }
+      }
+    },
+    "Send Email" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ईमेल भेजें"
+          }
+        }
+      }
+    },
+    "Copy Diagnostics" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डायग्नोस्टिक्स कॉपी करें"
+          }
+        }
+      }
+    },
+    "Clear Recent Errors" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हाल की त्रुटियाँ साफ़ करें"
+          }
+        }
+      }
+    },
+    "Nothing is sent automatically. Email goes through your own mail app, which you can edit or cancel." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कुछ भी अपने आप नहीं भेजा जाता। ईमेल आपके अपने मेल ऐप से जाता है, जिसे आप संपादित या रद्द कर सकते हैं।"
+          }
+        }
+      }
+    },
+    "Describe your issue in email. A diagnostic summary is included so we can help — you can edit or remove it before sending." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ईमेल में अपनी समस्या लिखें। मदद के लिए एक डायग्नोस्टिक सारांश शामिल है — भेजने से पहले आप इसे संपादित या हटा सकते हैं।"
+          }
+        }
+      }
+    },
+    "Loading diagnostics" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डायग्नोस्टिक्स लोड हो रहे हैं"
+          }
+        }
+      }
+    },
+    "Diagnostic summary" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डायग्नोस्टिक सारांश"
+          }
+        }
+      }
+    },
+    "Copied" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कॉपी हो गया"
+          }
+        }
+      }
+    },
+    "Diagnostics copied to the clipboard." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डायग्नोस्टिक्स क्लिपबोर्ड पर कॉपी हो गए।"
+          }
+        }
+      }
+    },
+    "Mail Not Configured" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मेल कॉन्फ़िगर नहीं है"
+          }
+        }
+      }
+    },
+    "No mail account is set up on this device. Copy the diagnostics and email %@ from another app." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर कोई मेल अकाउंट सेट नहीं है। डायग्नोस्टिक्स कॉपी करें और किसी अन्य ऐप से %@ पर ईमेल करें।"
+          }
+        }
+      }
+    },
+    "Recent Errors Cleared" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हाल की त्रुटियाँ साफ़ हो गईं"
+          }
+        }
+      }
+    },
+    "Vittora Support" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora सपोर्ट"
+          }
+        }
+      }
+    },
+    "Please describe what happened:" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कृपया बताएँ क्या हुआ:"
+          }
+        }
+      }
+    },
     "" : {
       "localizations" : {
         "hi" : {
@@ -12235,6 +12415,136 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ये केवल अनुमान हैं। सलाह के लिए किसी योग्य कर विशेषज्ञ से परामर्श करें।"
+          }
+        }
+      }
+    },
+    "Compliance tips" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अनुपालन सुझाव"
+          }
+        }
+      }
+    },
+    "Dismiss tip" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सुझाव हटाएँ"
+          }
+        }
+      }
+    },
+    "Cash receipt limit (Section 269ST)" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नकद प्राप्ति सीमा (धारा 269ST)"
+          }
+        }
+      }
+    },
+    "Cash business expense (Section 40A(3))" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नकद व्यावसायिक व्यय (धारा 40A(3))"
+          }
+        }
+      }
+    },
+    "Large cash deposit reporting (SFT)" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बड़ी नकद जमा रिपोर्टिंग (SFT)"
+          }
+        }
+      }
+    },
+    "GST registration threshold" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GST पंजीकरण सीमा"
+          }
+        }
+      }
+    },
+    "TDS on rent (Section 194-IB)" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "किराए पर TDS (धारा 194-IB)"
+          }
+        }
+      }
+    },
+    "Recorded cash receipts of %@ from one person in a day meet or exceed the %@ statutory limit on receiving cash in aggregate from one person in a day." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एक व्यक्ति से एक दिन में दर्ज नकद प्राप्तियाँ %@ उस दिन एक व्यक्ति से कुल नकद प्राप्त करने की वैधानिक सीमा %@ के बराबर या उससे अधिक हैं।"
+          }
+        }
+      }
+    },
+    "Recorded cash business expenses of %@ in a day exceed the %@ threshold under which cash expenditure is not allowed as a deduction." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एक दिन में दर्ज नकद व्यावसायिक व्यय %@ उस सीमा %@ से अधिक हैं जिसके अंतर्गत नकद व्यय कटौती के रूप में अनुमत नहीं है।"
+          }
+        }
+      }
+    },
+    "Recorded cash deposits of %@ into current accounts in this financial year meet or exceed the %@ SFT reporting threshold for current accounts." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस वित्तीय वर्ष में चालू खातों में दर्ज नकद जमा %@ चालू खातों के लिए SFT रिपोर्टिंग सीमा %@ के बराबर या उससे अधिक हैं।"
+          }
+        }
+      }
+    },
+    "Recorded cash deposits of %@ into savings accounts in this financial year meet or exceed the %@ SFT reporting threshold for savings accounts." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस वित्तीय वर्ष में बचत खातों में दर्ज नकद जमा %@ बचत खातों के लिए SFT रिपोर्टिंग सीमा %@ के बराबर या उससे अधिक हैं।"
+          }
+        }
+      }
+    },
+    "Recorded annual turnover of %@ exceeds the %@ GST registration threshold for services (goods: %@; special-category states: services %@ / goods %@)." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "दर्ज वार्षिक टर्नओवर %@ सेवाओं के लिए GST पंजीकरण सीमा %@ से अधिक है (वस्तुएँ: %@; विशेष-श्रेणी राज्य: सेवाएँ %@ / वस्तुएँ %@)।"
+          }
+        }
+      }
+    },
+    "Recorded rent of %@ in a month exceeds the %@ monthly threshold at which tax is deductible at source on rent paid by an individual." : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एक महीने में दर्ज किराया %@ उस मासिक सीमा %@ से अधिक है जिस पर किसी व्यक्ति द्वारा भुगतान किए गए किराए पर स्रोत पर कर कटौती योग्य है।"
           }
         }
       }

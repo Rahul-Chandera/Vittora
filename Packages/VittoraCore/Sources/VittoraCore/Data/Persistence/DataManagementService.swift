@@ -182,12 +182,14 @@ public final class DataManagementService: Sendable {
 
         AppLockSessionMirror.clearAll()
         AppUserDefaults.appGroup.removeObject(forKey: QuickAddDeepLink.pendingIntentDestinationKey)
+        RecentErrorLogStore.shared.clear()
 
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
         AppUserDefaults.sync.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.categorizationRules)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.transactionEditHistory)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.savedTransactionFilters)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.indiaComplianceTipDismissals)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled)
         UserDefaults.standard.removeObject(forKey: TransactionSpotlightIndex.needsFullReindexKey)
 

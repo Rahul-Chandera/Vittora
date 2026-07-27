@@ -136,6 +136,7 @@ struct TransactionFormView: View {
         }
         .accessibilityIdentifier("transaction-form-root")
         .errorAlert(message: transactionErrorBinding)
+        .advertisesHandoff(transactionDraftHandoffRoute, isActive: transactionID == nil)
         .sheet(isPresented: $showAddPayee) {
             NavigationStack {
                 PayeeFormView {
@@ -157,6 +158,10 @@ struct TransactionFormView: View {
                     if transactionID == nil, let initialType {
                         vm.type = initialType
                     }
+                    if let draft = appState.pendingTransactionDraft, transactionID == nil {
+                        vm.applyHandoffDraft(draft)
+                        appState.clearPendingTransactionDraft()
+                    }
                     if let transactionID = transactionID {
                         await loadTransactionData(vm, transactionID: transactionID)
                     }
@@ -164,6 +169,20 @@ struct TransactionFormView: View {
                 }
             }
         }
+    }
+
+    private var transactionDraftHandoffRoute: HandoffDeepLink.Route? {
+        guard transactionID == nil, let vm else { return nil }
+        return .transactionDraft(
+            HandoffDeepLink.Draft(
+                amount: vm.amountString.isEmpty ? nil : vm.amountString,
+                note: vm.note.isEmpty ? nil : vm.note,
+                categoryID: vm.selectedCategoryID,
+                accountID: vm.selectedAccountID,
+                date: vm.date,
+                type: vm.type.rawValue
+            )
+        )
     }
 
     @ViewBuilder
