@@ -6,7 +6,6 @@ struct TransactionFormView: View {
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
     @Environment(\.currencyCode) private var currencyCode
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: TransactionFormViewModel?
     @State private var accounts: [AccountEntity] = []
     @State private var categories: (expense: [CategoryEntity], income: [CategoryEntity]) = ([], [])
@@ -253,17 +252,18 @@ struct TransactionFormView: View {
             .accessibilityIdentifier("transaction-add-account-button")
             .accessibilityLabel(String(localized: "Add Account"))
 
-            adaptiveLabeledControl(label: String(localized: "Payee")) {
-                Picker("", selection: Bindable(vm).selectedPayeeID) {
-                    Text(String(localized: "None")).tag(UUID?.none)
-                    ForEach(payees) { payee in
-                        Text(payee.name).tag(UUID?(payee.id))
-                    }
+            // Native Picker with its own label, not a hand-rolled row: SwiftUI
+            // wraps the label and control itself at accessibility text sizes.
+            // A custom Text + control row needs an AnyLayout flip to do the
+            // same, and XCTest's Dynamic Type audit reads that shape change as
+            // a non-scaling font. accessibilityValue still gives VoiceOver the
+            // "Payee, <name>" pairing this row was rewritten for.
+            Picker(String(localized: "Payee"), selection: Bindable(vm).selectedPayeeID) {
+                Text(String(localized: "None")).tag(UUID?.none)
+                ForEach(payees) { payee in
+                    Text(payee.name).tag(UUID?(payee.id))
                 }
-                .labelsHidden()
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel(String(localized: "Payee"))
             .accessibilityValue(payeeName(for: vm.selectedPayeeID) ?? String(localized: "None"))
             .accessibilityIdentifier("transaction-payee-picker")
             .onChange(of: vm.selectedPayeeID) { _, _ in
@@ -302,16 +302,11 @@ struct TransactionFormView: View {
         }
 
         Section {
-            adaptiveLabeledControl(label: String(localized: "Date")) {
-                DatePicker(
-                    "",
-                    selection: Bindable(vm).date,
-                    displayedComponents: [.date]
-                )
-                .labelsHidden()
-            }
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel(String(localized: "Date"))
+            DatePicker(
+                String(localized: "Date"),
+                selection: Bindable(vm).date,
+                displayedComponents: [.date]
+            )
 
             Picker(String(localized: "Payment Method"), selection: Bindable(vm).paymentMethod) {
                 ForEach(PaymentMethod.allCases, id: \.self) { method in
@@ -358,24 +353,6 @@ struct TransactionFormView: View {
     /// Explicit `.body` text style is required: without it, XCTest's Dynamic Type
     /// audit treats the AnyLayout H→V flip as "font sizes are unsupported".
     @ViewBuilder
-    private func adaptiveLabeledControl<Control: View>(
-        label: String,
-        @ViewBuilder control: () -> Control
-    ) -> some View {
-        let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
-            : AnyLayout(HStackLayout())
-        layout {
-            Text(label)
-                .font(VTypography.body)
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-            if !dynamicTypeSize.isAccessibilitySize {
-                Spacer(minLength: 0)
-            }
-            control()
-        }
-    }
 
     private func loadTransactionData(_ vm: TransactionFormViewModel?, transactionID: UUID) async {
         guard let vm = vm else {
