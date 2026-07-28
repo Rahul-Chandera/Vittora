@@ -37,6 +37,28 @@ enum UITestSupport {
         app.otherElements["content-root"].waitForExistence(timeout: timeout)
     }
 
+    /// Reveal a `.searchable` bar and wait for it to be tappable.
+    ///
+    /// A search bar collapses out of view once its list is scrolled, so the
+    /// field can exist while never becoming hittable — and it does not come
+    /// back on its own, which is why simply raising the timeout does not help.
+    /// Scroll back to the top first, then wait.
+    @MainActor
+    static func waitForSearchField(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        timeout: TimeInterval = 15,
+        maxReveals: Int = 6
+    ) -> Bool {
+        var reveals = 0
+        while reveals < maxReveals, !element.isHittable {
+            app.swipeDown()
+            reveals += 1
+            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        }
+        return waitForElement(element, timeout: timeout, requireHittable: true)
+    }
+
     @MainActor
     static func waitForElement(
         _ element: XCUIElement,

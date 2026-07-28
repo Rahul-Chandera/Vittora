@@ -207,19 +207,9 @@ final class TransactionFlowUITests: XCTestCase {
         )
         waitForSeededTransactionRows()
 
-        // A `.searchable` bar collapses out of view once the list is scrolled,
-        // so the field can exist while not being hittable. Scroll back to the
-        // top to reveal it before waiting — bumping the timeout alone does not
-        // help, because the bar never reappears on its own.
         let searchField = app.searchFields["Search transactions"]
-        var revealAttempts = 0
-        while revealAttempts < 6, !searchField.isHittable {
-            app.swipeDown()
-            revealAttempts += 1
-            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
-        }
         XCTAssertTrue(
-            UITestSupport.waitForElement(searchField, timeout: 15, requireHittable: true),
+            UITestSupport.waitForSearchField(searchField, in: app),
             "Search field should be ready before typing."
         )
         searchField.tap()
@@ -253,7 +243,7 @@ final class TransactionFlowUITests: XCTestCase {
 
         let searchField = app.searchFields["Search transactions"]
         XCTAssertTrue(
-            UITestSupport.waitForElement(searchField, timeout: 12, requireHittable: true),
+            UITestSupport.waitForSearchField(searchField, in: app),
             "Search field should be ready."
         )
         searchField.tap()
