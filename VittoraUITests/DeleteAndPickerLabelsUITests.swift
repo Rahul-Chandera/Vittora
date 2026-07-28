@@ -61,14 +61,12 @@ final class DeleteAndPickerLabelsUITests: XCTestCase {
         )
         openSettingsDestination("settings-manage-recurring")
         XCTAssertTrue(
-            app.navigationBars["Recurring Transactions"].waitForExistence(timeout: 15),
-            "Manage Recurring must open the recurring list, not another tab."
+            app.navigationBars["Recurring Transactions"].waitForExistence(timeout: 10),
+            "Recurring list should push after tapping Manage → Recurring."
         )
-
         let rule = app.descendants(matching: .any)[
             "recurring-row-DB8D2197-FD80-4A39-8EB7-28D1AB42C901"
         ]
-        UITestSupport.scrollToElement(rule, in: app)
         UITestSupport.tapWhenReady(rule, timeout: 20)
         UITestSupport.tapWhenReady(app.buttons["recurring-edit-button"], timeout: 15)
 
@@ -82,32 +80,51 @@ final class DeleteAndPickerLabelsUITests: XCTestCase {
     @MainActor
     private func openSettingsDestination(_ identifier: String) {
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app), "The app shell should be visible.")
-        let destination = app.descendants(matching: .any)[identifier].firstMatch
-        if !destination.waitForExistence(timeout: 2) {
+        if !app.navigationBars["Settings"].exists {
             if app.tabBars.buttons["More"].exists {
                 UITestSupport.tapWhenReady(app.tabBars.buttons["More"])
             }
             UITestSupport.tapWhenReady(app.buttons["Settings"].firstMatch, timeout: 15)
             XCTAssertTrue(
                 app.navigationBars["Settings"].waitForExistence(timeout: 10),
-                "Settings should be visible before opening a manage destination."
+                "Settings should open before tapping a manage destination."
             )
         }
 
-        // Same class of bug as A2/Payees: coordinate taps on a row under chrome
-        // hit the floating tab bar (Budgets) or large-title nav. Scroll with live
-        // nav/tab-bar clearance, then activate the accessibility element.
-        UITestSupport.scrollToElement(destination, in: app, maxSwipes: 30)
-        XCTAssertTrue(
-            destination.waitForExistence(timeout: 10),
-            "Settings destination \(identifier) should exist after scrolling."
-        )
-        UITestSupport.scrollToElement(destination, in: app, maxSwipes: 8)
-        XCTAssertTrue(
-            destination.isHittable,
-            "Settings destination \(identifier) should be hittable (clear of nav/tab chrome)."
-        )
-        destination.tap()
+        // Prefer the visible row title — Form rows expose a reliable text frame
+        // even when the NavigationLink identifier node reports a zero frame.
+        let titleByIdentifier = [
+            "settings-manage-accounts": "Accounts",
+            "settings-manage-categories": "Categories",
+            "settings-manage-payees": "Payees",
+            "settings-manage-recurring": "Recurring"
+        ]
+        if let title = titleByIdentifier[identifier] {
+            let titleElement = app.staticTexts[title].firstMatch
+            let unobscuredBottom = app.frame.maxY - 140
+            var swipes = 0
+            while swipes < 12 {
+                if titleElement.exists {
+                    let frame = titleElement.frame
+                    if frame.height > 1, frame.maxY <= unobscuredBottom {
+                        break
+                    }
+                }
+                app.swipeUp()
+                swipes += 1
+                RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+            }
+            XCTAssertTrue(
+                titleElement.waitForExistence(timeout: 10),
+                "Settings row '\(title)' should be visible."
+            )
+            titleElement.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            return
+        }
+
+        let destination = app.descendants(matching: .any)[identifier]
+        UITestSupport.scrollToElement(destination, in: app)
+        UITestSupport.tapWhenReady(destination, timeout: 20)
     }
 
     @MainActor

@@ -40,6 +40,9 @@ struct SplitGroupListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel(String(localized: "Add split group"))
+                .accessibilityHint(String(localized: "Opens the split group form"))
+                .accessibilityIdentifier("split-group-add-button")
             }
         }
         .navigationDestination(item: $selectedGroupID) { groupID in
@@ -88,9 +91,15 @@ struct SplitGroupListView: View {
                             GroupRowView(summary: summary)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("split-group-row-\(summary.id)")
                     }
                 }
                 .padding(VSpacing.screenPadding)
+            }
+            .safeAreaInset(edge: .bottom) {
+                VColors.background
+                    .frame(height: 72)
+                    .allowsHitTesting(false)
             }
         }
     }
@@ -113,11 +122,17 @@ struct SplitGroupListView: View {
 // MARK: - Group Row
 
 private struct GroupRowView: View {
+    @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     let summary: SplitGroupSummary
 
     var body: some View {
         VCard {
-            HStack(spacing: VSpacing.md) {
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.md))
+                : AnyLayout(HStackLayout(spacing: VSpacing.md))
+            layout {
                 // Icon
                 RoundedRectangle(cornerRadius: 12)
                     .fill(VColors.primary.opacity(0.12))
@@ -127,20 +142,27 @@ private struct GroupRowView: View {
                             .font(.title3)
                             .foregroundStyle(VColors.primary)
                     }
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(summary.group.name)
                         .font(VTypography.bodyBold)
                         .foregroundStyle(VColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
 
-                    HStack(spacing: 4) {
+                    let statusLayout = dynamicTypeSize.isAccessibilitySize
+                        ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xxs))
+                        : AnyLayout(HStackLayout(spacing: 4))
+                    statusLayout {
                         Text(String(localized: "\(summary.group.memberIDs.count) members"))
                             .font(VTypography.caption1)
                             .foregroundStyle(VColors.textSecondary)
 
                         if summary.outstandingCount > 0 {
-                            Text("·")
-                                .foregroundStyle(VColors.textSecondary)
+                            if !dynamicTypeSize.isAccessibilitySize {
+                                Text("·")
+                                    .foregroundStyle(VColors.textSecondary)
+                            }
                             Text(String(localized: "\(summary.outstandingCount) outstanding"))
                                 .font(VTypography.caption1)
                                 .foregroundStyle(VColors.expense)
@@ -148,7 +170,9 @@ private struct GroupRowView: View {
                     }
                 }
 
-                Spacer()
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Spacer()
+                }
 
                 VStack(alignment: .trailing, spacing: 4) {
                     VAmountText(expense: summary.totalExpenses, size: .body)
@@ -158,12 +182,22 @@ private struct GroupRowView: View {
                         .foregroundStyle(VColors.textSecondary)
                 }
 
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(VColors.textSecondary)
-                    .accessibilityHidden(true)
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(VColors.textSecondary)
+                        .accessibilityHidden(true)
+                }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(summary.group.name)
+        .accessibilityValue(
+            String(
+                localized: "\(summary.group.memberIDs.count) members, \(summary.outstandingCount) outstanding, \(summary.totalExpenses.formatted(.currency(code: currencyCode))) total"
+            )
+        )
+        .accessibilityHint(String(localized: "Opens split group details"))
     }
 }
 

@@ -185,11 +185,16 @@ enum UITestSupport {
         return false
     }
 
-    /// Scroll until `element` is on-screen and clear of nav chrome / tab bar.
-    /// Prefer frame geometry over `isHittable` in the loop — hittability queries
-    /// can hang on large SwiftUI hierarchies. Swipe down when the row sits under
-    /// the navigation bar (swipe-up alone pushes it further off the top).
-    /// Top/bottom clearance follow live nav-bar and tab-bar frames.
+    /// Scroll until `element` is on-screen and clear of nav chrome / compact tab bar.
+    /// Prefer frame geometry over `isHittable` — hittability queries can hang
+    /// for tens of seconds on large SwiftUI hierarchies during UI tests.
+    /// Swipes down when the row sits under the navigation bar (swipe-up alone
+    /// would push it further off the top — that was the Payees/Categories miss).
+    /// Top clearance follows the live navigation bar frame: at AccessibilityXL
+    /// the large title bar is ~128pt tall, so a fixed 130pt inset is not enough.
+    /// Bottom clearance follows the live tab-bar frame for the same reason — a
+    /// fixed inset let Settings rows sit under the floating tab bar, so a
+    /// coordinate tap selected Budgets instead of the intended destination.
     @MainActor
     static func scrollToElement(
         _ element: XCUIElement,

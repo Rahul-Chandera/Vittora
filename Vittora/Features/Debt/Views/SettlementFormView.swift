@@ -23,30 +23,45 @@ struct SettlementFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(String(localized: "Settlement Amount")) {
+                Section {
                     HStack {
-                        Text(currencySymbol).foregroundColor(VColors.textSecondary)
-                        TextField(String(localized: "Amount"), text: $amountString)
+                        Text(currencySymbol)
+                            .foregroundColor(VColors.textPrimary)
+                            .accessibilityHidden(true)
+                        TextField(
+                            "",
+                            text: $amountString,
+                            prompt: Text(String(localized: "Amount"))
+                                .foregroundStyle(VColors.textPrimary)
+                        )
                             #if os(iOS)
                             .keyboardType(.decimalPad)
                             .textContentType(nil)
                             #endif
+                            .accessibilityLabel(String(localized: "Settlement amount"))
+                            .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
                     }
                     Button(String(localized: "Settle Full Amount (\(CurrencyFormatter.format(maxAmount, currencyCode: currencyCode)))")) {
                         amountString = "\(maxAmount)"
                     }
-                    .font(VTypography.caption1)
-                    .foregroundColor(VColors.primary)
+                    .font(VTypography.body)
+                    .foregroundColor(VColors.textPrimary)
+                } header: {
+                    sectionHeader(String(localized: "Settlement Amount"))
                 }
+                .headerProminence(.increased)
 
-                Section(String(localized: "Record to Account (optional)")) {
+                Section {
                     Picker(String(localized: "Account"), selection: $selectedAccountID) {
                         Text(String(localized: "None")).tag(UUID?.none)
                         ForEach(accounts) { account in
                             Text(account.name).tag(UUID?(account.id))
                         }
                     }
+                } header: {
+                    sectionHeader(String(localized: "Record to Account (optional)"))
                 }
+                .headerProminence(.increased)
 
                 if let errorMessage = error {
                     Section {
@@ -54,6 +69,7 @@ struct SettlementFormView: View {
                     }
                 }
             }
+            .tint(VColors.textPrimary)
             .navigationTitle(String(localized: "Settle Debt"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -61,12 +77,17 @@ struct SettlementFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                        .font(.headline)
+                        .foregroundStyle(.primary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Settle")) {
+                        guard canSettle, !isLoading else { return }
                         Task { await settle() }
                     }
-                    .disabled(!canSettle || isLoading)
+                    .font(.headline)
+                    .accessibilityRespondsToUserInteraction(canSettle && !isLoading)
+                    .foregroundStyle(.primary)
                 }
             }
         }
@@ -82,6 +103,12 @@ struct SettlementFormView: View {
                 AccessibilityNotification.Announcement(AttributedString(msg)).post()
             }
         }
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.headline)
+            .foregroundStyle(.primary)
     }
 
     private func settle() async {

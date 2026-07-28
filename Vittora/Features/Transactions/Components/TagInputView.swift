@@ -23,7 +23,7 @@ struct TagInputView: View {
                                 tags = updated
                             } label: {
                                 Image(systemName: "xmark")
-                                    .font(.caption2)
+                                    .font(.caption)
                                     .foregroundColor(VColors.textSecondary)
                             }
                             .accessibilityLabel(String(localized: "Remove \(tag) tag"))

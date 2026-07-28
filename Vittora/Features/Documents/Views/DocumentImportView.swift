@@ -56,6 +56,8 @@ struct DocumentImportView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                        .font(.body)
+                        .foregroundStyle(VColors.textPrimary)
                 }
             }
             .errorAlert(message: $importError)
