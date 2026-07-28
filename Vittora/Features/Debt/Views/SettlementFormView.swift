@@ -106,9 +106,7 @@ struct SettlementFormView: View {
     }
 
     private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.headline)
-            .foregroundStyle(.primary)
+        VFormSectionHeader(title)
     }
 
     private func settle() async {

@@ -207,13 +207,14 @@ enum UITestSupport {
         return false
     }
 
-    /// Scroll until `element` is on-screen and clear of nav chrome / compact tab bar.
-    /// Prefer frame geometry over `isHittable` — hittability queries can hang
-    /// for tens of seconds on large SwiftUI hierarchies during UI tests.
-    /// Swipes down when the row sits under the navigation bar (swipe-up alone
-    /// would push it further off the top — that was the Payees/Categories miss).
-    /// Top clearance follows the live navigation bar frame: at AccessibilityXL
-    /// the large title bar is ~128pt tall, so a fixed 130pt inset is not enough.
+    /// Scroll until `element` is on-screen and clear of nav chrome / tab bar.
+    /// Prefer frame geometry over `isHittable` in the loop — hittability queries
+    /// can hang on large SwiftUI hierarchies. Swipe down when the row sits under
+    /// the navigation bar (swipe-up alone pushes it further off the top).
+    /// Top/bottom clearance follow live nav-bar and tab-bar frames.
+    ///
+    /// At AccessibilityXL, Form rows can be taller than the unobscured region;
+    /// in that case accept when the element's center sits in the clear zone.
     @MainActor
     static func scrollToElement(
         _ element: XCUIElement,
@@ -230,21 +231,33 @@ enum UITestSupport {
             } else {
                 unobscuredTop = app.frame.minY + 130
             }
-            let unobscuredBottom = app.frame.maxY - 140
+
+            let tabBar = app.tabBars.firstMatch
+            let unobscuredBottom: CGFloat
+            if tabBar.exists {
+                let tabMinY = tabBar.frame.minY
+                unobscuredBottom = tabMinY > 1 ? tabMinY - 8 : app.frame.maxY - 140
+            } else {
+                unobscuredBottom = app.frame.maxY - 140
+            }
 
             if element.exists {
                 let frame = element.frame
                 if frame.width > 1, frame.height > 1 {
-                    if frame.minY >= unobscuredTop, frame.maxY <= unobscuredBottom {
+                    let fullyClear = frame.minY >= unobscuredTop && frame.maxY <= unobscuredBottom
+                    let centerY = frame.midY
+                    let centerClear = centerY >= unobscuredTop && centerY <= unobscuredBottom
+                    let tallerThanViewport = frame.height > (unobscuredBottom - unobscuredTop)
+                    if fullyClear || (tallerThanViewport && centerClear) {
                         return
                     }
-                    if frame.minY < unobscuredTop {
+                    if frame.minY < unobscuredTop || (tallerThanViewport && centerY < unobscuredTop) {
                         app.swipeDown()
                         swipes += 1
                         RunLoop.current.run(until: Date().addingTimeInterval(0.15))
                         continue
                     }
-                    if frame.maxY > unobscuredBottom {
+                    if frame.maxY > unobscuredBottom || (tallerThanViewport && centerY > unobscuredBottom) {
                         app.swipeUp()
                         swipes += 1
                         RunLoop.current.run(until: Date().addingTimeInterval(0.15))

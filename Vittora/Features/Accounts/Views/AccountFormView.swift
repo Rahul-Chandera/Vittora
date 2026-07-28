@@ -80,7 +80,7 @@ struct AccountFormView: View {
     @ViewBuilder
     private func formContent(vm: AccountFormViewModel) -> some View {
         Form {
-            Section(String(localized: "Account Info")) {
+            Section {
                 TextField(String(localized: "Account Name"), text: Bindable(vm).name)
 
                 Picker(String(localized: "Type"), selection: Bindable(vm).selectedType) {
@@ -98,20 +98,24 @@ struct AccountFormView: View {
                 }
                 .pickerStyle(.menu)
                 .fixedSize(horizontal: false, vertical: true)
+            } header: {
+                VFormSectionHeader(String(localized: "Account Info"))
             }
 
             if !vm.isEditing {
-                Section(String(localized: "Starting Balance")) {
+                Section {
                     TextField(String(localized: "0.00"), text: Bindable(vm).initialBalance)
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         .textContentType(nil)
                         #endif
+                } header: {
+                    VFormSectionHeader(String(localized: "Starting Balance"))
                 }
             }
 
             if vm.selectedType == .creditCard {
-                Section(String(localized: "Billing Cycle")) {
+                Section {
                     billingDayPicker(
                         title: String(localized: "Statement Day"),
                         selection: Bindable(vm).statementDayOfMonth
@@ -120,10 +124,12 @@ struct AccountFormView: View {
                         title: String(localized: "Payment Due Day"),
                         selection: Bindable(vm).dueDayOfMonth
                     )
+                } header: {
+                    VFormSectionHeader(String(localized: "Billing Cycle"))
                 }
             }
 
-            Section(String(localized: "Icon")) {
+            Section {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: VSpacing.sm) {
                     ForEach(availableIcons, id: \.self) { iconName in
                         Button {
@@ -150,6 +156,8 @@ struct AccountFormView: View {
                     }
                 }
                 .padding(.vertical, VSpacing.xs)
+            } header: {
+                VFormSectionHeader(String(localized: "Icon"))
             }
             .headerProminence(.increased)
 

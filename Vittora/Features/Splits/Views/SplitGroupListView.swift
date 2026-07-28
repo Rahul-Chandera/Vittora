@@ -156,16 +156,16 @@ private struct GroupRowView: View {
                     statusLayout {
                         Text(String(localized: "\(summary.group.memberIDs.count) members"))
                             .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
+                            .foregroundStyle(VColors.textPrimary)
 
                         if summary.outstandingCount > 0 {
                             if !dynamicTypeSize.isAccessibilitySize {
                                 Text("·")
-                                    .foregroundStyle(VColors.textSecondary)
+                                    .foregroundStyle(VColors.textPrimary)
                             }
                             Text(String(localized: "\(summary.outstandingCount) outstanding"))
                                 .font(VTypography.caption1)
-                                .foregroundStyle(VColors.expense)
+                                .foregroundStyle(VColors.textPrimary)
                         }
                     }
                 }
@@ -179,13 +179,13 @@ private struct GroupRowView: View {
 
                     Text(String(localized: "total"))
                         .font(VTypography.caption2)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                 }
 
                 if !dynamicTypeSize.isAccessibilitySize {
                     Image(systemName: "chevron.right")
                         .font(.caption)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                         .accessibilityHidden(true)
                 }
             }

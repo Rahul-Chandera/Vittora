@@ -97,13 +97,11 @@ struct CategoryFormView: View {
                 }
                 .padding(.vertical, VSpacing.xs)
             } header: {
-                Text(String(localized: "Preview"))
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                VFormSectionHeader(String(localized: "Preview"))
             }
             .headerProminence(.increased)
 
-            Section(String(localized: "Details")) {
+            Section {
                 TextField(String(localized: "Category Name"), text: Bindable(vm).name, axis: .vertical)
                     .lineLimit(1...2)
 
@@ -130,10 +128,12 @@ struct CategoryFormView: View {
                     .font(VTypography.caption1)
                     .foregroundStyle(VColors.textSecondary)
                 }
+            } header: {
+                VFormSectionHeader(String(localized: "Details"))
             }
             .headerProminence(.increased)
 
-            Section(String(localized: "Appearance")) {
+            Section {
                 let selectedColor = Color(hex: vm.selectedColorHex) ?? .blue
                 NavigationLink(destination: CategoryIconPicker(
                     selectedIcon: Bindable(vm).selectedIcon,
@@ -161,6 +161,8 @@ struct CategoryFormView: View {
                             .accessibilityLabel(String(localized: "Selected category color"))
                     }
                 }
+            } header: {
+                VFormSectionHeader(String(localized: "Appearance"))
             }
             .headerProminence(.increased)
 

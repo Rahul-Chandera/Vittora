@@ -125,7 +125,7 @@ struct CategoryListView: View {
                             HStack {
                                 CategoryRowView(category: category)
                                 Image(systemName: "chevron.right")
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(VColors.textPrimary)
                                     .accessibilityHidden(true)
                             }
                         }
@@ -164,9 +164,7 @@ struct CategoryListView: View {
                         }
                     }
                 } header: {
-                    Text(String(localized: "Expense"))
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                    VFormSectionHeader(String(localized: "Expense"))
                 }
                 .headerProminence(.increased)
             }
@@ -180,7 +178,7 @@ struct CategoryListView: View {
                             HStack {
                                 CategoryRowView(category: category)
                                 Image(systemName: "chevron.right")
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(VColors.textPrimary)
                                     .accessibilityHidden(true)
                             }
                         }
@@ -213,9 +211,7 @@ struct CategoryListView: View {
                         }
                     }
                 } header: {
-                    Text(String(localized: "Income"))
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                    VFormSectionHeader(String(localized: "Income"))
                 }
                 .headerProminence(.increased)
             }
