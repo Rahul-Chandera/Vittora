@@ -86,10 +86,18 @@ final class SpanishLocalizationUITests: XCTestCase {
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         UITestSupport.tapWhenReady(app.buttons["Impuestos"], timeout: 15)
         XCTAssertTrue(app.navigationBars["Estimador fiscal"].waitForExistence(timeout: 15))
-        XCTAssertTrue(app.staticTexts["Sin perfil de impuestos"].waitForExistence(timeout: 15))
-        capture(named: "es-tax-empty")
+        // The demo seed now includes a tax profile, so the seeded launch shows
+        // the populated estimator. The empty state is re-covered unseeded below.
+        XCTAssertTrue(app.staticTexts["Distribución por tramo"].waitForExistence(timeout: 15))
+        capture(named: "es-tax-dashboard")
 
-        UITestSupport.tapWhenReady(app.buttons["Configurar perfil"], timeout: 10)
+        let taxProfileButton = app.buttons["tax-profile-button"]
+        XCTAssertTrue(taxProfileButton.waitForExistence(timeout: 10))
+        XCTAssertTrue(
+            taxProfileButton.label.localizedCaseInsensitiveContains("perfil"),
+            "Tax profile control must expose a Spanish accessibility label, not only an identifier."
+        )
+        UITestSupport.tapWhenReady(taxProfileButton, timeout: 10)
         XCTAssertTrue(app.navigationBars["Perfil fiscal"].waitForExistence(timeout: 10))
         // New profiles default to India in TaxProfileFormViewModel, matching Hindi coverage.
         let regimePicker = app.buttons["Régimen, Nuevo régimen"]
@@ -98,6 +106,14 @@ final class SpanishLocalizationUITests: XCTestCase {
             "Tax profile must expose the Spanish regime picker label, not only an accessibility id."
         )
         capture(named: "es-tax-profile")
+
+        // Unseeded launch keeps coverage of the Spanish empty state that the
+        // demo seed no longer reaches (it now creates a tax profile).
+        launchUnseeded(initialTab: "tax")
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
+        UITestSupport.tapWhenReady(app.buttons["Impuestos"], timeout: 15)
+        XCTAssertTrue(app.staticTexts["Sin perfil de impuestos"].waitForExistence(timeout: 15))
+        capture(named: "es-tax-empty")
         #endif
     }
 
@@ -184,6 +200,24 @@ final class SpanishLocalizationUITests: XCTestCase {
             "-AppleLocale", "es_US"
         ]
         app.launchEnvironment["UITEST_FORCE_ONBOARDING"] = "1"
+        app.launch()
+        XCTAssertTrue(UITestSupport.waitForAppForeground(in: app))
+    }
+
+    /// Launch in Spanish without the demo seed, for empty-state coverage.
+    @MainActor
+    private func launchUnseeded(initialTab: String) {
+        if app.state != .notRunning {
+            app.terminate()
+        }
+        app = XCUIApplication()
+        app.launchArguments = [
+            "--uitesting",
+            "--ui-test-reset-app-lock",
+            "-AppleLanguages", "(es)",
+            "-AppleLocale", "es_US"
+        ]
+        app.launchEnvironment["UITEST_INITIAL_TAB"] = initialTab
         app.launch()
         XCTAssertTrue(UITestSupport.waitForAppForeground(in: app))
     }
