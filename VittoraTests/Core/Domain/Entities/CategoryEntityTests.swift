@@ -42,7 +42,13 @@ struct CategoryEntityTests {
             defaultCategory.displayName(locale: Locale(identifier: "hi"), bundle: appBundle) == "किराना"
         )
         #expect(
+            defaultCategory.displayName(locale: Locale(identifier: "es"), bundle: appBundle) == "Comestibles"
+        )
+        #expect(
             customCategory.displayName(locale: Locale(identifier: "hi"), bundle: appBundle) == "Groceries"
+        )
+        #expect(
+            customCategory.displayName(locale: Locale(identifier: "es"), bundle: appBundle) == "Groceries"
         )
     }
 

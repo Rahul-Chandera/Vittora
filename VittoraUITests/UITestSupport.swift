@@ -214,6 +214,9 @@ enum UITestSupport {
     /// would push it further off the top — that was the Payees/Categories miss).
     /// Top clearance follows the live navigation bar frame: at AccessibilityXL
     /// the large title bar is ~128pt tall, so a fixed 130pt inset is not enough.
+    /// Bottom clearance follows the live tab-bar frame for the same reason — a
+    /// fixed inset let Settings rows sit under the floating tab bar, so a
+    /// coordinate tap selected Budgets instead of the intended destination.
     @MainActor
     static func scrollToElement(
         _ element: XCUIElement,
@@ -230,7 +233,15 @@ enum UITestSupport {
             } else {
                 unobscuredTop = app.frame.minY + 130
             }
-            let unobscuredBottom = app.frame.maxY - 140
+
+            let tabBar = app.tabBars.firstMatch
+            let unobscuredBottom: CGFloat
+            if tabBar.exists {
+                let tabMinY = tabBar.frame.minY
+                unobscuredBottom = tabMinY > 1 ? tabMinY - 8 : app.frame.maxY - 140
+            } else {
+                unobscuredBottom = app.frame.maxY - 140
+            }
 
             if element.exists {
                 let frame = element.frame

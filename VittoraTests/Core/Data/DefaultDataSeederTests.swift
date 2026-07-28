@@ -68,7 +68,49 @@ struct DefaultDataSeederTests {
         #expect(secondIDs == firstIDs)
         #expect(firstEntity.displayName(locale: Locale(identifier: "en"), bundle: appBundle) == "Groceries")
         #expect(secondEntity.displayName(locale: Locale(identifier: "hi"), bundle: appBundle) == "किराना")
+        #expect(secondEntity.displayName(locale: Locale(identifier: "es"), bundle: appBundle) == "Comestibles")
         #expect(secondGroceries.name == "Groceries")
+    }
+
+    @Test("locale switch en→es preserves defaults without duplicates")
+    func localeSwitchToSpanishPreservesDefaultsWithoutDuplicates() async throws {
+        UserDefaults.standard.removeObject(forKey: seededKey)
+        defer { UserDefaults.standard.removeObject(forKey: seededKey) }
+        let container = try ModelContainerConfig.makeContainer(inMemory: true)
+        let seeder = DefaultDataSeeder(modelContainer: container)
+
+        try await seeder.seedDefaultCategoriesIfNeeded()
+        let englishDefaults = try defaultCategories(in: container.mainContext)
+        let englishIDs = Dictionary(uniqueKeysWithValues: englishDefaults.map {
+            ("\($0.type.rawValue)|\($0.name)", $0.id)
+        })
+        let englishGroceries = try #require(
+            englishDefaults.first { $0.name == "Groceries" && $0.type == .expense }
+        )
+        let englishEntity = CategoryMapper.toEntity(englishGroceries)
+
+        UserDefaults.standard.removeObject(forKey: seededKey)
+        try await seeder.seedDefaultCategoriesIfNeeded()
+        let spanishDefaults = try defaultCategories(in: container.mainContext)
+        let spanishIDs = Dictionary(uniqueKeysWithValues: spanishDefaults.map {
+            ("\($0.type.rawValue)|\($0.name)", $0.id)
+        })
+        let spanishGroceries = try #require(
+            spanishDefaults.first { $0.name == "Groceries" && $0.type == .expense }
+        )
+        let spanishEntity = CategoryMapper.toEntity(spanishGroceries)
+        let customGym = CategoryEntity(name: "Gym", icon: "dumbbell.fill", isDefault: false)
+        let appBundle = try #require(
+            Bundle.allBundles.first { $0.bundleIdentifier == "com.enerjiktech.vittora" }
+        )
+
+        #expect(englishDefaults.count == 26)
+        #expect(spanishDefaults.count == 26)
+        #expect(spanishIDs == englishIDs)
+        #expect(englishEntity.displayName(locale: Locale(identifier: "en"), bundle: appBundle) == "Groceries")
+        #expect(spanishEntity.displayName(locale: Locale(identifier: "es"), bundle: appBundle) == "Comestibles")
+        #expect(spanishGroceries.name == "Groceries")
+        #expect(customGym.displayName(locale: Locale(identifier: "es"), bundle: appBundle) == "Gym")
     }
 
     @Test("partial defaults add only missing records and leave custom categories untouched")
