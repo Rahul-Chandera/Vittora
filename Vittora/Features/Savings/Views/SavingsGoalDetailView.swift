@@ -31,6 +31,8 @@ struct SavingsGoalDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(String(localized: "Edit")) { showEditForm = true }
+                    .font(.body)
+                    .foregroundStyle(VColors.textPrimary)
             }
             if let vm, vm.goal.status == .active {
                 ToolbarItem(placement: .secondaryAction) {
@@ -121,7 +123,7 @@ struct SavingsGoalDetailView: View {
             VStack(spacing: VSpacing.md) {
                 SavingsProgressRingView(
                     progress: vm.goal.progressFraction,
-                    color: goalColor,
+                    color: VColors.textPrimary,
                     size: 120,
                     lineWidth: 12
                 )
@@ -130,16 +132,16 @@ struct SavingsGoalDetailView: View {
                     Text(vm.goal.currentAmount.formatted(.currency(code: currencyCode)))
                         .font(VTypography.amountLarge)
                         .amountScaling()
-                        .foregroundStyle(goalColor)
+                        .foregroundStyle(VColors.textPrimary)
                     Text(String(localized: "saved of \(vm.goal.targetAmount.formatted(.currency(code: currencyCode)))"))
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                 }
 
                 if vm.goal.remainingAmount > 0 {
                     Text(String(localized: "\(vm.goal.remainingAmount.formatted(.currency(code: currencyCode))) remaining"))
                         .font(VTypography.caption1.bold())
-                        .foregroundStyle(VColors.expense)
+                        .foregroundStyle(VColors.textPrimary)
                         .padding(.horizontal, VSpacing.md)
                         .padding(.vertical, 6)
                         .background(VColors.expense.opacity(0.1))
@@ -147,6 +149,13 @@ struct SavingsGoalDetailView: View {
                 }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(vm.goal.name)
+        .accessibilityValue(
+            String(
+                localized: "\(vm.goal.currentAmount.formatted(.currency(code: currencyCode))) saved of \(vm.goal.targetAmount.formatted(.currency(code: currencyCode))), \(Int(vm.goal.progressFraction * 100)) percent complete, \(vm.goal.remainingAmount.formatted(.currency(code: currencyCode))) remaining"
+            )
+        )
     }
 
     private func deadlineCard(days: Int, goal: SavingsGoalEntity) -> some View {
@@ -168,7 +177,7 @@ struct SavingsGoalDetailView: View {
                 if let date = goal.targetDate {
                     Text(date.formatted(date: .long, time: .omitted))
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                 }
             }
             Spacer()
@@ -188,15 +197,15 @@ struct SavingsGoalDetailView: View {
                 if let monthly = snapshot.monthlyRequired {
                     Text(String(localized: "Suggested monthly savings"))
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                     Text(monthly.formatted(.currency(code: currencyCode)) + String(localized: "/month"))
                         .font(VTypography.bodyBold)
-                        .foregroundStyle(VColors.income)
+                        .foregroundStyle(VColors.textPrimary)
                 }
                 if let projected = snapshot.projectedCompletionDate {
                     Text(String(localized: "Projected completion"))
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                         .padding(.top, snapshot.monthlyRequired == nil ? 0 : VSpacing.xs)
                     Text(projected.formatted(date: .long, time: .omitted))
                         .font(VTypography.bodyBold)
@@ -215,30 +224,47 @@ struct SavingsGoalDetailView: View {
             VStack(alignment: .leading, spacing: VSpacing.md) {
                 Text(String(localized: "Add Contribution"))
                     .font(VTypography.subheadline)
-                    .foregroundStyle(VColors.textSecondary)
+                    .foregroundStyle(VColors.textPrimary)
 
                 HStack {
                     Text(currencySymbol)
-                        .foregroundStyle(VColors.textSecondary)
-                    TextField(String(localized: "Amount"), text: Bindable(vm).contributionString)
+                        .foregroundStyle(VColors.textPrimary)
+                        .accessibilityHidden(true)
+                    TextField(
+                        "",
+                        text: Bindable(vm).contributionString,
+                        prompt: Text(String(localized: "Amount"))
+                            .foregroundStyle(VColors.textPrimary)
+                    )
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         .textContentType(nil)
                         #endif
+                        .accessibilityLabel(String(localized: "Contribution amount"))
+                        .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
+                        .accessibilityIdentifier("savings-contribution-field")
                     Spacer()
                     Button {
+                        guard vm.canContribute, !vm.isAddingContribution else { return }
                         Task { await vm.addContribution() }
                     } label: {
                         if vm.isAddingContribution {
-                            ProgressView().tint(.white)
+                            ProgressView().tint(VColors.textPrimary)
                         } else {
                             Text(String(localized: "Add"))
                                 .font(VTypography.bodyBold)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(goalColor)
-                    .disabled(!vm.canContribute || vm.isAddingContribution)
+                    .padding(.horizontal, VSpacing.md)
+                    .frame(minHeight: 44)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: VSpacing.cornerRadiusSM)
+                            .stroke(VColors.textPrimary, lineWidth: 1)
+                    }
+                    .foregroundStyle(VColors.textPrimary)
+                    .buttonStyle(.plain)
+                    .accessibilityRespondsToUserInteraction(vm.canContribute && !vm.isAddingContribution)
+                    .accessibilityIdentifier("savings-contribution-add-button")
                 }
             }
         }

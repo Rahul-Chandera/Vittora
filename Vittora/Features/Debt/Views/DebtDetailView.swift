@@ -68,8 +68,11 @@ struct DebtDetailView: View {
                 Text(CurrencyFormatter.format(vm.netBalance, currencyCode: currencyCode))
                     .font(VTypography.amountSmall)
                     .amountScaling()
-                    .foregroundColor(vm.netBalance >= 0 ? VColors.income : VColors.expense)
+                    .foregroundColor(VColors.textPrimary)
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(String(localized: "Net debt balance"))
+            .accessibilityValue(CurrencyFormatter.format(vm.netBalance, currencyCode: currencyCode))
         }
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryBackground)
@@ -87,6 +90,9 @@ struct DebtDetailView: View {
                 .foregroundColor(VColors.textSecondary)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(CurrencyFormatter.format(amount, currencyCode: currencyCode))
     }
 
     @ViewBuilder
@@ -115,7 +121,7 @@ struct DebtDetailView: View {
             Image(systemName: entry.direction == .lent ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
                 .foregroundColor(entry.direction == .lent ? VColors.income : VColors.expense)
                 .font(.title3)
-                .accessibilityLabel(entry.direction == .lent ? String(localized: "Lent") : String(localized: "Borrowed"))
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
                 Text(entry.note ?? (entry.direction == .lent ? String(localized: "Lent") : String(localized: "Borrowed")))
@@ -124,7 +130,7 @@ struct DebtDetailView: View {
                 HStack(spacing: VSpacing.sm) {
                     Text(entry.createdAt.formatted(.dateTime.month(.abbreviated).day().year()))
                         .font(VTypography.caption2)
-                        .foregroundColor(VColors.textSecondary)
+                        .foregroundColor(VColors.textPrimary)
                     if entry.isOverdue {
                         Text(String(localized: "Overdue"))
                             .font(VTypography.caption2)
@@ -144,10 +150,13 @@ struct DebtDetailView: View {
                 Text(CurrencyFormatter.format(entry.amount, currencyCode: currencyCode))
                     .font(VTypography.amountCaption)
                     .foregroundColor(VColors.textPrimary)
+                    .fixedSize(horizontal: true, vertical: true)
+                    .accessibilityLabel(String(localized: "Debt amount"))
+                    .accessibilityValue(CurrencyFormatter.format(entry.amount, currencyCode: currencyCode))
                 if !entry.isSettled && entry.settledAmount > 0 {
                     Text(String(localized: "\(CurrencyFormatter.format(entry.remainingAmount, currencyCode: currencyCode)) left"))
                         .font(VTypography.caption2)
-                        .foregroundColor(VColors.textSecondary)
+                        .foregroundColor(VColors.textPrimary)
                 }
                 if !entry.isSettled {
                     HStack(spacing: VSpacing.sm) {
@@ -162,21 +171,34 @@ struct DebtDetailView: View {
                             ) {
                                 Text(String(localized: "Remind"))
                                     .font(VTypography.caption2)
-                                    .foregroundColor(VColors.primary)
+                                    .foregroundColor(VColors.textPrimary)
                             }
                             .buttonStyle(.plain)
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                         }
                         Button(String(localized: "Settle")) {
                             debtToSettle = entry
                         }
                         .font(VTypography.caption2)
-                        .foregroundColor(VColors.primary)
+                        .foregroundColor(VColors.textPrimary)
                         .buttonStyle(.plain)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                     }
                 }
             }
         }
         .padding(VSpacing.md)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(
+            entry.note ?? (entry.direction == .lent ? String(localized: "Lent") : String(localized: "Borrowed"))
+        )
+        .accessibilityValue(
+            String(
+                localized: "\(CurrencyFormatter.format(entry.amount, currencyCode: currencyCode)), \(entry.createdAt.formatted(.dateTime.month(.wide).day().year()))"
+            )
+        )
     }
 }
 

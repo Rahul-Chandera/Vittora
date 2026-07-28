@@ -16,16 +16,17 @@ private struct HandoffAdvertisementModifier: ViewModifier {
     let isActive: Bool
     @Environment(AppState.self) private var appState
 
+    @ViewBuilder
     func body(content: Content) -> some View {
-        Group {
-            if let route, appState.shouldAdvertiseHandoff(isActive: isActive) {
-                content
-                    .userActivity(AppHandoff.activityType(for: route), isActive: true) { activity in
-                        AppHandoff.configure(activity, route: route)
-                    }
-            } else {
-                content
-            }
+        // Avoid wrapping in Group — an extra container has made Dynamic Type /
+        // clipping audits sample transitional layout on the transaction form.
+        if let route, appState.shouldAdvertiseHandoff(isActive: isActive) {
+            content
+                .userActivity(AppHandoff.activityType(for: route), isActive: true) { activity in
+                    AppHandoff.configure(activity, route: route)
+                }
+        } else {
+            content
         }
     }
 }

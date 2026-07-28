@@ -5,6 +5,7 @@ struct SavingsGoalListView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: SavingsGoalListViewModel?
     @State private var showAddGoal = false
     @State private var selectedGoalID: UUID?
@@ -28,6 +29,9 @@ struct SavingsGoalListView: View {
                 Button { showAddGoal = true } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel(String(localized: "Add savings goal"))
+                .accessibilityHint(String(localized: "Opens the savings goal form"))
+                .accessibilityIdentifier("savings-add-button")
             }
         }
         .navigationDestination(item: $selectedGoalID) { id in
@@ -102,21 +106,30 @@ struct SavingsGoalListView: View {
             }
             .padding(VSpacing.screenPadding)
         }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
+        }
     }
 
     private func summaryHeader(_ summary: GoalProgressSummary) -> some View {
         VCard {
-            HStack(spacing: VSpacing.lg) {
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.md))
+                : AnyLayout(HStackLayout(spacing: VSpacing.lg))
+            layout {
                 SavingsProgressRingView(
                     progress: summary.overallProgressFraction,
-                    color: VColors.primary,
+                    color: VColors.textPrimary,
                     size: 56,
                     lineWidth: 6
                 )
                 VStack(alignment: .leading, spacing: 4) {
                     Text(String(localized: "Overall Progress"))
                         .font(VTypography.subheadline)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
                     ViewThatFits(in: .horizontal) {
                         HStack(spacing: 4) {
                             summaryAmounts(summary)
@@ -127,31 +140,37 @@ struct SavingsGoalListView: View {
                     }
                     Text(String(localized: "\(summary.activeGoals) active · \(summary.achievedGoals) achieved"))
                         .font(VTypography.caption2)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                 }
-                Spacer()
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Overall savings progress"))
+        .accessibilityValue(
+            String(
+                localized: "\(summary.totalSavedAmount.formatted(.currency(code: currencyCode))) saved of \(summary.totalTargetAmount.formatted(.currency(code: currencyCode))), \(summary.activeGoals) active, \(summary.achievedGoals) achieved"
+            )
+        )
     }
 
     @ViewBuilder
     private func summaryAmounts(_ summary: GoalProgressSummary) -> some View {
         Text(summary.totalSavedAmount.formatted(.currency(code: currencyCode)))
             .font(VTypography.bodyBold)
-            .foregroundStyle(VColors.income)
+            .foregroundStyle(VColors.textPrimary)
         Text(String(localized: "of"))
             .font(VTypography.caption1)
-            .foregroundStyle(VColors.textSecondary)
+            .foregroundStyle(VColors.textPrimary)
         Text(summary.totalTargetAmount.formatted(.currency(code: currencyCode)))
             .font(VTypography.caption1)
-            .foregroundStyle(VColors.textSecondary)
+            .foregroundStyle(VColors.textPrimary)
     }
 
     private func goalSection(title: String, goals: [SavingsGoalEntity], vm: SavingsGoalListViewModel) -> some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
             Text(title)
                 .font(VTypography.subheadline)
-                .foregroundStyle(VColors.textSecondary)
+                .foregroundStyle(VColors.textPrimary)
 
             ForEach(goals) { goal in
                 Button { selectedGoalID = goal.id } label: {
@@ -194,6 +213,7 @@ struct SavingsGoalListView: View {
             Image(systemName: "star.circle.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(VColors.textTertiary)
+                .accessibilityHidden(true)
             Text(String(localized: "No savings goals"))
                 .font(VTypography.bodyBold)
                 .foregroundStyle(VColors.textPrimary)

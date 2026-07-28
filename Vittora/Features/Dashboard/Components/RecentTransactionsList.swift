@@ -2,6 +2,8 @@ import SwiftUI
 import VittoraCore
 
 struct RecentTransactionsList: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let transactions: [TransactionEntity]
     let onSeeAll: () -> Void
     let onSelect: (UUID) -> Void
@@ -11,19 +13,21 @@ struct RecentTransactionsList: View {
             HStack {
                 Text(String(localized: "Recent Transactions"))
                     .font(VTypography.subheadline)
-                    .foregroundColor(VColors.textSecondary)
+                    .foregroundColor(highContrastText)
                 Spacer()
                 Button(action: onSeeAll) {
                     HStack(spacing: VSpacing.xxs) {
                         Text(String(localized: "See All"))
-                            .font(VTypography.caption1)
-                            .foregroundColor(VColors.primary)
+                            .font(VTypography.bodyBold)
+                            .foregroundColor(highContrastText)
                         Image(systemName: "chevron.right")
-                            .font(.caption2)
-                            .foregroundColor(VColors.primary)
+                            .font(.caption)
+                            .foregroundColor(highContrastText)
                             .accessibilityHidden(true)
                     }
                 }
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .accessibilityLabel(String(localized: "See all transactions"))
                 .accessibilityHint(String(localized: "Opens the Transactions tab"))
@@ -53,44 +57,53 @@ struct RecentTransactionsList: View {
             }
         }
     }
+
+    private var highContrastText: Color {
+        colorScheme == .dark ? .white : .black
+    }
 }
 
 private struct RecentTransactionRow: View {
     let transaction: TransactionEntity
     let onTap: () -> Void
     @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: VSpacing.md) {
                 Circle()
-                    .fill(typeColor(for: transaction.type).opacity(0.15))
+                    .fill(VColors.tertiaryBackground)
                     .frame(width: 36, height: 36)
                     .overlay {
                         Image(systemName: typeIcon(for: transaction.type))
                             .font(VTypography.caption1Bold)
-                            .foregroundColor(typeColor(for: transaction.type))
+                            .foregroundColor(highContrastText)
                     }
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: VSpacing.xxs) {
                     Text(transaction.note ?? String(localized: "Transaction"))
-                        .font(VTypography.caption1Bold)
-                        .foregroundColor(VColors.textPrimary)
+                        .font(VTypography.bodyBold)
+                        .foregroundColor(highContrastText)
                         .adaptiveLineLimit(1)
                         .adaptiveMinimumScaleFactor(0.7)
+                        .accessibilityHidden(true)
 
                     Text(transaction.date.formatted(.dateTime.month(.abbreviated).day()))
-                        .font(VTypography.caption2)
-                        .foregroundColor(VColors.textSecondary)
+                        .font(VTypography.bodyBold)
+                        .foregroundColor(highContrastText)
+                        .accessibilityIdentifier("dashboard-recent-date-\(transaction.id.uuidString)")
+                        .accessibilityHidden(true)
                 }
 
                 Spacer()
 
                 Text(CurrencyFormatter.formatSigned(transaction.amount, type: transaction.type, currencyCode: currencyCode))
                     .font(VTypography.amountCaption)
-                    .foregroundColor(typeColor(for: transaction.type))
+                    .foregroundColor(highContrastText)
                     .amountScaling()
+                    .accessibilityHidden(true)
             }
             .padding(.vertical, VSpacing.xs)
             .contentShape(Rectangle())
@@ -112,13 +125,8 @@ private struct RecentTransactionRow: View {
         return "\(note), \(transaction.type.displayName), \(date), \(amount)"
     }
 
-    private func typeColor(for type: TransactionType) -> Color {
-        switch type {
-        case .expense: return VColors.expense
-        case .income: return VColors.income
-        case .transfer: return VColors.transfer
-        case .adjustment: return VColors.primary
-        }
+    private var highContrastText: Color {
+        colorScheme == .dark ? .white : .black
     }
 
     private func typeIcon(for type: TransactionType) -> String {

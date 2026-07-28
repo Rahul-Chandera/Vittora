@@ -5,6 +5,7 @@ struct TaxProfileFormView: View {
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: TaxProfileFormViewModel?
 
     let existingProfile: TaxProfile?
@@ -31,6 +32,8 @@ struct TaxProfileFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                        .font(.body)
+                        .foregroundStyle(VColors.textPrimary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -49,7 +52,9 @@ struct TaxProfileFormView: View {
                             }
                         }
                     }
+                    .font(.body)
                     .disabled(!(vm?.canSave ?? false) || (vm?.isSaving ?? false))
+                    .foregroundStyle(VColors.textPrimary)
                 }
             }
         }
@@ -85,6 +90,9 @@ struct TaxProfileFormView: View {
                         Text(c.displayName).tag(c)
                     }
                 }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .accessibilityLabel(String(localized: "Country"))
                 .onChange(of: vm.country) { _, _ in
                     vm.financialYear = vm.country.defaultFinancialYear
                     vm.recalculateLive()
@@ -94,13 +102,13 @@ struct TaxProfileFormView: View {
             // Income
             Section(String(localized: "Annual Income")) {
                 HStack {
-                    Text(vm.country.currencySymbol)
-                        .foregroundStyle(VColors.textSecondary)
-                    TextField(String(localized: "e.g. 1200000"), text: Bindable(vm).incomeString)
+                    TextField(String(localized: "0"), text: Bindable(vm).incomeString)
                         #if os(iOS)
                         .keyboardType(.numberPad)
                         .textContentType(nil)
                         #endif
+                        .accessibilityLabel(String(localized: "Annual income"))
+                        .accessibilityHint(String(localized: "Amount in \(vm.country.currencyCode)"))
                         .onChange(of: vm.incomeString) { _, _ in vm.recalculateLive() }
                 }
 
@@ -119,6 +127,8 @@ struct TaxProfileFormView: View {
                             Text(t.displayName).tag(t)
                         }
                     }
+                    .pickerStyle(.menu)
+                    .fixedSize(horizontal: false, vertical: true)
                     .onChange(of: vm.incomeSourceType) { _, _ in vm.recalculateLive() }
                 }
 
@@ -236,17 +246,26 @@ struct TaxProfileFormView: View {
                         text: Bindable(vm).usHSAContributedString,
                         currencyCode: vm.country.currencyCode
                     )
-                    Toggle(String(localized: "HSA family coverage"), isOn: Binding(
-                        get: { vm.advancedInputs.usHSAFamilyCoverage },
-                        set: {
-                            vm.advancedInputs.usHSAFamilyCoverage = $0
-                            vm.recalculateLive()
-                        }
-                    ))
+                    HStack {
+                        Text(String(localized: "HSA family coverage"))
+                            .font(.body)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer()
+                        Toggle("", isOn: Binding(
+                            get: { vm.advancedInputs.usHSAFamilyCoverage },
+                            set: {
+                                vm.advancedInputs.usHSAFamilyCoverage = $0
+                                vm.recalculateLive()
+                            }
+                        ))
+                        .labelsHidden()
+                    }
+                    .accessibilityElement(children: .combine)
                 } header: {
                     Text(String(localized: "Retirement & HSA Contributions"))
                 } footer: {
                     Text(String(localized: "Track year-to-date contributions to see remaining statutory headroom in your estimate."))
+                        .foregroundStyle(VColors.textSecondary)
                 }
 
                 if !vm.usContributionUtilization.isEmpty {
@@ -352,20 +371,38 @@ struct TaxProfileFormView: View {
                             .listRowInsets(EdgeInsets())
                             .listRowBackground(Color.clear)
                     }
-                    HStack {
+                    let estimateLayout = dynamicTypeSize.isAccessibilitySize
+                        ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+                        : AnyLayout(HStackLayout())
+                    estimateLayout {
                         Text(String(localized: "Estimated Tax"))
-                        Spacer()
+                        if !dynamicTypeSize.isAccessibilitySize {
+                            Spacer()
+                        }
                         Text(live.finalTax.formatted(.currency(code: vm.country.currencyCode)))
                             .font(VTypography.bodyBold)
-                            .foregroundStyle(VColors.expense)
+                            .foregroundStyle(VColors.textPrimary)
                     }
-                    HStack {
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(String(localized: "Estimated tax"))
+                    .accessibilityValue(live.finalTax.formatted(.currency(code: vm.country.currencyCode)))
+                    let rateLayout = dynamicTypeSize.isAccessibilitySize
+                        ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+                        : AnyLayout(HStackLayout())
+                    rateLayout {
                         Text(String(localized: "Effective Rate"))
-                        Spacer()
+                        if !dynamicTypeSize.isAccessibilitySize {
+                            Spacer()
+                        }
                         Text((live.effectiveRate * 100).formatted(.number.precision(.fractionLength(1))) + "%")
                             .font(VTypography.bodyBold)
                             .foregroundStyle(VColors.textPrimary)
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(String(localized: "Effective rate"))
+                    .accessibilityValue(
+                        (live.effectiveRate * 100).formatted(.number.precision(.fractionLength(1))) + "%"
+                    )
                 }
             }
 
@@ -420,21 +457,53 @@ struct TaxProfileFormView: View {
         text: Binding<String>,
         currencyCode: String
     ) -> some View {
-        HStack {
-            Text(title)
-            Spacer()
-            Text(String.currencySymbol(for: currencyCode))
-                .foregroundStyle(VColors.textSecondary)
+        contributionAmountRow(
+            vm: vm,
+            title: title,
+            text: text,
+            currencyCode: currencyCode,
+            stacksVertically: dynamicTypeSize.isAccessibilitySize
+        )
+    }
+
+    @ViewBuilder
+    private func contributionAmountRow(
+        vm: TaxProfileFormViewModel,
+        title: String,
+        text: Binding<String>,
+        currencyCode: String,
+        stacksVertically: Bool
+    ) -> some View {
+        let amountField = HStack {
             TextField("0", text: text)
                 #if os(iOS)
                 .keyboardType(.decimalPad)
                 .textContentType(nil)
                 #endif
                 .multilineTextAlignment(.trailing)
-                .frame(width: 120)
+                .accessibilityLabel(title)
+                .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
                 .onChange(of: text.wrappedValue) { _, _ in
                     vm.recalculateLive()
                 }
+        }
+
+        if stacksVertically {
+            VStack(alignment: .leading, spacing: VSpacing.xs) {
+                Text(title)
+                    .font(.body)
+                    .fixedSize(horizontal: false, vertical: true)
+                amountField
+            }
+        } else {
+            HStack {
+                Text(title)
+                    .font(.body)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer()
+                amountField
+                    .frame(width: 120)
+            }
         }
     }
 }

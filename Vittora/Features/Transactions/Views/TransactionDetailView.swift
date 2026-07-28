@@ -31,15 +31,15 @@ struct TransactionDetailView: View {
                             HStack(spacing: VSpacing.md) {
                                 Text(transaction.type.displayName)
                                     .font(VTypography.caption2)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(VColors.textPrimary)
                                     .padding(.horizontal, VSpacing.md)
                                     .padding(.vertical, VSpacing.xs)
-                                    .background(amountColor)
+                                    .background(VColors.tertiaryBackground)
                                     .cornerRadius(VSpacing.cornerRadiusSM)
 
                                 Text(formatDate(transaction.date))
                                     .font(VTypography.caption1)
-                                    .foregroundColor(VColors.textSecondary)
+                                    .foregroundColor(VColors.textPrimary)
 
                                 Spacer()
                             }
@@ -66,16 +66,16 @@ struct TransactionDetailView: View {
                                 VStack(alignment: .leading, spacing: VSpacing.sm) {
                                     Text(String(localized: "Tags"))
                                         .font(VTypography.caption2)
-                                        .foregroundColor(VColors.textSecondary)
+                                        .foregroundColor(VColors.textPrimary)
 
                                     HStack(spacing: VSpacing.sm) {
                                         ForEach(transaction.tags, id: \.self) { tag in
                                             Text(tag)
                                                 .font(VTypography.caption1)
-                                                .foregroundColor(VColors.primary)
+                                                .foregroundColor(VColors.textPrimary)
                                                 .padding(.horizontal, VSpacing.sm)
                                                 .padding(.vertical, VSpacing.xs)
-                                                .background(VColors.primary.opacity(0.1))
+                                                .background(VColors.tertiaryBackground)
                                                 .cornerRadius(VSpacing.cornerRadiusSM)
                                         }
                                         Spacer()
@@ -87,6 +87,9 @@ struct TransactionDetailView: View {
                         }
                         .padding(VSpacing.lg)
 
+                        DocumentListView(transactionID: transactionID)
+                            .padding(.horizontal, VSpacing.lg)
+
                         if !vm.editHistory.isEmpty {
                             VStack(alignment: .leading, spacing: VSpacing.md) {
                                 Text(String(localized: "Edit History"))
@@ -97,7 +100,7 @@ struct TransactionDetailView: View {
                                     VStack(alignment: .leading, spacing: VSpacing.xs) {
                                         Text(record.editedAt.formatted(date: .abbreviated, time: .shortened))
                                             .font(VTypography.caption2)
-                                            .foregroundColor(VColors.textSecondary)
+                                            .foregroundColor(VColors.textPrimary)
 
                                         ForEach(record.changes, id: \.field) { change in
                                             Text(
@@ -136,7 +139,7 @@ struct TransactionDetailView: View {
 
                                                     Text(formatDate(related.date))
                                                         .font(VTypography.caption2)
-                                                        .foregroundColor(VColors.textSecondary)
+                                                        .foregroundColor(VColors.textPrimary)
                                                 }
 
                                                 Spacer()
@@ -201,8 +204,9 @@ struct TransactionDetailView: View {
             } else if let vm = vm {
                 VStack(spacing: VSpacing.lg) {
                     Image(systemName: "doc.text.magnifyingglass")
-                        .font(.system(size: 48))
+                        .font(.system(.largeTitle))
                         .foregroundColor(VColors.textSecondary)
+                        .accessibilityHidden(true)
 
                     Text(String(localized: "Transaction unavailable"))
                         .font(VTypography.title3)
@@ -241,7 +245,7 @@ struct TransactionDetailView: View {
         VStack(alignment: .leading, spacing: VSpacing.xs) {
             Text(label)
                 .font(VTypography.caption2)
-                .foregroundColor(VColors.textSecondary)
+                .foregroundColor(VColors.textPrimary)
 
             Text(value)
                 .font(VTypography.body)

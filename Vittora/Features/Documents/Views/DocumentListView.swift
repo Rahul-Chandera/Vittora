@@ -126,8 +126,12 @@ struct DocumentListView: View {
             } label: {
                 Image(systemName: "plus")
                     .foregroundColor(VColors.primary)
+                    .frame(minWidth: 44, minHeight: 44)
             }
             .menuStyle(.button)
+            .accessibilityLabel(String(localized: "Add attachment"))
+            .accessibilityHint(String(localized: "Shows attachment options"))
+            .accessibilityIdentifier("document-add-button")
         }
     }
 

@@ -2,6 +2,8 @@ import SwiftUI
 import VittoraCore
 
 struct NetWorthCard: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     let netWorth: Decimal
     let totalAssets: Decimal
     let totalLiabilities: Decimal
@@ -12,36 +14,41 @@ struct NetWorthCard: View {
             VStack(alignment: .leading, spacing: VSpacing.sm) {
                 Text(String(localized: "Net Worth"))
                     .font(VTypography.caption1)
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.black)
 
                 Text(netWorth.formatted(.currency(code: currencyCode)))
                     .font(VTypography.amountLarge)
                     .amountScaling()
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
 
                 Divider()
                     .background(Color.white.opacity(0.3))
                     .padding(.vertical, VSpacing.xs)
 
-                HStack {
+                let layout = dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.md))
+                    : AnyLayout(HStackLayout())
+                layout {
                     VStack(alignment: .leading, spacing: VSpacing.xxs) {
                         Text(String(localized: "Assets"))
                             .font(VTypography.caption2)
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.black)
                         Text(totalAssets.formatted(.currency(code: currencyCode)))
                             .font(VTypography.caption1Bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                     }
 
-                    Spacer()
+                    if !dynamicTypeSize.isAccessibilitySize {
+                        Spacer()
+                    }
 
-                    VStack(alignment: .trailing, spacing: VSpacing.xxs) {
+                    VStack(alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing, spacing: VSpacing.xxs) {
                         Text(String(localized: "Liabilities"))
                             .font(VTypography.caption2)
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.black)
                         Text(totalLiabilities.formatted(.currency(code: currencyCode)))
                             .font(VTypography.caption1Bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                     }
                 }
             }

@@ -18,6 +18,8 @@ struct SupportDiagnosticsTests {
         let debtRepo = SwiftDataDebtRepository(modelContainer: container)
         let recurringRepo = SwiftDataRecurringRuleRepository(modelContainer: container)
         let payeeRepo = SwiftDataPayeeRepository(modelContainer: container)
+        let splitGroupRepo = SwiftDataSplitGroupRepository(modelContainer: container)
+        let taxProfileRepo = SwiftDataTaxProfileRepository(modelContainer: container)
         let ledger = LedgerWriteStore(modelContainer: container)
         let seeder = DefaultDataSeeder(modelContainer: container)
 
@@ -33,6 +35,8 @@ struct SupportDiagnosticsTests {
             debtRepository: debtRepo,
             recurringRuleRepository: recurringRepo,
             payeeRepository: payeeRepo,
+            splitGroupRepository: splitGroupRepo,
+            taxProfileRepository: taxProfileRepo,
             dataSeeder: seeder
         )
 
@@ -251,6 +255,8 @@ struct SupportDiagnosticsTests {
         let debtRepo = SwiftDataDebtRepository(modelContainer: container)
         let recurringRepo = SwiftDataRecurringRuleRepository(modelContainer: container)
         let payeeRepo = SwiftDataPayeeRepository(modelContainer: container)
+        let splitGroupRepo = SwiftDataSplitGroupRepository(modelContainer: container)
+        let taxProfileRepo = SwiftDataTaxProfileRepository(modelContainer: container)
         let ledger = LedgerWriteStore(modelContainer: container)
         let seeder = DefaultDataSeeder(modelContainer: container)
 
@@ -266,6 +272,8 @@ struct SupportDiagnosticsTests {
             debtRepository: debtRepo,
             recurringRuleRepository: recurringRepo,
             payeeRepository: payeeRepo,
+            splitGroupRepository: splitGroupRepo,
+            taxProfileRepository: taxProfileRepo,
             dataSeeder: seeder
         )
 

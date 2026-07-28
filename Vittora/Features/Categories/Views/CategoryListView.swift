@@ -24,15 +24,22 @@ struct CategoryListView: View {
                     showAddCategory = true
                 } label: {
                     Image(systemName: VIcons.Actions.add)
+                        .foregroundStyle(.primary)
                 }
+                .accessibilityLabel(String(localized: "Add category"))
+                .accessibilityHint(String(localized: "Opens the category form"))
+                .accessibilityIdentifier("category-add-button")
+                .tint(.primary)
             }
             ToolbarItem(placement: .automatic) {
                 NavigationLink {
                     CategorizationRulesView()
                 } label: {
                     Image(systemName: "text.magnifyingglass")
+                        .foregroundStyle(.primary)
                 }
                 .accessibilityLabel(String(localized: "Categorization rules"))
+                .tint(.primary)
             }
         }
         .sheet(isPresented: $showAddCategory) {
@@ -110,13 +117,19 @@ struct CategoryListView: View {
     private func categoryList(vm: CategoryListViewModel) -> some View {
         List {
             if !vm.filteredExpenseCategories.isEmpty {
-                Section(String(localized: "Expense")) {
+                Section {
                     ForEach(vm.filteredExpenseCategories) { category in
                         NavigationLink {
                             CategoryDetailView(categoryID: category.id)
                         } label: {
-                            CategoryRowView(category: category)
+                            HStack {
+                                CategoryRowView(category: category)
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(.primary)
+                                    .accessibilityHidden(true)
+                            }
                         }
+                        .navigationLinkIndicatorVisibility(.hidden)
                         .accessibilityIdentifier("category-row-\(category.name.lowercased())")
                         .contextMenu {
                             NavigationLink {
@@ -150,17 +163,28 @@ struct CategoryListView: View {
                             .tint(.blue)
                         }
                     }
+                } header: {
+                    Text(String(localized: "Expense"))
+                        .font(.headline)
+                        .foregroundStyle(.primary)
                 }
+                .headerProminence(.increased)
             }
 
             if !vm.filteredIncomeCategories.isEmpty {
-                Section(String(localized: "Income")) {
+                Section {
                     ForEach(vm.filteredIncomeCategories) { category in
                         NavigationLink {
                             CategoryDetailView(categoryID: category.id)
                         } label: {
-                            CategoryRowView(category: category)
+                            HStack {
+                                CategoryRowView(category: category)
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(.primary)
+                                    .accessibilityHidden(true)
+                            }
                         }
+                        .navigationLinkIndicatorVisibility(.hidden)
                         .accessibilityIdentifier("category-row-\(category.name.lowercased())")
                         .contextMenu {
                             NavigationLink {
@@ -188,9 +212,20 @@ struct CategoryListView: View {
                             }
                         }
                     }
+                } header: {
+                    Text(String(localized: "Income"))
+                        .font(.headline)
+                        .foregroundStyle(.primary)
                 }
+                .headerProminence(.increased)
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
+        }
+        .tint(.primary)
         #if os(iOS)
         .listStyle(.insetGrouped)
         #else
