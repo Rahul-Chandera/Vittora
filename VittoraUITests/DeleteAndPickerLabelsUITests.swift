@@ -82,7 +82,7 @@ final class DeleteAndPickerLabelsUITests: XCTestCase {
     @MainActor
     private func openSettingsDestination(_ identifier: String) {
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app), "The app shell should be visible.")
-        let destination = app.descendants(matching: .any)[identifier]
+        let destination = app.descendants(matching: .any)[identifier].firstMatch
         if !destination.waitForExistence(timeout: 2) {
             if app.tabBars.buttons["More"].exists {
                 UITestSupport.tapWhenReady(app.tabBars.buttons["More"])
@@ -94,23 +94,20 @@ final class DeleteAndPickerLabelsUITests: XCTestCase {
             )
         }
 
-        // Keep the destination above the tab bar so coordinate taps don't select Budgets.
-        var swipes = 0
-        while swipes < 8 {
-            if destination.exists {
-                let frame = destination.frame
-                let tabBar = app.tabBars.firstMatch
-                let clearOfTabBar = !tabBar.exists || frame.maxY < tabBar.frame.minY - 8
-                if frame.width > 1, frame.height > 1, clearOfTabBar {
-                    break
-                }
-            }
-            app.swipeUp()
-            swipes += 1
-        }
-
-        XCTAssertTrue(destination.waitForExistence(timeout: 10), "Settings destination \(identifier) should exist.")
-        destination.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        // Same class of bug as A2/Payees: coordinate taps on a row under chrome
+        // hit the floating tab bar (Budgets) or large-title nav. Scroll with live
+        // nav/tab-bar clearance, then activate the accessibility element.
+        UITestSupport.scrollToElement(destination, in: app, maxSwipes: 30)
+        XCTAssertTrue(
+            destination.waitForExistence(timeout: 10),
+            "Settings destination \(identifier) should exist after scrolling."
+        )
+        UITestSupport.scrollToElement(destination, in: app, maxSwipes: 8)
+        XCTAssertTrue(
+            destination.isHittable,
+            "Settings destination \(identifier) should be hittable (clear of nav/tab chrome)."
+        )
+        destination.tap()
     }
 
     @MainActor
