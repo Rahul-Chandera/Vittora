@@ -73,6 +73,8 @@ struct TransactionFormView: View {
                         }
                     }
                 }
+                .headerProminence(.increased)
+                .tint(VColors.textPrimary)
                 // Without an explicit title the pushed form inherits the
                 // window's ("Vittora") on macOS.
                 .navigationTitle(transactionID != nil
@@ -119,6 +121,11 @@ struct TransactionFormView: View {
                         }
                         .disabled(!vm.canSave)
                         .keyboardShortcut(.defaultAction)
+                        .accessibilityHint(
+                            vm.canSave
+                                ? String(localized: "Saves this transaction")
+                                : String(localized: "Enter an amount first")
+                        )
                         .accessibilityIdentifier("transaction-form-save-button")
                     }
                 }
@@ -245,12 +252,19 @@ struct TransactionFormView: View {
             .accessibilityIdentifier("transaction-add-account-button")
             .accessibilityLabel(String(localized: "Add Account"))
 
+            // Native Picker with its own label, not a hand-rolled row: SwiftUI
+            // wraps the label and control itself at accessibility text sizes.
+            // A custom Text + control row needs an AnyLayout flip to do the
+            // same, and XCTest's Dynamic Type audit reads that shape change as
+            // a non-scaling font. accessibilityValue still gives VoiceOver the
+            // "Payee, <name>" pairing this row was rewritten for.
             Picker(String(localized: "Payee"), selection: Bindable(vm).selectedPayeeID) {
                 Text(String(localized: "None")).tag(UUID?.none)
                 ForEach(payees) { payee in
                     Text(payee.name).tag(UUID?(payee.id))
                 }
             }
+            .accessibilityValue(payeeName(for: vm.selectedPayeeID) ?? String(localized: "None"))
             .accessibilityIdentifier("transaction-payee-picker")
             .onChange(of: vm.selectedPayeeID) { _, _ in
                 Task {
@@ -274,7 +288,7 @@ struct TransactionFormView: View {
                 } label: {
                     HStack {
                         Image(systemName: "lightbulb.fill")
-                            .foregroundColor(.yellow)
+                            .foregroundColor(VColors.warning)
                             .accessibilityHidden(true)
                         Text(String(localized: "Suggested: \(suggested.displayName)"))
                             .foregroundColor(VColors.textPrimary)
@@ -329,10 +343,16 @@ struct TransactionFormView: View {
 
     private func formSectionHeader(_ title: String) -> some View {
         Text(title)
-            .font(VTypography.caption1)
-            .foregroundColor(VColors.textSecondary)
+            .font(.headline)
+            .foregroundStyle(.primary)
             .textCase(nil)
     }
+
+    /// Label + control: horizontal at standard sizes, vertical at accessibility
+    /// Dynamic Type so the control value is not clipped beside the label.
+    /// Explicit `.body` text style is required: without it, XCTest's Dynamic Type
+    /// audit treats the AnyLayout H→V flip as "font sizes are unsupported".
+    @ViewBuilder
 
     private func loadTransactionData(_ vm: TransactionFormViewModel?, transactionID: UUID) async {
         guard let vm = vm else {

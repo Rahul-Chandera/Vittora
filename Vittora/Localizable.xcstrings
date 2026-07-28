@@ -4051,6 +4051,16 @@
         }
       }
     },
+    "Edit tax profile" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स प्रोफ़ाइल संपादित करें"
+          }
+        }
+      }
+    },
     "Edit transaction" : {
       "localizations" : {
         "hi" : {
@@ -6803,6 +6813,16 @@
         }
       }
     },
+    "Opens the tax profile form" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स प्रोफ़ाइल फ़ॉर्म खोलता है"
+          }
+        }
+      }
+    },
     "Opens the transaction form" : {
       "localizations" : {
         "hi" : {
@@ -8241,6 +8261,17 @@
         }
       }
     },
+    "Saves this transaction" : {
+      "comment" : "VoiceOver hint for the transaction form Save button when the form is complete.",
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह लेन-देन सहेजता है"
+          }
+        }
+      }
+    },
     "Save" : {
       "localizations" : {
         "hi" : {
@@ -8841,6 +8872,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "अपना पहला अकाउंट सेट अप करें"
+          }
+        }
+      }
+    },
+    "Set up tax profile" : {
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स प्रोफ़ाइल सेट अप करें"
           }
         }
       }
@@ -12335,6 +12376,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "आपातकालीन फंड"
+          }
+        }
+      }
+    },
+    "Enter an amount first" : {
+      "comment" : "VoiceOver hint for the transaction form Save button when amount is still empty.",
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पहले एक राशि दर्ज करें"
+          }
+        }
+      }
+    },
+    "Enter an amount to save this transaction." : {
+      "comment" : "Validation alert when Save is tapped on an incomplete transaction form.",
+      "localizations" : {
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह लेन-देन सहेजने के लिए एक राशि दर्ज करें।"
           }
         }
       }

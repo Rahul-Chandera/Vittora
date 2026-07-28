@@ -51,6 +51,13 @@ struct ReportSummaryRow: View {
             }
             .frame(height: 4)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityValue(
+            String(
+                localized: "\(CurrencyFormatter.format(amount, currencyCode: currencyCode)), \(percentage.formatted(.number.precision(.fractionLength(1)))) percent, \(count) transactions"
+            )
+        )
     }
 }
 

@@ -209,7 +209,7 @@ final class TransactionFlowUITests: XCTestCase {
 
         let searchField = app.searchFields["Search transactions"]
         XCTAssertTrue(
-            UITestSupport.waitForElement(searchField, timeout: 12, requireHittable: true),
+            UITestSupport.waitForSearchField(searchField, in: app),
             "Search field should be ready before typing."
         )
         searchField.tap()
@@ -243,7 +243,7 @@ final class TransactionFlowUITests: XCTestCase {
 
         let searchField = app.searchFields["Search transactions"]
         XCTAssertTrue(
-            UITestSupport.waitForElement(searchField, timeout: 12, requireHittable: true),
+            UITestSupport.waitForSearchField(searchField, in: app),
             "Search field should be ready."
         )
         searchField.tap()

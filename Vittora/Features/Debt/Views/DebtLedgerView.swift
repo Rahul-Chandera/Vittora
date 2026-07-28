@@ -41,6 +41,9 @@ struct DebtLedgerView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel(String(localized: "Add debt entry"))
+                    .accessibilityHint(String(localized: "Opens the debt entry form"))
+                    .accessibilityIdentifier("debt-add-button")
                 }
             }
             .navigationDestination(item: $selectedPayeeID) { payeeID in
@@ -91,6 +94,11 @@ struct DebtLedgerView: View {
                 }
             }
             .padding(VSpacing.screenPadding)
+        }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
         }
     }
 

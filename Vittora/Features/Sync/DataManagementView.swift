@@ -79,6 +79,7 @@ struct DataManagementView: View {
     @Environment(AppState.self) private var appState
     @Environment(SettingsViewModel.self) private var settingsVM
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: DataManagementViewModel?
     @AppStorage(AppUserDefaults.StandardKey.exportSchedule) private var exportScheduleRaw: String = "off"
 
@@ -121,13 +122,18 @@ struct DataManagementView: View {
                     statRow(String(localized: "Savings Goals"), count: stats.savingsGoalCount, icon: "star.circle.fill")
                     statRow(String(localized: "Split Groups"), count: stats.splitGroupCount, icon: "person.3.fill")
                     statRow(String(localized: "Documents"), count: stats.documentCount, icon: "doc.fill")
-                    HStack {
+                    let totalLayout = dynamicTypeSize.isAccessibilitySize
+                        ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+                        : AnyLayout(HStackLayout())
+                    totalLayout {
                         Text(String(localized: "Total records"))
                             .font(VTypography.bodyBold)
-                        Spacer()
+                        if !dynamicTypeSize.isAccessibilitySize {
+                            Spacer()
+                        }
                         Text("\(stats.totalRecords)")
                             .font(VTypography.bodyBold)
-                            .foregroundStyle(VColors.primary)
+                            .foregroundStyle(VColors.textPrimary)
                     }
                 } else {
                     Button(String(localized: "Load Statistics")) {
@@ -135,6 +141,7 @@ struct DataManagementView: View {
                     }
                 }
             }
+            .headerProminence(.increased)
 
             // Export
             Section {
@@ -160,9 +167,14 @@ struct DataManagementView: View {
                         .foregroundStyle(VColors.textSecondary)
                 }
             }
+            .headerProminence(.increased)
 
             // Clear data
             Section {
+                Text(String(localized: "Clear Data"))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
                 Picker(String(localized: "Clear"), selection: Bindable(vm).clearScope) {
                     ForEach(ClearDataScope.allCases.filter { $0 != .all }, id: \.self) { scope in
                         Text(scope.displayName).tag(scope)
@@ -176,15 +188,15 @@ struct DataManagementView: View {
                         HStack { ProgressView(); Text(String(localized: "Clearing…")) }
                     } else {
                         Label(String(localized: "Clear \(vm.clearScope.displayName)"), systemImage: "trash")
+                            .foregroundStyle(VColors.textPrimary)
                     }
                 }
                 .disabled(vm.isClearing)
-            } header: {
-                Text(String(localized: "Clear Data"))
             } footer: {
                 Text(String(localized: "Permanently deletes the selected data. This cannot be undone."))
-                    .foregroundStyle(VColors.textSecondary)
+                    .foregroundStyle(VColors.textPrimary)
             }
+            .headerProminence(.increased)
 
             // Factory reset
             Section {
@@ -196,7 +208,7 @@ struct DataManagementView: View {
                 .disabled(vm.isClearing)
             } footer: {
                 Text(String(localized: "Deletes ALL data including accounts and categories, and resets onboarding."))
-                    .foregroundStyle(VColors.textSecondary)
+                    .foregroundStyle(VColors.textPrimary)
             }
 
             if let error = vm.error {
@@ -210,6 +222,12 @@ struct DataManagementView: View {
                 }
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
+        }
+        .tint(VColors.textPrimary)
         .refreshable { await vm.loadStats() }
         .confirmationDialog(
             String(localized: "Clear \(vm.clearScope.displayName)?"),
@@ -248,14 +266,27 @@ struct DataManagementView: View {
     // MARK: - Helpers
 
     private func statRow(_ label: String, count: Int, icon: String) -> some View {
-        HStack {
-            Label(label, systemImage: icon)
-                .foregroundStyle(VColors.textPrimary)
-            Spacer()
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+            : AnyLayout(HStackLayout())
+        return layout {
+            HStack(spacing: VSpacing.sm) {
+                Image(systemName: icon)
+                    .accessibilityHidden(true)
+                Text(label)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .foregroundStyle(.primary)
+            if !dynamicTypeSize.isAccessibilitySize {
+                Spacer()
+            }
             Text("\(count)")
-                .foregroundStyle(VColors.textSecondary)
+                .foregroundStyle(.primary)
                 .font(VTypography.body)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityValue("\(count)")
     }
 
     private func setupVM() {

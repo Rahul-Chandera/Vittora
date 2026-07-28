@@ -37,6 +37,28 @@ enum UITestSupport {
         app.otherElements["content-root"].waitForExistence(timeout: timeout)
     }
 
+    /// Reveal a `.searchable` bar and wait for it to be tappable.
+    ///
+    /// A search bar collapses out of view once its list is scrolled, so the
+    /// field can exist while never becoming hittable — and it does not come
+    /// back on its own, which is why simply raising the timeout does not help.
+    /// Scroll back to the top first, then wait.
+    @MainActor
+    static func waitForSearchField(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        timeout: TimeInterval = 15,
+        maxReveals: Int = 6
+    ) -> Bool {
+        var reveals = 0
+        while reveals < maxReveals, !element.isHittable {
+            app.swipeDown()
+            reveals += 1
+            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+        }
+        return waitForElement(element, timeout: timeout, requireHittable: true)
+    }
+
     @MainActor
     static func waitForElement(
         _ element: XCUIElement,
@@ -185,19 +207,54 @@ enum UITestSupport {
         return false
     }
 
-    /// Swipe up until `element` is rendered and hittable. SwiftUI `Form`/`List`
-    /// rows below the viewport aren't in the accessibility tree, so a field in a
-    /// lower section must be scrolled into view before it can be found or tapped.
+    /// Scroll until `element` is on-screen and clear of nav chrome / compact tab bar.
+    /// Prefer frame geometry over `isHittable` — hittability queries can hang
+    /// for tens of seconds on large SwiftUI hierarchies during UI tests.
+    /// Swipes down when the row sits under the navigation bar (swipe-up alone
+    /// would push it further off the top — that was the Payees/Categories miss).
+    /// Top clearance follows the live navigation bar frame: at AccessibilityXL
+    /// the large title bar is ~128pt tall, so a fixed 130pt inset is not enough.
     @MainActor
     static func scrollToElement(
         _ element: XCUIElement,
         in app: XCUIApplication,
-        maxSwipes: Int = 8
+        maxSwipes: Int = 24
     ) {
         var swipes = 0
-        while !(element.exists && hasValidFrame(element)) && swipes < maxSwipes {
+        while swipes < maxSwipes {
+            let navBar = app.navigationBars.firstMatch
+            let unobscuredTop: CGFloat
+            if navBar.exists {
+                let navMaxY = navBar.frame.maxY
+                unobscuredTop = navMaxY > 1 ? navMaxY + 12 : app.frame.minY + 130
+            } else {
+                unobscuredTop = app.frame.minY + 130
+            }
+            let unobscuredBottom = app.frame.maxY - 140
+
+            if element.exists {
+                let frame = element.frame
+                if frame.width > 1, frame.height > 1 {
+                    if frame.minY >= unobscuredTop, frame.maxY <= unobscuredBottom {
+                        return
+                    }
+                    if frame.minY < unobscuredTop {
+                        app.swipeDown()
+                        swipes += 1
+                        RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+                        continue
+                    }
+                    if frame.maxY > unobscuredBottom {
+                        app.swipeUp()
+                        swipes += 1
+                        RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+                        continue
+                    }
+                }
+            }
             app.swipeUp()
             swipes += 1
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
         }
     }
 

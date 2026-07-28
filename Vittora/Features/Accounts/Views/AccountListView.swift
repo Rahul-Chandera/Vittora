@@ -25,10 +25,12 @@ struct AccountListView: View {
                     showAddAccount = true
                 } label: {
                     Image(systemName: VIcons.Actions.add)
+                        .foregroundStyle(.primary)
                 }
                 .accessibilityIdentifier("account-add-button")
                 .accessibilityLabel(String(localized: "Add account"))
                 .accessibilityHint(String(localized: "Opens the account form"))
+                .tint(.primary)
             }
         }
         .sheet(isPresented: $showAddAccount) {
@@ -145,14 +147,20 @@ struct AccountListView: View {
             ForEach(AccountType.allCases, id: \.self) { type in
                 let accountsForType = vm.groupedAccounts[type] ?? []
                 if !accountsForType.isEmpty {
-                    Section(header: Text(sectionTitle(for: type))) {
+                    Section {
                         ForEach(accountsForType) { account in
                             NavigationLink {
                                 AccountDetailView(accountID: account.id)
                             } label: {
-                                AccountRowView(account: account)
+                                HStack {
+                                    AccountRowView(account: account)
+                                    Image(systemName: "chevron.right")
+                                        .foregroundStyle(.primary)
+                                        .accessibilityHidden(true)
+                                }
                             }
                             .accessibilityIdentifier("account-row-\(account.name)")
+                            .navigationLinkIndicatorVisibility(.hidden)
                             .contextMenu {
                                 NavigationLink {
                                     AccountDetailView(accountID: account.id)
@@ -192,10 +200,21 @@ struct AccountListView: View {
                                 .tint(.orange)
                             }
                         }
+                    } header: {
+                        Text(sectionTitle(for: type))
+                            .font(.headline)
+                            .foregroundStyle(.primary)
                     }
+                    .headerProminence(.increased)
                 }
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
+        }
+        .tint(.primary)
         #if os(iOS)
         .listStyle(.insetGrouped)
         #else

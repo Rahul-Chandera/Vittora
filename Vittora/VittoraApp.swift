@@ -693,11 +693,13 @@ struct VittoraApp: App {
                 debtRepository: dependencies.debtRepository,
                 recurringRuleRepository: dependencies.recurringRuleRepository,
                 payeeRepository: dependencies.payeeRepository,
+                splitGroupRepository: dependencies.splitGroupRepository,
+                taxProfileRepository: dependencies.taxProfileRepository,
                 dataSeeder: dependencies.dataSeeder
             )
             appState.notifyChanged([
                 .transactions, .accounts, .categories, .budgets,
-                .savings, .debt, .recurring, .payees
+                .savings, .debt, .recurring, .payees, .splits
             ])
         } catch {
             Self.logger.error("Failed to seed demo showcase data: \(error.localizedDescription, privacy: .public)")

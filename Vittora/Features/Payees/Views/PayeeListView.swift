@@ -31,6 +31,9 @@ struct PayeeListView: View {
                 } label: {
                     Image(systemName: VIcons.Actions.add)
                 }
+                .accessibilityLabel(String(localized: "Add payee"))
+                .accessibilityHint(String(localized: "Opens the payee form"))
+                .accessibilityIdentifier("payee-add-button")
             }
         }
         .sheet(isPresented: $showAddPayee) {
@@ -142,14 +145,20 @@ struct PayeeListView: View {
     private func payeeList(vm: PayeeListViewModel) -> some View {
         List {
             if !vm.frequentSectionPayees.isEmpty {
-                Section(String(localized: "Frequent")) {
+                Section {
                     payeeRows(for: vm.frequentSectionPayees)
+                } header: {
+                    Text(String(localized: "Frequent"))
+                        .foregroundStyle(VColors.textPrimary)
                 }
             }
 
             ForEach(vm.sectionedPayees, id: \.letter) { section in
-                Section(section.letter) {
+                Section {
                     payeeRows(for: section.payees)
+                } header: {
+                    Text(section.letter)
+                        .foregroundStyle(VColors.textPrimary)
                 }
             }
         }

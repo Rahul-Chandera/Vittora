@@ -3,6 +3,7 @@ import VittoraCore
 
 struct RecurringRowView: View {
     @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let rule: RecurringRuleEntity
     var category: CategoryEntity? = nil
@@ -10,19 +11,19 @@ struct RecurringRowView: View {
     private var frequencyLabel: String {
         switch rule.frequency {
         case .daily:
-            return "Daily"
+            return String(localized: "Daily")
         case .weekly:
-            return "Weekly"
+            return String(localized: "Weekly")
         case .biweekly:
-            return "Bi-weekly"
+            return String(localized: "Bi-weekly")
         case .monthly:
-            return "Monthly"
+            return String(localized: "Monthly")
         case .quarterly:
-            return "Quarterly"
+            return String(localized: "Quarterly")
         case .yearly:
-            return "Yearly"
+            return String(localized: "Yearly")
         case .custom(let days):
-            return "Every \(days)d"
+            return String(localized: "Every \(days)d")
         }
     }
 
@@ -38,7 +39,10 @@ struct RecurringRowView: View {
     }
 
     var body: some View {
-        HStack(spacing: VSpacing.md) {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.sm))
+            : AnyLayout(HStackLayout(spacing: VSpacing.md))
+        layout {
             // Category icon circle
             ZStack {
                 Circle()
@@ -46,21 +50,27 @@ struct RecurringRowView: View {
                     .opacity(0.15)
 
                 Image(systemName: categoryIcon)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundColor(categoryColor)
             }
             .frame(width: 44, height: 44)
+            .accessibilityHidden(true)
 
             // Content
             VStack(alignment: .leading, spacing: VSpacing.xs) {
-                HStack {
+                let titleLayout = dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xxs))
+                    : AnyLayout(HStackLayout())
+                titleLayout {
                     Text(category?.displayName ?? String(localized: "Uncategorized"))
                         .font(VTypography.calloutBold)
                         .foregroundColor(VColors.textPrimary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                        .adaptiveLineLimit(1)
+                        .fixedSize(horizontal: false, vertical: true)
 
-                    Spacer()
+                    if !dynamicTypeSize.isAccessibilitySize {
+                        Spacer()
+                    }
 
                     // Amount with bold styling; keeps its width so the name
                     // truncates/scales instead of the amount wrapping.
@@ -89,18 +99,23 @@ struct RecurringRowView: View {
                 }
             }
 
-            Spacer()
+            if !dynamicTypeSize.isAccessibilitySize {
+                Spacer()
+            }
 
             // Status indicator
             VStack(spacing: VSpacing.xxs) {
                 Image(systemName: rule.isActive ? "checkmark.circle.fill" : "pause.circle.fill")
                     .foregroundColor(rule.isActive ? .green : .orange)
-                    .font(.system(size: 20))
+                    .font(.title3)
+                    .accessibilityHidden(true)
             }
         }
         .padding(VSpacing.md)
         .background(VColors.secondaryBackground)
         .cornerRadius(VSpacing.cornerRadiusMD)
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(String(localized: "Shows recurring transaction details"))
     }
 }
 

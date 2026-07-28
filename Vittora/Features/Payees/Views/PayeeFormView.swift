@@ -27,12 +27,16 @@ struct PayeeFormView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(String(localized: "Cancel")) { dismiss() }
+                    .font(.body)
+                    .foregroundStyle(VColors.textPrimary)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(String(localized: "Save")) {
                     Task { await save() }
                 }
                 .disabled(viewModel?.canSave != true || isSaving)
+                .font(.body)
+                .foregroundStyle(VColors.textPrimary)
             }
         }
         .task {
@@ -68,8 +72,9 @@ struct PayeeFormView: View {
                     Text(String(localized: "Business")).tag(PayeeType.business)
                     Text(String(localized: "Person")).tag(PayeeType.person)
                 }
-                .pickerStyle(.segmented)
+                .pickerStyle(.menu)
             }
+            .headerProminence(.increased)
 
             Section(String(localized: "Details")) {
                 TextField(String(localized: "Name"), text: Bindable(vm).name)
@@ -77,12 +82,14 @@ struct PayeeFormView: View {
                     .textContentType(.name)
                     #endif
             }
+            .headerProminence(.increased)
 
             Section(String(localized: "Contact (Optional)")) {
                 HStack {
                     Image(systemName: "phone.fill")
-                        .foregroundColor(VColors.textTertiary)
+                        .foregroundColor(VColors.textPrimary)
                         .frame(width: 24)
+                        .accessibilityHidden(true)
                     TextField(String(localized: "Phone"), text: Bindable(vm).phone)
                         #if os(iOS)
                         .keyboardType(.phonePad)
@@ -92,8 +99,9 @@ struct PayeeFormView: View {
 
                 HStack {
                     Image(systemName: "envelope.fill")
-                        .foregroundColor(VColors.textTertiary)
+                        .foregroundColor(VColors.textPrimary)
                         .frame(width: 24)
+                        .accessibilityHidden(true)
                     TextField(String(localized: "Email"), text: Bindable(vm).email)
                         #if os(iOS)
                         .keyboardType(.emailAddress)
@@ -103,11 +111,13 @@ struct PayeeFormView: View {
                         #endif
                 }
             }
+            .headerProminence(.increased)
 
             Section(String(localized: "Notes")) {
                 TextField(String(localized: "Notes (optional)"), text: Bindable(vm).notes, axis: .vertical)
                     .lineLimit(3...6)
             }
+            .headerProminence(.increased)
 
             if let error = saveError {
                 Section {
@@ -115,6 +125,7 @@ struct PayeeFormView: View {
                 }
             }
         }
+        .tint(VColors.textPrimary)
     }
 
     private func save() async {

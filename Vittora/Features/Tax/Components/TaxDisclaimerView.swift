@@ -11,7 +11,7 @@ struct TaxDisclaimerView: View {
 
             Text(TaxDisclaimer.text)
                 .font(VTypography.caption1)
-                .foregroundStyle(VColors.textSecondary)
+                .foregroundStyle(VColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 0)

@@ -40,6 +40,8 @@ struct AccountFormView: View {
             if showsCancelButton {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                        .font(.body)
+                        .foregroundStyle(VColors.textPrimary)
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
@@ -47,6 +49,8 @@ struct AccountFormView: View {
                     Task { await save() }
                 }
                 .disabled(viewModel?.canSave != true || isSaving)
+                .font(.body)
+                .foregroundStyle(VColors.textPrimary)
             }
         }
         .task {
@@ -84,12 +88,16 @@ struct AccountFormView: View {
                         Text(typeName(type)).tag(type)
                     }
                 }
+                .pickerStyle(.menu)
+                .fixedSize(horizontal: false, vertical: true)
 
                 Picker(String(localized: "Currency"), selection: Bindable(vm).selectedCurrency) {
                     ForEach(commonCurrencies, id: \.self) { code in
                         Text(code).tag(code)
                     }
                 }
+                .pickerStyle(.menu)
+                .fixedSize(horizontal: false, vertical: true)
             }
 
             if !vm.isEditing {
@@ -123,11 +131,16 @@ struct AccountFormView: View {
                         } label: {
                             ZStack {
                                 Circle()
-                                    .fill(vm.selectedIcon == iconName ? VColors.primary : VColors.tertiaryBackground)
+                                    .fill(VColors.tertiaryBackground)
                                     .frame(width: 44, height: 44)
+                                    .overlay {
+                                        if vm.selectedIcon == iconName {
+                                            Circle().stroke(VColors.textPrimary, lineWidth: 2)
+                                        }
+                                    }
                                 Image(systemName: iconName)
-                                    .font(.system(size: 18))
-                                    .foregroundColor(vm.selectedIcon == iconName ? .white : VColors.textSecondary)
+                                    .font(.body)
+                                    .foregroundColor(VColors.textPrimary)
                             }
                         }
                         .buttonStyle(.plain)
@@ -138,6 +151,7 @@ struct AccountFormView: View {
                 }
                 .padding(.vertical, VSpacing.xs)
             }
+            .headerProminence(.increased)
 
             if let error = saveError {
                 Section {
@@ -145,6 +159,7 @@ struct AccountFormView: View {
                 }
             }
         }
+        .tint(VColors.textPrimary)
     }
 
     private func billingDayPicker(title: String, selection: Binding<Int?>) -> some View {

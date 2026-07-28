@@ -38,6 +38,8 @@ struct TaxBreakdownView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Done")) { dismiss() }
+                        .font(.body)
+                        .foregroundStyle(VColors.textPrimary)
                 }
             }
         }
@@ -234,6 +236,8 @@ struct TaxBreakdownView: View {
 private enum RowStyle { case neutral, reduction, tax }
 
 private struct BreakdownRow: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     let label: String
     let value: Decimal
     let currencyCode: String
@@ -249,25 +253,38 @@ private struct BreakdownRow: View {
     }
 
     var body: some View {
-        HStack {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+            : AnyLayout(HStackLayout())
+        layout {
             Text(label)
                 .font(isBold ? VTypography.bodyBold : VTypography.body)
                 .foregroundStyle(VColors.textPrimary)
-            Spacer()
+            if !dynamicTypeSize.isAccessibilitySize {
+                Spacer()
+            }
             Text((style == .reduction ? "" : "") + value.formatted(.currency(code: currencyCode)))
                 .font(isBold ? VTypography.bodyBold : VTypography.body)
                 .foregroundStyle(color)
         }
         .padding(VSpacing.cardPadding)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityValue(value.formatted(.currency(code: currencyCode)))
     }
 }
 
 private struct BracketRow: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     let result: TaxBracketResult
     let currencyCode: String
 
     var body: some View {
-        HStack {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+            : AnyLayout(HStackLayout())
+        layout {
             VStack(alignment: .leading, spacing: 2) {
                 Text(result.label)
                     .font(VTypography.body)
@@ -276,8 +293,10 @@ private struct BracketRow: View {
                     .font(VTypography.caption1)
                     .foregroundStyle(VColors.textSecondary)
             }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
+            if !dynamicTypeSize.isAccessibilitySize {
+                Spacer()
+            }
+            VStack(alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing, spacing: 2) {
                 Text(result.taxAmount.formatted(.currency(code: currencyCode)))
                     .font(VTypography.bodyBold)
                     .foregroundStyle(VColors.expense)
@@ -287,5 +306,12 @@ private struct BracketRow: View {
             }
         }
         .padding(VSpacing.cardPadding)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(result.label)
+        .accessibilityValue(
+            String(
+                localized: "\(result.ratePercent.formatted(.number.precision(.fractionLength(0)))) percent, \(result.taxAmount.formatted(.currency(code: currencyCode))) tax on \(result.taxableAmount.formatted(.currency(code: currencyCode)))"
+            )
+        )
     }
 }
