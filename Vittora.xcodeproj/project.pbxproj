@@ -450,6 +450,7 @@
 			knownRegions = (
 				en,
 				hi,
+				es,
 				Base,
 			);
 			mainGroup = B72FE7DD2F8B92F900B6FF9D;
