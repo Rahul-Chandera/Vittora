@@ -45,8 +45,9 @@ private struct UpcomingRuleRow: View {
                 .frame(width: 36, height: 36)
                 .overlay {
                     Image(systemName: "repeat")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundColor(VColors.primary)
+                        .accessibilityHidden(true)
                 }
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {

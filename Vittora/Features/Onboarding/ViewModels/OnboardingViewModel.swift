@@ -71,15 +71,11 @@ final class OnboardingViewModel {
 
     func advance() {
         if currentStep == .account && accountSubStep == .type && isAccountSubStepEnabled {
-            withAnimation(.easeInOut(duration: 0.35)) {
-                accountSubStep = .details
-            }
+            accountSubStep = .details
             return
         }
         guard let next = Step(rawValue: currentStep.rawValue + 1) else { return }
-        withAnimation(.easeInOut(duration: 0.3)) {
-            currentStep = next
-        }
+        currentStep = next
     }
 
     func complete(appState: AppState) async {

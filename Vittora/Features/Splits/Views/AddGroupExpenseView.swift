@@ -24,42 +24,53 @@ struct AddGroupExpenseView: View {
         NavigationStack {
             Form {
                 // Basic details
-                Section(String(localized: "Expense")) {
-                    TextField(String(localized: "What was it for?"), text: Bindable(vm).title)
+                Section {
+                    TextField(String(localized: "Expense title"), text: Bindable(vm).title)
+                        .accessibilityLabel(String(localized: "Expense title"))
 
                     HStack {
-                        Text(currencySymbol).foregroundStyle(VColors.textSecondary)
                         TextField(String(localized: "Amount"), text: Bindable(vm).amountString)
                             #if os(iOS)
                             .keyboardType(.decimalPad)
                             .textContentType(nil)
                             #endif
+                            .accessibilityLabel(String(localized: "Expense amount"))
+                            .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
                             .onChange(of: vm.amountString) { _, _ in vm.recalculate() }
                     }
 
                     DatePicker(String(localized: "Date"), selection: Bindable(vm).date, displayedComponents: [.date])
+                } header: {
+                    sectionHeader(String(localized: "Expense"))
                 }
+                .headerProminence(.increased)
 
                 // Payer
-                Section(String(localized: "Paid By")) {
+                Section {
                     Picker(String(localized: "Who paid?"), selection: Bindable(vm).selectedPayerID) {
                         Text(String(localized: "Select…")).tag(UUID?.none)
                         ForEach(vm.group.memberIDs, id: \.self) { id in
                             Text(vm.memberNames[id] ?? String(localized: "Unknown")).tag(UUID?(id))
                         }
                     }
+                } header: {
+                    sectionHeader(String(localized: "Paid By"))
                 }
+                .headerProminence(.increased)
 
                 // Split method
-                Section(String(localized: "Split Method")) {
+                Section {
                     Picker(String(localized: "Method"), selection: Bindable(vm).splitMethod) {
                         ForEach(SplitMethod.allCases, id: \.self) { method in
                             Text(method.displayName).tag(method)
                         }
                     }
-                    .pickerStyle(.segmented)
+                    .pickerStyle(.menu)
                     .onChange(of: vm.splitMethod) { _, _ in vm.recalculate() }
+                } header: {
+                    sectionHeader(String(localized: "Split Method"))
                 }
+                .headerProminence(.increased)
 
                 // Allocation rows
                 Section {
@@ -71,7 +82,7 @@ struct AddGroupExpenseView: View {
                         )
                     }
                 } header: {
-                    Text(String(localized: "Splits"))
+                    sectionHeader(String(localized: "Splits"))
                 } footer: {
                     if vm.splitMethod == .exact {
                         let total = vm.allocations.reduce(Decimal(0)) { $0 + $1.calculatedAmount }
@@ -82,12 +93,16 @@ struct AddGroupExpenseView: View {
                         }
                     }
                 }
+                .headerProminence(.increased)
 
                 // Note
-                Section(String(localized: "Note")) {
+                Section {
                     TextField(String(localized: "Optional"), text: Bindable(vm).note, axis: .vertical)
                         .lineLimit(2...4)
+                } header: {
+                    sectionHeader(String(localized: "Note"))
                 }
+                .headerProminence(.increased)
 
                 if let error = vm.error {
                     Section {
@@ -95,6 +110,7 @@ struct AddGroupExpenseView: View {
                     }
                 }
             }
+            .tint(VColors.textPrimary)
             .navigationTitle(String(localized: "Add Expense"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -102,9 +118,12 @@ struct AddGroupExpenseView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                        .font(.body)
+                        .foregroundStyle(VColors.textPrimary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
+                        guard vm.canSave, !vm.isSaving else { return }
                         Task {
                             let saved = await vm.save()
                             if saved {
@@ -115,7 +134,9 @@ struct AddGroupExpenseView: View {
                             }
                         }
                     }
-                    .disabled(!vm.canSave || vm.isSaving)
+                    .font(.body)
+                    .accessibilityRespondsToUserInteraction(vm.canSave && !vm.isSaving)
+                    .foregroundStyle(VColors.textPrimary)
                 }
             }
         }
@@ -125,6 +146,12 @@ struct AddGroupExpenseView: View {
             }
         }
     }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.headline)
+            .foregroundStyle(.primary)
+    }
 }
 
 // MARK: - Allocation Row
@@ -132,23 +159,29 @@ struct AddGroupExpenseView: View {
 private struct AllocationRow: View {
     @Environment(\.currencyCode) private var currencyCode
     @Environment(\.currencySymbol) private var currencySymbol
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Binding var row: MemberAllocationRow
     let method: SplitMethod
     let onValueChanged: () -> Void
 
     var body: some View {
-        HStack {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+            : AnyLayout(HStackLayout())
+        layout {
             Text(row.name)
                 .font(VTypography.body)
                 .foregroundStyle(VColors.textPrimary)
 
-            Spacer()
+            if !dynamicTypeSize.isAccessibilitySize {
+                Spacer()
+            }
 
             if method == .equal {
                 // Read-only calculated amount
                 Text(row.calculatedAmount.formatted(.currency(code: currencyCode)))
-                    .font(VTypography.body)
-                    .foregroundStyle(VColors.textSecondary)
+                    .font(VTypography.bodyBold)
+                    .foregroundStyle(.primary)
             } else {
                 HStack(spacing: 4) {
                     if method == .percentage {
@@ -190,5 +223,8 @@ private struct AllocationRow: View {
                 }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(row.name)
+        .accessibilityValue(row.calculatedAmount.formatted(.currency(code: currencyCode)))
     }
 }

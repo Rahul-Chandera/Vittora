@@ -33,6 +33,8 @@ struct CategoryFormView: View {
             if showsCancelButton {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                        .font(.body)
+                        .foregroundStyle(VColors.textPrimary)
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
@@ -40,6 +42,8 @@ struct CategoryFormView: View {
                     Task { await save() }
                 }
                 .disabled(viewModel?.canSave != true || isSaving)
+                .font(.body)
+                .foregroundStyle(VColors.textPrimary)
             }
         }
         .task {
@@ -78,31 +82,36 @@ struct CategoryFormView: View {
                             .opacity(0.15)
                             .frame(width: 56, height: 56)
                         Image(systemName: vm.selectedIcon)
-                            .font(.system(size: 24, weight: .semibold))
-                            .foregroundColor(tint)
+                            .font(.title2.weight(.semibold))
+                            .foregroundColor(VColors.textPrimary)
                     }
+                    .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: VSpacing.xxs) {
                         Text(vm.name.isEmpty ? String(localized: "Category Name") : vm.name)
                             .font(VTypography.bodyBold)
-                            .foregroundColor(vm.name.isEmpty ? VColors.textTertiary : VColors.textPrimary)
+                            .foregroundColor(VColors.textPrimary)
                         Text(vm.selectedType == .expense ? String(localized: "Expense") : String(localized: "Income"))
                             .font(VTypography.caption1)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                     }
                 }
                 .padding(.vertical, VSpacing.xs)
             } header: {
                 Text(String(localized: "Preview"))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
             }
+            .headerProminence(.increased)
 
             Section(String(localized: "Details")) {
-                TextField(String(localized: "Category Name"), text: Bindable(vm).name)
+                TextField(String(localized: "Category Name"), text: Bindable(vm).name, axis: .vertical)
+                    .lineLimit(1...2)
 
                 Picker(String(localized: "Type"), selection: Bindable(vm).selectedType) {
                     Text(String(localized: "Expense")).tag(CategoryType.expense)
                     Text(String(localized: "Income")).tag(CategoryType.income)
                 }
-                .pickerStyle(.segmented)
+                .pickerStyle(.menu)
 
                 if vm.selectedType == .expense {
                     Picker(
@@ -122,6 +131,7 @@ struct CategoryFormView: View {
                     .foregroundStyle(VColors.textSecondary)
                 }
             }
+            .headerProminence(.increased)
 
             Section(String(localized: "Appearance")) {
                 let selectedColor = Color(hex: vm.selectedColorHex) ?? .blue
@@ -133,7 +143,8 @@ struct CategoryFormView: View {
                         Text(String(localized: "Icon"))
                         Spacer()
                         Image(systemName: vm.selectedIcon)
-                            .foregroundColor(selectedColor)
+                            .foregroundColor(VColors.textPrimary)
+                            .accessibilityHidden(true)
                     }
                 }
 
@@ -144,9 +155,14 @@ struct CategoryFormView: View {
                         Circle()
                             .fill(selectedColor)
                             .frame(width: 24, height: 24)
+                            .overlay {
+                                Circle().stroke(VColors.textPrimary, lineWidth: 2)
+                            }
+                            .accessibilityLabel(String(localized: "Selected category color"))
                     }
                 }
             }
+            .headerProminence(.increased)
 
             if let error = saveError {
                 Section {
@@ -154,6 +170,7 @@ struct CategoryFormView: View {
                 }
             }
         }
+        .tint(VColors.textPrimary)
     }
 
     private func save() async {

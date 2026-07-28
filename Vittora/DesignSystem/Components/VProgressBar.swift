@@ -88,7 +88,7 @@ struct VProgressBar: View {
                         HStack(spacing: VSpacing.xxs) {
                             if progress >= 1.0 {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.caption2)
+                                    .font(.caption)
                                     .foregroundColor(statusColor)
                                     .accessibilityHidden(true)
                             }

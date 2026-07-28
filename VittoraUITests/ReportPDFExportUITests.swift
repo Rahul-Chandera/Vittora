@@ -55,12 +55,10 @@ final class ReportPDFExportUITests: XCTestCase {
         #else
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
 
-        // Year in Review sits above Annual Summary; scroll by stable id until hittable.
+        // Year in Review sits above Annual Summary; scroll via hardened helper
+        // (clears live nav-bar / tab-bar frames) before tapping the stable id.
         let annual = app.descendants(matching: .any)["report-card-annual"].firstMatch
-        for _ in 0..<14 where !annual.exists || !annual.isHittable {
-            app.swipeUp()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
-        }
+        UITestSupport.scrollToElement(annual, in: app)
         XCTAssertTrue(annual.waitForExistence(timeout: 10), "Annual Summary card should exist.")
         annual.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
 

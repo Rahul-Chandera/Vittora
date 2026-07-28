@@ -2,6 +2,8 @@ import SwiftUI
 import VittoraCore
 
 struct SavingsGoalCardView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     let goal: SavingsGoalEntity
     let currencyCode: String
 
@@ -9,7 +11,10 @@ struct SavingsGoalCardView: View {
 
     var body: some View {
         VCard {
-            HStack(spacing: VSpacing.md) {
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.md))
+                : AnyLayout(HStackLayout(spacing: VSpacing.md))
+            layout {
                 SavingsProgressRingView(
                     progress: goal.progressFraction,
                     color: goalColor,
@@ -22,10 +27,12 @@ struct SavingsGoalCardView: View {
                         Image(systemName: goal.category.systemImage)
                             .font(.caption)
                             .foregroundStyle(goalColor)
+                            .accessibilityHidden(true)
                         Text(goal.name)
                             .font(VTypography.bodyBold)
                             .foregroundStyle(VColors.textPrimary)
                             .adaptiveLineLimit(1)
+                            .fixedSize(horizontal: false, vertical: true)
                         Spacer()
                         statusBadge
                     }
@@ -44,8 +51,9 @@ struct SavingsGoalCardView: View {
                     if let days = goal.daysRemaining {
                         HStack(spacing: 4) {
                             Image(systemName: days < 0 ? "exclamationmark.triangle.fill" : "calendar")
-                                .font(.caption2)
-                                .foregroundStyle(days < 0 ? VColors.expense : VColors.textSecondary)
+                                .font(.caption)
+                                .foregroundStyle(VColors.textPrimary)
+                                .accessibilityHidden(true)
                             Text(deadlineLabel(days: days))
                                 .font(VTypography.caption2)
                                 .foregroundStyle(days < 0 ? VColors.expense : VColors.textSecondary)
@@ -59,17 +67,19 @@ struct SavingsGoalCardView: View {
                             )
                         )
                         .font(VTypography.caption2.bold())
-                        .foregroundStyle(VColors.income)
+                        .foregroundStyle(VColors.textPrimary)
                     }
                 }
 
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(VColors.textSecondary)
-                    .accessibilityHidden(true)
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(VColors.textSecondary)
+                        .accessibilityHidden(true)
+                }
             }
         }
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel(cardAccessibilityLabel)
         .accessibilityHint(String(localized: "Tap to view goal details"))
     }
@@ -78,13 +88,13 @@ struct SavingsGoalCardView: View {
     private var amountProgress: some View {
         Text(goal.currentAmount.formatted(.currency(code: currencyCode)))
             .font(VTypography.caption1.bold())
-            .foregroundStyle(goalColor)
+            .foregroundStyle(VColors.textPrimary)
         Text(String(localized: "of"))
             .font(VTypography.caption1)
-            .foregroundStyle(VColors.textSecondary)
+            .foregroundStyle(VColors.textPrimary)
         Text(goal.targetAmount.formatted(.currency(code: currencyCode)))
             .font(VTypography.caption1)
-            .foregroundStyle(VColors.textSecondary)
+            .foregroundStyle(VColors.textPrimary)
     }
 
     private var cardAccessibilityLabel: String {

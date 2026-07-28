@@ -9,26 +9,47 @@ struct SecurityAuditLogView: View {
     var body: some View {
         Group {
             if entries.isEmpty {
-                ContentUnavailableView(
-                    String(localized: "No audit entries yet"),
-                    systemImage: "list.bullet.rectangle",
-                    description: Text(String(localized: "Lock, unlock, exports, and sync events appear here."))
-                )
+                VStack(spacing: VSpacing.md) {
+                    Spacer()
+                    Image(systemName: "list.bullet.rectangle")
+                        .font(VTypography.largeTitle)
+                        .foregroundStyle(VColors.textPrimary)
+                        .accessibilityHidden(true)
+                    Text(String(localized: "No audit entries yet"))
+                        .font(VTypography.title2)
+                        .foregroundStyle(VColors.textPrimary)
+                        .multilineTextAlignment(.center)
+                    Text(String(localized: "Lock, unlock, exports, and sync events appear here."))
+                        .font(VTypography.body)
+                        .foregroundStyle(VColors.textPrimary)
+                        .multilineTextAlignment(.center)
+                    Spacer()
+                }
+                .padding(VSpacing.screenPadding)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(VColors.background)
             } else {
                 List(entries.reversed()) { entry in
                     VStack(alignment: .leading, spacing: VSpacing.sm) {
                         Text(displayTitle(for: entry.kind))
                             .font(VTypography.bodyBold)
+                            .foregroundStyle(VColors.textPrimary)
                         Text(entry.detail)
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
+                            .font(VTypography.body)
+                            .foregroundStyle(VColors.textPrimary)
                         Text(entry.recordedAt.formatted(date: .abbreviated, time: .shortened))
-                            .font(VTypography.caption2)
-                            .foregroundStyle(VColors.textTertiary)
+                            .font(VTypography.body)
+                            .foregroundStyle(VColors.textPrimary)
                     }
                     .padding(.vertical, 4)
+                    .accessibilityElement(children: .combine)
                 }
             }
+        }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
         }
         .navigationTitle(String(localized: "Security audit log"))
         #if os(iOS)

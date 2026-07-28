@@ -2,6 +2,8 @@ import SwiftUI
 import VittoraCore
 
 struct FrequencyPickerView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     @Binding var selectedFrequency: RecurrenceFrequency
     @State private var customDays: String = "7"
 
@@ -20,12 +22,17 @@ struct FrequencyPickerView: View {
                 frequencyButton(String(localized: "Yearly"), frequency: .yearly)
 
                 // Custom frequency
-                HStack(spacing: VSpacing.md) {
+                let customLayout = dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.sm))
+                    : AnyLayout(HStackLayout(spacing: VSpacing.md))
+                customLayout {
                     Text(String(localized: "Custom (days)"))
                         .font(VTypography.callout)
                         .foregroundColor(VColors.textPrimary)
 
-                    Spacer()
+                    if !dynamicTypeSize.isAccessibilitySize {
+                        Spacer()
+                    }
 
                     TextField(String(localized: "Days"), text: $customDays)
                         .font(VTypography.callout)
@@ -34,7 +41,7 @@ struct FrequencyPickerView: View {
                         .textContentType(nil)
                         #endif
                         .textFieldStyle(.roundedBorder)
-                        .frame(width: 80)
+                        .frame(minWidth: 80, maxWidth: dynamicTypeSize.isAccessibilitySize ? .infinity : 120)
                         .onChange(of: customDays) { oldValue, newValue in
                             if let days = Int(newValue), days > 0 {
                                 selectedFrequency = .custom(days: days)
@@ -55,13 +62,15 @@ struct FrequencyPickerView: View {
             HStack {
                 Text(label)
                     .font(VTypography.callout)
-                    .foregroundColor(isSelected(frequency) ? .white : VColors.textPrimary)
+                    .foregroundColor(VColors.textPrimary)
 
                 Spacer()
 
                 if isSelected(frequency) {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(VColors.textPrimary)
+                        .accessibilityHidden(true)
                 }
             }
             .padding(VSpacing.md)

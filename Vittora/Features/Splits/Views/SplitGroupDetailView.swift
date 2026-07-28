@@ -25,9 +25,6 @@ struct SplitGroupDetailView: View {
         }
         .background(VColors.background)
         .navigationTitle(group.name)
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        #endif
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -35,6 +32,10 @@ struct SplitGroupDetailView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel(String(localized: "Add group expense"))
+                .accessibilityHint(String(localized: "Opens the group expense form"))
+                .accessibilityIdentifier("split-expense-add-button")
+                .foregroundStyle(VColors.textPrimary)
             }
             if let vm {
                 ToolbarItem(placement: .automatic) {
@@ -138,16 +139,17 @@ struct SplitGroupDetailView: View {
             HStack(spacing: VSpacing.sm) {
                 ForEach(vm.group.memberIDs, id: \.self) { id in
                     HStack(spacing: 6) {
-                        Circle()
-                            .fill(VColors.primary.opacity(0.15))
-                            .frame(width: 28, height: 28)
-                            .overlay {
-                                Text(initials(vm.memberName(for: id)))
-                                    .font(VTypography.caption2.bold())
-                                    .foregroundStyle(VColors.primary)
-                            }
+                        ZStack {
+                            Circle()
+                                .fill(VColors.secondaryBackground)
+                                .frame(width: 28, height: 28)
+                            Text(initials(vm.memberName(for: id)))
+                                .font(VTypography.bodyBold)
+                                .foregroundStyle(VColors.textPrimary)
+                        }
+                        .accessibilityHidden(true)
                         Text(vm.memberName(for: id))
-                            .font(VTypography.caption1)
+                            .font(VTypography.body)
                             .foregroundStyle(VColors.textPrimary)
                     }
                     .padding(.horizontal, VSpacing.sm)
@@ -203,8 +205,9 @@ struct SplitGroupDetailView: View {
     private var emptyState: some View {
         VStack(spacing: VSpacing.lg) {
             Image(systemName: "cart.badge.plus")
-                .font(.system(size: 48))
-                .foregroundStyle(VColors.textTertiary)
+                .font(.largeTitle)
+                .foregroundStyle(VColors.textSecondary)
+                .accessibilityHidden(true)
             Text(String(localized: "No expenses yet"))
                 .font(VTypography.bodyBold)
                 .foregroundStyle(VColors.textPrimary)
