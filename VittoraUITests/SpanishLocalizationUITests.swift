@@ -99,11 +99,14 @@ final class SpanishLocalizationUITests: XCTestCase {
         )
         UITestSupport.tapWhenReady(taxProfileButton, timeout: 10)
         XCTAssertTrue(app.navigationBars["Perfil fiscal"].waitForExistence(timeout: 10))
-        // New profiles default to India in TaxProfileFormViewModel, matching Hindi coverage.
-        let regimePicker = app.buttons["Régimen, Nuevo régimen"]
+        // This suite seeds the US demo region (Spanish is for our US market), so
+        // the form shows the US filing-status picker — the India regime section
+        // is gated on `country == .india` and never appears here. The Hindi
+        // suite covers the India path with its own IN seed.
+        let filingStatusPicker = app.buttons["Estado, Soltero"]
         XCTAssertTrue(
-            regimePicker.waitForExistence(timeout: 10),
-            "Tax profile must expose the Spanish regime picker label, not only an accessibility id."
+            filingStatusPicker.waitForExistence(timeout: 10),
+            "Tax profile must expose the Spanish filing-status label and value, not only an accessibility id."
         )
         capture(named: "es-tax-profile")
 
