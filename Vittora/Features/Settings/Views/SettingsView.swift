@@ -265,7 +265,7 @@ struct SettingsView: View {
                         .foregroundStyle(VColors.textPrimary)
                 }
 
-                Section(String(localized: "Confirmation")) {
+                Section(header: VFormSectionHeader(String(localized: "Confirmation"))) {
                     Text(String(localized: "Type \(deleteConfirmationPhrase) to confirm."))
                         .foregroundStyle(VColors.textSecondary)
 

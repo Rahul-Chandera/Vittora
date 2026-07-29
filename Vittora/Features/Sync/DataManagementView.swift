@@ -110,7 +110,7 @@ struct DataManagementView: View {
     private func content(_ vm: DataManagementViewModel) -> some View {
         Form {
             // Database stats
-            Section(String(localized: "Database")) {
+            Section(header: VFormSectionHeader(String(localized: "Database"))) {
                 if vm.isLoading {
                     HStack { Spacer(); ProgressView(); Spacer() }
                 } else if let stats = vm.stats {
