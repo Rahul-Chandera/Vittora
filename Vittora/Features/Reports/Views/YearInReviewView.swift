@@ -105,7 +105,9 @@ struct YearInReviewView: View {
             }
         )) {
             ForEach(vm.availableYears, id: \.self) { year in
-                Text(String(localized: "Year \(year)")).tag(year)
+                // String(year), not the Int directly: interpolating an Int applies
+                // the locale's grouping separator and rendered "Year 2,026".
+                Text(String(localized: "Year \(String(year))")).tag(year)
             }
         }
         .pickerStyle(.menu)
@@ -155,7 +157,6 @@ struct YearInReviewView: View {
                 Text(String(localized: "Off by default so shared images show categories and counts, not your finances."))
                     .font(VTypography.caption1)
                     .foregroundStyle(VColors.textSecondary)
-                    .accessibilityHidden(true)
             }
         }
         .accessibilityIdentifier("year-in-review-card-privacy")
@@ -178,7 +179,6 @@ struct YearInReviewView: View {
                 Text(String(localized: "Total spent"))
                     .font(VTypography.subheadline)
                     .foregroundStyle(VColors.textSecondary)
-                    .accessibilityHidden(true)
                 Text(CurrencyFormatter.format(summary.totalSpent, currencyCode: summary.currencyCode))
                     .font(VTypography.amountLarge)
                     .amountScaling()
@@ -211,7 +211,21 @@ struct YearInReviewView: View {
                     AxisMarks(values: .stride(by: .month)) { value in
                         AxisValueLabel {
                             if let date = value.as(Date.self) {
+                                // Explicit Text so the label is a real view with
+                                // an accessibility element. Charts' own generated
+                                // axis labels are drawn without one, which the
+                                // audit reports as "potentially inaccessible text".
                                 Text(date, format: .dateTime.month(.abbreviated))
+                            }
+                        }
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks { value in
+                        AxisGridLine()
+                        AxisValueLabel {
+                            if let amount = value.as(Double.self) {
+                                Text(amount, format: .number.notation(.compactName))
                             }
                         }
                     }
@@ -249,7 +263,7 @@ struct YearInReviewView: View {
                             .font(VTypography.body)
                             .amountScaling()
                     }
-                    .accessibilityElement(children: .ignore)
+                    .accessibilityElement(children: .combine)
                     .accessibilityLabel(
                         String(
                             localized: "\(category.name), \(CurrencyFormatter.format(category.amount, currencyCode: summary.currencyCode)), \(category.sharePercent) percent"
@@ -298,7 +312,7 @@ struct YearInReviewView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityElement(children: .ignore)
+        .accessibilityElement(children: .combine)
         .accessibilityLabel(
             drivenBy.isEmpty
                 ? String(localized: "Biggest month \(monthLabel), \(amountLabel)")
@@ -322,7 +336,7 @@ struct YearInReviewView: View {
                             .font(VTypography.body)
                             .amountScaling()
                     }
-                    .accessibilityElement(children: .ignore)
+                    .accessibilityElement(children: .combine)
                     .accessibilityLabel(
                         String(
                             localized: "\(payee.name), \(CurrencyFormatter.format(payee.amount, currencyCode: summary.currencyCode))"
@@ -354,7 +368,7 @@ struct YearInReviewView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityElement(children: .ignore)
+        .accessibilityElement(children: .combine)
         .accessibilityLabel(
             String(
                 localized: "Savings \(amountLabel), \(summary.goalsCompleted) goals completed"
