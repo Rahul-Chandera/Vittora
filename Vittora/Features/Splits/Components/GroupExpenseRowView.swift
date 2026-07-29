@@ -34,8 +34,13 @@ struct GroupExpenseRowView: View {
                     Text(String(localized: "paid"))
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textPrimary)
+                    // Decorative separator: carries no information the adjacent
+                    // labels don't already give, and VoiceOver should not read
+                    // "middle dot". Hiding it also keeps the contrast sampler
+                    // off a glyph too small to measure reliably.
                     Text("·")
                         .foregroundStyle(VColors.textPrimary)
+                        .accessibilityHidden(true)
                     Text(expense.date.formatted(date: .abbreviated, time: .omitted))
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textPrimary)

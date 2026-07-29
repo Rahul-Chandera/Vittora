@@ -160,8 +160,10 @@ private struct GroupRowView: View {
 
                         if summary.outstandingCount > 0 {
                             if !dynamicTypeSize.isAccessibilitySize {
+                                // Decorative separator — see GroupExpenseRowView.
                                 Text("·")
                                     .foregroundStyle(VColors.textPrimary)
+                                    .accessibilityHidden(true)
                             }
                             Text(String(localized: "\(summary.outstandingCount) outstanding"))
                                 .font(VTypography.caption1)
