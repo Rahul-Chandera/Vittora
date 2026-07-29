@@ -249,7 +249,7 @@ struct YearInReviewView: View {
                             .font(VTypography.body)
                             .amountScaling()
                     }
-                    .accessibilityElement(children: .ignore)
+                    .accessibilityElement(children: .combine)
                     .accessibilityLabel(
                         String(
                             localized: "\(category.name), \(CurrencyFormatter.format(category.amount, currencyCode: summary.currencyCode)), \(category.sharePercent) percent"
@@ -298,7 +298,7 @@ struct YearInReviewView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityElement(children: .ignore)
+        .accessibilityElement(children: .combine)
         .accessibilityLabel(
             drivenBy.isEmpty
                 ? String(localized: "Biggest month \(monthLabel), \(amountLabel)")
@@ -322,7 +322,7 @@ struct YearInReviewView: View {
                             .font(VTypography.body)
                             .amountScaling()
                     }
-                    .accessibilityElement(children: .ignore)
+                    .accessibilityElement(children: .combine)
                     .accessibilityLabel(
                         String(
                             localized: "\(payee.name), \(CurrencyFormatter.format(payee.amount, currencyCode: summary.currencyCode))"
@@ -354,7 +354,7 @@ struct YearInReviewView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .accessibilityElement(children: .ignore)
+        .accessibilityElement(children: .combine)
         .accessibilityLabel(
             String(
                 localized: "Savings \(amountLabel), \(summary.goalsCompleted) goals completed"
