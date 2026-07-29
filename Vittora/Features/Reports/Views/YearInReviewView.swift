@@ -105,7 +105,9 @@ struct YearInReviewView: View {
             }
         )) {
             ForEach(vm.availableYears, id: \.self) { year in
-                Text(String(localized: "Year \(year)")).tag(year)
+                // String(year), not the Int directly: interpolating an Int applies
+                // the locale's grouping separator and rendered "Year 2,026".
+                Text(String(localized: "Year \(String(year))")).tag(year)
             }
         }
         .pickerStyle(.menu)
@@ -211,7 +213,24 @@ struct YearInReviewView: View {
                     AxisMarks(values: .stride(by: .month)) { value in
                         AxisValueLabel {
                             if let date = value.as(Date.self) {
+                                // Hidden from the accessibility API on purpose:
+                                // Swift Charts draws axis labels as raw text that
+                                // the audit reports as unrepresented. The chart's
+                                // accessibilityChartDescriptor already conveys
+                                // every month and amount to VoiceOver.
                                 Text(date, format: .dateTime.month(.abbreviated))
+                                    .accessibilityHidden(true)
+                            }
+                        }
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks { value in
+                        AxisGridLine()
+                        AxisValueLabel {
+                            if let amount = value.as(Double.self) {
+                                Text(amount, format: .number.notation(.compactName))
+                                    .accessibilityHidden(true)
                             }
                         }
                     }
