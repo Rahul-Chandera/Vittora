@@ -157,7 +157,6 @@ struct YearInReviewView: View {
                 Text(String(localized: "Off by default so shared images show categories and counts, not your finances."))
                     .font(VTypography.caption1)
                     .foregroundStyle(VColors.textSecondary)
-                    .accessibilityHidden(true)
             }
         }
         .accessibilityIdentifier("year-in-review-card-privacy")
@@ -180,7 +179,6 @@ struct YearInReviewView: View {
                 Text(String(localized: "Total spent"))
                     .font(VTypography.subheadline)
                     .foregroundStyle(VColors.textSecondary)
-                    .accessibilityHidden(true)
                 Text(CurrencyFormatter.format(summary.totalSpent, currencyCode: summary.currencyCode))
                     .font(VTypography.amountLarge)
                     .amountScaling()
@@ -213,13 +211,11 @@ struct YearInReviewView: View {
                     AxisMarks(values: .stride(by: .month)) { value in
                         AxisValueLabel {
                             if let date = value.as(Date.self) {
-                                // Hidden from the accessibility API on purpose:
-                                // Swift Charts draws axis labels as raw text that
-                                // the audit reports as unrepresented. The chart's
-                                // accessibilityChartDescriptor already conveys
-                                // every month and amount to VoiceOver.
+                                // Explicit Text so the label is a real view with
+                                // an accessibility element. Charts' own generated
+                                // axis labels are drawn without one, which the
+                                // audit reports as "potentially inaccessible text".
                                 Text(date, format: .dateTime.month(.abbreviated))
-                                    .accessibilityHidden(true)
                             }
                         }
                     }
@@ -230,7 +226,6 @@ struct YearInReviewView: View {
                         AxisValueLabel {
                             if let amount = value.as(Double.self) {
                                 Text(amount, format: .number.notation(.compactName))
-                                    .accessibilityHidden(true)
                             }
                         }
                     }
