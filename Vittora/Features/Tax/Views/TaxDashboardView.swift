@@ -153,7 +153,7 @@ struct TaxDashboardView: View {
         }
         .safeAreaInset(edge: .bottom) {
             VColors.background
-                .frame(height: 72)
+                .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
                 .allowsHitTesting(false)
         }
     }
@@ -207,7 +207,7 @@ struct TaxDashboardView: View {
         HStack(spacing: VSpacing.md) {
             Image(systemName: estimate.country == .india ? "flag.fill" : "building.columns")
                 .font(.title2)
-                .foregroundStyle(VColors.primary)
+                .foregroundStyle(VColors.textPrimary)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 Text(estimate.country.displayName)
@@ -222,7 +222,7 @@ struct TaxDashboardView: View {
                 showProfileForm = true
             }
             .font(VTypography.caption1.bold())
-            .foregroundStyle(VColors.primary)
+            .foregroundStyle(VColors.textPrimary)
         }
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryBackground)

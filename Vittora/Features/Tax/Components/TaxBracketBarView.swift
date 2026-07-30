@@ -22,7 +22,7 @@ struct TaxBracketBarView: View {
                     if estimate.totalDeductions > 0 {
                         let pct = fracOf(estimate.totalDeductions)
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(VColors.textTertiary.opacity(0.35))
+                            .fill(VColors.textTertiary)
                             .frame(width: geo.size.width * pct)
                     }
 
@@ -41,7 +41,7 @@ struct TaxBracketBarView: View {
             TaxFlowLayout(spacing: VSpacing.xs) {
                 if estimate.totalDeductions > 0 {
                     legendItem(
-                        color: VColors.textTertiary.opacity(0.45),
+                        color: VColors.textTertiary,
                         label: String(localized: "Deductions")
                     )
                 }

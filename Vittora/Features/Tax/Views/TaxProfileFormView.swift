@@ -84,7 +84,7 @@ struct TaxProfileFormView: View {
         @Bindable var bindableVM = vm
         Form {
             // Country
-            Section(String(localized: "Country")) {
+            Section(header: VFormSectionHeader(String(localized: "Country"))) {
                 Picker(String(localized: "Country"), selection: Bindable(vm).country) {
                     ForEach(TaxCountry.allCases, id: \.self) { c in
                         Text(c.displayName).tag(c)
@@ -100,7 +100,7 @@ struct TaxProfileFormView: View {
             }
 
             // Income
-            Section(String(localized: "Annual Income")) {
+            Section(header: VFormSectionHeader(String(localized: "Annual Income"))) {
                 HStack {
                     TextField(String(localized: "0"), text: Bindable(vm).incomeString)
                         #if os(iOS)
@@ -119,7 +119,7 @@ struct TaxProfileFormView: View {
 
             // Regime / Filing Status
             if vm.country == .india {
-                Section(String(localized: "Tax Regime")) {
+                Section(header: VFormSectionHeader(String(localized: "Tax Regime"))) {
                     indiaRegimePicker(vm)
 
                     Picker(String(localized: "Income Type"), selection: Bindable(vm).incomeSourceType) {
@@ -269,7 +269,7 @@ struct TaxProfileFormView: View {
                 }
 
                 if !vm.usContributionUtilization.isEmpty {
-                    Section(String(localized: "Contribution Headroom")) {
+                    Section(header: VFormSectionHeader(String(localized: "Contribution Headroom"))) {
                         ForEach(vm.usContributionUtilization) { item in
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
                                 HStack {
@@ -326,7 +326,7 @@ struct TaxProfileFormView: View {
                 }
 
                 if let utilization = vm.section80CUtilization {
-                    Section(String(localized: "Section 80C Utilization")) {
+                    Section(header: VFormSectionHeader(String(localized: "Section 80C Utilization"))) {
                         VStack(alignment: .leading, spacing: VSpacing.sm) {
                             HStack {
                                 Text(String(localized: "Used"))
@@ -348,7 +348,7 @@ struct TaxProfileFormView: View {
                 }
 
                 if vm.indiaDeductionUtilization.count > 1 {
-                    Section(String(localized: "Section Caps")) {
+                    Section(header: VFormSectionHeader(String(localized: "Section Caps"))) {
                         ForEach(vm.indiaDeductionUtilization.filter { $0.sectionKey != "80C" }) { item in
                             HStack {
                                 Text(item.sectionKey)
@@ -365,7 +365,7 @@ struct TaxProfileFormView: View {
 
             // Live estimate preview
             if let live = vm.liveEstimate {
-                Section(String(localized: "Live Estimate")) {
+                Section(header: VFormSectionHeader(String(localized: "Live Estimate"))) {
                     if vm.country == .unitedStates {
                         USTaxFederalEstimateLabel()
                             .listRowInsets(EdgeInsets())
@@ -407,7 +407,7 @@ struct TaxProfileFormView: View {
             }
 
             if let comparison = vm.liveComparison {
-                Section(String(localized: "Live Comparison")) {
+                Section(header: VFormSectionHeader(String(localized: "Live Comparison"))) {
                     TaxComparisonView(comparison: comparison)
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
@@ -553,18 +553,18 @@ private struct AddDeductionSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(String(localized: "Name")) {
+                Section(header: VFormSectionHeader(String(localized: "Name"))) {
                     TextField(String(localized: "e.g. Life Insurance Premium"), text: $name)
                 }
                 if country == .india {
-                    Section(String(localized: "Section")) {
+                    Section(header: VFormSectionHeader(String(localized: "Section"))) {
                         Picker(String(localized: "Section"), selection: $section) {
                             Text(String(localized: "None")).tag("")
                             ForEach(indiaSections, id: \.self) { s in Text(s).tag(s) }
                         }
                     }
                 }
-                Section(String(localized: "Amount")) {
+                Section(header: VFormSectionHeader(String(localized: "Amount"))) {
                     HStack {
                         Text(country.currencySymbol).foregroundStyle(VColors.textSecondary)
                         TextField("0", text: $amountString)

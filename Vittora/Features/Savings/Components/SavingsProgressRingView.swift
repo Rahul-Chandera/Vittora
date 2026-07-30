@@ -13,9 +13,10 @@ struct SavingsProgressRingView: View {
 
     var body: some View {
         ZStack {
-            // Track
+            // Track must clear non-text contrast (≥3:1) on secondary cards —
+            // color.opacity(0.2) falls well below and trips Apple's sampler.
             Circle()
-                .stroke(color.opacity(0.2), lineWidth: lineWidth)
+                .stroke(VColors.textTertiary, lineWidth: lineWidth)
 
             // Fill
             Circle()

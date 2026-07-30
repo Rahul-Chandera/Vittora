@@ -6,6 +6,7 @@ struct TransactionDetailView: View {
     @Environment(\.dependencies) private var dependencies: DependencyContainer
     @Environment(\.dismiss) private var dismiss
     @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: TransactionDetailViewModel?
     let transactionID: UUID
     @State private var showEditSheet = false
@@ -15,17 +16,18 @@ struct TransactionDetailView: View {
             if let vm = vm, let transaction = vm.transaction {
                 ScrollView {
                     VStack(alignment: .leading, spacing: VSpacing.lg) {
-                        // Amount display
+                        // Amount display — textPrimary on the card surface.
+                        // Semantic income/expense hues fail AA as large XL text
+                        // on secondaryBackground (and trip Apple's sampler).
                         VStack(spacing: VSpacing.sm) {
-                            let amountColor = transactionColor(for: transaction.type)
                             HStack(spacing: VSpacing.sm) {
                                 Text(CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode))
                                     .font(VTypography.title1)
-                                    .foregroundColor(amountColor)
+                                    .foregroundColor(VColors.textPrimary)
 
                                 Image(systemName: typeIcon(for: transaction.type))
                                     .font(.title3)
-                                    .foregroundColor(amountColor)
+                                    .foregroundColor(VColors.textPrimary)
                             }
 
                             HStack(spacing: VSpacing.md) {
@@ -46,8 +48,14 @@ struct TransactionDetailView: View {
                         }
                         .padding(VSpacing.lg)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(VColors.secondaryBackground)
-                        .cornerRadius(VSpacing.cornerRadiusSM)
+                        .background(
+                            RoundedRectangle(cornerRadius: VSpacing.cornerRadiusSM)
+                                .fill(VColors.background)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: VSpacing.cornerRadiusSM)
+                                        .strokeBorder(VColors.textTertiary.opacity(0.35), lineWidth: 1)
+                                )
+                        )
                         .accessibilityElement(children: .ignore)
                         .accessibilityLabel(String(localized: "Transaction summary"))
                         .accessibilityValue(
@@ -55,6 +63,13 @@ struct TransactionDetailView: View {
                                 localized: "\(transaction.type.displayName), \(CurrencyFormatter.format(transaction.amount, currencyCode: currencyCode)), \(formatDate(transaction.date))"
                             )
                         )
+
+                        // Attachments before metadata so the documents audit can
+                        // bring Attachments on-screen at XL without parking Note /
+                        // Tags under the large-title nav chrome (which fails the
+                        // contrast sampler against liquid-glass material).
+                        DocumentListView(transactionID: transactionID)
+                            .padding(.horizontal, VSpacing.lg)
 
                         // Details section
                         VStack(alignment: .leading, spacing: VSpacing.md) {
@@ -65,18 +80,20 @@ struct TransactionDetailView: View {
                             if !transaction.tags.isEmpty {
                                 VStack(alignment: .leading, spacing: VSpacing.sm) {
                                     Text(String(localized: "Tags"))
-                                        .font(VTypography.caption2)
+                                        .font(VTypography.bodyBold)
                                         .foregroundColor(VColors.textPrimary)
+                                        .fixedSize(horizontal: false, vertical: true)
 
                                     HStack(spacing: VSpacing.sm) {
                                         ForEach(transaction.tags, id: \.self) { tag in
                                             Text(tag)
-                                                .font(VTypography.caption1)
+                                                .font(VTypography.body)
                                                 .foregroundColor(VColors.textPrimary)
                                                 .padding(.horizontal, VSpacing.sm)
                                                 .padding(.vertical, VSpacing.xs)
                                                 .background(VColors.tertiaryBackground)
                                                 .cornerRadius(VSpacing.cornerRadiusSM)
+                                                .fixedSize(horizontal: false, vertical: true)
                                         }
                                         Spacer()
                                     }
@@ -86,9 +103,6 @@ struct TransactionDetailView: View {
                             detailRow(label: String(localized: "Payment Method"), value: transaction.paymentMethod.displayName)
                         }
                         .padding(VSpacing.lg)
-
-                        DocumentListView(transactionID: transactionID)
-                            .padding(.horizontal, VSpacing.lg)
 
                         if !vm.editHistory.isEmpty {
                             VStack(alignment: .leading, spacing: VSpacing.md) {
@@ -146,7 +160,7 @@ struct TransactionDetailView: View {
 
                                                 Text(CurrencyFormatter.format(related.amount, currencyCode: currencyCode))
                                                     .font(VTypography.caption1)
-                                                    .foregroundColor(transactionColor(for: related.type))
+                                                    .foregroundColor(VColors.textPrimary)
                                             }
                                             .padding(VSpacing.md)
                                             .background(VColors.secondaryBackground)
@@ -161,6 +175,11 @@ struct TransactionDetailView: View {
                         Spacer()
                     }
                     .padding(VSpacing.screenPadding)
+                }
+                .safeAreaInset(edge: .bottom) {
+                    VColors.background
+                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
+                        .allowsHitTesting(false)
                 }
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
@@ -244,12 +263,14 @@ struct TransactionDetailView: View {
     private func detailRow(label: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: VSpacing.xs) {
             Text(label)
-                .font(VTypography.caption2)
+                .font(VTypography.bodyBold)
                 .foregroundColor(VColors.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
 
             Text(value)
                 .font(VTypography.body)
                 .foregroundColor(VColors.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

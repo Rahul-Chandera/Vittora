@@ -158,7 +158,7 @@ struct RecurringListView: View {
                                                     systemImage: rule.isActive ? "pause.circle.fill" : "play.circle.fill"
                                                 )
                                             }
-                                            .tint(.orange)
+                                            .tint(VColors.warning)
                                         }
                                         .swipeActions(edge: .trailing) {
                                             Button(role: .destructive) {
