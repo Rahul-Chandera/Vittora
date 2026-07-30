@@ -59,12 +59,20 @@ Totals: **185 keys added** — 131 + 54 translated, and 38 marked
    *categoría*, *beneficiario*, *deuda*). Accessibility labels follow the
    existing patterns exactly: "Add X" → "X जोड़ें" / "Agregar X",
    "Opens the X form" → "X फ़ॉर्म खोलता है" / "Abre el formulario de X".
-2. **Preview and fixture strings were marked `"shouldTranslate": false`**, the
-   String Catalog's own mechanism, rather than translated or edited out of ~12
-   source files. These come from `#Preview` blocks in the design system and from
+2. **Preview and fixture strings were made non-localizable at the source.**
+   38 keys came from `#Preview` blocks in the design system and from
    `UITestDataSeeder`. A **Release** build extracts them identically to Debug —
-   verified, not assumed — so they really do ship; they are simply never shown to
-   a user, and no translator should be handed `ifElse() modifier`.
+   verified, not assumed — so they really do ship, and nobody should hand a
+   translator `ifElse() modifier`.
+
+   The first attempt marked them `"shouldTranslate": false`, which is the String
+   Catalog's own mechanism. That failed `SpanishLocalizationCatalogTests`, which
+   asserts every entry carries a translation. Per house rule 9 the assertion is
+   not the thing to change, so the strings were fixed where they are produced:
+   `Text("x")` → `Text(verbatim: "x")`, `String(localized: "x")` → `"x"`, and the
+   `Toggle`/`accessibilityValue` overloads that take `LocalizedStringKey` were
+   given `Text(verbatim:)` instead. Those keys no longer enter the catalogue at
+   all, and both catalogue tests pass unmodified.
 3. **Fixed `Accent Colour` → `Accent Color`** in `SettingsSectionViews`. Neither
    spelling was in the catalogue and the app uses US spelling everywhere else.
 4. **Every translation is placeholder-checked.** The apply script fails if a

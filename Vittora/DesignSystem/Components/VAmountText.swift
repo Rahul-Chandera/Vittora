@@ -122,7 +122,7 @@ extension VAmountText {
 #Preview {
     VStack(spacing: VSpacing.xl) {
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Large Amounts")
+            Text(verbatim: "Large Amounts")
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
             HStack(spacing: VSpacing.xl) {
@@ -143,19 +143,19 @@ extension VAmountText {
         }
 
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Medium Amounts")
+            Text(verbatim: "Medium Amounts")
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
             HStack(spacing: VSpacing.xl) {
                 VStack(alignment: .leading) {
-                    Text("Auto (Positive)")
+                    Text(verbatim: "Auto (Positive)")
                         .font(VTypography.caption1)
                         .foregroundColor(VColors.textSecondary)
                     VAmountText(500, size: .medium)
                 }
                 Spacer()
                 VStack(alignment: .leading) {
-                    Text("Auto (Negative)")
+                    Text(verbatim: "Auto (Negative)")
                         .font(VTypography.caption1)
                         .foregroundColor(VColors.textSecondary)
                     VAmountText(-150, size: .medium)
@@ -164,7 +164,7 @@ extension VAmountText {
         }
 
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Small & Caption Amounts")
+            Text(verbatim: "Small & Caption Amounts")
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
             HStack(spacing: VSpacing.xl) {

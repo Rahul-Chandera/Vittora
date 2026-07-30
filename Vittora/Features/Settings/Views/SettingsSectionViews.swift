@@ -165,14 +165,14 @@ struct AppearanceSettingsView: View {
                             .font(VTypography.bodyBold)
                             .foregroundStyle(previewTextPrimary)
                         Spacer()
-                        Text("72%")
+                        Text(verbatim: "72%")
                             .foregroundStyle(previewTextPrimary)
                     }
 
                     ProgressView(value: 0.72)
                         .tint(previewTextPrimary)
                         .accessibilityLabel(String(localized: "Preview progress"))
-                        .accessibilityValue("72%")
+                        .accessibilityValue(Text(verbatim: "72%"))
 
                     Text(String(localized: "See how text, surfaces, and your accent work together."))
                         .font(VTypography.body)

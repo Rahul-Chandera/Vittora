@@ -365,14 +365,14 @@ final class UITestDataSeeder {
         try await categoryRepository.create(groceriesCategory)
         try await categoryRepository.create(salaryCategory)
 
-        let merchant = PayeeEntity(name: String(localized: "UI Test Merchant"))
+        let merchant = PayeeEntity(name: "UI Test Merchant")
         try await payeeRepository.create(merchant)
         try await recurringRuleRepository.create(RecurringRuleEntity(
             id: fixedUUID("DB8D2197-FD80-4A39-8EB7-28D1AB42C901"),
             frequency: .monthly,
             nextDate: Calendar.current.date(byAdding: .month, value: 1, to: .now) ?? .now,
             templateAmount: 25,
-            templateNote: String(localized: "UI Test Subscription"),
+            templateNote: "UI Test Subscription",
             templateCategoryID: groceriesCategory.id,
             templateAccountID: checkingAccount.id,
             templatePayeeID: merchant.id

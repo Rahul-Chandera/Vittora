@@ -65,10 +65,10 @@ extension View {
     VStack(spacing: VSpacing.lg) {
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                Text("Standard Card")
+                Text(verbatim: "Standard Card")
                     .font(VTypography.title3)
                     .foregroundColor(VColors.textPrimary)
-                Text("This is a card with default styling.")
+                Text(verbatim: "This is a card with default styling.")
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
             }
@@ -76,10 +76,10 @@ extension View {
 
         VCard(padding: VSpacing.xl, shadow: .medium) {
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                Text("Elevated Card")
+                Text(verbatim: "Elevated Card")
                     .font(VTypography.title3)
                     .foregroundColor(VColors.textPrimary)
-                Text("This card has more padding and a stronger shadow.")
+                Text(verbatim: "This card has more padding and a stronger shadow.")
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
             }
@@ -89,7 +89,7 @@ extension View {
             HStack(spacing: VSpacing.md) {
                 Image(systemName: VIcons.Actions.search)
                     .foregroundColor(VColors.primary)
-                Text("Searchable card")
+                Text(verbatim: "Searchable card")
                     .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)
                 Spacer()
