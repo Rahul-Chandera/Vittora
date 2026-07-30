@@ -15,24 +15,20 @@ struct TaxSummaryCard: View {
     }
 
     var body: some View {
+        // AccessibilityXL: split hero vs details so rates/figures never sit under
+        // the floating tab bar (Apple's contrast sampler fails AA textPrimary there).
+        // Standard sizes keep the single-card layout that already clears the audit.
+        if dynamicTypeSize.isAccessibilitySize {
+            accessibilityLayout
+        } else {
+            standardLayout
+        }
+    }
+
+    private var standardLayout: some View {
         VCard {
             VStack(spacing: VSpacing.md) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(String(localized: "Tax Estimate"))
-                            .font(VTypography.subheadline)
-                            .foregroundStyle(VColors.textPrimary)
-                        Text(estimate.regimeLabel)
-                            .font(VTypography.body)
-                            .foregroundStyle(VColors.textPrimary)
-                    }
-                    Spacer()
-                    Image(systemName: "building.columns.fill")
-                        .font(.title2)
-                        .foregroundStyle(VColors.primary)
-                        .accessibilityHidden(true)
-                }
+                header
 
                 Divider()
 
@@ -40,17 +36,13 @@ struct TaxSummaryCard: View {
                     USTaxFederalEstimateLabel()
                 }
 
-                // Final tax — hero number
                 VStack(spacing: 4) {
                     Text(estimate.finalTax.formatted(.currency(code: currencyCode)))
                         .font(VTypography.amountLarge)
                         .amountScaling()
                         .foregroundStyle(VColors.textPrimary)
 
-                    let rateLayout = dynamicTypeSize.isAccessibilitySize
-                        ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xxs))
-                        : AnyLayout(HStackLayout(spacing: VSpacing.xs))
-                    rateLayout {
+                    HStack(spacing: VSpacing.xs) {
                         Text(String(localized: "Effective Rate"))
                             .font(VTypography.bodyBold)
                             .foregroundStyle(VColors.textPrimary)
@@ -59,10 +51,8 @@ struct TaxSummaryCard: View {
                             .foregroundStyle(VColors.textPrimary)
 
                         if estimate.marginalRate > 0 {
-                            if !dynamicTypeSize.isAccessibilitySize {
-                                Text("·")
-                                    .foregroundStyle(VColors.textPrimary)
-                            }
+                            Text("·")
+                                .foregroundStyle(VColors.textPrimary)
                             Text(String(localized: "\(estimate.marginalRate.formatted(.number.precision(.fractionLength(0))))% Marginal"))
                                 .font(VTypography.body)
                                 .foregroundStyle(VColors.textPrimary)
@@ -72,11 +62,7 @@ struct TaxSummaryCard: View {
 
                 Divider()
 
-                // Key figures grid
-                let figureLayout = dynamicTypeSize.isAccessibilitySize
-                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.md))
-                    : AnyLayout(HStackLayout(spacing: 0))
-                figureLayout {
+                HStack(spacing: 0) {
                     TaxFigure(
                         label: String(localized: "Gross Income"),
                         value: estimate.grossIncome,
@@ -84,7 +70,7 @@ struct TaxSummaryCard: View {
                         color: VColors.textPrimary
                     )
                     Divider()
-                        .frame(height: dynamicTypeSize.isAccessibilitySize ? nil : 36)
+                        .frame(height: 36)
                     TaxFigure(
                         label: String(localized: "Deductions"),
                         value: estimate.totalDeductions,
@@ -92,7 +78,7 @@ struct TaxSummaryCard: View {
                         color: VColors.textPrimary
                     )
                     Divider()
-                        .frame(height: dynamicTypeSize.isAccessibilitySize ? nil : 36)
+                        .frame(height: 36)
                     TaxFigure(
                         label: String(localized: "Taxable"),
                         value: estimate.taxableIncome,
@@ -105,6 +91,93 @@ struct TaxSummaryCard: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "Tax estimate"))
         .accessibilityValue(accessibilitySummary)
+    }
+
+    private var accessibilityLayout: some View {
+        VStack(spacing: VSpacing.md) {
+            VCard {
+                VStack(alignment: .leading, spacing: VSpacing.md) {
+                    header
+
+                    Divider()
+
+                    Text(estimate.finalTax.formatted(.currency(code: currencyCode)))
+                        .font(VTypography.amountLarge)
+                        .amountScaling()
+                        .foregroundStyle(VColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(String(localized: "Tax estimate"))
+            .accessibilityValue(accessibilitySummary)
+
+            if estimate.country == .unitedStates {
+                USTaxFederalEstimateLabel()
+            }
+
+            VCard {
+                VStack(alignment: .leading, spacing: VSpacing.md) {
+                    VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                        Text(String(localized: "Effective Rate"))
+                            .font(VTypography.bodyBold)
+                            .foregroundStyle(VColors.textPrimary)
+                        Text((estimate.effectiveRate * 100).formatted(.number.precision(.fractionLength(1))) + "%")
+                            .font(VTypography.title2)
+                            .foregroundStyle(VColors.textPrimary)
+                        if estimate.marginalRate > 0 {
+                            Text(String(localized: "\(estimate.marginalRate.formatted(.number.precision(.fractionLength(0))))% Marginal"))
+                                .font(VTypography.body)
+                                .foregroundStyle(VColors.textPrimary)
+                        }
+                    }
+
+                    Divider()
+
+                    TaxFigure(
+                        label: String(localized: "Gross Income"),
+                        value: estimate.grossIncome,
+                        currencyCode: currencyCode,
+                        color: VColors.textPrimary
+                    )
+                    TaxFigure(
+                        label: String(localized: "Deductions"),
+                        value: estimate.totalDeductions,
+                        currencyCode: currencyCode,
+                        color: VColors.textPrimary
+                    )
+                    TaxFigure(
+                        label: String(localized: "Taxable"),
+                        value: estimate.taxableIncome,
+                        currencyCode: currencyCode,
+                        color: VColors.textPrimary
+                    )
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(String(localized: "Tax estimate details"))
+            .accessibilityValue(accessibilitySummary)
+        }
+    }
+
+    private var header: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(String(localized: "Tax Estimate"))
+                    .font(VTypography.subheadline)
+                    .foregroundStyle(VColors.textPrimary)
+                Text(estimate.regimeLabel)
+                    .font(VTypography.body)
+                    .foregroundStyle(VColors.textPrimary)
+            }
+            Spacer()
+            Image(systemName: "building.columns.fill")
+                .font(.title2)
+                .foregroundStyle(VColors.textPrimary)
+                .accessibilityHidden(true)
+        }
     }
 }
 

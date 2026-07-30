@@ -7,8 +7,6 @@ struct SavingsGoalCardView: View {
     let goal: SavingsGoalEntity
     let currencyCode: String
 
-    private var goalColor: Color { Color(hex: goal.colorHex) ?? VColors.primary }
-
     var body: some View {
         VCard {
             let layout = dynamicTypeSize.isAccessibilitySize
@@ -17,7 +15,7 @@ struct SavingsGoalCardView: View {
             layout {
                 SavingsProgressRingView(
                     progress: goal.progressFraction,
-                    color: goalColor,
+                    color: VColors.textPrimary,
                     size: 60,
                     lineWidth: 6
                 )
@@ -26,7 +24,7 @@ struct SavingsGoalCardView: View {
                     HStack {
                         Image(systemName: goal.category.systemImage)
                             .font(.caption)
-                            .foregroundStyle(goalColor)
+                            .foregroundStyle(VColors.textPrimary)
                             .accessibilityHidden(true)
                         Text(goal.name)
                             .font(VTypography.bodyBold)
@@ -56,7 +54,7 @@ struct SavingsGoalCardView: View {
                                 .accessibilityHidden(true)
                             Text(deadlineLabel(days: days))
                                 .font(VTypography.caption2)
-                                .foregroundStyle(days < 0 ? VColors.expense : VColors.textSecondary)
+                                .foregroundStyle(VColors.textPrimary)
                         }
                     }
 
@@ -116,26 +114,26 @@ struct SavingsGoalCardView: View {
         case .achieved:
             Text(String(localized: "✓ Done"))
                 .font(VTypography.caption2.bold())
-                .foregroundStyle(VColors.income)
+                .foregroundStyle(VColors.textPrimary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background(VColors.income.opacity(0.12))
+                .background(VColors.tertiaryBackground)
                 .clipShape(Capsule())
         case .paused:
             Text(String(localized: "Paused"))
                 .font(VTypography.caption2)
-                .foregroundStyle(VColors.textSecondary)
+                .foregroundStyle(VColors.textPrimary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background(VColors.secondaryBackground)
+                .background(VColors.tertiaryBackground)
                 .clipShape(Capsule())
         case .cancelled:
             Text(String(localized: "Cancelled"))
                 .font(VTypography.caption2)
-                .foregroundStyle(VColors.expense)
+                .foregroundStyle(VColors.textPrimary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background(VColors.expense.opacity(0.12))
+                .background(VColors.tertiaryBackground)
                 .clipShape(Capsule())
         }
     }

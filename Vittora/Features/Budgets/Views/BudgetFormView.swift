@@ -16,7 +16,7 @@ struct BudgetFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(String(localized: "Amount")) {
+                Section(header: VFormSectionHeader(String(localized: "Amount"))) {
                     HStack {
                         Text(currencySymbol)
                             .foregroundColor(VColors.textSecondary)
@@ -32,13 +32,13 @@ struct BudgetFormView: View {
                     }
                 }
 
-                Section(String(localized: "Period")) {
+                Section(header: VFormSectionHeader(String(localized: "Period"))) {
                     if let viewModel = viewModel {
                         PeriodSelectorView(selectedPeriod: Bindable(viewModel).selectedPeriod)
                     }
                 }
 
-                Section(String(localized: "Category")) {
+                Section(header: VFormSectionHeader(String(localized: "Category"))) {
                     NavigationLink(
                         destination: {
                             if let viewModel = viewModel {
@@ -74,13 +74,13 @@ struct BudgetFormView: View {
                     )
                 }
 
-                Section(String(localized: "Options")) {
+                Section(header: VFormSectionHeader(String(localized: "Options"))) {
                     if let viewModel = viewModel {
                         Toggle("Rollover Unused Amount", isOn: Bindable(viewModel).rollover)
                     }
                 }
 
-                Section(String(localized: "Start Date")) {
+                Section(header: VFormSectionHeader(String(localized: "Start Date"))) {
                     if let viewModel = viewModel {
                         DatePicker(
                             "Date",

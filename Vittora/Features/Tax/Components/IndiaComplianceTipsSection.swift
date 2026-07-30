@@ -24,7 +24,7 @@ struct IndiaComplianceTipsSection: View {
         VStack(alignment: .leading, spacing: VSpacing.sm) {
             HStack(alignment: .top, spacing: VSpacing.sm) {
                 Image(systemName: "info.circle.fill")
-                    .foregroundStyle(VColors.primary)
+                    .foregroundStyle(VColors.textPrimary)
                     .padding(.top, 2)
                     .accessibilityHidden(true)
 

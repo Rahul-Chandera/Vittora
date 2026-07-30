@@ -66,7 +66,7 @@ struct TransactionCSVImportView: View {
     @ViewBuilder
     private func formContent(_ vm: TransactionCSVImportViewModel) -> some View {
         Form {
-            Section(String(localized: "Format")) {
+            Section(header: VFormSectionHeader(String(localized: "Format"))) {
                 Picker(String(localized: "Profile"), selection: Bindable(vm).profile) {
                     ForEach(CSVImportProfile.allCases) { profile in
                         Text(profile.displayName).tag(profile)
@@ -77,7 +77,7 @@ struct TransactionCSVImportView: View {
                 }
             }
 
-            Section(String(localized: "Target Account")) {
+            Section(header: VFormSectionHeader(String(localized: "Target Account"))) {
                 if vm.accounts.isEmpty {
                     Text(String(localized: "Add an account before importing transactions."))
                         .foregroundStyle(VColors.textSecondary)
@@ -90,7 +90,7 @@ struct TransactionCSVImportView: View {
                 }
             }
 
-            Section(String(localized: "CSV File")) {
+            Section(header: VFormSectionHeader(String(localized: "CSV File"))) {
                 #if os(iOS)
                 Button(String(localized: "Choose CSV File")) {
                     showFilePicker = true
@@ -116,7 +116,7 @@ struct TransactionCSVImportView: View {
             }
 
             if let preview = vm.preview {
-                Section(String(localized: "Preview")) {
+                Section(header: VFormSectionHeader(String(localized: "Preview"))) {
                     LabeledContent(String(localized: "Valid rows")) {
                         Text(verbatim: "\(preview.rows.count)")
                     }
@@ -150,7 +150,7 @@ struct TransactionCSVImportView: View {
             }
 
             if let result = vm.result {
-                Section(String(localized: "Last Import")) {
+                Section(header: VFormSectionHeader(String(localized: "Last Import"))) {
                     LabeledContent(String(localized: "Imported")) {
                         Text(verbatim: "\(result.importedCount)")
                     }

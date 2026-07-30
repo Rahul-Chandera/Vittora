@@ -30,7 +30,7 @@ struct SettingsView: View {
                             .overlay {
                                 Text(initials(vm.userName))
                                     .font(VTypography.title3.bold())
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(VColors.textPrimary)
                             }
                         VStack(alignment: .leading, spacing: 2) {
                             Text(vm.userName.isEmpty ? String(localized: "Your Name") : vm.userName)
@@ -38,11 +38,11 @@ struct SettingsView: View {
                                 .foregroundStyle(VColors.textPrimary)
                             Text(String(localized: "Edit profile"))
                                 .font(VTypography.caption1)
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(VColors.textPrimary)
                         }
                         Spacer()
                         Image(systemName: "chevron.right")
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(VColors.textPrimary)
                             .accessibilityHidden(true)
                     }
                     .padding(.vertical, 4)
@@ -50,7 +50,7 @@ struct SettingsView: View {
             }
 
             // Preferences
-            Section(String(localized: "Preferences")) {
+            Section {
                 Button {
                     showContactSupport = true
                 } label: {
@@ -72,6 +72,8 @@ struct SettingsView: View {
                                 title: String(localized: "Appearance"),
                                 value: vm.appearanceMode.displayName)
                 }
+            } header: {
+                VFormSectionHeader(String(localized: "Preferences"))
             }
             .headerProminence(.increased)
 
@@ -116,10 +118,7 @@ struct SettingsView: View {
                 .accessibilityLabel(String(localized: "Recurring"))
                 .accessibilityIdentifier("settings-manage-recurring")
             } header: {
-                Text(String(localized: "Manage"))
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                    .textCase(nil)
+                VFormSectionHeader(String(localized: "Manage"))
             }
             .headerProminence(.increased)
 
@@ -146,15 +145,12 @@ struct SettingsView: View {
                                 title: String(localized: "Security audit log"), value: "")
                 }
             } header: {
-                Text(String(localized: "Security"))
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                    .textCase(nil)
+                VFormSectionHeader(String(localized: "Security"))
             }
             .headerProminence(.increased)
 
             // Data
-            Section(String(localized: "Data & Sync")) {
+            Section {
                 NavigationLink {
                     SyncSettingsView(vm: vm)
                 } label: {
@@ -168,6 +164,8 @@ struct SettingsView: View {
                     SettingsRow(icon: "cylinder.split.1x2.fill", iconColor: .gray,
                                 title: String(localized: "Manage Data"), value: "")
                 }
+            } header: {
+                VFormSectionHeader(String(localized: "Data & Sync"))
             }
             .headerProminence(.increased)
 
@@ -206,9 +204,7 @@ struct SettingsView: View {
                                 title: String(localized: "About Vittora"), value: "v\(vm.appVersion)")
                 }
             } header: {
-                Text(String(localized: "About"))
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                VFormSectionHeader(String(localized: "About"))
             }
             .headerProminence(.increased)
         }
@@ -269,7 +265,7 @@ struct SettingsView: View {
                         .foregroundStyle(VColors.textPrimary)
                 }
 
-                Section(String(localized: "Confirmation")) {
+                Section(header: VFormSectionHeader(String(localized: "Confirmation"))) {
                     Text(String(localized: "Type \(deleteConfirmationPhrase) to confirm."))
                         .foregroundStyle(VColors.textSecondary)
 
@@ -408,17 +404,33 @@ struct SettingsRow: View {
                         .accessibilityHidden(true)
                 }
                 .accessibilityHidden(true)
-            let layout = dynamicTypeSize.isAccessibilitySize
-                ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xxs))
-                : AnyLayout(HStackLayout(spacing: VSpacing.sm))
-            layout {
+            // Avoid AnyLayout H→V flips: XCTest's Dynamic Type audit treats them
+            // as fully unsupported font sizes even when Text uses .body/.caption.
+            // Keep the chevron trailing even at XL so rows stay shorter than the
+            // unobscured viewport (needed to tap Manage → Payees under large titles).
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                    Text(title)
+                        .font(VTypography.body)
+                        .foregroundStyle(VColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if !value.isEmpty {
+                        Text(value)
+                            .foregroundStyle(VColors.textPrimary)
+                            .font(VTypography.caption1)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(VColors.textPrimary)
+                    .accessibilityHidden(true)
+            } else {
                 Text(title)
                     .font(VTypography.body)
                     .foregroundStyle(VColors.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
-                if !dynamicTypeSize.isAccessibilitySize {
-                    Spacer(minLength: 0)
-                }
+                Spacer(minLength: 0)
                 if !value.isEmpty {
                     Text(value)
                         .foregroundStyle(VColors.textPrimary)
@@ -426,7 +438,7 @@ struct SettingsRow: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Image(systemName: "chevron.right")
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(VColors.textPrimary)
                     .accessibilityHidden(true)
             }
         }

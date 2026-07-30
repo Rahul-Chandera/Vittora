@@ -111,9 +111,7 @@ struct AppearanceSettingsView: View {
                     )
                 }
             } header: {
-                Text(String(localized: "Theme"))
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                VFormSectionHeader(String(localized: "Theme"))
             }
             .headerProminence(.increased)
 
@@ -149,16 +147,14 @@ struct AppearanceSettingsView: View {
                     )
                 }
             } header: {
-                Text(String(localized: "Accent Colour"))
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                VFormSectionHeader(String(localized: "Accent Colour"))
             }
             .headerProminence(.increased)
 
             Section {
                 Text(String(localized: "Live Preview"))
                     .font(.headline)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(VColors.textPrimary)
 
                 VStack(alignment: .leading, spacing: VSpacing.md) {
                     HStack {
@@ -467,7 +463,7 @@ struct NotificationsSettingsView: View {
             }
 
             if vm.isNotificationsEnabled {
-                Section(String(localized: "Reminders")) {
+                Section {
                     Toggle(String(localized: "Bill & Debt Due Dates"), isOn: $vm.notifyBillsDue)
                         .onChange(of: vm.notifyBillsDue) { _, _ in
                             Task { await applySubToggleChange() }
@@ -484,9 +480,11 @@ struct NotificationsSettingsView: View {
                         .onChange(of: vm.notifyRecurringTransactions) { _, _ in
                             Task { await applySubToggleChange() }
                         }
+                } header: {
+                    VFormSectionHeader(String(localized: "Reminders"))
                 }
 
-                Section(String(localized: "Schedule")) {
+                Section {
                     DatePicker(
                         String(localized: "Preferred Delivery Time"),
                         selection: $vm.notificationDeliveryTime,
@@ -505,6 +503,8 @@ struct NotificationsSettingsView: View {
                     .onChange(of: vm.billReminderLeadDays) { _, _ in
                         Task { await applySchedulingChange() }
                     }
+                } header: {
+                    VFormSectionHeader(String(localized: "Schedule"))
                 }
 
                 Section {
@@ -535,7 +535,7 @@ struct NotificationsSettingsView: View {
                         }
                     }
                 } header: {
-                    Text(String(localized: "Quiet Hours"))
+                    VFormSectionHeader(String(localized: "Quiet Hours"))
                 } footer: {
                     Text(String(localized: "Notifications scheduled during quiet hours are delivered when quiet hours end."))
                         .foregroundStyle(VColors.textSecondary)
@@ -648,13 +648,15 @@ struct AboutView: View {
                 }
             }
 
-            Section(String(localized: "Legal")) {
+            Section {
                 NavigationLink(String(localized: "Privacy Policy")) {
                     LegalDocumentView(document: .privacyPolicy)
                 }
                 NavigationLink(String(localized: "Terms of Service")) {
                     LegalDocumentView(document: .termsOfService)
                 }
+            } header: {
+                VFormSectionHeader(String(localized: "Legal"))
             }
             .headerProminence(.increased)
 

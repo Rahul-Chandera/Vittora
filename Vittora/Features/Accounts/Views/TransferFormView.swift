@@ -73,7 +73,7 @@ struct TransferFormView: View {
     @ViewBuilder
     private func formContent(vm: TransferViewModel) -> some View {
         Form {
-            Section(String(localized: "From")) {
+            Section(header: VFormSectionHeader(String(localized: "From"))) {
                 NavigationLink {
                     AccountPickerView(
                         selectedAccountID: Binding(
@@ -110,7 +110,7 @@ struct TransferFormView: View {
                 .accessibilityIdentifier("transfer-source-account-button")
             }
 
-            Section(String(localized: "To")) {
+            Section(header: VFormSectionHeader(String(localized: "To"))) {
                 NavigationLink {
                     AccountPickerView(
                         selectedAccountID: Binding(
@@ -147,7 +147,7 @@ struct TransferFormView: View {
                 .accessibilityIdentifier("transfer-destination-account-button")
             }
 
-            Section(String(localized: "Amount")) {
+            Section(header: VFormSectionHeader(String(localized: "Amount"))) {
                 TextField(String(localized: "0.00"), text: Bindable(vm).amount)
                     #if os(iOS)
                     .keyboardType(.decimalPad)
@@ -156,7 +156,7 @@ struct TransferFormView: View {
                     .accessibilityIdentifier("transfer-amount-field")
             }
 
-            Section(String(localized: "Details")) {
+            Section(header: VFormSectionHeader(String(localized: "Details"))) {
                 DatePicker(String(localized: "Date"), selection: Bindable(vm).date, displayedComponents: .date)
                 TextField(String(localized: "Note (optional)"), text: Bindable(vm).note)
                     .accessibilityIdentifier("transfer-note-field")
