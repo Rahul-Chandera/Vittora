@@ -74,7 +74,7 @@ struct VCategoryBadge: View {
 #Preview {
     VStack(spacing: VSpacing.lg) {
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Regular Size")
+            Text(verbatim: "Regular Size")
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
             HStack(spacing: VSpacing.md) {
@@ -101,7 +101,7 @@ struct VCategoryBadge: View {
         }
 
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Compact Size")
+            Text(verbatim: "Compact Size")
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
             HStack(spacing: VSpacing.md) {
@@ -128,7 +128,7 @@ struct VCategoryBadge: View {
         }
 
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Various Colors")
+            Text(verbatim: "Various Colors")
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
             Wrap(spacing: VSpacing.md, lineSpacing: VSpacing.md) {
