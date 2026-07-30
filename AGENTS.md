@@ -29,6 +29,23 @@ This file is the primary in-repo guidance for AI agents and contributors.
 5. Do not add third-party SDKs/services without explicit approval.
 6. Treat finance, tax, security, sync, and deletion flows as high-risk: add/update tests.
 7. Preserve offline-first behavior; local workflows must not depend on network presence.
+8. Never build a `Decimal` money value from a float literal. `Decimal(15.49)` and a bare
+   `15.49` in a `Decimal` context both round-trip through `Double` and are imprecise, so
+   exact equality fails even when the printed values match — and whether an expression like
+   `15.49 * 12` folds as `Double` or as `Decimal` differs between local Xcode and CI, so it
+   can pass locally and fail on CI. Use `Decimal(string: "15.49")!` (or integer literals,
+   which are exact) in production, tests, and fixtures. Do not paper over a mismatch with an
+   epsilon/tolerance comparison: exact equality is the correct assertion for money — the
+   inputs are what must be built precisely.
+9. To make a failing check pass, you may only change the code under test. Not the
+   assertion, not the audit/lint configuration, and not the test or demo fixture so that
+   the offending input stops being produced. Changing the fixture to dodge a check is the
+   same as disabling the check, and it is worse than leaving it red: the check goes green
+   while the defect and the supposed fix both go unexercised. Earned in 1.3, when an
+   accessibility audit caught a clipping row and the "fix" re-dated demo data so the row
+   fell off the audited screen — the real layout fix shipped untested. If a screen cannot
+   fit its content, fix the layout; if a fixture genuinely models the wrong thing, say so
+   in the PR and change it deliberately, not as a side effect of chasing green.
 
 ## High-Risk Modules (extra caution)
 
@@ -51,7 +68,7 @@ Use `Makefile` targets for consistency:
 
 ## CI (Epic L1)
 
-GitHub Actions workflow **CI / build-and-test** runs on push/PR to `refactoring` and `develop`:
+GitHub Actions workflow **CI / build-and-test** runs on push/PR to `develop`, `staging`, and `main` (flow: develop → staging for QA → main for release):
 
 - `make build-ios`, `make build-macos`, `make test` (unit + UI on iOS Simulator; see `.github/BRANCH_PROTECTION.md`)
 - Uploads `.build-ci/*.xcresult` artifacts; US locale pinned on the runner

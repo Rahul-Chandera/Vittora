@@ -22,6 +22,7 @@ extension View {
             .environment(\.currencyCode, settingsVM.selectedCurrencyCode)
             .environment(\.currencySymbol, String.currencySymbol(for: settingsVM.selectedCurrencyCode))
             .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
+            .tint(VColors.accent(settingsVM.accentColor))
             .modelContainer(modelContainer)
             #if os(macOS)
             // macOS defaults every Form to the old "columns" style (labels in a

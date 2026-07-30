@@ -8,7 +8,11 @@
 import SwiftUI
 import SwiftData
 import OSLog
+import CoreSpotlight
 import VittoraCore
+#if os(iOS)
+import UIKit
+#endif
 
 @main
 struct VittoraApp: App {
@@ -20,6 +24,11 @@ struct VittoraApp: App {
     @State private var syncService: SyncStatusService
     @State private var syncConflictHandler: SyncConflictHandler
     @State private var cloudKitSyncMonitor: CloudKitSyncMonitor?
+    #if os(iOS)
+    @State private var watchBridge: WatchBridgeService?
+    #endif
+    @State private var notificationTimeChangeObservers: [NSObjectProtocol] = []
+    @State private var spotlightCoordinator: TransactionSpotlightCoordinator?
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
 
@@ -48,6 +57,10 @@ struct VittoraApp: App {
         seedsDemoShowcaseForUITesting = launchArguments.contains("--ui-test-seed-demo")
         exercisesAppLockPolicy = launchArguments.contains("--ui-test-app-lock")
 
+        if isUITesting {
+            Self.configureAppearanceForUITesting(arguments: launchArguments)
+        }
+
         if launchArguments.contains("--ui-test-seed-demo") {
             // The currency environment is captured from Settings at first
             // render, before async seeding runs — set it up front so demo
@@ -57,6 +70,16 @@ struct VittoraApp: App {
                 region == "IN" ? "INR" : "USD",
                 forKey: AppUserDefaults.StandardKey.currencyCode
             )
+        }
+
+        // Keep the App Group currency mirror current for widget extensions.
+        AppUserDefaults.mirrorCurrencyCodeToAppGroup()
+        AppUserDefaults.mirrorAccentColorToAppGroup()
+
+        // Keychain + App Group App Lock state survives relaunch; UI tests must
+        // declare unlocked vs locked rather than inheriting the previous case.
+        if launchArguments.contains("--ui-test-reset-app-lock") {
+            Self.resetAppLockUITestState()
         }
 
         if exercisesAppLockPolicy {
@@ -98,6 +121,14 @@ struct VittoraApp: App {
                     )
                 }
         )
+        let spotlight: TransactionSpotlightCoordinator? = isRunningAutomatedTests
+            ? nil
+            : TransactionSpotlightCoordinator(
+                transactionRepository: dependencyContainer.transactionRepository,
+                payeeRepository: dependencyContainer.payeeRepository,
+                categoryRepository: dependencyContainer.categoryRepository
+            )
+        _spotlightCoordinator = State(initialValue: spotlight)
         _appState = State(
             initialValue: AppState(
                 isAuthenticated: isUITesting,
@@ -121,6 +152,38 @@ struct VittoraApp: App {
         }
         #endif
     }
+
+    /// Clears persisted App Lock intent + policy mirrors for UI-test isolation.
+    private static func resetAppLockUITestState() {
+        KeychainService.syncDelete(forKey: AppUserDefaults.KeychainKey.appLockEnabled)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockTimeout)
+        AppLockSessionMirror.clearAll()
+    }
+
+    private static func configureAppearanceForUITesting(arguments: [String]) {
+        let appearancePrefix = "--ui-test-appearance="
+        let accentPrefix = "--ui-test-accent="
+        let appearance = arguments.first { $0.hasPrefix(appearancePrefix) }
+            .map { String($0.dropFirst(appearancePrefix.count)) }
+        let accent = arguments.first { $0.hasPrefix(accentPrefix) }
+            .map { String($0.dropFirst(accentPrefix.count)) }
+
+        if let appearance, appearanceModeRawValues.contains(appearance) {
+            UserDefaults.standard.set(appearance, forKey: AppUserDefaults.StandardKey.appearanceMode)
+        } else {
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appearanceMode)
+        }
+
+        if let accent, accentColorRawValues.contains(accent) {
+            UserDefaults.standard.set(accent, forKey: AppUserDefaults.StandardKey.accentColor)
+        } else {
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.accentColor)
+        }
+    }
+
+    private static let appearanceModeRawValues = Set(["system", "light", "dark", "oledBlack"])
+    private static let accentColorRawValues = Set(["brandGreen", "blue", "purple", "orange"])
 
     private static func initialOnboardingCompletionState(
         showsOnboardingForUITesting: Bool,
@@ -181,14 +244,45 @@ struct VittoraApp: App {
                         modelContainer: modelContainer
                     )
                     .restoresSceneState(appState: appState)
+                    .background(VColors.background.ignoresSafeArea())
                     #if os(macOS)
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
                     .task {
+                        registerQuickAddIntentHandler()
+                        #if os(iOS)
+                        activateWatchBridgeIfNeeded()
+                        #endif
+                        registerSpotlightSyncHook()
                         await performStartupTasksIfNeeded()
+                        #if os(iOS)
+                        // Seed (and other startup writes) finish after activate; push once more
+                        // so the watch gets a post-seed snapshot without waiting for a later edit.
+                        watchBridge?.pushSnapshot()
+                        #endif
+                        openUITestURLIfNeeded()
+                        await showSpendingIntentResultIfNeeded()
                     }
                     .onOpenURL { url in
-                        appState.openSplitGroup(from: url)
+                        appState.openFromURL(url)
+                    }
+                    .onContinueUserActivity(CSSearchableItemActionType) { activity in
+                        if let id = TransactionSpotlightIndex.transactionID(fromUserActivity: activity) {
+                            appState.openFromSpotlight(transactionID: id)
+                        }
+                    }
+                    .alert(
+                        String(localized: "Today's Spending"),
+                        isPresented: Binding(
+                            get: { appState.uiTestIntentResultMessage != nil },
+                            set: { if !$0 { appState.uiTestIntentResultMessage = nil } }
+                        )
+                    ) {
+                        Button(String(localized: "OK"), role: .cancel) {
+                            appState.uiTestIntentResultMessage = nil
+                        }
+                    } message: {
+                        Text(appState.uiTestIntentResultMessage ?? "")
                     }
             } else {
                 StartupFailureView(
@@ -196,6 +290,7 @@ struct VittoraApp: App {
                         ?? String(localized: "Vittora couldn't open its data store or create a recovery store.")
                 )
                 .preferredColorScheme(settingsVM.appearanceMode.colorScheme)
+                .tint(VColors.accent(settingsVM.accentColor))
             }
         }
         #if os(macOS)
@@ -236,11 +331,11 @@ struct VittoraApp: App {
             case .inactive:
                 // UI-test harness: home press often stops at .inactive on Simulator.
                 if exercisesAppLockPolicy, settingsVM.isAppLockEnabled {
-                    dependencies.appLockService.recordBackgrounded(at: .now)
+                    recordAppLockBackgrounded()
                 }
             case .background:
                 if settingsVM.isAppLockEnabled {
-                    dependencies.appLockService.recordBackgrounded(at: .now)
+                    recordAppLockBackgrounded()
                 }
             case .active:
                 applyAppLockPolicyOnBecomeActive()
@@ -250,11 +345,15 @@ struct VittoraApp: App {
                     await syncService.checkiCloudStatus()
                     #if os(iOS)
                     BackgroundTaskScheduler.scheduleNextRefresh()
+                    watchBridge?.pushSnapshot()
                     #endif
                 }
             default:
                 break
             }
+        }
+        .onChange(of: syncService.iCloudAccountAvailable) { _, available in
+            appState.isHandoffAdvertisingSuspended = !available
         }
 
         #if os(macOS)
@@ -288,6 +387,16 @@ struct VittoraApp: App {
         return KeyEquivalent(Character(scalar))
     }
 
+    /// Persists background stamp + timeout into the App Group so Siri/intents
+    /// apply the same `AppLockPolicy.shouldLock` rule as become-active.
+    private func recordAppLockBackgrounded(at date: Date = .now) {
+        dependencies.appLockService.recordBackgrounded(at: date)
+        AppLockSessionMirror.mirrorBackgrounded(
+            at: date,
+            timeout: settingsVM.appLockTimeout.timeInterval
+        )
+    }
+
     /// Re-lock only when background duration meets the configured timeout (B1).
     private func applyAppLockPolicyOnBecomeActive() {
         guard settingsVM.isAppLockEnabled else {
@@ -315,6 +424,200 @@ struct VittoraApp: App {
             appState.openFromNotification(deepLink)
         }
         await dependencies.notificationService.registerCategories()
+        registerNotificationTimeChangeObservers()
+        await scheduleVerificationNotificationIfNeeded()
+    }
+
+    private func registerNotificationTimeChangeObservers() {
+        guard notificationTimeChangeObservers.isEmpty else { return }
+        var names = [Notification.Name.NSSystemTimeZoneDidChange]
+        #if os(iOS)
+        names.append(UIApplication.significantTimeChangeNotification)
+        #endif
+        notificationTimeChangeObservers = names.map { name in
+            NotificationCenter.default.addObserver(
+                forName: name,
+                object: nil,
+                queue: .main
+            ) { _ in
+                Task { @MainActor in
+                    refreshNotificationSchedulesAfterTimeChange()
+                }
+            }
+        }
+    }
+
+    private func refreshNotificationSchedulesAfterTimeChange() {
+        guard !isRunningAutomatedTests, settingsVM.isNotificationsEnabled else { return }
+        Task {
+            await dependencies.notificationService.reschedulePending()
+            await dependencies.refreshAllNotificationSchedules()
+        }
+    }
+
+    private func scheduleVerificationNotificationIfNeeded() async {
+        let prefix = "--verify-notification-delay="
+        guard let argument = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }),
+              let delay = TimeInterval(argument.dropFirst(prefix.count)),
+              delay >= 2,
+              (try? await dependencies.notificationService.requestAuthorization()) == true
+        else {
+            return
+        }
+        try? await dependencies.notificationService.schedule(
+            ScheduledNotificationRequest(
+                identifier: "notification-schedule-verification",
+                title: String(localized: "Vittora Notification"),
+                body: String(localized: "Scheduled delivery verified."),
+                fireDate: .now.addingTimeInterval(delay),
+                category: .budgetAlert,
+                deepLink: VittoraNotificationDeepLink(destination: .budgets)
+            )
+        )
+    }
+
+    /// W5: AddExpenseIntent → same `openFromURL` path as widget / `vittora://add` links.
+    private func registerQuickAddIntentHandler() {
+        QuickAddDeepLink.registerOpenHandler { [appState] destination in
+            appState.openFromURL(QuickAddDeepLink.url(for: destination))
+        }
+    }
+
+    #if os(iOS)
+    private func activateWatchBridgeIfNeeded() {
+        guard watchBridge == nil, let modelContainer else { return }
+
+        let provider = WidgetDataProvider(container: modelContainer)
+        let transactionRepository = dependencies.transactionRepository
+        let accountRepository = dependencies.accountRepository
+        let categoryRepository = dependencies.categoryRepository
+        let ledgerWriting = dependencies.ledgerWriteStore
+        let addUseCase = AddTransactionUseCase(
+            accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
+            ledgerWriting: ledgerWriting
+        )
+
+        let bridge = WatchBridgeService(
+            buildSnapshot: {
+                try await WatchSnapshotBuilder.build(
+                    provider: provider,
+                    transactionRepository: transactionRepository,
+                    categoryRepository: categoryRepository
+                )
+            },
+            commitExpense: { expense in
+                let accounts = try await accountRepository.fetchActive()
+                guard let account = accounts.first else {
+                    throw VittoraError.validationFailed(
+                        String(localized: "No account available for Watch expenses.")
+                    )
+                }
+                _ = try await addUseCase.execute(
+                    amount: expense.amount,
+                    type: .expense,
+                    date: expense.createdAt,
+                    categoryID: expense.categoryID,
+                    accountID: account.id,
+                    payeeID: nil,
+                    note: String(localized: "Apple Watch"),
+                    tags: [],
+                    paymentMethod: .other,
+                    currencyCode: CurrencyDefaults.code
+                )
+            },
+            presentError: { [appState] message in
+                appState.watchBridgeErrorMessage = message
+            },
+            notifyCommitted: { [appState] in
+                appState.notifyChanged([.transactions, .accounts, .budgets])
+            }
+        )
+        watchBridge = bridge
+        appState.watchBridge = bridge
+        bridge.activate()
+        bridge.pushSnapshot()
+        commitVerificationWatchExpenseIfNeeded(using: bridge)
+    }
+
+    /// WA1 verification only — injects a queued-expense payload through the same
+    /// `handleIncomingUserInfo` path WCSession uses, so screenshots don't depend
+    /// on flaky Simulator `transferUserInfo` delivery.
+    private func commitVerificationWatchExpenseIfNeeded(using bridge: WatchBridgeService) {
+        let prefix = "--verify-commit-watch-expense="
+        guard let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(prefix) }) else {
+            return
+        }
+        let amountRaw = String(raw.dropFirst(prefix.count))
+        guard let amount = Decimal(string: amountRaw), amount > 0 else { return }
+        let payload = QueuedWatchExpense(amount: amount, categoryID: nil)
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1))
+            await bridge.handleIncomingUserInfo(payload.userInfoDictionary())
+        }
+    }
+    #endif
+
+    /// P2: keep Spotlight in sync with transaction mutations (batch, background).
+    private func registerSpotlightSyncHook() {
+        guard let spotlightCoordinator else { return }
+        appState.onTransactionsChangedForSpotlight = { [spotlightCoordinator] in
+            spotlightCoordinator.scheduleSync()
+        }
+        // First launch after Spotlight update does a full domain replace.
+        spotlightCoordinator.scheduleSync(forceFullReindex: TransactionSpotlightIndex.needsFullReindex())
+    }
+
+    private func openUITestURLIfNeeded() {
+        let quickAddPrefix = "--ui-test-quick-add="
+        if let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(quickAddPrefix) }) {
+            let type = String(raw.dropFirst(quickAddPrefix.count)).lowercased()
+            if let destination = QuickAddDeepLink.Destination(rawValue: type) {
+                // Defer until navigation shells have attached command handlers.
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(400))
+                    appState.openFromURL(QuickAddDeepLink.url(for: destination))
+                }
+            }
+        }
+
+        let transactionPrefix = "--ui-test-open-transaction="
+        if let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(transactionPrefix) }) {
+            let idString = String(raw.dropFirst(transactionPrefix.count))
+            if let id = UUID(uuidString: idString) {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(400))
+                    appState.openFromURL(TransactionSpotlightDeepLink.url(for: id))
+                }
+            }
+        }
+    }
+
+    /// Runs `TodaySpendingQuery` (same path as GetTodaySpendingIntent) for screenshot verification.
+    private func showSpendingIntentResultIfNeeded() async {
+        guard ProcessInfo.processInfo.arguments.contains("--ui-test-show-spending-intent-result") else {
+            return
+        }
+        // Mirror locked session when exercising App Lock so the gate matches Shortcuts.
+        if exercisesAppLockPolicy {
+            AppLockSessionMirror.mirrorFromAppState(
+                isAppLockEnabled: true,
+                isLocked: true,
+                isAuthenticated: false,
+                timeout: AppLockTimeout.immediately.timeInterval
+            )
+        }
+        // UI tests use an in-memory host store; the App Group on-disk store may be
+        // absent. Prefer the test container so unlocked queries still return a summary.
+        let message: String
+        if isUITesting, let modelContainer {
+            message = await TodaySpendingQuery.run(
+                provider: WidgetDataProvider(container: modelContainer)
+            )
+        } else {
+            message = await TodaySpendingQuery.run()
+        }
+        appState.uiTestIntentResultMessage = message
     }
 
     private func performStartupTasksIfNeeded() async {
@@ -365,8 +668,11 @@ struct VittoraApp: App {
         )
 
         do {
-            try await seeder.seedTransactionScenarioIfNeeded()
-            appState.notifyChanged([.transactions, .accounts, .categories])
+            try await seeder.seedTransactionScenarioIfNeeded(
+                payeeRepository: dependencies.payeeRepository,
+                recurringRuleRepository: dependencies.recurringRuleRepository
+            )
+            appState.notifyChanged([.transactions, .accounts, .categories, .recurring, .payees])
         } catch {
             Self.logger.error("Failed to seed UI test transaction data: \(error.localizedDescription, privacy: .public)")
         }

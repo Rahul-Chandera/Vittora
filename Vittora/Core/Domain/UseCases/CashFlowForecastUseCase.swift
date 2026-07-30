@@ -1,0 +1,169 @@
+import Foundation
+import VittoraCore
+
+struct CashFlowForecastUseCase: Sendable {
+    let accountRepository: any AccountRepository
+    let transactionRepository: any TransactionRepository
+    let recurringRuleRepository: any RecurringRuleRepository
+    let categoryRepository: any CategoryRepository
+    let calendar: Calendar
+    let nowProvider: @Sendable () -> Date
+
+    nonisolated init(
+        accountRepository: any AccountRepository,
+        transactionRepository: any TransactionRepository,
+        recurringRuleRepository: any RecurringRuleRepository,
+        categoryRepository: any CategoryRepository,
+        calendar: Calendar = Calendar(identifier: .gregorian),
+        nowProvider: @escaping @Sendable () -> Date = { .now }
+    ) {
+        self.accountRepository = accountRepository
+        self.transactionRepository = transactionRepository
+        self.recurringRuleRepository = recurringRuleRepository
+        self.categoryRepository = categoryRepository
+        self.calendar = calendar
+        self.nowProvider = nowProvider
+    }
+
+    func execute(
+        dayCount: Int = CashFlowForecastMath.defaultDayCount,
+        trailingHistoryDays: Int = CashFlowForecastMath.defaultTrailingHistoryDays
+    ) async throws -> CashFlowForecastResult {
+        let todayStart = calendar.startOfDay(for: nowProvider())
+
+        let accounts = try await accountRepository.fetchAll().filter { !$0.isArchived }
+        let startingBalance = netWorth(of: accounts)
+
+        guard let lookbackStart = calendar.date(
+            byAdding: .day,
+            value: -trailingHistoryDays,
+            to: todayStart
+        ) else {
+            return CashFlowForecastMath.project(
+                startingBalance: startingBalance,
+                averageDailyDiscretionarySpend: 0,
+                scheduledDeltas: [],
+                todayStart: todayStart,
+                dayCount: dayCount,
+                calendar: calendar
+            )
+        }
+
+        // Fetch through todayStart; keep only transactions strictly before today
+        // so the discretionary average is over complete calendar days.
+        let historyFilter = TransactionFilter(dateRange: lookbackStart...todayStart)
+        let historyTransactions = try await transactionRepository.fetchAll(filter: historyFilter)
+            .filter { $0.date < todayStart }
+
+        let earliestDay = historyTransactions.map { calendar.startOfDay(for: $0.date) }.min()
+        let historyDays = CashFlowForecastMath.historyDayCount(
+            todayStart: todayStart,
+            earliestTransactionDay: earliestDay,
+            trailingHistoryDays: trailingHistoryDays,
+            calendar: calendar
+        )
+        let windowStart = CashFlowForecastMath.historyWindowStart(
+            todayStart: todayStart,
+            earliestTransactionDay: earliestDay,
+            trailingHistoryDays: trailingHistoryDays,
+            calendar: calendar
+        )
+
+        let discretionaryTotal: Decimal = {
+            guard let windowStart else { return 0 }
+            return historyTransactions
+                .filter { tx in
+                    tx.type == .expense
+                        && tx.recurringRuleID == nil
+                        && tx.date >= windowStart
+                        && tx.date < todayStart
+                }
+                .reduce(Decimal(0)) { $0 + $1.amount }
+        }()
+
+        let averageDiscretionary = CashFlowForecastMath.averageDailyDiscretionarySpend(
+            nonRecurringExpenseTotal: discretionaryTotal,
+            historyDayCount: historyDays
+        )
+
+        let categories = try await categoryRepository.fetchAll()
+        let categoryTypeByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.type) })
+        let activeRules = try await recurringRuleRepository.fetchActive()
+
+        guard let forecastStart = calendar.date(byAdding: .day, value: 1, to: todayStart),
+              let forecastEndExclusive = calendar.date(
+                byAdding: .day,
+                value: dayCount + 1,
+                to: todayStart
+              ) else {
+            return CashFlowForecastMath.project(
+                startingBalance: startingBalance,
+                averageDailyDiscretionarySpend: averageDiscretionary,
+                scheduledDeltas: [],
+                todayStart: todayStart,
+                dayCount: dayCount,
+                historyDayCount: historyDays,
+                discretionaryExpenseTotal: discretionaryTotal,
+                calendar: calendar
+            )
+        }
+
+        // Occurrences from tomorrow through day `dayCount` (today's recurring
+        // posts are already reflected in current balances).
+        let forecastInterval = forecastStart..<forecastEndExclusive
+        var scheduledDeltas: [CashFlowForecastScheduledDelta] = []
+
+        for rule in activeRules {
+            guard rule.isActive, rule.templateAccountID != nil else { continue }
+            if let endDate = rule.endDate, endDate < todayStart { continue }
+
+            let sign: Decimal = {
+                guard let categoryID = rule.templateCategoryID,
+                      let type = categoryTypeByID[categoryID] else {
+                    return -1 // Uncategorized recurring posts as expense today.
+                }
+                return type == .income ? 1 : -1
+            }()
+
+            let dates = RecurrenceDateMath.occurrences(
+                startingAt: rule.nextDate,
+                frequency: rule.frequency,
+                in: forecastInterval,
+                endDate: rule.endDate,
+                calendar: calendar
+            )
+            for occurrence in dates {
+                scheduledDeltas.append(
+                    CashFlowForecastScheduledDelta(
+                        day: calendar.startOfDay(for: occurrence),
+                        amount: sign * rule.templateAmount
+                    )
+                )
+            }
+        }
+
+        return CashFlowForecastMath.project(
+            startingBalance: startingBalance,
+            averageDailyDiscretionarySpend: averageDiscretionary,
+            scheduledDeltas: scheduledDeltas,
+            todayStart: todayStart,
+            dayCount: dayCount,
+            historyDayCount: historyDays,
+            discretionaryExpenseTotal: discretionaryTotal,
+            calendar: calendar
+        )
+    }
+
+    nonisolated private func netWorth(of accounts: [AccountEntity]) -> Decimal {
+        var assets: Decimal = 0
+        var liabilities: Decimal = 0
+        for account in accounts {
+            if account.type.isAsset {
+                assets += account.balance
+            } else {
+                liabilities += account.balance
+            }
+        }
+        return assets - liabilities
+    }
+}

@@ -43,28 +43,33 @@ struct QuickEntryView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: VSpacing.md) {
                                     ForEach(categories.prefix(8)) { category in
-                                        VStack(spacing: VSpacing.xs) {
-                                            ZStack {
-                                                Circle()
-                                                    .fill(Color(hex: category.colorHex) ?? .blue)
-                                                    .frame(width: 44, height: 44)
-
-                                                Image(systemName: category.icon)
-                                                    .font(.title3)
-                                                    .foregroundColor(.white)
-                                            }
-
-                                            Text(category.name)
-                                                .font(VTypography.caption2)
-                                                .foregroundColor(VColors.textPrimary)
-                                                .adaptiveLineLimit(1)
-                                        }
-                                        .frame(width: 60)
-                                        .contentShape(Rectangle())
-                                        .onTapGesture {
+                                        Button {
                                             vm.selectedCategoryID = category.id
+                                        } label: {
+                                            VStack(spacing: VSpacing.xs) {
+                                                ZStack {
+                                                    Circle()
+                                                        .fill(Color(hex: category.colorHex) ?? .blue)
+                                                        .frame(width: 44, height: 44)
+
+                                                    Image(systemName: category.icon)
+                                                        .font(.title3)
+                                                        .foregroundColor(.white)
+                                                }
+
+                                                Text(category.displayName)
+                                                    .font(VTypography.caption2)
+                                                    .foregroundColor(VColors.textPrimary)
+                                                    .adaptiveLineLimit(1)
+                                            }
+                                            .frame(width: 60)
+                                            .contentShape(Rectangle())
                                         }
+                                        .buttonStyle(.plain)
                                         .opacity(vm.selectedCategoryID == category.id ? 1.0 : 0.6)
+                                        .accessibilityAddTraits(
+                                            vm.selectedCategoryID == category.id ? .isSelected : []
+                                        )
                                     }
 
                                     Spacer()
@@ -104,6 +109,7 @@ struct QuickEntryView: View {
                                 .cornerRadius(VSpacing.cornerRadiusSM)
                         }
                         .disabled(!vm.canSave)
+                        .keyboardShortcut(.defaultAction)
                         .padding(VSpacing.lg)
                     }
                     .padding(.top, VSpacing.lg)
@@ -126,6 +132,7 @@ struct QuickEntryView: View {
                         Button(String(localized: "Cancel")) {
                             dismiss()
                         }
+                        .keyboardShortcut(.cancelAction)
                     }
                 }
             }

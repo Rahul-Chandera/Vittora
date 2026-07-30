@@ -35,11 +35,30 @@ struct ContentView: View {
             }
         }
         .accessibilityIdentifier("content-root")
+        .errorAlert(message: Binding(
+            get: { appState.watchBridgeErrorMessage },
+            set: { appState.watchBridgeErrorMessage = $0 }
+        ))
         #if os(iOS)
         .onAppear {
             KeyboardDismissGesture.installIfNeeded()
         }
         #endif
+        .onAppear {
+            mirrorAppLockSession()
+        }
+        .onChange(of: settingsVM.isAppLockEnabled) { _, _ in
+            mirrorAppLockSession()
+        }
+        .onChange(of: settingsVM.appLockTimeout) { _, _ in
+            mirrorAppLockSession()
+        }
+        .onChange(of: appState.isLocked) { _, _ in
+            mirrorAppLockSession()
+        }
+        .onChange(of: appState.isAuthenticated) { _, _ in
+            mirrorAppLockSession()
+        }
         .onChange(of: appState.isOnboardingComplete) { _, isComplete in
             // Onboarding writes the name/currency straight to storage; refresh the
             // shared view model so the main app shows them without a restart.
@@ -47,6 +66,15 @@ struct ContentView: View {
                 settingsVM.reloadPersistedProfile()
             }
         }
+    }
+
+    private func mirrorAppLockSession() {
+        AppLockSessionMirror.mirrorFromAppState(
+            isAppLockEnabled: settingsVM.isAppLockEnabled,
+            isLocked: appState.isLocked,
+            isAuthenticated: appState.isAuthenticated,
+            timeout: settingsVM.appLockTimeout.timeInterval
+        )
     }
 }
 

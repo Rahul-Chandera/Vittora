@@ -294,6 +294,13 @@ struct DataManagementServiceTests {
         try await keychain.save(Data([1]), forKey: "com.vittora.encryption.key", access: .standard)
         try await keychain.save(Data([1]), forKey: "com.vittora.encryption.key.se_wrapped", access: .standard)
 
+        UserDefaults.standard.set(false, forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled)
+        UserDefaults.standard.set(false, forKey: TransactionSpotlightIndex.needsFullReindexKey)
+        defer {
+            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled)
+            UserDefaults.standard.removeObject(forKey: TransactionSpotlightIndex.needsFullReindexKey)
+        }
+
         let service = DataManagementService(
             transactionRepository: txRepo,
             accountRepository: accRepo,
@@ -324,6 +331,8 @@ struct DataManagementServiceTests {
         #expect((try await keychain.exists(forKey: "vittora.userName")) == false)
         #expect((try await keychain.exists(forKey: "com.vittora.encryption.key")) == false)
         #expect((try await keychain.exists(forKey: "com.vittora.encryption.key.se_wrapped")) == false)
+        #expect(UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled) == nil)
+        #expect(UserDefaults.standard.object(forKey: TransactionSpotlightIndex.needsFullReindexKey) == nil)
     }
 
     @Test("factoryReset re-seeds default categories via the data seeder")

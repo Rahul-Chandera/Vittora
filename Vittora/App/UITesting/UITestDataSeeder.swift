@@ -43,7 +43,8 @@ final class UITestDataSeeder {
         try await dataSeeder.reseedDefaultCategories()
         let categories = try await categoryRepository.fetchAll()
         func category(_ name: String) -> UUID? {
-            categories.first { $0.name == name }?.id
+            let localizedName = String(localized: String.LocalizationValue(name))
+            return categories.first { $0.name == localizedName }?.id
         }
 
         // Region-specific dataset. US is the default (primary market for App
@@ -55,6 +56,7 @@ final class UITestDataSeeder {
         // The dashboard formats amounts with the user's selected currency;
         // align it with the seeded data so symbols match.
         UserDefaults.standard.set(currency, forKey: AppUserDefaults.StandardKey.currencyCode)
+        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.emergencyFundAccountIDs)
 
         let bank = AccountEntity(
             name: isIndia ? "HDFC Salary" : "Chase Checking",
@@ -134,34 +136,36 @@ final class UITestDataSeeder {
                 (420, .expense, 0, 14, "Dining", card, food, "Lunch Order", .upi),
             ]
         } else {
+            // Decimal(string:) — never float literals (AGENTS.md money precision rule).
+            let d: (String) -> Decimal = { Decimal(string: $0) ?? 0 }
             entries = [
                 // Previous month — history for comparisons and charts.
                 (6_400, .income, -1, 1, "Salary", bank, nil, "Monthly Salary", .bankTransfer),
                 (1_850, .expense, -1, 2, "Rent", bank, nil, "Monthly Rent", .bankTransfer),
-                (128.40, .expense, -1, 5, "Groceries", card, grocer, "Weekly Groceries", .creditCard),
-                (96.20, .expense, -1, 9, "Utilities", bank, nil, "Electric Bill", .bankTransfer),
-                (42.75, .expense, -1, 11, "Dining", card, food, "Dinner Delivery", .creditCard),
-                (142.10, .expense, -1, 14, "Groceries", card, grocer, "Groceries Restock", .creditCard),
-                (15.49, .expense, -1, 15, "Subscriptions", card, nil, "Netflix", .creditCard),
-                (48.30, .expense, -1, 19, "Transport", card, nil, "Gas", .creditCard),
-                (89.65, .expense, -1, 24, "Groceries", card, grocer, "Monthly Staples", .creditCard),
-                (28.90, .expense, -1, 27, "Dining", card, food, "Lunch Order", .creditCard),
+                (d("128.40"), .expense, -1, 5, "Groceries", card, grocer, "Weekly Groceries", .creditCard),
+                (d("96.20"), .expense, -1, 9, "Utilities", bank, nil, "Electric Bill", .bankTransfer),
+                (d("42.75"), .expense, -1, 11, "Dining", card, food, "Dinner Delivery", .creditCard),
+                (d("142.10"), .expense, -1, 14, "Groceries", card, grocer, "Groceries Restock", .creditCard),
+                (d("15.49"), .expense, -1, 15, "Subscriptions", card, nil, "Netflix", .creditCard),
+                (d("48.30"), .expense, -1, 19, "Transport", card, nil, "Gas", .creditCard),
+                (d("89.65"), .expense, -1, 24, "Groceries", card, grocer, "Monthly Staples", .creditCard),
+                (d("28.90"), .expense, -1, 27, "Dining", card, food, "Lunch Order", .creditCard),
                 // Current month.
                 (6_400, .income, 0, 1, "Salary", bank, nil, "Monthly Salary", .bankTransfer),
                 (1_850, .expense, 0, 2, "Rent", bank, nil, "Monthly Rent", .bankTransfer),
-                (132.80, .expense, 0, 3, "Groceries", card, grocer, "Weekly Groceries", .creditCard),
-                (101.50, .expense, 0, 5, "Utilities", bank, nil, "Electric Bill", .bankTransfer),
-                (36.40, .expense, 0, 6, "Dining", card, food, "Dinner Delivery", .creditCard),
-                (189.99, .expense, 0, 7, "Shopping", card, nil, "Running Shoes", .creditCard),
-                (118.25, .expense, 0, 8, "Groceries", card, grocer, "Groceries Restock", .creditCard),
-                (24.50, .expense, 0, 9, "Transport", card, nil, "Uber to Airport", .creditCard),
-                (15.49, .expense, 0, 10, "Subscriptions", card, nil, "Netflix", .creditCard),
-                (54.20, .expense, 0, 11, "Dining", card, food, "Weekend Brunch", .creditCard),
-                (32.00, .expense, 0, 11, "Entertainment", card, nil, "Movie Night", .debitCard),
-                (52.75, .expense, 0, 12, "Transport", card, nil, "Gas", .creditCard),
-                (96.40, .expense, 0, 13, "Groceries", card, grocer, "Monthly Staples", .creditCard),
-                (27.35, .expense, 0, 13, "Health", cash, nil, "Pharmacy", .cash),
-                (18.60, .expense, 0, 14, "Dining", card, food, "Lunch Order", .creditCard),
+                (d("132.80"), .expense, 0, 3, "Groceries", card, grocer, "Weekly Groceries", .creditCard),
+                (d("101.50"), .expense, 0, 5, "Utilities", bank, nil, "Electric Bill", .bankTransfer),
+                (d("36.40"), .expense, 0, 6, "Dining", card, food, "Dinner Delivery", .creditCard),
+                (d("189.99"), .expense, 0, 7, "Shopping", card, nil, "Running Shoes", .creditCard),
+                (d("118.25"), .expense, 0, 8, "Groceries", card, grocer, "Groceries Restock", .creditCard),
+                (d("24.50"), .expense, 0, 9, "Transport", card, nil, "Uber to Airport", .creditCard),
+                (d("15.49"), .expense, 0, 10, "Subscriptions", card, nil, "Netflix", .creditCard),
+                (d("54.20"), .expense, 0, 11, "Dining", card, food, "Weekend Brunch", .creditCard),
+                (32, .expense, 0, 11, "Entertainment", card, nil, "Movie Night", .debitCard),
+                (d("52.75"), .expense, 0, 12, "Transport", card, nil, "Gas", .creditCard),
+                (d("96.40"), .expense, 0, 13, "Groceries", card, grocer, "Monthly Staples", .creditCard),
+                (d("27.35"), .expense, 0, 13, "Health", cash, nil, "Pharmacy", .cash),
+                (d("18.60"), .expense, 0, 14, "Dining", card, food, "Lunch Order", .creditCard),
             ]
         }
         for entry in entries {
@@ -207,6 +211,7 @@ final class UITestDataSeeder {
             name: "Emergency Fund", category: .emergency,
             targetAmount: isIndia ? 150_000 : 15_000,
             currentAmount: isIndia ? 95_000 : 9_500,
+            isEmergencyFund: true,
             colorHex: "#34C759"
         ))
         try await savingsGoalRepository.create(SavingsGoalEntity(
@@ -215,6 +220,14 @@ final class UITestDataSeeder {
             currentAmount: isIndia ? 12_500 : 1_800,
             colorHex: "#007AFF"
         ))
+        try await transactionRepository.create(TransactionEntity(
+            amount: isIndia ? 8_000 : 600,
+            date: monthDay(0, 12),
+            note: "Emergency Fund contribution",
+            type: .adjustment,
+            currencyCode: currency,
+            tags: [FiftyThirtyTwentyReportUseCase.savingsContributionTag]
+        ))
 
         try await debtRepository.create(DebtEntry(
             payeeID: friend.id,
@@ -222,13 +235,30 @@ final class UITestDataSeeder {
             settledAmount: isIndia ? 2_000 : 100,
             direction: .lent, note: "Concert tickets"
         ))
+        let borrowedDebt = DebtEntry(
+            payeeID: friend.id,
+            amount: isIndia ? 10_000 : 500,
+            direction: .borrowed,
+            note: "Moving costs"
+        )
+        try await debtRepository.create(borrowedDebt)
+        try await SettleDebtUseCase(
+            debtRepository: debtRepository,
+            accountRepository: accountRepository,
+            ledgerWriting: ledgerWriting
+        ).execute(
+            debtID: borrowedDebt.id,
+            settlementAmount: isIndia ? 4_000 : 200,
+            accountID: bank.id
+        )
 
         func daysAhead(_ days: Int) -> Date {
             Calendar.current.date(byAdding: .day, value: days, to: .now) ?? .now
         }
+        let netflixAmount = Decimal(string: "15.49") ?? 0
         let recurringRules: [(Decimal, String, String, Int)] = isIndia
             ? [(85_000, "Monthly Salary", "Salary", 6), (22_000, "Rent", "Rent", 7), (649, "Netflix", "Subscriptions", 22)]
-            : [(6_400, "Monthly Salary", "Salary", 6), (1_850, "Rent", "Rent", 7), (15.49, "Netflix", "Subscriptions", 22)]
+            : [(6_400, "Monthly Salary", "Salary", 6), (1_850, "Rent", "Rent", 7), (netflixAmount, "Netflix", "Subscriptions", 22)]
         for rule in recurringRules {
             try await recurringRuleRepository.create(RecurringRuleEntity(
                 frequency: .monthly,
@@ -241,7 +271,10 @@ final class UITestDataSeeder {
         }
     }
 
-    func seedTransactionScenarioIfNeeded() async throws {
+    func seedTransactionScenarioIfNeeded(
+        payeeRepository: any PayeeRepository,
+        recurringRuleRepository: any RecurringRuleRepository
+    ) async throws {
         let existingAccounts = try await accountRepository.fetchAll()
         let existingTransactions = try await transactionRepository.fetchAll(filter: nil)
         guard existingAccounts.isEmpty, existingTransactions.isEmpty else {
@@ -280,6 +313,19 @@ final class UITestDataSeeder {
         try await categoryRepository.create(groceriesCategory)
         try await categoryRepository.create(salaryCategory)
 
+        let merchant = PayeeEntity(name: String(localized: "UI Test Merchant"))
+        try await payeeRepository.create(merchant)
+        try await recurringRuleRepository.create(RecurringRuleEntity(
+            id: fixedUUID("DB8D2197-FD80-4A39-8EB7-28D1AB42C901"),
+            frequency: .monthly,
+            nextDate: Calendar.current.date(byAdding: .month, value: 1, to: .now) ?? .now,
+            templateAmount: 25,
+            templateNote: String(localized: "UI Test Subscription"),
+            templateCategoryID: groceriesCategory.id,
+            templateAccountID: checkingAccount.id,
+            templatePayeeID: merchant.id
+        ))
+
         let addTransactionUseCase = AddTransactionUseCase(
             accountRepository: accountRepository,
             categoryRepository: categoryRepository,
@@ -287,12 +333,13 @@ final class UITestDataSeeder {
         )
 
         _ = try await addTransactionUseCase.execute(
-            amount: 12.50,
+            id: fixedUUID("C0FFEE01-A24C-4C32-A4BE-53C6D9951D01"),
+            amount: Decimal(string: "12.50")!,
             type: .expense,
             date: Date.now,
             categoryID: groceriesCategory.id,
             accountID: checkingAccount.id,
-            payeeID: nil,
+            payeeID: merchant.id,
             note: "Coffee Run",
             tags: ["coffee"],
             paymentMethod: .debitCard,
@@ -300,7 +347,7 @@ final class UITestDataSeeder {
         )
 
         _ = try await addTransactionUseCase.execute(
-            amount: 3_200,
+            amount: Decimal(string: "3200")!,
             type: .income,
             date: Calendar.current.date(byAdding: .day, value: -2, to: Date.now) ?? Date.now,
             categoryID: salaryCategory.id,

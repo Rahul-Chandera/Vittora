@@ -1,60 +1,234 @@
 import SwiftUI
+import Charts
 import VittoraCore
 
-// MARK: - Monthly / annual
+// MARK: - Monthly / annual multi-page PDF (R1)
 
-struct MonthlyReportExportDocument: View {
+enum MonthlyReportPDFDocument {
+    /// Builds A4 pages: summary + chart on page 1, monthly table paginated across following pages.
+    @MainActor
+    static func pages(
+        reportTitle: String,
+        period: String,
+        monthlyData: [MonthlyData],
+        currencyCode: String,
+        totalIncome: Decimal,
+        totalExpense: Decimal,
+        netSavings: Decimal
+    ) -> [ReportPDFPage] {
+        let rows = Array(monthlyData.reversed())
+        let tableChunks = chunkRows(rows, rowsPerPage: rowsPerContinuationPage)
+        let totalPages = 1 + tableChunks.count
+
+        var pages: [ReportPDFPage] = [
+            ReportPDFPage(
+                reportTitle: reportTitle,
+                period: period,
+                pageNumber: 1,
+                pageCount: max(totalPages, 1),
+                content: .summaryAndChart(
+                    SummaryChartContent(
+                        currencyCode: currencyCode,
+                        totalIncome: totalIncome,
+                        totalExpense: totalExpense,
+                        netSavings: netSavings,
+                        monthlyData: monthlyData
+                    )
+                )
+            )
+        ]
+
+        for (index, chunk) in tableChunks.enumerated() {
+            pages.append(
+                ReportPDFPage(
+                    reportTitle: reportTitle,
+                    period: period,
+                    pageNumber: index + 2,
+                    pageCount: totalPages,
+                    content: .table(
+                        TableContent(
+                            currencyCode: currencyCode,
+                            rows: chunk,
+                            showsSectionTitle: index == 0
+                        )
+                    )
+                )
+            )
+        }
+
+        return pages
+    }
+
+    /// Rows that fit on a continuation page after chrome (header/footer).
+    private static let rowsPerContinuationPage = 18
+
+    private static func chunkRows(_ rows: [MonthlyData], rowsPerPage: Int) -> [[MonthlyData]] {
+        guard rowsPerPage > 0, !rows.isEmpty else { return [] }
+        var chunks: [[MonthlyData]] = []
+        var index = 0
+        while index < rows.count {
+            let end = min(index + rowsPerPage, rows.count)
+            chunks.append(Array(rows[index..<end]))
+            index = end
+        }
+        return chunks
+    }
+}
+
+// MARK: - Page model
+
+struct ReportPDFPage: View {
+    enum Content {
+        case summaryAndChart(SummaryChartContent)
+        case table(TableContent)
+    }
+
     let reportTitle: String
-    let subtitle: String
-    let monthlyData: [MonthlyData]
-    let currencyCode: String
-    let totalIncome: Decimal
-    let totalExpense: Decimal
-    let netSavings: Decimal
+    let period: String
+    let pageNumber: Int
+    let pageCount: Int
+    let content: Content
+
+    private var inset: CGFloat { ReportPDFRenderer.pageInset }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 0) {
             header
-            summaryGrid
-            Divider()
-            breakdownSection
+            contentView
+                .padding(.top, 16)
+            Spacer(minLength: 0)
             footer
         }
+        .padding(inset)
+        .frame(
+            width: ReportPDFRenderer.pageWidth,
+            height: ReportPDFRenderer.pageHeight,
+            alignment: .topLeading
+        )
+        .background(Color.white)
         .foregroundStyle(Color.black)
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Vittora")
-                .font(.caption)
+        VStack(alignment: .leading, spacing: 4) {
+            Text(String(localized: "Vittora"))
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(Color.gray)
             Text(reportTitle)
                 .font(.title2.bold())
-            Text(subtitle)
+            Text(period)
                 .font(.subheadline)
                 .foregroundStyle(Color.gray)
+            Divider()
+                .padding(.top, 8)
         }
     }
 
-    private var summaryGrid: some View {
-        HStack(spacing: 16) {
-            summaryCell(
-                title: String(localized: "Income"),
-                amount: totalIncome,
-                tint: Color(red: 0.1, green: 0.55, blue: 0.25)
-            )
-            summaryCell(
-                title: String(localized: "Expenses"),
-                amount: totalExpense,
-                tint: Color(red: 0.85, green: 0.2, blue: 0.2)
-            )
-            summaryCell(
-                title: String(localized: "Net"),
-                amount: netSavings,
-                tint: netSavings >= 0
-                    ? Color(red: 0.1, green: 0.55, blue: 0.25)
-                    : Color(red: 0.85, green: 0.2, blue: 0.2)
-            )
+    @ViewBuilder
+    private var contentView: some View {
+        switch content {
+        case .summaryAndChart(let summary):
+            summary
+        case .table(let table):
+            table
+        }
+    }
+
+    private var footer: some View {
+        VStack(spacing: 6) {
+            Divider()
+            HStack(alignment: .firstTextBaseline) {
+                Text(String(localized: "Generated by Vittora — data stays on your device"))
+                    .font(.caption2)
+                    .foregroundStyle(Color.gray)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text(
+                    String(
+                        localized: "Page \(pageNumber) of \(pageCount)"
+                    )
+                )
+                .font(.caption2)
+                .foregroundStyle(Color.gray)
+            }
+        }
+        .padding(.top, 8)
+    }
+}
+
+struct SummaryChartContent: View {
+    let currencyCode: String
+    let totalIncome: Decimal
+    let totalExpense: Decimal
+    let netSavings: Decimal
+    let monthlyData: [MonthlyData]
+
+    private let incomeTint = Color(red: 0.1, green: 0.55, blue: 0.25)
+    private let expenseTint = Color(red: 0.85, green: 0.2, blue: 0.2)
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 12) {
+                summaryCell(
+                    title: String(localized: "Income"),
+                    amount: totalIncome,
+                    tint: incomeTint
+                )
+                summaryCell(
+                    title: String(localized: "Expenses"),
+                    amount: totalExpense,
+                    tint: expenseTint
+                )
+                summaryCell(
+                    title: String(localized: "Net"),
+                    amount: netSavings,
+                    tint: netSavings >= 0 ? incomeTint : expenseTint
+                )
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text(String(localized: "Income vs Expenses"))
+                    .font(.headline)
+
+                Chart {
+                    ForEach(monthlyData) { item in
+                        BarMark(
+                            x: .value(String(localized: "Month"), item.month, unit: .month),
+                            y: .value(String(localized: "Income"), item.income),
+                            width: .ratio(0.4)
+                        )
+                        .foregroundStyle(incomeTint)
+                        .position(by: .value(String(localized: "Type"), String(localized: "Income")))
+
+                        BarMark(
+                            x: .value(String(localized: "Month"), item.month, unit: .month),
+                            y: .value(String(localized: "Expense"), item.expense),
+                            width: .ratio(0.4)
+                        )
+                        .foregroundStyle(expenseTint)
+                        .position(by: .value(String(localized: "Type"), String(localized: "Expense")))
+                    }
+                }
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: .month)) { _ in
+                        AxisValueLabel(format: .dateTime.month(.abbreviated))
+                            .font(.caption2)
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks { _ in
+                        AxisGridLine()
+                        AxisValueLabel()
+                            .font(.caption2)
+                    }
+                }
+                .chartLegend(position: .top, alignment: .trailing) {
+                    HStack(spacing: 12) {
+                        legendItem(color: incomeTint, label: String(localized: "Income"))
+                        legendItem(color: expenseTint, label: String(localized: "Expense"))
+                    }
+                }
+                .frame(height: 240)
+            }
         }
     }
 
@@ -73,10 +247,29 @@ struct MonthlyReportExportDocument: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
-    private var breakdownSection: some View {
+    private func legendItem(color: Color, label: String) -> some View {
+        HStack(spacing: 4) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(color)
+                .frame(width: 10, height: 8)
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(Color.gray)
+        }
+    }
+}
+
+struct TableContent: View {
+    let currencyCode: String
+    let rows: [MonthlyData]
+    let showsSectionTitle: Bool
+
+    var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "Monthly Breakdown"))
-                .font(.headline)
+            if showsSectionTitle {
+                Text(String(localized: "Monthly Breakdown"))
+                    .font(.headline)
+            }
 
             HStack {
                 Text(String(localized: "Month"))
@@ -91,7 +284,7 @@ struct MonthlyReportExportDocument: View {
             .font(.caption.bold())
             .foregroundStyle(Color.gray)
 
-            ForEach(monthlyData.reversed()) { item in
+            ForEach(rows) { item in
                 HStack {
                     Text(item.month.formatted(.dateTime.year().month(.wide)))
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -103,23 +296,15 @@ struct MonthlyReportExportDocument: View {
                         .frame(width: 88, alignment: .trailing)
                 }
                 .font(.caption)
+                .padding(.vertical, 4)
+
+                Divider()
             }
         }
     }
-
-    private var footer: some View {
-        Text(
-            String(
-                localized: "Generated \(Date.now.formatted(date: .abbreviated, time: .shortened))"
-            )
-        )
-        .font(.caption2)
-        .foregroundStyle(Color.gray)
-        .padding(.top, 8)
-    }
 }
 
-// MARK: - Custom
+// MARK: - Custom report (single-view via ReportPDFExporter)
 
 struct CustomReportExportDocument: View {
     let result: CustomReportResult

@@ -10,24 +10,27 @@ struct ReportCardView: View {
     var body: some View {
         HStack(spacing: VSpacing.md) {
             Image(systemName: icon)
-                .font(.system(size: 24, weight: .semibold))
+                .font(VTypography.title3)
                 .foregroundColor(color)
                 .frame(width: 48, height: 48)
                 .background(color.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD))
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
                 Text(title)
                     .font(VTypography.bodyBold)
                     .foregroundColor(VColors.textPrimary)
+                    .adaptiveLineLimit(2)
+                    .adaptiveMinimumScaleFactor(0.8)
 
                 Text(subtitle)
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
-                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
-            Spacer()
+            Spacer(minLength: VSpacing.sm)
 
             Image(systemName: "chevron.right")
                 .font(.caption)

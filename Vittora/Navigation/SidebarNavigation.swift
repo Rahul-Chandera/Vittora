@@ -4,7 +4,7 @@ import VittoraCore
 #if os(macOS)
 struct SidebarNavigation: View {
     @Environment(AppState.self) private var appState
-    @State private var showAddTransaction = false
+    @State private var presentedQuickAdd: PresentedQuickAdd?
 
     var body: some View {
         @Bindable var appState = appState
@@ -81,12 +81,10 @@ struct SidebarNavigation: View {
                 SyncStatusView()
             }
         }
-        .sheet(isPresented: $showAddTransaction) {
-            QuickEntryView()
-        }
+        .quickAddPresentation($presentedQuickAdd, asSheet: true)
         .handlesAppCommands(
             appState: appState,
-            showAddTransaction: $showAddTransaction
+            presentedQuickAdd: $presentedQuickAdd
         )
     }
 }

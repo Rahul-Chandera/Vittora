@@ -1,5 +1,8 @@
 import SwiftUI
 import VittoraCore
+#if os(iOS)
+import WidgetKit
+#endif
 
 @Observable
 @MainActor
@@ -10,6 +13,9 @@ final class AppState {
     var selectedTab: AppTab
     var isLoading: Bool
     var isUITesting: Bool
+    /// When true, screens stop advertising Continuity activities (iCloud signed out).
+    /// Observable so `HandoffAdvertisementModifier` re-evaluates immediately.
+    var isHandoffAdvertisingSuspended: Bool
     /// When true, UI tests exercise real background/foreground app-lock policy despite `--uitesting`.
     var exercisesAppLockPolicy: Bool
     /// True when the on-disk store failed to open and the app is running on an
@@ -30,6 +36,29 @@ final class AppState {
     var pendingNotificationDeepLink: VittoraNotificationDeepLink?
     /// Split group to open from a shared `vittora://splits/group/…` link (K3).
     var pendingSplitGroupID: UUID?
+    /// Quick-add destination from `vittora://add?type=…` (W4). Survives App Lock —
+    /// consumed after unlock when the main UI mounts.
+    var pendingQuickAdd: QuickAddDeepLink.Destination?
+    /// Transaction detail from Spotlight / `vittora://transaction/<id>` (P2). Survives
+    /// App Lock like W4 — consumed after unlock when Transactions mounts.
+    var pendingTransactionDetailID: UUID?
+    /// Transaction list filter from Handoff (`vittora://transactions?…`).
+    var pendingTransactionListFilter: HandoffDeepLink.ListFilter?
+    /// Budget detail from Handoff / notification-style deep link.
+    var pendingBudgetDetailID: UUID?
+    /// Account detail from Handoff (`vittora://account/<id>`).
+    var pendingAccountDetailID: UUID?
+    /// Report detail from Handoff (`vittora://report/<type>?…`).
+    var pendingReportHandoff: PendingReportHandoff?
+    /// Unsaved transaction form draft from Handoff (identifiers + field values only).
+    var pendingTransactionDraft: HandoffDeepLink.Draft?
+    /// UI-test surface for W5 intent result verification (`--ui-test-show-spending-intent-result`).
+    var uiTestIntentResultMessage: String?
+    /// WatchConnectivity commit failures (queued expense rejected on the phone).
+    var watchBridgeErrorMessage: String?
+    /// Spotlight reindex hook (set by the app shell). Avoids Core Spotlight in unit tests.
+    @ObservationIgnored
+    var onTransactionsChangedForSpotlight: (() -> Void)?
     /// Typed global command requests (keyboard shortcuts, dashboard quick actions).
     private(set) var pendingCommand: AppCommandRequest?
 
@@ -40,6 +69,7 @@ final class AppState {
         selectedTab: AppTab = .dashboard,
         isLoading: Bool = false,
         isUITesting: Bool = false,
+        isHandoffAdvertisingSuspended: Bool = false,
         exercisesAppLockPolicy: Bool = false,
         isRecoveryMode: Bool = false,
         isPrivacyShieldVisible: Bool = false,
@@ -51,10 +81,16 @@ final class AppState {
         self.selectedTab = selectedTab
         self.isLoading = isLoading
         self.isUITesting = isUITesting
+        self.isHandoffAdvertisingSuspended = isHandoffAdvertisingSuspended
         self.exercisesAppLockPolicy = exercisesAppLockPolicy
         self.isRecoveryMode = isRecoveryMode
         self.isPrivacyShieldVisible = isPrivacyShieldVisible
         self.pendingNotificationDeepLink = pendingNotificationDeepLink
+    }
+
+    /// Whether Continuity activities may be advertised for the current screen.
+    func shouldAdvertiseHandoff(isActive: Bool = true) -> Bool {
+        isActive && !isUITesting && !isHandoffAdvertisingSuspended
     }
 
     func refreshVersion(for domain: DataRefreshDomain) -> Int {
@@ -93,7 +129,21 @@ final class AppState {
         case .splits: splitsRefreshVersion &+= 1
         case .savings: savingsRefreshVersion &+= 1
         }
+        #if os(iOS)
+        if domain == .transactions || domain == .budgets {
+            WidgetCenter.shared.reloadAllTimelines()
+            watchBridge?.pushSnapshot()
+        }
+        #endif
+        if domain == .transactions {
+            onTransactionsChangedForSpotlight?()
+        }
     }
+
+    #if os(iOS)
+    /// Set once after DI is ready; pushes snapshots on transaction/budget changes.
+    weak var watchBridge: WatchBridgeService?
+    #endif
 
     func notifyChanged(_ domains: some Sequence<DataRefreshDomain>) {
         for domain in domains {
@@ -130,6 +180,102 @@ final class AppState {
         }
     }
 
+    /// Routes `vittora://` URLs: Handoff / quick-add (W4), transaction Spotlight (P2),
+    /// or split-group (K3). Unknown/malformed links are ignored so the app opens
+    /// without crashing.
+    func openFromURL(_ url: URL) {
+        if let route = HandoffDeepLink.route(from: url) {
+            openFromHandoffRoute(route)
+            return
+        }
+        // Legacy quick-add / Spotlight hosts that HandoffDeepLink didn't claim.
+        if QuickAddDeepLink.isQuickAddURL(url) {
+            if let destination = QuickAddDeepLink.destination(from: url) {
+                openQuickAdd(destination)
+            }
+            return
+        }
+        if TransactionSpotlightDeepLink.isTransactionURL(url) {
+            if let id = TransactionSpotlightDeepLink.transactionID(from: url) {
+                openFromSpotlight(transactionID: id)
+            }
+            return
+        }
+        openSplitGroup(from: url)
+    }
+
+    /// Continues a Handoff activity through the same URL routing path.
+    func openFromHandoffActivity(_ activity: NSUserActivity) {
+        if activity.activityType == AppHandoff.mainType {
+            if let raw = activity.userInfo?[AppHandoff.tabKey] as? String,
+               let tab = AppTab(rawValue: raw) {
+                selectedTab = tab
+            }
+            return
+        }
+        guard let route = AppHandoff.route(from: activity) else { return }
+        openFromURL(HandoffDeepLink.url(for: route))
+    }
+
+    /// Applies a Handoff route (also used after encode → decode in tests).
+    func openFromHandoffRoute(_ route: HandoffDeepLink.Route) {
+        switch route {
+        case .transactionList(let filter):
+            pendingTransactionListFilter = filter
+            selectedTab = .transactions
+        case .transactionDetail(let id):
+            openFromSpotlight(transactionID: id)
+        case .budgetsList:
+            pendingBudgetDetailID = nil
+            selectedTab = .budgets
+        case .budgetDetail(let id):
+            pendingBudgetDetailID = id
+            selectedTab = .budgets
+        case .accountsList:
+            pendingAccountDetailID = nil
+            selectedTab = .dashboard
+        case .accountDetail(let id):
+            pendingAccountDetailID = id
+            selectedTab = .dashboard
+        case .reportDetail(let type, let start, let end):
+            pendingReportHandoff = PendingReportHandoff(typeRaw: type, start: start, end: end)
+            selectedTab = .reports
+        case .transactionDraft(let draft):
+            applyTransactionDraft(draft)
+        }
+    }
+
+    /// Queues transaction detail navigation from a Spotlight tap (CSSearchableItem
+    /// or `vittora://transaction/…`). Survives App Lock — resolve after unlock.
+    func openFromSpotlight(transactionID: UUID) {
+        pendingTransactionDetailID = transactionID
+        selectedTab = .transactions
+    }
+
+    func clearPendingTransactionDetailID() {
+        pendingTransactionDetailID = nil
+    }
+
+    func clearPendingTransactionListFilter() {
+        pendingTransactionListFilter = nil
+    }
+
+    func clearPendingBudgetDetailID() {
+        pendingBudgetDetailID = nil
+    }
+
+    func clearPendingAccountDetailID() {
+        pendingAccountDetailID = nil
+    }
+
+    func clearPendingReportHandoff() {
+        pendingReportHandoff = nil
+    }
+
+    func clearPendingTransactionDraft() {
+        pendingTransactionDraft = nil
+    }
+
     /// Routes to the Splits tab and queues a group detail navigation (K3 share-out).
     func openSplitGroup(from url: URL) {
         guard let groupID = SplitGroupDeepLink.groupID(from: url) else { return }
@@ -139,6 +285,37 @@ final class AppState {
 
     func clearPendingSplitGroupID() {
         pendingSplitGroupID = nil
+    }
+
+    func clearPendingQuickAdd() {
+        pendingQuickAdd = nil
+    }
+
+    private func openQuickAdd(_ destination: QuickAddDeepLink.Destination) {
+        pendingQuickAdd = destination
+        selectedTab = .dashboard
+        request(.presentQuickAdd(destination))
+    }
+
+    private func applyTransactionDraft(_ draft: HandoffDeepLink.Draft) {
+        let hasFieldValues = draft.amount != nil
+            || draft.note != nil
+            || draft.categoryID != nil
+            || draft.accountID != nil
+            || draft.date != nil
+        if hasFieldValues {
+            pendingTransactionDraft = draft
+            let destination = QuickAddDeepLink.Destination(rawValue: draft.type ?? QuickAddDeepLink.Destination.expense.rawValue)
+                ?? .expense
+            openQuickAdd(destination)
+            return
+        }
+        guard let typeRaw = draft.type,
+              let destination = QuickAddDeepLink.Destination(rawValue: typeRaw)
+        else {
+            return
+        }
+        openQuickAdd(destination)
     }
 
     enum AppTab: String, CaseIterable, Identifiable, Sendable {
@@ -181,5 +358,21 @@ final class AppState {
             case .settings:     "gearshape.fill"
             }
         }
+    }
+}
+
+/// Report continuation payload (type + optional period). Identifiers / dates only.
+struct PendingReportHandoff: Equatable, Sendable {
+    var typeRaw: String
+    var start: Date?
+    var end: Date?
+
+    var reportType: ReportType? {
+        ReportType(rawValue: typeRaw)
+    }
+
+    var dateRange: ClosedRange<Date>? {
+        guard let start, let end, start <= end else { return nil }
+        return start...end
     }
 }

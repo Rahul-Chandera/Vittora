@@ -39,6 +39,7 @@ struct TransactionListView: View {
         }
         .navigationTitle(String(localized: "Transactions"))
         .accessibilityIdentifier("transaction-list-root")
+        .advertisesHandoff(transactionListHandoffRoute)
         .task {
             if vm == nil {
                 vm = createViewModel()
@@ -49,10 +50,55 @@ struct TransactionListView: View {
             guard vm != nil, appState.refreshVersion(for: .transactions) > 0 else { return }
             await vm?.loadTransactions()
         }
+        .task(id: appState.pendingTransactionListFilter) {
+            guard let filter = appState.pendingTransactionListFilter else { return }
+            appState.clearPendingTransactionListFilter()
+            if vm == nil {
+                vm = createViewModel()
+            }
+            guard let listVM = vm else { return }
+            await listVM.applyFilter(Self.transactionFilter(from: filter))
+        }
+        .task(id: appState.pendingTransactionDetailID) {
+            guard let id = appState.pendingTransactionDetailID else { return }
+            appState.clearPendingTransactionDetailID()
+            // Deleted / missing IDs fall back to the list — do not push detail.
+            let fetch = FetchTransactionsUseCase(transactionRepository: dependencies.transactionRepository)
+            guard let found = try? await fetch.execute(id: id), found != nil else { return }
+            navigateDestination = .transactionDetail(id: id)
+            selectedTransactionID = id
+        }
         .navigationDestination(item: $navigateDestination) { dest in
             NavigationDestinationView(destination: dest)
         }
         .errorAlert(message: transactionListErrorBinding)
+    }
+
+    private var transactionListHandoffRoute: HandoffDeepLink.Route? {
+        guard let vm else { return .transactionList(HandoffDeepLink.ListFilter()) }
+        return .transactionList(Self.listFilter(from: vm.activeFilter))
+    }
+
+    private static func listFilter(from filter: TransactionFilter) -> HandoffDeepLink.ListFilter {
+        HandoffDeepLink.ListFilter(
+            start: filter.dateRange?.lowerBound,
+            end: filter.dateRange?.upperBound,
+            types: filter.types?.map(\.rawValue).sorted(),
+            categoryIDs: filter.categoryIDs.map(Array.init),
+            accountIDs: filter.accountIDs.map(Array.init)
+        )
+    }
+
+    private static func transactionFilter(from filter: HandoffDeepLink.ListFilter) -> TransactionFilter {
+        TransactionFilter(
+            dateRange: filter.dateRange,
+            types: filter.types.flatMap { raw in
+                let parsed = Set(raw.compactMap(TransactionType.init(rawValue:)))
+                return parsed.isEmpty ? nil : parsed
+            },
+            categoryIDs: filter.categoryIDs.map(Set.init),
+            accountIDs: filter.accountIDs.map(Set.init)
+        )
     }
 
     private func hasQueryOrFilter(_ vm: TransactionListViewModel) -> Bool {

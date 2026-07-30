@@ -16,6 +16,8 @@ struct NavigationDestinationHandler: ViewModifier {
 struct NavigationDestinationView: View {
     let destination: NavigationDestination
     @Environment(SettingsViewModel.self) private var settingsVM
+    @Environment(SyncStatusService.self) private var syncService
+    @Environment(\.dependencies) private var dependencies
 
     var body: some View {
         switch destination {
@@ -57,13 +59,17 @@ struct NavigationDestinationView: View {
     @ViewBuilder
     private func reportView(for type: ReportType) -> some View {
         switch type {
+        case .fiftyThirtyTwenty: FiftyThirtyTwentyReportView()
         case .monthly:   MonthlyOverviewView()
         case .category:  CategoryBreakdownView()
         case .trends:    SpendingTrendsView()
         case .custom:    CustomReportView()
         case .annual:    AnnualReportView()
         case .cashFlow:  CashFlowReportView()
+        case .cashFlowForecast: CashFlowForecastReportView()
         case .netWorth:  NetWorthReportView()
+        case .subscriptionAudit: SubscriptionAuditReportView()
+        case .emergencyFund: EmergencyFundReportView()
         }
     }
 
@@ -79,6 +85,12 @@ struct NavigationDestinationView: View {
         case .appearance:    AppearanceSettingsView(vm: settingsVM)
         case .data:          DataSettingsView()
         case .about:         AboutView(vm: settingsVM)
+        case .support:
+            ContactSupportView(
+                settingsVM: settingsVM,
+                dependencies: dependencies,
+                syncService: syncService
+            )
         }
     }
 }

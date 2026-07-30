@@ -35,9 +35,9 @@ enum NavigationDestination: Hashable {
 }
 
 enum ReportType: String, Hashable, Sendable, CaseIterable {
-    case monthly, category, trends, custom, annual, cashFlow, netWorth
+    case fiftyThirtyTwenty, monthly, category, trends, custom, annual, cashFlow, cashFlowForecast, netWorth, subscriptionAudit, emergencyFund
 }
 
 enum SettingsSection: String, Hashable, Sendable {
-    case profile, security, sync, notifications, appearance, data, about
+    case profile, security, sync, notifications, appearance, data, about, support
 }

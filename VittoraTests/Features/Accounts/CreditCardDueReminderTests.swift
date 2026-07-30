@@ -73,6 +73,18 @@ struct ScheduleCreditCardDueRemindersUseCaseTests {
         return calendar
     }
 
+    private func date(year: Int, month: Int, day: Int, hour: Int = 12) -> Date {
+        calendar.date(
+            from: DateComponents(
+                timeZone: calendar.timeZone,
+                year: year,
+                month: month,
+                day: day,
+                hour: hour
+            )
+        ) ?? .now
+    }
+
     private func makeEnabledDefaults() -> UserDefaults {
         let defaults = UserDefaults(suiteName: "ScheduleCreditCardDueRemindersTests.\(UUID().uuidString)") ?? .standard
         defaults.set(true, forKey: "vittora.notificationsEnabled")
@@ -80,7 +92,7 @@ struct ScheduleCreditCardDueRemindersUseCaseTests {
         return defaults
     }
 
-    @Test("schedules bill reminder for credit card with due day")
+    @Test("default settings preserve the existing three-day 09:00 bill reminder")
     func schedulesReminder() async throws {
         let accountID = UUID()
         let repo = MockAccountRepository()
@@ -117,6 +129,15 @@ struct ScheduleCreditCardDueRemindersUseCaseTests {
         #expect(notifications.scheduledRequests[0].category == .billDue)
         #expect(notifications.scheduledRequests[0].deepLink.destination == .accountDetail)
         #expect(notifications.scheduledRequests[0].deepLink.entityID == accountID)
+        let fireComponents = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute],
+            from: notifications.scheduledRequests[0].fireDate
+        )
+        #expect(fireComponents.year == 2026)
+        #expect(fireComponents.month == 6)
+        #expect(fireComponents.day == 17)
+        #expect(fireComponents.hour == 9)
+        #expect(fireComponents.minute == 0)
     }
 
     @Test("cancels reminder when due day is not set")
@@ -142,6 +163,29 @@ struct ScheduleCreditCardDueRemindersUseCaseTests {
                 ScheduleCreditCardDueRemindersUseCase.notificationIdentifier(for: accountID),
             ]
         )
+    }
+
+    @Test("configured bill lead time is wired into the scheduled request")
+    func configuredLeadTime() async throws {
+        let repo = MockAccountRepository()
+        await repo.seed(AccountEntity(name: "Visa", type: .creditCard, dueDayOfMonth: 20))
+        let notifications = MockNotificationService()
+        let defaults = makeEnabledDefaults()
+        defaults.set(1, forKey: AppUserDefaults.StandardKey.billReminderLeadDays)
+        let reference = date(year: 2026, month: 6, day: 1)
+        let useCase = ScheduleCreditCardDueRemindersUseCase(
+            accountRepository: repo,
+            notificationService: notifications,
+            calendar: calendar,
+            nowProvider: { reference },
+            userDefaults: defaults
+        )
+
+        try await useCase.execute()
+
+        let request = try #require(notifications.scheduledRequests.first)
+        #expect(calendar.component(.day, from: request.fireDate) == 19)
+        #expect(request.body.contains("1"))
     }
 
     @Test("skips scheduling when bill reminders are disabled")

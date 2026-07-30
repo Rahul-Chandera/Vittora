@@ -34,7 +34,7 @@ struct TransactionRowView: View {
         typeLabel = transaction.type.displayName
 
         let note = transaction.note ?? String(localized: "Transaction")
-        let cat = category.map { ", \($0.name)" } ?? ""
+        let cat = category.map { ", \($0.displayName)" } ?? ""
         var description = "\(note)\(cat), \(typeLabel), \(formattedTimeText), \(formattedAmount)"
         if showSelection {
             description += isSelected
@@ -54,7 +54,7 @@ struct TransactionRowView: View {
     /// the list reads as the category instead of a generic "Transaction".
     private var displayTitle: String {
         if hasNote, let note = transaction.note { return note }
-        return category?.name ?? String(localized: "Transaction")
+        return category?.displayName ?? String(localized: "Transaction")
     }
 
     var body: some View {
@@ -69,13 +69,13 @@ struct TransactionRowView: View {
             ZStack {
                 Circle()
                     .fill(
-                        Color(hex: category?.colorHex ?? "#007AFF") ?? .blue
+                        (Color(hex: category?.colorHex ?? "#007AFF") ?? .blue).opacity(0.15)
                     )
                     .frame(width: categoryIconSize, height: categoryIconSize)
 
                 Image(systemName: category?.icon ?? "circle")
                     .font(.body)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(hex: category?.colorHex ?? "#007AFF") ?? .blue)
             }
             .accessibilityHidden(true)
 
@@ -88,7 +88,7 @@ struct TransactionRowView: View {
                 HStack(spacing: VSpacing.sm) {
                     // Only as a subtitle when the title is the note; otherwise the
                     // title already is the category name — don't repeat it.
-                    if hasNote, let categoryName = category?.name {
+                    if hasNote, let categoryName = category?.displayName {
                         Text(categoryName)
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
@@ -111,7 +111,6 @@ struct TransactionRowView: View {
                 Text(typeLabel)
                     .font(VTypography.caption2)
                     .foregroundColor(amountColor)
-                    .opacity(0.7)
             }
         }
         .padding(VSpacing.md)

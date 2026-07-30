@@ -30,8 +30,9 @@ struct DailySpendChart: View {
                 if transactions.isEmpty {
                     VStack(spacing: VSpacing.md) {
                         Image(systemName: "chart.bar")
-                            .font(.system(size: 32))
+                            .font(VTypography.title1)
                             .foregroundColor(VColors.textTertiary)
+                            .accessibilityHidden(true)
 
                         Text(String(localized: "No transactions yet"))
                             .font(VTypography.caption1)
@@ -47,12 +48,16 @@ struct DailySpendChart: View {
                                 y: .value("Amount", Double(truncating: data.amount as NSDecimalNumber))
                             )
                             .foregroundStyle(barColor(for: data.amount))
+                            .accessibilityLabel(String(localized: "Day \(data.day)"))
+                            .accessibilityValue(data.amount.formatted(.currency(code: currencyCode)))
                         }
 
                         // Reference line for daily average
                         RuleMark(y: .value("Budget Avg", Double(truncating: dailyBudgetAverage as NSDecimalNumber)))
                             .lineStyle(StrokeStyle(lineWidth: 2, dash: [5]))
                             .foregroundStyle(VColors.budgetWarning.opacity(0.6))
+                            .accessibilityLabel(String(localized: "Daily budget average"))
+                            .accessibilityValue(dailyBudgetAverage.formatted(.currency(code: currencyCode)))
                     }
                     .frame(height: 180)
                     .chartYAxis {
@@ -68,27 +73,29 @@ struct DailySpendChart: View {
                 }
 
                 // Legend
-                HStack(spacing: VSpacing.lg) {
-                    HStack(spacing: VSpacing.xs) {
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(VColors.budgetSafe)
-                            .frame(width: 8, height: 8)
-                        Text(String(localized: "Daily Spend"))
-                            .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
-                    }
-
-                    HStack(spacing: VSpacing.xs) {
-                        RoundedRectangle(cornerRadius: 2)
-                            .stroke(VColors.budgetWarning, lineWidth: 1.5)
-                            .frame(width: 8, height: 8)
-                        Text(String(localized: "Daily Budget"))
-                            .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
-                    }
-
-                    Spacer()
+            HStack(spacing: VSpacing.lg) {
+                HStack(spacing: VSpacing.xs) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(VColors.budgetSafe)
+                        .frame(width: 8, height: 8)
+                        .accessibilityHidden(true)
+                    Text(String(localized: "Daily Spend"))
+                        .font(VTypography.caption2)
+                        .foregroundColor(VColors.textSecondary)
                 }
+
+                HStack(spacing: VSpacing.xs) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .stroke(VColors.budgetWarning, lineWidth: 1.5)
+                        .frame(width: 8, height: 8)
+                        .accessibilityHidden(true)
+                    Text(String(localized: "Daily Budget"))
+                        .font(VTypography.caption2)
+                        .foregroundColor(VColors.textSecondary)
+                }
+
+                Spacer()
+            }
             }
         }
     }

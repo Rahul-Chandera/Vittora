@@ -22,7 +22,7 @@ struct BudgetDetailView: View {
                             }
 
                             VStack(spacing: VSpacing.xs) {
-                                Text(viewModel.category?.name ?? String(localized: "Budget"))
+                                Text(viewModel.category?.displayName ?? String(localized: "Budget"))
                                     .font(VTypography.bodyBold)
                                     .foregroundColor(VColors.textPrimary)
 
@@ -208,6 +208,10 @@ struct BudgetDetailView: View {
                 await viewModel.loadBudget(id: budgetID)
             }
         }
+        .advertisesHandoff(
+            viewModel?.budget == nil ? nil : .budgetDetail(budgetID),
+            isActive: viewModel?.budget != nil
+        )
     }
 
     private func calculateDaysInPeriod(for budget: BudgetEntity) -> Int {

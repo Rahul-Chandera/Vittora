@@ -5,7 +5,7 @@ import os
 public enum ModelContainerConfig {
     /// All SwiftData model types registered in the app (current schema version).
     public nonisolated static var allModels: [any PersistentModel.Type] {
-        VittoraSchemaV6.models
+        VittoraSchemaV7.models
     }
 
     /// Create the shared model container using a versioned schema baseline.
@@ -17,6 +17,8 @@ public enum ModelContainerConfig {
         let config = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: inMemory,
+            allowsSave: true,
+            groupContainer: inMemory ? .none : .identifier(AppGroupConfiguration.identifier),
             cloudKitDatabase: cloudKitDatabase
         )
         if !inMemory {
@@ -37,11 +39,26 @@ public enum ModelContainerConfig {
         return container
     }
 
+    /// Opens the shared App Group store for extension processes: read-only,
+    /// no migration plan, no CloudKit. The host app owns schema migrations.
+    public nonisolated static func makeReadOnlyContainer() throws -> ModelContainer {
+        let schema = Schema(allModels)
+        let config = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            allowsSave: false,
+            groupContainer: .identifier(AppGroupConfiguration.identifier),
+            cloudKitDatabase: .none
+        )
+        return try ModelContainer(for: schema, configurations: [config])
+    }
+
     /// File URL of the on-disk store — the same one `makeContainer` opens.
     public nonisolated static var persistentStoreURL: URL {
         ModelConfiguration(
             schema: Schema(allModels),
             isStoredInMemoryOnly: false,
+            groupContainer: .identifier(AppGroupConfiguration.identifier),
             cloudKitDatabase: .none
         ).url
     }

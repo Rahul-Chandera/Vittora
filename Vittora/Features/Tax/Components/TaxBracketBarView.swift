@@ -24,14 +24,6 @@ struct TaxBracketBarView: View {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Color.gray.opacity(0.3))
                             .frame(width: geo.size.width * pct)
-                            .overlay(alignment: .center) {
-                                if pct > 0.08 {
-                                    Text(String(localized: "Deduct."))
-                                        .font(.system(size: 9))
-                                        .foregroundStyle(.secondary)
-                                        .adaptiveLineLimit(1)
-                                }
-                            }
                     }
 
                     ForEach(Array(estimate.bracketResults.enumerated()), id: \.element.id) { idx, result in

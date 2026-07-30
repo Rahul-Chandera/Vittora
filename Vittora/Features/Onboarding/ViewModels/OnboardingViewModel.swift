@@ -113,6 +113,7 @@ final class OnboardingViewModel {
 
             // currencyCode is non-sensitive; UserDefaults is acceptable
             userDefaults.set(selectedCurrencyCode, forKey: AppUserDefaults.StandardKey.currencyCode)
+            AppUserDefaults.mirrorCurrencyCodeToAppGroup()
 
             persistNotificationPreference()
 

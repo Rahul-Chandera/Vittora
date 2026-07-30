@@ -65,6 +65,7 @@ struct TaxEstimateViewModelTests {
         #expect(viewModel.estimate == nil)
         #expect(viewModel.comparison == nil)
         #expect(viewModel.summary == nil)
+        #expect(viewModel.complianceTips.isEmpty)
         #expect(viewModel.error == nil)
     }
 
@@ -83,6 +84,7 @@ struct TaxEstimateViewModelTests {
         #expect(viewModel.estimate == nil)
         #expect(viewModel.comparison == nil)
         #expect(viewModel.summary == nil)
+        #expect(viewModel.complianceTips.isEmpty)
         #expect(viewModel.error?.contains("Mock error") == true)
     }
 }

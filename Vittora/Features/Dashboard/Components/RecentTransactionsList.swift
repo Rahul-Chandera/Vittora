@@ -21,9 +21,12 @@ struct RecentTransactionsList: View {
                         Image(systemName: "chevron.right")
                             .font(.caption2)
                             .foregroundColor(VColors.primary)
+                            .accessibilityHidden(true)
                     }
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(String(localized: "See all transactions"))
+                .accessibilityHint(String(localized: "Opens the Transactions tab"))
             }
 
             if transactions.isEmpty {
@@ -65,16 +68,17 @@ private struct RecentTransactionRow: View {
                     .frame(width: 36, height: 36)
                     .overlay {
                         Image(systemName: typeIcon(for: transaction.type))
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(VTypography.caption1Bold)
                             .foregroundColor(typeColor(for: transaction.type))
-                            .accessibilityHidden(true)
                     }
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: VSpacing.xxs) {
                     Text(transaction.note ?? String(localized: "Transaction"))
                         .font(VTypography.caption1Bold)
                         .foregroundColor(VColors.textPrimary)
                         .adaptiveLineLimit(1)
+                        .adaptiveMinimumScaleFactor(0.7)
 
                     Text(transaction.date.formatted(.dateTime.month(.abbreviated).day()))
                         .font(VTypography.caption2)
@@ -86,11 +90,26 @@ private struct RecentTransactionRow: View {
                 Text(CurrencyFormatter.formatSigned(transaction.amount, type: transaction.type, currencyCode: currencyCode))
                     .font(VTypography.amountCaption)
                     .foregroundColor(typeColor(for: transaction.type))
+                    .amountScaling()
             }
             .padding(.vertical, VSpacing.xs)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(rowAccessibilityLabel)
+        .accessibilityHint(String(localized: "Opens transaction details"))
+    }
+
+    private var rowAccessibilityLabel: String {
+        let note = transaction.note ?? String(localized: "Transaction")
+        let date = transaction.date.formatted(.dateTime.month(.abbreviated).day())
+        let amount = CurrencyFormatter.formatSigned(
+            transaction.amount,
+            type: transaction.type,
+            currencyCode: currencyCode
+        )
+        return "\(note), \(transaction.type.displayName), \(date), \(amount)"
     }
 
     private func typeColor(for type: TransactionType) -> Color {

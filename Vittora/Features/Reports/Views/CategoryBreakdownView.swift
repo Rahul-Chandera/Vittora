@@ -54,6 +54,13 @@ struct CategoryBreakdownView: View {
             }
         }
         .errorAlert(message: categoryBreakdownErrorBinding)
+        .advertisesHandoff(
+            .reportDetail(
+                type: ReportType.category.rawValue,
+                start: vm?.dateRange?.lowerBound,
+                end: vm?.dateRange?.upperBound
+            )
+        )
     }
 
     @ViewBuilder
@@ -87,7 +94,7 @@ struct CategoryBreakdownView: View {
                             Circle()
                                 .fill(VColors.categoryColors[index % VColors.categoryColors.count])
                                 .frame(width: 8, height: 8)
-                            Text(item.category.name)
+                            Text(item.category.displayName)
                                 .font(VTypography.caption2)
                                 .foregroundColor(VColors.textPrimary)
                                 .adaptiveLineLimit(1)
@@ -116,7 +123,7 @@ struct CategoryBreakdownView: View {
             VStack(spacing: VSpacing.md) {
                 ForEach(Array(vm.breakdowns.enumerated()), id: \.offset) { index, item in
                     ReportSummaryRow(
-                        label: item.category.name,
+                        label: item.category.displayName,
                         amount: item.amount,
                         percentage: item.percentage,
                         color: VColors.categoryColors[index % VColors.categoryColors.count],

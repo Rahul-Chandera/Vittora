@@ -12,7 +12,10 @@ final class AppLockFlowUITests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
+        // Clear Keychain/App Group App Lock so later suites do not inherit it.
+        UITestSupport.resetPersistedAppLockStateFromTearDown()
         app = nil
+        try super.tearDownWithError()
     }
 
     @MainActor

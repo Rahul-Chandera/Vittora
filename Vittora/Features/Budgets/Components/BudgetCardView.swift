@@ -14,22 +14,24 @@ struct BudgetCardView: View {
                 HStack(spacing: VSpacing.md) {
                     if let category = category {
                         Image(systemName: category.icon)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(VTypography.bodyBold)
                             .foregroundColor(Color(hex: category.colorHex) ?? .blue)
                             .frame(width: 40, height: 40)
                             .background(Color(hex: category.colorHex)?.opacity(0.15) ?? Color.blue.opacity(0.15))
                             .cornerRadius(VSpacing.cornerRadiusXL)
+                            .accessibilityHidden(true)
                     } else {
                         Image(systemName: "target")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(VTypography.bodyBold)
                             .foregroundColor(VColors.primary)
                             .frame(width: 40, height: 40)
                             .background(VColors.primary.opacity(0.15))
                             .cornerRadius(VSpacing.cornerRadiusXL)
+                            .accessibilityHidden(true)
                     }
 
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        Text(category?.name ?? String(localized: "Budget"))
+                        Text(category?.displayName ?? String(localized: "Budget"))
                             .font(VTypography.bodyBold)
                             .foregroundColor(VColors.textPrimary)
 
@@ -91,7 +93,7 @@ struct BudgetCardView: View {
     }
 
     private var cardAccessibilityLabel: String {
-        let name = category?.name ?? String(localized: "Budget")
+        let name = category?.displayName ?? String(localized: "Budget")
         let spent = budget.spent.formatted(.currency(code: currencyCode))
         let limit = budget.amount.formatted(.currency(code: currencyCode))
         let pct = Int(budget.progress * 100)

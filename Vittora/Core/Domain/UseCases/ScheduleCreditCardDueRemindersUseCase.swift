@@ -36,6 +36,7 @@ struct ScheduleCreditCardDueRemindersUseCase: Sendable {
                   CreditCardDueDateCalculator.isValidDayOfMonth(dueDay),
                   let fireDate = CreditCardDueDateCalculator.nextReminderDate(
                     dayOfMonth: dueDay,
+                    leadDays: billLeadDays,
                     calendar: calendar,
                     from: nowProvider()
                   )
@@ -49,7 +50,7 @@ struct ScheduleCreditCardDueRemindersUseCase: Sendable {
                     identifier: identifier,
                     title: String(localized: "Payment Due Soon"),
                     body: String(
-                        localized: "Your \(account.name) payment is due in \(CreditCardDueDateCalculator.defaultLeadDays) days."
+                        localized: "Your \(account.name) payment is due in \(billLeadDays) days."
                     ),
                     fireDate: fireDate,
                     category: .billDue,
@@ -69,5 +70,9 @@ struct ScheduleCreditCardDueRemindersUseCase: Sendable {
     private var isBillRemindersEnabled: Bool {
         userDefaults.bool(forKey: Self.notificationsEnabledKey)
             && (userDefaults.object(forKey: Self.notifyBillsDueKey) as? Bool ?? true)
+    }
+
+    private var billLeadDays: Int {
+        NotificationSchedulePreferences.billLeadDays(in: userDefaults)
     }
 }

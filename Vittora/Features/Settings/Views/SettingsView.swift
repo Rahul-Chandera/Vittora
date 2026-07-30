@@ -5,12 +5,14 @@ struct SettingsView: View {
     @Environment(AppState.self) private var appState
     @Environment(SettingsViewModel.self) private var vm
     @Environment(SyncConflictHandler.self) private var syncConflictHandler
+    @Environment(SyncStatusService.self) private var syncService
     @Environment(\.dependencies) private var dependencies
     @State private var showDeleteAccountConfirm = false
     @State private var deleteConfirmationText = ""
     @State private var isDeletingAllData = false
     @State private var deleteAllDataError: String?
     @State private var showRestartAfterRecoveryReset = false
+    @State private var showContactSupport = false
 
     private let deleteConfirmationPhrase = String(localized: "DELETE")
 
@@ -45,6 +47,13 @@ struct SettingsView: View {
 
             // Preferences
             Section(String(localized: "Preferences")) {
+                Button {
+                    showContactSupport = true
+                } label: {
+                    SettingsRow(icon: "envelope.fill", iconColor: .green,
+                                title: String(localized: "Contact Support"), value: "")
+                }
+                .accessibilityIdentifier("settings-contact-support")
                 NavigationLink {
                     CurrencySettingsView(vm: vm)
                 } label: {
@@ -101,6 +110,13 @@ struct SettingsView: View {
                     SettingsRow(icon: "lock.fill", iconColor: .orange,
                                 title: String(localized: "App Lock"),
                                 value: vm.isAppLockEnabled ? String(localized: "On") : String(localized: "Off"))
+                }
+                NavigationLink {
+                    PrivacySearchSettingsView(vm: vm)
+                } label: {
+                    SettingsRow(icon: "magnifyingglass", iconColor: .cyan,
+                                title: String(localized: "Search Privacy"),
+                                value: vm.isSpotlightIndexingEnabled ? String(localized: "On") : String(localized: "Off"))
                 }
                 NavigationLink {
                     SecurityAuditLogView()
@@ -173,6 +189,22 @@ struct SettingsView: View {
             deleteAllDataError = nil
         }) {
             deleteAllDataConfirmationSheet
+        }
+        .sheet(isPresented: $showContactSupport) {
+            NavigationStack {
+                ContactSupportView(
+                    settingsVM: vm,
+                    dependencies: dependencies,
+                    syncService: syncService
+                )
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(String(localized: "Done")) {
+                            showContactSupport = false
+                        }
+                    }
+                }
+            }
         }
         .alert(
             String(localized: "Data Erased"),

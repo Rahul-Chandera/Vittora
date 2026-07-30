@@ -65,3 +65,6 @@ fastlane/test_output
 
 # Xcode derived-data style build output (never commit)
 /.build-*/
+
+# Local verification artifacts (screenshots, ad-hoc exports)
+/verification/
