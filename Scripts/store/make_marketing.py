@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Compose App Store marketing screenshots: raw capture -> device frame +
 headline + soft branded background. Outputs exact ASC-accepted sizes."""
+import hashlib
+import json
 import os
+import subprocess
+import tempfile
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 FONT = "/System/Library/Fonts/HelveticaNeue.ttc"
@@ -13,15 +17,86 @@ BLUE = (96, 165, 250)
 RAW = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "Docs", "Store", "screenshots")
 OUT = os.path.join(RAW, "marketing")
 
-COPY = {
-    "01-dashboard":   ("Everything at\na Glance",      "Income, spending, budgets, and goals in one place"),
-    "02-transactions":("Track Every\nTransaction",     "Ten-second capture with instant search and filters"),
-    "03-budgets":     ("Budgets That\nKeep Up",        "Per-category limits with overspend warnings"),
-    "04-savings":     ("Achieve Your\nSavings Goals",  "Set a target and watch the progress ring fill"),
-    "05-reports":     ("Reports That\nExplain",        "Category breakdowns, trends, and cash flow"),
+COPY_BY_LOCALE = {
+    "en": {
+        "01-dashboard":    ("Everything at\na Glance",      "Income, spending, budgets, and goals in one place"),
+        "02-transactions": ("Track Every\nTransaction",     "Ten-second capture with instant search and filters"),
+        "03-budgets":      ("Budgets That\nKeep Up",        "Per-category limits with overspend warnings"),
+        "04-fiftythirtytwenty": ("Needs, Wants,\nSavings",     "See your month against the 50/30/20 guideline"),
+        # Only the Mac raws still carry a savings capture (see the note in
+        # capture_screenshots.sh); kept so the Mac gallery is not cut to four.
+        "04-savings":      ("Achieve Your\nSavings Goals",  "Set a target and watch the progress ring fill"),
+        "05-reports":      ("Reports That\nExplain",        "Category breakdowns, trends, and cash flow"),
+        "06-yearinreview": ("Your Year,\nWrapped",          "Total spent, top categories, and your biggest month"),
+    },
+    "es": {
+        "01-dashboard":    ("Todo de\nun Vistazo",          "Ingresos, gastos, presupuestos y metas en un lugar"),
+        "02-transactions": ("Registra Cada\nMovimiento",    "Captura en segundos, con búsqueda y filtros"),
+        "03-budgets":      ("Presupuestos\na tu Ritmo",     "Límites por categoría y avisos antes de pasarte"),
+        "04-fiftythirtytwenty": ("Necesidades,\nGustos, Ahorro", "Compara tu mes con la regla 50/30/20"),
+        "05-reports":      ("Reportes que\nte Explican",    "Desglose por categoría, tendencias y flujo"),
+        "06-yearinreview": ("Tu Año\nen Resumen",           "Total gastado, categorías principales y tu mes más alto"),
+    },
+    "hi": {
+        "01-dashboard":    ("एक नज़र में\nसब कुछ",            "आय, खर्च, बजट और लक्ष्य — एक ही जगह"),
+        "02-transactions": ("हर ट्रांज़ैक्शन\nरिकॉर्ड करें",      "सेकंडों में एंट्री, तुरंत सर्च और फ़िल्टर"),
+        "03-budgets":      ("बजट जो\nसाथ चले",              "हर कैटेगरी की सीमा, खर्च बढ़ने से पहले चेतावनी"),
+        "04-fiftythirtytwenty": ("ज़रूरतें, चाहतें,\nबचत",        "50/30/20 नियम के हिसाब से अपना महीना देखें"),
+        "05-reports":      ("रिपोर्ट जो\nसमझाएँ",             "कैटेगरी ब्रेकडाउन, ट्रेंड और कैश फ़्लो"),
+        "06-yearinreview": ("आपका साल,\nएक झलक में",         "कुल खर्च, मुख्य कैटेगरी और सबसे बड़ा महीना"),
+    },
 }
+COPY = COPY_BY_LOCALE["en"]
 # Wide canvases fit the headline on one line
-COPY_WIDE = {k: (t.replace("\n", " "), s) for k, (t, s) in COPY.items()}
+COPY_WIDE_BY_LOCALE = {
+    loc: {k: (t.replace("\n", " "), sub) for k, (t, sub) in table.items()}
+    for loc, table in COPY_BY_LOCALE.items()
+}
+
+
+# ---- text rendering ---------------------------------------------------------
+# Rendered by CoreText via render_text.swift, not by PIL: Pillow here has no
+# Raqm, so it mis-shapes Devanagari. Everything is rendered once at BASE_PT and
+# scaled down per canvas, so one swift invocation covers the whole run.
+BASE_PT = 200
+TEXT_DIR = os.path.join(tempfile.gettempdir(), "vittora-marketing-text")
+_TEXT_CACHE = {}
+
+
+def _text_key(text, weight, rgb):
+    digest = hashlib.sha1(f"{text}|{weight}|{rgb}".encode()).hexdigest()[:16]
+    return digest, os.path.join(TEXT_DIR, f"{digest}.png")
+
+
+def prerender_text(specs):
+    """specs: iterable of (text, weight, rgb). Renders any not already cached."""
+    os.makedirs(TEXT_DIR, exist_ok=True)
+    manifest = []
+    for text, weight, rgb in specs:
+        digest, path = _text_key(text, weight, rgb)
+        if digest in _TEXT_CACHE:
+            continue
+        _TEXT_CACHE[digest] = path
+        if not os.path.exists(path):
+            manifest.append({"out": path, "size": BASE_PT, "weight": weight,
+                             "rgb": list(rgb[:3]), "text": text})
+    if not manifest:
+        return
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+        json.dump(manifest, fh)
+        manifest_path = fh.name
+    swift = os.path.join(os.path.dirname(os.path.abspath(__file__)), "render_text.swift")
+    subprocess.run(["swift", swift, manifest_path], check=True)
+    os.unlink(manifest_path)
+
+
+def text_layer(text, px, weight, rgb):
+    """Cached CoreText render, scaled so its point size corresponds to `px`."""
+    _, path = _text_key(text, weight, rgb)
+    img = Image.open(path).convert("RGBA")
+    scale = px / BASE_PT
+    return img.resize((max(1, int(img.width * scale)), max(1, int(img.height * scale))),
+                      Image.LANCZOS)
 
 
 def font(size, face=1):  # 1=Bold, 0=Regular, 10=Medium
@@ -79,22 +154,21 @@ def device(shot, screen_w, corner, bezel):
 
 
 def draw_copy(img, title, sub, top, title_size, sub_size, gap):
-    d = ImageDraw.Draw(img)
     w = img.width
     y = top
     for line in title.split("\n"):
-        tw = d.textlength(line, font=font(title_size))
-        d.text(((w - tw) // 2, y), line, font=font(title_size), fill=INK)
+        layer = text_layer(line, title_size, "bold", INK)
+        img.alpha_composite(layer, ((w - layer.width) // 2, y - int(title_size * 0.5)))
         y += int(title_size * 1.14)
     y += gap
-    tw = d.textlength(sub, font=font(sub_size, 10))
-    d.text(((w - tw) // 2, y), sub, font=font(sub_size, 10), fill=MUTED)
+    layer = text_layer(sub, sub_size, "medium", MUTED)
+    img.alpha_composite(layer, ((w - layer.width) // 2, y - int(sub_size * 0.5)))
     return y + int(sub_size * 1.3)
 
 
-def compose_phone(raw_path, out_path, W, H):
+def compose_phone(raw_path, out_path, copy, W, H):
     key = os.path.splitext(os.path.basename(raw_path))[0]
-    title, sub = COPY[key]
+    title, sub = copy[key]
     img = background(W, H)
     ts = int(W * 0.088)
     bottom = draw_copy(img, title, sub, int(H * 0.052), ts, int(W * 0.036), int(W * 0.03))
@@ -109,25 +183,31 @@ def compose_phone(raw_path, out_path, W, H):
     img.convert("RGB").save(out_path, "PNG")
 
 
-def compose_pad(raw_path, out_path, W=2752, H=2064):
+def compose_pad(raw_path, out_path, copy, W=2064, H=2752):
+    """Portrait iPad. 2064x2752 is an ASC-accepted 13" size and matches what the
+    simulator captures, so nothing has to be rotated."""
     key = os.path.splitext(os.path.basename(raw_path))[0]
-    title, sub = COPY_WIDE[key]
+    title, sub = copy[key]
     img = background(W, H)
-    bottom = draw_copy(img, title, sub, int(H * 0.055), int(W * 0.042), int(W * 0.017), int(W * 0.012))
+    bottom = draw_copy(img, title, sub, int(H * 0.045), int(W * 0.058),
+                       int(W * 0.024), int(W * 0.016))
     shot = Image.open(raw_path).convert("RGB")
-    avail_h = H - bottom - int(H * 0.04)
-    bezel = int(W * 0.011)
-    screen_h = avail_h + int(H * 0.06)
+    avail_h = H - bottom - int(H * 0.03)
+    bezel = int(W * 0.013)
+    screen_h = avail_h + int(H * 0.035)
     screen_w = int(screen_h * shot.width / shot.height)
-    dev, margin = device(shot, screen_w, corner=int(W * 0.028), bezel=bezel)
-    img.alpha_composite(dev, ((W - dev.width) // 2, bottom + int(H * 0.02) - margin + bezel * 2))
+    if screen_w > W - int(W * 0.16):            # keep clear of the canvas edges
+        screen_w = W - int(W * 0.16)
+        screen_h = int(screen_w * shot.height / shot.width)
+    dev, margin = device(shot, screen_w, corner=int(W * 0.035), bezel=bezel)
+    img.alpha_composite(dev, ((W - dev.width) // 2, bottom + int(H * 0.015) - margin + bezel * 2))
     img = img.crop((0, 0, W, H))
     img.convert("RGB").save(out_path, "PNG")
 
 
-def compose_mac(raw_path, out_path, W=1440, H=900):
+def compose_mac(raw_path, out_path, copy, W=1440, H=900):
     key = os.path.splitext(os.path.basename(raw_path))[0]
-    title, sub = COPY_WIDE[key]
+    title, sub = copy[key]
     img = background(W, H)
     bottom = draw_copy(img, title, sub, int(H * 0.045), int(W * 0.032), int(W * 0.0135), int(W * 0.008))
     shot = Image.open(raw_path).convert("RGBA")  # window capture already has rounded corners
@@ -149,19 +229,54 @@ def compose_mac(raw_path, out_path, W=1440, H=900):
 
 
 def main():
+    # (raw set, output set, locale, composer). The 6.5" set reuses the 6.9"
+    # captures — Apple accepts one gallery scaled, and the pixel ratio is close
+    # enough that the framed result is indistinguishable.
     jobs = [
-        ("iphone-69", "iphone-69", lambda r, o: compose_phone(r, o, 1320, 2868)),
-        ("iphone-69", "iphone-65", lambda r, o: compose_phone(r, o, 1284, 2778)),
-        ("ipad-13", "ipad-13", compose_pad),
-        ("mac", "mac", compose_mac),
+        ("iphone-69",    "iphone-69",    "en", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
+        ("iphone-69",    "iphone-65",    "en", lambda r, o, c: compose_phone(r, o, c, 1284, 2778)),
+        ("iphone-69-in", "iphone-69-in", "en", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
+        ("iphone-69-hi", "iphone-69-hi", "hi", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
+        ("iphone-69-es", "iphone-69-es", "es", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
+        ("ipad-13",      "ipad-13",      "en", compose_pad),
+        ("mac",          "mac",          "en", compose_mac),
     ]
-    for src, dst, fn in jobs:
+
+    # One swift invocation for every string in the run.
+    wide = {"mac"}
+    specs, tables = [], {}
+    for src, dst, locale, _ in jobs:
+        srcdir = os.path.join(RAW, src)
+        if not os.path.isdir(srcdir):
+            continue
+        table = (COPY_WIDE_BY_LOCALE if dst in wide else COPY_BY_LOCALE)[locale]
+        tables[dst] = table
+        for name in sorted(os.listdir(srcdir)):
+            key = os.path.splitext(name)[0]
+            if not name.endswith(".png") or key not in table:
+                continue
+            title, sub = table[key]
+            specs += [(line, "bold", INK) for line in title.split("\n")]
+            specs.append((sub, "medium", MUTED))
+    prerender_text(specs)
+
+    for src, dst, locale, fn in jobs:
+        srcdir = os.path.join(RAW, src)
+        if not os.path.isdir(srcdir):
+            print(f"skip {dst}: no raw captures in {srcdir}")
+            continue
         outdir = os.path.join(OUT, dst)
         os.makedirs(outdir, exist_ok=True)
-        for name in sorted(os.listdir(os.path.join(RAW, src))):
+        table = tables[dst]
+        for name in sorted(os.listdir(srcdir)):
+            key = os.path.splitext(name)[0]
             if not name.endswith(".png"):
                 continue
-            fn(os.path.join(RAW, src, name), os.path.join(outdir, name))
+            if key not in table:
+                # A raw capture with no headline copy — don't guess one.
+                print(f"skip {dst}/{name}: no copy for '{key}'")
+                continue
+            fn(os.path.join(srcdir, name), os.path.join(outdir, name), table)
             print(dst, name)
 
 
