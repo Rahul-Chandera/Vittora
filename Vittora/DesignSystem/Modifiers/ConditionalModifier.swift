@@ -79,17 +79,17 @@ extension View {
     return VStack(spacing: VSpacing.lg) {
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                Text("Conditional Modifier Examples")
+                Text(verbatim: "Conditional Modifier Examples")
                     .font(VTypography.title3)
                     .foregroundColor(VColors.textPrimary)
 
-                Text("Basic if() modifier")
+                Text(verbatim: "Basic if() modifier")
                     .font(VTypography.caption1)
                     .foregroundColor(VColors.textSecondary)
 
-                Toggle("Apply Bold", isOn: $isSelected)
+                Toggle(isOn: $isSelected) { Text(verbatim: "Apply Bold") }
 
-                Text("This text responds to the toggle")
+                Text(verbatim: "This text responds to the toggle")
                     .font(VTypography.body)
                     .if(isSelected) { view in
                         AnyView(view.fontWeight(.bold).foregroundColor(VColors.primary))
@@ -102,13 +102,13 @@ extension View {
 
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                Text("ifElse() modifier")
+                Text(verbatim: "ifElse() modifier")
                     .font(VTypography.title3)
                     .foregroundColor(VColors.textPrimary)
 
-                Toggle("Show Loading", isOn: $isLoading)
+                Toggle(isOn: $isLoading) { Text(verbatim: "Show Loading") }
 
-                Text("Content changes based on state")
+                Text(verbatim: "Content changes based on state")
                     .font(VTypography.body)
                     .ifElse(isLoading,
                         if: { view in

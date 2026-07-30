@@ -71,12 +71,12 @@ extension View {
     VStack(spacing: VSpacing.lg) {
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                Text("Loading Content")
+                Text(verbatim: "Loading Content")
                     .font(VTypography.title3)
                     .shimmer()
                     .frame(height: 24)
 
-                Text("This is a placeholder that will shimmer while content loads.")
+                Text(verbatim: "This is a placeholder that will shimmer while content loads.")
                     .font(VTypography.body)
                     .shimmer()
                     .frame(height: 60)
