@@ -112,7 +112,7 @@ struct VStatCard: View {
 #Preview {
     VStack(spacing: VSpacing.lg) {
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Stat Cards Grid")
+            Text(verbatim: "Stat Cards Grid")
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
 
@@ -136,7 +136,7 @@ struct VStatCard: View {
         }
 
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text("Without Trend")
+            Text(verbatim: "Without Trend")
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
 

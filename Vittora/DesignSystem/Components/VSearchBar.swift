@@ -69,7 +69,7 @@ struct VSearchBar: View {
     return VStack(spacing: VSpacing.lg) {
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                Text("Default Search Bar")
+                Text(verbatim: "Default Search Bar")
                     .font(VTypography.title3)
                     .foregroundColor(VColors.textPrimary)
 
@@ -79,7 +79,7 @@ struct VSearchBar: View {
 
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                Text("With Placeholder")
+                Text(verbatim: "With Placeholder")
                     .font(VTypography.title3)
                     .foregroundColor(VColors.textPrimary)
 

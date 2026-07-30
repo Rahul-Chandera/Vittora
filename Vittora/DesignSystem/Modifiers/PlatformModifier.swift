@@ -84,12 +84,12 @@ extension View {
     VStack(spacing: VSpacing.lg) {
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                Text("Adaptive Padding Example")
+                Text(verbatim: "Adaptive Padding Example")
                     .font(VTypography.title3)
                     .foregroundColor(VColors.textPrimary)
                     .adaptivePadding()
 
-                Text("This content uses platform-aware padding that adjusts based on device type (iPhone, iPad, or Mac).")
+                Text(verbatim: "This content uses platform-aware padding that adjusts based on device type (iPhone, iPad, or Mac).")
                     .font(VTypography.body)
                     .foregroundColor(VColors.textSecondary)
             }
@@ -97,12 +97,12 @@ extension View {
         .adaptiveScreenPadding()
 
         VStack(spacing: VSpacing.md) {
-            Text("Platform Information")
+            Text(verbatim: "Platform Information")
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
 
             #if os(iOS)
-            Text("Running on iOS")
+            Text(verbatim: "Running on iOS")
                 .font(VTypography.body)
                 .foregroundColor(VColors.textSecondary)
             #elseif os(macOS)

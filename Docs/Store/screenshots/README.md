@@ -71,21 +71,18 @@ matras and conjuncts come out in the wrong order. Strings are rendered once at
 | `iphone-69`, `iphone-65`, `iphone-69-in` | **ready to upload** — 6 slots |
 | `ipad-13` | **ready to upload** — 6 slots, portrait 2064x2752 |
 | `watch` | **ready** — regenerated, real post-seed snapshot |
-| `iphone-69-hi`, `iphone-69-es` | **DO NOT PUBLISH slots 04–06 yet** — see below |
+| `iphone-69-hi`, `iphone-69-es` | **ready to upload** — 6 slots, fully localized |
 | `mac` | **stale (v1.0 content)** — capture blocked, see below |
 
-### hi / es are only partly localized
+### hi / es are fully localized as of the L3 fix
 
-Slots 01–03 are fully localized and publishable. Slots 04, 05 and 06 show English
-UI strings because **64 keys are missing from `Localizable.xcstrings`** across
-50/30/20 (G1), Emergency Fund (G2) and Year in Review (W1) — those screens were
-built without their strings being extracted, so hi and es fall back to English.
-G1 and G2 shipped in **1.4.0, already live**, so Hindi users see this today.
+All six slots are clean. Earlier captures showed English on slots 04–06 because
+131 keys had never reached `Localizable.xcstrings`; that is fixed, and
+`Scripts/ci/check-localization-coverage.sh` now runs in CI so it cannot recur.
 
-Until those keys land, either publish a 3-shot hi/es gallery or leave the
-localized listings on the English gallery. Also note the India demo dataset uses
-English payee names and notes ("Lunch Order", "Monthly Staples"); those are user
-data rather than UI strings, but a Hindi set would read better with Hindi ones.
+The India demo dataset still uses English payee names and notes ("Lunch Order",
+"Monthly Staples"). Those are user data rather than UI strings, so they are not
+a localization bug, but a Hindi set would read better with Hindi ones.
 
 ### Mac captures are blocked on this machine
 

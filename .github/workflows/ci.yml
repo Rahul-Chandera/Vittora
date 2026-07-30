@@ -63,6 +63,11 @@ jobs:
       - name: make build-ios
         run: make build-ios
 
+      # After build-ios: the check reads the compiler's .stringsdata, which only
+      # exists once something has been compiled.
+      - name: Localization coverage
+        run: DERIVED=.build-ios Scripts/ci/check-localization-coverage.sh --list
+
       - name: make build-macos
         run: make build-macos
 
