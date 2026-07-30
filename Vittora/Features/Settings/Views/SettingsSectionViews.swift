@@ -147,7 +147,7 @@ struct AppearanceSettingsView: View {
                     )
                 }
             } header: {
-                VFormSectionHeader(String(localized: "Accent Colour"))
+                VFormSectionHeader(String(localized: "Accent Color"))
             }
             .headerProminence(.increased)
 

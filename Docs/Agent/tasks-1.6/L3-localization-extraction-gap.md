@@ -1,4 +1,4 @@
-# L3 — 131 user-facing strings never reached the string catalogue
+# L3 — user-facing strings that never reached the string catalogue — **DONE**
 
 **Found:** 2026-07-30, while regenerating store screenshots (PR #173). The Hindi
 50/30/20 screen rendered "Needs", "Wants" and "This is a general guideline, not
@@ -28,74 +28,63 @@ This is also why the working tree on `release/1.4.0` carried ~67 uncommitted
 catalogue additions: someone opened Xcode, the IDE extracted, and the result was
 never committed.
 
-## Scope
+## Scope, as measured
 
-`Scripts/ci/check-localization-coverage.sh` (added in this PR) reports it:
+Two passes were needed, because the first measurement was wrong in an
+instructive way.
 
-```
-catalogue keys                 : 1314
-interpolated literals (skipped): 143
-literals missing from catalogue: 131
-keys with no hi translation    : 0
-keys with no es translation    : 0
-```
+**Pass 1 — regex over `String(localized: "…")`: 131 keys.** That is what the
+first version of the check counted, and it is an undercount. A regex cannot see
+interpolated strings (`String(localized: "Year \(y)")` becomes the key
+`Year %@`) and it cannot see bare SwiftUI `Text("literal")`, which SwiftUI also
+localizes.
 
-Worst files:
+**Pass 2 — the compiler's own `.stringsdata`: 92 further keys.** This is
+authoritative: it is exactly what Xcode would write into the catalogue. It
+surfaced the format-string accessibility labels, the Watch complication strings,
+and one genuine bug the regex could never have found:
 
-| count | file |
-|---|---|
-| 21 | `Features/Reports/Views/YearInReviewView.swift` |
-| 19 | `Features/Reports/Views/EmergencyFundReportView.swift` |
-| 16 | `Features/Settings/Views/SettingsSectionViews.swift` |
-| 7 | `Features/Reports/Views/FiftyThirtyTwentyReportView.swift` |
-| 5 each | `SettingsViewModel`, `SavingsGoalFormView`, `ReportsHomeView` |
-| 4 | `Components/YearInReviewShareCopy.swift` |
-| 3 each | `SavingsGoalListView`, `TaxProfileFormView`, `SplitGroupListView` |
+> `YearInReviewView` asked for `Year %@` (it interpolated `String(year)` to avoid
+> a "Year 2,026" thousands separator) while the catalogue only had `Year %lld`.
+> The key never matched, so the year picker fell back to English.
 
-The 143 interpolated literals are reported but never failed on — they become
-`%@`/`%lld` keys in the catalogue and cannot be matched against raw source. A
-sample of them should still be checked by hand.
+Totals: **185 keys added** — 131 + 54 translated, and 38 marked
+`"shouldTranslate": false`.
 
-## Do this
+## What was done
 
-1. Open `Vittora.xcodeproj` in Xcode and build once. The IDE extracts and writes
-   the new keys into `Localizable.xcstrings`. **Commit that file** — that step is
-   the one that has been missed every time.
-2. Translate the new entries into `hi` and `es`. Follow the terminology already
-   in the catalogue rather than inventing new words — the app is consistent today
-   and should stay that way (*बजट*, *बचत दर*, *presupuesto*, *meta de ahorro*).
-3. **Triage before translating.** Several extracted strings should not be in a
-   shipped catalogue at all, and translating them would cement the mistake:
-   - `UI Test Merchant`, `UI Test Subscription` — demo fixtures from
-     `UITestDataSeeder`, which lives in the app target and therefore extracts.
-     Move them out of `String(localized:)`; they are never shown to a user.
-   - `72%` — a hardcoded literal in a preview.
-   - `Vittora Notification`, `Scheduled delivery verified.` — notification
-     verification strings; confirm whether a user ever sees them.
-   - `%@ %@` — a bare concatenation. Whatever composes it should build an
-     accessibility label properly instead of localizing a joiner.
-   - `Accent Colour` — en-GB spelling, while the catalogue uses `Accent Color`.
-     One of the two is a typo; do not translate both.
-4. Wire the script into CI as a required step of **CI / build-and-test** once it
-   passes. It is deliberately *not* wired up in this PR — a check that fails the
-   moment it lands would redden `develop` in the middle of the 1.5.0 cut.
+1. **Added and translated 185 keys** into `hi` and `es`, following the
+   terminology already in the catalogue rather than inventing new words
+   (*बजट*, *बचत*, *कैटेगरी*, *पेयी*, *उधार* / *presupuesto*, *ahorros*,
+   *categoría*, *beneficiario*, *deuda*). Accessibility labels follow the
+   existing patterns exactly: "Add X" → "X जोड़ें" / "Agregar X",
+   "Opens the X form" → "X फ़ॉर्म खोलता है" / "Abre el formulario de X".
+2. **Preview and fixture strings were marked `"shouldTranslate": false`**, the
+   String Catalog's own mechanism, rather than translated or edited out of ~12
+   source files. These come from `#Preview` blocks in the design system and from
+   `UITestDataSeeder`. A **Release** build extracts them identically to Debug —
+   verified, not assumed — so they really do ship; they are simply never shown to
+   a user, and no translator should be handed `ifElse() modifier`.
+3. **Fixed `Accent Colour` → `Accent Color`** in `SettingsSectionViews`. Neither
+   spelling was in the catalogue and the app uses US spelling everywhere else.
+4. **Every translation is placeholder-checked.** The apply script fails if a
+   translation drops, adds, or changes the `%@` / `%lld` sequence, because that
+   is a format crash at runtime rather than a cosmetic error.
+5. **Rewrote the check to read `.stringsdata`** instead of grepping source, and
+   wired it into CI *after* `make build-ios` (it needs a compile to exist).
 
-## Blocked on this
+## Verified
 
-- `Docs/Store/screenshots/iphone-69-hi` and `iphone-69-es` slots 04–06 are
-  mixed-language and must not be published. Slots 01–03 are clean.
-- "Vittora is now fully available in Spanish" in `WHATS_NEW_1.5.0.md`, and
-  "अब हिंदी में — Vittora is fully available in Hindi" in
-  `metadata-en-IN-refresh.md`, are **not accurate** until this lands. Either fix
-  this first or soften both lines before submitting.
+- `Scripts/ci/check-localization-coverage.sh` → 0 missing, 0 untranslated.
+- iOS Debug and Release builds succeed with the new catalogue.
+- `HindiLocalizationUITests` and `SpanishLocalizationUITests` pass.
+- hi and es screenshot sets re-captured: all six slots render fully localized,
+  including "वर्ष 2026" / "खर्च का 64%" and "Necesidades / Gustos / Ahorros".
 
 ## Acceptance
 
-- [ ] `Scripts/ci/check-localization-coverage.sh` exits 0.
-- [ ] The triaged strings above are removed from `String(localized:)` rather than
-      translated.
-- [ ] A Hindi and a Spanish speaker have read the new entries — this is 131
-      strings of user-facing product text, not internal copy.
-- [ ] The script is a required CI step, so this cannot silently recur.
-- [ ] hi/es screenshot slots 04–06 re-captured with
-      `Scripts/store/capture_screenshots.sh` and the marketing sets regenerated.
+- [x] `Scripts/ci/check-localization-coverage.sh` exits 0 (now driven by the compiler's `.stringsdata`, not a regex).
+- [x] Preview and fixture strings carry `"shouldTranslate": false` rather than being translated.
+- [ ] **STILL OPEN:** a Hindi and a Spanish speaker should read the new entries — 185 strings of user-facing product text, authored without native review.
+- [x] The script runs in CI / build-and-test, after `make build-ios`.
+- [x] hi/es sets fully re-captured and the marketing sets regenerated.
