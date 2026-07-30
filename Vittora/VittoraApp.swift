@@ -591,6 +591,18 @@ struct VittoraApp: App {
                 }
             }
         }
+
+        // Any `vittora://` route, applied in-process at launch. `simctl openurl`
+        // reaches the same routing, but SpringBoard puts an "Open in …?" alert on
+        // screen first, which is fatal for store screenshots.
+        let urlPrefix = "--ui-test-open-url="
+        if let raw = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix(urlPrefix) }),
+           let url = URL(string: String(raw.dropFirst(urlPrefix.count))) {
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(400))
+                appState.openFromURL(url)
+            }
+        }
     }
 
     /// Runs `TodaySpendingQuery` (same path as GetTodaySpendingIntent) for screenshot verification.
