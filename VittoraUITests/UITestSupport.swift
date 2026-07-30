@@ -217,6 +217,10 @@ enum UITestSupport {
     /// Bottom clearance follows the live tab-bar frame for the same reason — a
     /// fixed inset let Settings rows sit under the floating tab bar, so a
     /// coordinate tap selected Budgets instead of the intended destination.
+    ///
+    /// At AccessibilityXL a Form row can be taller than the whole unobscured
+    /// region, so no scroll position satisfies both edges; in that case accept
+    /// when the element's centre sits in the clear zone.
     @MainActor
     static func scrollToElement(
         _ element: XCUIElement,
@@ -246,16 +250,20 @@ enum UITestSupport {
             if element.exists {
                 let frame = element.frame
                 if frame.width > 1, frame.height > 1 {
-                    if frame.minY >= unobscuredTop, frame.maxY <= unobscuredBottom {
+                    let fullyClear = frame.minY >= unobscuredTop && frame.maxY <= unobscuredBottom
+                    let centerY = frame.midY
+                    let centerClear = centerY >= unobscuredTop && centerY <= unobscuredBottom
+                    let tallerThanViewport = frame.height > (unobscuredBottom - unobscuredTop)
+                    if fullyClear || (tallerThanViewport && centerClear) {
                         return
                     }
-                    if frame.minY < unobscuredTop {
+                    if frame.minY < unobscuredTop || (tallerThanViewport && centerY < unobscuredTop) {
                         app.swipeDown()
                         swipes += 1
                         RunLoop.current.run(until: Date().addingTimeInterval(0.15))
                         continue
                     }
-                    if frame.maxY > unobscuredBottom {
+                    if frame.maxY > unobscuredBottom || (tallerThanViewport && centerY > unobscuredBottom) {
                         app.swipeUp()
                         swipes += 1
                         RunLoop.current.run(until: Date().addingTimeInterval(0.15))

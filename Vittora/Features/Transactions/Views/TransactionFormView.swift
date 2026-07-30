@@ -342,10 +342,7 @@ struct TransactionFormView: View {
     }
 
     private func formSectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.headline)
-            .foregroundStyle(.primary)
-            .textCase(nil)
+        VFormSectionHeader(title)
     }
 
     /// Label + control: horizontal at standard sizes, vertical at accessibility

@@ -102,7 +102,7 @@ struct AccountDetailView: View {
             }
 
             // Account Details
-            Section(String(localized: "Details")) {
+            Section(header: VFormSectionHeader(String(localized: "Details"))) {
                 LabeledContent("Name", value: account.name)
                 LabeledContent("Type", value: account.type.displayName)
                 LabeledContent("Currency", value: account.currencyCode)
@@ -117,7 +117,7 @@ struct AccountDetailView: View {
 
             // Recent Transactions
             if !vm.recentTransactions.isEmpty {
-                Section(String(localized: "Recent Transactions")) {
+                Section(header: VFormSectionHeader(String(localized: "Recent Transactions"))) {
                     ForEach(vm.recentTransactions) { tx in
                         NavigationLink(value: NavigationDestination.transactionDetail(id: tx.id)) {
                             TransactionRowCell(transaction: tx)

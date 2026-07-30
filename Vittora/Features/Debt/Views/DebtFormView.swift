@@ -134,8 +134,6 @@ struct DebtFormView: View {
     }
 
     private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.headline)
-            .foregroundStyle(.primary)
+        VFormSectionHeader(title)
     }
 }

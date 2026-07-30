@@ -175,28 +175,41 @@ struct OnboardingView: View {
 // MARK: - Step Views
 
 private struct WelcomeStepView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
-        ViewThatFits(in: .vertical) {
-            content
-            ScrollView { content }
+        // Accessibility sizes: Spacers make ViewThatFits believe the non-scrolling
+        // layout fits, then title1 + feature rows clip under the pinned CTA.
+        if dynamicTypeSize.isAccessibilitySize {
+            ScrollView {
+                content(includeSpacers: false)
+            }
+        } else {
+            ViewThatFits(in: .vertical) {
+                content(includeSpacers: true)
+                ScrollView { content(includeSpacers: false) }
+            }
         }
     }
 
-    private var content: some View {
+    private func content(includeSpacers: Bool) -> some View {
         VStack(spacing: VSpacing.lg) {
-            Spacer()
+            if includeSpacers { Spacer() }
 
             Image("OnboardingAppLogo")
                 .resizable()
                 .interpolation(.high)
                 .scaledToFit()
-                .frame(width: 88, height: 88)
+                .frame(
+                    width: dynamicTypeSize.isAccessibilitySize ? 64 : 88,
+                    height: dynamicTypeSize.isAccessibilitySize ? 64 : 88
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .accessibilityHidden(true)
 
             VStack(spacing: VSpacing.sm) {
                 Text(String(localized: "Welcome to Vittora"))
-                    .font(VTypography.title1.bold())
+                    .font(dynamicTypeSize.isAccessibilitySize ? VTypography.title2.bold() : VTypography.title1.bold())
                     .foregroundStyle(VColors.textPrimary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -204,42 +217,43 @@ private struct WelcomeStepView: View {
 
                 Text(String(localized: "Your all-in-one personal finance companion for tracking money, budgets, goals, taxes and more."))
                     .font(VTypography.body)
-                    .foregroundStyle(VColors.textSecondary)
+                    .foregroundStyle(VColors.textPrimary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, VSpacing.xl)
             }
 
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                FeatureRow(icon: "chart.pie.fill",   color: .purple, text: String(localized: "Track income & expenses"))
-                FeatureRow(icon: "target",            color: .orange, text: String(localized: "Set and manage budgets"))
-                FeatureRow(icon: "star.circle.fill",  color: .yellow, text: String(localized: "Save towards your goals"))
-                FeatureRow(icon: "person.2.fill",     color: .blue,   text: String(localized: "Split expenses with friends"))
-                FeatureRow(icon: "building.columns",  color: .green,  text: String(localized: "Estimate your taxes"))
+                FeatureRow(icon: "chart.pie.fill",   text: String(localized: "Track income & expenses"))
+                FeatureRow(icon: "target",            text: String(localized: "Set and manage budgets"))
+                FeatureRow(icon: "star.circle.fill",  text: String(localized: "Save towards your goals"))
+                FeatureRow(icon: "person.2.fill",     text: String(localized: "Split expenses with friends"))
+                FeatureRow(icon: "building.columns",  text: String(localized: "Estimate your taxes"))
             }
             .padding(.horizontal, VSpacing.xl)
 
-            Spacer()
+            if includeSpacers { Spacer() }
         }
+        .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? VSpacing.md : 0)
     }
 }
 
 private struct FeatureRow: View {
     let icon: String
-    let color: Color
     let text: String
 
     var body: some View {
-        HStack(spacing: VSpacing.md) {
+        HStack(alignment: .top, spacing: VSpacing.md) {
             Image(systemName: icon)
                 .font(.body)
-                .foregroundStyle(color)
+                .foregroundStyle(VColors.textPrimary)
                 .frame(width: 28)
                 .accessibilityHidden(true)
             Text(text)
                 .font(VTypography.body)
                 .foregroundStyle(VColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -705,9 +719,9 @@ private struct NotificationsStepView: View {
             }
 
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                FeatureRow(icon: "target", color: .orange, text: String(localized: "Budget limit alerts"))
-                FeatureRow(icon: "calendar.badge.clock", color: .blue, text: String(localized: "Bill and debt due dates"))
-                FeatureRow(icon: "arrow.triangle.2.circlepath", color: .purple, text: String(localized: "Upcoming recurring transactions"))
+                FeatureRow(icon: "target", text: String(localized: "Budget limit alerts"))
+                FeatureRow(icon: "calendar.badge.clock", text: String(localized: "Bill and debt due dates"))
+                FeatureRow(icon: "arrow.triangle.2.circlepath", text: String(localized: "Upcoming recurring transactions"))
             }
             .padding(.horizontal, VSpacing.xl)
 

@@ -51,7 +51,7 @@ struct RecurringRowView: View {
 
                 Image(systemName: categoryIcon)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundColor(categoryColor)
+                    .foregroundColor(VColors.textPrimary)
             }
             .frame(width: 44, height: 44)
             .accessibilityHidden(true)
@@ -76,7 +76,7 @@ struct RecurringRowView: View {
                     // truncates/scales instead of the amount wrapping.
                     Text(rule.templateAmount.formatted(currencyCode: currencyCode))
                         .font(VTypography.calloutBold)
-                        .foregroundColor(VColors.expense)
+                        .foregroundColor(VColors.textPrimary)
                         .amountScaling()
                         .layoutPriority(1)
                 }
@@ -84,7 +84,7 @@ struct RecurringRowView: View {
                 HStack {
                     Text(frequencyLabel)
                         .font(VTypography.caption2)
-                        .foregroundColor(VColors.textSecondary)
+                        .foregroundColor(VColors.textPrimary)
                         .padding(.horizontal, VSpacing.sm)
                         .padding(.vertical, VSpacing.xs)
                         .background(VColors.tertiaryBackground)
@@ -95,7 +95,7 @@ struct RecurringRowView: View {
                     // Next date
                     Text(rule.nextDate.formatted(date: .abbreviated, time: .omitted))
                         .font(VTypography.caption2)
-                        .foregroundColor(VColors.textSecondary)
+                        .foregroundColor(VColors.textPrimary)
                 }
             }
 
@@ -103,10 +103,10 @@ struct RecurringRowView: View {
                 Spacer()
             }
 
-            // Status indicator
+            // Status indicator — system green/orange fail AA on light cards.
             VStack(spacing: VSpacing.xxs) {
                 Image(systemName: rule.isActive ? "checkmark.circle.fill" : "pause.circle.fill")
-                    .foregroundColor(rule.isActive ? .green : .orange)
+                    .foregroundColor(VColors.textPrimary)
                     .font(.title3)
                     .accessibilityHidden(true)
             }

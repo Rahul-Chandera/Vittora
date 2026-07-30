@@ -60,6 +60,10 @@ enum VColors {
     // System secondaryLabel/tertiaryLabel fail Apple's contrast audit on card surfaces.
     // Values keep extra headroom for AccessibilityXL and denser scripts (e.g. Devanagari),
     // and stay AA on OLED black / OLED secondary surfaces as well as light mode.
+    //
+    // Accents (primary / income / expense / warning) clear AA as text on pure black or
+    // white, but fail on secondarySystemBackground and tinted chips. Prefer textPrimary
+    // for icons and labels on cards; keep accents for fills, progress rings, and FABs.
     #if os(macOS)
     static let textPrimary = Color(nsColor: .labelColor)
     static let textSecondary = Color(nsColor: NSColor(name: nil) { appearance in

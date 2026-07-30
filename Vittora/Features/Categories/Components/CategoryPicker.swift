@@ -25,10 +25,10 @@ struct CategoryPicker: View {
     var body: some View {
         List {
             if !expenseCategories.isEmpty && filterType == nil {
-                Section(String(localized: "Expense")) {
+                Section(header: VFormSectionHeader(String(localized: "Expense"))) {
                     categoryRows(expenseCategories)
                 }
-                Section(String(localized: "Income")) {
+                Section(header: VFormSectionHeader(String(localized: "Income"))) {
                     categoryRows(incomeCategories)
                 }
             } else {

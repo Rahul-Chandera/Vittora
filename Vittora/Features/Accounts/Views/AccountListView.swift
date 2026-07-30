@@ -201,9 +201,7 @@ struct AccountListView: View {
                             }
                         }
                     } header: {
-                        Text(sectionTitle(for: type))
-                            .font(.headline)
-                            .foregroundStyle(.primary)
+                        VFormSectionHeader(sectionTitle(for: type))
                     }
                     .headerProminence(.increased)
                 }
