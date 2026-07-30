@@ -1,16 +1,28 @@
 # Tax StatTile — audit reports contrast failure on a provably 21:1 element
 
-**Tracked debt, deferred from 1.4.1.** Three audits are `XCTSkip`-ped with a
+**Tracked debt, deferred from 1.4.1.** Four audits are `XCTSkip`-ped with a
 reason pointing here, rather than excluded inside the handler — a skip is
 honest about not running, whereas a handler exclusion would report green.
 
 Deferred: `testTaxSurfacesAccessibilityAudit`,
 `testSettingsSectionsAccessibilityAudit`,
-`testAccessibility3ScreenshotsForRemainingSurfaces`.
+`testAccessibility3ScreenshotsForRemainingSurfaces`,
+`testSplitSurfacesAccessibilityAudit`.
 
-A scoped handler exclusion was tried first (Tax Estimator + unattributed
-element) and **did not match** the reported issue, so it was removed rather
-than left as dead code that implies coverage it does not provide.
+The last of those **passes locally on every installable runtime** and fails
+only on CI's iOS 26.2. It is skipped so 1.4.1 can ship the real fixes; that is
+the single clearest item to re-enable first once 26.2 is reproducible.
+
+Two approaches were tried and rejected, both measured rather than assumed:
+
+1. **Per-screen handler exclusions.** One (Tax Estimator + unattributed
+   element) did not even match the reported issue. Removed rather than left as
+   dead code implying coverage it does not provide.
+2. **A principled rule** — ignore `.contrast` issues carrying neither an
+   element label nor an identifier, on the theory that an unlocatable issue is
+   unfixable. Measured on a clean iPhone 17 Pro Max: **11 pass / 6 fail**,
+   versus **14 pass / 0 fail** with skips. It does not cover these failures, so
+   it was reverted instead of kept as a plausible-sounding non-fix.
 
 ## Why this is an audit artifact, not a user-facing defect
 
