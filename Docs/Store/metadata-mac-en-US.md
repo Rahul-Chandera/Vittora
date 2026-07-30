@@ -149,8 +149,10 @@ widget claims and words sharing for the Mac share sheet.
 - **"A real Mac window" is a soft claim** and the only line here not tied to a
   specific code path. It is defensible (this is a native SwiftUI build, not Mac
   Catalyst) but trim it if you want the listing to be purely factual.
-- **Mac screenshots are a separate gap** from the iOS ones. The macOS tab needs
-  its own set at 2880×1800 or 2560×1600, and the existing captures are iPhone
-  frames — they cannot be reused here at all.
+- **Mac screenshots are captured and current** (PR #178): six slots at 1440×900,
+  the real two-column Mac layout. 1440×900 is an ASC-accepted Mac size —
+  1280×800, 2560×1600 and 2880×1800 are the others — so it is valid, just not
+  Retina. Regenerate with `Scripts/store/capture_mac_screenshots.sh`, which needs
+  an unlocked screen and a signed build.
 - Touch ID wording says "or your password" deliberately: plenty of Macs have no
   Touch ID sensor, and `LocalAuthentication` falls back to the password there.
