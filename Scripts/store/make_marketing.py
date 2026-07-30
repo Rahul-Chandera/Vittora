@@ -23,9 +23,6 @@ COPY_BY_LOCALE = {
         "02-transactions": ("Track Every\nTransaction",     "Ten-second capture with instant search and filters"),
         "03-budgets":      ("Budgets That\nKeep Up",        "Per-category limits with overspend warnings"),
         "04-fiftythirtytwenty": ("Needs, Wants,\nSavings",     "See your month against the 50/30/20 guideline"),
-        # Only the Mac raws still carry a savings capture (see the note in
-        # capture_screenshots.sh); kept so the Mac gallery is not cut to four.
-        "04-savings":      ("Achieve Your\nSavings Goals",  "Set a target and watch the progress ring fill"),
         "05-reports":      ("Reports That\nExplain",        "Category breakdowns, trends, and cash flow"),
         "06-yearinreview": ("Your Year,\nWrapped",          "Total spent, top categories, and your biggest month"),
     },
