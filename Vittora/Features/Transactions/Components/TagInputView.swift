@@ -15,7 +15,7 @@ struct TagInputView: View {
                         HStack(spacing: VSpacing.xs) {
                             Text(tag)
                                 .font(VTypography.caption1)
-                                .foregroundColor(VColors.primary)
+                                .foregroundStyle(VColors.primaryOnSurface)
 
                             Button {
                                 var updated = tags
@@ -54,7 +54,7 @@ struct TagInputView: View {
                         onAddTag()
                     } label: {
                         Image(systemName: "plus.circle.fill")
-                            .foregroundColor(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                     }
                     .accessibilityLabel(String(localized: "Add tag"))
                 }

@@ -141,7 +141,7 @@ struct OnboardingView: View {
             .frame(maxWidth: .infinity)
             .padding(VSpacing.md)
             .background(VColors.primary)
-            .foregroundStyle(.black)
+            .foregroundStyle(VColors.onPrimary)
             .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD))
         }
         // .plain: the label is fully custom; without this, macOS wraps it in
@@ -224,11 +224,11 @@ private struct WelcomeStepView: View {
             }
 
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                FeatureRow(icon: "chart.pie.fill",   text: String(localized: "Track income & expenses"))
-                FeatureRow(icon: "target",            text: String(localized: "Set and manage budgets"))
-                FeatureRow(icon: "star.circle.fill",  text: String(localized: "Save towards your goals"))
-                FeatureRow(icon: "person.2.fill",     text: String(localized: "Split expenses with friends"))
-                FeatureRow(icon: "building.columns",  text: String(localized: "Estimate your taxes"))
+                FeatureRow(icon: "chart.pie.fill",   text: String(localized: "Track income & expenses"), tint: .blue)
+                FeatureRow(icon: "target",            text: String(localized: "Set and manage budgets"), tint: .green)
+                FeatureRow(icon: "star.circle.fill",  text: String(localized: "Save towards your goals"), tint: .orange)
+                FeatureRow(icon: "person.2.fill",     text: String(localized: "Split expenses with friends"), tint: .purple)
+                FeatureRow(icon: "building.columns",  text: String(localized: "Estimate your taxes"), tint: .teal)
             }
             .padding(.horizontal, VSpacing.xl)
 
@@ -241,12 +241,13 @@ private struct WelcomeStepView: View {
 private struct FeatureRow: View {
     let icon: String
     let text: String
+    var tint: VColors.IconTint = .green
 
     var body: some View {
         HStack(alignment: .top, spacing: VSpacing.md) {
             Image(systemName: icon)
                 .font(.body)
-                .foregroundStyle(VColors.textPrimary)
+                .foregroundStyle(VColors.iconTint(tint))
                 .frame(width: 28)
                 .accessibilityHidden(true)
             Text(text)
@@ -259,6 +260,8 @@ private struct FeatureRow: View {
 }
 
 private struct CurrencyStepView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     @Bindable var vm: OnboardingViewModel
 
     var body: some View {
@@ -267,11 +270,11 @@ private struct CurrencyStepView: View {
 
             ZStack {
                 Circle()
-                    .fill(VColors.tertiaryBackground)
+                    .fill(VColors.iconTintFill(.green))
                     .frame(width: 76, height: 76)
                 Text(selectedCurrencySymbol)
                     .font(.system(.largeTitle, design: .rounded).weight(.medium))
-                    .foregroundStyle(VColors.textPrimary)
+                    .foregroundStyle(VColors.iconTint(.green))
             }
             .accessibilityHidden(true)
 
@@ -294,6 +297,11 @@ private struct CurrencyStepView: View {
                             vm.selectedCurrencyCode = currency.code
                         } label: {
                             HStack(spacing: VSpacing.md) {
+                                if !dynamicTypeSize.isAccessibilitySize,
+                                   let flag = flagImage(for: currency.code) {
+                                    flag
+                                        .accessibilityHidden(true)
+                                }
                                 Text("\(currency.name) (\(currency.code))")
                                     .font(VTypography.body)
                                     .foregroundStyle(VColors.textPrimary)
@@ -301,7 +309,7 @@ private struct CurrencyStepView: View {
                                 Spacer(minLength: VSpacing.sm)
                                 if vm.selectedCurrencyCode == currency.code {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(VColors.primary)
+                                        .foregroundStyle(VColors.primaryOnSurface)
                                         .accessibilityHidden(true)
                                 }
                             }
@@ -333,6 +341,56 @@ private struct CurrencyStepView: View {
     }
 }
 
+/// Flag for a currency code, as an **Image** rather than Text.
+///
+/// Rasterising is not cosmetic. As a `Text` node the flag is audited as text, and
+/// flags are mostly white (🇯🇵 🇸🇬 🇦🇪 🇺🇸) so they miss AA against the row —
+/// and because the row is an `.accessibilityElement(children: .combine)`, the
+/// glyph also widened the combined element enough to report clipping. That was
+/// 4 contrast + 9 clipped failures in testOnboardingAccessibilityAudit.
+/// An emoji flag is a fixed-palette image whose colours cannot be adjusted, so
+/// the honest fix is to present it as the image it is rather than exempt the
+/// screen from the audit.
+private func flagImage(for currencyCode: String) -> Image? {
+    #if canImport(UIKit)
+    let emoji = flagEmoji(for: currencyCode)
+    if let cached = FlagImageCache.shared.image(for: emoji) { return Image(uiImage: cached) }
+    let font = UIFont.systemFont(ofSize: 22)
+    let attributes: [NSAttributedString.Key: Any] = [.font: font]
+    let size = (emoji as NSString).size(withAttributes: attributes)
+    guard size.width > 0, size.height > 0 else { return nil }
+    let rendered = UIGraphicsImageRenderer(size: size).image { _ in
+        (emoji as NSString).draw(at: .zero, withAttributes: attributes)
+    }
+    FlagImageCache.shared.store(rendered, for: emoji)
+    return Image(uiImage: rendered)
+    #else
+    return nil
+    #endif
+}
+
+#if canImport(UIKit)
+/// Rasterised flags are reused across rows and redraws; rendering per row per
+/// frame is needless work in a scrolling list.
+private final class FlagImageCache {
+    static let shared = FlagImageCache()
+    private var storage: [String: UIImage] = [:]
+    func image(for key: String) -> UIImage? { storage[key] }
+    func store(_ image: UIImage, for key: String) { storage[key] = image }
+}
+#endif
+
+private func flagEmoji(for currencyCode: String) -> String {
+    let special = ["EUR": "🇪🇺", "XAF": "🌍", "XOF": "🌍", "XCD": "🌎", "XPF": "🌏"]
+    if let s = special[currencyCode] { return s }
+    let region = String(currencyCode.prefix(2)).uppercased()
+    guard region.count == 2, region.allSatisfy({ $0.isLetter }) else { return "🏳️" }
+    // Regional indicators sit 0x1F1E6 above "A".
+    let scalars = region.unicodeScalars.compactMap { UnicodeScalar($0.value + 0x1F1E6 - 65) }
+    guard scalars.count == 2 else { return "🏳️" }
+    return String(String.UnicodeScalarView(scalars))
+}
+
 private struct ProfileStepView: View {
     @Bindable var vm: OnboardingViewModel
     @FocusState private var isFocused: Bool
@@ -343,7 +401,7 @@ private struct ProfileStepView: View {
 
             Image(systemName: "person.circle.fill")
                 .font(.system(size: 64))
-                .foregroundStyle(VColors.primary)
+                .foregroundStyle(VColors.primaryOnSurface)
                 .accessibilityHidden(true)
 
             VStack(spacing: VSpacing.sm) {
@@ -434,7 +492,7 @@ private struct AccountSetupStepView: View {
 
                 Image(systemName: "wallet.pass.fill")
                     .font(.system(size: 64))
-                    .foregroundStyle(VColors.primary)
+                    .foregroundStyle(VColors.primaryOnSurface)
                     .accessibilityHidden(true)
 
                 VStack(spacing: VSpacing.sm) {
@@ -471,7 +529,7 @@ private struct AccountSetupStepView: View {
                         HStack(spacing: VSpacing.sm) {
                             Text(vm.selectedCurrencyCode)
                                 .font(VTypography.bodyBold)
-                                .foregroundStyle(VColors.primary)
+                                .foregroundStyle(VColors.primaryOnSurface)
                                 .padding(.horizontal, VSpacing.sm)
                                 .padding(.vertical, VSpacing.xs)
                                 .background(VColors.primary.opacity(0.12))
@@ -529,7 +587,7 @@ private struct AccountSetupStepView: View {
 
                 Image(systemName: "wallet.pass.fill")
                     .font(.system(size: 64))
-                    .foregroundStyle(VColors.primary)
+                    .foregroundStyle(VColors.primaryOnSurface)
                     .accessibilityHidden(true)
 
                 VStack(spacing: VSpacing.sm) {
@@ -597,7 +655,7 @@ private struct AccountSetupStepView: View {
                         HStack(spacing: VSpacing.sm) {
                             Text(vm.selectedCurrencyCode)
                                 .font(VTypography.bodyBold)
-                                .foregroundStyle(VColors.primary)
+                                .foregroundStyle(VColors.primaryOnSurface)
                                 .padding(.horizontal, VSpacing.sm)
                                 .padding(.vertical, VSpacing.xs)
                                 .background(VColors.primary.opacity(0.12))
@@ -701,7 +759,7 @@ private struct NotificationsStepView: View {
 
             Image(systemName: "bell.badge.fill")
                 .font(.system(size: 64))
-                .foregroundStyle(VColors.primary)
+                .foregroundStyle(VColors.primaryOnSurface)
                 .accessibilityHidden(true)
 
             VStack(spacing: VSpacing.sm) {
@@ -719,9 +777,9 @@ private struct NotificationsStepView: View {
             }
 
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                FeatureRow(icon: "target", text: String(localized: "Budget limit alerts"))
-                FeatureRow(icon: "calendar.badge.clock", text: String(localized: "Bill and debt due dates"))
-                FeatureRow(icon: "arrow.triangle.2.circlepath", text: String(localized: "Upcoming recurring transactions"))
+                FeatureRow(icon: "target", text: String(localized: "Budget limit alerts"), tint: .green)
+                FeatureRow(icon: "calendar.badge.clock", text: String(localized: "Bill and debt due dates"), tint: .orange)
+                FeatureRow(icon: "arrow.triangle.2.circlepath", text: String(localized: "Upcoming recurring transactions"), tint: .purple)
             }
             .padding(.horizontal, VSpacing.xl)
 
@@ -767,7 +825,7 @@ private struct DoneStepView: View {
                         .frame(width: 88, height: 88)
                     Image(systemName: "checkmark")
                         .font(.system(size: 44, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(VColors.onPrimary)
                 }
             }
             .if(!reduceMotion) { view in

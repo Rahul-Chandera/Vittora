@@ -49,7 +49,7 @@ struct CurrencySettingsView: View {
                             Spacer()
                             if vm.selectedCurrencyCode == currency.code {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(VColors.primary)
+                                    .foregroundStyle(VColors.primaryOnSurface)
                                     .accessibilityHidden(true)
                             }
                         }
@@ -307,7 +307,7 @@ struct SecuritySettingsView: View {
                                 Spacer()
                                 if vm.appLockTimeout == timeout {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(VColors.primary)
+                                        .foregroundStyle(VColors.primaryOnSurface)
                                         .accessibilityHidden(true)
                                 }
                             }

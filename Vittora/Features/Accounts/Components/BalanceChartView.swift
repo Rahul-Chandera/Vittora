@@ -58,7 +58,7 @@ struct BalanceChartView: View {
                 x: .value("Date", point.date),
                 y: .value("Balance", bal)
             )
-            .foregroundStyle(VColors.primary)
+            .foregroundStyle(VColors.primaryOnSurface)
             .interpolationMethod(.catmullRom)
 
             AreaMark(

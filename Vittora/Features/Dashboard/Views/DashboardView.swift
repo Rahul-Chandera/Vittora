@@ -246,10 +246,10 @@ struct DashboardView: View {
                     HStack(spacing: VSpacing.xxs) {
                         Text(String(localized: "Manage"))
                             .font(VTypography.caption1)
-                            .foregroundColor(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundColor(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                             .accessibilityHidden(true)
                     }
                 }

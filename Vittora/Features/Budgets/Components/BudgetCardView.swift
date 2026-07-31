@@ -23,7 +23,7 @@ struct BudgetCardView: View {
                     } else {
                         Image(systemName: "target")
                             .font(VTypography.bodyBold)
-                            .foregroundColor(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                             .frame(width: 40, height: 40)
                             .background(VColors.primary.opacity(0.15))
                             .cornerRadius(VSpacing.cornerRadiusXL)

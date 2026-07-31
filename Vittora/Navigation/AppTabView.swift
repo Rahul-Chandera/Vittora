@@ -185,7 +185,11 @@ struct AppTabView: View {
                 }
             }
         }
-        .tint(.primary)
+        // System blue for the selected tab, not .primary — a monochrome selection
+        // gives no signal about which tab is active. Deliberately independent of the
+        // user's accent theme: the accent doubles as a fill colour and is too light
+        // (brandGreen #3FCFA4) to read as a selected glyph on the tab bar.
+        .tint(.blue)
         .toolbarBackground(VColors.background, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
     }
@@ -215,13 +219,30 @@ private struct MoreHubView: View {
     private static let destinations: [AppState.AppTab] =
         [.savings, .tax, .debt, .splits, .settings]
 
+    /// Icon hue per destination. Decorative — the row's label carries the meaning.
+    private static func tint(for tab: AppState.AppTab) -> VColors.IconTint {
+        switch tab {
+        case .savings:  return .green
+        case .tax:      return .teal
+        case .debt:     return .orange
+        case .splits:   return .purple
+        case .settings: return .blue
+        default:        return .blue
+        }
+    }
+
     var body: some View {
         List {
             ForEach(Self.destinations) { tab in
                 NavigationLink {
                     destinationView(for: tab)
                 } label: {
-                    Label(tab.title, systemImage: tab.systemImage)
+                    Label {
+                        Text(tab.title)
+                    } icon: {
+                        Image(systemName: tab.systemImage)
+                            .foregroundStyle(VColors.iconTint(Self.tint(for: tab)))
+                    }
                 }
             }
         }

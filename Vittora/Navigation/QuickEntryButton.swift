@@ -10,7 +10,7 @@ struct QuickEntryButton: View {
         }) {
             Image(systemName: "plus")
                 .font(.title2.weight(.semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(VColors.onPrimary)
                 .frame(width: 56, height: 56)
                 .background(VColors.primary, in: Circle())
                 .shadow(color: VColors.primary.opacity(0.3), radius: 8, y: 4)

@@ -134,14 +134,14 @@ struct SettingsView: View {
                 NavigationLink {
                     PrivacySearchSettingsView(vm: vm)
                 } label: {
-                    SettingsRow(icon: "magnifyingglass", iconColor: .cyan,
+                    SettingsRow(icon: "magnifyingglass", iconColor: .teal,
                                 title: String(localized: "Search Privacy"),
                                 value: vm.isSpotlightIndexingEnabled ? String(localized: "On") : String(localized: "Off"))
                 }
                 NavigationLink {
                     SecurityAuditLogView()
                 } label: {
-                    SettingsRow(icon: "list.bullet.rectangle", iconColor: .gray,
+                    SettingsRow(icon: "list.bullet.rectangle", iconColor: .blue,
                                 title: String(localized: "Security audit log"), value: "")
                 }
             } header: {
@@ -161,7 +161,7 @@ struct SettingsView: View {
                 NavigationLink {
                     DataSettingsView()
                 } label: {
-                    SettingsRow(icon: "cylinder.split.1x2.fill", iconColor: .gray,
+                    SettingsRow(icon: "cylinder.split.1x2.fill", iconColor: .blue,
                                 title: String(localized: "Manage Data"), value: "")
                 }
             } header: {
@@ -388,19 +388,23 @@ struct SettingsRow: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let icon: String
-    let iconColor: Color
+    /// Restricted to the AA-safe palette on purpose: the accessibility sweep
+    /// neutralised these rows to textPrimary because raw system colours
+    /// (.green/.cyan/…) miss 4.5:1 on a card. VColors.iconTint values clear it
+    /// in both schemes, so the icons can be coloured again and stay compliant.
+    let iconColor: VColors.IconTint
     let title: String
     let value: String
 
     var body: some View {
         HStack(spacing: VSpacing.md) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(VColors.tertiaryBackground)
+                .fill(VColors.iconTintFill(iconColor))
                 .frame(width: 44, height: 44)
                 .overlay {
                     Image(systemName: icon)
                         .font(.body.bold())
-                        .foregroundStyle(VColors.textPrimary)
+                        .foregroundStyle(VColors.iconTint(iconColor))
                         .accessibilityHidden(true)
                 }
                 .accessibilityHidden(true)
