@@ -99,7 +99,7 @@ for entry in "${SHOTS[@]}"; do
   SIMCTL_CHILD_UITEST_DEMO_REGION="$REGION" \
   SIMCTL_CHILD_UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
     xcrun simctl launch "$UDID" "$APP_ID" \
-      --uitesting --ui-test-seed-demo $route_arg \
+      --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" $route_arg \
       -AppleLanguages "($LOCALE)" -AppleLocale "$APPLE_LOCALE" >/dev/null
 
   sleep 12  # seeding is async (a year of history), and report aggregates
