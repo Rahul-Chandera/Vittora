@@ -173,8 +173,14 @@ enum VColors {
     /// Light/dark pair as one colour. Falls back to the light value where the
     /// platform gives us no trait callback.
     /// Backing wash for an `iconTint` glyph. Keep these in step: the tint values
-    /// are solved for this exact alpha.
-    static func iconTintFill(_ tint: IconTint) -> Color { iconTint(tint).opacity(0.14) }
+    /// are solved against this alpha.
+    ///
+    /// 0.10 rather than 0.14 for headroom. At 0.14 the worst pairing lands on
+    /// 4.50:1 — nominally a pass, but close enough to the line that the audit
+    /// reported a contrast failure on the Dashboard when element frames came
+    /// back as clipped strips. 0.10 gives 4.78:1 worst case and the wash still
+    /// reads as a tint.
+    static func iconTintFill(_ tint: IconTint) -> Color { iconTint(tint).opacity(0.10) }
 
     private static func adaptive(
         light: (Double, Double, Double),
