@@ -185,11 +185,15 @@ struct AppTabView: View {
                 }
             }
         }
-        // System blue for the selected tab, not .primary — a monochrome selection
-        // gives no signal about which tab is active. Deliberately independent of the
-        // user's accent theme: the accent doubles as a fill colour and is too light
-        // (brandGreen #3FCFA4) to read as a selected glyph on the tab bar.
-        .tint(.blue)
+        // Selected tab follows the user's accent theme.
+        //
+        // primaryOnSurface, not primary: the accent doubles as a fill colour and
+        // at #3FCFA4 is far too light to read as a glyph on the tab bar. The
+        // on-surface variant is the same hue solved for legibility on a
+        // background (#1F7C60 light / #3FCFA4 dark).
+        //
+        // Swap to `.tint(.blue)` for the system-default look.
+        .tint(VColors.primaryOnSurface)
         .toolbarBackground(VColors.background, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
     }
