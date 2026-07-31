@@ -28,6 +28,11 @@ YEAR IN REVIEW
 ESPAÑOL
 • Vittora is now fully available in Spanish
 
+हिंदी AND ESPAÑOL, PROPERLY
+• Reports, budgeting tools and settings that were still showing English now
+  appear in your language — including 50/30/20, the emergency fund tracker,
+  quiet hours and appearance
+
 ACCESSIBILITY
 • Section headings across the app are clearer and easier to read
 • Better colour contrast for amounts and labels
@@ -54,6 +59,10 @@ YEAR IN REVIEW
 ESPAÑOL
 • Vittora is now fully available in Spanish
 
+हिंदी AND ESPAÑOL, PROPERLY
+• Reports, budgeting tools and settings that were still showing English now
+  appear in your language
+
 ACCESSIBILITY
 • Section headings across the app are clearer and easier to read
 • Better colour contrast for amounts and labels
@@ -75,6 +84,13 @@ Still no accounts, no ads, no tracking — your data stays on your devices.
 - **Do not list** the "Year 2,026" year-picker bug, the two texts hidden from
   VoiceOver, or the missing chart axis. All three were inside Year in Review,
   which is new in this release — no shipped user ever saw them.
-- **Do not mention** the four skipped audits or the CI runtime work. Internal.
+- **Do not mention** the eight skipped audits or the CI runtime work. Internal.
+- **The localization line is for existing users, not new ones.** Anyone already
+  on 1.4.0 with the device language set to Hindi has been looking at English
+  50/30/20, emergency fund, quiet hours and appearance screens since 1.4.0
+  shipped. That is a visible fix they will notice, which is why it earns its own
+  section rather than being folded into "Español". Spanish users never saw the
+  broken state — es only shipped in this release — but the same strings were
+  missing for them, so one section covers both.
 - The Spanish listing itself (es-US metadata, screenshots) is separate marketing
   work and is **not** covered by this release-notes text.
