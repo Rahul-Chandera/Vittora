@@ -19,7 +19,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 OUT="$ROOT/Docs/Store/screenshots/$SET_NAME"
 DERIVED="${DERIVED_DIR:-$ROOT/.build/screenshots-mac}"
 APP="$DERIVED/Build/Products/Debug/Vittora.app"
-BIN="$APP/Contents/MacOS/Vittora"
 
 mkdir -p "$OUT"
 
@@ -85,23 +84,44 @@ for entry in "${SHOTS[@]}"; do
   route_arg=""
   [ "$url" != "-" ] && route_arg="--ui-test-open-url=$url"
 
+  # Only override the locale when it is not the default. Passing
+  # -AppleLanguages together with --ui-test-open-url leaves the app running with
+  # no window at all — reproducible, and neither argument does it alone. Not
+  # root-caused; avoided. The Mac listing is en-US only, so nothing is lost, but
+  # a localized Mac set would hit this.
+  locale_args=""
+  if [ "$LOCALE" != "en" ]; then
+    locale_args="-AppleLanguages ($LOCALE) -AppleLocale $APPLE_LOCALE"
+  fi
+
   pkill -x Vittora >/dev/null 2>&1 || true
   sleep 2
 
-  UITEST_INITIAL_TAB="$tab" \
-  UITEST_DEMO_REGION="$REGION" \
-  UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
-    "$BIN" --uitesting --ui-test-seed-demo $route_arg \
-      -AppleLanguages "($LOCALE)" -AppleLocale "$APPLE_LOCALE" \
-      >/dev/null 2>&1 &
+  # Launch through `open`, not by exec'ing the binary. A directly-exec'd .app
+  # binary gets no proper GUI session from this shell and never creates a
+  # window — CGWindowList shows the process running with zero windows, and
+  # nothing is logged, which is a confusing way to fail.
+  open -n \
+    --env UITEST_INITIAL_TAB="$tab" \
+    --env UITEST_DEMO_REGION="$REGION" \
+    --env UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
+    -a "$APP" --args --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" $route_arg $locale_args
 
-  sleep 14   # launch + async seeding + report aggregate reload
-
-  WIN_ID="$(resolve_window_id)"
+  # Poll for the window rather than guessing a sleep: launch time varies a lot
+  # between a plain tab and one that also resolves a deep link, and a fixed wait
+  # silently produced "no window found" for exactly the deep-linked shots.
+  WIN_ID=""
+  for _ in $(seq 1 30); do
+    WIN_ID="$(resolve_window_id)"
+    [ -n "$WIN_ID" ] && break
+    sleep 1
+  done
   if [ -z "$WIN_ID" ]; then
     echo "    !! no window found for $name — skipping"
     continue
   fi
+  sleep 12   # async seeding, then the report aggregates reload after it notifies
+  WIN_ID="$(resolve_window_id)"   # re-resolve: the window can be rebuilt on navigation
   # -o drops the drop shadow so the corners stay transparent; compose_mac
   # composites its own shadow.
   screencapture -x -o -l"$WIN_ID" -t png "$OUT/$name.png"

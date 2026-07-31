@@ -55,7 +55,6 @@ terminate-and-relaunch.
 `ponytail:` note at `AppTabView.swift:196` — so a capture would show a menu under
 a "savings goals" headline. 50/30/20 deep-links properly and is also a 1.4
 feature worth advertising. The Description still covers savings goals in words.
-The `mac` set keeps its older `04-savings` raw because it cannot be re-shot yet.
 
 ## Headline text goes through CoreText, not Pillow
 
@@ -72,7 +71,7 @@ matras and conjuncts come out in the wrong order. Strings are rendered once at
 | `ipad-13` | **ready to upload** — 6 slots, portrait 2064x2752 |
 | `watch` | **ready** — regenerated, real post-seed snapshot |
 | `iphone-69-hi`, `iphone-69-es` | **ready to upload** — 6 slots, fully localized |
-| `mac` | **stale (v1.0 content)** — capture blocked, see below |
+| `mac` | **ready to upload** — 6 slots, captured from the current build |
 
 ### hi / es are fully localized as of the L3 fix
 
@@ -84,18 +83,36 @@ The India demo dataset still uses English payee names and notes ("Lunch Order",
 "Monthly Staples"). Those are user data rather than UI strings, so they are not
 a localization bug, but a Hindi set would read better with Hindi ones.
 
-### Mac captures are blocked on this machine
+### Mac capture: two traps
 
-`capture_mac_screenshots.sh` is complete and correct, but the Mac app launches
-without ever creating a window while the screen is locked — startup reads the
-login keychain, which is locked too. Nothing is logged and no window appears, so
-`screencapture -l` has nothing to target. Run it with the machine unlocked and
-the existing v1.0-era `mac/` raws will be replaced in one command. A signed build
-is required (`CODE_SIGNING_ALLOWED=NO`, as `make build-macos` uses, produces a
-binary whose entitlements don't apply).
+`capture_mac_screenshots.sh` runs the real app on the host — there is no macOS
+simulator — and captures its window with transparent rounded corners.
 
-Mac accepted sizes are 1280x800, 1440x900, 2560x1600 and 2880x1800 — the current
-1440x900 is valid, just low-resolution.
+1. **The screen must be unlocked.** While it is locked the app launches and never
+   creates a window: `CGWindowList` shows the process running with zero windows
+   and nothing is logged, which is a confusing way to fail.
+2. **Launch through `open`, never by exec'ing the binary.** A directly-exec'd
+   `.app` binary gets no proper GUI session from a shell and produces the same
+   silent windowless process.
+
+A **signed** build is required. `make build-macos` passes
+`CODE_SIGNING_ALLOWED=NO`, which is fine for a compile check but produces a
+binary whose entitlements do not apply — build with `-allowProvisioningUpdates`
+instead.
+
+The script polls for the window rather than sleeping a fixed time, because a
+deep-linked shot takes noticeably longer to appear than a plain tab.
+
+**Known quirk, avoided rather than root-caused:** passing `--ui-test-open-url`
+*together with* `-AppleLanguages` leaves the app running with no window.
+Reproducible; neither argument does it alone. The script therefore only sets the
+locale arguments when the locale is not `en`, which costs nothing because the Mac
+listing is en-US only — but a localized Mac set would hit this.
+
+Appearance is pinned with `--ui-test-appearance=light` (override with
+`APPEARANCE=`) so the Mac set matches the iOS sets regardless of how the host
+Mac is themed. Mac accepted sizes are 1280x800, 1440x900, 2560x1600 and
+2880x1800; the composed output is 1440x900.
 
 ## Watch
 
