@@ -1,7 +1,7 @@
 # App Store Metadata — macOS platform tab (en-US)
 
 Vittora is one App Store record (`id6762046016`) with a **separate metadata tab
-per platform**. This file is the macOS tab. `metadata-en-US-refresh.md` is the
+per platform**. This file is the macOS tab. `metadata-en-US.md` is the
 iOS/iPadOS tab. They must differ, because the Mac build genuinely ships less.
 
 **Verified against `project.pbxproj`, not assumed:**
