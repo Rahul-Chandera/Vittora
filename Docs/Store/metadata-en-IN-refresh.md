@@ -164,9 +164,14 @@ release notes.
   has not historically.
 - **`Docs/Store/metadata-en-IN.md` should be replaced by this file**, not kept
   alongside it. I left the original untouched so you can diff first.
-- **Screenshots remain the gap.** An INR set can be captured with
-  `UITEST_DEMO_REGION=IN` (the seeder ships HDFC Salary, Swiggy/BigBasket payees,
-  ₹ amounts) and framed with `Scripts/store/make_marketing.py`. A Hindi set is
-  worth more than an INR-English one now that Hindi ships.
+- **Screenshots are captured and current.** Two sets suit this storefront:
+  `screenshots/marketing/iphone-69-hi` (Hindi UI, ₹ amounts) and
+  `iphone-69-in` (English UI, ₹ amounts). The Hindi set is the stronger choice
+  now that Hindi genuinely ships end to end — the earlier mixed-language screens
+  were fixed in the L3 localization work. Regenerate either with
+  `Scripts/store/capture_screenshots.sh` and `make_marketing.py`.
+  Note the demo dataset's payee names and notes are still English ("Lunch Order",
+  "Monthly Staples"); that is user data rather than UI strings, but Hindi ones
+  would read better in a Hindi gallery.
 - "Top payees" replaces en-US's "top merchants" — payee is the term the app uses
   in English throughout, and merchant reads as US retail.
