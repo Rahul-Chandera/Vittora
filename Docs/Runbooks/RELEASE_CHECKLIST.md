@@ -87,3 +87,25 @@ done | sort -u
 - [ ] Add/edit/delete flows work for accounts, transactions, and documents.
 - [ ] Local notification permission + reminder toggles verified on a device.
 - [ ] No obvious placeholder/debug UI left in production paths.
+
+## 8) Branch flow, and the step everyone forgets
+
+Releases go **`develop` → `staging` → `main`**. Staging is where QA happens, so a
+release that skips it ships bits nobody QA'd. 1.4.0 and 1.5.0 were both cut as
+`release/x.y.z` → `main` and skipped staging; staging then sat on a 1.3-era
+snapshot from 18 July until it was reconciled.
+
+- [ ] Promote `develop` → `staging` and let QA run there.
+- [ ] Open the release PR from **`staging`** → `main`. Hold it for owner approval.
+- [ ] **After the release merges, back-merge `main` into `develop`.**
+
+That last step is the one that bites. `main` accumulates release-line commits —
+version bumps, and hotfixes like the 1.4.0 Watch-icon fix (`6a7fec9d`) — that
+never return to `develop`. Skip it and the *next* release PR conflicts in
+`Vittora.xcodeproj/project.pbxproj` on `MARKETING_VERSION`, which is exactly what
+happened to 1.5.0. Resolving it on the release branch does not help the release
+after that; only the back-merge does.
+
+Also note `staging` accumulates merge commits that `develop` lacks, so under
+"require branches to be up to date" a promotion PR reads BEHIND and cannot merge
+until `staging` is merged back into `develop`. Reconcile both in one PR.
