@@ -15,6 +15,7 @@ struct PayeeRowView: View {
                     .foregroundColor(payee.type == .business ? VColors.primary : VColors.income)
                     .accessibilityHidden(true)
             }
+            .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
                 Text(payee.name)
@@ -23,23 +24,19 @@ struct PayeeRowView: View {
                 HStack(spacing: VSpacing.xs) {
                     Text(payee.type == .business ? String(localized: "Business") : String(localized: "Person"))
                         .font(VTypography.caption1)
-                        .foregroundColor(VColors.textSecondary)
+                        .foregroundColor(VColors.textPrimary)
                     if let phone = payee.phone {
                         Text("·")
-                            .foregroundColor(VColors.textTertiary)
+                            .foregroundColor(VColors.textPrimary)
                         Text(phone)
                             .font(VTypography.caption1)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                     }
                 }
             }
 
             Spacer()
 
-            Image(systemName: "chevron.right")
-                .font(.caption2)
-                .foregroundColor(VColors.textTertiary)
-                .accessibilityHidden(true)
         }
         .padding(.vertical, VSpacing.xxs)
         .accessibilityElement(children: .combine)

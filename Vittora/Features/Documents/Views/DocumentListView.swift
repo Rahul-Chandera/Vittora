@@ -26,7 +26,7 @@ struct DocumentListView: View {
                 if let errorMessage = vm.error {
                     Text(errorMessage)
                         .font(VTypography.caption2)
-                        .foregroundColor(VColors.expense)
+                        .foregroundColor(VColors.textPrimary)
                 }
             }
         }
@@ -125,9 +125,13 @@ struct DocumentListView: View {
                 #endif
             } label: {
                 Image(systemName: "plus")
-                    .foregroundColor(VColors.primary)
+                    .foregroundColor(VColors.textPrimary)
+                    .frame(minWidth: 44, minHeight: 44)
             }
             .menuStyle(.button)
+            .accessibilityLabel(String(localized: "Add attachment"))
+            .accessibilityHint(String(localized: "Shows attachment options"))
+            .accessibilityIdentifier("document-add-button")
         }
     }
 
@@ -136,7 +140,7 @@ struct DocumentListView: View {
         if vm.documents.isEmpty {
             Text(String(localized: "No attachments"))
                 .font(VTypography.caption1)
-                .foregroundColor(VColors.textTertiary)
+                .foregroundColor(VColors.textPrimary)
         } else {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: VSpacing.sm) {

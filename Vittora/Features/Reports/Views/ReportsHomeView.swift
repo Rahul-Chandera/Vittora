@@ -11,6 +11,7 @@ struct ReportsHomeView: View {
     @State private var pendingReportEnd: Date?
 
     private let reportCards: [(type: ReportType, title: String, subtitle: String, icon: String, color: Color)] = [
+        (.yearInReview, String(localized: "Year in Review"), String(localized: "Your Wrapped — a shareable look at the year"), "sparkles", VColors.primary),
         (.monthly, String(localized: "Monthly Overview"), String(localized: "Income vs expenses over 12 months"), "chart.bar.fill", VColors.primary),
         (.category, String(localized: "Category Breakdown"), String(localized: "Spending by category with percentages"), "chart.pie.fill", VColors.warning),
         (.trends, String(localized: "Spending Trends"), String(localized: "Daily, weekly, or monthly trend chart"), "chart.line.uptrend.xyaxis", VColors.savings),
@@ -78,11 +79,17 @@ struct ReportsHomeView: View {
             }
         }
         .task {
+            dependencies.conversionEventRecorder.afterReportOpened()
+        }
+        // Keyed on the transaction version, like DashboardView: the summary card
+        // aggregates transactions, so a once-only load left it showing the totals
+        // from whenever the tab first appeared. Adding a transaction and coming
+        // back showed stale figures — and on a fresh launch it showed zeroes.
+        .task(id: appState.transactionsRefreshVersion) {
             if vm == nil {
                 vm = ReportsHomeViewModel(transactionRepository: dependencies.transactionRepository)
-                await vm?.load()
             }
-            dependencies.conversionEventRecorder.afterReportOpened()
+            await vm?.load()
         }
         .task(id: appState.pendingReportHandoff?.typeRaw) {
             guard let pending = appState.pendingReportHandoff,
@@ -178,6 +185,8 @@ struct ReportsHomeView: View {
             SubscriptionAuditReportView()
         case .emergencyFund:
             EmergencyFundReportView()
+        case .yearInReview:
+            YearInReviewView()
         }
     }
 

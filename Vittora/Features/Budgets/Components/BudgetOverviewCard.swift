@@ -19,7 +19,7 @@ struct BudgetOverviewCard: View {
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
                         Text(String(localized: "Total Budget"))
                             .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                         VAmountText(budget, size: .title2)
                     }
 
@@ -28,10 +28,10 @@ struct BudgetOverviewCard: View {
                     VStack(alignment: .trailing, spacing: VSpacing.xs) {
                         Text(String(localized: "Progress"))
                             .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                         Text("\(Int(min(progress * 100, 999)))%")
                             .font(VTypography.title2)
-                            .foregroundColor(statusColor)
+                            .foregroundColor(VColors.textPrimary)
                     }
                 }
 
@@ -48,7 +48,7 @@ struct BudgetOverviewCard: View {
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
                         Text(String(localized: "Spent"))
                             .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                         VAmountText(spent, size: .body)
                     }
 
@@ -58,9 +58,9 @@ struct BudgetOverviewCard: View {
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
                         Text(String(localized: "Remaining"))
                             .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                         VAmountText(remaining, size: .body)
-                            .foregroundColor(remaining < 0 ? VColors.budgetDanger : VColors.budgetSafe)
+                            .foregroundColor(VColors.textPrimary)
                     }
 
                     Spacer()

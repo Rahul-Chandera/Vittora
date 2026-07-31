@@ -185,6 +185,9 @@ struct AppTabView: View {
                 }
             }
         }
+        .tint(.primary)
+        .toolbarBackground(VColors.background, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 
     /// Selection for the compact bar. Deep-links to overflow destinations

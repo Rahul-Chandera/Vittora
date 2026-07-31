@@ -22,7 +22,7 @@ struct TransactionFilterSheet: View {
         NavigationStack {
             Form {
                 if !savedPresets.isEmpty {
-                    Section(String(localized: "Saved Filters")) {
+                    Section(header: VFormSectionHeader(String(localized: "Saved Filters"))) {
                         ForEach(savedPresets) { preset in
                             Button {
                                 localVM.applySnapshot(preset.snapshot)
@@ -47,7 +47,7 @@ struct TransactionFilterSheet: View {
                     }
                 }
 
-                Section(String(localized: "Date Range")) {
+                Section(header: VFormSectionHeader(String(localized: "Date Range"))) {
                     Picker(String(localized: "Preset"), selection: Bindable(localVM).datePreset) {
                         ForEach(TransactionFilterViewModel.DatePreset.allCases, id: \.self) { preset in
                             Text(preset.displayName).tag(preset)
@@ -78,14 +78,14 @@ struct TransactionFilterSheet: View {
                     }
                 }
 
-                Section(String(localized: "Transaction Type")) {
+                Section(header: VFormSectionHeader(String(localized: "Transaction Type"))) {
                     ForEach(TransactionType.allCases, id: \.self) { type in
                         Toggle(type.displayName, isOn: $localVM.selectedTypes.contains(type))
                             .accessibilityIdentifier("transaction-filter-type-\(type.rawValue)")
                     }
                 }
 
-                Section(String(localized: "Amount Range")) {
+                Section(header: VFormSectionHeader(String(localized: "Amount Range"))) {
                     TextField(String(localized: "Min"), text: Bindable(localVM).amountMin)
                         .accessibilityIdentifier("transaction-filter-min-field")
                         #if os(iOS)

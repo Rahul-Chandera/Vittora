@@ -55,10 +55,19 @@ final class ReportPDFExportUITests: XCTestCase {
         #else
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
 
-        let annual = app.descendants(matching: .any)["Annual Summary"].firstMatch
+        // Year in Review sits above Annual Summary; scroll via hardened helper
+        // (clears live nav-bar / tab-bar frames) before tapping the stable id.
+        let annual = app.descendants(matching: .any)["report-card-annual"].firstMatch
         UITestSupport.scrollToElement(annual, in: app)
-        XCTAssertTrue(annual.waitForExistence(timeout: 10))
-        UITestSupport.tapWhenReady(annual)
+        XCTAssertTrue(annual.waitForExistence(timeout: 10), "Annual Summary card should exist.")
+        // Activate the accessibility element rather than a coordinate: the card
+        // can exist with a frame that is off-screen or under chrome, and a
+        // coordinate tap then lands on nothing (the Payees-row failure mode).
+        XCTAssertTrue(
+            UITestSupport.waitForElement(annual, timeout: 10, requireHittable: true),
+            "Annual Summary card should be hittable after scrolling."
+        )
+        annual.tap()
 
         XCTAssertTrue(app.navigationBars["Annual Summary"].waitForExistence(timeout: 10))
         let export = app.buttons["Export PDF"]

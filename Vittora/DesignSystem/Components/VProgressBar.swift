@@ -88,7 +88,7 @@ struct VProgressBar: View {
                         HStack(spacing: VSpacing.xxs) {
                             if progress >= 1.0 {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.caption2)
+                                    .font(.caption)
                                     .foregroundColor(statusColor)
                                     .accessibilityHidden(true)
                             }
@@ -159,33 +159,33 @@ struct VProgressBar: View {
     VStack(spacing: VSpacing.xl) {
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.lg) {
-                Text("Budget Progress Examples")
+                Text(verbatim: "Budget Progress Examples")
                     .font(VTypography.title3)
                     .foregroundColor(VColors.textPrimary)
 
                 VStack(alignment: .leading, spacing: VSpacing.md) {
-                    Text("Safe (30%)")
+                    Text(verbatim: "Safe (30%)")
                         .font(VTypography.subheadline)
                         .foregroundColor(VColors.textSecondary)
                     VProgressBar(spent: 300, limit: 1000, showLabel: true)
                 }
 
                 VStack(alignment: .leading, spacing: VSpacing.md) {
-                    Text("Warning (80%)")
+                    Text(verbatim: "Warning (80%)")
                         .font(VTypography.subheadline)
                         .foregroundColor(VColors.textSecondary)
                     VProgressBar(spent: 800, limit: 1000, showLabel: true)
                 }
 
                 VStack(alignment: .leading, spacing: VSpacing.md) {
-                    Text("Danger (120% - Over Budget)")
+                    Text(verbatim: "Danger (120% - Over Budget)")
                         .font(VTypography.subheadline)
                         .foregroundColor(VColors.textSecondary)
                     VProgressBar(spent: 1200, limit: 1000, showLabel: true)
                 }
 
                 VStack(alignment: .leading, spacing: VSpacing.md) {
-                    Text("Compact (no label)")
+                    Text(verbatim: "Compact (no label)")
                         .font(VTypography.subheadline)
                         .foregroundColor(VColors.textSecondary)
                     VProgressBar(spent: 450, limit: 1000, showLabel: false)

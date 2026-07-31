@@ -117,6 +117,7 @@ struct OnboardingView: View {
 
     private var ctaButton: some View {
         Button {
+            guard vm.canAdvance, !vm.isSaving else { return }
             if vm.currentStep == .done {
                 Task {
                     await vm.complete(appState: appState)
@@ -128,7 +129,7 @@ struct OnboardingView: View {
             HStack {
                 if vm.isSaving {
                     ProgressView()
-                        .tint(.white)
+                        .tint(.black)
                 }
                 Text(buttonTitle)
                     .font(VTypography.bodyBold)
@@ -140,14 +141,18 @@ struct OnboardingView: View {
             .frame(maxWidth: .infinity)
             .padding(VSpacing.md)
             .background(VColors.primary)
-            .foregroundStyle(.white)
+            .foregroundStyle(.black)
             .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD))
-            .opacity((vm.canAdvance && !vm.isSaving) ? 1 : 0.55)
         }
         // .plain: the label is fully custom; without this, macOS wraps it in
         // the standard AppKit button bezel (a gray rounded container).
         .buttonStyle(.plain)
-        .disabled(!vm.canAdvance || vm.isSaving)
+        .accessibilityRespondsToUserInteraction(vm.canAdvance && !vm.isSaving)
+        .accessibilityValue(
+            vm.canAdvance && !vm.isSaving
+                ? String(localized: "Available")
+                : String(localized: "Unavailable")
+        )
         .accessibilityIdentifier("onboarding-next-button")
     }
 
@@ -170,66 +175,85 @@ struct OnboardingView: View {
 // MARK: - Step Views
 
 private struct WelcomeStepView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
-        ViewThatFits(in: .vertical) {
-            content
-            ScrollView { content }
+        // Accessibility sizes: Spacers make ViewThatFits believe the non-scrolling
+        // layout fits, then title1 + feature rows clip under the pinned CTA.
+        if dynamicTypeSize.isAccessibilitySize {
+            ScrollView {
+                content(includeSpacers: false)
+            }
+        } else {
+            ViewThatFits(in: .vertical) {
+                content(includeSpacers: true)
+                ScrollView { content(includeSpacers: false) }
+            }
         }
     }
 
-    private var content: some View {
+    private func content(includeSpacers: Bool) -> some View {
         VStack(spacing: VSpacing.lg) {
-            Spacer()
+            if includeSpacers { Spacer() }
 
             Image("OnboardingAppLogo")
                 .resizable()
                 .interpolation(.high)
                 .scaledToFit()
-                .frame(width: 88, height: 88)
+                .frame(
+                    width: dynamicTypeSize.isAccessibilitySize ? 64 : 88,
+                    height: dynamicTypeSize.isAccessibilitySize ? 64 : 88
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .accessibilityHidden(true)
 
             VStack(spacing: VSpacing.sm) {
                 Text(String(localized: "Welcome to Vittora"))
-                    .font(VTypography.title1.bold())
+                    .font(dynamicTypeSize.isAccessibilitySize ? VTypography.title2.bold() : VTypography.title1.bold())
                     .foregroundStyle(VColors.textPrimary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("onboarding-welcome-title")
 
                 Text(String(localized: "Your all-in-one personal finance companion for tracking money, budgets, goals, taxes and more."))
                     .font(VTypography.body)
-                    .foregroundStyle(VColors.textSecondary)
+                    .foregroundStyle(VColors.textPrimary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, VSpacing.xl)
             }
 
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                FeatureRow(icon: "chart.pie.fill",   color: .purple, text: String(localized: "Track income & expenses"))
-                FeatureRow(icon: "target",            color: .orange, text: String(localized: "Set and manage budgets"))
-                FeatureRow(icon: "star.circle.fill",  color: .yellow, text: String(localized: "Save towards your goals"))
-                FeatureRow(icon: "person.2.fill",     color: .blue,   text: String(localized: "Split expenses with friends"))
-                FeatureRow(icon: "building.columns",  color: .green,  text: String(localized: "Estimate your taxes"))
+                FeatureRow(icon: "chart.pie.fill",   text: String(localized: "Track income & expenses"))
+                FeatureRow(icon: "target",            text: String(localized: "Set and manage budgets"))
+                FeatureRow(icon: "star.circle.fill",  text: String(localized: "Save towards your goals"))
+                FeatureRow(icon: "person.2.fill",     text: String(localized: "Split expenses with friends"))
+                FeatureRow(icon: "building.columns",  text: String(localized: "Estimate your taxes"))
             }
             .padding(.horizontal, VSpacing.xl)
 
-            Spacer()
+            if includeSpacers { Spacer() }
         }
+        .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? VSpacing.md : 0)
     }
 }
 
 private struct FeatureRow: View {
     let icon: String
-    let color: Color
     let text: String
 
     var body: some View {
-        HStack(spacing: VSpacing.md) {
+        HStack(alignment: .top, spacing: VSpacing.md) {
             Image(systemName: icon)
                 .font(.body)
-                .foregroundStyle(color)
+                .foregroundStyle(VColors.textPrimary)
                 .frame(width: 28)
+                .accessibilityHidden(true)
             Text(text)
                 .font(VTypography.body)
                 .foregroundStyle(VColors.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -243,21 +267,24 @@ private struct CurrencyStepView: View {
 
             ZStack {
                 Circle()
-                    .fill(VColors.primary)
+                    .fill(VColors.tertiaryBackground)
                     .frame(width: 76, height: 76)
                 Text(selectedCurrencySymbol)
-                    .font(.system(size: 42, weight: .medium, design: .rounded))
-                    .foregroundStyle(.white)
+                    .font(.system(.largeTitle, design: .rounded).weight(.medium))
+                    .foregroundStyle(VColors.textPrimary)
             }
+            .accessibilityHidden(true)
 
             VStack(spacing: VSpacing.sm) {
                 Text(String(localized: "Choose Your Currency"))
                     .font(VTypography.title2.bold())
                     .foregroundStyle(VColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(String(localized: "This will be your default display currency."))
                     .font(VTypography.body)
                     .foregroundStyle(VColors.textSecondary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             ScrollView {
@@ -267,18 +294,15 @@ private struct CurrencyStepView: View {
                             vm.selectedCurrencyCode = currency.code
                         } label: {
                             HStack(spacing: VSpacing.md) {
-                                Text(currency.flag)
-                                    .font(.title2)
-                                Text(currency.name)
+                                Text("\(currency.name) (\(currency.code))")
                                     .font(VTypography.body)
                                     .foregroundStyle(VColors.textPrimary)
-                                Spacer()
-                                Text(currency.code)
-                                    .font(VTypography.caption1)
-                                    .foregroundStyle(VColors.textSecondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Spacer(minLength: VSpacing.sm)
                                 if vm.selectedCurrencyCode == currency.code {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundStyle(VColors.primary)
+                                        .accessibilityHidden(true)
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -288,6 +312,7 @@ private struct CurrencyStepView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityElement(children: .combine)
                         .accessibilityLabel("\(currency.name), \(currency.code)")
                         .accessibilityAddTraits(vm.selectedCurrencyCode == currency.code ? .isSelected : [])
                         .accessibilityIdentifier("onboarding-currency-\(currency.code)")
@@ -319,15 +344,18 @@ private struct ProfileStepView: View {
             Image(systemName: "person.circle.fill")
                 .font(.system(size: 64))
                 .foregroundStyle(VColors.primary)
+                .accessibilityHidden(true)
 
             VStack(spacing: VSpacing.sm) {
                 Text(String(localized: "What should we call you?"))
                     .font(VTypography.title2.bold())
                     .foregroundStyle(VColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(String(localized: "Enter your name. You can change this in settings anytime."))
                     .font(VTypography.body)
                     .foregroundStyle(VColors.textSecondary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, VSpacing.xl)
             }
 
@@ -360,14 +388,21 @@ private struct ProfileStepView: View {
 
 private struct AccountSetupStepView: View {
     @Bindable var vm: OnboardingViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @FocusState private var focusedField: AccountField?
 
     private enum AccountField { case name, balance }
 
-    private let columns = [
-        GridItem(.flexible(), spacing: VSpacing.md),
-        GridItem(.flexible(), spacing: VSpacing.md),
-    ]
+    private var columns: [GridItem] {
+        if dynamicTypeSize.isAccessibilitySize {
+            return [GridItem(.flexible())]
+        }
+        return [
+            GridItem(.flexible(), spacing: VSpacing.md),
+            GridItem(.flexible(), spacing: VSpacing.md),
+        ]
+    }
 
     var body: some View {
         if vm.isAccountSubStepEnabled {
@@ -386,6 +421,7 @@ private struct AccountSetupStepView: View {
                         ))
                 }
             }
+            .animation(reduceMotion ? .none : .easeInOut(duration: 0.35), value: vm.accountSubStep)
         } else {
             combinedStep
         }
@@ -399,6 +435,7 @@ private struct AccountSetupStepView: View {
                 Image(systemName: "wallet.pass.fill")
                     .font(.system(size: 64))
                     .foregroundStyle(VColors.primary)
+                    .accessibilityHidden(true)
 
                 VStack(spacing: VSpacing.sm) {
                     Text(String(localized: "Set Up Your First Account"))
@@ -493,6 +530,7 @@ private struct AccountSetupStepView: View {
                 Image(systemName: "wallet.pass.fill")
                     .font(.system(size: 64))
                     .foregroundStyle(VColors.primary)
+                    .accessibilityHidden(true)
 
                 VStack(spacing: VSpacing.sm) {
                     Text(String(localized: "Set Up Your First Account"))
@@ -593,8 +631,12 @@ private struct AccountSetupStepView: View {
         // group to the top whenever either field gains focus.
         .onChange(of: focusedField) { _, newValue in
             guard newValue != nil else { return }
-            withAnimation {
+            if reduceMotion {
                 proxy.scrollTo("account-fields", anchor: .top)
+            } else {
+                withAnimation {
+                    proxy.scrollTo("account-fields", anchor: .top)
+                }
             }
         }
         #if os(iOS)
@@ -616,10 +658,12 @@ private struct AccountSetupStepView: View {
         } label: {
             VStack(spacing: VSpacing.sm) {
                 AccountTypeIcon(type: type, size: 40)
+                    .accessibilityHidden(true)
                 Text(type.displayName)
-                    .font(VTypography.caption1.bold())
+                    .font(VTypography.bodyBold)
                     .foregroundStyle(VColors.textPrimary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, minHeight: 110)
             .padding(VSpacing.md)
@@ -633,6 +677,7 @@ private struct AccountSetupStepView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
         .accessibilityLabel(type.displayName)
         .accessibilityAddTraits(vm.selectedAccountType == type ? .isSelected : [])
         .accessibilityIdentifier("onboarding-account-type-\(type.rawValue)")
@@ -674,9 +719,9 @@ private struct NotificationsStepView: View {
             }
 
             VStack(alignment: .leading, spacing: VSpacing.md) {
-                FeatureRow(icon: "target", color: .orange, text: String(localized: "Budget limit alerts"))
-                FeatureRow(icon: "calendar.badge.clock", color: .blue, text: String(localized: "Bill and debt due dates"))
-                FeatureRow(icon: "arrow.triangle.2.circlepath", color: .purple, text: String(localized: "Upcoming recurring transactions"))
+                FeatureRow(icon: "target", text: String(localized: "Budget limit alerts"))
+                FeatureRow(icon: "calendar.badge.clock", text: String(localized: "Bill and debt due dates"))
+                FeatureRow(icon: "arrow.triangle.2.circlepath", text: String(localized: "Upcoming recurring transactions"))
             }
             .padding(.horizontal, VSpacing.xl)
 

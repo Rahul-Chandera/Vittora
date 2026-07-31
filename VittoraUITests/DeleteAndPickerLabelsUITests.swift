@@ -60,6 +60,10 @@ final class DeleteAndPickerLabelsUITests: XCTestCase {
             "The picker data must be seeded before opening the recurring form."
         )
         openSettingsDestination("settings-manage-recurring")
+        XCTAssertTrue(
+            app.navigationBars["Recurring Transactions"].waitForExistence(timeout: 10),
+            "Recurring list should push after tapping Manage → Recurring."
+        )
         let rule = app.descendants(matching: .any)[
             "recurring-row-DB8D2197-FD80-4A39-8EB7-28D1AB42C901"
         ]
@@ -76,13 +80,49 @@ final class DeleteAndPickerLabelsUITests: XCTestCase {
     @MainActor
     private func openSettingsDestination(_ identifier: String) {
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app), "The app shell should be visible.")
-        let destination = app.descendants(matching: .any)[identifier]
-        if !destination.exists {
+        if !app.navigationBars["Settings"].exists {
             if app.tabBars.buttons["More"].exists {
                 UITestSupport.tapWhenReady(app.tabBars.buttons["More"])
             }
             UITestSupport.tapWhenReady(app.buttons["Settings"].firstMatch, timeout: 15)
+            XCTAssertTrue(
+                app.navigationBars["Settings"].waitForExistence(timeout: 10),
+                "Settings should open before tapping a manage destination."
+            )
         }
+
+        // Prefer the visible row title — Form rows expose a reliable text frame
+        // even when the NavigationLink identifier node reports a zero frame.
+        let titleByIdentifier = [
+            "settings-manage-accounts": "Accounts",
+            "settings-manage-categories": "Categories",
+            "settings-manage-payees": "Payees",
+            "settings-manage-recurring": "Recurring"
+        ]
+        if let title = titleByIdentifier[identifier] {
+            let titleElement = app.staticTexts[title].firstMatch
+            let unobscuredBottom = app.frame.maxY - 140
+            var swipes = 0
+            while swipes < 12 {
+                if titleElement.exists {
+                    let frame = titleElement.frame
+                    if frame.height > 1, frame.maxY <= unobscuredBottom {
+                        break
+                    }
+                }
+                app.swipeUp()
+                swipes += 1
+                RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+            }
+            XCTAssertTrue(
+                titleElement.waitForExistence(timeout: 10),
+                "Settings row '\(title)' should be visible."
+            )
+            titleElement.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            return
+        }
+
+        let destination = app.descendants(matching: .any)[identifier]
         UITestSupport.scrollToElement(destination, in: app)
         UITestSupport.tapWhenReady(destination, timeout: 20)
     }

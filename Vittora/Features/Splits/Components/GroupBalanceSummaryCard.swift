@@ -11,7 +11,7 @@ struct GroupBalanceSummaryCard: View {
             VStack(alignment: .leading, spacing: VSpacing.sm) {
                 Label(String(localized: "Settle Up"), systemImage: "arrow.left.arrow.right.circle.fill")
                     .font(VTypography.subheadline)
-                    .foregroundStyle(VColors.primary)
+                    .foregroundStyle(VColors.textPrimary)
 
                 if balances.isEmpty {
                     HStack {
@@ -42,6 +42,8 @@ struct GroupBalanceSummaryCard: View {
 }
 
 private struct BalanceRow: View {
+    @Environment(\.currencyCode) private var currencyCode
+
     let balance: MemberBalance
     let fromName: String
     let toName: String
@@ -49,14 +51,10 @@ private struct BalanceRow: View {
     var body: some View {
         HStack(spacing: VSpacing.sm) {
             // Avatar from-person
-            Circle()
-                .fill(VColors.expense.opacity(0.15))
-                .frame(width: 32, height: 32)
-                .overlay {
-                    Text(initials(fromName))
-                        .font(VTypography.caption2.bold())
-                        .foregroundStyle(VColors.expense)
-                }
+            Image(systemName: "person.crop.circle.fill")
+                .font(.title2)
+                .foregroundStyle(VColors.textPrimary)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(fromName)
@@ -70,16 +68,13 @@ private struct BalanceRow: View {
             Image(systemName: "arrow.right")
                 .font(.caption)
                 .foregroundStyle(VColors.textSecondary)
+                .accessibilityHidden(true)
 
             // Avatar to-person
-            Circle()
-                .fill(VColors.income.opacity(0.15))
-                .frame(width: 32, height: 32)
-                .overlay {
-                    Text(initials(toName))
-                        .font(VTypography.caption2.bold())
-                        .foregroundStyle(VColors.income)
-                }
+            Image(systemName: "person.crop.circle.fill")
+                .font(.title2)
+                .foregroundStyle(VColors.textPrimary)
+                .accessibilityHidden(true)
 
             Text(toName)
                 .font(VTypography.caption1.bold())
@@ -90,6 +85,9 @@ private struct BalanceRow: View {
             VAmountText(expense: balance.amount, size: .body)
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "\(fromName) owes \(toName)"))
+        .accessibilityValue(balance.amount.formatted(.currency(code: currencyCode)))
     }
 
     private func initials(_ name: String) -> String {

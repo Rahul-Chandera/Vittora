@@ -62,14 +62,14 @@ struct SubscriptionCard: View {
 
                     Text(frequencyLabel)
                         .font(VTypography.caption2)
-                        .foregroundColor(VColors.textSecondary)
+                        .foregroundColor(VColors.textPrimary)
                 }
 
                 Spacer()
 
                 // Status
                 Image(systemName: rule.isActive ? "checkmark.circle.fill" : "pause.circle.fill")
-                    .foregroundColor(rule.isActive ? .green : .orange)
+                    .foregroundColor(VColors.textPrimary)
                     .font(.system(size: 18))
             }
 
@@ -81,11 +81,11 @@ struct SubscriptionCard: View {
                 VStack(alignment: .leading, spacing: VSpacing.xs) {
                     Text(String(localized: "Per Transaction"))
                         .font(VTypography.caption2)
-                        .foregroundColor(VColors.textSecondary)
+                        .foregroundColor(VColors.textPrimary)
 
                     Text(rule.templateAmount.formatted(currencyCode: currencyCode))
                         .font(VTypography.title3)
-                        .foregroundColor(VColors.expense)
+                        .foregroundColor(VColors.textPrimary)
                 }
 
                 Spacer()
@@ -93,11 +93,11 @@ struct SubscriptionCard: View {
                 VStack(alignment: .leading, spacing: VSpacing.xs) {
                     Text(String(localized: "Monthly Cost"))
                         .font(VTypography.caption2)
-                        .foregroundColor(VColors.textSecondary)
+                        .foregroundColor(VColors.textPrimary)
 
                     Text(monthlyCost.formatted(currencyCode: currencyCode))
                         .font(VTypography.title3)
-                        .foregroundColor(VColors.expense)
+                        .foregroundColor(VColors.textPrimary)
                 }
             }
 
@@ -105,11 +105,11 @@ struct SubscriptionCard: View {
             HStack(spacing: VSpacing.md) {
                 Image(systemName: "calendar")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(VColors.textSecondary)
+                    .foregroundColor(VColors.textPrimary)
 
                 Text(String(localized: "Next: \(rule.nextDate.formatted(date: .abbreviated, time: .omitted))"))
                     .font(VTypography.caption2)
-                    .foregroundColor(VColors.textSecondary)
+                    .foregroundColor(VColors.textPrimary)
 
                 Spacer()
             }
@@ -120,7 +120,7 @@ struct SubscriptionCard: View {
         .overlay(
             RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD)
                 .stroke(
-                    rule.isActive ? Color.clear : Color.orange.opacity(0.3),
+                    rule.isActive ? Color.clear : VColors.warning.opacity(0.45),
                     lineWidth: 1
                 )
         )

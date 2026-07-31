@@ -2,27 +2,36 @@ import SwiftUI
 import VittoraCore
 
 struct AccountRowView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     let account: AccountEntity
 
     var body: some View {
-        HStack(spacing: VSpacing.md) {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.sm))
+            : AnyLayout(HStackLayout(spacing: VSpacing.md))
+        layout {
             AccountTypeIcon(type: account.type, size: 40)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
                 Text(account.name)
                     .font(VTypography.bodyBold)
                     .foregroundColor(VColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(account.type.displayName)
                     .font(VTypography.caption1)
-                    .foregroundColor(VColors.textSecondary)
+                    .foregroundColor(VColors.textPrimary)
             }
 
-            Spacer()
+            if !dynamicTypeSize.isAccessibilitySize {
+                Spacer()
+            }
 
-            VStack(alignment: .trailing, spacing: VSpacing.xxs) {
+            VStack(alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing, spacing: VSpacing.xxs) {
                 Text(account.balance.formatted(.currency(code: account.currencyCode)))
                     .font(VTypography.bodyBold)
-                    .foregroundColor(account.balance >= 0 ? VColors.textPrimary : VColors.expense)
+                    .foregroundColor(.primary)
                 if account.isArchived {
                     Text(String(localized: "Archived"))
                         .font(VTypography.caption2)

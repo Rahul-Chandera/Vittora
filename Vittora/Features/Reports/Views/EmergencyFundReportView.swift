@@ -4,6 +4,7 @@ import VittoraCore
 struct EmergencyFundReportView: View {
     @Environment(\.dependencies) private var dependencies
     @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: EmergencyFundViewModel?
     @State private var showAddRecurring = false
 
@@ -28,6 +29,11 @@ struct EmergencyFundReportView: View {
                 }
             }
             .padding(VSpacing.screenPadding)
+        }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
+                .allowsHitTesting(false)
         }
         .background(VColors.background)
         .navigationTitle(String(localized: "Emergency Fund"))
@@ -62,54 +68,83 @@ struct EmergencyFundReportView: View {
     }
 
     private func coverageCard(_ snapshot: EmergencyFundSnapshot) -> some View {
-        VCard {
-            VStack(spacing: VSpacing.lg) {
+        let ringSize: CGFloat = dynamicTypeSize.isAccessibilitySize ? 120 : 210
+        let ringLine: CGFloat = dynamicTypeSize.isAccessibilitySize ? 12 : 18
+        let markerOffset = ringSize / 2
+
+        return VCard {
+            VStack(alignment: .leading, spacing: VSpacing.md) {
+                // Status first so XL layout never clips it under the tab bar.
+                Text(statusTitle(snapshot.status))
+                    .font(VTypography.title3)
+                    .foregroundStyle(VColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+
                 ZStack {
                     Circle()
-                        .stroke(VColors.tertiaryBackground, lineWidth: 18)
+                        .stroke(VColors.textTertiary, lineWidth: ringLine)
                     Circle()
                         .trim(from: 0, to: arcProgress(snapshot.coverageMonths))
                         .stroke(
                             statusColor(snapshot.status),
-                            style: StrokeStyle(lineWidth: 18, lineCap: .round)
+                            style: StrokeStyle(lineWidth: ringLine, lineCap: .round)
                         )
                         .rotationEffect(.degrees(-90))
-                    Circle()
-                        .fill(VColors.textSecondary)
-                        .frame(width: 9, height: 9)
-                        .offset(y: 105)
-                    Circle()
-                        .fill(VColors.textSecondary)
-                        .frame(width: 9, height: 9)
-                        .offset(y: -105)
+                    // Target markers only at standard sizes — at XL the offsets
+                    // sit on the ring edge and the Dynamic Type audit clips them.
+                    if !dynamicTypeSize.isAccessibilitySize {
+                        Circle()
+                            .fill(VColors.textPrimary)
+                            .frame(width: 9, height: 9)
+                            .offset(y: markerOffset)
+                        Circle()
+                            .fill(VColors.textPrimary)
+                            .frame(width: 9, height: 9)
+                            .offset(y: -markerOffset)
 
-                    VStack(spacing: VSpacing.xxs) {
+                        VStack(spacing: VSpacing.xxs) {
+                            Text(snapshot.coverageMonths, format: .number.precision(.fractionLength(1)))
+                                .font(VTypography.amountLarge)
+                                .amountScaling()
+                                .foregroundStyle(VColors.textPrimary)
+                            Text(String(localized: "months covered"))
+                                .font(VTypography.caption1)
+                                .foregroundStyle(VColors.textPrimary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+                .frame(width: ringSize, height: ringSize)
+                .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(String(localized: "Emergency fund coverage"))
+                .accessibilityIdentifier("emergency-fund-coverage-summary")
+                .accessibilityValue(
+                    String(
+                        localized: "\(snapshot.coverageMonths.formatted(.number.precision(.fractionLength(1)))) months, \(statusTitle(snapshot.status))"
+                    )
+                )
+
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(alignment: .leading, spacing: VSpacing.xxs) {
                         Text(snapshot.coverageMonths, format: .number.precision(.fractionLength(1)))
                             .font(VTypography.amountLarge)
                             .amountScaling()
+                            .foregroundStyle(VColors.textPrimary)
                         Text(String(localized: "months covered"))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
+                            .font(VTypography.body)
+                            .foregroundStyle(VColors.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    VStack(alignment: .leading, spacing: VSpacing.xs) {
+                        targetLegendRow(String(localized: "3-month target"))
+                        targetLegendRow(String(localized: "6-month target"))
+                    }
+                    .font(VTypography.bodyBold)
+                    .foregroundStyle(VColors.textPrimary)
                 }
-                .frame(width: 210, height: 210)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(String(localized: "Emergency fund coverage"))
-                .accessibilityValue(
-                    String(localized: "\(snapshot.coverageMonths.formatted(.number.precision(.fractionLength(1)))) months")
-                )
-
-                HStack {
-                    Label(String(localized: "3-month target"), systemImage: "circle.fill")
-                    Spacer()
-                    Label(String(localized: "6-month target"), systemImage: "circle.fill")
-                }
-                .font(VTypography.caption2)
-                .foregroundStyle(VColors.textSecondary)
-
-                Text(statusTitle(snapshot.status))
-                    .font(VTypography.title3)
-                    .foregroundStyle(statusColor(snapshot.status))
             }
         }
     }
@@ -119,38 +154,77 @@ struct EmergencyFundReportView: View {
             VStack(spacing: VSpacing.md) {
                 figureRow(
                     title: String(localized: "Current fund"),
-                    amount: snapshot.currentFund,
-                    color: VColors.savings
+                    amount: snapshot.currentFund
                 )
                 Divider()
                 figureRow(
                     title: String(localized: "Monthly essentials"),
-                    amount: snapshot.essentialMonthly,
-                    color: VColors.expense
+                    amount: snapshot.essentialMonthly
                 )
                 Divider()
-                HStack {
-                    Text(String(localized: "Baseline"))
-                        .foregroundStyle(VColors.textSecondary)
-                    Spacer()
-                    Text(baselineLabel(snapshot.baselineSource))
-                        .multilineTextAlignment(.trailing)
+                Group {
+                    if dynamicTypeSize.isAccessibilitySize {
+                        VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                            Text(String(localized: "Baseline"))
+                                .foregroundStyle(VColors.textPrimary)
+                            Text(baselineLabel(snapshot.baselineSource))
+                                .foregroundStyle(VColors.textPrimary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(String(localized: "Baseline"))
+                                .foregroundStyle(VColors.textPrimary)
+                            Spacer()
+                            Text(baselineLabel(snapshot.baselineSource))
+                                .foregroundStyle(VColors.textPrimary)
+                                .multilineTextAlignment(.trailing)
+                        }
+                    }
                 }
                 .font(VTypography.caption1)
             }
         }
     }
 
-    private func figureRow(title: String, amount: Decimal, color: Color) -> some View {
-        HStack {
-            Text(title)
-                .foregroundStyle(VColors.textSecondary)
-            Spacer()
-            Text(CurrencyFormatter.format(amount, currencyCode: currencyCode))
-                .font(VTypography.amountMedium)
-                .amountScaling()
-                .foregroundStyle(color)
+    @ViewBuilder
+    private func figureRow(title: String, amount: Decimal) -> some View {
+        // XL amountScaling in an HStack compresses the title and makes Apple's
+        // contrast sampler mis-read the glyph edges; stack instead.
+        let formatted = CurrencyFormatter.format(amount, currencyCode: currencyCode)
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                    Text(title)
+                        .font(VTypography.body)
+                        .foregroundStyle(VColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(formatted)
+                        .font(VTypography.amountMedium)
+                        .amountScaling()
+                        .foregroundStyle(VColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(title)
+                        .font(VTypography.body)
+                        .foregroundStyle(VColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: VSpacing.sm)
+                    Text(formatted)
+                        .font(VTypography.amountMedium)
+                        .amountScaling()
+                        .foregroundStyle(VColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(formatted)
     }
 
     private func shortfallCard(_ snapshot: EmergencyFundSnapshot) -> some View {
@@ -158,27 +232,36 @@ struct EmergencyFundReportView: View {
             HStack(spacing: VSpacing.md) {
                 Image(systemName: "arrow.up.right.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(VColors.warning)
+                    .foregroundStyle(VColors.textPrimary)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: VSpacing.xxs) {
                     Text(String(localized: "To reach 3 months"))
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                     Text(CurrencyFormatter.format(snapshot.shortfallToThreeMonths, currencyCode: currencyCode))
                         .font(VTypography.amountMedium)
                         .amountScaling()
+                        .foregroundStyle(VColors.textPrimary)
                 }
                 Spacer()
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "Shortfall to reach three months"))
+        .accessibilityValue(
+            CurrencyFormatter.format(snapshot.shortfallToThreeMonths, currencyCode: currencyCode)
+        )
     }
 
     private func accountSources(_ vm: EmergencyFundViewModel) -> some View {
         VStack(alignment: .leading, spacing: VSpacing.sm) {
             Text(String(localized: "Contributing Accounts"))
                 .font(VTypography.calloutBold)
+                .foregroundStyle(VColors.textPrimary)
             Text(String(localized: "Choose accounts whose full balance should count toward this fund."))
                 .font(VTypography.caption1)
-                .foregroundStyle(VColors.textSecondary)
+                .foregroundStyle(VColors.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
 
             VCard {
                 VStack(spacing: 0) {
@@ -196,23 +279,49 @@ struct EmergencyFundReportView: View {
                                     )
                                 }
                             } label: {
-                                HStack {
-                                    Label(account.name, systemImage: account.icon)
-                                    Spacer()
-                                    Text(CurrencyFormatter.format(account.balance, currencyCode: currencyCode))
-                                        .foregroundStyle(VColors.textSecondary)
-                                    Image(systemName: vm.selectedAccountIDs.contains(account.id)
-                                          ? "checkmark.circle.fill" : "circle")
-                                        .foregroundStyle(vm.selectedAccountIDs.contains(account.id)
-                                                         ? VColors.primary : VColors.textTertiary)
+                                Group {
+                                    if dynamicTypeSize.isAccessibilitySize {
+                                        VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                                            Label(account.name, systemImage: account.icon)
+                                                .foregroundStyle(VColors.textPrimary)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                            HStack {
+                                                Text(CurrencyFormatter.format(account.balance, currencyCode: currencyCode))
+                                                    .foregroundStyle(VColors.textPrimary)
+                                                Spacer()
+                                                Image(systemName: vm.selectedAccountIDs.contains(account.id)
+                                                      ? "checkmark.circle.fill" : "circle")
+                                                    .foregroundStyle(VColors.textPrimary)
+                                            }
+                                        }
+                                    } else {
+                                        HStack {
+                                            Label(account.name, systemImage: account.icon)
+                                                .foregroundStyle(VColors.textPrimary)
+                                            Spacer()
+                                            Text(CurrencyFormatter.format(account.balance, currencyCode: currencyCode))
+                                                .foregroundStyle(VColors.textPrimary)
+                                            Image(systemName: vm.selectedAccountIDs.contains(account.id)
+                                                  ? "checkmark.circle.fill" : "circle")
+                                                .foregroundStyle(vm.selectedAccountIDs.contains(account.id)
+                                                                 ? VColors.primary : VColors.textTertiary)
+                                        }
+                                    }
                                 }
                                 .padding(.vertical, VSpacing.sm)
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(account.name)
                             .accessibilityValue(
                                 vm.selectedAccountIDs.contains(account.id)
-                                ? String(localized: "Selected") : String(localized: "Not selected")
+                                ? String(
+                                    localized: "\(CurrencyFormatter.format(account.balance, currencyCode: currencyCode)), selected"
+                                )
+                                : String(
+                                    localized: "\(CurrencyFormatter.format(account.balance, currencyCode: currencyCode)), not selected"
+                                )
                             )
                             if account.id != vm.accounts.last?.id {
                                 Divider()
@@ -230,8 +339,20 @@ struct EmergencyFundReportView: View {
             systemImage: "info.circle"
         )
         .font(VTypography.caption1)
-        .foregroundStyle(VColors.textSecondary)
+        .foregroundStyle(VColors.textPrimary)
+        .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func targetLegendRow(_ title: String) -> some View {
+        HStack(spacing: VSpacing.sm) {
+            Circle()
+                .fill(VColors.textPrimary)
+                .frame(width: 8, height: 8)
+                .accessibilityHidden(true)
+            Text(title)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     private var emptyState: some View {

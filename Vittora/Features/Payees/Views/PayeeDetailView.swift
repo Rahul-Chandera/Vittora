@@ -102,7 +102,7 @@ struct PayeeDetailView: View {
             }
 
             // Contact Info
-            Section(String(localized: "Contact")) {
+            Section(header: VFormSectionHeader(String(localized: "Contact"))) {
                 LabeledContent("Name", value: payee.name)
                 if let phone = payee.phone {
                     LabeledContent("Phone", value: phone)
@@ -125,7 +125,7 @@ struct PayeeDetailView: View {
 
             // Recent Transactions
             if !vm.recentTransactions.isEmpty {
-                Section(String(localized: "Recent Transactions")) {
+                Section(header: VFormSectionHeader(String(localized: "Recent Transactions"))) {
                     ForEach(vm.recentTransactions) { tx in
                         NavigationLink(value: NavigationDestination.transactionDetail(id: tx.id)) {
                             HStack(spacing: VSpacing.sm) {

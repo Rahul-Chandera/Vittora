@@ -88,6 +88,11 @@ struct DashboardView: View {
             macLayout(vm)
             #endif
         }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
+        }
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
             geometry.contentOffset.y
         } action: { oldValue, newValue in
@@ -243,11 +248,13 @@ struct DashboardView: View {
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.primary)
                         Image(systemName: "chevron.right")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundColor(VColors.primary)
                             .accessibilityHidden(true)
                     }
                 }
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .accessibilityLabel(String(localized: "Manage budgets"))
                 .accessibilityHint(String(localized: "Opens the Budgets tab"))
@@ -261,7 +268,7 @@ struct DashboardView: View {
                     Spacer()
                     if progress >= 0.75 {
                         Image(systemName: progress > 1.0 ? "exclamationmark.circle.fill" : "exclamationmark.triangle.fill")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundColor(progressColor(progress))
                             .accessibilityHidden(true)
                     }

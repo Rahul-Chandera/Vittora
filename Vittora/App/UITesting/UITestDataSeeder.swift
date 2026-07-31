@@ -31,6 +31,8 @@ final class UITestDataSeeder {
         debtRepository: any DebtRepository,
         recurringRuleRepository: any RecurringRuleRepository,
         payeeRepository: any PayeeRepository,
+        splitGroupRepository: any SplitGroupRepository,
+        taxProfileRepository: any TaxProfileRepository,
         dataSeeder: any DataSeederProtocol
     ) async throws {
         let existingAccounts = try await accountRepository.fetchAll()
@@ -43,8 +45,14 @@ final class UITestDataSeeder {
         try await dataSeeder.reseedDefaultCategories()
         let categories = try await categoryRepository.fetchAll()
         func category(_ name: String) -> UUID? {
-            let localizedName = String(localized: String.LocalizationValue(name))
-            return categories.first { $0.name == localizedName }?.id
+            // Match the stored name, NOT the localized one. Default categories
+            // persist canonical English (`CategoryEntity.displayName` localizes
+            // at display time so the FIX-A UUID hash stays locale-independent),
+            // so localizing here matched nothing under hi/es: every seeded
+            // transaction landed uncategorized, and every seeded budget got a
+            // nil categoryID — which makes FetchBudgetsUseCase count ALL
+            // expenses against each budget and pin the dashboard to 100%.
+            categories.first { $0.name == name }?.id
         }
 
         // Region-specific dataset. US is the default (primary market for App
@@ -168,7 +176,27 @@ final class UITestDataSeeder {
                 (d("18.60"), .expense, 0, 14, "Dining", card, food, "Lunch Order", .creditCard),
             ]
         }
-        for entry in entries {
+        // Store screenshots need a full year of history — Year in Review with two
+        // bars undersells it. Off unless asked for, so every existing UI test
+        // keeps seeing exactly the two months it was written against.
+        // Deterministic: the variation is a function of the month offset, so
+        // repeated captures are byte-comparable.
+        var allEntries = entries
+        if let raw = ProcessInfo.processInfo.environment["UITEST_DEMO_MONTHS"],
+           let months = Int(raw), months > 2 {
+            let priorMonth = entries.filter { $0.2 == -1 }
+            for offset in stride(from: -(months - 1), through: -2, by: 1) {
+                // ±12% swing so the monthly chart has a believable shape rather
+                // than twelve identical bars.
+                let swing = Decimal(100 + ((offset * 7) % 12) * (offset.isMultiple(of: 2) ? 1 : -1))
+                for e in priorMonth {
+                    let scaled = e.1 == .income ? e.0 : (e.0 * swing / 100)
+                    allEntries.append((scaled, e.1, offset, e.3, e.4, e.5, e.6, e.7, e.8))
+                }
+            }
+        }
+
+        for entry in allEntries {
             _ = try await addTransaction.execute(
                 amount: entry.0,
                 type: entry.1,
@@ -252,6 +280,30 @@ final class UITestDataSeeder {
             accountID: bank.id
         )
 
+        let splitGroup = SplitGroup(
+            name: isIndia ? "Goa Weekend" : "Lake House Weekend",
+            memberIDs: [friend.id, grocer.id]
+        )
+        try await splitGroupRepository.createGroup(splitGroup)
+        try await splitGroupRepository.createExpense(GroupExpense(
+            groupID: splitGroup.id,
+            paidByMemberID: friend.id,
+            amount: isIndia ? 4_000 : 120,
+            title: "Groceries",
+            shares: [
+                SplitShare(memberID: friend.id, amount: isIndia ? 2_000 : 60),
+                SplitShare(memberID: grocer.id, amount: isIndia ? 2_000 : 60)
+            ]
+        ))
+
+        try await taxProfileRepository.save(TaxProfile(
+            country: isIndia ? .india : .unitedStates,
+            annualIncome: isIndia ? 1_200_000 : 85_000,
+            financialYear: isIndia
+                ? TaxCountry.india.defaultFinancialYear
+                : TaxCountry.unitedStates.defaultFinancialYear
+        ))
+
         func daysAhead(_ days: Int) -> Date {
             Calendar.current.date(byAdding: .day, value: days, to: .now) ?? .now
         }
@@ -313,14 +365,14 @@ final class UITestDataSeeder {
         try await categoryRepository.create(groceriesCategory)
         try await categoryRepository.create(salaryCategory)
 
-        let merchant = PayeeEntity(name: String(localized: "UI Test Merchant"))
+        let merchant = PayeeEntity(name: "UI Test Merchant")
         try await payeeRepository.create(merchant)
         try await recurringRuleRepository.create(RecurringRuleEntity(
             id: fixedUUID("DB8D2197-FD80-4A39-8EB7-28D1AB42C901"),
             frequency: .monthly,
             nextDate: Calendar.current.date(byAdding: .month, value: 1, to: .now) ?? .now,
             templateAmount: 25,
-            templateNote: String(localized: "UI Test Subscription"),
+            templateNote: "UI Test Subscription",
             templateCategoryID: groceriesCategory.id,
             templateAccountID: checkingAccount.id,
             templatePayeeID: merchant.id

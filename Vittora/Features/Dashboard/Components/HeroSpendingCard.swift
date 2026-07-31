@@ -7,12 +7,17 @@ struct HeroSpendingCard: View {
     let comparison: MonthComparison?
     var currencyCode: String = CurrencyDefaults.code
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var highContrastText: Color {
+        colorScheme == .dark ? .white : .black
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
             Text(String(localized: "This Month"))
                 .font(VTypography.subheadline)
-                .foregroundColor(VColors.textSecondary)
+                .foregroundColor(highContrastText)
 
             ViewThatFits(in: .horizontal) {
                 HStack(alignment: .bottom, spacing: VSpacing.xl) {
@@ -41,11 +46,11 @@ struct HeroSpendingCard: View {
     private var spentColumn: some View {
         VStack(alignment: .leading, spacing: VSpacing.xs) {
             Text(String(localized: "Spent"))
-                .font(VTypography.caption2)
-                .foregroundColor(VColors.textSecondary)
+                .font(VTypography.bodyBold)
+                .foregroundColor(highContrastText)
             Text(CurrencyFormatter.format(monthSpending, currencyCode: currencyCode))
                 .font(VTypography.amountLarge)
-                .foregroundColor(VColors.expense)
+                .foregroundColor(highContrastText)
                 .amountScaling()
             if let comp = comparison {
                 spendingTrendLabel(percent: comp.spendingChangePercent)
@@ -56,11 +61,11 @@ struct HeroSpendingCard: View {
     private var incomeColumn: some View {
         VStack(alignment: .trailing, spacing: VSpacing.xs) {
             Text(String(localized: "Income"))
-                .font(VTypography.caption2)
-                .foregroundColor(VColors.textSecondary)
+                .font(VTypography.bodyBold)
+                .foregroundColor(highContrastText)
             Text(CurrencyFormatter.format(monthIncome, currencyCode: currencyCode))
                 .font(VTypography.amountMedium)
-                .foregroundColor(VColors.income)
+                .foregroundColor(highContrastText)
                 .amountScaling()
             if let comp = comparison {
                 incomeTrendLabel(percent: comp.incomeChangePercent)
@@ -73,12 +78,12 @@ struct HeroSpendingCard: View {
         let increased = percent > 0
         HStack(spacing: VSpacing.xxs) {
             Image(systemName: increased ? "arrow.up" : "arrow.down")
-                .font(.caption2)
+                .font(.caption)
                 .accessibilityHidden(true)
             Text(String(format: "%.1f%%", abs(percent)))
-                .font(VTypography.caption2)
+                .font(VTypography.bodyBold)
         }
-        .foregroundColor(increased ? VColors.expense : VColors.income)
+        .foregroundColor(highContrastText)
     }
 
     @ViewBuilder
@@ -86,12 +91,12 @@ struct HeroSpendingCard: View {
         let increased = percent > 0
         HStack(spacing: VSpacing.xxs) {
             Image(systemName: increased ? "arrow.up" : "arrow.down")
-                .font(.caption2)
+                .font(.caption)
                 .accessibilityHidden(true)
             Text(String(format: "%.1f%%", abs(percent)))
-                .font(VTypography.caption2)
+                .font(VTypography.bodyBold)
         }
-        .foregroundColor(increased ? VColors.income : VColors.expense)
+        .foregroundColor(highContrastText)
     }
 
     @ViewBuilder
@@ -99,12 +104,12 @@ struct HeroSpendingCard: View {
         VStack(alignment: .leading, spacing: VSpacing.xs) {
             HStack {
                 Text(String(localized: "Savings Rate"))
-                    .font(VTypography.caption2)
-                    .foregroundColor(VColors.textSecondary)
+                    .font(VTypography.bodyBold)
+                    .foregroundColor(highContrastText)
                 Spacer()
                 Text(String(format: "%.0f%%", rate * 100))
-                    .font(VTypography.caption2Bold)
-                    .foregroundColor(VColors.textPrimary)
+                    .font(VTypography.bodyBold)
+                    .foregroundColor(highContrastText)
             }
 
             GeometryReader { geometry in
