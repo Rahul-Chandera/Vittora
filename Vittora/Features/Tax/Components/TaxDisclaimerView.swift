@@ -6,22 +6,22 @@ struct TaxDisclaimerView: View {
         HStack(alignment: .top, spacing: VSpacing.sm) {
             Image(systemName: "exclamationmark.shield.fill")
                 .font(.caption)
-                .foregroundStyle(VColors.warning)
+                .foregroundStyle(VColors.textPrimary)
                 .padding(.top, 2)
 
             Text(TaxDisclaimer.text)
                 .font(VTypography.caption1)
-                .foregroundStyle(VColors.textSecondary)
+                .foregroundStyle(VColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 0)
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.warning.opacity(0.10))
+        .background(VColors.secondaryBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
         .overlay(
             RoundedRectangle(cornerRadius: VSpacing.cornerRadiusCard)
-                .strokeBorder(VColors.warning.opacity(0.25), lineWidth: 1)
+                .strokeBorder(VColors.textTertiary.opacity(0.35), lineWidth: 1)
         )
     }
 }

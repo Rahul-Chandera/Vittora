@@ -50,7 +50,7 @@ struct DocumentThumbnailView: View {
 
     private var fileTypeBadge: some View {
         Text(fileExtension.uppercased())
-            .font(.system(size: 9, weight: .bold))
+            .font(.caption.bold())
             .foregroundColor(.white)
             .padding(.horizontal, 4)
             .padding(.vertical, 2)

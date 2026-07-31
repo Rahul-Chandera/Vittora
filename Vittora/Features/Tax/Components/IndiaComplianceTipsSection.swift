@@ -24,20 +24,25 @@ struct IndiaComplianceTipsSection: View {
         VStack(alignment: .leading, spacing: VSpacing.sm) {
             HStack(alignment: .top, spacing: VSpacing.sm) {
                 Image(systemName: "info.circle.fill")
-                    .foregroundStyle(VColors.primary)
+                    .foregroundStyle(VColors.textPrimary)
                     .padding(.top, 2)
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(tip.title)
                         .font(VTypography.bodyBold)
                         .foregroundStyle(VColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
                     Text(tip.detail)
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
+                    // textSecondary (not tertiary) — tip metadata must clear AA
+                    // on secondaryBackground card surfaces under the a11y audit.
                     Text(tip.statutorySource + " · " + tip.assessmentYear)
                         .font(VTypography.caption2)
-                        .foregroundStyle(VColors.textTertiary)
+                        .foregroundStyle(VColors.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 Spacer(minLength: 0)
@@ -46,8 +51,12 @@ struct IndiaComplianceTipsSection: View {
                     onDismiss(tip)
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(VColors.textTertiary)
+                        .font(.body)
+                        .foregroundStyle(VColors.textSecondary)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
                 .accessibilityLabel(String(localized: "Dismiss tip"))
             }
 

@@ -21,8 +21,10 @@ struct ReportCardView: View {
                 Text(title)
                     .font(VTypography.bodyBold)
                     .foregroundColor(VColors.textPrimary)
+                    // Wrap at large Dynamic Type instead of scaling down — minimum
+                    // scale anti-aliases title glyphs and fails Apple's contrast
+                    // sampler on the adjacent subtitle.
                     .adaptiveLineLimit(2)
-                    .adaptiveMinimumScaleFactor(0.8)
 
                 Text(subtitle)
                     .font(VTypography.caption1)

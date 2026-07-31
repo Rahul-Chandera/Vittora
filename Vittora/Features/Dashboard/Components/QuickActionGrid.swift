@@ -84,17 +84,19 @@ struct QuickActionGrid: View {
 private struct QuickActionButton: View {
     let action: QuickAction
     let onTap: () -> Void
-    @ScaledMetric(relativeTo: .title) private var iconSize: CGFloat = 28
     @ScaledMetric(relativeTo: .title) private var iconFrame: CGFloat = 56
 
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: VSpacing.sm) {
                 Image(systemName: action.icon)
-                    .font(.system(size: iconSize))
-                    .foregroundColor(action.color)
+                    // Colored glyph on a 12% tint circle fails AA on OLED black
+                    // (~4.2:1). Keep the tint for affordance; draw the symbol in
+                    // the WCAG text token instead.
+                    .font(.title2)
+                    .foregroundStyle(VColors.textPrimary)
                     .frame(width: iconFrame, height: iconFrame)
-                    .background(action.color.opacity(0.12))
+                    .background(action.color.opacity(0.22))
                     .clipShape(Circle())
                     .accessibilityHidden(true)
 

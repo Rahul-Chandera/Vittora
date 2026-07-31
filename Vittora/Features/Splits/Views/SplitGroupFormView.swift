@@ -34,9 +34,20 @@ struct SplitGroupFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(String(localized: "Group Name")) {
-                    TextField(String(localized: "e.g. Trip to Goa"), text: $groupName)
+                Section {
+                    TextField(
+                        "",
+                        text: $groupName,
+                        prompt: Text(String(localized: "Group name"))
+                            .foregroundStyle(VColors.textPrimary)
+                    )
+                        .accessibilityLabel(String(localized: "Group name"))
+                } header: {
+                    Text(String(localized: "Group Name"))
+                        .font(.headline)
+                        .foregroundStyle(.primary)
                 }
+                .headerProminence(.increased)
 
                 Section {
                     ForEach(allPayees) { payee in
@@ -51,8 +62,7 @@ struct SplitGroupFormView: View {
                                 Image(systemName: selectedMemberIDs.contains(payee.id)
                                       ? "checkmark.circle.fill"
                                       : "circle")
-                                    .foregroundStyle(selectedMemberIDs.contains(payee.id)
-                                                     ? VColors.primary : VColors.textSecondary)
+                                    .foregroundStyle(VColors.textPrimary)
                                 Text(payee.name)
                                     .foregroundStyle(VColors.textPrimary)
                                 Spacer()
@@ -60,13 +70,23 @@ struct SplitGroupFormView: View {
                         }
                         .buttonStyle(.plain)
                     }
+                    if selectedMemberIDs.count < 2 {
+                        HStack(alignment: .firstTextBaseline, spacing: VSpacing.xs) {
+                            Image(systemName: "exclamationmark.circle.fill")
+                                .accessibilityHidden(true)
+                            Text(String(localized: "Select at least 2 members."))
+                                .font(VTypography.bodyBold)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .foregroundStyle(.primary)
+                        .accessibilityElement(children: .combine)
+                    }
                 } header: {
                     Text(String(localized: "Members (\(selectedMemberIDs.count) selected)"))
-                } footer: {
-                    if selectedMemberIDs.count < 2 {
-                        VInlineErrorText(String(localized: "Select at least 2 members."))
-                    }
+                        .font(.headline)
+                        .foregroundStyle(.primary)
                 }
+                .headerProminence(.increased)
 
                 if let error {
                     Section {
@@ -74,6 +94,7 @@ struct SplitGroupFormView: View {
                     }
                 }
             }
+            .tint(VColors.textPrimary)
             .navigationTitle(navigationTitle)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -81,12 +102,15 @@ struct SplitGroupFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                        .foregroundStyle(VColors.textPrimary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
+                        guard canSave, !isSaving else { return }
                         Task { await save() }
                     }
-                    .disabled(!canSave || isSaving)
+                    .accessibilityRespondsToUserInteraction(canSave && !isSaving)
+                    .foregroundStyle(VColors.textPrimary)
                 }
             }
         }

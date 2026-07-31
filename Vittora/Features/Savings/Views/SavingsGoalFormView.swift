@@ -54,50 +54,47 @@ struct SavingsGoalFormView: View {
         NavigationStack {
             Form {
                 // Basic info
-                Section(String(localized: "Goal")) {
-                    TextField(String(localized: "e.g. Emergency Fund"), text: $name)
+                Section {
+                    TextField(String(localized: "Goal name"), text: $name)
+                        .accessibilityLabel(String(localized: "Goal name"))
 
                     Picker(String(localized: "Category"), selection: $category) {
                         ForEach(GoalCategory.allCases, id: \.self) { cat in
                             Label(cat.displayName, systemImage: cat.systemImage).tag(cat)
                         }
                     }
+                } header: {
+                    sectionHeader(String(localized: "Goal"))
                 }
+                .headerProminence(.increased)
 
                 // Amounts
-                Section(String(localized: "Amounts")) {
-                    HStack {
-                        Text(String(localized: "Target"))
-                        Spacer()
-                        TextField("0", text: $targetString)
-                            #if os(iOS)
-                            .keyboardType(.decimalPad)
-                            .textContentType(nil)
-                            #endif
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 140)
-                    }
-                    HStack {
-                        Text(String(localized: "Already saved"))
-                        Spacer()
-                        TextField("0", text: $currentString)
-                            #if os(iOS)
-                            .keyboardType(.decimalPad)
-                            .textContentType(nil)
-                            #endif
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 140)
-                    }
+                Section {
+                    amountRow(
+                        title: String(localized: "Target"),
+                        accessibilityLabel: String(localized: "Target amount"),
+                        text: $targetString
+                    )
+                    amountRow(
+                        title: String(localized: "Already saved"),
+                        accessibilityLabel: String(localized: "Amount already saved"),
+                        text: $currentString
+                    )
+                } header: {
+                    sectionHeader(String(localized: "Amounts"))
                 }
+                .headerProminence(.increased)
 
                 Section {
                     Toggle(String(localized: "Count toward emergency fund"), isOn: $isEmergencyFund)
                 } footer: {
                     Text(String(localized: "The saved amount in this goal will count toward your emergency-fund coverage."))
+                        .font(.body)
+                        .foregroundStyle(VColors.textPrimary)
                 }
 
                 // Deadline
-                Section(String(localized: "Deadline")) {
+                Section {
                     Toggle(String(localized: "Set Deadline"), isOn: $hasDeadline)
                     if hasDeadline {
                         DatePicker(
@@ -107,17 +104,20 @@ struct SavingsGoalFormView: View {
                             displayedComponents: [.date]
                         )
                     }
+                } header: {
+                    sectionHeader(String(localized: "Deadline"))
                 }
+                .headerProminence(.increased)
 
                 if let preview = allocationPreview {
-                    Section(String(localized: "Savings Plan")) {
+                    Section {
                         if let monthly = preview.monthlyRequired {
                             HStack {
                                 Text(String(localized: "Suggested monthly"))
                                 Spacer()
                                 Text(monthly.formatted(.currency(code: currencyCode)) + String(localized: "/month"))
                                     .font(VTypography.bodyBold)
-                                    .foregroundStyle(VColors.income)
+                                .foregroundStyle(VColors.textPrimary)
                             }
                         }
                         if let projected = preview.projectedCompletionDate {
@@ -131,38 +131,66 @@ struct SavingsGoalFormView: View {
                         if let months = preview.remainingMonths, months > 0 {
                             Text(String(localized: "Based on \(months) month(s) until your deadline."))
                                 .font(VTypography.caption1)
-                                .foregroundStyle(VColors.textSecondary)
+                                .foregroundStyle(VColors.textPrimary)
                         }
+                    } header: {
+                        sectionHeader(String(localized: "Savings Plan"))
                     }
+                    .headerProminence(.increased)
                 }
 
                 // Color
-                Section(String(localized: "Color")) {
+                Section {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: VSpacing.sm) {
                             ForEach(palette, id: \.self) { hex in
-                                Circle()
-                                    .fill(Color(hex: hex) ?? .purple)
-                                    .frame(width: 32, height: 32)
-                                    .overlay {
-                                        if hex == selectedColor {
-                                            Image(systemName: "checkmark")
-                                                .font(.caption.bold())
-                                                .foregroundStyle(.white)
+                                Button {
+                                    selectedColor = hex
+                                } label: {
+                                    Circle()
+                                        .fill(Color(hex: hex) ?? .purple)
+                                        .frame(width: 32, height: 32)
+                                        .overlay {
+                                            Circle()
+                                                .stroke(VColors.textPrimary, lineWidth: 2)
                                         }
-                                    }
-                                    .onTapGesture { selectedColor = hex }
+                                        .overlay {
+                                            if hex == selectedColor {
+                                                Image(systemName: "checkmark")
+                                                    .font(.body.bold())
+                                                    .foregroundStyle(VColors.textPrimary)
+                                            }
+                                        }
+                                        .frame(minWidth: 44, minHeight: 44)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(
+                                    String(
+                                        localized: "Goal color \((palette.firstIndex(of: hex) ?? 0) + 1)"
+                                    )
+                                )
+                                .accessibilityValue(
+                                    hex == selectedColor
+                                    ? String(localized: "Selected")
+                                    : String(localized: "Not selected")
+                                )
                             }
                         }
                         .padding(.vertical, 4)
                     }
+                } header: {
+                    sectionHeader(String(localized: "Color"))
                 }
+                .headerProminence(.increased)
 
                 // Note
-                Section(String(localized: "Note")) {
+                Section {
                     TextField(String(localized: "Optional"), text: $note, axis: .vertical)
                         .lineLimit(2...4)
+                } header: {
+                    sectionHeader(String(localized: "Note"))
                 }
+                .headerProminence(.increased)
 
                 if let error {
                     Section {
@@ -170,6 +198,7 @@ struct SavingsGoalFormView: View {
                     }
                 }
             }
+            .tint(VColors.textPrimary)
             .navigationTitle(isEditing ? String(localized: "Edit Goal") : String(localized: "New Goal"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -177,12 +206,17 @@ struct SavingsGoalFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                        .font(.headline)
+                        .foregroundStyle(.primary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
+                        guard canSave, !isSaving else { return }
                         Task { await save() }
                     }
-                    .disabled(!canSave || isSaving)
+                    .font(.headline)
+                    .accessibilityRespondsToUserInteraction(canSave && !isSaving)
+                    .foregroundStyle(.primary)
                 }
             }
         }
@@ -204,6 +238,46 @@ struct SavingsGoalFormView: View {
                 AccessibilityNotification.Announcement(AttributedString(msg)).post()
             }
         }
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        VFormSectionHeader(title)
+    }
+
+    private func amountRow(
+        title: String,
+        accessibilityLabel: String,
+        text: Binding<String>
+    ) -> some View {
+        ViewThatFits(in: .horizontal) {
+            HStack {
+                Text(title)
+                Spacer()
+                amountField(accessibilityLabel: accessibilityLabel, text: text)
+                    .frame(width: 140)
+            }
+            VStack(alignment: .leading, spacing: VSpacing.xs) {
+                Text(title)
+                amountField(accessibilityLabel: accessibilityLabel, text: text)
+            }
+        }
+    }
+
+    private func amountField(
+        accessibilityLabel: String,
+        text: Binding<String>
+    ) -> some View {
+        TextField(
+            "",
+            text: text,
+            prompt: Text("0").foregroundStyle(VColors.textPrimary)
+        )
+            #if os(iOS)
+            .keyboardType(.decimalPad)
+            .textContentType(nil)
+            #endif
+            .multilineTextAlignment(.trailing)
+            .accessibilityLabel(accessibilityLabel)
     }
 
     private func save() async {

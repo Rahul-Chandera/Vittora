@@ -7,7 +7,9 @@ struct USTaxFederalEstimateLabel: View {
         HStack(alignment: .top, spacing: VSpacing.sm) {
             Image(systemName: "info.circle.fill")
                 .font(.caption)
-                .foregroundStyle(VColors.primary)
+                // Accents clear AA on pure black/white, not on secondary cards or
+                // tinted chips — use textPrimary for chrome on those surfaces.
+                .foregroundStyle(VColors.textPrimary)
                 .padding(.top, 2)
                 .accessibilityHidden(true)
 
@@ -19,11 +21,13 @@ struct USTaxFederalEstimateLabel: View {
             Spacer(minLength: 0)
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.primary.opacity(0.08))
+        // tertiary sits on secondary cards with a visible edge; matching
+        // secondaryBackground made the chip disappear into the parent card.
+        .background(VColors.tertiaryBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
         .overlay(
             RoundedRectangle(cornerRadius: VSpacing.cornerRadiusCard)
-                .strokeBorder(VColors.primary.opacity(0.20), lineWidth: 1)
+                .strokeBorder(VColors.textTertiary.opacity(0.35), lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("us-tax-federal-estimate-label")

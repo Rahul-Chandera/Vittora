@@ -45,7 +45,7 @@ struct RecurringDetailView: View {
 
                                     Text(frequencyLabel(rule.frequency))
                                         .font(VTypography.callout)
-                                        .foregroundColor(VColors.textSecondary)
+                                        .foregroundColor(VColors.textPrimary)
                                 }
 
                                 Spacer()
@@ -54,11 +54,11 @@ struct RecurringDetailView: View {
                                     Text(rule.templateAmount.formatted(currencyCode: currencyCode))
                                         .font(VTypography.amountMedium)
                                         .amountScaling()
-                                        .foregroundColor(VColors.expense)
+                                        .foregroundColor(VColors.textPrimary)
 
                                     Text(String(localized: "per transaction"))
                                         .font(VTypography.caption2)
-                                        .foregroundColor(VColors.textSecondary)
+                                        .foregroundColor(VColors.textPrimary)
                                 }
                             }
 
@@ -71,13 +71,13 @@ struct RecurringDetailView: View {
                                     systemImage: rule.isActive ? "checkmark.circle.fill" : "pause.circle.fill"
                                 )
                                 .font(VTypography.callout)
-                                .foregroundColor(rule.isActive ? .green : .orange)
+                                .foregroundColor(VColors.textPrimary)
 
                                 Spacer()
 
                                 Text(String(localized: "Next: \(rule.nextDate.formatted(date: .abbreviated, time: .omitted))"))
                                     .font(VTypography.callout)
-                                    .foregroundColor(VColors.textSecondary)
+                                    .foregroundColor(VColors.textPrimary)
                             }
 
                             if let endDate = rule.endDate {
@@ -86,11 +86,11 @@ struct RecurringDetailView: View {
                                 HStack {
                                     Image(systemName: "calendar.badge.exclamationmark")
                                         .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(VColors.warning)
+                                        .foregroundColor(VColors.textPrimary)
 
                                     Text(String(localized: "Ends: \(endDate.formatted(date: .abbreviated, time: .omitted))"))
                                         .font(VTypography.callout)
-                                        .foregroundColor(VColors.textSecondary)
+                                        .foregroundColor(VColors.textPrimary)
 
                                     Spacer()
                                 }
@@ -110,8 +110,8 @@ struct RecurringDetailView: View {
                                 .font(VTypography.calloutBold)
                                 .frame(maxWidth: .infinity)
                                 .padding(VSpacing.md)
-                                .background(VColors.warning.opacity(0.1))
-                                .foregroundColor(VColors.warning)
+                                .background(VColors.tertiaryBackground)
+                                .foregroundColor(VColors.textPrimary)
                                 .cornerRadius(VSpacing.cornerRadiusMD)
                             }
 
@@ -120,8 +120,8 @@ struct RecurringDetailView: View {
                                     .font(VTypography.calloutBold)
                                     .frame(maxWidth: .infinity)
                                     .padding(VSpacing.md)
-                                    .background(VColors.primary.opacity(0.1))
-                                    .foregroundColor(VColors.primary)
+                                    .background(VColors.tertiaryBackground)
+                                    .foregroundColor(VColors.textPrimary)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                             }
                             .accessibilityIdentifier("recurring-edit-button")

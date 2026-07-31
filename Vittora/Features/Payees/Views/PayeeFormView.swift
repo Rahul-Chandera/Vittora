@@ -27,12 +27,16 @@ struct PayeeFormView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(String(localized: "Cancel")) { dismiss() }
+                    .font(.body)
+                    .foregroundStyle(VColors.textPrimary)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(String(localized: "Save")) {
                     Task { await save() }
                 }
                 .disabled(viewModel?.canSave != true || isSaving)
+                .font(.body)
+                .foregroundStyle(VColors.textPrimary)
             }
         }
         .task {
@@ -61,28 +65,35 @@ struct PayeeFormView: View {
     @ViewBuilder
     private func formContent(vm: PayeeFormViewModel) -> some View {
         Form {
-            Section(String(localized: "Type")) {
+            Section {
                 // Segmented segments must be a single Text/Image; composite
                 // (HStack of icon + text) content breaks tap selection.
                 Picker(String(localized: "Payee Type"), selection: Bindable(vm).selectedType) {
                     Text(String(localized: "Business")).tag(PayeeType.business)
                     Text(String(localized: "Person")).tag(PayeeType.person)
                 }
-                .pickerStyle(.segmented)
+                .pickerStyle(.menu)
+            } header: {
+                VFormSectionHeader(String(localized: "Type"))
             }
+            .headerProminence(.increased)
 
-            Section(String(localized: "Details")) {
+            Section {
                 TextField(String(localized: "Name"), text: Bindable(vm).name)
                     #if os(iOS)
                     .textContentType(.name)
                     #endif
+            } header: {
+                VFormSectionHeader(String(localized: "Details"))
             }
+            .headerProminence(.increased)
 
-            Section(String(localized: "Contact (Optional)")) {
+            Section {
                 HStack {
                     Image(systemName: "phone.fill")
-                        .foregroundColor(VColors.textTertiary)
+                        .foregroundColor(VColors.textPrimary)
                         .frame(width: 24)
+                        .accessibilityHidden(true)
                     TextField(String(localized: "Phone"), text: Bindable(vm).phone)
                         #if os(iOS)
                         .keyboardType(.phonePad)
@@ -92,8 +103,9 @@ struct PayeeFormView: View {
 
                 HStack {
                     Image(systemName: "envelope.fill")
-                        .foregroundColor(VColors.textTertiary)
+                        .foregroundColor(VColors.textPrimary)
                         .frame(width: 24)
+                        .accessibilityHidden(true)
                     TextField(String(localized: "Email"), text: Bindable(vm).email)
                         #if os(iOS)
                         .keyboardType(.emailAddress)
@@ -102,12 +114,18 @@ struct PayeeFormView: View {
                         .autocorrectionDisabled()
                         #endif
                 }
+            } header: {
+                VFormSectionHeader(String(localized: "Contact (Optional)"))
             }
+            .headerProminence(.increased)
 
-            Section(String(localized: "Notes")) {
+            Section {
                 TextField(String(localized: "Notes (optional)"), text: Bindable(vm).notes, axis: .vertical)
                     .lineLimit(3...6)
+            } header: {
+                VFormSectionHeader(String(localized: "Notes"))
             }
+            .headerProminence(.increased)
 
             if let error = saveError {
                 Section {
@@ -115,6 +133,7 @@ struct PayeeFormView: View {
                 }
             }
         }
+        .tint(VColors.textPrimary)
     }
 
     private func save() async {

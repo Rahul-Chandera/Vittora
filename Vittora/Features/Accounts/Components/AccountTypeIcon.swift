@@ -8,11 +8,11 @@ struct AccountTypeIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(color.opacity(0.15))
+                .fill(VColors.tertiaryBackground)
                 .frame(width: size, height: size)
             Image(systemName: iconName)
                 .font(.system(size: size * 0.45, weight: .semibold))
-                .foregroundColor(color)
+                .foregroundColor(.primary)
         }
         .accessibilityHidden(true)
     }
@@ -27,19 +27,6 @@ struct AccountTypeIcon: View {
         case .investment:   return "chart.line.uptrend.xyaxis"
         case .receivable:   return "arrow.down.circle.fill"
         case .payable:      return "arrow.up.circle.fill"
-        }
-    }
-
-    private var color: Color {
-        switch type {
-        case .cash:         return .green
-        case .bank:         return VColors.primary
-        case .creditCard:   return .orange
-        case .loan:         return .red
-        case .digitalWallet: return .purple
-        case .investment:   return .teal
-        case .receivable:   return VColors.income
-        case .payable:      return VColors.expense
         }
     }
 }

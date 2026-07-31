@@ -2,6 +2,8 @@ import SwiftUI
 import VittoraCore
 
 struct GroupExpenseRowView: View {
+    @Environment(\.currencyCode) private var currencyCode
+
     let expense: GroupExpense
     let payerName: String
 
@@ -16,25 +18,32 @@ struct GroupExpenseRowView: View {
                         .font(.title3)
                         .foregroundStyle(expense.isSettled ? VColors.income : VColors.primary)
                 }
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(expense.title)
                     .font(VTypography.body)
                     .foregroundStyle(expense.isSettled ? VColors.textSecondary : VColors.textPrimary)
                     .strikethrough(expense.isSettled)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 HStack(spacing: 4) {
                     Text(payerName)
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.primary)
+                        .foregroundStyle(VColors.textPrimary)
                     Text(String(localized: "paid"))
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
+                    // Decorative separator: carries no information the adjacent
+                    // labels don't already give, and VoiceOver should not read
+                    // "middle dot". Hiding it also keeps the contrast sampler
+                    // off a glyph too small to measure reliably.
                     Text("·")
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
+                        .accessibilityHidden(true)
                     Text(expense.date.formatted(date: .abbreviated, time: .omitted))
                         .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                        .foregroundStyle(VColors.textPrimary)
                 }
             }
 
@@ -50,9 +59,16 @@ struct GroupExpenseRowView: View {
                     .padding(.vertical, 2)
                     .background(VColors.secondaryBackground)
                     .clipShape(Capsule())
-                    .foregroundStyle(VColors.textSecondary)
+                    .foregroundStyle(VColors.textPrimary)
             }
         }
         .padding(.vertical, VSpacing.xs)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(
+            String(
+                localized: "\(expense.title), \(expense.amount.formatted(.currency(code: currencyCode))), paid by \(payerName), \(expense.splitMethod.displayName)"
+            )
+        )
+        .accessibilityValue(expense.isSettled ? String(localized: "Settled") : String(localized: "Outstanding"))
     }
 }

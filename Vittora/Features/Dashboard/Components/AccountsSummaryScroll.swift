@@ -24,7 +24,7 @@ struct AccountsSummaryScroll: View {
                             .font(VTypography.caption1)
                             .foregroundColor(VColors.primary)
                         Image(systemName: "chevron.right")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundColor(VColors.primary)
                             .accessibilityHidden(true)
                     }

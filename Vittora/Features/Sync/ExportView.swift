@@ -85,7 +85,7 @@ struct ExportView: View {
     private func content(_ vm: ExportViewModel) -> some View {
         Form {
             // Format
-            Section(String(localized: "Format")) {
+            Section(header: VFormSectionHeader(String(localized: "Format"))) {
                 ForEach(ExportFormat.allCases, id: \.self) { format in
                     Button {
                         vm.selectedFormat = format

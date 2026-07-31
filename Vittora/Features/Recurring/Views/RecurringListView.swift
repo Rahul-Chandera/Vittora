@@ -5,6 +5,7 @@ struct RecurringListView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) var dependencies
     @Environment(\.currencyCode) private var currencyCode
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var viewModel: RecurringListViewModel?
     @State private var showAddSheet = false
 
@@ -33,30 +34,35 @@ struct RecurringListView: View {
                         VStack(alignment: .leading, spacing: VSpacing.md) {
                             Text(String(localized: "Monthly Spend"))
                                 .font(VTypography.callout)
-                                .foregroundColor(VColors.textSecondary)
+                                .foregroundColor(VColors.textPrimary)
 
-                            HStack(spacing: VSpacing.xl) {
+                            let amountLayout = dynamicTypeSize.isAccessibilitySize
+                                ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.md))
+                                : AnyLayout(HStackLayout(spacing: VSpacing.xl))
+                            amountLayout {
                                 VStack(alignment: .leading, spacing: VSpacing.xs) {
                                     Text(costSummary.monthlyCost.formatted(currencyCode: currencyCode))
                                         .font(VTypography.amountLarge)
                                         .amountScaling()
-                                        .foregroundColor(VColors.expense)
+                                        .foregroundColor(VColors.textPrimary)
 
                                     Text(String(localized: "per month"))
                                         .font(VTypography.caption2)
-                                        .foregroundColor(VColors.textSecondary)
+                                        .foregroundColor(VColors.textPrimary)
                                 }
 
-                                Spacer()
+                                if !dynamicTypeSize.isAccessibilitySize {
+                                    Spacer()
+                                }
 
-                                VStack(alignment: .trailing, spacing: VSpacing.xs) {
+                                VStack(alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing, spacing: VSpacing.xs) {
                                     Text(costSummary.annualCost.formatted(currencyCode: currencyCode))
                                         .font(VTypography.bodyBold)
-                                        .foregroundColor(VColors.expense)
+                                        .foregroundColor(VColors.textPrimary)
 
                                     Text(String(localized: "per year"))
                                         .font(VTypography.caption2)
-                                        .foregroundColor(VColors.textSecondary)
+                                        .foregroundColor(VColors.textPrimary)
                                 }
                             }
 
@@ -65,17 +71,26 @@ struct RecurringListView: View {
 
                             HStack {
                                 Image(systemName: "repeat")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(VColors.primary)
+                                    .font(.body.weight(.semibold))
+                                    .foregroundColor(VColors.textPrimary)
+                                    .accessibilityHidden(true)
 
                                 Text(String(localized: "\(costSummary.ruleCount) active \(costSummary.ruleCount == 1 ? "subscription" : "subscriptions")"))
                                     .font(VTypography.caption1)
-                                    .foregroundColor(VColors.textSecondary)
+                                    .foregroundColor(VColors.textPrimary)
+                                    .fixedSize(horizontal: false, vertical: true)
 
                                 Spacer()
                             }
                         }
                         .padding(VSpacing.lg)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(String(localized: "Recurring spending summary"))
+                        .accessibilityValue(
+                            String(
+                                localized: "\(costSummary.monthlyCost.formatted(currencyCode: currencyCode)) per month, \(costSummary.annualCost.formatted(currencyCode: currencyCode)) per year, \(costSummary.ruleCount) active"
+                            )
+                        )
                         .background(VColors.secondaryBackground)
                         .cornerRadius(VSpacing.cornerRadiusMD)
                         .padding(VSpacing.lg)
@@ -96,7 +111,7 @@ struct RecurringListView: View {
                     } else {
                         List {
                             ForEach(viewModel.grouped, id: \.label) { group in
-                                Section(header: Text(group.label).font(VTypography.calloutBold)) {
+                                Section {
                                     ForEach(group.rules, id: \.id) { rule in
                                         NavigationLink {
                                             RecurringDetailView(ruleID: rule.id)
@@ -143,7 +158,7 @@ struct RecurringListView: View {
                                                     systemImage: rule.isActive ? "pause.circle.fill" : "play.circle.fill"
                                                 )
                                             }
-                                            .tint(.orange)
+                                            .tint(VColors.warning)
                                         }
                                         .swipeActions(edge: .trailing) {
                                             Button(role: .destructive) {
@@ -157,6 +172,10 @@ struct RecurringListView: View {
                                             }
                                         }
                                     }
+                                } header: {
+                                    Text(group.label)
+                                        .font(VTypography.calloutBold)
+                                        .foregroundStyle(VColors.textPrimary)
                                 }
                             }
                         }
@@ -165,6 +184,7 @@ struct RecurringListView: View {
                         #else
                         .listStyle(.inset)
                         #endif
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     }
                     }
                 }
@@ -172,15 +192,24 @@ struct RecurringListView: View {
                 ProgressView()
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            VColors.background
+                .frame(height: 72)
+                .allowsHitTesting(false)
+        }
         .navigationTitle(String(localized: "Recurring Transactions"))
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(dynamicTypeSize.isAccessibilitySize ? .inline : .large)
+        #endif
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showAddSheet = true }) {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .semibold))
                 }
-                .accessibilityIdentifier("recurring-add-button")
                 .accessibilityLabel(String(localized: "Add Recurring Transaction"))
+                .accessibilityHint(String(localized: "Opens the recurring transaction form"))
+                .accessibilityIdentifier("recurring-add-button")
             }
         }
         .sheet(isPresented: $showAddSheet) {

@@ -37,7 +37,7 @@ struct BudgetCardView: View {
 
                         Text(budget.period.displayName)
                             .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                     }
 
                     Spacer()
@@ -46,7 +46,7 @@ struct BudgetCardView: View {
                         VAmountText(budget.amount, size: .callout)
                         Text(String(localized: "Budget"))
                             .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                     }
                 }
 
@@ -63,16 +63,16 @@ struct BudgetCardView: View {
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
                         Text(String(localized: "Spent"))
                             .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                         VAmountText(budget.spent, size: .caption)
                     }
 
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
                         Text(String(localized: "Remaining"))
                             .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                         VAmountText(budget.remaining, size: .caption)
-                            .foregroundColor(budget.isOverBudget ? VColors.budgetDanger : VColors.budgetSafe)
+                            .foregroundColor(VColors.textPrimary)
                     }
 
                     Spacer()
@@ -80,10 +80,10 @@ struct BudgetCardView: View {
                     VStack(alignment: .trailing, spacing: VSpacing.xs) {
                         Text(String(localized: "Progress"))
                             .font(VTypography.caption2)
-                            .foregroundColor(VColors.textSecondary)
+                            .foregroundColor(VColors.textPrimary)
                         Text("\(Int(budget.progress * 100))%")
                             .font(VTypography.caption1Bold)
-                            .foregroundColor(statusColor)
+                            .foregroundColor(VColors.textPrimary)
                     }
                 }
             }

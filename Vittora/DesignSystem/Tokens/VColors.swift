@@ -30,11 +30,13 @@ enum VColors {
     // Cards must contrast with the white detail area the way iOS's
     // secondarySystemBackground contrasts with systemBackground —
     // controlBackgroundColor is white-on-white and made every card invisible.
+    // OLED: secondary matches pure black so fill-safe accents still clear AA
+    // when used as chrome text/icons on cards (0.11 grey only yields ~3.7:1).
     static var secondaryBackground: Color {
-        isOLEDBlack ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(nsColor: .quaternarySystemFill)
+        isOLEDBlack ? .black : Color(nsColor: .quaternarySystemFill)
     }
     static var tertiaryBackground: Color {
-        isOLEDBlack ? Color(red: 0.16, green: 0.16, blue: 0.17) : Color(nsColor: .textBackgroundColor)
+        isOLEDBlack ? Color(red: 0.08, green: 0.08, blue: 0.085) : Color(nsColor: .textBackgroundColor)
     }
     static var groupedBackground: Color {
         isOLEDBlack ? .black : Color(nsColor: .windowBackgroundColor)
@@ -44,10 +46,10 @@ enum VColors {
         isOLEDBlack ? .black : Color(uiColor: .systemBackground)
     }
     static var secondaryBackground: Color {
-        isOLEDBlack ? Color(red: 0.11, green: 0.11, blue: 0.12) : Color(uiColor: .secondarySystemBackground)
+        isOLEDBlack ? .black : Color(uiColor: .secondarySystemBackground)
     }
     static var tertiaryBackground: Color {
-        isOLEDBlack ? Color(red: 0.16, green: 0.16, blue: 0.17) : Color(uiColor: .tertiarySystemBackground)
+        isOLEDBlack ? Color(red: 0.08, green: 0.08, blue: 0.085) : Color(uiColor: .tertiarySystemBackground)
     }
     static var groupedBackground: Color {
         isOLEDBlack ? .black : Color(uiColor: .systemGroupedBackground)
@@ -56,29 +58,35 @@ enum VColors {
 
     // Text — WCAG AA (≥4.5:1) on systemBackground and secondarySystemBackground.
     // System secondaryLabel/tertiaryLabel fail Apple's contrast audit on card surfaces.
+    // Values keep extra headroom for AccessibilityXL and denser scripts (e.g. Devanagari),
+    // and stay AA on OLED black / OLED secondary surfaces as well as light mode.
+    //
+    // Accents (primary / income / expense / warning) clear AA as text on pure black or
+    // white, but fail on secondarySystemBackground and tinted chips. Prefer textPrimary
+    // for icons and labels on cards; keep accents for fills, progress rings, and FABs.
     #if os(macOS)
     static let textPrimary = Color(nsColor: .labelColor)
     static let textSecondary = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(srgbRed: 0.773, green: 0.773, blue: 0.788, alpha: 1) // #C5C5C9
-            : NSColor(srgbRed: 0.235, green: 0.235, blue: 0.263, alpha: 1) // #3C3C43
+            ? NSColor(srgbRed: 0.820, green: 0.820, blue: 0.839, alpha: 1) // #D1D1D6
+            : NSColor(srgbRed: 0.184, green: 0.184, blue: 0.200, alpha: 1) // #2F2F33
     })
     static let textTertiary = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(srgbRed: 0.682, green: 0.682, blue: 0.698, alpha: 1) // #AEAEB2
-            : NSColor(srgbRed: 0.353, green: 0.353, blue: 0.369, alpha: 1) // #5A5A5E
+            ? NSColor(srgbRed: 0.753, green: 0.753, blue: 0.773, alpha: 1) // #C0C0C5
+            : NSColor(srgbRed: 0.282, green: 0.282, blue: 0.298, alpha: 1) // #48484C
     })
     #else
     static let textPrimary = Color(uiColor: .label)
     static let textSecondary = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.773, green: 0.773, blue: 0.788, alpha: 1) // #C5C5C9
-            : UIColor(red: 0.235, green: 0.235, blue: 0.263, alpha: 1) // #3C3C43
+            ? UIColor(red: 0.820, green: 0.820, blue: 0.839, alpha: 1) // #D1D1D6
+            : UIColor(red: 0.184, green: 0.184, blue: 0.200, alpha: 1) // #2F2F33
     })
     static let textTertiary = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.682, green: 0.682, blue: 0.698, alpha: 1) // #AEAEB2
-            : UIColor(red: 0.353, green: 0.353, blue: 0.369, alpha: 1) // #5A5A5E
+            ? UIColor(red: 0.753, green: 0.753, blue: 0.773, alpha: 1) // #C0C0C5
+            : UIColor(red: 0.282, green: 0.282, blue: 0.298, alpha: 1) // #48484C
     })
     #endif
 
@@ -109,8 +117,11 @@ enum VColors {
     }
 
     static func accent(_ accent: SettingsViewModel.AccentColor) -> Color {
-        // These fixed values clear 4.5:1 against both white and OLED black,
-        // so UIKit/AppKit dynamic providers are unnecessary and Sendable-safe.
+        // Fill-safe accents: white glyphs on these clears AA, and the hue still
+        // clears AA as text on pure black / white. Do not lighten the dark
+        // variants further — that breaks white-on-accent controls (FAB).
+        // Icons/labels on elevated OLED secondary surfaces must not rely on
+        // these as the sole foreground; use textPrimary there instead.
         switch accent {
         case .brandGreen: return Color(red: 0.00, green: 0.525490, blue: 0.403922) // #008667
         case .blue:       return Color(red: 0.227451, green: 0.462745, blue: 0.784314) // #3A76C8

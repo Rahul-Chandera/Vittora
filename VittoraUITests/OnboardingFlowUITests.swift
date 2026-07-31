@@ -43,7 +43,7 @@ final class OnboardingFlowUITests: XCTestCase {
 
         tapNext()
 
-        let currencyButton = app.buttons["onboarding-currency-USD"]
+        let currencyButton = app.descendants(matching: .any)["onboarding-currency-USD"]
         XCTAssertTrue(
             UITestSupport.waitForElement(currencyButton, timeout: 10, requireHittable: true),
             "USD currency option should be ready."
@@ -62,7 +62,7 @@ final class OnboardingFlowUITests: XCTestCase {
             "Keyboard should auto-dismiss when advancing to the next onboarding step."
         )
 
-        let bankAccountType = app.buttons["onboarding-account-type-bank"]
+        let bankAccountType = app.descendants(matching: .any)["onboarding-account-type-bank"]
         if bankAccountType.waitForExistence(timeout: 5) {
             UITestSupport.tapWhenReady(bankAccountType, timeout: 8)
             tapNext()

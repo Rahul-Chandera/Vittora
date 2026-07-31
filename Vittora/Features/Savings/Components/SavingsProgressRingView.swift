@@ -9,12 +9,14 @@ struct SavingsProgressRingView: View {
     var lineWidth: CGFloat = 8
     var showLabel = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         ZStack {
-            // Track
+            // Track must clear non-text contrast (≥3:1) on secondary cards —
+            // color.opacity(0.2) falls well below and trips Apple's sampler.
             Circle()
-                .stroke(color.opacity(0.2), lineWidth: lineWidth)
+                .stroke(VColors.textTertiary, lineWidth: lineWidth)
 
             // Fill
             Circle()
@@ -26,17 +28,20 @@ struct SavingsProgressRingView: View {
                 .rotationEffect(.degrees(-90))
                 .animation(reduceMotion ? .none : .easeInOut(duration: 0.6), value: progress)
 
-            if showLabel {
+            // At accessibility sizes the percentage cannot fit the fixed ring
+            // without clipping; clipped glyphs fail Apple's contrast sampler.
+            // Parent cards already expose progress via accessibilityValue.
+            if showLabel, !dynamicTypeSize.isAccessibilitySize {
                 if progress >= 1 {
                     Image(systemName: "checkmark")
                         .font(.system(size: size * 0.28, weight: .bold))
-                        .foregroundStyle(VColors.income)
+                        .foregroundStyle(VColors.textPrimary)
                 } else {
                     Text("\(Int(progress * 100))%")
-                        .font(.system(size: size * 0.22, weight: .bold, design: .rounded))
-                        .foregroundStyle(color)
-                        .adaptiveLineLimit(1)
-                        .adaptiveMinimumScaleFactor(0.7)
+                        .font(size < 80 ? .caption.bold() : .title2.bold())
+                        .foregroundStyle(VColors.textPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
             }
         }
