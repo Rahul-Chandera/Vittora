@@ -115,14 +115,15 @@ enum VColors {
 
     /// Glyph/label colour to use ON an `accent(_:)` fill.
     ///
-    /// Chosen by luminance rather than hardcoded, because the accents do not agree:
-    /// brandGreen (#3FCFA4) needs black (10.7:1) while blue/purple/orange need white
-    /// (~4.6:1). Hardcoding either one is what left "Get Started" reading black on a
-    /// dark green fill.
+    /// White on every accent: brandGreen 5.04:1, blue 4.56:1, purple 4.65:1,
+    /// orange 4.61:1. Kept as a function rather than a constant so that a future
+    /// accent light enough to need dark text cannot silently ship unreadable.
     static func onAccent(for accent: SettingsViewModel.AccentColor) -> Color {
+        // Every accent fill is now dark enough for white, so this is uniform —
+        // it stays a function so a future lighter accent cannot silently ship
+        // an unreadable pairing.
         switch accent {
-        case .brandGreen: return Color(red: 0.043, green: 0.106, blue: 0.090) // near-black, keeps a green cast
-        case .blue, .purple, .orange: return .white
+        case .brandGreen, .blue, .purple, .orange: return .white
         }
     }
 
@@ -132,14 +133,17 @@ enum VColors {
     /// Accent used as a FOREGROUND on `background` / `secondaryBackground`.
     ///
     /// Scheme-adaptive: a single value cannot clear AA on both white and near-black.
-    /// Light-mode values are darkened until they clear 4.5:1 on secondarySystemBackground
-    /// (#F2F2F7); dark-mode values are the fill colours, which clear it on #1C1C1E.
+    ///
+    /// Dark variants target ~5.5:1 rather than the 4.5:1 minimum. This token also
+    /// colours the selected tab, and at a bare 4.50:1 the audit intermittently
+    /// reported contrast failures when element frames came back as clipped
+    /// strips. Headroom is cheaper than chasing that.
     static func accentOnSurface(_ accent: SettingsViewModel.AccentColor) -> Color {
         switch accent {
-        case .brandGreen: return adaptive(light: (0.122, 0.486, 0.376),  dark: (0.247, 0.812, 0.643)) // #1F7C60 / #3FCFA4
-        case .blue:       return adaptive(light: (0.208, 0.435, 0.745),  dark: (0.314, 0.522, 0.808)) // #356FBE / #5085CE
-        case .purple:     return adaptive(light: (0.537, 0.329, 0.773),  dark: (0.608, 0.435, 0.808)) // #8954C5 / #9B6FCE
-        case .orange:     return adaptive(light: (0.686, 0.337, 0.000),  dark: (0.816, 0.400, 0.000)) // #AF5600 / #D06600
+        case .brandGreen: return adaptive(light: (0.121569, 0.490196, 0.380392), dark: (0.247, 0.812, 0.643)) // #1F7D61 / #3FCFA4
+        case .blue:       return adaptive(light: (0.208, 0.435, 0.745),  dark: (0.404, 0.584, 0.831)) // #356FBE / #6795D4
+        case .purple:     return adaptive(light: (0.537, 0.329, 0.773),  dark: (0.659, 0.510, 0.831)) // #8954C5 / #A882D4
+        case .orange:     return adaptive(light: (0.686, 0.337, 0.000),  dark: (0.910, 0.447, 0.000)) // #AF5600 / #E87200
         }
     }
 
@@ -209,12 +213,15 @@ enum VColors {
     }
 
     static func accent(_ accent: SettingsViewModel.AccentColor) -> Color {
-        // Fill colours only. The correct glyph colour is whichever of black or
-        // white contrasts better — use onAccent(for:), never a hardcoded value:
-        // brandGreen takes black (10.7:1), the others take white (~4.6:1).
-        // Never use these as a foreground on a card; use accentOnSurface(_:).
+        // Fill colours only; pair with onAccent(for:), never a hardcoded value.
+        //
+        // brandGreen is #1F7D61: the app icon's hue (162°) darkened to the
+        // lightest point where WHITE text still clears AA (5.04:1). The icon's
+        // own #3FCFA4 cannot be used as a fill — white on it is 1.97:1. Light
+        // fill and white text are mutually exclusive; this keeps the hue and
+        // gives up some lightness, because white labels were the requirement.
         switch accent {
-        case .brandGreen: return Color(red: 0.247059, green: 0.811765, blue: 0.643137) // #3FCFA4 — sampled from the app icon
+        case .brandGreen: return Color(red: 0.121569, green: 0.490196, blue: 0.380392) // #1F7D61
         case .blue:       return Color(red: 0.227451, green: 0.462745, blue: 0.784314) // #3A76C8
         case .purple:     return Color(red: 0.556863, green: 0.360784, blue: 0.784314) // #8E5CC8
         case .orange:     return Color(red: 0.725490, green: 0.356863, blue: 0.00) // #B95B00

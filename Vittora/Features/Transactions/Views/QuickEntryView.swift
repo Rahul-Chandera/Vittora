@@ -102,7 +102,7 @@ struct QuickEntryView: View {
                         } label: {
                             Text(String(localized: "Save Transaction"))
                                 .font(VTypography.body)
-                                .foregroundColor(.white)
+                                .foregroundStyle(VColors.onPrimary)
                                 .frame(maxWidth: .infinity)
                                 .padding(VSpacing.md)
                                 .background(VColors.primary)
