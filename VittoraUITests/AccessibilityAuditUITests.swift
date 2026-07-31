@@ -793,6 +793,20 @@ final class AccessibilityAuditUITests: XCTestCase {
             }
             if issue.auditType == .contrast {
 
+                // DEC-012: brand green #3FCFA4 carries white content by owner
+                // decision, which is 1.97:1 and misses AA. Scoped to the labels
+                // that sit ON a brand-green fill — the primary CTAs and the FAB.
+                // This is the ONLY accepted contrast miss; every other element on
+                // every screen is still audited. If a new green surface appears,
+                // it must be added here consciously rather than inherited.
+                let brandGreenFilledContent: Set<String> = [
+                    "Get Started", "Continue", "Set Up Account", "Review Setup",
+                    "Start Tracking", "Save Transaction", "Add transaction"
+                ]
+                if brandGreenFilledContent.contains(issue.element?.label ?? "") {
+                    return true
+                }
+
                 let systemTabLabels = ["Dashboard", "Transactions", "Budgets", "Reports", "More"]
                 let elementLabel = issue.element?.label ?? ""
                 if systemTabLabels.contains(where: elementLabel.hasPrefix) {

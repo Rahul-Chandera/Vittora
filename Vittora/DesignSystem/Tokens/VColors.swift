@@ -123,6 +123,10 @@ enum VColors {
         // it stays a function so a future lighter accent cannot silently ship
         // an unreadable pairing.
         switch accent {
+        // Owner decision (2026-08-01): white labels on the brand green.
+        // NOTE: white on #3FCFA4 is 1.97:1, below the 4.5:1 AA text minimum and
+        // below even the 3:1 large-text bar. Recorded here so the next person to
+        // read this knows it is a deliberate choice, not an oversight.
         case .brandGreen, .blue, .purple, .orange: return .white
         }
     }
@@ -132,7 +136,13 @@ enum VColors {
 
     /// Accent used as a FOREGROUND on `background` / `secondaryBackground`.
     ///
-    /// Scheme-adaptive: a single value cannot clear AA on both white and near-black.
+    /// DEC-012 puts #3FCFA4 on every brand SURFACE (fills, the FAB, hero icons).
+    /// This token is the other case: brand green as small text or a glyph directly
+    /// on a background. #3FCFA4 there is 1.97:1 on white — for a 17pt link or a
+    /// checkmark that is not "slightly under AA", it is hard to read. So this
+    /// stays the readable same-hue variant, which is why a darker green still
+    /// appears on links and the selected tab. Widening DEC-012 to cover these
+    /// would mean excluding contrast on most screens, not one pairing.
     ///
     /// Dark variants target ~5.5:1 rather than the 4.5:1 minimum. This token also
     /// colours the selected tab, and at a bare 4.50:1 the audit intermittently
@@ -215,13 +225,13 @@ enum VColors {
     static func accent(_ accent: SettingsViewModel.AccentColor) -> Color {
         // Fill colours only; pair with onAccent(for:), never a hardcoded value.
         //
-        // brandGreen is #1F7D61: the app icon's hue (162°) darkened to the
-        // lightest point where WHITE text still clears AA (5.04:1). The icon's
-        // own #3FCFA4 cannot be used as a fill — white on it is 1.97:1. Light
-        // fill and white text are mutually exclusive; this keeps the hue and
-        // gives up some lightness, because white labels were the requirement.
+        // brandGreen is #3FCFA4, the app icon colour, with white content on it.
+        // That pairing is 1.97:1 and does NOT meet WCAG AA — an accepted,
+        // owner-approved exception recorded as DEC-012. Do not "fix" it by
+        // darkening the green or flipping the label to black without reopening
+        // that decision.
         switch accent {
-        case .brandGreen: return Color(red: 0.121569, green: 0.490196, blue: 0.380392) // #1F7D61
+        case .brandGreen: return Color(red: 0.247059, green: 0.811765, blue: 0.643137) // #3FCFA4
         case .blue:       return Color(red: 0.227451, green: 0.462745, blue: 0.784314) // #3A76C8
         case .purple:     return Color(red: 0.556863, green: 0.360784, blue: 0.784314) // #8E5CC8
         case .orange:     return Color(red: 0.725490, green: 0.356863, blue: 0.00) // #B95B00
