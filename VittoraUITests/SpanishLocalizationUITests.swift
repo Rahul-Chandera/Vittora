@@ -261,13 +261,32 @@ final class SpanishLocalizationUITests: XCTestCase {
                 if haystack.contains("search") {
                     return true
                 }
-                return issue.compactDescription.localizedCaseInsensitiveContains("may be clipped")
+                if issue.compactDescription.localizedCaseInsensitiveContains("may be clipped") {
+                    return true
+                }
+                self.logAuditIssue(issue)
+                return false
             case .dynamicType:
                 return issue.compactDescription.localizedCaseInsensitiveContains("partially")
             default:
+                self.logAuditIssue(issue)
                 return false
             }
         }
+    }
+
+    /// Diagnostic only — see the same helper in AccessibilityAuditUITests. CI
+    /// runs iOS 26.2, which cannot be installed locally, so the audit type
+    /// alone is not enough to identify what failed.
+    @MainActor
+    private func logAuditIssue(_ issue: XCUIAccessibilityAuditIssue) {
+        let e = issue.element
+        print("""
+        AUDIT-ISSUE type=\(issue.auditType) \
+        label='\(e?.label ?? "")' id='\(e?.identifier ?? "")' \
+        frame=\(e.map { "\($0.frame)" } ?? "nil") appFrame=\(app.frame) \
+        compact='\(issue.compactDescription)'
+        """)
     }
 
     @MainActor

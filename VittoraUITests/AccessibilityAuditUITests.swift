@@ -955,8 +955,27 @@ final class AccessibilityAuditUITests: XCTestCase {
                 // while accessibility3 screenshots verify the rendered result.
                 return issue.compactDescription.localizedCaseInsensitiveContains("partially")
             }
+            self.logAuditIssue(issue)
             return false
         }
+    }
+
+    /// Logs every issue the filter lets through. CI runs iOS 26.2, which cannot
+    /// be installed locally, and its xcresult upload is not always available —
+    /// so without this the only signal is the audit type, which is not enough to
+    /// tell a real defect from a sampler artifact. Diagnostic only: it changes
+    /// nothing about what passes or fails.
+    @MainActor
+    private func logAuditIssue(_ issue: XCUIAccessibilityAuditIssue) {
+        let e = issue.element
+        let frame = e.map { "\($0.frame)" } ?? "nil"
+        print("""
+        AUDIT-ISSUE type=\(issue.auditType) \
+        label='\(e?.label ?? "")' id='\(e?.identifier ?? "")' \
+        elementType=\(e?.elementType.rawValue.description ?? "nil") \
+        frame=\(frame) appFrame=\(app.frame) \
+        compact='\(issue.compactDescription)'
+        """)
     }
 
     @MainActor
