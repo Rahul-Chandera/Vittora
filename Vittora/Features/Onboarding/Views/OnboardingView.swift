@@ -270,13 +270,14 @@ private struct CurrencyStepView: View {
 
             ZStack {
                 Circle()
-                    .fill(VColors.primary.opacity(0.14))
+                    .fill(VColors.primary)
                     .frame(width: 76, height: 76)
                 Text(selectedCurrencySymbol)
                     .font(.system(.largeTitle, design: .rounded).weight(.medium))
-                    .foregroundStyle(VColors.primary)
+                    .foregroundStyle(VColors.onPrimary)
             }
             .accessibilityHidden(true)
+            .accessibilityIdentifier("brand-mark-currency")
 
             VStack(spacing: VSpacing.sm) {
                 Text(String(localized: "Choose Your Currency"))

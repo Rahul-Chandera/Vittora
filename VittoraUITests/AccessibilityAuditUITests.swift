@@ -806,6 +806,12 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if brandGreenFilledContent.contains(issue.element?.label ?? "") {
                     return true
                 }
+                // Decorative brand marks opt in explicitly by identifier, so a
+                // new one has to be marked deliberately rather than inheriting
+                // the exemption by being unlabelled.
+                if (issue.element?.identifier ?? "").hasPrefix("brand-mark-") {
+                    return true
+                }
 
                 let systemTabLabels = ["Dashboard", "Transactions", "Budgets", "Reports", "More"]
                 let elementLabel = issue.element?.label ?? ""
