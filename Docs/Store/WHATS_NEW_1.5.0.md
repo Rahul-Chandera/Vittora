@@ -15,7 +15,7 @@ cosmetic navigation-title modifier), so **both features ship on iOS and Mac**.
 
 ---
 
-## iOS / iPadOS (≈900 characters)
+## iOS / iPadOS (1052 characters)
 
 ```
 YEAR IN REVIEW
@@ -33,6 +33,12 @@ ESPAÑOL
   appear in your language — including 50/30/20, the emergency fund tracker,
   quiet hours and appearance
 
+A FRESHER LOOK
+• A lighter, brighter green throughout — buttons, tabs and progress now
+  match the app icon instead of sitting a few shades darker
+• Coloured icons are back across onboarding, Settings, the More screen and
+  the dashboard quick actions
+
 ACCESSIBILITY
 • Section headings across the app are clearer and easier to read
 • Better colour contrast for amounts and labels
@@ -43,7 +49,7 @@ Still no accounts, no ads, no tracking — your data stays on your devices.
 
 ---
 
-## Mac (≈850 characters)
+## Mac (950 characters)
 
 Same two features; no Watch or widget claims, and "share" is worded for the
 Mac share sheet.
@@ -62,6 +68,12 @@ ESPAÑOL
 हिंदी AND ESPAÑOL, PROPERLY
 • Reports, budgeting tools and settings that were still showing English now
   appear in your language
+
+A FRESHER LOOK
+• A lighter, brighter green throughout — buttons, sidebar and progress now
+  match the app icon instead of sitting a few shades darker
+• Coloured icons are back across onboarding, Settings and the dashboard
+  quick actions
 
 ACCESSIBILITY
 • Section headings across the app are clearer and easier to read

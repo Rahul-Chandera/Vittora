@@ -52,12 +52,16 @@ xcrun simctl bootstatus "$UDID" -b
 
 # ---- build + install --------------------------------------------------------
 APP="$DERIVED/Build/Products/Debug-iphonesimulator/Vittora.app"
-if [ ! -d "$APP" ]; then
-  echo "==> building (once; reused for every set)"
-  xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme Vittora \
-    -destination "generic/platform=iOS Simulator" -derivedDataPath "$DERIVED" \
-    -configuration Debug build >/dev/null
-fi
+# Always build. This used to be `if [ ! -d "$APP" ]`, which meant the first
+# capture compiled the current source and every later one silently reused that
+# binary — so re-running after a colour or layout change produced screenshots
+# of the OLD build, with nothing in the output saying so. xcodebuild is
+# incremental, so when nothing changed this costs a few seconds and still only
+# builds once across all the sets.
+echo "==> building (incremental; guarantees the captures match the working tree)"
+xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme Vittora \
+  -destination "generic/platform=iOS Simulator" -derivedDataPath "$DERIVED" \
+  -configuration Debug build >/dev/null
 xcrun simctl install "$UDID" "$APP"
 
 # A clean status bar. Real captures show carrier text and a 63% battery, which
