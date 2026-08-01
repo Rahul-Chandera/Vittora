@@ -82,6 +82,9 @@ struct AppearanceSettingsView: View {
     @Environment(\.colorScheme) private var systemColorScheme
     @State private var draftMode: SettingsViewModel.AppearanceMode?
     @State private var draftAccent: SettingsViewModel.AccentColor?
+    /// Applying used to be silent: the button just greyed out, which reads as
+    /// "nothing happened" rather than "done".
+    @State private var didApplyAppearance = false
 
     var body: some View {
         Form {
@@ -122,7 +125,10 @@ struct AppearanceSettingsView: View {
                     } label: {
                         HStack {
                             Circle()
-                                .fill(Color.primary)
+                                // The stroke below draws the boundary, so the fill
+                                // can be the real accent — a swatch that cannot show
+                                // its own colour is not a swatch.
+                                .fill(VColors.accent(accent))
                                 .frame(width: 20, height: 20)
                                 .overlay {
                                     Circle().stroke(VColors.textPrimary, lineWidth: 2)
@@ -170,7 +176,7 @@ struct AppearanceSettingsView: View {
                     }
 
                     ProgressView(value: 0.72)
-                        .tint(previewTextPrimary)
+                        .tint(previewAccent)
                         .accessibilityLabel(String(localized: "Preview progress"))
                         .accessibilityValue(Text(verbatim: "72%"))
 
@@ -188,11 +194,32 @@ struct AppearanceSettingsView: View {
             .headerProminence(.increased)
 
             Section {
-                Button(String(localized: "Apply Appearance")) {
+                Button {
                     guard selectedMode != vm.appearanceMode || selectedAccent != vm.accentColor else { return }
                     vm.appearanceMode = selectedMode
                     vm.accentColor = selectedAccent
+                    withAnimation { didApplyAppearance = true }
+                    #if os(iOS)
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    #endif
+                    Task {
+                        try? await Task.sleep(for: .seconds(2))
+                        withAnimation { didApplyAppearance = false }
+                    }
+                } label: {
+                    HStack(spacing: VSpacing.xs) {
+                        if didApplyAppearance {
+                            Image(systemName: "checkmark.circle.fill")
+                                .accessibilityHidden(true)
+                            Text(String(localized: "Appearance Applied"))
+                        } else {
+                            Text(String(localized: "Apply Appearance"))
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
+                // VoiceOver gets the same confirmation the sighted user sees.
+                .accessibilityValue(didApplyAppearance ? String(localized: "Applied") : "")
                 .frame(maxWidth: .infinity)
                 .accessibilityRespondsToUserInteraction(
                     selectedMode != vm.appearanceMode || selectedAccent != vm.accentColor

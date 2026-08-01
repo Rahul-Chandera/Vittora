@@ -270,11 +270,11 @@ private struct CurrencyStepView: View {
 
             ZStack {
                 Circle()
-                    .fill(VColors.iconTintFill(.green))
+                    .fill(VColors.primary.opacity(0.14))
                     .frame(width: 76, height: 76)
                 Text(selectedCurrencySymbol)
                     .font(.system(.largeTitle, design: .rounded).weight(.medium))
-                    .foregroundStyle(VColors.iconTint(.green))
+                    .foregroundStyle(VColors.primary)
             }
             .accessibilityHidden(true)
 
@@ -309,7 +309,7 @@ private struct CurrencyStepView: View {
                                 Spacer(minLength: VSpacing.sm)
                                 if vm.selectedCurrencyCode == currency.code {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(VColors.primaryOnSurface)
+                                        .foregroundStyle(VColors.primary)
                                         .accessibilityHidden(true)
                                 }
                             }
@@ -401,7 +401,7 @@ private struct ProfileStepView: View {
 
             Image(systemName: "person.circle.fill")
                 .font(.system(size: 64))
-                .foregroundStyle(VColors.primaryOnSurface)
+                .foregroundStyle(VColors.primary)
                 .accessibilityHidden(true)
 
             VStack(spacing: VSpacing.sm) {
@@ -492,7 +492,7 @@ private struct AccountSetupStepView: View {
 
                 Image(systemName: "wallet.pass.fill")
                     .font(.system(size: 64))
-                    .foregroundStyle(VColors.primaryOnSurface)
+                    .foregroundStyle(VColors.primary)
                     .accessibilityHidden(true)
 
                 VStack(spacing: VSpacing.sm) {
@@ -529,7 +529,7 @@ private struct AccountSetupStepView: View {
                         HStack(spacing: VSpacing.sm) {
                             Text(vm.selectedCurrencyCode)
                                 .font(VTypography.bodyBold)
-                                .foregroundStyle(VColors.primaryOnSurface)
+                                .foregroundStyle(VColors.primary)
                                 .padding(.horizontal, VSpacing.sm)
                                 .padding(.vertical, VSpacing.xs)
                                 .background(VColors.primary.opacity(0.12))
@@ -587,7 +587,7 @@ private struct AccountSetupStepView: View {
 
                 Image(systemName: "wallet.pass.fill")
                     .font(.system(size: 64))
-                    .foregroundStyle(VColors.primaryOnSurface)
+                    .foregroundStyle(VColors.primary)
                     .accessibilityHidden(true)
 
                 VStack(spacing: VSpacing.sm) {
@@ -655,7 +655,7 @@ private struct AccountSetupStepView: View {
                         HStack(spacing: VSpacing.sm) {
                             Text(vm.selectedCurrencyCode)
                                 .font(VTypography.bodyBold)
-                                .foregroundStyle(VColors.primaryOnSurface)
+                                .foregroundStyle(VColors.primary)
                                 .padding(.horizontal, VSpacing.sm)
                                 .padding(.vertical, VSpacing.xs)
                                 .background(VColors.primary.opacity(0.12))
@@ -759,7 +759,7 @@ private struct NotificationsStepView: View {
 
             Image(systemName: "bell.badge.fill")
                 .font(.system(size: 64))
-                .foregroundStyle(VColors.primaryOnSurface)
+                .foregroundStyle(VColors.primary)
                 .accessibilityHidden(true)
 
             VStack(spacing: VSpacing.sm) {

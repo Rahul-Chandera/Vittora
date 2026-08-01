@@ -180,6 +180,9 @@ struct VittoraApp: App {
         } else {
             UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.accentColor)
         }
+
+        // These wrote the defaults behind the observable mirror's back.
+        ThemeState.shared.reloadFromDefaults()
     }
 
     private static let appearanceModeRawValues = Set(["system", "light", "dark", "oledBlack"])

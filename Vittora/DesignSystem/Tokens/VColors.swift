@@ -238,14 +238,13 @@ enum VColors {
         }
     }
 
+    // Routed through ThemeState so SwiftUI sees the dependency and re-renders
+    // on change; a direct UserDefaults read does not invalidate any view.
     private static var currentAccent: SettingsViewModel.AccentColor {
-        SettingsViewModel.AccentColor(
-            rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.accentColor) ?? ""
-        ) ?? .brandGreen
+        ThemeState.shared.accent
     }
 
     private static var isOLEDBlack: Bool {
-        UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.appearanceMode)
-            == SettingsViewModel.AppearanceMode.oledBlack.rawValue
+        ThemeState.shared.isOLEDBlack
     }
 }
