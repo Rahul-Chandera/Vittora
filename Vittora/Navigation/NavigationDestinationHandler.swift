@@ -4,6 +4,21 @@ import VittoraCore
 struct NavigationDestinationHandler: ViewModifier {
     func body(content: Content) -> some View {
         content
+            // Reset the inherited tint for screen content.
+            //
+            // `AppTabView` tints the TabView with `VColors.primary` so the
+            // selected tab matches the accent swatch the user picked. `.tint`
+            // inherits all the way down, though, so without this every Picker
+            // and Menu label in the app — "Monthly", "Year 2026" — also renders
+            // in the *fill* accent. That colour is chosen to carry white
+            // content, not to be read against a surface: purple on the dark
+            // card measures 3.35:1, under the 4.5:1 body-text minimum, which is
+            // what CI's OLED audit caught. `primaryOnSurface` is the token
+            // solved for exactly this and gives 5.54:1.
+            //
+            // Applied here because every tab routes its content through this
+            // modifier, and the TabView's own tint still colours the tab items.
+            .tint(VColors.primaryOnSurface)
             .navigationDestination(for: NavigationDestination.self) { destination in
                 NavigationDestinationView(destination: destination)
             }
