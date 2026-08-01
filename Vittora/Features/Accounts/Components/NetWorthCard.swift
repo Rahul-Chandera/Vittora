@@ -14,12 +14,12 @@ struct NetWorthCard: View {
             VStack(alignment: .leading, spacing: VSpacing.sm) {
                 Text(String(localized: "Net Worth"))
                     .font(VTypography.caption1)
-                    .foregroundColor(.black)
+                    .foregroundStyle(VColors.onPrimary)
 
                 Text(netWorth.formatted(.currency(code: currencyCode)))
                     .font(VTypography.amountLarge)
                     .amountScaling()
-                    .foregroundColor(.black)
+                    .foregroundStyle(VColors.onPrimary)
 
                 Divider()
                     .background(Color.white.opacity(0.3))
@@ -32,10 +32,10 @@ struct NetWorthCard: View {
                     VStack(alignment: .leading, spacing: VSpacing.xxs) {
                         Text(String(localized: "Assets"))
                             .font(VTypography.caption2)
-                            .foregroundColor(.black)
+                            .foregroundStyle(VColors.onPrimary)
                         Text(totalAssets.formatted(.currency(code: currencyCode)))
                             .font(VTypography.caption1Bold)
-                            .foregroundColor(.black)
+                            .foregroundStyle(VColors.onPrimary)
                     }
 
                     if !dynamicTypeSize.isAccessibilitySize {
@@ -45,10 +45,10 @@ struct NetWorthCard: View {
                     VStack(alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing, spacing: VSpacing.xxs) {
                         Text(String(localized: "Liabilities"))
                             .font(VTypography.caption2)
-                            .foregroundColor(.black)
+                            .foregroundStyle(VColors.onPrimary)
                         Text(totalLiabilities.formatted(.currency(code: currencyCode)))
                             .font(VTypography.caption1Bold)
-                            .foregroundColor(.black)
+                            .foregroundStyle(VColors.onPrimary)
                     }
                 }
             }

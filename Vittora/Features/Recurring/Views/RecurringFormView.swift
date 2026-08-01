@@ -410,7 +410,7 @@ struct RecurringCategoryPickerView: View {
 
                     if selectedID == category.id {
                         Image(systemName: "checkmark")
-                            .foregroundColor(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                     }
                 }
             }

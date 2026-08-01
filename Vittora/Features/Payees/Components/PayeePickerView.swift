@@ -26,7 +26,7 @@ struct PayeePickerView: View {
                     Spacer()
                     if selectedPayeeID == nil {
                         Image(systemName: "checkmark")
-                            .foregroundColor(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                     }
                 }
                 .contentShape(Rectangle())
@@ -41,7 +41,7 @@ struct PayeePickerView: View {
                         PayeeRowView(payee: payee)
                         if selectedPayeeID == payee.id {
                             Image(systemName: "checkmark")
-                                .foregroundColor(VColors.primary)
+                                .foregroundStyle(VColors.primaryOnSurface)
                                 .font(.system(size: 14, weight: .semibold))
                         }
                     }

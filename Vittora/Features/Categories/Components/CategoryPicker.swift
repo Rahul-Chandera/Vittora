@@ -59,7 +59,7 @@ struct CategoryPicker: View {
                     Spacer()
                     if selectedCategoryID == category.id {
                         Image(systemName: "checkmark")
-                            .foregroundColor(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                             .font(.system(size: 14, weight: .semibold))
                     }
                 }

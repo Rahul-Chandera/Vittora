@@ -46,18 +46,16 @@ xcrun simctl bootstatus "$PAIR_WATCH" -b
 PHONE_APP="$DERIVED/Build/Products/Debug-iphonesimulator/Vittora.app"
 WATCH_APP="$DERIVED/Build/Products/Debug-watchsimulator/VittoraWatch.app"
 
-if [ ! -d "$PHONE_APP" ]; then
-  echo "==> building iOS app"
-  xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme Vittora \
-    -destination "generic/platform=iOS Simulator" -derivedDataPath "$DERIVED" \
-    -configuration Debug build >/dev/null
-fi
-if [ ! -d "$WATCH_APP" ]; then
-  echo "==> building watchOS app"
-  xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme VittoraWatch \
-    -destination "generic/platform=watchOS Simulator" -derivedDataPath "$DERIVED" \
-    -configuration Debug build >/dev/null
-fi
+# Always build — a `[ ! -d "$APP" ]` guard here meant a re-capture after a
+# code change silently reused the previous binary. xcodebuild is incremental.
+echo "==> building iOS app"
+xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme Vittora \
+  -destination "generic/platform=iOS Simulator" -derivedDataPath "$DERIVED" \
+  -configuration Debug build >/dev/null
+echo "==> building watchOS app"
+xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme VittoraWatch \
+  -destination "generic/platform=watchOS Simulator" -derivedDataPath "$DERIVED" \
+  -configuration Debug build >/dev/null
 
 xcrun simctl install "$PAIR_PHONE" "$PHONE_APP"
 xcrun simctl install "$PAIR_WATCH" "$WATCH_APP"

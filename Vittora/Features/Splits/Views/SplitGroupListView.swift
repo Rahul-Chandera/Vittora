@@ -140,7 +140,7 @@ private struct GroupRowView: View {
                     .overlay {
                         Image(systemName: "person.3.fill")
                             .font(.title3)
-                            .foregroundStyle(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                     }
                     .accessibilityHidden(true)
 

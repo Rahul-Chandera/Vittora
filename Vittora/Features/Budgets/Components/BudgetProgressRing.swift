@@ -69,7 +69,7 @@ struct BudgetProgressRing: View {
             )
         } else {
             return LinearGradient(
-                gradient: Gradient(colors: [VColors.budgetSafe, VColors.budgetSafe.opacity(0.8)]),
+                gradient: Gradient(colors: [VColors.budgetSafeFill, VColors.budgetSafeFill.opacity(0.8)]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

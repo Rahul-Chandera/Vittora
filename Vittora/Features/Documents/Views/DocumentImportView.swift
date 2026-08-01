@@ -16,7 +16,7 @@ struct DocumentImportView: View {
             VStack(spacing: VSpacing.xl) {
                 Image(systemName: "folder.badge.plus")
                     .font(.system(size: 56))
-                    .foregroundColor(VColors.primary)
+                    .foregroundStyle(VColors.primaryOnSurface)
 
                 Text(String(localized: "Import Document"))
                     .font(VTypography.title3)
