@@ -29,6 +29,20 @@ PALETTE = {
 }
 DEFAULT_PAL = PALETTE["01-dashboard"]
 
+# Watch slots are keyed by the screen suffix, because the raw filename carries
+# the device name ("watch-series-11-46mm-dashboard") and that changes with
+# whatever pair the capture script finds.
+WATCH_COPY = {
+    "dashboard":     ("Today at\na Glance",  "Spend and budget, on your wrist"),
+    "recent":        ("Recent\nActivity",    "Your latest transactions"),
+    "quick-expense": ("Add in\nSeconds",     "Turn the crown. Done."),
+}
+WATCH_PALETTE = {
+    "dashboard":     PALETTE["01-dashboard"],
+    "recent":        PALETTE["02-transactions"],
+    "quick-expense": PALETTE["06-yearinreview"],
+}
+
 RAW = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "Docs", "Store", "screenshots")
 OUT = os.path.join(RAW, "marketing")
 
@@ -270,26 +284,102 @@ def compose_phone(raw_path, out_path, copy, W, H):
     img.crop((0, 0, W, H)).convert("RGB").save(out_path, "PNG")
 
 
-def compose_pad(raw_path, out_path, copy, W=2064, H=2752):
-    """Portrait iPad. 2064x2752 is an ASC-accepted 13" size and matches what the
-    simulator captures, so nothing has to be rotated."""
+def watch_device(shot, screen_w):
+    """Apple Watch frame: squircle body, thicker rail than a phone, digital
+    crown and side button on the right edge."""
+    screen_h = int(screen_w * shot.height / shot.width)
+    corner = int(screen_w * 0.30)                       # watch glass is very round
+    bezel = max(4, int(screen_w * 0.055))
+    scr = rounded(shot.resize((screen_w, screen_h), Image.LANCZOS), corner)
+    fw, fh = screen_w + 2 * bezel, screen_h + 2 * bezel
+    margin = int(bezel * 7)
+    canvas = Image.new("RGBA", (fw + 2 * margin, fh + 2 * margin), (0, 0, 0, 0))
+    outer = corner + bezel
+
+    amb = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    ImageDraw.Draw(amb).rounded_rectangle(
+        [margin, margin + int(bezel * 2.4), margin + fw, margin + fh + int(bezel * 2.4)],
+        outer, fill=(12, 34, 27, 96))
+    canvas.alpha_composite(amb.filter(ImageFilter.GaussianBlur(int(bezel * 3.2))))
+
+    rail = (188, 193, 200, 255)
+    side = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    sd = ImageDraw.Draw(side)
+    cw = max(3, int(bezel * 0.85))
+    # Digital crown: a short capsule with a slightly brighter cap.
+    cy0, cy1 = margin + int(fh * 0.30), margin + int(fh * 0.42)
+    sd.rounded_rectangle([margin + fw - 2, cy0, margin + fw + cw, cy1], cw // 2, fill=rail)
+    sd.rounded_rectangle([margin + fw + cw - 2, cy0 + 2, margin + fw + cw + 2, cy1 - 2],
+                         2, fill=(226, 230, 236, 255))
+    # Side button.
+    sd.rounded_rectangle([margin + fw - 2, margin + int(fh * 0.50),
+                          margin + fw + int(cw * 0.7), margin + int(fh * 0.60)],
+                         cw // 3, fill=rail)
+    canvas.alpha_composite(side)
+
+    frame = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    fd = ImageDraw.Draw(frame)
+    fd.rounded_rectangle([margin, margin, margin + fw, margin + fh], outer, fill=(26, 28, 33, 255))
+    fd.rounded_rectangle([margin + 2, margin + 2, margin + fw - 2, margin + fh - 2],
+                         outer - 2, outline=(126, 134, 145, 255), width=max(2, bezel // 4))
+    canvas.alpha_composite(frame)
+    canvas.alpha_composite(scr, (margin + bezel, margin + bezel))
+    return canvas, margin
+
+
+def compose_watch(raw_path, out_path, copy, W=416, H=496):
+    """Apple Watch slot. 416x496 is the Series 10/11 46mm size the capture
+    script produces and an ASC-accepted one, so the canvas matches the source."""
+    key = os.path.splitext(os.path.basename(raw_path))[0]
+    suffix = next((k for k in WATCH_COPY if key.endswith(k)), None)
+    if suffix is None:
+        print(f"skip watch/{os.path.basename(raw_path)}: no copy for this screen")
+        return
+    title, sub = WATCH_COPY[suffix]
+    pal = WATCH_PALETTE[suffix]
+    img = background(W, H, pal)
+    bottom = draw_copy(img, title, sub, int(H * 0.085), int(W * 0.105),
+                       int(W * 0.043), int(W * 0.020), accent=pal["glow"])
+
+    shot = Image.open(raw_path).convert("RGB")
+    avail_h = H - bottom - int(H * 0.035)
+    bezel_guess = max(4, int(W * 0.030))
+    screen_h = avail_h - 2 * bezel_guess
+    screen_w = int(screen_h * shot.width / shot.height)
+    max_w = int(W * 0.56)
+    if screen_w > max_w:
+        screen_w = max_w
+        screen_h = int(screen_w * shot.height / shot.width)
+    dev, margin = watch_device(shot, screen_w)
+    x = (W - dev.width) // 2
+    y = bottom + (H - bottom - (dev.height - 2 * margin)) // 2 - margin
+    img.alpha_composite(dev, (x, y))
+    img.crop((0, 0, W, H)).convert("RGB").save(out_path, "PNG")
+
+
+def compose_pad(raw_path, out_path, copy, W=2752, H=2064):
+    """Landscape iPad. 2752x2064 is the ASC-accepted 13" landscape size.
+
+    Landscape rather than portrait because the wide layout is the one that
+    shows what the iPad build actually does — sidebar plus a real detail pane —
+    which a portrait shot renders as a single narrow column."""
     key = os.path.splitext(os.path.basename(raw_path))[0]
     title, sub = copy[key]
     pal = PALETTE.get(key, DEFAULT_PAL)
     img = background(W, H, pal)
-    bottom = draw_copy(img, title, sub, int(H * 0.058), int(W * 0.056),
-                       int(W * 0.023), int(W * 0.015), accent=pal["glow"])
+    bottom = draw_copy(img, title, sub, int(H * 0.085), int(W * 0.034),
+                       int(W * 0.0145), int(W * 0.009), accent=pal["glow"])
 
     shot = Image.open(raw_path).convert("RGB")
-    bezel = int(W * 0.011)
-    avail_h = H - bottom - int(H * 0.042)
+    bezel = int(W * 0.008)
+    avail_h = H - bottom - int(H * 0.055)
     screen_h = avail_h - 2 * bezel
     screen_w = int(screen_h * shot.width / shot.height)
-    max_w = int(W * 0.74)
+    max_w = int(W * 0.72)
     if screen_w > max_w:
         screen_w = max_w
         screen_h = int(screen_w * shot.height / shot.width)
-    dev, margin = device(shot, screen_w, corner=int(screen_w * 0.045), bezel=bezel)
+    dev, margin = device(shot, screen_w, corner=int(screen_h * 0.045), bezel=bezel)
     x = (W - dev.width) // 2
     y = bottom + (H - bottom - (dev.height - 2 * margin)) // 2 - margin
     img.alpha_composite(dev, (x, y))
@@ -344,15 +434,30 @@ def main():
         ("iphone-69-hi", "iphone-69-hi", "hi", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
         ("iphone-69-es", "iphone-69-es", "es", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
         ("ipad-13",      "ipad-13",      "en", compose_pad),
+        ("ipad-13-in",   "ipad-13-in",   "en", compose_pad),
+        ("ipad-13-hi",   "ipad-13-hi",   "hi", compose_pad),
+        ("ipad-13-es",   "ipad-13-es",   "es", compose_pad),
         ("mac",          "mac",          "en", compose_mac),
+        ("mac-in",       "mac-in",       "en", compose_mac),
+        ("mac-hi",       "mac-hi",       "hi", compose_mac),
+        ("mac-es",       "mac-es",       "es", compose_mac),
+        ("watch",        "watch",        "en", compose_watch),
     ]
 
     # One swift invocation for every string in the run.
-    wide = {"mac"}
+    wide = {"mac", "mac-in", "mac-hi", "mac-es",
+            "ipad-13", "ipad-13-in", "ipad-13-hi", "ipad-13-es"}
     specs, tables = [], {}
     for src, dst, locale, _ in jobs:
         srcdir = os.path.join(RAW, src)
         if not os.path.isdir(srcdir):
+            continue
+        if dst == "watch":
+            # Keyed by screen suffix; compose_watch resolves the filename itself.
+            tables[dst] = WATCH_COPY
+            for title, sub in WATCH_COPY.values():
+                specs += [(line, "bold", INK) for line in title.split("\n")]
+                specs.append((sub, "medium", MUTED))
             continue
         table = (COPY_WIDE_BY_LOCALE if dst in wide else COPY_BY_LOCALE)[locale]
         tables[dst] = table
@@ -380,7 +485,7 @@ def main():
             key = os.path.splitext(name)[0]
             if not name.endswith(".png"):
                 continue
-            if key not in table:
+            if dst != "watch" and key not in table:
                 # A raw capture with no headline copy — don't guess one.
                 print(f"skip {dst}/{name}: no copy for '{key}'")
                 continue

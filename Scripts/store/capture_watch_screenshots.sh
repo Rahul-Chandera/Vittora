@@ -62,18 +62,31 @@ xcrun simctl install "$PAIR_WATCH" "$WATCH_APP"
 
 xcrun simctl status_bar "$PAIR_WATCH" override --time "9:41" 2>/dev/null || true
 
-# Phone first: seeding is async and the bridge pushes a post-seed snapshot.
+# One shot per screen. simctl can screenshot a watch but cannot tap it or open
+# a URL on it, so the app takes --ui-test-watch-screen to launch straight into
+# the screen we want. Without it the gallery could only ever show the
+# dashboard, which is why all three previous watch captures were identical.
+NAME=$(echo "$WATCH_NAME" | tr 'A-Z' 'a-z' | sed -E 's/apple_watch_//; s/[()]//g; s/_+/-/g')
+
+# Phone once. The snapshot travels over WCSession as an application context,
+# which the watch caches and replays on activation — so relaunching the watch
+# app keeps its data and the phone does not need restarting per screen.
 SIMCTL_CHILD_UITEST_DEMO_REGION="${REGION:-US}" \
 SIMCTL_CHILD_UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
   xcrun simctl launch "$PAIR_PHONE" "$APP_ID" --uitesting --ui-test-seed-demo >/dev/null
 sleep 20
 
-xcrun simctl launch "$PAIR_WATCH" "$WATCH_APP_ID" >/dev/null
-sleep 25   # WCSession activation + first snapshot delivery
-
-NAME=$(echo "$WATCH_NAME" | tr 'A-Z' 'a-z' | sed -E 's/apple_watch_//; s/[()]//g; s/_+/-/g')
-xcrun simctl io "$PAIR_WATCH" screenshot --type=png "$OUT/watch-$NAME-dashboard.png"
-echo "    watch-$NAME-dashboard.png"
+for screen in dashboard recent quick-expense; do
+  # Terminate and let it settle before relaunching. `simctl launch` on a
+  # process that is still alive just foregrounds it and silently DISCARDS the
+  # new arguments, which is why every screen came out as the dashboard.
+  xcrun simctl terminate "$PAIR_WATCH" "$WATCH_APP_ID" 2>/dev/null || true
+  sleep 4
+  xcrun simctl launch "$PAIR_WATCH" "$WATCH_APP_ID" "--ui-test-watch-screen=$screen" >/dev/null
+  sleep 18   # WCSession activation + cached context replay, then the view settles
+  xcrun simctl io "$PAIR_WATCH" screenshot --type=png "$OUT/watch-$NAME-$screen.png"
+  echo "    watch-$NAME-$screen.png"
+done
 
 xcrun simctl status_bar "$PAIR_WATCH" clear 2>/dev/null || true
 echo "==> raw watch capture in $OUT"
