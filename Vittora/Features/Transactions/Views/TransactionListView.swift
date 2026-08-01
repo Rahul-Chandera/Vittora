@@ -172,6 +172,11 @@ struct TransactionListView: View {
                 List(selection: selection) {
                     transactionSections(vm, selection: selection)
                 }
+                // The selected row's OUTLINE is drawn from the tint, which
+                // listRowBackground does not cover — so a neutral fill still
+                // came with a brand-green ring around it. Scoped to this list so
+                // the rest of the app keeps its accent.
+                .tint(VColors.textTertiary)
             } else {
                 List {
                     transactionSections(vm, selection: nil)
