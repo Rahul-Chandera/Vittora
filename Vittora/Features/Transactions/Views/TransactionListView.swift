@@ -361,6 +361,11 @@ struct TransactionListView: View {
             }
             .buttonStyle(.plain)
             .tag(Optional(transaction.id))
+            // Neutral selection fill rather than the inherited accent. nil
+            // restores the platform default for unselected rows.
+            .listRowBackground(
+                selection.wrappedValue == transaction.id ? VColors.rowSelection : nil
+            )
             .transactionRowModifiers(
                 vm: vm,
                 transaction: transaction,
