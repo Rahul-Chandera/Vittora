@@ -261,7 +261,10 @@ final class SpanishLocalizationUITests: XCTestCase {
                 if haystack.contains("search") {
                     return true
                 }
-                if issue.compactDescription.localizedCaseInsensitiveContains("may be clipped") {
+                // Same field bug as the shared core-flow audit: the predictive
+                // wording is in detailedDescription, and `haystack` already
+                // joins it in. compactDescription is only ever "Text clipped".
+                if haystack.contains("may be clipped") {
                     return true
                 }
                 self.logAuditIssue(issue)

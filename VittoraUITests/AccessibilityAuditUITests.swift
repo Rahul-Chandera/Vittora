@@ -816,6 +816,19 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if (issue.element?.identifier ?? "").hasPrefix("brand-mark-") {
                     return true
                 }
+                // On CI's iOS 26.2 the audit flags an inner node of the floating
+                // add button that carries neither the label nor the identifier,
+                // so both checks above miss it and the DEC-012 exemption never
+                // reaches the one control it was written for. Anchor it to the
+                // button's own frame instead, which is present regardless of how
+                // the node is exposed. Still narrow: only samples that actually
+                // overlap the FAB.
+                let fab = self.app.descendants(matching: .any)["quick-entry-floating-button"]
+                if let elementFrame = issue.element?.frame,
+                   fab.exists,
+                   fab.frame.intersects(elementFrame) {
+                    return true
+                }
 
                 let systemTabLabels = ["Dashboard", "Transactions", "Budgets", "Reports", "More"]
                 let elementLabel = issue.element?.label ?? ""
@@ -947,7 +960,15 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if description.contains("search") {
                     return true
                 }
-                return issue.compactDescription.localizedCaseInsensitiveContains("may be clipped")
+                // `compactDescription` is always the bare string "Text clipped";
+                // the predictive wording — "Text of this element may be clipped
+                // at larger Dynamic Type sizes" — is in `detailedDescription`.
+                // This condition read compactDescription, so it never matched
+                // once, and the exclusion documented above has never actually
+                // applied. `description` joins both, so it sees the real text.
+                // A hard clip still fails: only the predictive warning is
+                // ignored, and the accessibility3 screenshots remain the gate.
+                return description.contains("may be clipped")
             }
             if issue.auditType == .dynamicType {
                 // "Partially unsupported" is emitted for semantic relative styles
