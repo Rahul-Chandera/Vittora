@@ -43,6 +43,46 @@ struct DesignTokenTests {
             && abs(a.b - b.b) < tolerance && abs(a.a - b.a) < tolerance
     }
 
+    /// WCAG relative luminance, so a token can be checked against the surface
+    /// it actually sits on rather than against a remembered hex value.
+    private func luminance(_ color: Color) -> CGFloat {
+        let c = rgba(color)
+        func lin(_ v: CGFloat) -> CGFloat {
+            v <= 0.04045 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4)
+        }
+        return 0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b)
+    }
+
+    private func contrast(_ lhs: Color, _ rhs: Color) -> CGFloat {
+        let a = luminance(lhs), b = luminance(rhs)
+        return (max(a, b) + 0.05) / (min(a, b) + 0.05)
+    }
+
+    /// `income` is a label colour at 34 call sites, so lightening it is bounded
+    /// by AA text contrast — this is the assertion that stops the next lighten
+    /// from quietly pushing the amounts under 4.5:1.
+    @Test("income stays AA as text on both light surfaces")
+    func incomeClearsTextContrast() {
+        let card = Color(red: 0.949, green: 0.949, blue: 0.969)  // #F2F2F7
+        #expect(contrast(VColors.income, .white) >= 4.5,
+                "income is used as a label colour; it must clear 4.5:1 on white")
+        #expect(contrast(VColors.income, card) >= 4.5,
+                "income must clear 4.5:1 on the card background too")
+    }
+
+    /// The counterpart: the fill variant exists to be lighter, so assert both
+    /// that it *is* lighter and that it still clears the 3:1 non-text minimum.
+    /// Collapsing the two back into one token is the regression this catches.
+    @Test("budgetSafeFill is lighter than income but still clears 3:1")
+    func budgetSafeFillIsLighterAndLegible() {
+        #expect(contrast(VColors.budgetSafeFill, .white) >= 3.0,
+                "a bar fill must clear 3:1 against its white track")
+        #expect(luminance(VColors.budgetSafeFill) > luminance(VColors.income),
+                "budgetSafeFill exists to be the lighter one; if it is not, the split is pointless")
+        #expect(!isApprox(VColors.budgetSafeFill, VColors.budgetSafe),
+                "fill and label colour must stay distinct tokens")
+    }
+
     @Test("brand green is the app icon colour #3FCFA4 (DEC-012)")
     func brandGreenMatchesAppIcon() {
         let expected = Color(red: 0.247059, green: 0.811765, blue: 0.643137)

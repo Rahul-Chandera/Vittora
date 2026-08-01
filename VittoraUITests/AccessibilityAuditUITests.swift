@@ -803,7 +803,11 @@ final class AccessibilityAuditUITests: XCTestCase {
                     "Get Started", "Continue", "Set Up Account", "Review Setup",
                     "Start Tracking", "Save Transaction", "Add transaction"
                 ]
-                if brandGreenFilledContent.contains(issue.element?.label ?? "") {
+                // Case-insensitive: the FAB's label is "Add Transaction" and
+                // this set carried "Add transaction", so the exemption silently
+                // missed it.
+                let label = (issue.element?.label ?? "").lowercased()
+                if brandGreenFilledContent.contains(where: { $0.lowercased() == label }) {
                     return true
                 }
                 // Decorative brand marks opt in explicitly by identifier, so a

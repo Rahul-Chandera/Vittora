@@ -94,6 +94,15 @@ enum VColors {
 
     // Budget progress — reuse WCAG-AA semantic tokens (system green/red fail 4.5:1 as text)
     static let budgetSafe = income
+
+    // Fill-only variant of budgetSafe. `income` has to clear 4.5:1 as text
+    // (34 call sites use it as a label colour), which pins it dark. A bar or
+    // ring fill only owes 3:1 against its white track, so it can be lighter.
+    // Use this ONLY where the colour is never also the label.
+    static var budgetSafeFill: Color {
+        adaptive(light: (0.180392, 0.619608, 0.419608),  // #2E9E6B — 3.38:1 on white
+                 dark: (0.505882, 0.788235, 0.584314))   // #81C995 — matches VIncome dark
+    }
     static let budgetWarning = warning
     static let budgetDanger = expense
 
@@ -200,13 +209,20 @@ enum VColors {
         light: (Double, Double, Double),
         dark: (Double, Double, Double)
     ) -> Color {
+        // The provider closures MUST be `@Sendable`. UIKit and AppKit resolve a
+        // dynamic colour on whatever thread is rendering, and SwiftUI's shape
+        // style resolution is not always the main one. Without this, the
+        // closure inherits the caller's actor isolation and the Swift 6
+        // isolation check traps (EXC_BREAKPOINT in _dispatch_assert_queue_fail)
+        // the first time a token is resolved off-main. Both tuples are
+        // Sendable, so nothing else is captured.
         #if os(macOS)
-        return Color(nsColor: NSColor(name: nil) { appearance in
+        return Color(nsColor: NSColor(name: nil) { @Sendable appearance in
             let c = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? dark : light
             return NSColor(srgbRed: c.0, green: c.1, blue: c.2, alpha: 1)
         })
         #elseif canImport(UIKit)
-        return Color(uiColor: UIColor { traits in
+        return Color(uiColor: UIColor { @Sendable traits in
             let c = traits.userInterfaceStyle == .dark ? dark : light
             return UIColor(red: c.0, green: c.1, blue: c.2, alpha: 1)
         })

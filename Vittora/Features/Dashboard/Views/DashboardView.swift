@@ -284,7 +284,7 @@ struct DashboardView: View {
                             .frame(height: 8)
 
                         RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
-                            .fill(progressColor(progress))
+                            .fill(progressFillColor(progress))
                             .frame(width: geometry.size.width * CGFloat(min(progress, 1.0)), height: 8)
                             .animation(reduceMotion ? .none : .easeOut(duration: VSpacing.animationStandard), value: progress)
                     }
@@ -326,6 +326,13 @@ struct DashboardView: View {
         if progress >= 0.9 { return VColors.budgetDanger }
         if progress >= 0.75 { return VColors.budgetWarning }
         return VColors.budgetSafe
+    }
+
+    // Same thresholds, but for the bar fill rather than the percentage label.
+    // Only the safe band differs: a fill owes 3:1 against the track, not the
+    // 4.5:1 the label owes, so it can be the lighter green.
+    private func progressFillColor(_ progress: Double) -> Color {
+        progress >= 0.75 ? progressColor(progress) : VColors.budgetSafeFill
     }
 
     private func errorBanner(_ message: String) -> some View {
