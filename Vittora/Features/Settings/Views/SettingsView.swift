@@ -25,12 +25,14 @@ struct SettingsView: View {
                 } label: {
                     HStack(spacing: VSpacing.md) {
                         Circle()
-                            .fill(VColors.tertiaryBackground)
+                            // tertiaryBackground is white in light mode, so on a
+                            // white card the avatar had no visible circle at all.
+                            .fill(VColors.primary)
                             .frame(width: 52, height: 52)
                             .overlay {
                                 Text(initials(vm.userName))
                                     .font(VTypography.title3.bold())
-                                    .foregroundStyle(VColors.textPrimary)
+                                    .foregroundStyle(VColors.onPrimary)
                             }
                         VStack(alignment: .leading, spacing: 2) {
                             Text(vm.userName.isEmpty ? String(localized: "Your Name") : vm.userName)

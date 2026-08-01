@@ -131,7 +131,9 @@ struct AppearanceSettingsView: View {
                                 .fill(VColors.accent(accent))
                                 .frame(width: 20, height: 20)
                                 .overlay {
-                                    Circle().stroke(VColors.textPrimary, lineWidth: 2)
+                                    // Hairline so a light swatch still has an edge on
+                                    // white, without a heavy black ring dominating it.
+                                    Circle().strokeBorder(VColors.textPrimary.opacity(0.18), lineWidth: 1)
                                 }
                                 .accessibilityHidden(true)
                             Text(accent.displayName)

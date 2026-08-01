@@ -187,13 +187,13 @@ struct AppTabView: View {
         }
         // Selected tab follows the user's accent theme.
         //
-        // primaryOnSurface, not primary: the accent doubles as a fill colour and
-        // at #3FCFA4 is far too light to read as a glyph on the tab bar. The
-        // on-surface variant is the same hue solved for legibility on a
-        // background (#1F7C60 light / #3FCFA4 dark).
+        // The brand accent itself (DEC-012), so the selected tab matches the
+        // swatch the user picked rather than a darker cousin of it. Tab labels
+        // are already excluded from the contrast audit — XCTest samples the
+        // liquid-glass highlight rather than the bar material.
         //
         // Swap to `.tint(.blue)` for the system-default look.
-        .tint(VColors.primaryOnSurface)
+        .tint(VColors.primary)
         .toolbarBackground(VColors.background, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
     }
