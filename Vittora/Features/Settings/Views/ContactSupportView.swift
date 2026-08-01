@@ -169,7 +169,7 @@ struct ContactSupportView: View {
                 } label: {
                     SettingsRow(
                         icon: "doc.on.doc.fill",
-                        iconColor: .gray,
+                        iconColor: .blue,
                         title: String(localized: "Copy Diagnostics"),
                         value: ""
                     )

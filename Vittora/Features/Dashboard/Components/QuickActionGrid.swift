@@ -5,7 +5,7 @@ struct QuickAction: Identifiable {
     let id = UUID()
     let title: String
     let icon: String
-    let color: Color
+    let tint: VColors.IconTint
     let destination: NavigationDestination
     let transactionType: TransactionType?
     let accessibilityIdentifier: String
@@ -20,7 +20,7 @@ struct QuickActionGrid: View {
         QuickAction(
             title: String(localized: "Expense"),
             icon: "arrow.up.circle.fill",
-            color: VColors.expense,
+            tint: .red,
             destination: .addTransaction,
             transactionType: .expense,
             accessibilityIdentifier: "quick-action-expense-button",
@@ -30,7 +30,7 @@ struct QuickActionGrid: View {
         QuickAction(
             title: String(localized: "Income"),
             icon: "arrow.down.circle.fill",
-            color: VColors.income,
+            tint: .green,
             destination: .addTransaction,
             transactionType: .income,
             accessibilityIdentifier: "quick-action-income-button",
@@ -40,7 +40,7 @@ struct QuickActionGrid: View {
         QuickAction(
             title: String(localized: "Transfer"),
             icon: "arrow.left.arrow.right.circle.fill",
-            color: VColors.transfer,
+            tint: .blue,
             destination: .addTransfer,
             transactionType: nil,
             accessibilityIdentifier: "quick-action-transfer-button",
@@ -50,7 +50,7 @@ struct QuickActionGrid: View {
         QuickAction(
             title: String(localized: "Budget"),
             icon: "target",
-            color: VColors.primary,
+            tint: .teal,
             destination: .addBudget,
             transactionType: nil,
             accessibilityIdentifier: "quick-action-budget-button",
@@ -90,13 +90,15 @@ private struct QuickActionButton: View {
         Button(action: onTap) {
             VStack(spacing: VSpacing.sm) {
                 Image(systemName: action.icon)
-                    // Colored glyph on a 12% tint circle fails AA on OLED black
-                    // (~4.2:1). Keep the tint for affordance; draw the symbol in
-                    // the WCAG text token instead.
+                    // Coloured glyph on its own tint. The earlier 22% wash was
+                    // what forced these to textPrimary: at that strength the
+                    // glyph measured ~3.9:1 in dark mode. iconTintFill's 14%
+                    // keeps the affordance and clears 4.5:1 on white, card, dark
+                    // and OLED black — worst case 4.50:1.
                     .font(.title2)
-                    .foregroundStyle(VColors.textPrimary)
+                    .foregroundStyle(VColors.iconTint(action.tint))
                     .frame(width: iconFrame, height: iconFrame)
-                    .background(action.color.opacity(0.22))
+                    .background(VColors.iconTintFill(action.tint))
                     .clipShape(Circle())
                     .accessibilityHidden(true)
 

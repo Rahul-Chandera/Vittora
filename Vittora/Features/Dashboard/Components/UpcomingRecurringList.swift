@@ -46,7 +46,7 @@ private struct UpcomingRuleRow: View {
                 .overlay {
                     Image(systemName: "repeat")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(VColors.primary)
+                        .foregroundStyle(VColors.primaryOnSurface)
                         .accessibilityHidden(true)
                 }
 

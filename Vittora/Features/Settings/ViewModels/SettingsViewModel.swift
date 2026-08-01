@@ -42,6 +42,7 @@ final class SettingsViewModel {
         set {
             withMutation(keyPath: \.appearanceMode) {
                 UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appearanceMode)
+                ThemeState.shared.isOLEDBlack = newValue == .oledBlack
             }
         }
     }
@@ -56,6 +57,9 @@ final class SettingsViewModel {
         set {
             withMutation(keyPath: \.accentColor) {
                 UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.accentColor)
+                // Keep the observable theme mirror in step, or the rest of the
+                // app keeps drawing the previous accent until relaunch.
+                ThemeState.shared.accent = newValue
                 AppUserDefaults.mirrorAccentColorToAppGroup()
                 #if os(iOS)
                 WidgetCenter.shared.reloadAllTimelines()

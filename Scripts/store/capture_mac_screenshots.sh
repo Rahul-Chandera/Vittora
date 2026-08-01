@@ -22,12 +22,12 @@ APP="$DERIVED/Build/Products/Debug/Vittora.app"
 
 mkdir -p "$OUT"
 
-if [ ! -d "$APP" ]; then
-  echo "==> building macOS app"
-  xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme Vittora \
-    -destination "platform=macOS" -derivedDataPath "$DERIVED" \
-    -configuration Debug build >/dev/null
-fi
+# Always build — a `[ ! -d "$APP" ]` guard here meant a re-capture after a
+# code change silently reused the previous binary. xcodebuild is incremental.
+echo "==> building macOS app"
+xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme Vittora \
+  -destination "platform=macOS" -derivedDataPath "$DERIVED" \
+  -configuration Debug build >/dev/null
 
 # Window id for `screencapture -l`. No pyobjc on this machine, so ask
 # CoreGraphics directly through swift rather than adding a dependency.

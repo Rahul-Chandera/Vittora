@@ -185,7 +185,15 @@ struct AppTabView: View {
                 }
             }
         }
-        .tint(.primary)
+        // Selected tab follows the user's accent theme.
+        //
+        // The brand accent itself (DEC-012), so the selected tab matches the
+        // swatch the user picked rather than a darker cousin of it. Tab labels
+        // are already excluded from the contrast audit — XCTest samples the
+        // liquid-glass highlight rather than the bar material.
+        //
+        // Swap to `.tint(.blue)` for the system-default look.
+        .tint(VColors.primary)
         .toolbarBackground(VColors.background, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
     }
@@ -215,13 +223,30 @@ private struct MoreHubView: View {
     private static let destinations: [AppState.AppTab] =
         [.savings, .tax, .debt, .splits, .settings]
 
+    /// Icon hue per destination. Decorative — the row's label carries the meaning.
+    private static func tint(for tab: AppState.AppTab) -> VColors.IconTint {
+        switch tab {
+        case .savings:  return .green
+        case .tax:      return .teal
+        case .debt:     return .orange
+        case .splits:   return .purple
+        case .settings: return .blue
+        default:        return .blue
+        }
+    }
+
     var body: some View {
         List {
             ForEach(Self.destinations) { tab in
                 NavigationLink {
                     destinationView(for: tab)
                 } label: {
-                    Label(tab.title, systemImage: tab.systemImage)
+                    Label {
+                        Text(tab.title)
+                    } icon: {
+                        Image(systemName: tab.systemImage)
+                            .foregroundStyle(VColors.iconTint(Self.tint(for: tab)))
+                    }
                 }
             }
         }
