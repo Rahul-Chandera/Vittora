@@ -100,6 +100,22 @@ struct DesignTokenTests {
         }
     }
 
+    /// Owner decision (2026-08-01): row selection is neutral, not the accent.
+    /// The accent version put a red expense amount on a brand-green bar,
+    /// because `List(selection:)` tints the row while the content keeps its own
+    /// semantic colours. This asserts the two never converge again.
+    @Test("row selection is neutral, never the accent")
+    func rowSelectionIsNeutral() {
+        for accent in SettingsViewModel.AccentColor.allCases {
+            #expect(!isApprox(VColors.rowSelection, VColors.accent(accent)),
+                    "row selection must not be the \(accent) fill")
+        }
+        let c = rgba(VColors.rowSelection)
+        let spread = max(c.r, c.g, c.b) - min(c.r, c.g, c.b)
+        #expect(spread < 0.05,
+                "row selection should be a neutral grey, got r\(c.r) g\(c.g) b\(c.b)")
+    }
+
     @Test("brand green is the app icon colour #3FCFA4 (DEC-012)")
     func brandGreenMatchesAppIcon() {
         let expected = Color(red: 0.247059, green: 0.811765, blue: 0.643137)
