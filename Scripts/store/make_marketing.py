@@ -32,11 +32,24 @@ DEFAULT_PAL = PALETTE["01-dashboard"]
 # Watch slots are keyed by the screen suffix, because the raw filename carries
 # the device name ("watch-series-11-46mm-dashboard") and that changes with
 # whatever pair the capture script finds.
-WATCH_COPY = {
-    "dashboard":     ("Today at\na Glance",  "Spend and budget, on your wrist"),
-    "recent":        ("Recent\nActivity",    "Your latest transactions"),
-    "quick-expense": ("Add in\nSeconds",     "Turn the crown. Done."),
+WATCH_COPY_BY_LOCALE = {
+    "en": {
+        "dashboard":     ("Today at\na Glance",  "Spend and budget, on your wrist"),
+        "recent":        ("Recent\nActivity",    "Your latest transactions"),
+        "quick-expense": ("Add in\nSeconds",     "Turn the crown. Done."),
+    },
+    "hi": {
+        "dashboard":     ("एक नज़र में\nआज",       "खर्च और बजट, आपकी कलाई पर"),
+        "recent":        ("हाल की\nगतिविधि",       "आपके नवीनतम ट्रांज़ैक्शन"),
+        "quick-expense": ("सेकंडों में\nजोड़ें",      "क्राउन घुमाएँ। हो गया।"),
+    },
+    "es": {
+        "dashboard":     ("Tu día de\nun vistazo", "Gastos y presupuesto en tu muñeca"),
+        "recent":        ("Actividad\nreciente",   "Tus últimos movimientos"),
+        "quick-expense": ("Añade en\nsegundos",    "Gira la corona. Listo."),
+    },
 }
+WATCH_COPY = WATCH_COPY_BY_LOCALE["en"]
 WATCH_PALETTE = {
     "dashboard":     PALETTE["01-dashboard"],
     "recent":        PALETTE["02-transactions"],
@@ -331,11 +344,11 @@ def compose_watch(raw_path, out_path, copy, W=416, H=496):
     """Apple Watch slot. 416x496 is the Series 10/11 46mm size the capture
     script produces and an ASC-accepted one, so the canvas matches the source."""
     key = os.path.splitext(os.path.basename(raw_path))[0]
-    suffix = next((k for k in WATCH_COPY if key.endswith(k)), None)
+    suffix = next((k for k in copy if key.endswith(k)), None)
     if suffix is None:
         print(f"skip watch/{os.path.basename(raw_path)}: no copy for this screen")
         return
-    title, sub = WATCH_COPY[suffix]
+    title, sub = copy[suffix]
     pal = WATCH_PALETTE[suffix]
     img = background(W, H, pal)
     bottom = draw_copy(img, title, sub, int(H * 0.085), int(W * 0.105),
@@ -442,6 +455,9 @@ def main():
         ("mac-hi",       "mac-hi",       "hi", compose_mac),
         ("mac-es",       "mac-es",       "es", compose_mac),
         ("watch",        "watch",        "en", compose_watch),
+        ("watch-in",     "watch-in",     "en", compose_watch),
+        ("watch-hi",     "watch-hi",     "hi", compose_watch),
+        ("watch-es",     "watch-es",     "es", compose_watch),
     ]
 
     # One swift invocation for every string in the run.
@@ -452,10 +468,10 @@ def main():
         srcdir = os.path.join(RAW, src)
         if not os.path.isdir(srcdir):
             continue
-        if dst == "watch":
+        if dst.startswith("watch"):
             # Keyed by screen suffix; compose_watch resolves the filename itself.
-            tables[dst] = WATCH_COPY
-            for title, sub in WATCH_COPY.values():
+            tables[dst] = WATCH_COPY_BY_LOCALE[locale]
+            for title, sub in tables[dst].values():
                 specs += [(line, "bold", INK) for line in title.split("\n")]
                 specs.append((sub, "medium", MUTED))
             continue
@@ -485,7 +501,7 @@ def main():
             key = os.path.splitext(name)[0]
             if not name.endswith(".png"):
                 continue
-            if dst != "watch" and key not in table:
+            if not dst.startswith("watch") and key not in table:
                 # A raw capture with no headline copy — don't guess one.
                 print(f"skip {dst}/{name}: no copy for '{key}'")
                 continue
