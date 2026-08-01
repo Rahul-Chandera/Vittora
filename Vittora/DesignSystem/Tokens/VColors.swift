@@ -92,6 +92,19 @@ enum VColors {
     })
     #endif
 
+    /// Selected-row fill for the iPad/Mac split lists.
+    ///
+    /// Deliberately NOT the accent. `List(selection:)` tints the selected row
+    /// with the inherited accent, which put a solid brand-green bar under rows
+    /// whose content keeps its own semantic colours — a red expense amount on
+    /// brand green. Owner decision (2026-08-01): selection is neutral, so row
+    /// content stays readable whatever accent is chosen and whatever colour an
+    /// individual amount happens to be.
+    static var rowSelection: Color {
+        adaptive(light: (0.890, 0.890, 0.906),   // #E3E3E7
+                 dark: (0.173, 0.173, 0.180))    // #2C2C2E
+    }
+
     // Budget progress — reuse WCAG-AA semantic tokens (system green/red fail 4.5:1 as text)
     static let budgetSafe = income
 

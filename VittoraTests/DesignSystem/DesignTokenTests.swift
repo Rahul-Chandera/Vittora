@@ -83,6 +83,39 @@ struct DesignTokenTests {
                 "fill and label colour must stay distinct tokens")
     }
 
+    /// The accent fill is chosen to carry white content, so it is NOT safe to
+    /// read against a surface — that is what `primaryOnSurface` is for. CI's
+    /// OLED audit caught the purple fill at 3.35:1 on a dark card after the
+    /// TabView tint leaked into every Picker and Menu label. Assert the split
+    /// holds for every accent, in the direction that actually bit.
+    @Test("every accent's on-surface variant clears AA where the fill does not")
+    func accentOnSurfaceIsReadableOnCards() {
+        let darkCard = Color(red: 0.110, green: 0.110, blue: 0.118)   // #1C1C1E
+        let lightCard = Color(red: 0.949, green: 0.949, blue: 0.969)  // #F2F2F7
+        for accent in SettingsViewModel.AccentColor.allCases {
+            let onSurface = VColors.accentOnSurface(accent)
+            let best = max(contrast(onSurface, darkCard), contrast(onSurface, lightCard))
+            #expect(best >= 4.5,
+                    "\(accent) on-surface must clear 4.5:1 on the card it is meant for, got \(best)")
+        }
+    }
+
+    /// Owner decision (2026-08-01): row selection is neutral, not the accent.
+    /// The accent version put a red expense amount on a brand-green bar,
+    /// because `List(selection:)` tints the row while the content keeps its own
+    /// semantic colours. This asserts the two never converge again.
+    @Test("row selection is neutral, never the accent")
+    func rowSelectionIsNeutral() {
+        for accent in SettingsViewModel.AccentColor.allCases {
+            #expect(!isApprox(VColors.rowSelection, VColors.accent(accent)),
+                    "row selection must not be the \(accent) fill")
+        }
+        let c = rgba(VColors.rowSelection)
+        let spread = max(c.r, c.g, c.b) - min(c.r, c.g, c.b)
+        #expect(spread < 0.05,
+                "row selection should be a neutral grey, got r\(c.r) g\(c.g) b\(c.b)")
+    }
+
     @Test("brand green is the app icon colour #3FCFA4 (DEC-012)")
     func brandGreenMatchesAppIcon() {
         let expected = Color(red: 0.247059, green: 0.811765, blue: 0.643137)

@@ -40,7 +40,9 @@ DERIVED = os.environ.get("DERIVED", ".build-run")
 def watch_keys():
     pattern = os.path.join(
         ROOT, DERIVED, "Build", "Intermediates.noindex", "Vittora.build",
-        "*watchsimulator*", "VittoraWatch.build", "**", "*.stringsdata",
+        # Debug-watchos from `make build-ios` (the watch app is embedded), or
+        # Debug-watchsimulator from a simulator build. Match both.
+        "*watch*", "VittoraWatch.build", "**", "*.stringsdata",
     )
     files = glob.glob(pattern, recursive=True)
     if not files:
