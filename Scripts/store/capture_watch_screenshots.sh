@@ -6,13 +6,20 @@
 # seeds the phone app (which pushes a snapshot on activate), and only then
 # captures the watch. Running the watch simulator alone yields empty state.
 #
-# Usage: capture_watch_screenshots.sh   (uses the first active pair)
+# Usage: capture_watch_screenshots.sh [set-name] [locale] [apple-locale] [region]
+#   capture_watch_screenshots.sh                      (en, uses the first active pair)
+#   capture_watch_screenshots.sh watch-hi hi hi_IN IN
 set -euo pipefail
+
+SET_NAME="${1:-watch}"
+LOCALE="${2:-en}"
+APPLE_LOCALE="${3:-en_US}"
+REGION="${4:-US}"
 
 APP_ID="com.enerjiktech.vittora"
 WATCH_APP_ID="com.enerjiktech.vittora.watchkitapp"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUT="$ROOT/Docs/Store/screenshots/watch"
+OUT="$ROOT/Docs/Store/screenshots/$SET_NAME"
 DERIVED="${DERIVED_DIR:-$ROOT/.build/screenshots}"
 
 mkdir -p "$OUT"
@@ -46,36 +53,54 @@ xcrun simctl bootstatus "$PAIR_WATCH" -b
 PHONE_APP="$DERIVED/Build/Products/Debug-iphonesimulator/Vittora.app"
 WATCH_APP="$DERIVED/Build/Products/Debug-watchsimulator/VittoraWatch.app"
 
-if [ ! -d "$PHONE_APP" ]; then
-  echo "==> building iOS app"
-  xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme Vittora \
-    -destination "generic/platform=iOS Simulator" -derivedDataPath "$DERIVED" \
-    -configuration Debug build >/dev/null
-fi
-if [ ! -d "$WATCH_APP" ]; then
-  echo "==> building watchOS app"
-  xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme VittoraWatch \
-    -destination "generic/platform=watchOS Simulator" -derivedDataPath "$DERIVED" \
-    -configuration Debug build >/dev/null
-fi
+# Always build — a `[ ! -d "$APP" ]` guard here meant a re-capture after a
+# code change silently reused the previous binary. xcodebuild is incremental.
+echo "==> building iOS app"
+xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme Vittora \
+  -destination "generic/platform=iOS Simulator" -derivedDataPath "$DERIVED" \
+  -configuration Debug build >/dev/null
+echo "==> building watchOS app"
+xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme VittoraWatch \
+  -destination "generic/platform=watchOS Simulator" -derivedDataPath "$DERIVED" \
+  -configuration Debug build >/dev/null
 
 xcrun simctl install "$PAIR_PHONE" "$PHONE_APP"
 xcrun simctl install "$PAIR_WATCH" "$WATCH_APP"
 
 xcrun simctl status_bar "$PAIR_WATCH" override --time "9:41" 2>/dev/null || true
 
-# Phone first: seeding is async and the bridge pushes a post-seed snapshot.
+# One shot per screen. simctl can screenshot a watch but cannot tap it or open
+# a URL on it, so the app takes --ui-test-watch-screen to launch straight into
+# the screen we want. Without it the gallery could only ever show the
+# dashboard, which is why all three previous watch captures were identical.
+NAME=$(echo "$WATCH_NAME" | tr 'A-Z' 'a-z' | sed -E 's/apple_watch_//; s/[()]//g; s/_+/-/g')
+
+# Phone once. The snapshot travels over WCSession as an application context,
+# which the watch caches and replays on activation — so relaunching the watch
+# app keeps its data and the phone does not need restarting per screen.
 SIMCTL_CHILD_UITEST_DEMO_REGION="${REGION:-US}" \
 SIMCTL_CHILD_UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
-  xcrun simctl launch "$PAIR_PHONE" "$APP_ID" --uitesting --ui-test-seed-demo >/dev/null
+  xcrun simctl launch "$PAIR_PHONE" "$APP_ID" --uitesting --ui-test-seed-demo \
+    -AppleLanguages "($LOCALE)" -AppleLocale "$APPLE_LOCALE" >/dev/null
 sleep 20
 
-xcrun simctl launch "$PAIR_WATCH" "$WATCH_APP_ID" >/dev/null
-sleep 25   # WCSession activation + first snapshot delivery
-
-NAME=$(echo "$WATCH_NAME" | tr 'A-Z' 'a-z' | sed -E 's/apple_watch_//; s/[()]//g; s/_+/-/g')
-xcrun simctl io "$PAIR_WATCH" screenshot --type=png "$OUT/watch-$NAME-dashboard.png"
-echo "    watch-$NAME-dashboard.png"
+first=1
+for screen in dashboard recent quick-expense; do
+  # Terminate and let it settle before relaunching. `simctl launch` on a
+  # process that is still alive just foregrounds it and silently DISCARDS the
+  # new arguments, which is why every screen came out as the dashboard.
+  xcrun simctl terminate "$PAIR_WATCH" "$WATCH_APP_ID" 2>/dev/null || true
+  sleep 4
+  xcrun simctl launch "$PAIR_WATCH" "$WATCH_APP_ID" "--ui-test-watch-screen=$screen" \
+    -AppleLanguages "($LOCALE)" -AppleLocale "$APPLE_LOCALE" >/dev/null
+  # The first launch of a run also waits on the initial WCSession handshake,
+  # which is slower than the cached-context replay every later launch gets.
+  # An 18s wait caught the dashboard mid-handshake and captured
+  # "Waiting for iPhone…" instead of the data.
+  if [ "$first" = 1 ]; then sleep 30; first=0; else sleep 18; fi
+  xcrun simctl io "$PAIR_WATCH" screenshot --type=png "$OUT/watch-$NAME-$screen.png"
+  echo "    watch-$NAME-$screen.png"
+done
 
 xcrun simctl status_bar "$PAIR_WATCH" clear 2>/dev/null || true
 echo "==> raw watch capture in $OUT"

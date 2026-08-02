@@ -92,7 +92,7 @@ extension View {
                 Text(verbatim: "This text responds to the toggle")
                     .font(VTypography.body)
                     .if(isSelected) { view in
-                        AnyView(view.fontWeight(.bold).foregroundColor(VColors.primary))
+                        AnyView(view.fontWeight(.bold).foregroundStyle(VColors.primaryOnSurface))
                     }
                     .if(!isSelected) { view in
                         AnyView(view.foregroundColor(VColors.textSecondary))

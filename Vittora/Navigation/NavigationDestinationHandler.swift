@@ -4,6 +4,11 @@ import VittoraCore
 struct NavigationDestinationHandler: ViewModifier {
     func body(content: Content) -> some View {
         content
+            // The content tint now lives on the NavigationStack itself, in
+            // AppTabView.contentStack — see the note there. Setting it here
+            // reached the tab's root screen but not the screens pushed from it,
+            // because a pushed destination inherits the STACK's environment,
+            // not the environment of the view that declared the destination.
             .navigationDestination(for: NavigationDestination.self) { destination in
                 NavigationDestinationView(destination: destination)
             }

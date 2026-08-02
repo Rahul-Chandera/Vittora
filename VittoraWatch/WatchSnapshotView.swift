@@ -57,6 +57,7 @@ struct WatchSnapshotView: View {
         .sheet(isPresented: $isEnteringExpense) {
             WatchQuickExpenseView(store: store)
         }
+
     }
 
     private func labeledAmount(title: String, amount: Decimal, currencyCode: String) -> some View {

@@ -10,6 +10,7 @@
 # Usage: capture_mac_screenshots.sh [set-name] [locale] [apple-locale] [region]
 set -euo pipefail
 
+MAC_APP_ID="${MAC_APP_ID:-com.enerjiktech.vittora}"
 SET_NAME="${1:-mac}"
 LOCALE="${2:-en}"
 APPLE_LOCALE="${3:-en_US}"
@@ -22,12 +23,12 @@ APP="$DERIVED/Build/Products/Debug/Vittora.app"
 
 mkdir -p "$OUT"
 
-if [ ! -d "$APP" ]; then
-  echo "==> building macOS app"
-  xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme Vittora \
-    -destination "platform=macOS" -derivedDataPath "$DERIVED" \
-    -configuration Debug build >/dev/null
-fi
+# Always build — a `[ ! -d "$APP" ]` guard here meant a re-capture after a
+# code change silently reused the previous binary. xcodebuild is incremental.
+echo "==> building macOS app"
+xcodebuild -project "$ROOT/Vittora.xcodeproj" -scheme Vittora \
+  -destination "platform=macOS" -derivedDataPath "$DERIVED" \
+  -configuration Debug build >/dev/null
 
 # Window id for `screencapture -l`. No pyobjc on this machine, so ask
 # CoreGraphics directly through swift rather than adding a dependency.
@@ -84,15 +85,24 @@ for entry in "${SHOTS[@]}"; do
   route_arg=""
   [ "$url" != "-" ] && route_arg="--ui-test-open-url=$url"
 
-  # Only override the locale when it is not the default. Passing
-  # -AppleLanguages together with --ui-test-open-url leaves the app running with
-  # no window at all — reproducible, and neither argument does it alone. Not
-  # root-caused; avoided. The Mac listing is en-US only, so nothing is lost, but
-  # a localized Mac set would hit this.
-  locale_args=""
+  # Locale goes into the app's own defaults domain, NOT into the launch
+  # arguments. Passing -AppleLanguages alongside --ui-test-open-url leaves the
+  # app running with no window at all — reproducible, and neither argument does
+  # it alone. That is why the Mac set used to be en-US only. Writing the
+  # preference instead sidesteps the conflict, so the deep-linked slots
+  # (50/30/20 and Year in Review) survive a localized run.
   if [ "$LOCALE" != "en" ]; then
-    locale_args="-AppleLanguages ($LOCALE) -AppleLocale $APPLE_LOCALE"
+    defaults write "$MAC_APP_ID" AppleLanguages -array "$LOCALE" >/dev/null 2>&1 || true
+    defaults write "$MAC_APP_ID" AppleLocale -string "$APPLE_LOCALE" >/dev/null 2>&1 || true
+  else
+    defaults delete "$MAC_APP_ID" AppleLanguages >/dev/null 2>&1 || true
+    defaults delete "$MAC_APP_ID" AppleLocale >/dev/null 2>&1 || true
   fi
+
+  # Wide layout is list + detail; with no selection the detail pane is an empty
+  # placeholder filling half the window.
+  select_arg=""
+  [ "$name" = "02-transactions" ] && select_arg="--ui-test-select-first-transaction"
 
   pkill -x Vittora >/dev/null 2>&1 || true
   sleep 2
@@ -105,7 +115,7 @@ for entry in "${SHOTS[@]}"; do
     --env UITEST_INITIAL_TAB="$tab" \
     --env UITEST_DEMO_REGION="$REGION" \
     --env UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
-    -a "$APP" --args --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" $route_arg $locale_args
+    -a "$APP" --args --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" $route_arg $select_arg
 
   # Poll for the window rather than guessing a sleep: launch time varies a lot
   # between a plain tab and one that also resolves a deep link, and a fixed wait
@@ -130,4 +140,6 @@ done
 
 pkill -x Vittora >/dev/null 2>&1 || true
 rm -f "$WINDOW_ID_SWIFT"
+defaults delete "$MAC_APP_ID" AppleLanguages >/dev/null 2>&1 || true
+defaults delete "$MAC_APP_ID" AppleLocale >/dev/null 2>&1 || true
 echo "==> raw captures in $OUT"

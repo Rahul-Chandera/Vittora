@@ -307,7 +307,7 @@ struct TaxProfileFormView: View {
                                 if let section = deduction.section {
                                     Text(section)
                                         .font(VTypography.caption1)
-                                        .foregroundStyle(VColors.primary)
+                                        .foregroundStyle(VColors.primaryOnSurface)
                                 }
                             }
                             Spacer()

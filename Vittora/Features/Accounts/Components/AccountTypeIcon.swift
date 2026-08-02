@@ -8,13 +8,29 @@ struct AccountTypeIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(VColors.tertiaryBackground)
+                .fill(VColors.iconTintFill(tint))
                 .frame(width: size, height: size)
             Image(systemName: iconName)
                 .font(.system(size: size * 0.45, weight: .semibold))
-                .foregroundColor(.primary)
+                .foregroundStyle(VColors.iconTint(tint))
         }
+        // Decorative: every caller pairs this with the type's name, so the tint
+        // carries no meaning on its own and needs no contrast guarantee of its
+        // own. The tints clear AA anyway.
         .accessibilityHidden(true)
+    }
+
+    private var tint: VColors.IconTint {
+        switch type {
+        case .cash:          return .green
+        case .bank:          return .blue
+        case .creditCard:    return .red
+        case .loan:          return .orange
+        case .digitalWallet: return .indigo
+        case .investment:    return .purple
+        case .receivable:    return .teal
+        case .payable:       return .pink
+        }
     }
 
     private var iconName: String {

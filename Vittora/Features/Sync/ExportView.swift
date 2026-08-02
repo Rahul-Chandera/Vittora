@@ -96,7 +96,7 @@ struct ExportView: View {
                             Spacer()
                             if vm.selectedFormat == format {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(VColors.primary)
+                                    .foregroundStyle(VColors.primaryOnSurface)
                             }
                         }
                         .contentShape(Rectangle())
@@ -160,7 +160,7 @@ struct ExportView: View {
                     }
                 }
                 .disabled(vm.isExporting)
-                .foregroundStyle(VColors.primary)
+                .foregroundStyle(VColors.primaryOnSurface)
             }
 
             if let error = vm.error {

@@ -40,7 +40,7 @@ extension View {
                             Text("Back")
                                 .font(VTypography.body)
                         }
-                        .foregroundColor(VColors.primary)
+                        .foregroundStyle(VColors.primaryOnSurface)
                     }
                 }
             }

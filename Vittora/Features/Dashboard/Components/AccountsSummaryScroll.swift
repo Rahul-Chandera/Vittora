@@ -22,10 +22,10 @@ struct AccountsSummaryScroll: View {
                     if onManage != nil {
                         Text(String(localized: "Manage"))
                             .font(VTypography.caption1)
-                            .foregroundColor(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundColor(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                             .accessibilityHidden(true)
                     }
                 }
@@ -82,7 +82,7 @@ private struct AccountMiniCard: View {
                 HStack(spacing: VSpacing.sm) {
                     Image(systemName: account.icon)
                         .font(VTypography.caption1Bold)
-                        .foregroundColor(VColors.primary)
+                        .foregroundStyle(VColors.primaryOnSurface)
                         .frame(width: 28, height: 28)
                         .background(VColors.primary.opacity(0.12))
                         .clipShape(Circle())

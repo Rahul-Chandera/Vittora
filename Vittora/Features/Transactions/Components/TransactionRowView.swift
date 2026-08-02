@@ -62,7 +62,7 @@ struct TransactionRowView: View {
             if showSelection {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.body)
-                    .foregroundColor(isSelected ? VColors.primary : VColors.textTertiary)
+                    .foregroundColor(isSelected ? VColors.primaryOnSurface : VColors.textTertiary)
                     .accessibilityHidden(true)
             }
 
@@ -130,7 +130,11 @@ struct TransactionRowView: View {
         case .transfer:
             return VColors.transfer
         case .adjustment:
-            return VColors.primary
+            // On-surface, not the fill: this colours the amount TEXT and the
+            // type label on a card. The fill accent is solved to carry white
+            // content on top of it, and with the purple accent on the OLED
+            // card it measures 3.35:1 against the 4.5:1 body-text minimum.
+            return VColors.primaryOnSurface
         }
     }
 

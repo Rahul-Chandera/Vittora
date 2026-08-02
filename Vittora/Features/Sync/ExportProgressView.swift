@@ -65,7 +65,7 @@ struct ExportProgressView: View {
 
                         Image(systemName: "square.and.arrow.up.circle.fill")
                             .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                     }
 
                     VStack(alignment: .leading, spacing: VSpacing.xs) {

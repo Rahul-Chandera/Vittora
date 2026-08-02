@@ -16,7 +16,7 @@ struct GroupExpenseRowView: View {
                 .overlay {
                     Image(systemName: expense.isSettled ? "checkmark.circle.fill" : "dollarsign.circle.fill")
                         .font(.title3)
-                        .foregroundStyle(expense.isSettled ? VColors.income : VColors.primary)
+                        .foregroundStyle(expense.isSettled ? VColors.income : VColors.primaryOnSurface)
                 }
                 .accessibilityHidden(true)
 
