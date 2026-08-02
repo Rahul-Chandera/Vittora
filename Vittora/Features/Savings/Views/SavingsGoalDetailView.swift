@@ -162,7 +162,7 @@ struct SavingsGoalDetailView: View {
         HStack(spacing: VSpacing.md) {
             Image(systemName: days < 0 ? "exclamationmark.triangle.fill" : "calendar.badge.clock")
                 .font(.title2)
-                .foregroundStyle(days < 0 ? VColors.expense : VColors.primary)
+                .foregroundStyle(days < 0 ? VColors.expense : VColors.primaryOnSurface)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {

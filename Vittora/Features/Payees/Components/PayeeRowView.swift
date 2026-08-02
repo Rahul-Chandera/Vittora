@@ -12,7 +12,7 @@ struct PayeeRowView: View {
                     .frame(width: 40, height: 40)
                 Image(systemName: payee.type == .business ? "building.2.fill" : "person.fill")
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(payee.type == .business ? VColors.primary : VColors.income)
+                    .foregroundColor(payee.type == .business ? VColors.primaryOnSurface : VColors.income)
                     .accessibilityHidden(true)
             }
             .accessibilityHidden(true)

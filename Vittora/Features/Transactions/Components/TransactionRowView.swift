@@ -62,7 +62,7 @@ struct TransactionRowView: View {
             if showSelection {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.body)
-                    .foregroundColor(isSelected ? VColors.primary : VColors.textTertiary)
+                    .foregroundColor(isSelected ? VColors.primaryOnSurface : VColors.textTertiary)
                     .accessibilityHidden(true)
             }
 

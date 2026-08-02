@@ -78,7 +78,7 @@ struct PayeeDetailView: View {
                             .frame(width: 64, height: 64)
                         Image(systemName: payee.type == .business ? "building.2.fill" : "person.fill")
                             .font(.system(size: 28, weight: .semibold))
-                            .foregroundColor(payee.type == .business ? VColors.primary : VColors.income)
+                            .foregroundColor(payee.type == .business ? VColors.primaryOnSurface : VColors.income)
                     }
                     VStack(alignment: .leading, spacing: VSpacing.xxs) {
                         Text(payee.name)
