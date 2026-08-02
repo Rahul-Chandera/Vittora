@@ -340,10 +340,17 @@ def watch_device(shot, screen_w):
     return canvas, margin
 
 
-def compose_watch(raw_path, out_path, copy, W=416, H=496):
-    """Apple Watch slot. 416x496 is the Series 10/11 46mm size the capture
-    script produces and an ASC-accepted one, so the canvas matches the source."""
+def compose_watch(raw_path, out_path, copy, W=None, H=None):
+    """Apple Watch slot.
+
+    The canvas is taken from the capture rather than hardcoded. App Store
+    Connect has a slot per watch size and they are not interchangeable —
+    Ultra 3 is 422x514, the Series 46mm 416x496 — so pinning one size here
+    silently produced artwork the Ultra slot rejects."""
     key = os.path.splitext(os.path.basename(raw_path))[0]
+    if W is None or H is None:
+        with Image.open(raw_path) as probe:
+            W, H = probe.size
     suffix = next((k for k in copy if key.endswith(k)), None)
     if suffix is None:
         print(f"skip watch/{os.path.basename(raw_path)}: no copy for this screen")
