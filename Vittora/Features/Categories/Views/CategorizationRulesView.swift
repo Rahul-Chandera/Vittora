@@ -91,7 +91,7 @@ struct CategorizationRulesView: View {
                     .foregroundStyle(VColors.textPrimary)
                 HStack(spacing: VSpacing.xs) {
                     Image(systemName: rule.categoryIcon)
-                        .foregroundStyle(Color(hex: rule.categoryColorHex) ?? VColors.primary)
+                        .foregroundStyle(Color(hex: rule.categoryColorHex) ?? VColors.primaryOnSurface)
                     Text(rule.categoryName)
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textSecondary)

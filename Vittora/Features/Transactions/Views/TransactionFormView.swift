@@ -117,7 +117,7 @@ struct TransactionFormView: View {
                             }
                         } label: {
                             Text(String(localized: "Save"))
-                                .foregroundColor(vm.canSave ? VColors.primary : VColors.textTertiary)
+                                .foregroundColor(vm.canSave ? VColors.primaryOnSurface : VColors.textTertiary)
                         }
                         .disabled(!vm.canSave)
                         .keyboardShortcut(.defaultAction)
