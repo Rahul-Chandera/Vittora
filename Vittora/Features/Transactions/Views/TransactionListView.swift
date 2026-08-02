@@ -45,6 +45,13 @@ struct TransactionListView: View {
                 vm = createViewModel()
                 await vm?.loadTransactions()
             }
+            selectFirstTransactionForCaptureIfNeeded()
+        }
+        // Seeding is async: the first load usually returns an empty list and
+        // the rows arrive afterwards, so selecting only in the initial task
+        // left the detail pane on its "Select a Transaction" placeholder.
+        .onChange(of: vm?.groupedTransactions.count ?? 0) { _, _ in
+            selectFirstTransactionForCaptureIfNeeded()
         }
         .task(id: appState.refreshVersion(for: .transactions)) {
             guard vm != nil, appState.refreshVersion(for: .transactions) > 0 else { return }
@@ -112,6 +119,23 @@ struct TransactionListView: View {
         } else {
             compactListView(vm)
         }
+    }
+
+    /// Screenshot support: preselect the first row so the split detail pane has
+    /// something in it.
+    ///
+    /// On iPad and Mac this screen is a list plus a detail pane, and with no
+    /// selection the pane is an empty placeholder — which is half of a wide
+    /// screenshot showing nothing. `--ui-test-open-transaction` cannot help
+    /// here because it needs a UUID from the seeded data, which the capture
+    /// script has no way to know. Guarded by the launch argument, so normal
+    /// launches still open with no selection.
+    private func selectFirstTransactionForCaptureIfNeeded() {
+        guard selectedTransactionID == nil,
+              ProcessInfo.processInfo.arguments.contains("--ui-test-select-first-transaction"),
+              let first = vm?.groupedTransactions.first?.transactions.first
+        else { return }
+        selectedTransactionID = first.id
     }
 
     @ViewBuilder
