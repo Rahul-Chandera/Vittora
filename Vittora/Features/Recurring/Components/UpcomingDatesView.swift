@@ -31,7 +31,7 @@ struct UpcomingDatesView: View {
                     HStack(spacing: VSpacing.md) {
                         Image(systemName: "calendar")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(VColors.primary)
+                            .foregroundStyle(VColors.primaryOnSurface)
                             .frame(width: 24, height: 24)
 
                         VStack(alignment: .leading, spacing: VSpacing.xxs) {

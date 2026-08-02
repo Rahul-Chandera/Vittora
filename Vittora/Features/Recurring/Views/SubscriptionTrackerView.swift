@@ -48,7 +48,7 @@ struct SubscriptionTrackerView: View {
 
                                         Text("\(costSummary.ruleCount)")
                                             .font(VTypography.title3)
-                                            .foregroundColor(VColors.primary)
+                                            .foregroundStyle(VColors.primaryOnSurface)
                                     }
                                 }
                             }

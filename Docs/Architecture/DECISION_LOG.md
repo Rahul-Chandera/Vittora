@@ -104,3 +104,42 @@ Lightweight ADR-style history for major architectural decisions.
 - Revenue expectation reset: at 30K Y1 downloads, benchmark-median execution ≈ $25–40K; strong execution with tax-season spikes ≈ $50–80K. The old plan's "$150K conservative" was the optimistic case.
 - Build impact (deferred until trigger): F1 StoreKit 2 products (annual+intro offer, monthly, lifetime non-consumable), F2 paywall UI (`SubscriptionStoreView` + value-event presentation), F3 entitlement gating at the gates listed above (flip `MonetizationConfiguration.isStoreKitEnabled`), F4 restore/receipt/Family Sharing, F6 subscription legal (terms, auto-renew disclosures, privacy-policy update). Nothing StoreKit-related exists in the codebase today, by design.
 - Revisit: pricing/gates after first 90 days of paid data; Stage-2 household tier only if data shows a distinct audience.
+
+## DEC-012: Brand green is #3FCFA4 with white content, accepting a WCAG AA miss
+
+**Date:** 2026-08-01 · **Decided by:** Rahul (owner) · **Status:** accepted
+
+**Decision.** `VColors.accent(.brandGreen)` is `#3FCFA4` — the app icon colour —
+in every role: button fills, the FAB, onboarding hero icons, selected tab, and
+accent foregrounds. Content on that fill is **white**.
+
+**What this costs.** White on `#3FCFA4` measures **1.97:1**. WCAG AA asks 4.5:1
+for text and 3:1 for large text, so this misses both. It is not a borderline
+call and no font size rescues it.
+
+**Why it was accepted.** Brand consistency was judged more important than the
+contrast ratio on this one pairing. The alternatives were each rejected by the
+owner after being shown side by side:
+
+| option | result |
+|---|---|
+| `#3FCFA4` + dark label | 10.67:1, compliant — rejected, label read wrong |
+| `#1F7D61` + white label | 5.04:1, compliant — rejected, green too dark |
+| `#3FCFA4` + white label | 1.97:1 — **chosen** |
+
+**Scope of the exception.** Only the contrast pairing of white-on-brand-green.
+The audit gate is not disabled: `AccessibilityAuditUITests` still runs every
+category on every screen, and the exclusion is written narrowly against this
+pairing. Every other contrast rule, hit-target rule, Dynamic Type rule and
+VoiceOver rule stays enforced.
+
+**Relationship to house rule 9.** Rule 9 says a failing check is fixed by
+changing the code under test, never the audit configuration. This is a
+deliberate, recorded exception to that rule made by the owner — not an agent
+working around a red test. It is written here so the next person to read the
+audit exclusion finds the reasoning rather than guessing.
+
+**To revisit:** if the app is ever assessed against WCAG externally, or if
+customer feedback reports the labels as hard to read, reopen this and take the
+`#1F7D61` + white option, which keeps white labels and clears AA at 5.04:1.
+

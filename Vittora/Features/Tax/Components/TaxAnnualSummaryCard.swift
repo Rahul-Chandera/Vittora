@@ -30,7 +30,7 @@ struct TaxAnnualSummaryCard: View {
                     .foregroundStyle(VColors.textSecondary)
                 Text(summary.financialYear)
                     .font(VTypography.caption1)
-                    .foregroundStyle(VColors.primary)
+                    .foregroundStyle(VColors.primaryOnSurface)
                 Text(dateRangeLabel)
                     .font(VTypography.caption2)
                     .foregroundStyle(VColors.textTertiary)
@@ -38,7 +38,7 @@ struct TaxAnnualSummaryCard: View {
             Spacer()
             Image(systemName: "doc.text.magnifyingglass")
                 .font(.title3)
-                .foregroundStyle(VColors.primary)
+                .foregroundStyle(VColors.primaryOnSurface)
         }
     }
 

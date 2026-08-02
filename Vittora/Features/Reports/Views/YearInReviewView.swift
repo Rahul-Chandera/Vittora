@@ -195,7 +195,7 @@ struct YearInReviewView: View {
                             x: .value(String(localized: "Month"), point.monthStart, unit: .month),
                             y: .value(String(localized: "Spent"), point.amount)
                         )
-                        .foregroundStyle(VColors.primary)
+                        .foregroundStyle(VColors.primaryOnSurface)
                         .accessibilityLabel(
                             String(
                                 localized: "\(point.monthStart.formatted(.dateTime.month(.wide))) spending"
@@ -439,7 +439,7 @@ struct YearInReviewView: View {
         VStack(spacing: VSpacing.md) {
             Image(systemName: "sparkles")
                 .font(VTypography.title1)
-                .foregroundStyle(VColors.primary)
+                .foregroundStyle(VColors.primaryOnSurface)
                 .accessibilityHidden(true)
             Text(String(localized: "Your Year in Review is almost ready"))
                 .font(VTypography.title3)
@@ -459,7 +459,7 @@ struct YearInReviewView: View {
         VStack(spacing: VSpacing.md) {
             Image(systemName: "calendar")
                 .font(VTypography.title1)
-                .foregroundStyle(VColors.primary)
+                .foregroundStyle(VColors.primaryOnSurface)
                 .accessibilityHidden(true)
             Text(String(localized: "No activity this year"))
                 .font(VTypography.title3)

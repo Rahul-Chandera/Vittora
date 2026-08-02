@@ -88,7 +88,7 @@ private struct PrivacyShieldOverlay: View {
             VStack(spacing: VSpacing.md) {
                 Image(systemName: "lock.shield.fill")
                     .font(.system(size: 36, weight: .semibold))
-                    .foregroundStyle(VColors.primary)
+                    .foregroundStyle(VColors.primaryOnSurface)
                     .accessibilityHidden(true)
 
                 Text(String(localized: "Private data hidden"))

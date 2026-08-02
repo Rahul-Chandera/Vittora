@@ -19,7 +19,7 @@ struct PeriodSelectorView: View {
                 Button(action: { selectedPeriod = period }) {
                     Text(period.displayName)
                         .font(VTypography.caption1)
-                        .foregroundColor(selectedPeriod == period ? VColors.primary : VColors.textSecondary)
+                        .foregroundColor(selectedPeriod == period ? VColors.primaryOnSurface : VColors.textSecondary)
                         .frame(maxWidth: .infinity)
                         .padding(VSpacing.sm)
                         .background(selectedPeriod == period ? VColors.primary.opacity(0.1) : VColors.tertiaryBackground)

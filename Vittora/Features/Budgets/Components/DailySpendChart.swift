@@ -76,7 +76,7 @@ struct DailySpendChart: View {
             HStack(spacing: VSpacing.lg) {
                 HStack(spacing: VSpacing.xs) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(VColors.budgetSafe)
+                        .fill(VColors.budgetSafeFill)
                         .frame(width: 8, height: 8)
                         .accessibilityHidden(true)
                     Text(String(localized: "Daily Spend"))

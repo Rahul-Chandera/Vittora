@@ -134,7 +134,7 @@ struct VProgressBar: View {
     private var progressGradient: LinearGradient {
         if progress < 0.75 {
             return LinearGradient(
-                gradient: Gradient(colors: [VColors.budgetSafe, VColors.budgetSafe.opacity(0.8)]),
+                gradient: Gradient(colors: [VColors.budgetSafeFill, VColors.budgetSafeFill.opacity(0.8)]),
                 startPoint: .leading,
                 endPoint: .trailing
             )

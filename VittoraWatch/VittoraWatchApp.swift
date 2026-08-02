@@ -11,7 +11,21 @@ struct VittoraWatchApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                WatchSnapshotView(store: snapshotStore)
+                // Normally the dashboard. The other cases exist so the App
+                // Store gallery script can reach the entry and recent screens:
+                // simctl can screenshot a watch simulator but cannot tap it or
+                // open a URL on it, so every watch capture was otherwise the
+                // same dashboard. Rendering the requested screen as the root
+                // rather than navigating to it keeps the capture deterministic
+                // and leaves no half-animated push in the shot.
+                switch WatchInitialScreen.fromLaunchArguments {
+                case .dashboard:
+                    WatchSnapshotView(store: snapshotStore)
+                case .recent:
+                    WatchRecentTransactionsView(store: snapshotStore)
+                case .quickExpense:
+                    WatchQuickExpenseView(store: snapshotStore)
+                }
             }
             .overlay {
                 if let alert = snapshotStore.budgetAlert {

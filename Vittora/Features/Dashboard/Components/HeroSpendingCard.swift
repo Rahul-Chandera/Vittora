@@ -119,7 +119,7 @@ struct HeroSpendingCard: View {
                         .frame(height: 6)
 
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
-                        .fill(rate >= 0.2 ? VColors.income : VColors.warning)
+                        .fill(rate >= 0.2 ? VColors.budgetSafeFill : VColors.warning)
                         .frame(width: geometry.size.width * CGFloat(rate), height: 6)
                         .animation(reduceMotion ? .none : .easeOut(duration: VSpacing.animationStandard), value: rate)
                 }

@@ -88,7 +88,7 @@ extension View {
         VCard(backgroundColor: VColors.tertiaryBackground) {
             HStack(spacing: VSpacing.md) {
                 Image(systemName: VIcons.Actions.search)
-                    .foregroundColor(VColors.primary)
+                    .foregroundStyle(VColors.primaryOnSurface)
                 Text(verbatim: "Searchable card")
                     .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)

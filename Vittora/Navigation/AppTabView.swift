@@ -40,7 +40,7 @@ struct AppTabView: View {
                 Tab(AppState.AppTab.dashboard.title,
                     systemImage: AppState.AppTab.dashboard.systemImage,
                     value: AppState.AppTab.dashboard) {
-                    NavigationStack {
+                    contentStack {
                         DashboardView()
                             .withNavigationDestinations()
                     }
@@ -53,7 +53,7 @@ struct AppTabView: View {
                 Tab(AppState.AppTab.transactions.title,
                     systemImage: AppState.AppTab.transactions.systemImage,
                     value: AppState.AppTab.transactions) {
-                    NavigationStack {
+                    contentStack {
                         TransactionListView()
                             .withNavigationDestinations()
                     }
@@ -61,7 +61,7 @@ struct AppTabView: View {
                 Tab(AppState.AppTab.budgets.title,
                     systemImage: AppState.AppTab.budgets.systemImage,
                     value: AppState.AppTab.budgets) {
-                    NavigationStack {
+                    contentStack {
                         BudgetListView()
                             .withNavigationDestinations()
                     }
@@ -69,7 +69,7 @@ struct AppTabView: View {
                 Tab(AppState.AppTab.savings.title,
                     systemImage: AppState.AppTab.savings.systemImage,
                     value: AppState.AppTab.savings) {
-                    NavigationStack {
+                    contentStack {
                         SavingsGoalListView()
                             .withNavigationDestinations()
                     }
@@ -82,7 +82,7 @@ struct AppTabView: View {
                 Tab(AppState.AppTab.reports.title,
                     systemImage: AppState.AppTab.reports.systemImage,
                     value: AppState.AppTab.reports) {
-                    NavigationStack {
+                    contentStack {
                         ReportsHomeView()
                             .withNavigationDestinations()
                     }
@@ -90,7 +90,7 @@ struct AppTabView: View {
                 Tab(AppState.AppTab.tax.title,
                     systemImage: AppState.AppTab.tax.systemImage,
                     value: AppState.AppTab.tax) {
-                    NavigationStack {
+                    contentStack {
                         TaxDashboardView()
                             .withNavigationDestinations()
                     }
@@ -103,7 +103,7 @@ struct AppTabView: View {
                 Tab(AppState.AppTab.debt.title,
                     systemImage: AppState.AppTab.debt.systemImage,
                     value: AppState.AppTab.debt) {
-                    NavigationStack {
+                    contentStack {
                         DebtLedgerView()
                             .withNavigationDestinations()
                     }
@@ -111,7 +111,7 @@ struct AppTabView: View {
                 Tab(AppState.AppTab.splits.title,
                     systemImage: AppState.AppTab.splits.systemImage,
                     value: AppState.AppTab.splits) {
-                    NavigationStack {
+                    contentStack {
                         SplitGroupListView()
                             .withNavigationDestinations()
                     }
@@ -128,7 +128,7 @@ struct AppTabView: View {
                 Tab(AppState.AppTab.settings.title,
                     systemImage: AppState.AppTab.settings.systemImage,
                     value: AppState.AppTab.settings) {
-                    NavigationStack {
+                    contentStack {
                         SettingsView()
                             .withNavigationDestinations()
                     }
@@ -142,12 +142,34 @@ struct AppTabView: View {
 
     // MARK: - Compact width (iPhone): 4 primary tabs + a self-owned More hub
 
+    /// A tab's root stack, tinted for content.
+    ///
+    /// The tint has to sit on the NavigationStack, not on the view inside it.
+    /// Pushed destinations are rendered by the stack and inherit ITS
+    /// environment, so a tint applied to the content — which is what the first
+    /// version of this fix did — reached the tab's root screen but never the
+    /// screens pushed from it. CI caught the gap on Monthly Overview, whose
+    /// year Picker was still drawing in the accent FILL colour: purple on the
+    /// dark card measures 3.35:1, under the 4.5:1 body-text minimum.
+    ///
+    /// The TabView keeps its own `.tint(VColors.primary)` so the selected tab
+    /// still matches the accent swatch the user picked.
+    @ViewBuilder
+    private func contentStack<Content: View>(
+        @ViewBuilder _ content: () -> Content
+    ) -> some View {
+        NavigationStack {
+            content()
+        }
+        .tint(VColors.primaryOnSurface)
+    }
+
     private var compactTabView: some View {
         TabView(selection: compactSelection) {
             Tab(AppState.AppTab.dashboard.title,
                 systemImage: AppState.AppTab.dashboard.systemImage,
                 value: AppState.AppTab.dashboard) {
-                NavigationStack {
+                contentStack {
                     DashboardView()
                         .withNavigationDestinations()
                 }
@@ -155,7 +177,7 @@ struct AppTabView: View {
             Tab(AppState.AppTab.transactions.title,
                 systemImage: AppState.AppTab.transactions.systemImage,
                 value: AppState.AppTab.transactions) {
-                NavigationStack {
+                contentStack {
                     TransactionListView()
                         .withNavigationDestinations()
                 }
@@ -163,7 +185,7 @@ struct AppTabView: View {
             Tab(AppState.AppTab.budgets.title,
                 systemImage: AppState.AppTab.budgets.systemImage,
                 value: AppState.AppTab.budgets) {
-                NavigationStack {
+                contentStack {
                     BudgetListView()
                         .withNavigationDestinations()
                 }
@@ -171,7 +193,7 @@ struct AppTabView: View {
             Tab(AppState.AppTab.reports.title,
                 systemImage: AppState.AppTab.reports.systemImage,
                 value: AppState.AppTab.reports) {
-                NavigationStack {
+                contentStack {
                     ReportsHomeView()
                         .withNavigationDestinations()
                 }
@@ -179,13 +201,21 @@ struct AppTabView: View {
             Tab(String(localized: "More"),
                 systemImage: "ellipsis",
                 value: AppState.AppTab.settings) {
-                NavigationStack {
+                contentStack {
                     MoreHubView()
                         .withNavigationDestinations()
                 }
             }
         }
-        .tint(.primary)
+        // Selected tab follows the user's accent theme.
+        //
+        // The brand accent itself (DEC-012), so the selected tab matches the
+        // swatch the user picked rather than a darker cousin of it. Tab labels
+        // are already excluded from the contrast audit — XCTest samples the
+        // liquid-glass highlight rather than the bar material.
+        //
+        // Swap to `.tint(.blue)` for the system-default look.
+        .tint(VColors.primary)
         .toolbarBackground(VColors.background, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
     }
@@ -215,13 +245,30 @@ private struct MoreHubView: View {
     private static let destinations: [AppState.AppTab] =
         [.savings, .tax, .debt, .splits, .settings]
 
+    /// Icon hue per destination. Decorative — the row's label carries the meaning.
+    private static func tint(for tab: AppState.AppTab) -> VColors.IconTint {
+        switch tab {
+        case .savings:  return .green
+        case .tax:      return .teal
+        case .debt:     return .orange
+        case .splits:   return .purple
+        case .settings: return .blue
+        default:        return .blue
+        }
+    }
+
     var body: some View {
         List {
             ForEach(Self.destinations) { tab in
                 NavigationLink {
                     destinationView(for: tab)
                 } label: {
-                    Label(tab.title, systemImage: tab.systemImage)
+                    Label {
+                        Text(tab.title)
+                    } icon: {
+                        Image(systemName: tab.systemImage)
+                            .foregroundStyle(VColors.iconTint(Self.tint(for: tab)))
+                    }
                 }
             }
         }

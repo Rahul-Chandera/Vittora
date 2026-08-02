@@ -28,7 +28,7 @@ struct AppLockView: View {
                 VStack(spacing: VSpacing.lg) {
                     Image(systemName: "lock.fill")
                         .font(.system(size: 64, weight: .light))
-                        .foregroundStyle(VColors.primary)
+                        .foregroundStyle(VColors.primaryOnSurface)
 
                     Text(String(localized: "Vittora is Locked"))
                         .font(VTypography.title2)
