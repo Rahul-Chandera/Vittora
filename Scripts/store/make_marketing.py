@@ -446,6 +446,12 @@ def main():
         ("iphone-69-in", "iphone-69-in", "en", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
         ("iphone-69-hi", "iphone-69-hi", "hi", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
         ("iphone-69-es", "iphone-69-es", "es", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
+        # 6.5" counterparts. Apple keeps a separate 6.5" slot that will not
+        # accept the 6.9" canvas, and it is per-localization — the English
+        # iphone-65 set alone does not cover the hi/es/en-IN listings.
+        ("iphone-69-in", "iphone-65-in", "en", lambda r, o, c: compose_phone(r, o, c, 1284, 2778)),
+        ("iphone-69-hi", "iphone-65-hi", "hi", lambda r, o, c: compose_phone(r, o, c, 1284, 2778)),
+        ("iphone-69-es", "iphone-65-es", "es", lambda r, o, c: compose_phone(r, o, c, 1284, 2778)),
         ("ipad-13",      "ipad-13",      "en", compose_pad),
         ("ipad-13-in",   "ipad-13-in",   "en", compose_pad),
         ("ipad-13-hi",   "ipad-13-hi",   "hi", compose_pad),
