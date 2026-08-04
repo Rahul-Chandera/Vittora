@@ -211,7 +211,10 @@ struct SettingsView: View {
             .headerProminence(.increased)
         }
         .safeAreaInset(edge: .bottom) {
-            VColors.background
+            // Clearance for the floating tab bar, painted in THIS screen's page
+            // colour. It was VColors.background (white) on a grouped-background
+            // screen, which rendered as a white band above the tab bar.
+            VColors.groupedBackground
                 .frame(height: 72)
                 .allowsHitTesting(false)
         }

@@ -428,7 +428,7 @@ struct TransactionListView: View {
             action: { navigateDestination = .addTransaction }
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .accessibilityIdentifier("transaction-empty-state")
     }
 

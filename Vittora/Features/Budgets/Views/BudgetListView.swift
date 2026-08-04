@@ -15,9 +15,18 @@ struct BudgetListView: View {
                 VEmptyState(
                     icon: "target",
                     title: String(localized: "No Budgets Yet"),
-                    subtitle: String(localized: "Create your first budget to track spending")
+                    subtitle: String(localized: "Create your first budget to track spending"),
+                    // Centred action, matching Transactions, Debt, Splits and
+                    // Recurring. Without it this screen's only way in was the
+                    // small "+" in the corner.
+                    actionLabel: String(localized: "Create Budget"),
+                    action: { showAddBudget = true }
                 )
                 .accessibilityIdentifier("budget-empty-state")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // The empty branch renders outside the List, so it does not
+                // inherit the grouped page colour the populated state has.
+                .background(VColors.groupedBackground)
             } else {
                 List {
                     // Overview card

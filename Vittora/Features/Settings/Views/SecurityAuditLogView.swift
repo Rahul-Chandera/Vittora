@@ -47,6 +47,8 @@ struct SecurityAuditLogView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
+            // Clearance for the floating tab bar, painted in THIS screen's page
+            // colour — plain background, because this screen is not grouped.
             VColors.background
                 .frame(height: 72)
                 .allowsHitTesting(false)

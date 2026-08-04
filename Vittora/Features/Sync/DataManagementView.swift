@@ -223,7 +223,11 @@ struct DataManagementView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            VColors.background
+            // Clearance for the floating tab bar, painted in THIS screen's page
+            // colour. It must match the page: white here showed as a band on
+            // grouped screens, and Color.clear removes the mask that keeps
+            // list content from showing through under the bar.
+            VColors.groupedBackground
                 .frame(height: 72)
                 .allowsHitTesting(false)
         }
