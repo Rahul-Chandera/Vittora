@@ -16,7 +16,7 @@ struct ProfileSettingsView: View {
                     .textContentType(.name)
                     #endif
             } header: {
-                Text(String(localized: "Display Name"))
+                VFormSectionHeader(String(localized: "Display Name"))
                     .foregroundStyle(VColors.textPrimary)
             }
         }
@@ -64,7 +64,7 @@ struct CurrencySettingsView: View {
                     )
                 }
             } header: {
-                Text(String(localized: "Select Currency"))
+                VFormSectionHeader(String(localized: "Select Currency"))
                     .foregroundStyle(VColors.textPrimary)
             }
         }
@@ -177,10 +177,14 @@ struct AppearanceSettingsView: View {
                             .foregroundStyle(previewTextPrimary)
                     }
 
+                    // Decorative: this bar exists to show what the accent looks
+                    // like, and the row above already reads "Monthly overview,
+                    // 72%". Exposing it as its own element made a 4pt-tall
+                    // accessibility target, which the audit flags as too small
+                    // to interact with.
                     ProgressView(value: 0.72)
                         .tint(previewAccent)
-                        .accessibilityLabel(String(localized: "Preview progress"))
-                        .accessibilityValue(Text(verbatim: "72%"))
+                        .accessibilityHidden(true)
 
                     Text(String(localized: "See how text, surfaces, and your accent work together."))
                         .font(VTypography.body)
@@ -351,7 +355,7 @@ struct SecuritySettingsView: View {
                         )
                     }
                 } header: {
-                    Text(String(localized: "Lock After"))
+                    VFormSectionHeader(String(localized: "Lock After"))
                 } footer: {
                     Text(String(localized: "Require authentication again after the app has been in the background for this long."))
                         .foregroundStyle(VColors.textSecondary)

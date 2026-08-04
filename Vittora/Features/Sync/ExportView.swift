@@ -124,7 +124,7 @@ struct ExportView: View {
                     )
                 }
             } header: {
-                Text(String(localized: "Date Range"))
+                VFormSectionHeader(String(localized: "Date Range"))
             } footer: {
                 Text(vm.useCustomDateRange
                      ? String(localized: "Only transactions within this range will be exported.")

@@ -160,7 +160,7 @@ struct DataManagementView: View {
                     }
                 }
             } header: {
-                Text(String(localized: "Export"))
+                VFormSectionHeader(String(localized: "Export"))
             } footer: {
                 if exportSchedule != .off {
                     Text(String(localized: "Vittora will generate and share a CSV export \(exportSchedule.displayName.lowercased())."))

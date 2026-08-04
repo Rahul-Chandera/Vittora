@@ -163,7 +163,7 @@ struct TaxProfileFormView: View {
                             }
                         ))
                     } header: {
-                        Text(String(localized: "Age (for senior citizen slabs)"))
+                        VFormSectionHeader(String(localized: "Age (for senior citizen slabs)"))
                     } footer: {
                         Text(String(localized: "Senior citizens (60+) and super-senior citizens (80+) have higher basic exemption limits under the old regime."))
                     }
@@ -204,7 +204,7 @@ struct TaxProfileFormView: View {
                             }
                         ))
                     } header: {
-                        Text(String(localized: "HRA Exemption"))
+                        VFormSectionHeader(String(localized: "HRA Exemption"))
                     } footer: {
                         Text(String(localized: "HRA exemption uses the minimum of actual HRA, rent minus 10% of salary, and 50%/40% of salary."))
                     }
@@ -218,7 +218,7 @@ struct TaxProfileFormView: View {
                     }
                     .onChange(of: vm.filingStatus) { _, _ in vm.recalculateLive() }
                 } header: {
-                    Text(String(localized: "Filing Status"))
+                    VFormSectionHeader(String(localized: "Filing Status"))
                 } footer: {
                     if vm.filingStatus == .qualifyingSurvivingSpouse {
                         Text(
@@ -262,7 +262,7 @@ struct TaxProfileFormView: View {
                     }
                     .accessibilityElement(children: .combine)
                 } header: {
-                    Text(String(localized: "Retirement & HSA Contributions"))
+                    VFormSectionHeader(String(localized: "Retirement & HSA Contributions"))
                 } footer: {
                     Text(String(localized: "Track year-to-date contributions to see remaining statutory headroom in your estimate."))
                         .foregroundStyle(VColors.textSecondary)
@@ -280,8 +280,13 @@ struct TaxProfileFormView: View {
                                     )
                                     .font(VTypography.caption1.bold())
                                 }
+                                // Decorative: the amounts above and the
+                                // "N remaining" line below already carry this
+                                // value. As its own element it is a 4pt-tall
+                                // interaction target.
                                 ProgressView(value: item.utilizationFraction)
                                     .tint(item.headroom > 0 ? VColors.primary : VColors.warning)
+                                    .accessibilityHidden(true)
                                 Text(
                                     String(
                                         localized: "\(item.headroom.formatted(.currency(code: vm.country.currencyCode))) remaining"
@@ -318,7 +323,7 @@ struct TaxProfileFormView: View {
                     }
                     .onDelete { offsets in vm.removeDeduction(at: offsets) }
                 } header: {
-                    Text(String(localized: "Deductions"))
+                    VFormSectionHeader(String(localized: "Deductions"))
                 } footer: {
                     AddDeductionFooter(country: vm.country, onAdd: { name, amount, section in
                         vm.addDeduction(name: name, amount: amount, section: section)
@@ -336,8 +341,11 @@ struct TaxProfileFormView: View {
                                 )
                                 .font(VTypography.bodyBold)
                             }
+                            // Same as above: the allowed / cap amounts are
+                            // stated in the row directly above this bar.
                             ProgressView(value: Double(truncating: (utilization.allowed / utilization.statutoryCap) as NSDecimalNumber))
                                 .tint(VColors.primary)
+                                .accessibilityHidden(true)
                             if utilization.claimed > utilization.allowed {
                                 Text(String(localized: "Claims above ₹1.5 lakh are capped for tax calculation."))
                                     .font(VTypography.caption1)

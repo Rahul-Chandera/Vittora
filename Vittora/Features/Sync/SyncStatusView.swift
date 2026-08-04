@@ -99,7 +99,7 @@ struct SyncDetailView: View {
                         .foregroundStyle(VColors.textPrimary)
                 }
             } header: {
-                Text(String(localized: "Status"))
+                VFormSectionHeader(String(localized: "Status"))
             }
             .headerProminence(.increased)
 
@@ -113,7 +113,7 @@ struct SyncDetailView: View {
                             .foregroundStyle(VColors.textPrimary)
                     }
                 } header: {
-                    Text(String(localized: "Error"))
+                    VFormSectionHeader(String(localized: "Error"))
                 }
                 .headerProminence(.increased)
             }
@@ -132,7 +132,7 @@ struct SyncDetailView: View {
                 }
                 .padding(.vertical, 2)
             } header: {
-                Text(String(localized: "Conflict Handling"))
+                VFormSectionHeader(String(localized: "Conflict Handling"))
             }
             .headerProminence(.increased)
 
@@ -177,7 +177,7 @@ struct SyncDetailView: View {
                 Text(String(localized: "The current CloudKit integration logs timestamps and outcomes for automatic resolutions. More detailed record snapshots can be added later without changing this review flow."))
                     .foregroundStyle(VColors.textPrimary)
             } header: {
-                Text(String(localized: "Conflict Review"))
+                VFormSectionHeader(String(localized: "Conflict Review"))
             }
             .headerProminence(.increased)
 
@@ -196,7 +196,7 @@ struct SyncDetailView: View {
                 }
                 .disabled(isReconciling)
             } header: {
-                Text(String(localized: "Balance Reconciliation"))
+                VFormSectionHeader(String(localized: "Balance Reconciliation"))
             } footer: {
                 Text(String(localized: "Recomputes each account's balance from its opening balance and transaction history, then repairs any drift. Accounts that use transfers are skipped for now."))
                     .foregroundStyle(VColors.textSecondary)
@@ -207,7 +207,7 @@ struct SyncDetailView: View {
                     .font(VTypography.caption1)
                     .foregroundStyle(VColors.textSecondary)
             } header: {
-                Text(String(localized: "About iCloud Sync"))
+                VFormSectionHeader(String(localized: "About iCloud Sync"))
             }
         }
         .safeAreaInset(edge: .bottom) {
