@@ -6326,6 +6326,23 @@
         }
       }
     },
+    "Create Budget" : {
+      "comment" : "Action on the VEmptyState displayed when the user has no budgets.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear presupuesto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बजट बनाएँ"
+          }
+        }
+      }
+    },
     "Create budget" : {
       "localizations" : {
         "es" : {
