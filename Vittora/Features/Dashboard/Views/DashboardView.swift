@@ -88,16 +88,17 @@ struct DashboardView: View {
             macLayout(vm)
             #endif
         }
-        // Room to scroll the last row clear of the floating add button.
-        //
-        // The button is a permanent bottomTrailing overlay, so without this the
-        // final card is always partly underneath it — no amount of scrolling
-        // reveals it. safeAreaPadding extends the scrollable area without
-        // drawing anything, unlike safeAreaInset, which places an opaque view
-        // and masks whatever passes behind it.
-        //
-        // 56pt button + 16pt trailing/bottom padding + 16pt breathing room.
-        .safeAreaPadding(.bottom, 88)
+        .safeAreaInset(edge: .bottom) {
+            // Clearance for the floating tab bar, painted in THIS screen's page
+            // colour — plain background, because this screen is not grouped.
+            //
+            // 88 rather than the 72 the other screens use: this screen also has
+            // a permanent bottomTrailing add button, so at 72 the last row could
+            // never be scrolled clear of it. 56pt button + 16pt inset + 16pt.
+            VColors.background
+                .frame(height: 88)
+                .allowsHitTesting(false)
+        }
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
             geometry.contentOffset.y
         } action: { oldValue, newValue in

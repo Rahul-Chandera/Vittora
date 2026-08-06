@@ -233,12 +233,14 @@ struct AppearanceSettingsView: View {
                 .accessibilityIdentifier("appearance-apply-button")
             }
         }
-        // Clearance for the floating tab bar. safeAreaPadding, not
-        // safeAreaInset: an inset places an actual view, and an opaque
-        // one masks whatever scrolls behind it — which is the banner
-        // that showed above the tab bar. Padding just extends the
-        // scrollable area so content can clear the bar on its own.
-        .safeAreaPadding(.bottom, 72)
+        .safeAreaInset(edge: .bottom) {
+            // Clearance for the floating tab bar, painted in THIS screen's page
+            // colour. It was VColors.background (white) on a grouped-background
+            // screen, which rendered as a white band above the tab bar.
+            VColors.groupedBackground
+                .frame(height: 72)
+                .allowsHitTesting(false)
+        }
         .navigationTitle(String(localized: "Appearance"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
