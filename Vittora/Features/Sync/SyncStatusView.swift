@@ -210,15 +210,17 @@ struct SyncDetailView: View {
                 VFormSectionHeader(String(localized: "About iCloud Sync"))
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            // Clearance for the floating tab bar, painted in THIS screen's page
-            // colour. It must match the page: white here showed as a band on
-            // grouped screens, and Color.clear removes the mask that keeps
-            // list content from showing through under the bar.
-            VColors.groupedBackground
-                .frame(height: 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: an inset paints an opaque view OVER the list, and
+        // rows passing behind it are sliced mid-glyph. The Appearance
+        // screen's Live Preview card was cut that way, and the audit's
+        // contrast sampler reads the surviving sliver as failing text.
+        // Padding reserves the same space without drawing.
+        //
+        // The plain ScrollView screens keep their inset: removing it there
+        // lets content render in the gutter below the tab bar, which the
+        // audit reports as text with no accessible element.
+        .safeAreaPadding(.bottom, 72)
         .navigationTitle(String(localized: "iCloud Sync"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
