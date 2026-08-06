@@ -176,13 +176,12 @@ struct TransactionDetailView: View {
                     }
                     .padding(VSpacing.screenPadding)
                 }
-                .safeAreaInset(edge: .bottom) {
-                    // Clearance for the floating tab bar, painted in THIS screen's page
-            // colour — plain background, because this screen is not grouped.
-            VColors.background
-                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
-                        .allowsHitTesting(false)
-                }
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: an inset places an actual view, and an opaque
+        // one masks whatever scrolls behind it — which is the banner
+        // that showed above the tab bar. Padding just extends the
+        // scrollable area so content can clear the bar on its own.
+        .safeAreaPadding(.bottom, dynamicTypeSize.isAccessibilitySize ? 140 : 72)
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
