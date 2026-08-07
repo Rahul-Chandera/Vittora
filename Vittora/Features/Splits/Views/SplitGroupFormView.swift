@@ -43,7 +43,7 @@ struct SplitGroupFormView: View {
                     )
                         .accessibilityLabel(String(localized: "Group name"))
                 } header: {
-                    Text(String(localized: "Group Name"))
+                    VFormSectionHeader(String(localized: "Group Name"))
                         .font(.headline)
                         .foregroundStyle(.primary)
                 }
@@ -82,7 +82,7 @@ struct SplitGroupFormView: View {
                         .accessibilityElement(children: .combine)
                     }
                 } header: {
-                    Text(String(localized: "Members (\(selectedMemberIDs.count) selected)"))
+                    VFormSectionHeader(String(localized: "Members (\(selectedMemberIDs.count) selected)"))
                         .font(.headline)
                         .foregroundStyle(.primary)
                 }

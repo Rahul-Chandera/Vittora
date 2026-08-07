@@ -148,7 +148,7 @@ struct PayeeListView: View {
                 Section {
                     payeeRows(for: vm.frequentSectionPayees)
                 } header: {
-                    Text(String(localized: "Frequent"))
+                    VFormSectionHeader(String(localized: "Frequent"))
                         .foregroundStyle(VColors.textPrimary)
                 }
             }

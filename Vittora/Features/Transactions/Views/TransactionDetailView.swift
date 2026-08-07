@@ -177,7 +177,9 @@ struct TransactionDetailView: View {
                     .padding(VSpacing.screenPadding)
                 }
                 .safeAreaInset(edge: .bottom) {
-                    VColors.background
+                    // Clearance for the floating tab bar, painted in THIS screen's page
+            // colour — plain background, because this screen is not grouped.
+            VColors.background
                         .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
                         .allowsHitTesting(false)
                 }

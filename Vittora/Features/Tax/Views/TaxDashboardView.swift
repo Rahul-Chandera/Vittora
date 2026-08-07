@@ -151,11 +151,16 @@ struct TaxDashboardView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .safeAreaInset(edge: .bottom) {
-            VColors.background
-                .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: this screen is a stack of cards, and an opaque inset
+        // paints OVER the last one, slicing it mid-glyph — which the audit's
+        // contrast sampler reads as failing text. Padding reserves the same
+        // space without drawing.
+        //
+        // Dashboard and the report screens keep their inset: they are the ones
+        // where removing it lets content render in the gutter below the tab
+        // bar, which the audit reports as text with no accessible element.
+        .safeAreaPadding(.bottom, dynamicTypeSize.isAccessibilitySize ? 140 : 72)
     }
 
     private func quickStatsGrid(estimate: TaxEstimate) -> some View {

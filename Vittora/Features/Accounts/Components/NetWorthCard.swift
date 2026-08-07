@@ -10,19 +10,30 @@ struct NetWorthCard: View {
     var currencyCode: String = CurrencyDefaults.code
 
     var body: some View {
+        // Dark content on the brand-green fill, not white.
+        //
+        // Owner decision (2026-08-03) after comparing rendered options. White on
+        // #3FCFA4 is 1.97:1 — below the 4.5:1 body minimum AND below the 3:1
+        // large-text bar — and this card carries the net-worth figure, which is
+        // the number the app exists to show. DEC-012 accepts that pairing for
+        // CTA labels and the FAB; a data surface is a different case.
+        //
+        // textPrimary on the same fill measures ~9:1 and keeps the brand colour
+        // exactly, which the alternative (darkening the fill to primaryOnSurface)
+        // would not.
         VCard(padding: VSpacing.lg, shadow: .medium, backgroundColor: VColors.primary) {
             VStack(alignment: .leading, spacing: VSpacing.sm) {
                 Text(String(localized: "Net Worth"))
                     .font(VTypography.caption1)
-                    .foregroundStyle(VColors.onPrimary)
+                    .foregroundStyle(VColors.textPrimary)
 
                 Text(netWorth.formatted(.currency(code: currencyCode)))
                     .font(VTypography.amountLarge)
                     .amountScaling()
-                    .foregroundStyle(VColors.onPrimary)
+                    .foregroundStyle(VColors.textPrimary)
 
                 Divider()
-                    .background(Color.white.opacity(0.3))
+                    .background(VColors.textPrimary.opacity(0.22))
                     .padding(.vertical, VSpacing.xs)
 
                 let layout = dynamicTypeSize.isAccessibilitySize
@@ -32,10 +43,10 @@ struct NetWorthCard: View {
                     VStack(alignment: .leading, spacing: VSpacing.xxs) {
                         Text(String(localized: "Assets"))
                             .font(VTypography.caption2)
-                            .foregroundStyle(VColors.onPrimary)
+                            .foregroundStyle(VColors.textPrimary)
                         Text(totalAssets.formatted(.currency(code: currencyCode)))
                             .font(VTypography.caption1Bold)
-                            .foregroundStyle(VColors.onPrimary)
+                            .foregroundStyle(VColors.textPrimary)
                     }
 
                     if !dynamicTypeSize.isAccessibilitySize {
@@ -45,10 +56,10 @@ struct NetWorthCard: View {
                     VStack(alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing, spacing: VSpacing.xxs) {
                         Text(String(localized: "Liabilities"))
                             .font(VTypography.caption2)
-                            .foregroundStyle(VColors.onPrimary)
+                            .foregroundStyle(VColors.textPrimary)
                         Text(totalLiabilities.formatted(.currency(code: currencyCode)))
                             .font(VTypography.caption1Bold)
-                            .foregroundStyle(VColors.onPrimary)
+                            .foregroundStyle(VColors.textPrimary)
                     }
                 }
             }

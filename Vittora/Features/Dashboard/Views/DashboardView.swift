@@ -89,8 +89,14 @@ struct DashboardView: View {
             #endif
         }
         .safeAreaInset(edge: .bottom) {
+            // Clearance for the floating tab bar, painted in THIS screen's page
+            // colour — plain background, because this screen is not grouped.
+            //
+            // 88 rather than the 72 the other screens use: this screen also has
+            // a permanent bottomTrailing add button, so at 72 the last row could
+            // never be scrolled clear of it. 56pt button + 16pt inset + 16pt.
             VColors.background
-                .frame(height: 72)
+                .frame(height: 88)
                 .allowsHitTesting(false)
         }
         .onScrollGeometryChange(for: CGFloat.self) { geometry in

@@ -180,7 +180,7 @@ struct CategorizationRuleFormView: View {
                             #endif
                             .autocorrectionDisabled()
                     } header: {
-                        Text(String(localized: "Keyword"))
+                        VFormSectionHeader(String(localized: "Keyword"))
                     } footer: {
                         Text(String(localized: "Matches when this word appears in a payee name, note, or receipt merchant text."))
                     }
@@ -198,7 +198,7 @@ struct CategorizationRuleFormView: View {
                             }
                         }
                     } header: {
-                        Text(String(localized: "Category"))
+                        VFormSectionHeader(String(localized: "Category"))
                     }
 
                     Section {

@@ -146,7 +146,7 @@ struct ContactSupportView: View {
                     .accessibilityValue(payloadText)
                 }
             } header: {
-                Text(String(localized: "Diagnostic Summary"))
+                VFormSectionHeader(String(localized: "Diagnostic Summary"))
             }
 
             Section {
