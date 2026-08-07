@@ -24,15 +24,22 @@ DERIVED="${DERIVED_DIR:-$ROOT/.build/screenshots}"
 
 mkdir -p "$OUT"
 
-PAIR_INFO=$(xcrun simctl list pairs -j | python3 -c "
-import json,sys
+# WATCH_DEVICE picks which paired watch to shoot, because App Store Connect has
+# a slot PER WATCH SIZE and they are not interchangeable: Ultra 3 wants
+# 422x514, the Series 46mm 416x496. Uploading one into the other's slot is
+# rejected outright. Defaults to Ultra 3, which is the size ASC shows first.
+PAIR_INFO=$(WANT="${WATCH_DEVICE:-Ultra 3}" xcrun simctl list pairs -j | python3 -c "
+import json,os,sys
+want=os.environ.get('WANT','Ultra 3')
 pairs=json.load(sys.stdin)['pairs']
-# 'state' reads '(active, disconnected)', not 'active'. Prefer the 46mm Series
-# watch so the output matches the 416x496 asset already in the listing.
+# 'state' reads '(active, disconnected)', not 'active'.
 cands=[p for p in pairs.values() if 'active' in p.get('state','')]
 if not cands: sys.exit('no active watch/phone pair')
-cands.sort(key=lambda p: 0 if '46mm' in p['watch']['name'] else 1)
-p=cands[0]
+match=[p for p in cands if want.lower() in p['watch']['name'].lower()]
+if not match:
+    names=', '.join(sorted({p['watch']['name'] for p in cands}))
+    sys.exit(f'no active pair whose watch matches {want!r}. Available: {names}')
+p=match[0]
 print(p['watch']['udid'], p['phone']['udid'], p['watch']['name'].replace(' ','_'))
 ") || exit 1
 read -r PAIR_WATCH PAIR_PHONE WATCH_NAME <<< "$PAIR_INFO"
