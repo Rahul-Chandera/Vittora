@@ -27,9 +27,7 @@ struct RecurringFormView: View {
                         VStack(alignment: .leading, spacing: VSpacing.lg) {
                             // Amount Input
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text(String(localized: "Amount"))
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
+                                VFormSectionHeader(String(localized: "Amount"))
 
                                 HStack(spacing: VSpacing.sm) {
                                     Text(currencySymbol)
