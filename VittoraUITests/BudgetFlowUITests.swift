@@ -132,6 +132,86 @@ final class BudgetFlowUITests: XCTestCase {
         )
     }
 
+    /// Same defect as the skipped test above, reproduced without touching the
+    /// category picker.
+    ///
+    /// A budget with no category counts every expense against itself (see
+    /// `FetchBudgetsUseCase.calculateSpent` — a nil `categoryID` means no
+    /// category filter), so an amount-only expense is enough. That sidesteps
+    /// the picker that blocks the seeded variant.
+    ///
+    /// Owner confirmed the row only corrects after a full relaunch — not on a
+    /// tab switch — so this asserts the row updates while the app keeps
+    /// running.
+    @MainActor
+    func testBudgetRowUpdatesAfterAnExpenseWithoutCategory() throws {
+        // Demo seed, not an empty store: saving a transaction needs an
+        // account, and with --uitesting alone the form never dismisses.
+        launch(seedDemo: true, initialTab: "budgets")
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
+        XCTAssertTrue(UITestSupport.navigateToTab(named: "Budgets", in: app, timeout: 15))
+
+        // Add an UNCATEGORISED budget on top of the seeded ones. Its label
+        // begins "Budget budget," because BudgetCardView falls back to
+        // "Budget" when there is no category.
+        UITestSupport.tapWhenReady(app.buttons["budget-add-button"], timeout: 20)
+        let budgetAmount = app.textFields["budget-amount-field"]
+        XCTAssertTrue(budgetAmount.waitForExistence(timeout: 15))
+        budgetAmount.tap()
+        budgetAmount.typeText("500")
+        UITestSupport.tapWhenReady(app.buttons["budget-save-button"], timeout: 15)
+        XCTAssertTrue(UITestSupport.waitForDisappearance(budgetAmount, timeout: 15))
+
+        let uncategorised = NSPredicate(format: "label BEGINSWITH %@", "Budget budget,")
+        let card = app.descendants(matching: .any).matching(uncategorised).firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 20), "Newly created budget should be listed.")
+        UITestSupport.scrollToElement(card, in: app)
+        let before = card.label
+        let overviewQuery = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", "Budget overview")).firstMatch
+        let overviewBefore = overviewQuery.exists ? overviewQuery.value as? String ?? "nil" : "absent" 
+
+        // Amount-only expense — no category needed.
+        XCTAssertTrue(UITestSupport.navigateToTab(named: "Transactions", in: app, timeout: 15))
+        let addButton = app.buttons["transaction-add-button"].exists
+            ? app.buttons["transaction-add-button"]
+            : app.buttons["Add Transaction"].firstMatch
+        UITestSupport.tapWhenReady(addButton, timeout: 15)
+        let amountField = app.textFields["transaction-amount-field"]
+        XCTAssertTrue(amountField.waitForExistence(timeout: 15))
+        amountField.tap()
+        amountField.typeText("120")
+        UITestSupport.tapWhenReady(app.buttons["transaction-form-save-button"], timeout: 15)
+        XCTAssertTrue(UITestSupport.waitForDisappearance(amountField, timeout: 15))
+
+        XCTAssertTrue(UITestSupport.navigateToTab(named: "Budgets", in: app, timeout: 15))
+
+        let deadline = Date().addingTimeInterval(15)
+        var after = before
+        repeat {
+            after = app.descendants(matching: .any).matching(uncategorised).firstMatch.label
+            if after != before { break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        } while Date() < deadline
+
+        // Diagnostic: the overview card and the row are assigned in the SAME
+        // loadBudgets() call, so if the header moves and the row does not, the
+        // reload ran and the row failed to re-render.
+        let overviewAfter = overviewQuery.exists ? overviewQuery.value as? String ?? "nil" : "absent"
+        let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        shot.name = "budgets-after-expense"
+        shot.lifetime = .keepAlways
+        add(shot)
+
+        XCTAssertNotEqual(
+            after,
+            before,
+            "Budget card still reads '\(before)' after a 120 expense. "
+            + "Overview BEFORE: \(overviewBefore) | AFTER: \(overviewAfter). "
+            + "If the overview moved and the row did not, loadBudgets() ran and the row did not re-render."
+        )
+    }
+
     // MARK: - Helpers
 
     @MainActor

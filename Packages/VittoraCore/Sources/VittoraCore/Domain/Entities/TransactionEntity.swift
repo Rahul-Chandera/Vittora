@@ -105,7 +105,33 @@ public struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
 
     // MARK: - Equatable & Hashable (identity-based)
 
-    public nonisolated static func == (lhs: TransactionEntity, rhs: TransactionEntity) -> Bool { lhs.id == rhs.id }
+    // Value equality, not identity. An id-only `==` makes SwiftUI treat a
+    // record whose fields changed as unchanged, so any row whose only input is
+    // this entity never re-renders — it keeps the old figures until the app is
+    // relaunched. That shipped as a budget bug; see BudgetEntity for the full
+    // account. `createdAt`/`updatedAt` are audit metadata, not displayed
+    // content, so they stay out of the comparison. Dedup by identity should
+    // key on `id` explicitly rather than lean on `==`.
+    public nonisolated static func == (lhs: TransactionEntity, rhs: TransactionEntity) -> Bool {
+        lhs.id == rhs.id
+            && lhs.amount == rhs.amount
+            && lhs.date == rhs.date
+            && lhs.note == rhs.note
+            && lhs.type == rhs.type
+            && lhs.paymentMethod == rhs.paymentMethod
+            && lhs.currencyCode == rhs.currencyCode
+            && lhs.tags == rhs.tags
+            && lhs.categoryID == rhs.categoryID
+            && lhs.accountID == rhs.accountID
+            && lhs.payeeID == rhs.payeeID
+            && lhs.destinationAccountID == rhs.destinationAccountID
+            && lhs.recurringRuleID == rhs.recurringRuleID
+            && lhs.transferPairID == rhs.transferPairID
+            && lhs.transferDirection == rhs.transferDirection
+            && lhs.documentIDs == rhs.documentIDs
+    }
+    // Hash stays id-only: legal (equal values share a hash) and keeps
+    // Set/Dictionary bucketing stable as mutable fields change.
     public nonisolated func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 

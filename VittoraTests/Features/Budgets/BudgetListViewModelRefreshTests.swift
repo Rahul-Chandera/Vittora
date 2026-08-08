@@ -88,4 +88,50 @@ struct BudgetListViewModelRefreshTests {
         // must not be able to drift apart.
         #expect(vm.budgetProgress[vm.budgets[0].id]?.spent == vm.overallSpent)
     }
+
+    @Test("an uncategorised budget counts an expense in any category")
+    func uncategorisedBudgetCountsAnyExpense() async throws {
+        let budgetRepository = MockBudgetRepository()
+        let transactionRepository = MockTransactionRepository()
+        let categoryRepository = MockCategoryRepository()
+
+        let category = CategoryEntity(
+            name: "Dining", icon: "fork.knife", colorHex: "#FF6B35", type: .expense
+        )
+        try await categoryRepository.create(category)
+
+        let monthStart = Calendar.current.date(
+            from: Calendar.current.dateComponents([.year, .month], from: .now)
+        ) ?? .now
+        try await budgetRepository.create(
+            BudgetEntity(
+                amount: Decimal(string: "500")!,
+                period: .monthly,
+                startDate: monthStart,
+                categoryID: nil
+            )
+        )
+
+        let vm = makeViewModel(
+            budgetRepository: budgetRepository,
+            transactionRepository: transactionRepository,
+            categoryRepository: categoryRepository
+        )
+        await vm.loadBudgets()
+        #expect(vm.budgets.count == 1)
+
+        try await transactionRepository.create(
+            TransactionEntity(
+                amount: Decimal(string: "120")!,
+                date: .now,
+                type: .expense,
+                categoryID: category.id
+            )
+        )
+        await vm.loadBudgets()
+
+        // Premise check for the UI reproduction: nil categoryID means no
+        // category filter, so every expense in the period counts.
+        #expect(vm.budgets[0].spent == Decimal(string: "120")!)
+    }
 }

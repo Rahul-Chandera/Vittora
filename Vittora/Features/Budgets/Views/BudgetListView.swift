@@ -62,15 +62,25 @@ struct BudgetListView: View {
                             NavigationLink(
                                 value: NavigationDestination.budgetDetail(id: budget.id)
                             ) {
+                                // No `progress:` parameter. BudgetProgress is
+                                // not Equatable and the view never read it —
+                                // every figure comes from `budget` — so it only
+                                // served to muddy SwiftUI's view comparison
+                                // while this row went stale after a new expense.
                                 BudgetCardView(
                                     budget: budget,
-                                    progress: viewModel.budgetProgress[budget.id],
                                     category: budget.categoryID.flatMap { viewModel.categoriesByID[$0] }
                                 )
-                                .listRowInsets(EdgeInsets())
-                                .listRowSeparator(.hidden)
-                                .listRowBackground(Color.clear)
                             }
+                            // listRow* belongs on the ROW, not inside the
+                            // NavigationLink's label. Applied to the label it
+                            // styles the wrong node and muddles List's row
+                            // diffing — this row kept rendering a stale
+                            // `spent` after a new expense while the header,
+                            // assigned in the same loadBudgets() call, moved.
+                            .listRowInsets(EdgeInsets())
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
                             .contextMenu {
                                 NavigationLink(value: NavigationDestination.budgetDetail(id: budget.id)) {
                                     Label(String(localized: "Edit"), systemImage: "pencil")
@@ -147,9 +157,12 @@ struct BudgetListView: View {
                 await viewModel.loadBudgets()
             }
         }
-        .task(id: appState.refreshVersion(for: .budgets)) {
-            guard viewModel != nil, appState.refreshVersion(for: .budgets) > 0 else { return }
-            await viewModel?.loadBudgets()
+        // onChange, not .task(id:). A .task(id:) attached to a tab that is not
+        // frontmost did not restart when the version changed: adding an expense
+        // from the Transactions tab left this screen's rows stale until the app
+        // was relaunched — not even a tab switch corrected it.
+        .onChange(of: appState.refreshVersion(for: .budgets)) { _, _ in
+            Task { await viewModel?.loadBudgets() }
         }
         .task(id: appState.pendingBudgetDetailID) {
             guard let id = appState.pendingBudgetDetailID else { return }
