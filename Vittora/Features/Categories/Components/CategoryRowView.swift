@@ -18,7 +18,11 @@ struct CategoryRowView: View {
                     .frame(width: 40, height: 40)
                 Image(systemName: category.icon)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(VColors.textPrimary)
+                    // The category's own colour, matching how the icon renders
+                    // everywhere else it appears (pickers, transaction rows).
+                    // tintColor was already computed here and never used, so
+                    // this row was the one place the category read as black.
+                    .foregroundColor(tintColor)
             }
             .accessibilityHidden(true)
 

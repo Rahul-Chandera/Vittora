@@ -88,17 +88,21 @@ struct DashboardView: View {
             macLayout(vm)
             #endif
         }
-        .safeAreaInset(edge: .bottom) {
-            // Clearance for the floating tab bar, painted in THIS screen's page
-            // colour — plain background, because this screen is not grouped.
-            //
-            // 88 rather than the 72 the other screens use: this screen also has
-            // a permanent bottomTrailing add button, so at 72 the last row could
-            // never be scrolled clear of it. 56pt button + 16pt inset + 16pt.
-            VColors.background
-                .frame(height: 88)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: an inset paints an opaque view OVER the content.
+        //
+        // #197 left this screen on an inset because removing it tripped three
+        // elementDetection audits, and the strip is VColors.background — the
+        // same white as the page, so it looked safe. It was not: this screen's
+        // CARDS are grey on that white page, so the strip matched the page and
+        // still sliced the card, which is what was reported from device. The
+        // classification was made on which audits broke rather than on how the
+        // screen looked, which was the wrong test.
+        //
+        // 88 rather than the 72 the other screens use: this screen also has a
+        // permanent bottomTrailing add button, so at 72 the last row could
+        // never be scrolled clear of it. 56pt button + 16pt inset + 16pt.
+        .safeAreaPadding(.bottom, 88)
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
             geometry.contentOffset.y
         } action: { oldValue, newValue in

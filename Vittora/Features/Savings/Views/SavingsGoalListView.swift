@@ -123,7 +123,9 @@ struct SavingsGoalListView: View {
             layout {
                 SavingsProgressRingView(
                     progress: summary.overallProgressFraction,
-                    color: VColors.textPrimary,
+                    // Brand colour, not a goal colour: this ring aggregates
+                    // every goal, so no single one owns it.
+                    color: VColors.primary,
                     size: 56,
                     lineWidth: 6
                 )

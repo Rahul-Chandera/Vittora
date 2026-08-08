@@ -9,7 +9,14 @@ struct DebtFormView: View {
     @Environment(\.currencySymbol) private var currencySymbol
     @State private var vm: DebtFormViewModel?
     @State private var payees: [PayeeEntity] = []
+    @State private var showAddPayee = false
     let onSaved: () -> Void
+
+    /// Tag for the "Add New" row at the foot of the Person / Business picker.
+    /// Selecting it opens the payee sheet rather than changing the selection —
+    /// the previous value is restored immediately, and the sheet's completion
+    /// reloads and selects whatever was just created.
+    private static let addPayeeTag = UUID()
 
     var body: some View {
         NavigationStack {
@@ -33,6 +40,14 @@ struct DebtFormView: View {
                             ForEach(payees) { payee in
                                 Text(payee.name).tag(UUID?(payee.id))
                             }
+                            Text(String(localized: "Add New Payee")).tag(UUID?(Self.addPayeeTag))
+                        }
+                        .onChange(of: vm.selectedPayeeID) { previous, current in
+                            guard current == Self.addPayeeTag else { return }
+                            // Restore first: the sentinel is a command, never a
+                            // value. The guard stops the restore re-entering.
+                            vm.selectedPayeeID = previous
+                            showAddPayee = true
                         }
 
                         HStack {
@@ -119,6 +134,13 @@ struct DebtFormView: View {
                 }
             }
         }
+        .sheet(isPresented: $showAddPayee) {
+            NavigationStack {
+                PayeeFormView {
+                    Task { await reloadPayeesSelectingNewest() }
+                }
+            }
+        }
         .task {
             guard vm == nil else { return }
             let formVM = DebtFormViewModel(
@@ -130,6 +152,17 @@ struct DebtFormView: View {
             } catch {
                 formVM.error = error.localizedDescription
             }
+        }
+    }
+
+    /// Newest by createdAt, not "the one that was not there before": the sheet
+    /// does not report back what it made, and comparing snapshots would break
+    /// if a sync landed a payee at the same moment.
+    private func reloadPayeesSelectingNewest() async {
+        guard let existing = try? await dependencies.payeeRepository.fetchAll() else { return }
+        payees = existing
+        if let newest = existing.max(by: { $0.createdAt < $1.createdAt }) {
+            vm?.selectedPayeeID = newest.id
         }
     }
 

@@ -17,6 +17,16 @@ struct TransactionFormView: View {
     @State private var showAddPayee = false
     @State private var showAddAccount = false
 
+    /// Tags for the "Add New…" rows at the foot of the Account and Payee
+    /// pickers. Selecting one opens the add sheet rather than changing the
+    /// selection: the previous value is restored immediately, and the sheet's
+    /// completion handler selects whatever was just created.
+    ///
+    /// These replaced standalone "Add Account" / "Add Payee" rows in the
+    /// Details section, which read as list items rather than buttons.
+    private static let addAccountTag = UUID()
+    private static let addPayeeTag = UUID()
+
     let transactionID: UUID?
     let initialType: TransactionType?
     /// Show a Cancel button. Only pass `true` when presenting modally; a pushed
@@ -241,16 +251,16 @@ struct TransactionFormView: View {
                 ForEach(accounts) { account in
                     Text(account.name).tag(UUID?(account.id))
                 }
+                Text(String(localized: "Add New Account")).tag(UUID?(Self.addAccountTag))
             }
             .accessibilityIdentifier("transaction-account-picker")
-
-            Button {
+            .onChange(of: vm.selectedAccountID) { previous, current in
+                guard current == Self.addAccountTag else { return }
+                // Restore first: the sentinel is a command, never a value. The
+                // guard stops the restore from re-entering this handler.
+                vm.selectedAccountID = previous
                 showAddAccount = true
-            } label: {
-                Text(String(localized: "Add Account"))
             }
-            .accessibilityIdentifier("transaction-add-account-button")
-            .accessibilityLabel(String(localized: "Add Account"))
 
             // Native Picker with its own label, not a hand-rolled row: SwiftUI
             // wraps the label and control itself at accessibility text sizes.
@@ -263,23 +273,24 @@ struct TransactionFormView: View {
                 ForEach(payees) { payee in
                     Text(payee.name).tag(UUID?(payee.id))
                 }
+                Text(String(localized: "Add New Payee")).tag(UUID?(Self.addPayeeTag))
             }
             .accessibilityValue(payeeName(for: vm.selectedPayeeID) ?? String(localized: "None"))
             .accessibilityIdentifier("transaction-payee-picker")
-            .onChange(of: vm.selectedPayeeID) { _, _ in
+            .onChange(of: vm.selectedPayeeID) { previous, current in
+                // The sentinel check lives inside this handler rather than in a
+                // second .onChange: two handlers on one value have no defined
+                // order, and the suggestion below must never run for a sentinel.
+                if current == Self.addPayeeTag {
+                    vm.selectedPayeeID = previous
+                    showAddPayee = true
+                    return
+                }
                 Task {
                     await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
                     await vm.checkDuplicates()
                 }
             }
-
-            Button {
-                showAddPayee = true
-            } label: {
-                Text(String(localized: "Add Payee"))
-            }
-            .accessibilityIdentifier("transaction-add-payee-button")
-            .accessibilityLabel(String(localized: "Add Payee"))
 
             if let suggestedID = vm.suggestedCategoryID,
                let suggested = (categories.expense + categories.income).first(where: { $0.id == suggestedID }) {

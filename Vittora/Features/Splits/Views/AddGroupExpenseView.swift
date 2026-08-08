@@ -128,7 +128,9 @@ struct AddGroupExpenseView: View {
                             let saved = await vm.save()
                             if saved {
                                 dependencies.conversionEventRecorder.afterSplitExpenseCreated()
-                                appState.notifyChanged([.splits, .transactions, .accounts])
+                                // .budgets too: a group expense writes an expense transaction,
+                                // so any budget covering its category is now stale.
+                                appState.notifyChanged([.splits, .transactions, .accounts, .budgets])
                                 onSaved()
                                 dismiss()
                             }
