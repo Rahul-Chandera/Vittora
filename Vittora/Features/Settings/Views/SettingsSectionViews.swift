@@ -35,6 +35,7 @@ struct ProfileSettingsView: View {
 
 struct CurrencySettingsView: View {
     @Bindable var vm: SettingsViewModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         Form {
@@ -44,6 +45,15 @@ struct CurrencySettingsView: View {
                         vm.selectedCurrencyCode = currency.code
                     } label: {
                         HStack {
+                            // Same flag treatment as onboarding — see
+                            // currencyFlagImage for why it is an Image and not
+                            // a Text. Dropped at accessibility sizes, where the
+                            // row needs its width for the name.
+                            if !dynamicTypeSize.isAccessibilitySize,
+                               let flag = currencyFlagImage(for: currency.code) {
+                                flag
+                                    .accessibilityHidden(true)
+                            }
                             Text(currency.name)
                                 .foregroundStyle(VColors.textPrimary)
                             Spacer()

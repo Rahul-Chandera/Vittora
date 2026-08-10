@@ -125,7 +125,9 @@ struct SettlementFormView: View {
                 accountID: selectedAccountID
             )
             await dependencies.refreshRecurringAndDebtReminders()
-            appState.notifyChanged([.debt, .transactions, .accounts])
+            // .budgets too: settling writes a transaction, so a budget
+            // covering its category is now stale.
+            appState.notifyChanged([.debt, .transactions, .accounts, .budgets])
             onSettled()
             dismiss()
         } catch {

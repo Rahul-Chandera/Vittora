@@ -867,6 +867,20 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if (issue.element?.identifier ?? "").hasPrefix("brand-mark-") {
                     return true
                 }
+                // The Net Worth card carries white content on the brand-green
+                // fill by owner decision (2026-08-08), overriding the dark-text
+                // choice of 2026-08-03 after seeing both on device. That pairing
+                // is 1.97:1 and this is a DATA surface, not a CTA — so unlike the
+                // rest of DEC-012 it is a real, knowingly accepted miss, not a
+                // sampler artifact. The owner was offered a darker fill that
+                // would pass AA and declined it to keep the accent exact.
+                //
+                // Anchored to one identifier so it cannot spread: any other
+                // white-on-green surface must opt in deliberately. The figures
+                // stay reachable via the card's accessibilityValue.
+                if issue.element?.identifier == "brand-green-filled-card" {
+                    return true
+                }
                 // On CI's iOS 26.2 the audit flags an inner node of the floating
                 // add button that carries neither the label nor the identifier,
                 // so both checks above miss it and the DEC-012 exemption never
@@ -1001,6 +1015,31 @@ final class AccessibilityAuditUITests: XCTestCase {
                 // that do scale. Fixed-size and fully unsupported fonts still fail,
                 // while accessibility3 screenshots verify the rendered result.
                 return issue.compactDescription.localizedCaseInsensitiveContains("partially")
+            }
+            if issue.auditType == .elementDetection,
+               issue.element == nil,
+               self.app.tabBars.firstMatch.exists {
+                // Scroll content beneath iOS 26's floating tab bar.
+                //
+                // The bar is a capsule with transparent gutters, so content
+                // scrolls visibly under and around it — that is the platform's
+                // intended rendering, not a layout mistake. The accessibility
+                // tree drops those rows as occluded while the glyphs are still
+                // on screen, so the vision pass reports text with no element.
+                // VoiceOver still reaches every one of them by scrolling.
+                //
+                // Owner decision (2026-08-08). The alternative was an opaque
+                // strip painted over the content to hide it, which is what
+                // produced the banner slicing cards above the tab bar that was
+                // reported from device three times. Measured three ways —
+                // #197's CI plus two local full-class runs — so this is a
+                // structural trade-off, not a tunable padding value.
+                //
+                // Deliberately narrow: only nil-element findings (whole-screen,
+                // nothing to point at) and only where a tab bar is present. An
+                // elementDetection issue that names an element still fails, and
+                // so does anything on a screen without the floating bar.
+                return true
             }
             self.logAuditIssue(issue)
             return false

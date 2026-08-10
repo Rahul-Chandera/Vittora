@@ -10,30 +10,31 @@ struct NetWorthCard: View {
     var currencyCode: String = CurrencyDefaults.code
 
     var body: some View {
-        // Dark content on the brand-green fill, not white.
+        // White content on the brand-green fill.
         //
-        // Owner decision (2026-08-03) after comparing rendered options. White on
-        // #3FCFA4 is 1.97:1 — below the 4.5:1 body minimum AND below the 3:1
-        // large-text bar — and this card carries the net-worth figure, which is
-        // the number the app exists to show. DEC-012 accepts that pairing for
-        // CTA labels and the FAB; a data surface is a different case.
+        // Owner decision (2026-08-08), superseding the dark-text choice of
+        // 2026-08-03 after seeing both on device. This is a KNOWN contrast
+        // miss, accepted deliberately: white on #3FCFA4 is 1.97:1, below the
+        // 4.5:1 body minimum and below the 3:1 large-text bar.
         //
-        // textPrimary on the same fill measures ~9:1 and keeps the brand colour
-        // exactly, which the alternative (darkening the fill to primaryOnSurface)
-        // would not.
+        // The owner was offered a darker fill that would let white pass AA and
+        // declined it, to keep the accent swatch exact. Recorded here rather
+        // than buried in the audit filter, because the audit exemption this
+        // needs is anchored to `brand-green-filled-card` below — the numbers
+        // stay reachable via VoiceOver through the card's accessibilityValue.
         VCard(padding: VSpacing.lg, shadow: .medium, backgroundColor: VColors.primary) {
             VStack(alignment: .leading, spacing: VSpacing.sm) {
                 Text(String(localized: "Net Worth"))
                     .font(VTypography.caption1)
-                    .foregroundStyle(VColors.textPrimary)
+                    .foregroundStyle(VColors.onPrimary)
 
                 Text(netWorth.formatted(.currency(code: currencyCode)))
                     .font(VTypography.amountLarge)
                     .amountScaling()
-                    .foregroundStyle(VColors.textPrimary)
+                    .foregroundStyle(VColors.onPrimary)
 
                 Divider()
-                    .background(VColors.textPrimary.opacity(0.22))
+                    .background(VColors.onPrimary.opacity(0.35))
                     .padding(.vertical, VSpacing.xs)
 
                 let layout = dynamicTypeSize.isAccessibilitySize
@@ -43,10 +44,10 @@ struct NetWorthCard: View {
                     VStack(alignment: .leading, spacing: VSpacing.xxs) {
                         Text(String(localized: "Assets"))
                             .font(VTypography.caption2)
-                            .foregroundStyle(VColors.textPrimary)
+                            .foregroundStyle(VColors.onPrimary)
                         Text(totalAssets.formatted(.currency(code: currencyCode)))
                             .font(VTypography.caption1Bold)
-                            .foregroundStyle(VColors.textPrimary)
+                            .foregroundStyle(VColors.onPrimary)
                     }
 
                     if !dynamicTypeSize.isAccessibilitySize {
@@ -56,15 +57,16 @@ struct NetWorthCard: View {
                     VStack(alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing, spacing: VSpacing.xxs) {
                         Text(String(localized: "Liabilities"))
                             .font(VTypography.caption2)
-                            .foregroundStyle(VColors.textPrimary)
+                            .foregroundStyle(VColors.onPrimary)
                         Text(totalLiabilities.formatted(.currency(code: currencyCode)))
                             .font(VTypography.caption1Bold)
-                            .foregroundStyle(VColors.textPrimary)
+                            .foregroundStyle(VColors.onPrimary)
                     }
                 }
             }
         }
         .accessibilityElement(children: .ignore)
+        .accessibilityIdentifier("brand-green-filled-card")
         .accessibilityLabel(String(localized: "Net worth summary"))
         .accessibilityValue(
             String(

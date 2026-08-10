@@ -148,7 +148,15 @@ struct DataManagementView: View {
                 NavigationLink {
                     ExportView()
                 } label: {
-                    Label(String(localized: "Export as CSV"), systemImage: "square.and.arrow.up")
+                    Label {
+                        Text(String(localized: "Export as CSV"))
+                    } icon: {
+                        // Coloured glyph, label-coloured text. A plain Label
+                        // inherits this Form's .tint(VColors.textPrimary) and
+                        // draws the icon black along with the text.
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundStyle(VColors.primary)
+                    }
                 }
 
                 Picker(String(localized: "Automatic Export"), selection: Binding(
@@ -187,8 +195,13 @@ struct DataManagementView: View {
                     if vm.isClearing {
                         HStack { ProgressView(); Text(String(localized: "Clearing…")) }
                     } else {
-                        Label(String(localized: "Clear \(vm.clearScope.displayName)"), systemImage: "trash")
-                            .foregroundStyle(VColors.textPrimary)
+                        Label {
+                            Text(String(localized: "Clear \(vm.clearScope.displayName)"))
+                                .foregroundStyle(VColors.textPrimary)
+                        } icon: {
+                            Image(systemName: "trash")
+                                .foregroundStyle(VColors.expense)
+                        }
                     }
                 }
                 .disabled(vm.isClearing)
@@ -203,7 +216,13 @@ struct DataManagementView: View {
                 Button(role: .destructive) {
                     vm.showFactoryResetConfirm = true
                 } label: {
-                    Label(String(localized: "Factory Reset"), systemImage: "arrow.counterclockwise")
+                    Label {
+                        Text(String(localized: "Factory Reset"))
+                            .foregroundStyle(VColors.textPrimary)
+                    } icon: {
+                        Image(systemName: "arrow.counterclockwise")
+                            .foregroundStyle(VColors.expense)
+                    }
                 }
                 .disabled(vm.isClearing)
             } footer: {
@@ -277,12 +296,17 @@ struct DataManagementView: View {
             : AnyLayout(HStackLayout())
         return layout {
             HStack(spacing: VSpacing.sm) {
+                // Brand colour, not the label colour. The HStack used to carry
+                // one .foregroundStyle(.primary) for both, which made the icon
+                // black — the row's meaning is in the label, so the glyph can
+                // carry colour without hurting legibility.
                 Image(systemName: icon)
+                    .foregroundStyle(VColors.primary)
                     .accessibilityHidden(true)
                 Text(label)
+                    .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .foregroundStyle(.primary)
             if !dynamicTypeSize.isAccessibilitySize {
                 Spacer()
             }

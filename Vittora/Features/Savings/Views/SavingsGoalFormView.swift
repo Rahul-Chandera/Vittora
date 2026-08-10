@@ -151,14 +151,10 @@ struct SavingsGoalFormView: View {
                                         .fill(Color(hex: hex) ?? .purple)
                                         .frame(width: 32, height: 32)
                                         .overlay {
-                                            Circle()
-                                                .stroke(VColors.textPrimary, lineWidth: 2)
-                                        }
-                                        .overlay {
                                             if hex == selectedColor {
                                                 Image(systemName: "checkmark")
                                                     .font(.body.bold())
-                                                    .foregroundStyle(VColors.textPrimary)
+                                                    .foregroundStyle(.white)
                                             }
                                         }
                                         .frame(minWidth: 44, minHeight: 44)

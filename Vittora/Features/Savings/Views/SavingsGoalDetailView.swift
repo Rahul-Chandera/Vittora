@@ -123,7 +123,8 @@ struct SavingsGoalDetailView: View {
             VStack(spacing: VSpacing.md) {
                 SavingsProgressRingView(
                     progress: vm.goal.progressFraction,
-                    color: VColors.textPrimary,
+                    // The goal's own colour — see SavingsGoalCardView.
+                    color: Color(hex: vm.goal.colorHex) ?? VColors.primary,
                     size: 120,
                     lineWidth: 12
                 )
