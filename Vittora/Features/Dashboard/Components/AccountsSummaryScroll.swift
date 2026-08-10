@@ -105,7 +105,7 @@ private struct AccountMiniCard: View {
             }
             .padding(VSpacing.md)
             .frame(width: 140, alignment: .leading)
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
         .buttonStyle(.plain)

@@ -103,6 +103,11 @@ struct DashboardView: View {
         // permanent bottomTrailing add button, so at 72 the last row could
         // never be scrolled clear of it. 56pt button + 16pt inset + 16pt.
         .safeAreaPadding(.bottom, 88)
+        // Grouped page like every other screen (owner decision 2026-08-09:
+        // grouped everywhere). This screen previously relied on the system
+        // default white, which is why its grey cards existed — those cards are
+        // now secondaryGroupedBackground white on this grey.
+        .background(VColors.groupedBackground)
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
             geometry.contentOffset.y
         } action: { oldValue, newValue in
@@ -303,7 +308,7 @@ struct DashboardView: View {
                 .accessibilityHidden(true)
             }
             .padding(VSpacing.md)
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(String(localized: "Budget overall progress"))
@@ -325,7 +330,7 @@ struct DashboardView: View {
             Spacer()
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "Net worth"))

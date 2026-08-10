@@ -11,7 +11,7 @@ struct GroupExpenseRowView: View {
         HStack(spacing: VSpacing.md) {
             // Icon
             RoundedRectangle(cornerRadius: 10)
-                .fill(expense.isSettled ? VColors.secondaryBackground : VColors.primary.opacity(0.12))
+                .fill(expense.isSettled ? VColors.secondaryGroupedBackground : VColors.primary.opacity(0.12))
                 .frame(width: 44, height: 44)
                 .overlay {
                     Image(systemName: expense.isSettled ? "checkmark.circle.fill" : "dollarsign.circle.fill")
@@ -57,7 +57,7 @@ struct GroupExpenseRowView: View {
                     .font(VTypography.caption2)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(VColors.secondaryBackground)
+                    .background(VColors.secondaryGroupedBackground)
                     .clipShape(Capsule())
                     .foregroundStyle(VColors.textPrimary)
             }

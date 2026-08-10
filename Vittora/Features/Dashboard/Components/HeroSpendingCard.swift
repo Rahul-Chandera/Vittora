@@ -36,7 +36,7 @@ struct HeroSpendingCard: View {
             }
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(String(localized: "Monthly summary"))

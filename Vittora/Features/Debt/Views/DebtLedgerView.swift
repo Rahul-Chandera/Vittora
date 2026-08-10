@@ -32,7 +32,7 @@ struct DebtLedgerView: View {
                     }
                 }
             }
-            .background(VColors.background)
+            .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Debt Ledger"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -136,7 +136,7 @@ struct DebtLedgerView: View {
                     }
                 }
             }
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }

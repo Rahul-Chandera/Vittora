@@ -34,7 +34,7 @@ struct AnnualReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Annual Summary"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
