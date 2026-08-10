@@ -40,7 +40,7 @@ struct ReportCardView: View {
                 .accessibilityHidden(true)
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 }

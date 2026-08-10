@@ -251,7 +251,7 @@ struct VittoraApp: App {
                     // a ToggleStyle propagates through the environment and is
                     // not overridden by the container `.tint` that forms set.
                     .vittoraSwitchTint()
-                    .background(VColors.background.ignoresSafeArea())
+                    .background(VColors.groupedBackground.ignoresSafeArea())
                     #if os(macOS)
                     .frame(minWidth: 960, minHeight: 640)
                     #endif

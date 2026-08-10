@@ -24,7 +24,7 @@ struct MonthlyOverviewView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Monthly Overview"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -91,7 +91,7 @@ struct MonthlyOverviewView: View {
         }
         .padding(VSpacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusMD)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title)
@@ -108,7 +108,7 @@ struct MonthlyOverviewView: View {
             IncomeExpenseBarChart(data: vm.monthlyData, currencyCode: currencyCode)
                 .frame(height: 220)
                 .padding(VSpacing.md)
-                .background(VColors.secondaryBackground)
+                .background(VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }
@@ -146,7 +146,7 @@ struct MonthlyOverviewView: View {
                         .padding(.leading, VSpacing.md)
                 }
             }
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }

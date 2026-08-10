@@ -16,7 +16,7 @@ struct RecurringDetailView: View {
 
     var body: some View {
         ZStack {
-            VColors.background.ignoresSafeArea()
+            VColors.groupedBackground.ignoresSafeArea()
 
             if let rule = rule {
                 ScrollView {
@@ -97,7 +97,7 @@ struct RecurringDetailView: View {
                             }
                         }
                         .padding(VSpacing.lg)
-                        .background(VColors.secondaryBackground)
+                        .background(VColors.secondaryGroupedBackground)
                         .cornerRadius(VSpacing.cornerRadiusMD)
 
                         // Pause/Resume Button
@@ -179,7 +179,7 @@ struct RecurringDetailView: View {
                                                 .foregroundColor(VColors.expense)
                                         }
                                         .padding(VSpacing.md)
-                                        .background(VColors.secondaryBackground)
+                                        .background(VColors.secondaryGroupedBackground)
                                         .cornerRadius(VSpacing.cornerRadiusMD)
                                     }
                                 }

@@ -11,7 +11,7 @@ struct RecurringListView: View {
 
     var body: some View {
         ZStack {
-            VColors.background.ignoresSafeArea()
+            VColors.groupedBackground.ignoresSafeArea()
 
             if let viewModel = viewModel {
                 if let error = viewModel.error, viewModel.rules.isEmpty {
@@ -91,7 +91,7 @@ struct RecurringListView: View {
                                 localized: "\(costSummary.monthlyCost.formatted(currencyCode: currencyCode)) per month, \(costSummary.annualCost.formatted(currencyCode: currencyCode)) per year, \(costSummary.ruleCount) active"
                             )
                         )
-                        .background(VColors.secondaryBackground)
+                        .background(VColors.secondaryGroupedBackground)
                         .cornerRadius(VSpacing.cornerRadiusMD)
                         .padding(VSpacing.lg)
                     }

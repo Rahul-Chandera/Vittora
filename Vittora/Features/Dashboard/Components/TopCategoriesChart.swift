@@ -26,7 +26,7 @@ struct TopCategoriesChart: View {
                     legend
                 }
                 .padding(VSpacing.md)
-                .background(VColors.secondaryBackground)
+                .background(VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusCard)
             }
         }

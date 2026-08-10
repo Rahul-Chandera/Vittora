@@ -23,7 +23,7 @@ struct SavingsGoalDetailView: View {
                 ProgressView().tint(VColors.primary)
             }
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(vm?.goal.name ?? initialGoal.name)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -184,7 +184,7 @@ struct SavingsGoalDetailView: View {
             Spacer()
         }
         .padding(VSpacing.cardPadding)
-        .background(days < 0 ? VColors.expense.opacity(0.08) : VColors.secondaryBackground)
+        .background(days < 0 ? VColors.expense.opacity(0.08) : VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
@@ -216,7 +216,7 @@ struct SavingsGoalDetailView: View {
             Spacer()
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 

@@ -27,7 +27,7 @@ struct CashFlowReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Cash Flow"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

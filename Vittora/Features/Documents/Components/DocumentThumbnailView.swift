@@ -40,6 +40,8 @@ struct DocumentThumbnailView: View {
                 .scaledToFill()
         } else {
             ZStack {
+                // Placeholder tile behind the file icon — a fill inside a
+                // thumbnail frame, not a card on the page.
                 VColors.secondaryBackground
                 Image(systemName: fileIcon)
                     .font(.system(size: 28))

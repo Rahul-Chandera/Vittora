@@ -18,7 +18,7 @@ struct TaxBreakdownView: View {
 
                     TaxBracketBarView(estimate: estimate)
                         .padding(VSpacing.cardPadding)
-                        .background(VColors.secondaryBackground)
+                        .background(VColors.secondaryGroupedBackground)
                         .cornerRadius(VSpacing.cornerRadiusCard)
 
                     bracketSection
@@ -30,7 +30,7 @@ struct TaxBreakdownView: View {
                 }
                 .padding(VSpacing.screenPadding)
             }
-            .background(VColors.background)
+            .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Tax Breakdown"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -85,7 +85,7 @@ struct TaxBreakdownView: View {
                     isBold: true
                 )
             }
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
 
             // Per-bracket rows
@@ -97,7 +97,7 @@ struct TaxBreakdownView: View {
                     }
                 }
             }
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }
@@ -146,7 +146,7 @@ struct TaxBreakdownView: View {
                         )
                     }
                 }
-                .background(VColors.secondaryBackground)
+                .background(VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusCard)
             }
         }
@@ -173,7 +173,7 @@ struct TaxBreakdownView: View {
                         }
                     }
                 }
-                .background(VColors.secondaryBackground)
+                .background(VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusCard)
             }
         }

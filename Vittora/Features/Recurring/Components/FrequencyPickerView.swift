@@ -49,7 +49,7 @@ struct FrequencyPickerView: View {
                         }
                 }
                 .padding(VSpacing.md)
-                .background(VColors.secondaryBackground)
+                .background(VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusMD)
             }
         }
@@ -74,7 +74,7 @@ struct FrequencyPickerView: View {
                 }
             }
             .padding(VSpacing.md)
-            .background(isSelected(frequency) ? VColors.primary : VColors.secondaryBackground)
+            .background(isSelected(frequency) ? VColors.primary : VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusMD)
         }
     }

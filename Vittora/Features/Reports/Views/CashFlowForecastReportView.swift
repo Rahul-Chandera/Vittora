@@ -25,7 +25,7 @@ struct CashFlowForecastReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Cash Flow Forecast"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -144,7 +144,7 @@ struct CashFlowForecastReportView: View {
             )
             .frame(height: 220)
             .padding(VSpacing.md)
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
             .accessibilityIdentifier("cash-flow-forecast-chart")
         }

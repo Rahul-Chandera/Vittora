@@ -23,7 +23,7 @@ struct SplitGroupDetailView: View {
                 ProgressView().tint(VColors.primary)
             }
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(group.name)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -140,6 +140,8 @@ struct SplitGroupDetailView: View {
                 ForEach(vm.group.memberIDs, id: \.self) { id in
                     HStack(spacing: 6) {
                         ZStack {
+                            // Avatar disc, a fill on a surface — not a card
+                            // on the page — so it keeps secondaryBackground.
                             Circle()
                                 .fill(VColors.secondaryBackground)
                                 .frame(width: 28, height: 28)
@@ -154,7 +156,7 @@ struct SplitGroupDetailView: View {
                     }
                     .padding(.horizontal, VSpacing.sm)
                     .padding(.vertical, 6)
-                    .background(VColors.secondaryBackground)
+                    .background(VColors.secondaryGroupedBackground)
                     .clipShape(Capsule())
                 }
             }
@@ -197,7 +199,7 @@ struct SplitGroupDetailView: View {
                     }
                 }
             }
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }

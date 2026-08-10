@@ -12,7 +12,7 @@ struct CardModifier: ViewModifier {
         padding: CGFloat = VSpacing.cardPadding,
         cornerRadius: CGFloat = VSpacing.cornerRadiusCard,
         shadow: VSpacing.Shadow = .subtle,
-        backgroundColor: Color = VColors.secondaryBackground
+        backgroundColor: Color = VColors.secondaryGroupedBackground
     ) {
         self.padding = padding
         self.cornerRadius = cornerRadius
