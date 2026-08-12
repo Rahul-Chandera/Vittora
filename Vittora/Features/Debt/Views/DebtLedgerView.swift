@@ -32,6 +32,9 @@ struct DebtLedgerView: View {
                     }
                 }
             }
+            // Fill first, then paint — a ZStack sizes to its child, so the page
+            // colour would only cover the empty/error state's own height.
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Debt Ledger"))
             .toolbar {

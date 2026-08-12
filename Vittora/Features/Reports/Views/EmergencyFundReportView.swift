@@ -84,7 +84,7 @@ struct EmergencyFundReportView: View {
 
                 ZStack {
                     Circle()
-                        .stroke(VColors.textTertiary, lineWidth: ringLine)
+                        .stroke(VColors.secondaryBackground, lineWidth: ringLine)
                     Circle()
                         .trim(from: 0, to: arcProgress(snapshot.coverageMonths))
                         .stroke(

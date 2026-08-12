@@ -72,6 +72,14 @@ struct BudgetListView: View {
                                     category: budget.categoryID.flatMap { viewModel.categoriesByID[$0] }
                                 )
                             }
+                            // Hide the system disclosure chevron. The row's
+                            // label is a full-bleed card, so the chevron
+                            // rendered OUTSIDE it: the card lost width on the
+                            // right, its corner radius sat inboard of the
+                            // chevron, and the whole row read as clipped.
+                            // Same treatment as Settings, Accounts and
+                            // Categories, which are all card-in-a-row lists.
+                            .navigationLinkIndicatorVisibility(.hidden)
                             // listRow* belongs on the ROW, not inside the
                             // NavigationLink's label. Applied to the label it
                             // styles the wrong node and muddles List's row

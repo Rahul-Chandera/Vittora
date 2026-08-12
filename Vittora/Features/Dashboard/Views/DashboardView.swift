@@ -295,7 +295,7 @@ struct DashboardView: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
-                            .fill(VColors.tertiaryBackground)
+                            .fill(VColors.secondaryBackground)
                             .frame(height: 8)
 
                         RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
