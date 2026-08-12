@@ -11,7 +11,7 @@ struct BudgetProgressRing: View {
         ZStack {
             // Background circle
             Circle()
-                .stroke(VColors.tertiaryBackground, lineWidth: 12)
+                .stroke(VColors.secondaryBackground, lineWidth: 12)
 
             // Progress arc
             Circle()

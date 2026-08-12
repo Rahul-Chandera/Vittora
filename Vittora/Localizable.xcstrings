@@ -2413,40 +2413,6 @@
         }
       }
     },
-    "Add New Account" : {
-      "comment" : "Row at the foot of the Account picker that opens the new-account sheet.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agregar cuenta nueva"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "नया अकाउंट जोड़ें"
-          }
-        }
-      }
-    },
-    "Add New Payee" : {
-      "comment" : "Row at the foot of the Payee picker that opens the new-payee sheet.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agregar beneficiario nuevo"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "नया पेयी जोड़ें"
-          }
-        }
-      }
-    },
     "Add accounts to track your net worth" : {
       "localizations" : {
         "es" : {
@@ -2752,6 +2718,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "मिलते-जुलते प्राप्तकर्ता और नोट के लिए अपने-आप कैटेगरी सुझाने हेतु कीवर्ड नियम जोड़ें।"
+          }
+        }
+      }
+    },
+    "Add New Account" : {
+      "comment" : "Row at the foot of the Account picker that opens the new-account sheet.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregar cuenta nueva"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नया अकाउंट जोड़ें"
+          }
+        }
+      }
+    },
+    "Add New Payee" : {
+      "comment" : "Row at the foot of the Payee picker that opens the new-payee sheet.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregar beneficiario nuevo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नया पेयी जोड़ें"
           }
         }
       }
@@ -6360,8 +6360,7 @@
         }
       }
     },
-    "Create Budget" : {
-      "comment" : "Action on the VEmptyState displayed when the user has no budgets.",
+    "Create budget" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -6377,7 +6376,8 @@
         }
       }
     },
-    "Create budget" : {
+    "Create Budget" : {
+      "comment" : "Action on the VEmptyState displayed when the user has no budgets.",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -16046,6 +16046,7 @@
       }
     },
     "Preview progress" : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {

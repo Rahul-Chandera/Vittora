@@ -137,7 +137,7 @@ struct AccountFormView: View {
                         } label: {
                             ZStack {
                                 Circle()
-                                    .fill(VColors.tertiaryBackground)
+                                    .fill(VColors.secondaryBackground)
                                     .frame(width: 44, height: 44)
                                     .overlay {
                                         if vm.selectedIcon == iconName {

@@ -171,6 +171,11 @@ struct BudgetDetailView: View {
                 )
             }
         }
+        // Grouped page (owner decision 2026-08-09). Missed by the sweep
+        // because this screen had no page paint at all — it relied on the
+        // system default white, so its cards went white-on-white.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Budget Details"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

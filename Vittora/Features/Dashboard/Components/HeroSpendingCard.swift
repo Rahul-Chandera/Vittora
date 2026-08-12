@@ -9,6 +9,11 @@ struct HeroSpendingCard: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
 
+    /// Labels and chrome. Amounts and trend deltas use VColors.expense /
+    /// VColors.income instead — af8b34c8 (2026-07-22) flattened those to this
+    /// for the P1 accessibility pass, but both tokens were retuned since and
+    /// now measure 5.80:1 and 5.41:1 on the white card, clearing AA. Owner
+    /// asked for the red/green semantics back on 2026-08-12.
     private var highContrastText: Color {
         colorScheme == .dark ? .white : .black
     }
@@ -50,7 +55,7 @@ struct HeroSpendingCard: View {
                 .foregroundColor(highContrastText)
             Text(CurrencyFormatter.format(monthSpending, currencyCode: currencyCode))
                 .font(VTypography.amountLarge)
-                .foregroundColor(highContrastText)
+                .foregroundColor(VColors.expense)
                 .amountScaling()
             if let comp = comparison {
                 spendingTrendLabel(percent: comp.spendingChangePercent)
@@ -65,7 +70,7 @@ struct HeroSpendingCard: View {
                 .foregroundColor(highContrastText)
             Text(CurrencyFormatter.format(monthIncome, currencyCode: currencyCode))
                 .font(VTypography.amountMedium)
-                .foregroundColor(highContrastText)
+                .foregroundColor(VColors.income)
                 .amountScaling()
             if let comp = comparison {
                 incomeTrendLabel(percent: comp.incomeChangePercent)
@@ -83,7 +88,7 @@ struct HeroSpendingCard: View {
             Text(String(format: "%.1f%%", abs(percent)))
                 .font(VTypography.bodyBold)
         }
-        .foregroundColor(highContrastText)
+        .foregroundColor(increased ? VColors.expense : VColors.income)
     }
 
     @ViewBuilder
@@ -96,7 +101,7 @@ struct HeroSpendingCard: View {
             Text(String(format: "%.1f%%", abs(percent)))
                 .font(VTypography.bodyBold)
         }
-        .foregroundColor(highContrastText)
+        .foregroundColor(increased ? VColors.income : VColors.expense)
     }
 
     @ViewBuilder
@@ -115,7 +120,7 @@ struct HeroSpendingCard: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
-                        .fill(VColors.tertiaryBackground)
+                        .fill(VColors.secondaryBackground)
                         .frame(height: 6)
 
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
