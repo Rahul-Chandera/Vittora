@@ -14,7 +14,7 @@ struct CategoryRowView: View {
         HStack(spacing: VSpacing.md) {
             ZStack {
                 Circle()
-                    .fill(VColors.tertiaryBackground)
+                    .fill(VColors.secondaryBackground)
                     .frame(width: 40, height: 40)
                 Image(systemName: category.icon)
                     .font(.system(size: 18, weight: .semibold))

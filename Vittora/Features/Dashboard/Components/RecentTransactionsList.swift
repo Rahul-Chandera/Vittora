@@ -73,7 +73,7 @@ private struct RecentTransactionRow: View {
         Button(action: onTap) {
             HStack(spacing: VSpacing.md) {
                 Circle()
-                    .fill(VColors.tertiaryBackground)
+                    .fill(VColors.secondaryBackground)
                     .frame(width: 36, height: 36)
                     .overlay {
                         Image(systemName: typeIcon(for: transaction.type))

@@ -22,6 +22,10 @@ struct TaxDashboardView: View {
                     }
                 }
             }
+            // Fill first, then paint. A ZStack sizes to its child, so the page
+            // colour only covered the empty state's own height and left white
+            // above and below it.
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Tax Estimator"))
             .toolbar {
