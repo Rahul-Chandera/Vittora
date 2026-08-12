@@ -25,7 +25,7 @@ struct SubscriptionAuditReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Subscription Audit"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -114,7 +114,7 @@ struct SubscriptionAuditReportView: View {
             }
             .padding(.horizontal, VSpacing.cardPadding)
             .padding(.vertical, VSpacing.xs)
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }

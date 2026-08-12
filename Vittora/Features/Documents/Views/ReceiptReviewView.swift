@@ -61,14 +61,14 @@ struct ReceiptReviewView: View {
                                     .padding(VSpacing.md)
                             }
                             .frame(maxHeight: 120)
-                            .background(VColors.secondaryBackground)
+                            .background(VColors.secondaryGroupedBackground)
                             .cornerRadius(VSpacing.cornerRadiusMD)
                         }
                     }
                 }
                 .padding(VSpacing.screenPadding)
             }
-            .background(VColors.background)
+            .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Review Receipt"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

@@ -2413,6 +2413,40 @@
         }
       }
     },
+    "Add New Account" : {
+      "comment" : "Row at the foot of the Account picker that opens the new-account sheet.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregar cuenta nueva"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नया अकाउंट जोड़ें"
+          }
+        }
+      }
+    },
+    "Add New Payee" : {
+      "comment" : "Row at the foot of the Payee picker that opens the new-payee sheet.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregar beneficiario nuevo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नया पेयी जोड़ें"
+          }
+        }
+      }
+    },
     "Add accounts to track your net worth" : {
       "localizations" : {
         "es" : {

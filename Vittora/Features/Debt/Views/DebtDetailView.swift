@@ -23,7 +23,7 @@ struct DebtDetailView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(vm?.payee?.name ?? String(localized: "Ledger"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -75,7 +75,7 @@ struct DebtDetailView: View {
             .accessibilityValue(CurrencyFormatter.format(vm.netBalance, currencyCode: currencyCode))
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
@@ -110,7 +110,7 @@ struct DebtDetailView: View {
                     }
                 }
             }
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }

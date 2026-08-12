@@ -46,7 +46,7 @@ struct VStatCard: View {
         value: Decimal,
         currencyCode: String = CurrencyDefaults.code,
         trend: Trend? = nil,
-        backgroundColor: Color = VColors.secondaryBackground,
+        backgroundColor: Color = VColors.secondaryGroupedBackground,
         accentColor: Color = VColors.primary
     ) {
         self.label = label

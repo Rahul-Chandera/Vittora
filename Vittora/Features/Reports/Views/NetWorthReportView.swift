@@ -72,7 +72,7 @@ struct NetWorthReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Net Worth"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -207,7 +207,7 @@ struct NetWorthReportView: View {
             }
             .padding(.horizontal, VSpacing.cardPadding)
             .padding(.vertical, VSpacing.xs)
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }

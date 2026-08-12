@@ -32,7 +32,7 @@ struct DebtLedgerView: View {
                     }
                 }
             }
-            .background(VColors.background)
+            .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Debt Ledger"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -95,13 +95,16 @@ struct DebtLedgerView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .safeAreaInset(edge: .bottom) {
-            // Clearance for the floating tab bar, painted in THIS screen's page
-            // colour — plain background, because this screen is not grouped.
-            VColors.background
-                .frame(height: 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: this screen is a stack of cards, and an opaque inset
+        // paints OVER the last one, slicing it mid-glyph — which the audit's
+        // contrast sampler reads as failing text at AccessibilityXL.
+        // Padding reserves the same space without drawing.
+        //
+        // Dashboard and the report screens keep their inset: they are the ones
+        // where removing it lets content render in the gutter below the tab
+        // bar, which the audit reports as text with no accessible element.
+        .safeAreaPadding(.bottom, 72)
     }
 
     @ViewBuilder
@@ -133,7 +136,7 @@ struct DebtLedgerView: View {
                     }
                 }
             }
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }

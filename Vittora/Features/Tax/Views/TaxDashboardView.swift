@@ -22,7 +22,7 @@ struct TaxDashboardView: View {
                     }
                 }
             }
-            .background(VColors.background)
+            .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Tax Estimator"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -230,7 +230,7 @@ struct TaxDashboardView: View {
             .foregroundStyle(VColors.textPrimary)
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
@@ -260,7 +260,7 @@ struct TaxDashboardView: View {
             .padding(VSpacing.cardPadding)
             .frame(minHeight: 44)
             .contentShape(Rectangle())
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
         .buttonStyle(.plain)
@@ -334,7 +334,7 @@ private struct StatTile: View {
         }
         .padding(VSpacing.cardPadding)
         .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title)

@@ -41,6 +41,15 @@ enum VColors {
     static var groupedBackground: Color {
         isOLEDBlack ? .black : Color(nsColor: .windowBackgroundColor)
     }
+    // Card ON a grouped page — white on the grey page, the way iOS's
+    // secondarySystemGroupedBackground pairs with systemGroupedBackground.
+    // Distinct from secondaryBackground, which is the grey FILL that sits on
+    // white surfaces (form fields, chips). Collapsing those two roles into one
+    // token is what made past background sweeps fail with invisible
+    // white-on-white chips.
+    static var secondaryGroupedBackground: Color {
+        isOLEDBlack ? .black : Color(nsColor: .textBackgroundColor)
+    }
     #else
     static var background: Color {
         isOLEDBlack ? .black : Color(uiColor: .systemBackground)
@@ -53,6 +62,11 @@ enum VColors {
     }
     static var groupedBackground: Color {
         isOLEDBlack ? .black : Color(uiColor: .systemGroupedBackground)
+    }
+    // See the macOS twin above for why this exists as its own role.
+    // OLED mirrors secondaryBackground: cards sit on pure black.
+    static var secondaryGroupedBackground: Color {
+        isOLEDBlack ? .black : Color(uiColor: .secondarySystemGroupedBackground)
     }
     #endif
 

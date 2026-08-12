@@ -36,7 +36,7 @@ struct FiftyThirtyTwentyReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "50/30/20"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -170,7 +170,7 @@ struct FiftyThirtyTwentyReportView: View {
                 if row.id != result.rows.last?.id { Divider() }
             }
         }
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 

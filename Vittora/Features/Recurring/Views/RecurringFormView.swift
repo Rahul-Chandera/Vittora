@@ -20,16 +20,14 @@ struct RecurringFormView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                VColors.background.ignoresSafeArea()
+                VColors.groupedBackground.ignoresSafeArea()
 
                 if let viewModel = viewModel {
                     ScrollView {
                         VStack(alignment: .leading, spacing: VSpacing.lg) {
                             // Amount Input
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text(String(localized: "Amount"))
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
+                                VFormSectionHeader(String(localized: "Amount"))
 
                                 HStack(spacing: VSpacing.sm) {
                                     Text(currencySymbol)
@@ -50,7 +48,7 @@ struct RecurringFormView: View {
                                         .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
                                 }
                                 .padding(VSpacing.md)
-                                .background(VColors.secondaryBackground)
+                                .background(VColors.secondaryGroupedBackground)
                                 .cornerRadius(VSpacing.cornerRadiusMD)
                             }
 
@@ -72,7 +70,7 @@ struct RecurringFormView: View {
                                 .labelsHidden()
                                 .frame(maxWidth: .infinity)
                                 .padding(VSpacing.md)
-                                .background(VColors.secondaryBackground)
+                                .background(VColors.secondaryGroupedBackground)
                                 .cornerRadius(VSpacing.cornerRadiusMD)
                             }
 
@@ -102,7 +100,7 @@ struct RecurringFormView: View {
                                     .labelsHidden()
                                     .frame(maxWidth: .infinity)
                                     .padding(VSpacing.md)
-                                    .background(VColors.secondaryBackground)
+                                    .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
                             }
@@ -137,7 +135,7 @@ struct RecurringFormView: View {
                                             .accessibilityHidden(true)
                                     }
                                     .padding(VSpacing.md)
-                                    .background(VColors.secondaryBackground)
+                                    .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
                                 .accessibilityIdentifier("recurring-account-picker")
@@ -180,7 +178,7 @@ struct RecurringFormView: View {
                                             .accessibilityHidden(true)
                                     }
                                     .padding(VSpacing.md)
-                                    .background(VColors.secondaryBackground)
+                                    .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
                                 .accessibilityIdentifier("recurring-category-picker")
@@ -219,7 +217,7 @@ struct RecurringFormView: View {
                                             .accessibilityHidden(true)
                                     }
                                     .padding(VSpacing.md)
-                                    .background(VColors.secondaryBackground)
+                                    .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
                                 .accessibilityIdentifier("recurring-payee-picker")
@@ -238,7 +236,7 @@ struct RecurringFormView: View {
                                     .font(VTypography.body)
                                     .frame(height: 100)
                                     .padding(VSpacing.sm)
-                                    .background(VColors.secondaryBackground)
+                                    .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                             }
 

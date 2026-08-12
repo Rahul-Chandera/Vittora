@@ -128,7 +128,7 @@ struct TransactionDetailView: View {
                                     }
                                     .padding(VSpacing.md)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(VColors.secondaryBackground)
+                                    .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusSM)
                                 }
                             }
@@ -163,7 +163,7 @@ struct TransactionDetailView: View {
                                                     .foregroundColor(VColors.textPrimary)
                                             }
                                             .padding(VSpacing.md)
-                                            .background(VColors.secondaryBackground)
+                                            .background(VColors.secondaryGroupedBackground)
                                             .cornerRadius(VSpacing.cornerRadiusSM)
                                         }
                                     }
@@ -176,13 +176,14 @@ struct TransactionDetailView: View {
                     }
                     .padding(VSpacing.screenPadding)
                 }
-                .safeAreaInset(edge: .bottom) {
-                    // Clearance for the floating tab bar, painted in THIS screen's page
-            // colour — plain background, because this screen is not grouped.
-            VColors.background
-                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
-                        .allowsHitTesting(false)
-                }
+                // Grouped page like every other screen (owner decision
+                // 2026-08-09). This screen had no page paint at all — it relied
+                // on the system default white — so colouring only the clearance
+                // strip grey put a visible band across the content.
+                .background(VColors.groupedBackground)
+                // safeAreaPadding, not safeAreaInset: a stack of cards, and an
+                // opaque inset paints OVER the last one, slicing it mid-glyph.
+                .safeAreaPadding(.bottom, dynamicTypeSize.isAccessibilitySize ? 140 : 72)
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif

@@ -38,7 +38,7 @@ struct CategoryBreakdownView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Category Breakdown"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -109,7 +109,7 @@ struct CategoryBreakdownView: View {
             }
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
@@ -133,7 +133,7 @@ struct CategoryBreakdownView: View {
                 }
             }
             .padding(VSpacing.cardPadding)
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }

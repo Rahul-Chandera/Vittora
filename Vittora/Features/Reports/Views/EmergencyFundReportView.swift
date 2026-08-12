@@ -33,11 +33,11 @@ struct EmergencyFundReportView: View {
         .safeAreaInset(edge: .bottom) {
             // Clearance for the floating tab bar, painted in THIS screen's page
             // colour — plain background, because this screen is not grouped.
-            VColors.background
+            VColors.groupedBackground
                 .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
                 .allowsHitTesting(false)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Emergency Fund"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

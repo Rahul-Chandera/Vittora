@@ -260,25 +260,33 @@ final class AccessibilityAuditUITests: XCTestCase {
     @MainActor
     func testManagedListsFormsAndDocumentsAccessibilityAudit() throws {
         throw XCTSkip("""
-            Still deferred after the 1.4.2 pass (iOS 26.2 now installed locally, \
-            so this is measured, not assumed). Six of the eight originally \
-            deferred audits now pass; these two do not, for reasons that are not \
-            app defects:
+            Still deferred. Re-measured 2026-08-07 on iPhone 17 Pro Max / \
+            iOS 26.2 — the device the CI resolver picks — with both skips \
+            removed and the full class run in order. The earlier reason \
+            recorded here was wrong in its specifics and is replaced:
 
-            * XCTest reports "Contrast failed" on 15 elements whose exported \
-              images are plain black on white or #F2F2F7 — roughly 18:1. It is \
-              sampling the row, not the glyphs, the same way it did for form \
-              section headers.
-            * The count changes with how many tests run in the same session: \
-              1 failing element in a full-suite run, 15 when run with one other \
-              test. Identical code either way.
-            * 3 genuine elementDetection issues remain (text drawn without an \
-              accessibility representation) — tracked in \
-              Docs/Agent/tasks-1.4.2/YIR-inaccessible-text.md.
+            * It claimed 15 mis-sampled contrast elements and 3 genuine \
+              elementDetection findings. Actual counts are now 3 contrast and \
+              ZERO elementDetection. Most of the 15 were the clearance strip \
+              slicing rows mid-glyph, fixed in #197 — an opaque safeAreaInset \
+              painted OVER scrolling content, and the sampler read the \
+              surviving sliver as failing text.
+            * What blocks re-enabling is not a count, it is VARIANCE. Two \
+              runs of near-identical code produced 1 and then 10 contrast \
+              findings in this test. Every exported element image is clean \
+              dark-on-light text — "Monthly", "13 Aug 2026", black on #F2F2F7 \
+              at roughly 18:1. They are false positives, and how many appear \
+              changes run to run.
+            * Un-skipping these two also destabilises the rest of the class: \
+              they add many app launches, and testSettingsSectionsAccessibility\
+              Audit flipped from pass to fail between those same two runs \
+              without any change touching it.
 
-            Exempting 15 correctly-contrasting elements to force this green would \
-            hide the elementDetection findings behind a filter, so it stays \
-            skipped until those are fixed and the sampler can be re-measured.
+            So these stay skipped because they are not yet reliable GATES, \
+            not because the app has known defects here. Forcing them green \
+            would need an exclusion broad enough to hide real findings. \
+            Re-measure when Apple's sampler stabilises; the diagnostic recipe \
+            is in Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md.
             """)
         #if os(macOS)
         throw XCTSkip("iOS only")
@@ -534,25 +542,33 @@ final class AccessibilityAuditUITests: XCTestCase {
     @MainActor
     func testAccessibility3ScreenshotsForRemainingSurfaces() throws {
         throw XCTSkip("""
-            Still deferred after the 1.4.2 pass (iOS 26.2 now installed locally, \
-            so this is measured, not assumed). Six of the eight originally \
-            deferred audits now pass; these two do not, for reasons that are not \
-            app defects:
+            Still deferred. Re-measured 2026-08-07 on iPhone 17 Pro Max / \
+            iOS 26.2 — the device the CI resolver picks — with both skips \
+            removed and the full class run in order. The earlier reason \
+            recorded here was wrong in its specifics and is replaced:
 
-            * XCTest reports "Contrast failed" on 15 elements whose exported \
-              images are plain black on white or #F2F2F7 — roughly 18:1. It is \
-              sampling the row, not the glyphs, the same way it did for form \
-              section headers.
-            * The count changes with how many tests run in the same session: \
-              1 failing element in a full-suite run, 15 when run with one other \
-              test. Identical code either way.
-            * 3 genuine elementDetection issues remain (text drawn without an \
-              accessibility representation) — tracked in \
-              Docs/Agent/tasks-1.4.2/YIR-inaccessible-text.md.
+            * It claimed 15 mis-sampled contrast elements and 3 genuine \
+              elementDetection findings. Actual counts are now 3 contrast and \
+              ZERO elementDetection. Most of the 15 were the clearance strip \
+              slicing rows mid-glyph, fixed in #197 — an opaque safeAreaInset \
+              painted OVER scrolling content, and the sampler read the \
+              surviving sliver as failing text.
+            * What blocks re-enabling is not a count, it is VARIANCE. Two \
+              runs of near-identical code produced 1 and then 10 contrast \
+              findings in this test. Every exported element image is clean \
+              dark-on-light text — "Monthly", "13 Aug 2026", black on #F2F2F7 \
+              at roughly 18:1. They are false positives, and how many appear \
+              changes run to run.
+            * Un-skipping these two also destabilises the rest of the class: \
+              they add many app launches, and testSettingsSectionsAccessibility\
+              Audit flipped from pass to fail between those same two runs \
+              without any change touching it.
 
-            Exempting 15 correctly-contrasting elements to force this green would \
-            hide the elementDetection findings behind a filter, so it stays \
-            skipped until those are fixed and the sampler can be re-measured.
+            So these stay skipped because they are not yet reliable GATES, \
+            not because the app has known defects here. Forcing them green \
+            would need an exclusion broad enough to hide real findings. \
+            Re-measure when Apple's sampler stabilises; the diagnostic recipe \
+            is in Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md.
             """)
         #if os(macOS)
         throw XCTSkip("iOS only")
@@ -851,6 +867,20 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if (issue.element?.identifier ?? "").hasPrefix("brand-mark-") {
                     return true
                 }
+                // The Net Worth card carries white content on the brand-green
+                // fill by owner decision (2026-08-08), overriding the dark-text
+                // choice of 2026-08-03 after seeing both on device. That pairing
+                // is 1.97:1 and this is a DATA surface, not a CTA — so unlike the
+                // rest of DEC-012 it is a real, knowingly accepted miss, not a
+                // sampler artifact. The owner was offered a darker fill that
+                // would pass AA and declined it to keep the accent exact.
+                //
+                // Anchored to one identifier so it cannot spread: any other
+                // white-on-green surface must opt in deliberately. The figures
+                // stay reachable via the card's accessibilityValue.
+                if issue.element?.identifier == "brand-green-filled-card" {
+                    return true
+                }
                 // On CI's iOS 26.2 the audit flags an inner node of the floating
                 // add button that carries neither the label nor the identifier,
                 // so both checks above miss it and the DEC-012 exemption never
@@ -985,6 +1015,31 @@ final class AccessibilityAuditUITests: XCTestCase {
                 // that do scale. Fixed-size and fully unsupported fonts still fail,
                 // while accessibility3 screenshots verify the rendered result.
                 return issue.compactDescription.localizedCaseInsensitiveContains("partially")
+            }
+            if issue.auditType == .elementDetection,
+               issue.element == nil,
+               self.app.tabBars.firstMatch.exists {
+                // Scroll content beneath iOS 26's floating tab bar.
+                //
+                // The bar is a capsule with transparent gutters, so content
+                // scrolls visibly under and around it — that is the platform's
+                // intended rendering, not a layout mistake. The accessibility
+                // tree drops those rows as occluded while the glyphs are still
+                // on screen, so the vision pass reports text with no element.
+                // VoiceOver still reaches every one of them by scrolling.
+                //
+                // Owner decision (2026-08-08). The alternative was an opaque
+                // strip painted over the content to hide it, which is what
+                // produced the banner slicing cards above the tab bar that was
+                // reported from device three times. Measured three ways —
+                // #197's CI plus two local full-class runs — so this is a
+                // structural trade-off, not a tunable padding value.
+                //
+                // Deliberately narrow: only nil-element findings (whole-screen,
+                // nothing to point at) and only where a tab bar is present. An
+                // elementDetection issue that names an element still fails, and
+                // so does anything on a screen without the floating bar.
+                return true
             }
             self.logAuditIssue(issue)
             return false

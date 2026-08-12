@@ -31,7 +31,7 @@ struct SplitGroupListView: View {
                 }
             }
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Split Expenses"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -99,7 +99,7 @@ struct SplitGroupListView: View {
             .safeAreaInset(edge: .bottom) {
                 // Clearance for the floating tab bar, painted in THIS screen's page
             // colour — plain background, because this screen is not grouped.
-            VColors.background
+            VColors.groupedBackground
                     .frame(height: 72)
                     .allowsHitTesting(false)
             }

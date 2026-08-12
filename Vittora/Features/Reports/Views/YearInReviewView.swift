@@ -44,7 +44,7 @@ struct YearInReviewView: View {
             .padding(VSpacing.screenPadding)
             .animation(reduceMotion ? nil : .default, value: vm?.selectedYear)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Year in Review"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

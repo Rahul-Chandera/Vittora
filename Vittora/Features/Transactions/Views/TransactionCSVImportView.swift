@@ -40,7 +40,9 @@ struct TransactionCSVImportView: View {
                         Button(String(localized: "Import")) {
                             Task {
                                 if await vm.importTransactions(currencyCode: currencyCode) {
-                                    appState.notifyChanged([.transactions, .accounts, .payees])
+                                    // .budgets too: an import can land dozens of expenses, and
+                                    // every budget covering their categories is stale.
+                                    appState.notifyChanged([.transactions, .accounts, .payees, .budgets])
                                     onComplete()
                                     dismiss()
                                 }

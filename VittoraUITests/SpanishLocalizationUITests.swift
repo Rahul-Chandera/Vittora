@@ -271,6 +271,15 @@ final class SpanishLocalizationUITests: XCTestCase {
                 return false
             case .dynamicType:
                 return issue.compactDescription.localizedCaseInsensitiveContains("partially")
+            case .elementDetection where issue.element == nil && self.app.tabBars.firstMatch.exists:
+                // Same exemption, same owner decision (2026-08-08), as the
+                // shared core-flow audit — see AccessibilityAuditUITests for
+                // the full reasoning. Content scrolls visibly under iOS 26's
+                // floating tab bar by design and VoiceOver still reaches it;
+                // the alternative is the opaque strip that was reported from
+                // device three times. This handler is a separate copy, which
+                // is why adding it there alone left CI red.
+                return true
             default:
                 self.logAuditIssue(issue)
                 return false

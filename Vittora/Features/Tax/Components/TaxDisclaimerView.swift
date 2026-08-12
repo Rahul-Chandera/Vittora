@@ -17,7 +17,7 @@ struct TaxDisclaimerView: View {
             Spacer(minLength: 0)
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
         .overlay(
             RoundedRectangle(cornerRadius: VSpacing.cornerRadiusCard)

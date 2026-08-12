@@ -23,7 +23,7 @@ struct SavingsGoalDetailView: View {
                 ProgressView().tint(VColors.primary)
             }
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(vm?.goal.name ?? initialGoal.name)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -123,7 +123,8 @@ struct SavingsGoalDetailView: View {
             VStack(spacing: VSpacing.md) {
                 SavingsProgressRingView(
                     progress: vm.goal.progressFraction,
-                    color: VColors.textPrimary,
+                    // The goal's own colour — see SavingsGoalCardView.
+                    color: Color(hex: vm.goal.colorHex) ?? VColors.primary,
                     size: 120,
                     lineWidth: 12
                 )
@@ -183,7 +184,7 @@ struct SavingsGoalDetailView: View {
             Spacer()
         }
         .padding(VSpacing.cardPadding)
-        .background(days < 0 ? VColors.expense.opacity(0.08) : VColors.secondaryBackground)
+        .background(days < 0 ? VColors.expense.opacity(0.08) : VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
@@ -215,7 +216,7 @@ struct SavingsGoalDetailView: View {
             Spacer()
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
