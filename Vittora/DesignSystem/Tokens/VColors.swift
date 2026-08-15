@@ -114,6 +114,18 @@ enum VColors {
     /// brand green. Owner decision (2026-08-01): selection is neutral, so row
     /// content stays readable whatever accent is chosen and whatever colour an
     /// individual amount happens to be.
+    /// Unfilled portion of a progress bar or ring.
+    ///
+    /// Its own token because a track has to read against BOTH a white card and
+    /// the grouped grey page, and no existing surface token does. Using
+    /// secondaryBackground here measured 1.00:1 on the page — the identical
+    /// colour — so the Budget Details ring had no visible track at all.
+    /// #D1D1D6 gives 1.52:1 on white and 1.36:1 on the page.
+    static var progressTrack: Color {
+        adaptive(light: (0.820, 0.820, 0.839),   // #D1D1D6
+                 dark: (0.227, 0.227, 0.235))    // #3A3A3C
+    }
+
     static var rowSelection: Color {
         adaptive(light: (0.890, 0.890, 0.906),   // #E3E3E7
                  dark: (0.173, 0.173, 0.180))    // #2C2C2E

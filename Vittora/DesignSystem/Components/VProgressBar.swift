@@ -28,7 +28,7 @@ struct VProgressBar: View {
                 ZStack(alignment: .leading) {
                     // Background track
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusSM)
-                        .fill(VColors.secondaryBackground)
+                        .fill(VColors.progressTrack)
                         .frame(height: 8)
 
                     // Progress fill with gradient

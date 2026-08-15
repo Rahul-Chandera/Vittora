@@ -16,7 +16,7 @@ struct SavingsProgressRingView: View {
             // Track must clear non-text contrast (≥3:1) on secondary cards —
             // color.opacity(0.2) falls well below and trips Apple's sampler.
             Circle()
-                .stroke(VColors.secondaryBackground, lineWidth: lineWidth)
+                .stroke(VColors.progressTrack, lineWidth: lineWidth)
 
             // Fill
             Circle()

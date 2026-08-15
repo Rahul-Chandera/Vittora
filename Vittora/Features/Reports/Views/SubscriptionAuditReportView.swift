@@ -167,7 +167,11 @@ struct SubscriptionAuditReportView: View {
             action: { showAddRecurring = true }
         )
         .frame(maxWidth: .infinity)
-        .padding(.top, VSpacing.xxxl)
+        // Centre in the viewport, not pushed down from the top. This sits in a
+        // ScrollView, so maxHeight: .infinity alone does nothing — the content
+        // has to fill the scroll container's height first for the empty state
+        // to have anything to centre within.
+        .containerRelativeFrame(.vertical, alignment: .center)
     }
 
     // MARK: - Helpers
