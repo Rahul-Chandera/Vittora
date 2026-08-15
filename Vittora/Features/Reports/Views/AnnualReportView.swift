@@ -15,25 +15,34 @@ struct AnnualReportView: View {
     }()
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: VSpacing.sectionSpacing) {
-                yearPicker
+        VStack(spacing: VSpacing.sectionSpacing) {
+            // Pinned above the scroll container, not inside it. The empty state
+            // centres in the space the picker leaves, and it can only measure
+            // that space if the picker is not part of the scrolled content.
+            yearPicker
+                .padding(.horizontal, VSpacing.screenPadding)
+                .padding(.top, VSpacing.screenPadding)
 
-                if let vm {
-                    if vm.isLoading {
-                        ProgressView().tint(VColors.primary)
-                            .padding(.top, VSpacing.xxxl)
-                    } else if hasReportData(vm) {
-                        annualSummaryCard(vm)
-                        annualChart(vm)
-                        monthBreakdownList(vm)
-                    } else {
-                        emptyState
+            if let vm {
+                if vm.isLoading {
+                    ProgressView().tint(VColors.primary)
+                        .frame(maxHeight: .infinity)
+                } else if hasReportData(vm) {
+                    ScrollView {
+                        VStack(spacing: VSpacing.sectionSpacing) {
+                            annualSummaryCard(vm)
+                            annualChart(vm)
+                            monthBreakdownList(vm)
+                        }
+                        .padding(.horizontal, VSpacing.screenPadding)
+                        .padding(.bottom, VSpacing.screenPadding)
                     }
+                } else {
+                    emptyState
                 }
             }
-            .padding(VSpacing.screenPadding)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Annual Summary"))
         #if os(iOS)
@@ -50,7 +59,7 @@ struct AnnualReportView: View {
                         try ReportPDFRenderer.export(
                             pages: MonthlyReportPDFDocument.pages(
                                 reportTitle: String(localized: "Annual Summary"),
-                                period: String(localized: "Year \(selectedYear)"),
+                                period: String(localized: "Year \(String(selectedYear))"),
                                 monthlyData: vm.monthlyData,
                                 currencyCode: currencyCode,
                                 totalIncome: vm.totalIncome,
@@ -245,9 +254,12 @@ struct AnnualReportView: View {
         ContentUnavailableView {
             Label(String(localized: "No annual data yet"), systemImage: "calendar")
         } description: {
-            Text(String(localized: "Transactions in \(selectedYear) will appear here once you add them."))
+            // String(selectedYear), not the Int: interpolating an Int applies the
+            // locale's grouping separator and rendered "Transactions in 2,025".
+            Text(String(localized: "Transactions in \(String(selectedYear)) will appear here once you add them."))
         }
-        .padding(VSpacing.xxxl)
+        .padding(.horizontal, VSpacing.xxxl)
+        .frame(maxHeight: .infinity)
     }
 
     private var annualReportErrorBinding: Binding<String?> {

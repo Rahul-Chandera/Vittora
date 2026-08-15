@@ -17,23 +17,6 @@
         }
       }
     },
-    "%@, required" : {
-      "comment" : "VoiceOver label for a required form field. %@ is the field name.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, obligatorio"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, आवश्यक"
-          }
-        }
-      }
-    },
     "-%@" : {
       "localizations" : {
         "es" : {
@@ -46,125 +29,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "-%@"
-          }
-        }
-      }
-    },
-    "A transfer needs a second account. Add one to continue." : {
-      "comment" : "Subtitle on the account picker when a transfer has no eligible destination.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Una transferencia necesita una segunda cuenta. Agregue una para continuar."
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ट्रांसफ़र के लिए दूसरा अकाउंट चाहिए। जारी रखने के लिए एक जोड़ें।"
-          }
-        }
-      }
-    },
-    "Add an account to continue" : {
-      "comment" : "Subtitle on the account picker when no accounts exist.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agregue una cuenta para continuar"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "जारी रखने के लिए एक अकाउंट जोड़ें"
-          }
-        }
-      }
-    },
-    "Budget amount" : {
-      "comment" : "VoiceOver label for the budget amount field.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importe del presupuesto"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "बजट राशि"
-          }
-        }
-      }
-    },
-    "Exact amount" : {
-      "comment" : "VoiceOver label for the exact-split amount field.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importe exacto"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "सटीक राशि"
-          }
-        }
-      }
-    },
-    "No Accounts Yet" : {
-      "comment" : "Title on the account picker when no accounts exist.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aún no hay cuentas"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "अभी कोई अकाउंट नहीं"
-          }
-        }
-      }
-    },
-    "No Other Accounts" : {
-      "comment" : "Title on the account picker when the only account is the transfer source.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No hay otras cuentas"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "कोई अन्य अकाउंट नहीं"
-          }
-        }
-      }
-    },
-    "Percentage share" : {
-      "comment" : "VoiceOver label for the percentage-split field.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Porcentaje"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "प्रतिशत हिस्सा"
           }
         }
       }
@@ -1000,6 +864,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@, सुझाया गया। टैक्स: %2$@। प्रभावी दर %3$@%%"
+          }
+        }
+      }
+    },
+    "%@, required" : {
+      "comment" : "VoiceOver label for a required form field. %@ is the field name.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, obligatorio"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, आवश्यक"
           }
         }
       }
@@ -2121,6 +2002,23 @@
         }
       }
     },
+    "A transfer needs a second account. Add one to continue." : {
+      "comment" : "Subtitle on the account picker when a transfer has no eligible destination.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una transferencia necesita una segunda cuenta. Agregue una para continuar."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ट्रांसफ़र के लिए दूसरा अकाउंट चाहिए। जारी रखने के लिए एक जोड़ें।"
+          }
+        }
+      }
+    },
     "A year of tracking" : {
       "localizations" : {
         "es" : {
@@ -2218,6 +2116,7 @@
       }
     },
     "Account *" : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -2579,6 +2478,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ट्रांज़ैक्शन इंपोर्ट करने से पहले एक अकाउंट जोड़ें।"
+          }
+        }
+      }
+    },
+    "Add an account to continue" : {
+      "comment" : "Subtitle on the account picker when no accounts exist.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregue una cuenta para continuar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जारी रखने के लिए एक अकाउंट जोड़ें"
           }
         }
       }
@@ -4863,6 +4779,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "बजट अलर्ट"
+          }
+        }
+      }
+    },
+    "Budget amount" : {
+      "comment" : "VoiceOver label for the budget amount field.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe del presupuesto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बजट राशि"
           }
         }
       }
@@ -9178,6 +9111,23 @@
         }
       }
     },
+    "Exact amount" : {
+      "comment" : "VoiceOver label for the exact-split amount field.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe exacto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सटीक राशि"
+          }
+        }
+      }
+    },
     "Exact Amount" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -13219,6 +13169,23 @@
         }
       }
     },
+    "No Accounts Yet" : {
+      "comment" : "Title on the account picker when no accounts exist.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay cuentas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी कोई अकाउंट नहीं"
+          }
+        }
+      }
+    },
     "No Active Subscriptions" : {
       "localizations" : {
         "es" : {
@@ -13597,6 +13564,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "कोई नया पेयी इम्पोर्ट नहीं हुआ। पहले से मौजूद होने के कारण %lld कॉन्टैक्ट छोड़ दिए गए।"
+          }
+        }
+      }
+    },
+    "No Other Accounts" : {
+      "comment" : "Title on the account picker when the only account is the transfer source.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay otras cuentas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कोई अन्य अकाउंट नहीं"
           }
         }
       }
@@ -15693,6 +15677,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "प्रतिशत"
+          }
+        }
+      }
+    },
+    "Percentage share" : {
+      "comment" : "VoiceOver label for the percentage-split field.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porcentaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रतिशत हिस्सा"
           }
         }
       }
@@ -19366,7 +19367,6 @@
       }
     },
     "Shares" : {
-      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -22147,20 +22147,20 @@
         }
       }
     },
-    "Transactions in %lld will appear here once you add them." : {
+    "Transactions in %@ will appear here once you add them." : {
       "comment" : "A message that appears when there is no data for the selected year. The argument is the year that is currently selected.",
       "isCommentAutoGenerated" : true,
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Las transacciones en %lld aparecerán aquí cuando las agregue."
+            "value" : "Las transacciones en %@ aparecerán aquí cuando las agregue."
           }
         },
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld के ट्रांज़ैक्शन जोड़ने के बाद यहाँ दिखाई देंगे।"
+            "value" : "%@ के ट्रांज़ैक्शन जोड़ने के बाद यहाँ दिखाई देंगे।"
           }
         }
       }
@@ -24695,24 +24695,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "वर्ष %@, %lld ट्रांज़ैक्शन"
-          }
-        }
-      }
-    },
-    "Year %lld" : {
-      "comment" : "The subtitle of the annual report.",
-      "isCommentAutoGenerated" : true,
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Año %lld"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "वर्ष %lld"
           }
         }
       }

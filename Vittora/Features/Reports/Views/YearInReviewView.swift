@@ -113,7 +113,7 @@ struct YearInReviewView: View {
         .pickerStyle(.menu)
         .accessibilityLabel(String(localized: "Select year"))
         .accessibilityValue(
-            String(localized: "Year \(vm.selectedYear ?? vm.availableYears.first ?? 0)")
+            String(localized: "Year \(String(vm.selectedYear ?? vm.availableYears.first ?? 0))")
         )
         .accessibilityIdentifier("year-in-review-year-picker")
     }
