@@ -9,49 +9,52 @@ struct DebtLedgerView: View {
     @State private var selectedPayeeID: UUID?
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                if let vm = vm {
-                    if vm.isLoading && vm.ledgerEntries.isEmpty {
-                        ProgressView().tint(VColors.primary)
-                    } else if let error = vm.error {
-                        ContentUnavailableView {
-                            Label(String(localized: "Unable to Load"), systemImage: "exclamationmark.triangle")
-                        } description: {
-                            Text(error)
-                        } actions: {
-                            Button(String(localized: "Try Again")) {
-                                vm.error = nil
-                                Task { await vm.load() }
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(VColors.primary)
+        // No NavigationStack here. All three call sites already provide one —
+        // AppTabView.contentStack, the More list's NavigationLink, and the
+        // sidebar's detail column — so declaring one nested a stack inside a
+        // stack. The push then had no transition, and the visible back button
+        // belonged to the OUTER stack, so it returned to More, not the ledger.
+        ZStack {
+            if let vm = vm {
+                if vm.isLoading && vm.ledgerEntries.isEmpty {
+                    ProgressView().tint(VColors.primary)
+                } else if let error = vm.error {
+                    ContentUnavailableView {
+                        Label(String(localized: "Unable to Load"), systemImage: "exclamationmark.triangle")
+                    } description: {
+                        Text(error)
+                    } actions: {
+                        Button(String(localized: "Try Again")) {
+                            vm.error = nil
+                            Task { await vm.load() }
                         }
-                    } else {
-                        ledgerContent(vm)
+                        .buttonStyle(.borderedProminent)
+                        .tint(VColors.primary)
                     }
+                } else {
+                    ledgerContent(vm)
                 }
             }
-            // Fill first, then paint — a ZStack sizes to its child, so the page
-            // colour would only cover the empty/error state's own height.
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(VColors.groupedBackground)
-            .navigationTitle(String(localized: "Debt Ledger"))
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showAddDebt = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .accessibilityLabel(String(localized: "Add debt entry"))
-                    .accessibilityHint(String(localized: "Opens the debt entry form"))
-                    .accessibilityIdentifier("debt-add-button")
+        }
+        // Fill first, then paint — a ZStack sizes to its child, so the page
+        // colour would only cover the empty/error state's own height.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(VColors.groupedBackground)
+        .navigationTitle(String(localized: "Debt Ledger"))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showAddDebt = true
+                } label: {
+                    Image(systemName: "plus")
                 }
+                .accessibilityLabel(String(localized: "Add debt entry"))
+                .accessibilityHint(String(localized: "Opens the debt entry form"))
+                .accessibilityIdentifier("debt-add-button")
             }
-            .navigationDestination(item: $selectedPayeeID) { payeeID in
-                DebtDetailView(payeeID: payeeID)
-            }
+        }
+        .navigationDestination(item: $selectedPayeeID) { payeeID in
+            DebtDetailView(payeeID: payeeID)
         }
         .task {
             if vm == nil {
@@ -74,26 +77,51 @@ struct DebtLedgerView: View {
     }
 
     @ViewBuilder
+    private func ledgerHeader(_ vm: DebtLedgerViewModel) -> some View {
+        // fixedSize pins these to their ideal height. In the empty branch the
+        // stack has real slack to hand out, and the card is flexible enough to
+        // take a share of it — it stretched to two-thirds taller than normal
+        // before the empty state got any. Inside the ScrollView this is a no-op.
+        if let balance = vm.balance {
+            DebtSummaryCard(balance: balance)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+
+        if !vm.overdueEntries.isEmpty {
+            overdueBanner(vm.overdueEntries.count)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    @ViewBuilder
     private func ledgerContent(_ vm: DebtLedgerViewModel) -> some View {
+        if vm.ledgerEntries.isEmpty {
+            // No ScrollView: with no entries there is nothing to scroll, so the
+            // empty state can simply take the height the summary card leaves and
+            // centre in it. Keeping it inside the ScrollView is what made it sit
+            // crammed under the card with the page blank beneath.
+            VStack(spacing: VSpacing.sectionSpacing) {
+                ledgerHeader(vm)
+                emptyState
+                    .frame(maxHeight: .infinity)
+            }
+            .padding(VSpacing.screenPadding)
+            .safeAreaPadding(.bottom, 72)
+        } else {
+            ledgerScroll(vm)
+        }
+    }
+
+    private func ledgerScroll(_ vm: DebtLedgerViewModel) -> some View {
         ScrollView {
             VStack(spacing: VSpacing.sectionSpacing) {
-                if let balance = vm.balance {
-                    DebtSummaryCard(balance: balance)
-                }
+                ledgerHeader(vm)
 
-                if !vm.overdueEntries.isEmpty {
-                    overdueBanner(vm.overdueEntries.count)
+                if !vm.owedToMeEntries.isEmpty {
+                    section(title: String(localized: "Owed to You"), entries: vm.owedToMeEntries)
                 }
-
-                if vm.ledgerEntries.isEmpty {
-                    emptyState
-                } else {
-                    if !vm.owedToMeEntries.isEmpty {
-                        section(title: String(localized: "Owed to You"), entries: vm.owedToMeEntries)
-                    }
-                    if !vm.iOweEntries.isEmpty {
-                        section(title: String(localized: "You Owe"), entries: vm.iOweEntries)
-                    }
+                if !vm.iOweEntries.isEmpty {
+                    section(title: String(localized: "You Owe"), entries: vm.iOweEntries)
                 }
             }
             .padding(VSpacing.screenPadding)

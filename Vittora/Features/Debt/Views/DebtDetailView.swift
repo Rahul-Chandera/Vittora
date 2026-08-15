@@ -2,11 +2,13 @@ import SwiftUI
 import VittoraCore
 
 struct DebtDetailView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.currencyCode) private var currencyCode
     @State private var vm: DebtDetailViewModel?
     @State private var showSettlement = false
     @State private var debtToSettle: DebtEntry?
+    @State private var debtToDelete: DebtEntry?
     let payeeID: UUID
 
     var body: some View {
@@ -24,6 +26,32 @@ struct DebtDetailView: View {
             .padding(VSpacing.screenPadding)
         }
         .background(VColors.groupedBackground)
+        // Deleting money records is not undoable, so it is confirmed and the
+        // amount is named in the prompt rather than a bare "Are you sure?".
+        .confirmationDialog(
+            String(localized: "Delete this debt entry?"),
+            isPresented: Binding(
+                get: { debtToDelete != nil },
+                set: { if !$0 { debtToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Delete"), role: .destructive) {
+                guard let entry = debtToDelete else { return }
+                debtToDelete = nil
+                Task {
+                    await vm?.delete(debtID: entry.id)
+                    // The ledger one screen back reloads on this; without it the
+                    // deleted entry stayed on screen there until a relaunch.
+                    appState.notifyChanged(.debt)
+                }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) { debtToDelete = nil }
+        } message: {
+            if let entry = debtToDelete {
+                Text(String(localized: "\(CurrencyFormatter.format(entry.amount, currencyCode: currencyCode)) will be removed permanently. This cannot be undone."))
+            }
+        }
         .navigationTitle(vm?.payee?.name ?? String(localized: "Ledger"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -102,9 +130,25 @@ struct DebtDetailView: View {
                 .font(VTypography.subheadline)
                 .foregroundColor(VColors.textSecondary)
 
+            if vm.entries.isEmpty {
+                Text(String(localized: "No entries left for this person"))
+                    .font(VTypography.caption1)
+                    .foregroundColor(VColors.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(VSpacing.lg)
+                    .background(VColors.secondaryGroupedBackground)
+                    .cornerRadius(VSpacing.cornerRadiusCard)
+            } else {
             VStack(spacing: VSpacing.xs) {
                 ForEach(vm.entries) { entry in
                     entryRow(entry, payeeName: vm.payee?.name)
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                debtToDelete = entry
+                            } label: {
+                                Label(String(localized: "Delete Entry"), systemImage: "trash")
+                            }
+                        }
                     if entry.id != vm.entries.last?.id {
                         Divider().padding(.leading, VSpacing.lg)
                     }
@@ -112,6 +156,7 @@ struct DebtDetailView: View {
             }
             .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
+            }
         }
     }
 
@@ -158,8 +203,8 @@ struct DebtDetailView: View {
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textPrimary)
                 }
-                if !entry.isSettled {
-                    HStack(spacing: VSpacing.sm) {
+                HStack(spacing: VSpacing.sm) {
+                    if !entry.isSettled {
                         if entry.direction == .lent {
                             ShareLink(
                                 item: DebtContactReminderDraft.message(
@@ -186,6 +231,19 @@ struct DebtDetailView: View {
                         .frame(minWidth: 44, minHeight: 44)
                         .contentShape(Rectangle())
                     }
+
+                    // Visible, not only a context menu. The report was that there
+                    // is no way to delete an entry, and a long-press users have to
+                    // guess at does not answer that. Shown for settled entries too:
+                    // a settled entry logged by mistake still needs removing.
+                    Button(String(localized: "Delete")) {
+                        debtToDelete = entry
+                    }
+                    .font(VTypography.caption2)
+                    .foregroundColor(VColors.expense)
+                    .buttonStyle(.plain)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
                 }
             }
         }
@@ -199,6 +257,13 @@ struct DebtDetailView: View {
                 localized: "\(CurrencyFormatter.format(entry.amount, currencyCode: currencyCode)), \(entry.createdAt.formatted(.dateTime.month(.wide).day().year()))"
             )
         )
+        .accessibilityAction(named: Text(String(localized: "Delete"))) {
+            debtToDelete = entry
+        }
+        .accessibilityAction(named: Text(String(localized: "Settle"))) {
+            guard !entry.isSettled else { return }
+            debtToSettle = entry
+        }
     }
 }
 

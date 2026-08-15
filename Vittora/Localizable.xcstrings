@@ -184,6 +184,23 @@
         }
       }
     },
+    "%@ will be removed permanently. This cannot be undone." : {
+      "comment" : "Confirmation message when deleting a debt entry. The argument is the formatted amount.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ se eliminará permanentemente. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ स्थायी रूप से हटा दिया जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "%@ · Itemized Deductions" : {
       "localizations" : {
         "es" : {
@@ -7542,6 +7559,23 @@
         }
       }
     },
+    "Delete Entry" : {
+      "comment" : "Context menu action that deletes a single debt entry.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar entrada"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रविष्टि हटाएँ"
+          }
+        }
+      }
+    },
     "Delete Payee" : {
       "localizations" : {
         "es" : {
@@ -7554,6 +7588,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "भुगतान पाने वाला डिलीट करें"
+          }
+        }
+      }
+    },
+    "Delete this debt entry?" : {
+      "comment" : "Title of the confirmation dialog shown before deleting a debt entry.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta entrada de deuda?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह ऋण प्रविष्टि हटाएँ?"
           }
         }
       }
@@ -13466,6 +13517,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "अभी ज़रूरी खर्च का आधार नहीं"
+          }
+        }
+      }
+    },
+    "No entries left for this person" : {
+      "comment" : "Shown under History on the debt detail screen once every entry for that person has been deleted or removed.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No quedan entradas para esta persona"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस व्यक्ति के लिए कोई प्रविष्टि शेष नहीं है"
           }
         }
       }

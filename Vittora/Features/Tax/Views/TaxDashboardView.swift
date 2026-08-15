@@ -10,39 +10,39 @@ struct TaxDashboardView: View {
     @State private var showExportSheet = false
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                if let vm {
-                    if vm.isLoading {
-                        ProgressView().tint(VColors.primary)
-                    } else if let estimate = vm.estimate {
-                        dashboardContent(vm: vm, estimate: estimate)
-                    } else {
-                        emptyState
-                    }
+        // Nested stack — see DebtLedgerView. Same defect, no reported symptom
+        // only because this screen presents sheets rather than pushing.
+        ZStack {
+            if let vm {
+                if vm.isLoading {
+                    ProgressView().tint(VColors.primary)
+                } else if let estimate = vm.estimate {
+                    dashboardContent(vm: vm, estimate: estimate)
+                } else {
+                    emptyState
                 }
             }
-            // Fill first, then paint. A ZStack sizes to its child, so the page
-            // colour only covered the empty state's own height and left white
-            // above and below it.
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(VColors.groupedBackground)
-            .navigationTitle(String(localized: "Tax Estimator"))
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showProfileForm = true
-                    } label: {
-                        Image(systemName: vm?.estimate == nil ? "plus" : "pencil")
-                    }
-                    .accessibilityLabel(
-                        vm?.estimate == nil
-                        ? String(localized: "Set up tax profile")
-                        : String(localized: "Edit tax profile")
-                    )
-                    .accessibilityHint(String(localized: "Opens the tax profile form"))
-                    .accessibilityIdentifier("tax-profile-button")
+        }
+        // Fill first, then paint. A ZStack sizes to its child, so the page
+        // colour only covered the empty state's own height and left white
+        // above and below it.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(VColors.groupedBackground)
+        .navigationTitle(String(localized: "Tax Estimator"))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showProfileForm = true
+                } label: {
+                    Image(systemName: vm?.estimate == nil ? "plus" : "pencil")
                 }
+                .accessibilityLabel(
+                    vm?.estimate == nil
+                    ? String(localized: "Set up tax profile")
+                    : String(localized: "Edit tax profile")
+                )
+                .accessibilityHint(String(localized: "Opens the tax profile form"))
+                .accessibilityIdentifier("tax-profile-button")
             }
         }
         .task {
