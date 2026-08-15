@@ -227,7 +227,7 @@ struct AnnualReportView: View {
             let useCase = MonthlyOverviewUseCase(transactionRepository: dependencies.transactionRepository)
             vm = MonthlyOverviewViewModel(useCase: useCase)
         }
-        await vm?.load()
+        await vm?.load(year: selectedYear)
     }
 
     private func hasReportData(_ vm: MonthlyOverviewViewModel) -> Bool {
