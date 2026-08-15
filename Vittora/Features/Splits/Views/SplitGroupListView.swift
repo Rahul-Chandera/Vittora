@@ -31,6 +31,10 @@ struct SplitGroupListView: View {
                 }
             }
         }
+        // Fill first, then paint — a ZStack sizes to its child, so the page
+        // colour would only cover the empty/loading state's own height and
+        // leave the system default white above and below it.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Split Expenses"))
         .toolbar {
