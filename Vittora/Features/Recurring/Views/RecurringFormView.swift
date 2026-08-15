@@ -114,7 +114,8 @@ struct RecurringFormView: View {
                                 NavigationLink(
                                     destination: AccountPickerView(
                                         selectedAccountID: Bindable(viewModel).selectedAccountID,
-                                        accounts: accounts
+                                        accounts: accounts,
+                                        onAccountCreated: { Task { await loadAccounts() } }
                                     )
                                 ) {
                                     HStack {

@@ -86,7 +86,8 @@ struct TransferFormView: View {
                         excludeID: vm.destinationAccount?.id,
                         title: String(localized: "From Account"),
                         accessibilityIdentifierPrefix: "transfer-source-account",
-                        dismissOnSelection: true
+                        dismissOnSelection: true,
+                        onAccountCreated: { Task { await vm.loadAccounts() } }
                     )
                 } label: {
                     HStack {
@@ -123,7 +124,8 @@ struct TransferFormView: View {
                         excludeID: vm.sourceAccount?.id,
                         title: String(localized: "To Account"),
                         accessibilityIdentifierPrefix: "transfer-destination-account",
-                        dismissOnSelection: true
+                        dismissOnSelection: true,
+                        onAccountCreated: { Task { await vm.loadAccounts() } }
                     )
                 } label: {
                     HStack {
