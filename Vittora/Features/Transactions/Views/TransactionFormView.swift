@@ -151,6 +151,15 @@ struct TransactionFormView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .onChange(of: vm?.type) { _, newType in
+            // Drop a category that does not belong to the new type. Without
+            // this, choosing an expense category and then switching to Income
+            // saved an income transaction carrying an expense category — the
+            // picker simply showed no selection while the ID stayed set.
+            guard let vm, let newType else { return }
+            let valid = newType == .income ? categories.income : categories.expense
+            vm.clearCategoryIfIncompatible(validCategoryIDs: Set(valid.map(\.id)))
+        }
         .accessibilityIdentifier("transaction-form-root")
         .errorAlert(message: transactionErrorBinding)
         .advertisesHandoff(transactionDraftHandoffRoute, isActive: transactionID == nil)
@@ -207,7 +216,10 @@ struct TransactionFormView: View {
         Section {
             Picker(String(localized: "Category"), selection: Bindable(vm).selectedCategoryID) {
                 Text(String(localized: "Select category")).tag(UUID?.none)
-                ForEach(categories.expense) { category in
+                // Match the type, like the full form does. This was hardcoded
+                // to categories.expense, so Quick Entry offered expense
+                // categories even for an income transaction.
+                ForEach(vm.type == .income ? categories.income : categories.expense) { category in
                     HStack {
                         Image(systemName: category.icon)
                             .foregroundColor(Color(hex: category.colorHex) ?? .blue)
