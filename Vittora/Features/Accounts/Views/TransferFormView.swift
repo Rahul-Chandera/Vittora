@@ -149,7 +149,7 @@ struct TransferFormView: View {
                 .accessibilityIdentifier("transfer-destination-account-button")
             }
 
-            Section(header: VFormSectionHeader(String(localized: "Amount"))) {
+            Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
                 TextField(String(localized: "0.00"), text: Bindable(vm).amount)
                     #if os(iOS)
                     .keyboardType(.decimalPad)

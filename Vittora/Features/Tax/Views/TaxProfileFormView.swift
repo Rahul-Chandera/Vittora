@@ -483,7 +483,7 @@ struct TaxProfileFormView: View {
         stacksVertically: Bool
     ) -> some View {
         let amountField = HStack {
-            TextField("0", text: text)
+            TextField("", text: text, prompt: Text("0").foregroundStyle(VColors.placeholderText))
                 #if os(iOS)
                 .keyboardType(.decimalPad)
                 .textContentType(nil)
@@ -561,7 +561,7 @@ private struct AddDeductionSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: VFormSectionHeader(String(localized: "Name"))) {
+                Section(header: VFormSectionHeader(String(localized: "Name"), isRequired: true)) {
                     TextField(String(localized: "e.g. Life Insurance Premium"), text: $name)
                 }
                 if country == .india {
@@ -572,14 +572,17 @@ private struct AddDeductionSheet: View {
                         }
                     }
                 }
-                Section(header: VFormSectionHeader(String(localized: "Amount"))) {
+                Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
                     HStack {
                         Text(country.currencySymbol).foregroundStyle(VColors.textSecondary)
-                        TextField("0", text: $amountString)
+                        TextField("", text: $amountString, prompt: Text("0").foregroundStyle(VColors.placeholderText))
                             #if os(iOS)
                             .keyboardType(.numberPad)
                             .textContentType(nil)
                             #endif
+                            // VoiceOver announced this field as "0" — the
+                            // placeholder was doubling as the label.
+                            .accessibilityLabel(String(localized: "Amount"))
                     }
                 }
             }

@@ -114,6 +114,23 @@ enum VColors {
     /// brand green. Owner decision (2026-08-01): selection is neutral, so row
     /// content stays readable whatever accent is chosen and whatever colour an
     /// individual amount happens to be.
+    /// A control that is present but currently unavailable — a Save button
+    /// with required fields still empty, for example.
+    ///
+    /// Needed because SwiftUI's own disabled rendering is roughly 30% opacity,
+    /// which fails the contrast audit. af8b34c8 worked around that by dropping
+    /// `.disabled()` entirely and guarding inside the action, so the button
+    /// stayed fully enabled-looking and gave no hint that anything was missing.
+    /// An explicit colour lets the control BE disabled and still measure 5.07:1
+    /// on a white card.
+    ///
+    /// Same value as placeholderText today; kept separate because "unavailable
+    /// control" and "hint text" are different roles that may diverge.
+    static var controlDisabled: Color {
+        adaptive(light: (0.431, 0.431, 0.451),   // #6E6E73
+                 dark: (0.557, 0.557, 0.576))    // #8E8E93
+    }
+
     /// Placeholder text inside an input field.
     ///
     /// af8b34c8 (the P1 accessibility pass) set these to textPrimary, which is

@@ -27,7 +27,7 @@ struct RecurringFormView: View {
                         VStack(alignment: .leading, spacing: VSpacing.lg) {
                             // Amount Input
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                VFormSectionHeader(String(localized: "Amount"))
+                                VFormSectionHeader(String(localized: "Amount"), isRequired: true)
 
                                 HStack(spacing: VSpacing.sm) {
                                     Text(currencySymbol)
@@ -107,7 +107,7 @@ struct RecurringFormView: View {
 
                             // Account Selection
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text(String(localized: "Account *"))
+                                VRequiredFieldLabel(String(localized: "Account"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 

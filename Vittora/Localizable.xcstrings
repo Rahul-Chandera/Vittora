@@ -17,6 +17,23 @@
         }
       }
     },
+    "%@, required" : {
+      "comment" : "VoiceOver label for a required form field. %@ is the field name.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, obligatorio"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, आवश्यक"
+          }
+        }
+      }
+    },
     "-%@" : {
       "localizations" : {
         "es" : {
@@ -67,6 +84,40 @@
         }
       }
     },
+    "Budget amount" : {
+      "comment" : "VoiceOver label for the budget amount field.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe del presupuesto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बजट राशि"
+          }
+        }
+      }
+    },
+    "Exact amount" : {
+      "comment" : "VoiceOver label for the exact-split amount field.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe exacto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सटीक राशि"
+          }
+        }
+      }
+    },
     "No Accounts Yet" : {
       "comment" : "Title on the account picker when no accounts exist.",
       "localizations" : {
@@ -97,6 +148,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "कोई अन्य अकाउंट नहीं"
+          }
+        }
+      }
+    },
+    "Percentage share" : {
+      "comment" : "VoiceOver label for the percentage-split field.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porcentaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रतिशत हिस्सा"
           }
         }
       }

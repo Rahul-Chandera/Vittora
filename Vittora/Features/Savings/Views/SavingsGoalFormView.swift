@@ -212,7 +212,9 @@ struct SavingsGoalFormView: View {
                     }
                     .font(.headline)
                     .accessibilityRespondsToUserInteraction(canSave && !isSaving)
-                    .foregroundStyle(.primary)
+                    // See SplitGroupFormView for why the colour is explicit.
+                    .disabled(!canSave || isSaving)
+                    .foregroundStyle(canSave && !isSaving ? Color.primary : VColors.controlDisabled)
                 }
             }
         }
