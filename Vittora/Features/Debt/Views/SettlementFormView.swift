@@ -32,7 +32,7 @@ struct SettlementFormView: View {
                             "",
                             text: $amountString,
                             prompt: Text(String(localized: "Amount"))
-                                .foregroundStyle(VColors.textPrimary)
+                                .foregroundStyle(VColors.placeholderText)
                         )
                             #if os(iOS)
                             .keyboardType(.decimalPad)

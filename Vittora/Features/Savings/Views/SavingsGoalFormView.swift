@@ -266,7 +266,7 @@ struct SavingsGoalFormView: View {
         TextField(
             "",
             text: text,
-            prompt: Text("0").foregroundStyle(VColors.textPrimary)
+            prompt: Text("0").foregroundStyle(VColors.placeholderText)
         )
             #if os(iOS)
             .keyboardType(.decimalPad)

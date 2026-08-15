@@ -58,7 +58,7 @@ struct DebtFormView: View {
                                 "",
                                 text: Bindable(vm).amountString,
                                 prompt: Text(String(localized: "Amount"))
-                                    .foregroundStyle(VColors.textPrimary)
+                                    .foregroundStyle(VColors.placeholderText)
                             )
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
@@ -91,7 +91,7 @@ struct DebtFormView: View {
                             "",
                             text: Bindable(vm).note,
                             prompt: Text(String(localized: "Optional note"))
-                                .foregroundStyle(VColors.textPrimary),
+                                .foregroundStyle(VColors.placeholderText),
                             axis: .vertical
                         )
                             .lineLimit(2...4)

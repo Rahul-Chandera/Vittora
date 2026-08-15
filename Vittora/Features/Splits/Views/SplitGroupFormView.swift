@@ -39,7 +39,7 @@ struct SplitGroupFormView: View {
                         "",
                         text: $groupName,
                         prompt: Text(String(localized: "Group name"))
-                            .foregroundStyle(VColors.textPrimary)
+                            .foregroundStyle(VColors.placeholderText)
                     )
                         .accessibilityLabel(String(localized: "Group name"))
                 } header: {

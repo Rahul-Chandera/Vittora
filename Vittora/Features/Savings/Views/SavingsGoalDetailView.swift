@@ -239,7 +239,7 @@ struct SavingsGoalDetailView: View {
                         "",
                         text: Bindable(vm).contributionString,
                         prompt: Text(String(localized: "Amount"))
-                            .foregroundStyle(VColors.textPrimary)
+                            .foregroundStyle(VColors.placeholderText)
                     )
                         #if os(iOS)
                         .keyboardType(.decimalPad)

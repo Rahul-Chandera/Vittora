@@ -114,6 +114,18 @@ enum VColors {
     /// brand green. Owner decision (2026-08-01): selection is neutral, so row
     /// content stays readable whatever accent is chosen and whatever colour an
     /// individual amount happens to be.
+    /// Placeholder text inside an input field.
+    ///
+    /// af8b34c8 (the P1 accessibility pass) set these to textPrimary, which is
+    /// black — so "Amount" read as a label and the field did not look editable.
+    /// The system placeholder colour is the other extreme at 1.68:1. This is
+    /// the middle: 5.07:1 on a white card and 4.54:1 on the grouped page, so it
+    /// clears AA on both while staying clearly lighter than entered text.
+    static var placeholderText: Color {
+        adaptive(light: (0.431, 0.431, 0.451),   // #6E6E73
+                 dark: (0.557, 0.557, 0.576))    // #8E8E93
+    }
+
     /// Unfilled portion of a progress bar or ring.
     ///
     /// Its own token because a track has to read against BOTH a white card and
