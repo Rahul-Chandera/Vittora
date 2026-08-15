@@ -37,6 +37,19 @@ struct AccountPickerView: View {
         .frame(minWidth: 440, minHeight: 480)
         #endif
         .accessibilityIdentifier("account-picker-root")
+        .toolbar {
+            // Also reachable when the list is NOT empty — matches the payee
+            // picker, so both behave the same way.
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showAddAccount = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel(String(localized: "Add Account"))
+                .accessibilityIdentifier("account-picker-add-button")
+            }
+        }
         .sheet(isPresented: $showAddAccount) {
             NavigationStack {
                 AccountFormView(showsCancelButton: true) {

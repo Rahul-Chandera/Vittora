@@ -5,8 +5,12 @@ struct PayeePickerView: View {
     @Binding var selectedPayeeID: UUID?
     let payees: [PayeeEntity]
     var title: String = "Select Payee"
+    /// Called after a payee is created here, so the host can reload the
+    /// `payees` it passed in — this view only receives them.
+    var onPayeeCreated: (() -> Void)? = nil
 
     @State private var searchQuery = ""
+    @State private var showAddPayee = false
 
     var filteredPayees: [PayeeEntity] {
         guard !searchQuery.isEmpty else { return payees }
@@ -33,6 +37,21 @@ struct PayeePickerView: View {
             }
             .buttonStyle(.plain)
 
+            // With no payees the list was just "None" and a search field, and
+            // no way forward. The toolbar button covers every case; this row
+            // makes the option findable when the list is otherwise bare.
+            if payees.isEmpty {
+                Button {
+                    showAddPayee = true
+                } label: {
+                    Label(String(localized: "Add Payee"), systemImage: "plus.circle.fill")
+                        .foregroundStyle(VColors.primaryOnSurface)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("payee-picker-add-inline")
+            }
+
             ForEach(filteredPayees) { payee in
                 Button {
                     selectedPayeeID = payee.id
@@ -51,6 +70,24 @@ struct PayeePickerView: View {
             }
         }
         .searchable(text: $searchQuery, prompt: "Search payees")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showAddPayee = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel(String(localized: "Add Payee"))
+                .accessibilityIdentifier("payee-picker-add-button")
+            }
+        }
+        .sheet(isPresented: $showAddPayee) {
+            NavigationStack {
+                PayeeFormView {
+                    onPayeeCreated?()
+                }
+            }
+        }
         .navigationTitle(title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

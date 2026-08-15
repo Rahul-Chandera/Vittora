@@ -197,7 +197,8 @@ struct RecurringFormView: View {
                                 NavigationLink(
                                     destination: PayeePickerView(
                                         selectedPayeeID: Bindable(viewModel).selectedPayeeID,
-                                        payees: payees
+                                        payees: payees,
+                                        onPayeeCreated: { Task { await loadPayees() } }
                                     )
                                 ) {
                                     HStack {
