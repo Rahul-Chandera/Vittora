@@ -1,6 +1,11 @@
 import SwiftUI
 import VittoraCore
 
+private struct ReminderDraft: Identifiable {
+    let id = UUID()
+    let text: String
+}
+
 struct DebtDetailView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
@@ -9,6 +14,7 @@ struct DebtDetailView: View {
     @State private var showSettlement = false
     @State private var debtToSettle: DebtEntry?
     @State private var debtToDelete: DebtEntry?
+    @State private var reminderDraft: ReminderDraft?
     let payeeID: UUID
 
     var body: some View {
@@ -71,6 +77,9 @@ struct DebtDetailView: View {
                 )
                 await vm?.load()
             }
+        }
+        .sheet(item: $reminderDraft) { draft in
+            ShareSheet(items: [draft.text])
         }
         .sheet(item: $debtToSettle) { debt in
             SettlementFormView(debt: debt) {
@@ -160,6 +169,15 @@ struct DebtDetailView: View {
         }
     }
 
+    private func reminder(for entry: DebtEntry, payeeName: String?) -> ReminderDraft {
+        ReminderDraft(text: DebtContactReminderDraft.message(
+            payeeName: payeeName ?? String(localized: "there"),
+            remainingAmount: entry.remainingAmount,
+            dueDate: entry.dueDate,
+            currencyCode: currencyCode
+        ))
+    }
+
     @ViewBuilder
     private func entryRow(_ entry: DebtEntry, payeeName: String?) -> some View {
         HStack(spacing: VSpacing.md) {
@@ -206,18 +224,11 @@ struct DebtDetailView: View {
                 HStack(spacing: VSpacing.sm) {
                     if !entry.isSettled {
                         if entry.direction == .lent {
-                            ShareLink(
-                                item: DebtContactReminderDraft.message(
-                                    payeeName: payeeName ?? String(localized: "there"),
-                                    remainingAmount: entry.remainingAmount,
-                                    dueDate: entry.dueDate,
-                                    currencyCode: currencyCode
-                                )
-                            ) {
-                                Text(String(localized: "Remind"))
-                                    .font(VTypography.caption2)
-                                    .foregroundColor(VColors.textPrimary)
+                            Button(String(localized: "Remind")) {
+                                reminderDraft = reminder(for: entry, payeeName: payeeName)
                             }
+                            .font(VTypography.caption2)
+                            .foregroundColor(VColors.textPrimary)
                             .buttonStyle(.plain)
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
@@ -257,6 +268,10 @@ struct DebtDetailView: View {
                 localized: "\(CurrencyFormatter.format(entry.amount, currencyCode: currencyCode)), \(entry.createdAt.formatted(.dateTime.month(.wide).day().year()))"
             )
         )
+        .accessibilityAction(named: Text(String(localized: "Remind"))) {
+            guard entry.direction == .lent, !entry.isSettled else { return }
+            reminderDraft = reminder(for: entry, payeeName: payeeName)
+        }
         .accessibilityAction(named: Text(String(localized: "Delete"))) {
             debtToDelete = entry
         }

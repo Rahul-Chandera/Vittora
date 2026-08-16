@@ -93,6 +93,56 @@ struct DebtDetailDeleteTests {
         #expect(all.allSatisfy { !$0.isSettled })
     }
 
+    /// Owner decision, 2026-08-16: settlement transactions survive the delete.
+    ///
+    /// A partially-settled entry has linkedTransactionIDs pointing at real cash
+    /// legs — money that actually moved between accounts. Deleting the debt
+    /// record removes the tracking, not the history, so those transactions must
+    /// stay put. Pinned here because cascading them away would silently rewrite
+    /// account balances, and nothing else would catch it.
+    @Test("deleting an entry leaves its settlement transactions in the ledger")
+    func deleteDoesNotCascadeToSettlementTransactions() async throws {
+        let container = try ModelContainerConfig.makeContainer(inMemory: true)
+        let debtRepo = MockDebtRepository()
+        let payeeRepo = MockPayeeRepository()
+        let txRepo = MockTransactionRepository()
+
+        let payee = PayeeEntity(name: "Raj")
+        try await payeeRepo.create(payee)
+
+        // The cash leg a settlement would have written.
+        let settlementTx = TransactionEntity(
+            amount: Decimal(string: "2000")!, type: .income, payeeID: payee.id)
+        try await txRepo.create(settlementTx)
+
+        let partlySettled = DebtEntry(
+            payeeID: payee.id,
+            amount: Decimal(string: "5000")!,
+            settledAmount: Decimal(string: "2000")!,
+            direction: .lent,
+            linkedTransactionIDs: [settlementTx.id]
+        )
+        try await debtRepo.create(partlySettled)
+
+        let vm = DebtDetailViewModel(
+            payeeID: payee.id,
+            debtRepository: debtRepo,
+            payeeRepository: payeeRepo,
+            settleUseCase: SettleDebtUseCase(
+                debtRepository: debtRepo,
+                accountRepository: MockAccountRepository(),
+                ledgerWriting: LedgerWriteStore(modelContainer: container)
+            )
+        )
+        await vm.load()
+
+        await vm.delete(debtID: partlySettled.id)
+
+        #expect(try await debtRepo.fetchByID(partlySettled.id) == nil)
+        let remaining = try await txRepo.fetchAll(filter: nil)
+        #expect(remaining.map(\.id) == [settlementTx.id])
+    }
+
     @Test("a failed delete surfaces an error and keeps the entry")
     func deleteFailureIsReported() async throws {
         let env = try await makeEnv()

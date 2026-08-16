@@ -12300,6 +12300,23 @@
         }
       }
     },
+    "Message ready to share" : {
+      "comment" : "macOS share sheet heading when the item being shared is a drafted text message.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mensaje listo para compartir"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "साझा करने के लिए संदेश तैयार है"
+          }
+        }
+      }
+    },
     "Method" : {
       "localizations" : {
         "es" : {
@@ -19362,6 +19379,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "फ़ाइल शेयर करें"
+          }
+        }
+      }
+    },
+    "Share Message" : {
+      "comment" : "macOS button that opens the system share picker for a drafted text message.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir mensaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संदेश साझा करें"
           }
         }
       }
