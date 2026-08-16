@@ -90,18 +90,24 @@ private struct RecentTransactionRow: View {
                         .adaptiveMinimumScaleFactor(0.7)
                         .accessibilityHidden(true)
 
+                    // Secondary metadata: caption weight and colour. It was
+                    // bodyBold in the title's own colour, so the date read as
+                    // loudly as the transaction name beside it.
                     Text(transaction.date.formatted(.dateTime.month(.abbreviated).day()))
-                        .font(VTypography.bodyBold)
-                        .foregroundColor(highContrastText)
+                        .font(VTypography.caption1)
+                        .foregroundColor(VColors.textSecondary)
                         .accessibilityIdentifier("dashboard-recent-date-\(transaction.id.uuidString)")
                         .accessibilityHidden(true)
                 }
 
                 Spacer()
 
+                // Semantic amount colour, matching TransactionRowCell and the
+                // This Month card. Both clear AA on a white card: income
+                // #1B7A36 is 5.41:1 and expense #C5221F is 5.80:1.
                 Text(CurrencyFormatter.formatSigned(transaction.amount, type: transaction.type, currencyCode: currencyCode))
                     .font(VTypography.amountCaption)
-                    .foregroundColor(highContrastText)
+                    .foregroundColor(transaction.type == .income ? VColors.income : VColors.expense)
                     .amountScaling()
                     .accessibilityHidden(true)
             }
