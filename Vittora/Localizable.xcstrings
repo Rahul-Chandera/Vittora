@@ -12840,6 +12840,23 @@
         }
       }
     },
+    "Net Worth (%@)" : {
+      "comment" : "Net worth heading when several currencies are shown, one block each. The argument is the ISO currency code.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Patrimonio neto (%@)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नेट वर्थ (%@)"
+          }
+        }
+      }
+    },
     "Net cash flow" : {
       "localizations" : {
         "es" : {

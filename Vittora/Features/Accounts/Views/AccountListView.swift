@@ -128,12 +128,7 @@ struct AccountListView: View {
         List {
             // Net Worth card
             Section {
-                NetWorthCard(
-                    netWorth: vm.netWorth,
-                    totalAssets: vm.totalAssets,
-                    totalLiabilities: vm.totalLiabilities,
-                    currencyCode: currencyCode
-                )
+                NetWorthCard(summary: vm.netWorthSummary, currencyCode: currencyCode)
                 .listRowInsets(EdgeInsets(
                     top: VSpacing.sm,
                     leading: VSpacing.screenPadding,

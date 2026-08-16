@@ -7,9 +7,9 @@ import VittoraCore
 final class AccountListViewModel {
     var accounts: [AccountEntity] = []
     var groupedAccounts: [AccountType: [AccountEntity]] = [:]
-    var netWorth: Decimal = 0
-    var totalAssets: Decimal = 0
-    var totalLiabilities: Decimal = 0
+    /// Per-currency, because there are no exchange rates to combine them with.
+    /// See NetWorthSummary.
+    var netWorthSummary = NetWorthSummary(byCurrency: [])
     var isLoading = false
     var error: String?
 
@@ -47,9 +47,7 @@ final class AccountListViewModel {
 
             self.accounts = allAccounts
             self.groupedAccounts = grouped
-            self.totalAssets = summary.totalAssets
-            self.totalLiabilities = summary.totalLiabilities
-            self.netWorth = summary.netWorth
+            self.netWorthSummary = summary
         } catch {
             self.error = error.localizedDescription
         }
