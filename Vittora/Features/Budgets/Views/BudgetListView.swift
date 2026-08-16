@@ -48,6 +48,10 @@ struct BudgetListView: View {
                     if let viewModel = viewModel {
                         Section {
                             PeriodSelectorView(selectedPeriod: Bindable(viewModel).selectedPeriod)
+                                // Not a card of its own, so it needs the card
+                                // colour explicitly now the list background is
+                                // hidden — otherwise it renders on bare page grey.
+                                .listRowBackground(VColors.secondaryGroupedBackground)
                                 .onChange(of: viewModel.selectedPeriod) { _, _ in
                                     Task {
                                         await viewModel.loadBudgets()
@@ -59,9 +63,20 @@ struct BudgetListView: View {
                     // Budget list
                     if let viewModel = viewModel {
                         ForEach(viewModel.budgets) { budget in
-                            NavigationLink(
-                                value: NavigationDestination.budgetDetail(id: budget.id)
-                            ) {
+                            // Destination form, not NavigationLink(value:).
+                            // Inside a List on macOS a value-based link only
+                            // selects the row — it never activates, so clicking
+                            // a budget did nothing (verified in the running Mac
+                            // app: the row took a focus ring, and Return did not
+                            // fire it either). The same link outside a List, in
+                            // Reports, pushes fine. Routing still goes through
+                            // NavigationDestinationView so it cannot drift from
+                            // the shared .navigationDestination handler.
+                            NavigationLink {
+                                NavigationDestinationView(
+                                    destination: .budgetDetail(id: budget.id)
+                                )
+                            } label: {
                                 // No `progress:` parameter. BudgetProgress is
                                 // not Equatable and the view never read it —
                                 // every figure comes from `budget` — so it only
@@ -147,6 +162,15 @@ struct BudgetListView: View {
                 #else
                 .listStyle(.inset)
                 #endif
+                // Every row here is a card that paints itself, so the list's
+                // own background only gets in the way — and on macOS 26 it is
+                // #FFFFFF, the same colour as those cards, which flattened the
+                // whole screen into one white field.
+                //
+                // Scoped to this screen deliberately. Applied at the navigation
+                // root it also stripped the background from rows that rely on
+                // the platform default, turning the Transactions rows grey.
+                .groupedPageBackground()
             }
         }
         .navigationTitle(String(localized: "Budgets"))

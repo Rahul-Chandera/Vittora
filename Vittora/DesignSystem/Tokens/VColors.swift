@@ -38,8 +38,24 @@ enum VColors {
     static var tertiaryBackground: Color {
         isOLEDBlack ? Color(red: 0.08, green: 0.08, blue: 0.085) : Color(nsColor: .textBackgroundColor)
     }
+    // Literal values, NOT system colours. On macOS 26 windowBackgroundColor,
+    // textBackgroundColor and controlBackgroundColor all resolve to #FFFFFF in
+    // light and #1E1E1E in dark — measured, not assumed. So the page and the
+    // cards drawn on it came out the same colour, 1.00:1, and every card on
+    // every grouped screen was invisible.
+    //
+    // The comment this replaces already blamed controlBackgroundColor for being
+    // white-on-white and moved to textBackgroundColor to escape it. That is no
+    // longer an escape: all three are now the same value. Borrowing any system
+    // surface colour for one half of a pair only works while Apple keeps them
+    // distinct, and here they stopped being distinct.
+    //
+    // Values mirror the iOS pair so the two platforms read alike.
     static var groupedBackground: Color {
-        isOLEDBlack ? .black : Color(nsColor: .windowBackgroundColor)
+        isOLEDBlack
+            ? .black
+            : adaptive(light: (0.949, 0.949, 0.969),   // #F2F2F7, as iOS
+                       dark: (0.118, 0.118, 0.118))    // #1E1E1E, the macOS window grey
     }
     // Card ON a grouped page — white on the grey page, the way iOS's
     // secondarySystemGroupedBackground pairs with systemGroupedBackground.
@@ -48,7 +64,10 @@ enum VColors {
     // token is what made past background sweeps fail with invisible
     // white-on-white chips.
     static var secondaryGroupedBackground: Color {
-        isOLEDBlack ? .black : Color(nsColor: .textBackgroundColor)
+        isOLEDBlack
+            ? .black
+            : adaptive(light: (1.000, 1.000, 1.000),   // #FFFFFF
+                       dark: (0.173, 0.173, 0.180))    // #2C2C2E, lifted off the page
     }
     #else
     static var background: Color {
