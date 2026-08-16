@@ -86,7 +86,19 @@ struct BudgetListView: View {
                             // diffing — this row kept rendering a stale
                             // `spent` after a new expense while the header,
                             // assigned in the same loadBudgets() call, moved.
-                            .listRowInsets(EdgeInsets())
+                            // Vertical inset, not listRowSpacing: that reads
+                            // better but is unavailable on macOS. These rows are
+                            // one implicit section and insetGrouped spaces
+                            // sections rather than rows within one, so with zero
+                            // insets consecutive cards butted together and read
+                            // as a single block. Leading/trailing stay 0 so the
+                            // card still runs to the section's own margins.
+                            .listRowInsets(EdgeInsets(
+                                top: VSpacing.xxs,
+                                leading: 0,
+                                bottom: VSpacing.xxs,
+                                trailing: 0
+                            ))
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
                             .contextMenu {
@@ -135,12 +147,6 @@ struct BudgetListView: View {
                 #else
                 .listStyle(.inset)
                 #endif
-                // The budget rows are one implicit section, and insetGrouped
-                // spaces sections rather than rows within one — so the cards
-                // butted together with no gap. This only affects that group:
-                // the overview card and the period selector are single-row
-                // sections, which have no intra-section gap to space.
-                .listRowSpacing(VSpacing.sm)
             }
         }
         .navigationTitle(String(localized: "Budgets"))
