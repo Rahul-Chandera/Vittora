@@ -100,6 +100,12 @@ struct TransactionDetailView: View {
                                 }
                             }
 
+                            if let categoryName = vm.categoryName {
+                                detailRow(label: String(localized: "Category"), value: categoryName)
+                            }
+                            if let accountName = vm.accountName {
+                                detailRow(label: String(localized: "Account"), value: accountName)
+                            }
                             detailRow(label: String(localized: "Payment Method"), value: transaction.paymentMethod.displayName)
                         }
                         .padding(VSpacing.lg)

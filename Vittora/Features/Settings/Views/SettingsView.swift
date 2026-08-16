@@ -34,6 +34,17 @@ struct SettingsView: View {
                                     .font(VTypography.title3.bold())
                                     .foregroundStyle(VColors.onPrimary)
                             }
+                            // Opts into the DEC-012 exemption by identifier, the
+                            // way brand-mark-fab does. Measured from the audit's
+                            // own element image: #FFFFFF on #3FCFA4 is 1.97:1 —
+                            // the accepted brand pairing, not a new miss.
+                            //
+                            // Decorative: the initials repeat the name shown
+                            // beside them, so nothing is lost if a reader cannot
+                            // resolve the glyph. This element had no identifier,
+                            // so it never claimed the exemption and tripped
+                            // testSettingsSections whenever the sampler picked it.
+                            .accessibilityIdentifier("brand-mark-profile-avatar")
                         VStack(alignment: .leading, spacing: 2) {
                             Text(vm.userName.isEmpty ? String(localized: "Your Name") : vm.userName)
                                 .font(VTypography.bodyBold)

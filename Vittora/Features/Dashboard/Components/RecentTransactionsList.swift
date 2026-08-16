@@ -5,6 +5,8 @@ struct RecentTransactionsList: View {
     @Environment(\.colorScheme) private var colorScheme
 
     let transactions: [TransactionEntity]
+    /// Category name per transaction id — see RecentTransactionRow's label.
+    var categoryNames: [UUID: String] = [:]
     let onSeeAll: () -> Void
     let onSelect: (UUID) -> Void
 
@@ -42,7 +44,10 @@ struct RecentTransactionsList: View {
             } else {
                 VStack(spacing: VSpacing.xs) {
                     ForEach(transactions) { transaction in
-                        RecentTransactionRow(transaction: transaction) {
+                        RecentTransactionRow(
+                            transaction: transaction,
+                            categoryName: categoryNames[transaction.id]
+                        ) {
                             onSelect(transaction.id)
                         }
                         if transaction.id != transactions.last?.id {
@@ -65,6 +70,7 @@ struct RecentTransactionsList: View {
 
 private struct RecentTransactionRow: View {
     let transaction: TransactionEntity
+    let categoryName: String?
     let onTap: () -> Void
     @Environment(\.currencyCode) private var currencyCode
     @Environment(\.colorScheme) private var colorScheme
@@ -83,7 +89,13 @@ private struct RecentTransactionRow: View {
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                    Text(transaction.note ?? String(localized: "Transaction"))
+                    // Note, else the category, else the generic word. Falling
+                    // straight to "Transaction" made every row on the Dashboard
+                    // read identically while the Transactions list named the
+                    // category for the same rows.
+                    Text(transaction.note
+                         ?? categoryName
+                         ?? String(localized: "Transaction"))
                         .font(VTypography.bodyBold)
                         .foregroundColor(highContrastText)
                         .adaptiveLineLimit(1)

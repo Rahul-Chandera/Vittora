@@ -82,11 +82,15 @@ struct FiftyThirtyTwentyReportView: View {
                     .font(VTypography.bodyBold)
                 Spacer()
                 if let vm {
-                    DatePicker(
-                        String(localized: "Month"),
-                        selection: Bindable(vm).selectedMonth,
-                        displayedComponents: [.date]
-                    )
+                    // A month list, not a DatePicker. displayedComponents: [.date]
+                    // has no month-only option, so the control rendered a full
+                    // day/month/year — "16/ 8/2026" under a label reading "Month".
+                    Picker(String(localized: "Month"), selection: monthBinding(vm)) {
+                        ForEach(monthOptions(around: vm.selectedMonth), id: \.self) { month in
+                            Text(month.formatted(.dateTime.month(.wide).year())).tag(month)
+                        }
+                    }
+                    .pickerStyle(.menu)
                     .labelsHidden()
                 }
             }
@@ -106,6 +110,37 @@ struct FiftyThirtyTwentyReportView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityIdentifier("fifty-thirty-twenty-disclaimer")
         }
+    }
+
+    /// Normalised to the first of the month so the Picker's tag always matches
+    /// one of its options — a selection carrying a day component would match
+    /// nothing and render blank.
+    private func monthBinding(_ vm: FiftyThirtyTwentyViewModel) -> Binding<Date> {
+        Binding(
+            get: { startOfMonth(vm.selectedMonth) },
+            set: { vm.selectedMonth = $0 }
+        )
+    }
+
+    private func startOfMonth(_ date: Date) -> Date {
+        let calendar = Calendar.current
+        return calendar.date(from: calendar.dateComponents([.year, .month], from: date)) ?? date
+    }
+
+    /// Two years back from the current selection, newest first, always
+    /// including the selection itself.
+    private func monthOptions(around selection: Date) -> [Date] {
+        let calendar = Calendar.current
+        let anchor = max(startOfMonth(selection), startOfMonth(.now))
+        var months: [Date] = []
+        for offset in 0..<24 {
+            if let month = calendar.date(byAdding: .month, value: -offset, to: anchor) {
+                months.append(month)
+            }
+        }
+        let selected = startOfMonth(selection)
+        if !months.contains(selected) { months.append(selected) }
+        return months
     }
 
     private func stackedBar(_ result: FiftyThirtyTwentyResult) -> some View {
