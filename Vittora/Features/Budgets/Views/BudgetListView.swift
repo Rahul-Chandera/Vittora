@@ -135,6 +135,12 @@ struct BudgetListView: View {
                 #else
                 .listStyle(.inset)
                 #endif
+                // The budget rows are one implicit section, and insetGrouped
+                // spaces sections rather than rows within one — so the cards
+                // butted together with no gap. This only affects that group:
+                // the overview card and the period selector are single-row
+                // sections, which have no intra-section gap to space.
+                .listRowSpacing(VSpacing.sm)
             }
         }
         .navigationTitle(String(localized: "Budgets"))
