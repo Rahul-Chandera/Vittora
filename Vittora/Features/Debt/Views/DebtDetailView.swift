@@ -255,6 +255,8 @@ struct DebtDetailView: View {
                     .buttonStyle(.plain)
                     .frame(minWidth: 44, minHeight: 44)
                     .contentShape(Rectangle())
+                    // Anchors the audit exemption — see AccessibilityAuditUITests.
+                    .accessibilityIdentifier("debt-entry-delete")
                 }
             }
         }

@@ -952,6 +952,40 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if issue.element?.identifier == "form-section-header" {
                     return true
                 }
+                // The debt row's "Delete" (owner decision, 2026-08-16).
+                //
+                // Measured from the audit's own exported element image: glyph
+                // core #C5221F on #FFFFFF is 5.80:1, past the 4.5:1 AA bar for
+                // small text. So this is a sampler artifact, NOT an accepted
+                // miss — unlike the DEC-012 brand-green cases above, which
+                // really are below AA and knowingly shipped that way.
+                //
+                // Environment-specific, and deterministic on each side rather
+                // than flaky: identical code passes every local run on the same
+                // device and OS as CI (iPhone 17 Pro Max / iOS 26.2, six runs)
+                // and fails every CI run (two of two). The likely difference is
+                // the runner's software renderer anti-aliasing small red glyphs
+                // differently, which changes the pixels the sampler averages
+                // even though the glyph core is unchanged.
+                //
+                // Worth stating plainly because the first read of this was
+                // "flaky, re-run it" — it is not. A re-run will fail again.
+                //
+                // Frame anchor as well as identifier, for the reason the FAB
+                // exemption above needed one: the flagged node was reported as
+                // a bare SwiftUI.AccessibilityNode carrying neither label nor
+                // identifier, so an identifier-only check would silently stop
+                // matching — exactly how the form-section-header exemption
+                // broke when its component was restructured.
+                let deleteButton = self.app.descendants(matching: .any)["debt-entry-delete"]
+                if issue.element?.identifier == "debt-entry-delete" {
+                    return true
+                }
+                if let elementFrame = issue.element?.frame,
+                   deleteButton.exists,
+                   deleteButton.frame.intersects(elementFrame) {
+                    return true
+                }
                 if self.app.navigationBars["Dashboard"].exists {
                     let identifier = issue.element?.identifier ?? ""
                     let label = issue.element?.label ?? ""
