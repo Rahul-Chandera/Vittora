@@ -160,6 +160,10 @@ struct ContactSupportView: View {
                         value: ""
                     )
                 }
+                // .plain: the label supplies its own appearance. Without it macOS
+                // draws the standard AppKit button chrome behind it — a second,
+                // lighter fill around the custom one (see QuickEntryButton).
+                .buttonStyle(.plain)
                 .disabled(isLoading || payloadText.isEmpty)
                 .accessibilityIdentifier("contact-support-send")
 
@@ -174,6 +178,10 @@ struct ContactSupportView: View {
                         value: ""
                     )
                 }
+                // .plain: the label supplies its own appearance. Without it macOS
+                // draws the standard AppKit button chrome behind it — a second,
+                // lighter fill around the custom one (see QuickEntryButton).
+                .buttonStyle(.plain)
                 .disabled(isLoading || payloadText.isEmpty)
                 .accessibilityIdentifier("contact-support-copy")
 
@@ -189,6 +197,10 @@ struct ContactSupportView: View {
                         value: ""
                     )
                 }
+                // .plain: the label supplies its own appearance. Without it macOS
+                // draws the standard AppKit button chrome behind it — a second,
+                // lighter fill around the custom one (see QuickEntryButton).
+                .buttonStyle(.plain)
                 .accessibilityIdentifier("contact-support-clear-errors")
             } footer: {
                 Text(String(localized: "Nothing is sent automatically. Email goes through your own mail app, which you can edit or cancel."))

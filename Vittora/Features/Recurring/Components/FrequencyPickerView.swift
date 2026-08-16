@@ -77,6 +77,10 @@ struct FrequencyPickerView: View {
             .background(isSelected(frequency) ? VColors.primary : VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusMD)
         }
+        // .plain: the label supplies its own appearance. Without it macOS
+        // draws the standard AppKit button chrome behind it — a second,
+        // lighter fill around the custom one (see QuickEntryButton).
+        .buttonStyle(.plain)
     }
 
     private func isSelected(_ frequency: RecurrenceFrequency) -> Bool {

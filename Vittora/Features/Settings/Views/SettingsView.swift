@@ -59,6 +59,10 @@ struct SettingsView: View {
                     SettingsRow(icon: "envelope.fill", iconColor: .green,
                                 title: String(localized: "Contact Support"), value: "")
                 }
+                // .plain: the label supplies its own appearance. Without it macOS
+                // draws the standard AppKit button chrome behind it — a second,
+                // lighter fill around the custom one (see QuickEntryButton).
+                .buttonStyle(.plain)
                 .accessibilityIdentifier("settings-contact-support")
                 NavigationLink {
                     CurrencySettingsView(vm: vm)
@@ -192,6 +196,10 @@ struct SettingsView: View {
                                 title: String(localized: "Delete All Data"),
                                 value: "")
                 }
+                // .plain: the label supplies its own appearance. Without it macOS
+                // draws the standard AppKit button chrome behind it — a second,
+                // lighter fill around the custom one (see QuickEntryButton).
+                .buttonStyle(.plain)
                 Text(String(localized: "Permanently deletes all financial data and resets the app."))
                     .font(.body)
                     .foregroundStyle(VColors.textPrimary)
