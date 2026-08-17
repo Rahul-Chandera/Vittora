@@ -348,6 +348,90 @@ struct CashFlowForecastUseCaseTests {
 
     // MARK: - Helpers
 
+    // MARK: - Currency scoping
+
+    /// The forecast projects one currency, never a mixture.
+    ///
+    /// This use case carried its OWN private netWorth(of:) that added every
+    /// balance together regardless of currency — a second copy of the bug fixed
+    /// in CalculateNetWorthUseCase, which the earlier sweep missed because it
+    /// followed the public type rather than the duplicated helper. On screen
+    /// that showed a ₹72,15,490 balance projected as "$72,15,490.00" across
+    /// Today, Day 30 and Day 90.
+    ///
+    /// Owner decision (2026-08-16) is per-currency subtotals rather than
+    /// conversion, and a projection is a single series, so the dominant
+    /// currency wins — the same rule as the Net Worth report's composition bar.
+    @Test("starting balance ignores accounts in other currencies")
+    @MainActor
+    func startingBalanceIsSingleCurrency() async throws {
+        let accounts = MockAccountRepository()
+        try await accounts.create(
+            AccountEntity(name: "ICICI", type: .bank, balance: 100_000, currencyCode: "INR")
+        )
+        try await accounts.create(
+            AccountEntity(name: "Chase", type: .bank, balance: 5_000, currencyCode: "USD")
+        )
+
+        let useCase = makeUseCase(
+            accounts: accounts,
+            transactions: MockTransactionRepository(),
+            recurring: MockRecurringRuleRepository(),
+            categories: MockCategoryRepository()
+        )
+        let result = try await useCase.execute()
+
+        // INR dominates, so the projection starts from it alone.
+        #expect(result.startingBalance == Decimal(100_000))
+        // The bug: 100000 + 5000 projected as one balance.
+        #expect(result.startingBalance != Decimal(105_000))
+        #expect(try await useCase.projectedCurrencyCode() == "INR")
+    }
+
+    @Test("liabilities in the projected currency still subtract")
+    @MainActor
+    func liabilitiesWithinTheProjectedCurrency() async throws {
+        let accounts = MockAccountRepository()
+        try await accounts.create(
+            AccountEntity(name: "ICICI", type: .bank, balance: 100_000, currencyCode: "INR")
+        )
+        try await accounts.create(
+            AccountEntity(name: "INR Card", type: .creditCard, balance: 30_000, currencyCode: "INR")
+        )
+        try await accounts.create(
+            AccountEntity(name: "Chase", type: .bank, balance: 5_000, currencyCode: "USD")
+        )
+
+        let useCase = makeUseCase(
+            accounts: accounts,
+            transactions: MockTransactionRepository(),
+            recurring: MockRecurringRuleRepository(),
+            categories: MockCategoryRepository()
+        )
+        let result = try await useCase.execute()
+
+        #expect(result.startingBalance == Decimal(70_000))
+    }
+
+    @Test("a single-currency ledger reports that currency, not the display default")
+    @MainActor
+    func singleCurrencyLedgerReportsItsOwnCode() async throws {
+        let accounts = MockAccountRepository()
+        try await accounts.create(
+            AccountEntity(name: "ICICI", type: .bank, balance: 7_215_490, currencyCode: "INR")
+        )
+
+        let useCase = makeUseCase(
+            accounts: accounts,
+            transactions: MockTransactionRepository(),
+            recurring: MockRecurringRuleRepository(),
+            categories: MockCategoryRepository()
+        )
+
+        #expect(try await useCase.projectedCurrencyCode() == "INR")
+        #expect(try await useCase.execute().startingBalance == Decimal(7_215_490))
+    }
+
     @MainActor
     private func makeUseCase(
         accounts: MockAccountRepository,

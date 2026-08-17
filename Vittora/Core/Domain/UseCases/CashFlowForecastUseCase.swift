@@ -31,7 +31,22 @@ struct CashFlowForecastUseCase: Sendable {
     ) async throws -> CashFlowForecastResult {
         let todayStart = calendar.startOfDay(for: nowProvider())
 
-        let accounts = try await accountRepository.fetchAll().filter { !$0.isArchived }
+        let allAccounts = try await accountRepository.fetchAll().filter { !$0.isArchived }
+
+        // Project one currency, not a mixture. This use case had its own
+        // netWorth(of:) that added every balance together regardless of
+        // currency, so an INR account was projected under the display
+        // currency's symbol — the same relabelling fixed in
+        // CalculateNetWorthUseCase, in a second place.
+        //
+        // The dominant currency wins, matching the Net Worth report's
+        // composition bar: a projection is a single series, and there is
+        // nothing to convert the others with.
+        let summary = NetWorthSummary.build(from: allAccounts)
+        let projectedCurrency = summary.byCurrency.first?.currencyCode
+        let accounts = projectedCurrency.map { code in
+            allAccounts.filter { $0.currencyCode == code }
+        } ?? allAccounts
         let startingBalance = netWorth(of: accounts)
 
         guard let lookbackStart = calendar.date(
@@ -152,6 +167,16 @@ struct CashFlowForecastUseCase: Sendable {
             discretionaryExpenseTotal: discretionaryTotal,
             calendar: calendar
         )
+    }
+
+    /// The currency `execute()` projects in — the dominant one by net worth.
+    ///
+    /// Exposed so the view can label the projection with the money's own
+    /// currency instead of the display default, which is what made an INR
+    /// balance read as dollars here.
+    func projectedCurrencyCode() async throws -> String? {
+        let accounts = try await accountRepository.fetchAll().filter { !$0.isArchived }
+        return NetWorthSummary.build(from: accounts).byCurrency.first?.currencyCode
     }
 
     nonisolated private func netWorth(of accounts: [AccountEntity]) -> Decimal {
