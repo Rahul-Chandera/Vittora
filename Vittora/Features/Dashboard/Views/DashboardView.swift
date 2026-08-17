@@ -279,7 +279,7 @@ struct DashboardView: View {
             VStack(spacing: VSpacing.sm) {
                 HStack {
                     Text(String(localized: "Overall Progress"))
-                        .font(VTypography.caption1)
+                        .font(VTypography.body)
                         .foregroundColor(VColors.textPrimary)
                     Spacer()
                     if progress >= 0.75 {
@@ -288,9 +288,13 @@ struct DashboardView: View {
                             .foregroundColor(progressColor(progress))
                             .accessibilityHidden(true)
                     }
+                    // The card's only figure, and it sat at caption — the same
+                    // 10pt tier the other Dashboard cards used for their data.
                     Text(String(format: "%.0f%%", progress * 100))
-                        .font(VTypography.caption1Bold)
+                        .font(VTypography.amountSmall)
                         .foregroundColor(progressColor(progress))
+                        .amountScaling(0.85)
+                        .layoutPriority(1)
                 }
 
                 GeometryReader { geometry in

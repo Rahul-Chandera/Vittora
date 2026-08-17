@@ -96,7 +96,7 @@ private struct RecentTransactionRow: View {
                     Text(transaction.note
                          ?? categoryName
                          ?? String(localized: "Transaction"))
-                        .font(VTypography.bodyBold)
+                        .font(VTypography.title3)
                         .foregroundColor(highContrastText)
                         .adaptiveLineLimit(1)
                         .adaptiveMinimumScaleFactor(0.7)
@@ -106,7 +106,7 @@ private struct RecentTransactionRow: View {
                     // bodyBold in the title's own colour, so the date read as
                     // loudly as the transaction name beside it.
                     Text(transaction.date.formatted(.dateTime.month(.abbreviated).day()))
-                        .font(VTypography.caption1)
+                        .font(VTypography.callout)
                         .foregroundColor(VColors.textSecondary)
                         .accessibilityIdentifier("dashboard-recent-date-\(transaction.id.uuidString)")
                         .accessibilityHidden(true)
@@ -117,10 +117,25 @@ private struct RecentTransactionRow: View {
                 // Semantic amount colour, matching TransactionRowCell and the
                 // This Month card. Both clear AA on a white card: income
                 // #1B7A36 is 5.41:1 and expense #C5221F is 5.80:1.
+                // Sized up a tier. The amount was amountCaption — .callout, a
+                // step SMALLER than the row's own title — so the figure that
+                // matters most was the least readable thing in the card. Title
+                // and amount now share the title3 tier, with the date a step
+                // below as secondary metadata.
                 Text(CurrencyFormatter.formatSigned(transaction.amount, type: transaction.type, currencyCode: currencyCode))
-                    .font(VTypography.amountCaption)
+                    .font(VTypography.amountSmall)
                     .foregroundColor(transaction.type == .income ? VColors.income : VColors.expense)
-                    .amountScaling()
+                    // 0.85, not the default 0.5. Measured from a screenshot,
+                    // the amount was rendering at 60% of the title's glyph
+                    // height despite both asking for title3 — in this narrow
+                    // column it was the side that gave way. The figure is the
+                    // point of the row, so it barely shrinks; the title
+                    // truncates instead.
+                    .amountScaling(0.85)
+                    // Last in the chain: layoutPriority applies to the view it
+                    // is attached to, so placing it before amountScaling left
+                    // it on an inner view and the outer one still yielded.
+                    .layoutPriority(1)
                     .accessibilityHidden(true)
             }
             .padding(.vertical, VSpacing.xs)
