@@ -7609,6 +7609,23 @@
         }
       }
     },
+    "Delete this transaction?" : {
+      "comment" : "Title of the confirmation shown before deleting a transaction.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta transacción?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह ट्रांज़ैक्शन हटाएँ?"
+          }
+        }
+      }
+    },
     "Delete transaction" : {
       "localizations" : {
         "es" : {
