@@ -13,37 +13,49 @@ struct YearInReviewView: View {
     @State private var showShareFailed = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: VSpacing.sectionSpacing) {
-                if let vm {
-                    if !vm.availableYears.isEmpty {
-                        yearPicker(vm)
-                    }
+        // Same shape as AnnualReportView: the year picker is pinned above the
+        // scroll container so the empty states can centre in the space it
+        // leaves. Inside the ScrollView they sat crammed under the picker with
+        // the rest of the page blank — this screen was missed when the other
+        // report empty states were centred.
+        VStack(spacing: VSpacing.sectionSpacing) {
+            if let vm {
+                if !vm.availableYears.isEmpty {
+                    yearPicker(vm)
+                        .padding(.horizontal, VSpacing.screenPadding)
+                        .padding(.top, VSpacing.screenPadding)
+                }
 
-                    if vm.isLoading && vm.summary == nil {
-                        ProgressView()
-                            .tint(VColors.primary)
-                            .padding(.top, VSpacing.xxxl)
-                            .accessibilityLabel(String(localized: "Loading Year in Review"))
-                    } else {
-                        switch vm.state {
-                        case .thinHistory:
-                            thinHistoryState
-                        case .emptyYear:
-                            emptyYearState
-                        case .ready:
-                            if let summary = vm.summary {
+                if vm.isLoading && vm.summary == nil {
+                    ProgressView()
+                        .tint(VColors.primary)
+                        .frame(maxHeight: .infinity)
+                        .accessibilityLabel(String(localized: "Loading Year in Review"))
+                } else {
+                    switch vm.state {
+                    case .thinHistory:
+                        thinHistoryState
+                            .frame(maxHeight: .infinity)
+                    case .emptyYear:
+                        emptyYearState
+                            .frame(maxHeight: .infinity)
+                    case .ready:
+                        if let summary = vm.summary {
+                            ScrollView {
                                 readyContent(summary, vm: vm)
-                            } else {
-                                emptyYearState
+                                    .padding(.horizontal, VSpacing.screenPadding)
+                                    .padding(.bottom, VSpacing.screenPadding)
                             }
+                        } else {
+                            emptyYearState
+                                .frame(maxHeight: .infinity)
                         }
                     }
                 }
             }
-            .padding(VSpacing.screenPadding)
-            .animation(reduceMotion ? nil : .default, value: vm?.selectedYear)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .animation(reduceMotion ? nil : .default, value: vm?.selectedYear)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Year in Review"))
         #if os(iOS)
