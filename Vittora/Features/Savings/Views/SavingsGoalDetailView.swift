@@ -23,6 +23,10 @@ struct SavingsGoalDetailView: View {
                 ProgressView().tint(VColors.primary)
             }
         }
+        // Fill first, then paint — a ZStack sizes to its child, so the page
+        // colour would only cover the empty/loading state's own height and
+        // leave the system default white above and below it.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.groupedBackground)
         .navigationTitle(vm?.goal.name ?? initialGoal.name)
         #if os(iOS)
@@ -235,7 +239,7 @@ struct SavingsGoalDetailView: View {
                         "",
                         text: Bindable(vm).contributionString,
                         prompt: Text(String(localized: "Amount"))
-                            .foregroundStyle(VColors.textPrimary)
+                            .foregroundStyle(VColors.placeholderText)
                     )
                         #if os(iOS)
                         .keyboardType(.decimalPad)

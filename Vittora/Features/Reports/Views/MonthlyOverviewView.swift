@@ -169,6 +169,11 @@ struct MonthlyOverviewView: View {
             Text(String(localized: "Transactions from the last 12 months will appear here once you add them."))
         }
         .padding(VSpacing.xxxl)
+        // Centre in the viewport, not pushed down from the top. This sits in a
+        // ScrollView, so maxHeight: .infinity alone does nothing — the content
+        // has to fill the scroll container's height first for the empty state
+        // to have anything to centre within.
+        .containerRelativeFrame(.vertical, alignment: .center)
     }
 
     private var monthlyOverviewErrorBinding: Binding<String?> {

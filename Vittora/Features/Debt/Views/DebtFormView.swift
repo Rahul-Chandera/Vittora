@@ -35,12 +35,14 @@ struct DebtFormView: View {
                     .headerProminence(.increased)
 
                     Section {
-                        Picker(String(localized: "Person / Business"), selection: Bindable(vm).selectedPayeeID) {
+                        Picker(selection: Bindable(vm).selectedPayeeID) {
                             Text(String(localized: "Select…")).tag(UUID?.none)
                             ForEach(payees) { payee in
                                 Text(payee.name).tag(UUID?(payee.id))
                             }
                             Text(String(localized: "Add New Payee")).tag(UUID?(Self.addPayeeTag))
+                        } label: {
+                            VRequiredFieldLabel(String(localized: "Person / Business"))
                         }
                         .onChange(of: vm.selectedPayeeID) { previous, current in
                             guard current == Self.addPayeeTag else { return }
@@ -51,14 +53,12 @@ struct DebtFormView: View {
                         }
 
                         HStack {
-                            Text(currencySymbol)
-                                .foregroundColor(VColors.textPrimary)
-                                .accessibilityHidden(true)
+                            VRequiredFieldLabel(currencySymbol)
                             TextField(
                                 "",
                                 text: Bindable(vm).amountString,
                                 prompt: Text(String(localized: "Amount"))
-                                    .foregroundStyle(VColors.textPrimary)
+                                    .foregroundStyle(VColors.placeholderText)
                             )
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
@@ -91,7 +91,7 @@ struct DebtFormView: View {
                             "",
                             text: Bindable(vm).note,
                             prompt: Text(String(localized: "Optional note"))
-                                .foregroundStyle(VColors.textPrimary),
+                                .foregroundStyle(VColors.placeholderText),
                             axis: .vertical
                         )
                             .lineLimit(2...4)
@@ -129,8 +129,11 @@ struct DebtFormView: View {
                         }
                     }
                     .accessibilityRespondsToUserInteraction(vm?.canSave ?? false)
+                    // See SplitGroupFormView for why the colour is explicit
+                    // rather than relying on SwiftUI's dimming.
+                    .disabled(!(vm?.canSave ?? false))
                     .font(.headline)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle((vm?.canSave ?? false) ? Color.primary : VColors.controlDisabled)
                 }
             }
         }

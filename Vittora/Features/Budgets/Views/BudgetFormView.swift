@@ -16,14 +16,15 @@ struct BudgetFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: VFormSectionHeader(String(localized: "Amount"))) {
+                Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
                     HStack {
                         Text(currencySymbol)
                             .foregroundColor(VColors.textSecondary)
-                        TextField("0.00", text: Binding(
+                        TextField("", text: Binding(
                             get: { viewModel?.amount ?? "" },
                             set: { viewModel?.amount = $0 }
-                        ))
+                        ), prompt: Text("0.00").foregroundStyle(VColors.placeholderText))
+                            .accessibilityLabel(String(localized: "Budget amount"))
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         .textContentType(nil)

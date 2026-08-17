@@ -27,7 +27,7 @@ struct RecurringFormView: View {
                         VStack(alignment: .leading, spacing: VSpacing.lg) {
                             // Amount Input
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                VFormSectionHeader(String(localized: "Amount"))
+                                VFormSectionHeader(String(localized: "Amount"), isRequired: true)
 
                                 HStack(spacing: VSpacing.sm) {
                                     Text(currencySymbol)
@@ -107,14 +107,15 @@ struct RecurringFormView: View {
 
                             // Account Selection
                             VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Text(String(localized: "Account *"))
+                                VRequiredFieldLabel(String(localized: "Account"))
                                     .font(VTypography.calloutBold)
                                     .foregroundColor(VColors.textPrimary)
 
                                 NavigationLink(
                                     destination: AccountPickerView(
                                         selectedAccountID: Bindable(viewModel).selectedAccountID,
-                                        accounts: accounts
+                                        accounts: accounts,
+                                        onAccountCreated: { Task { await loadAccounts() } }
                                     )
                                 ) {
                                     HStack {
@@ -196,7 +197,8 @@ struct RecurringFormView: View {
                                 NavigationLink(
                                     destination: PayeePickerView(
                                         selectedPayeeID: Bindable(viewModel).selectedPayeeID,
-                                        payees: payees
+                                        payees: payees,
+                                        onPayeeCreated: { Task { await loadPayees() } }
                                     )
                                 ) {
                                     HStack {

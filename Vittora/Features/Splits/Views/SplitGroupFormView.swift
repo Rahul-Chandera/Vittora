@@ -39,7 +39,7 @@ struct SplitGroupFormView: View {
                         "",
                         text: $groupName,
                         prompt: Text(String(localized: "Group name"))
-                            .foregroundStyle(VColors.textPrimary)
+                            .foregroundStyle(VColors.placeholderText)
                     )
                         .accessibilityLabel(String(localized: "Group name"))
                 } header: {
@@ -110,7 +110,12 @@ struct SplitGroupFormView: View {
                         Task { await save() }
                     }
                     .accessibilityRespondsToUserInteraction(canSave && !isSaving)
-                    .foregroundStyle(VColors.textPrimary)
+                    // Actually disabled, not just inert on tap. af8b34c8 removed
+                    // .disabled() because SwiftUI dims to ~30% opacity and that
+                    // fails the contrast audit; an explicit colour keeps the
+                    // affordance AND passes at 5.07:1.
+                    .disabled(!canSave || isSaving)
+                    .foregroundStyle(canSave && !isSaving ? VColors.textPrimary : VColors.controlDisabled)
                 }
             }
         }

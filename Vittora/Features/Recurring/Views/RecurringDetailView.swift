@@ -114,6 +114,10 @@ struct RecurringDetailView: View {
                                 .foregroundColor(VColors.textPrimary)
                                 .cornerRadius(VSpacing.cornerRadiusMD)
                             }
+                            // .plain: the label supplies its own appearance. Without it macOS
+                            // draws the standard AppKit button chrome behind it — a second,
+                            // lighter fill around the custom one (see QuickEntryButton).
+                            .buttonStyle(.plain)
 
                             Button(action: { showEditSheet = true }) {
                                 Label("Edit", systemImage: "pencil")
@@ -124,6 +128,10 @@ struct RecurringDetailView: View {
                                     .foregroundColor(VColors.textPrimary)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                             }
+                            // .plain: the label supplies its own appearance. Without it macOS
+                            // draws the standard AppKit button chrome behind it — a second,
+                            // lighter fill around the custom one (see QuickEntryButton).
+                            .buttonStyle(.plain)
                             .accessibilityIdentifier("recurring-edit-button")
                         }
 

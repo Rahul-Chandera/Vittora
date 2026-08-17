@@ -22,6 +22,10 @@ struct SavingsGoalListView: View {
                 }
             }
         }
+        // Fill first, then paint — a ZStack sizes to its child, so the page
+        // colour would only cover the empty/loading state's own height and
+        // leave the system default white above and below it.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Savings Goals"))
         .toolbar {
@@ -116,6 +120,8 @@ struct SavingsGoalListView: View {
     }
 
     private func summaryHeader(_ summary: GoalProgressSummary) -> some View {
+        // Fills the width like the goal list below it. Without this the card
+        // sized to its own content and floated as a narrow centred island.
         VCard {
             let layout = dynamicTypeSize.isAccessibilitySize
                 ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.md))
@@ -146,7 +152,9 @@ struct SavingsGoalListView: View {
                         .font(VTypography.caption2)
                         .foregroundStyle(VColors.textPrimary)
                 }
+                Spacer(minLength: 0)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "Overall savings progress"))

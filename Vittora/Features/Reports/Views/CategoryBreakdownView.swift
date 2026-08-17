@@ -85,6 +85,9 @@ struct CategoryBreakdownView: View {
             )
             .frame(width: 140, height: 140)
 
+            // Bounded width: each row uses a Spacer to push its percentage
+            // right, which on a maximised Mac window put the figure about
+            // 1200pt from its label and broke the pairing entirely.
             VStack(alignment: .leading, spacing: VSpacing.sm) {
                 ForEach(Array(vm.breakdowns.prefix(5).enumerated()), id: \.offset) { index, item in
                     Button {
@@ -107,6 +110,9 @@ struct CategoryBreakdownView: View {
                     .buttonStyle(.plain)
                 }
             }
+            .frame(maxWidth: 360, alignment: .leading)
+
+            Spacer(minLength: 0)
         }
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryGroupedBackground)

@@ -212,7 +212,9 @@ struct SavingsGoalFormView: View {
                     }
                     .font(.headline)
                     .accessibilityRespondsToUserInteraction(canSave && !isSaving)
-                    .foregroundStyle(.primary)
+                    // See SplitGroupFormView for why the colour is explicit.
+                    .disabled(!canSave || isSaving)
+                    .foregroundStyle(canSave && !isSaving ? Color.primary : VColors.controlDisabled)
                 }
             }
         }
@@ -266,7 +268,7 @@ struct SavingsGoalFormView: View {
         TextField(
             "",
             text: text,
-            prompt: Text("0").foregroundStyle(VColors.textPrimary)
+            prompt: Text("0").foregroundStyle(VColors.placeholderText)
         )
             #if os(iOS)
             .keyboardType(.decimalPad)

@@ -226,6 +226,7 @@ struct DashboardView: View {
                     VStack(spacing: VSpacing.sectionSpacing) {
                         RecentTransactionsList(
                             transactions: data.recentTransactions,
+                            categoryNames: data.recentCategoryNames,
                             onSeeAll: { appState.selectedTab = .transactions },
                             onSelect: { id in navigateDestination = .transactionDetail(id: id) }
                         )
@@ -278,7 +279,7 @@ struct DashboardView: View {
             VStack(spacing: VSpacing.sm) {
                 HStack {
                     Text(String(localized: "Overall Progress"))
-                        .font(VTypography.caption1)
+                        .font(VTypography.body)
                         .foregroundColor(VColors.textPrimary)
                     Spacer()
                     if progress >= 0.75 {
@@ -287,9 +288,13 @@ struct DashboardView: View {
                             .foregroundColor(progressColor(progress))
                             .accessibilityHidden(true)
                     }
+                    // The card's only figure, and it sat at caption — the same
+                    // 10pt tier the other Dashboard cards used for their data.
                     Text(String(format: "%.0f%%", progress * 100))
-                        .font(VTypography.caption1Bold)
+                        .font(VTypography.amountSmall)
                         .foregroundColor(progressColor(progress))
+                        .amountScaling(0.85)
+                        .layoutPriority(1)
                 }
 
                 GeometryReader { geometry in
@@ -316,16 +321,24 @@ struct DashboardView: View {
         }
     }
 
-    private func netWorthSection(netWorth: Decimal) -> some View {
-        HStack {
+    private func netWorthSection(netWorth: NetWorthSummary) -> some View {
+        // One subtotal per currency. Summing across currencies would need
+        // exchange rates the app does not have — see NetWorthSummary.
+        let entries = netWorth.byCurrency.isEmpty
+            ? [NetWorthSummary.CurrencyTotals(currencyCode: currencyCode, assets: 0, liabilities: 0)]
+            : netWorth.byCurrency
+
+        return HStack {
             VStack(alignment: .leading, spacing: VSpacing.xs) {
                 Text(String(localized: "Net Worth"))
                     .font(VTypography.subheadline)
                     .foregroundColor(VColors.textSecondary)
-                Text(CurrencyFormatter.format(netWorth, currencyCode: currencyCode))
-                    .font(VTypography.amountMedium)
-                    .amountScaling()
-                    .foregroundColor(netWorth >= 0 ? VColors.income : VColors.expense)
+                ForEach(entries) { totals in
+                    Text(CurrencyFormatter.format(totals.netWorth, currencyCode: totals.currencyCode))
+                        .font(VTypography.amountMedium)
+                        .amountScaling()
+                        .foregroundColor(totals.netWorth >= 0 ? VColors.income : VColors.expense)
+                }
             }
             Spacer()
         }
@@ -334,7 +347,11 @@ struct DashboardView: View {
         .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "Net worth"))
-        .accessibilityValue(CurrencyFormatter.format(netWorth, currencyCode: currencyCode))
+        .accessibilityValue(
+            entries
+                .map { CurrencyFormatter.format($0.netWorth, currencyCode: $0.currencyCode) }
+                .joined(separator: ", ")
+        )
     }
 
     private func progressColor(_ progress: Double) -> Color {

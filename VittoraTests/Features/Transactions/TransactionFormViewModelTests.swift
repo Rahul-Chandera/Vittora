@@ -383,4 +383,31 @@ struct TransactionFormViewModelTests {
         #expect(vm.duplicateWarning.count == 1)
         #expect(vm.duplicateWarning.first?.id == existing.id)
     }
+
+    @Test("switching type drops a category that does not belong to it")
+    func switchingTypeClearsIncompatibleCategory() {
+        let (vm, _, _, _, _) = makeViewModel()
+        let groceries = UUID()   // expense
+        let salary = UUID()      // income
+
+        vm.type = .expense
+        vm.selectedCategoryID = groceries
+        // Still valid for the type in play — must survive.
+        vm.clearCategoryIfIncompatible(validCategoryIDs: [groceries])
+        #expect(vm.selectedCategoryID == groceries)
+
+        // Now Income: an expense category is no longer offered, and save()
+        // would otherwise write it straight through.
+        vm.type = .income
+        vm.clearCategoryIfIncompatible(validCategoryIDs: [salary])
+        #expect(vm.selectedCategoryID == nil)
+    }
+
+    @Test("clearing is a no-op when nothing is selected")
+    func clearingWithNoSelectionIsSafe() {
+        let (vm, _, _, _, _) = makeViewModel()
+        vm.selectedCategoryID = nil
+        vm.clearCategoryIfIncompatible(validCategoryIDs: [UUID()])
+        #expect(vm.selectedCategoryID == nil)
+    }
 }

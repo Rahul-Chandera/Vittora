@@ -1,6 +1,8 @@
 import SwiftUI
 #if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
 #endif
 
 /// Flag for a currency code, as an **Image** rather than Text.
@@ -30,19 +32,41 @@ func currencyFlagImage(for currencyCode: String) -> Image? {
     }
     FlagImageCache.shared.store(rendered, for: emoji)
     return Image(uiImage: rendered)
+    #elseif canImport(AppKit)
+    // AppKit twin of the UIKit path above. Without it this returned nil on
+    // macOS, so the Mac app showed no flags at all — in onboarding and in
+    // Settings alike, even though both ask for one.
+    let emoji = currencyFlagEmoji(for: currencyCode)
+    if let cached = FlagImageCache.shared.image(for: emoji) { return Image(nsImage: cached) }
+    let font = NSFont.systemFont(ofSize: 22)
+    let attributes: [NSAttributedString.Key: Any] = [.font: font]
+    let size = (emoji as NSString).size(withAttributes: attributes)
+    guard size.width > 0, size.height > 0 else { return nil }
+    let rendered = NSImage(size: size)
+    rendered.lockFocus()
+    (emoji as NSString).draw(at: .zero, withAttributes: attributes)
+    rendered.unlockFocus()
+    FlagImageCache.shared.store(rendered, for: emoji)
+    return Image(nsImage: rendered)
     #else
     return nil
     #endif
 }
 
-#if canImport(UIKit)
 /// Rasterised flags are reused across rows and redraws; rendering per row per
 /// frame is needless work in a scrolling list.
+#if canImport(UIKit)
+private typealias FlagPlatformImage = UIImage
+#elseif canImport(AppKit)
+private typealias FlagPlatformImage = NSImage
+#endif
+
+#if canImport(UIKit) || canImport(AppKit)
 private final class FlagImageCache {
     static let shared = FlagImageCache()
-    private var storage: [String: UIImage] = [:]
-    func image(for key: String) -> UIImage? { storage[key] }
-    func store(_ image: UIImage, for key: String) { storage[key] = image }
+    private var storage: [String: FlagPlatformImage] = [:]
+    func image(for key: String) -> FlagPlatformImage? { storage[key] }
+    func store(_ image: FlagPlatformImage, for key: String) { storage[key] = image }
 }
 #endif
 

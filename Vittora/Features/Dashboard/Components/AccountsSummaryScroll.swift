@@ -89,7 +89,7 @@ private struct AccountMiniCard: View {
                         .accessibilityHidden(true)
 
                     Text(account.name)
-                        .font(VTypography.caption1Bold)
+                        .font(VTypography.body)
                         .foregroundColor(VColors.textPrimary)
                         .adaptiveLineLimit(1)
                 }
@@ -100,7 +100,7 @@ private struct AccountMiniCard: View {
                     .amountScaling()
 
                 Text(account.type.displayName)
-                    .font(VTypography.caption2)
+                    .font(VTypography.callout)
                     .foregroundColor(VColors.textSecondary)
             }
             .padding(VSpacing.md)

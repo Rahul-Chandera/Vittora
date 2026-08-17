@@ -144,7 +144,9 @@ extension DependencyContainer {
                 ledgerWriting: ledgerWriteStore,
                 editHistoryStore: transactionEditHistoryStore
             ),
-            editHistoryStore: transactionEditHistoryStore
+            editHistoryStore: transactionEditHistoryStore,
+            categoryRepository: categoryRepository,
+            accountRepository: accountRepository
         )
     }
 
