@@ -69,6 +69,46 @@ final class TransactionDeleteConfirmationUITests: XCTestCase {
         )
     }
 
+    /// The list's own delete paths, which the first fix missed.
+    ///
+    /// The detail screen's trash was the one reported, but the row swipe, the
+    /// row context menu and the multi-select bulk delete all called delete
+    /// directly too — and the swipe had allowsFullSwipe, so one fast drag
+    /// erased a transaction with no tap at all.
+    @MainActor
+    func testSwipingToDeleteAsksBeforeErasingIt() throws {
+        let row = app.descendants(matching: .any)["transaction-row-coffee-run"]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), "The seeded transaction must exist.")
+
+        row.swipeLeft()
+        UITestSupport.tapWhenReady(app.buttons["Delete"].firstMatch, timeout: 10)
+
+        let dialog = app.sheets["Delete this transaction?"]
+        XCTAssertTrue(
+            dialog.waitForExistence(timeout: 10),
+            "Swiping to delete must ask rather than erasing the transaction outright."
+        )
+
+        // Dismissed through the scrim: the sheet publishes its Delete button
+        // but no queryable Cancel, and an outside tap is the same cancellation.
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
+        XCTAssertTrue(
+            UITestSupport.waitForDisappearance(dialog, timeout: 10),
+            "Dismissing should close the confirmation."
+        )
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "Cancelling must leave the transaction alone.")
+
+        // And the guard must not have turned the swipe delete into a no-op.
+        row.swipeLeft()
+        UITestSupport.tapWhenReady(app.buttons["Delete"].firstMatch, timeout: 10)
+        XCTAssertTrue(dialog.waitForExistence(timeout: 10), "The confirmation should appear again.")
+        UITestSupport.tapWhenReady(dialog.buttons["Delete"], timeout: 10)
+        XCTAssertTrue(
+            row.waitForNonExistence(timeout: 20),
+            "Confirming must actually delete the transaction."
+        )
+    }
+
     @MainActor
     func testConfirmingActuallyDeletes() throws {
         let row = app.descendants(matching: .any)["transaction-row-coffee-run"]
