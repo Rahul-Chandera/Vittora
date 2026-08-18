@@ -160,6 +160,11 @@ struct ExportView: View {
                     }
                 }
                 .disabled(vm.isExporting)
+                // .plain, or macOS renders the label through its own button
+                // treatment and the accent below never lands: this row's text
+                // measured #8AC9A7 on #F2F5F3 — about 1.8:1 — so the screen's
+                // primary action read as disabled while being perfectly usable.
+                .buttonStyle(.plain)
                 .foregroundStyle(VColors.primaryOnSurface)
             }
 
