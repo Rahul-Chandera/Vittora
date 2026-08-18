@@ -17,6 +17,23 @@
         }
       }
     },
+    "%@ budget will be removed permanently. This cannot be undone." : {
+      "comment" : "Body of the budget delete confirmation. %@ is the budget amount.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El presupuesto de %@ se eliminará permanentemente. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ का बजट स्थायी रूप से हटा दिया जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "-%@" : {
       "localizations" : {
         "es" : {
@@ -351,6 +368,23 @@
         }
       }
     },
+    "%@ and its saved progress will be removed permanently. This cannot be undone." : {
+      "comment" : "Body of the savings goal delete confirmation. %@ is the goal name.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ y el progreso ahorrado se eliminarán permanentemente. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ और उसमें बचाई गई प्रगति स्थायी रूप से हटा दी जाएगी। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "%@ are %@ %@ the guideline" : {
       "localizations" : {
         "es" : {
@@ -679,6 +713,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ ट्रांज़ैक्शन"
+          }
+        }
+      }
+    },
+    "%@ will be removed from this group and everyone's share recalculated. This cannot be undone." : {
+      "comment" : "Body of the group expense delete confirmation. %@ is the expense title.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ se eliminará de este grupo y se recalculará la parte de cada persona. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ इस समूह से हटा दिया जाएगा और सभी का हिस्सा फिर से जोड़ा जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
           }
         }
       }
@@ -7592,6 +7643,23 @@
         }
       }
     },
+    "Delete this budget?" : {
+      "comment" : "Title of the confirmation shown before deleting a budget.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar este presupuesto?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह बजट हटाएँ?"
+          }
+        }
+      }
+    },
     "Delete this debt entry?" : {
       "comment" : "Title of the confirmation dialog shown before deleting a debt entry.",
       "localizations" : {
@@ -7605,6 +7673,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "यह ऋण प्रविष्टि हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this expense?" : {
+      "comment" : "Title of the confirmation shown before deleting a shared group expense.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar este gasto?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह खर्च हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this goal?" : {
+      "comment" : "Title of the confirmation shown before deleting a savings goal.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta meta?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह लक्ष्य हटाएँ?"
           }
         }
       }
