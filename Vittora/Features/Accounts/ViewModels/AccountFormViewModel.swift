@@ -6,7 +6,12 @@ import VittoraCore
 final class AccountFormViewModel {
     var name: String = ""
     var selectedType: AccountType = .bank
-    var initialBalance: String = "0"
+    /// Empty, not "0". The field already shows a 0.00 placeholder, so the
+    /// literal zero bought nothing and cost accuracy: it is a real value in a
+    /// right-aligned field, so typing an amount inserted the digits beside it
+    /// — entering 1500 produced 15000, a silent tenfold error on an opening
+    /// balance. Empty is read as zero at save.
+    var initialBalance: String = ""
     var selectedCurrency: String = CurrencyDefaults.code
     var selectedIcon: String = "building.columns.fill"
     var statementDayOfMonth: Int?
@@ -17,7 +22,7 @@ final class AccountFormViewModel {
 
     var canSave: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty &&
-        (Decimal(localizedAmount: initialBalance) != nil)
+        (initialBalance.isEmpty || Decimal(localizedAmount: initialBalance) != nil)
     }
 
     private let createUseCase: CreateAccountUseCase
@@ -48,7 +53,9 @@ final class AccountFormViewModel {
 
     func save() async throws {
         validationErrors = []
-        guard let balance = Decimal(localizedAmount: initialBalance) else {
+        guard let balance = initialBalance.isEmpty
+            ? Decimal(0)
+            : Decimal(localizedAmount: initialBalance) else {
             throw VittoraError.validationFailed(
                 String(localized: "Please enter a valid opening balance.")
             )
