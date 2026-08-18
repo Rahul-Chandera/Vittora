@@ -9,6 +9,10 @@ struct SavingsGoalListView: View {
     @State private var vm: SavingsGoalListViewModel?
     @State private var showAddGoal = false
     @State private var selectedGoalID: UUID?
+    /// Staged by either delete path so the confirmation can name the goal.
+    /// A goal carries its contribution history, and deleting one was the last
+    /// destructive action in the app that happened on a single click.
+    @State private var goalToDelete: SavingsGoalEntity?
 
     var body: some View {
         ZStack {
@@ -28,6 +32,28 @@ struct SavingsGoalListView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Savings Goals"))
+        .confirmationDialog(
+            String(localized: "Delete this goal?"),
+            isPresented: Binding(
+                get: { goalToDelete != nil },
+                set: { if !$0 { goalToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Delete"), role: .destructive) {
+                guard let goal = goalToDelete, let vm else { return }
+                goalToDelete = nil
+                Task {
+                    await vm.delete(id: goal.id)
+                    appState.notifyChanged(.savings)
+                }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) { goalToDelete = nil }
+        } message: {
+            if let goal = goalToDelete {
+                Text(String(localized: "\(goal.name) and its saved progress will be removed permanently. This cannot be undone."))
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { showAddGoal = true } label: {
@@ -196,20 +222,14 @@ struct SavingsGoalListView: View {
                         Label(String(localized: "Edit"), systemImage: "pencil")
                     }
                     Button(role: .destructive) {
-                        Task {
-                            await vm.delete(id: goal.id)
-                            appState.notifyChanged(.savings)
-                        }
+                        goalToDelete = goal
                     } label: {
                         Label(String(localized: "Delete"), systemImage: "trash")
                     }
                 }
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
-                        Task {
-                            await vm.delete(id: goal.id)
-                            appState.notifyChanged(.savings)
-                        }
+                        goalToDelete = goal
                     } label: {
                         Label(String(localized: "Delete"), systemImage: "trash")
                     }

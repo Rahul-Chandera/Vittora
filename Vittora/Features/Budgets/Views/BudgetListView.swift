@@ -8,6 +8,10 @@ struct BudgetListView: View {
     @State private var viewModel: BudgetListViewModel?
     @State private var showAddBudget = false
     @State private var navigateDestination: NavigationDestination?
+    /// Set by either delete path; the confirmation reads it. Deleting a budget
+    /// discards its configuration and progress with no undo, and every other
+    /// destructive action in the app asks first.
+    @State private var budgetToDelete: BudgetEntity?
 
     var body: some View {
         ZStack {
@@ -95,6 +99,9 @@ struct BudgetListView: View {
                             // Same treatment as Settings, Accounts and
                             // Categories, which are all card-in-a-row lists.
                             .navigationLinkIndicatorVisibility(.hidden)
+                            // Static, not per-id: the delete test needs to
+                            // reach a row it created without knowing its UUID.
+                            .accessibilityIdentifier("budget-row")
                             // listRow* belongs on the ROW, not inside the
                             // NavigationLink's label. Applied to the label it
                             // styles the wrong node and muddles List's row
@@ -121,20 +128,14 @@ struct BudgetListView: View {
                                     Label(String(localized: "Edit"), systemImage: "pencil")
                                 }
                                 Button(role: .destructive) {
-                                    Task {
-                                        await viewModel.deleteBudget(id: budget.id)
-                                        appState.notifyChanged(.budgets)
-                                    }
+                                    budgetToDelete = budget
                                 } label: {
                                     Label(String(localized: "Delete"), systemImage: "trash")
                                 }
                             }
                             .swipeActions(edge: .trailing) {
                                 Button(role: .destructive) {
-                                    Task {
-                                        await viewModel.deleteBudget(id: budget.id)
-                                        appState.notifyChanged(.budgets)
-                                    }
+                                    budgetToDelete = budget
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -162,6 +163,28 @@ struct BudgetListView: View {
                 #else
                 .listStyle(.inset)
                 #endif
+                .confirmationDialog(
+                    String(localized: "Delete this budget?"),
+                    isPresented: Binding(
+                        get: { budgetToDelete != nil },
+                        set: { if !$0 { budgetToDelete = nil } }
+                    ),
+                    titleVisibility: .visible
+                ) {
+                    Button(String(localized: "Delete"), role: .destructive) {
+                        guard let budget = budgetToDelete, let viewModel else { return }
+                        budgetToDelete = nil
+                        Task {
+                            await viewModel.deleteBudget(id: budget.id)
+                            appState.notifyChanged(.budgets)
+                        }
+                    }
+                    Button(String(localized: "Cancel"), role: .cancel) { budgetToDelete = nil }
+                } message: {
+                    if let budget = budgetToDelete {
+                        Text(String(localized: "\(CurrencyFormatter.format(budget.amount, currencyCode: currencyCode)) budget will be removed permanently. This cannot be undone."))
+                    }
+                }
                 // Every row here is a card that paints itself, so the list's
                 // own background only gets in the way — and on macOS 26 it is
                 // #FFFFFF, the same colour as those cards, which flattened the
