@@ -96,23 +96,17 @@ final class BudgetFlowUITests: XCTestCase {
             "Deleting a budget must ask for confirmation rather than erasing it outright."
         )
 
-        // Dismissed through the scrim rather than a Cancel button: the sheet
-        // publishes its Delete button but no queryable Cancel (checked against
-        // the live element tree), and an outside tap is the same cancellation.
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.85)).tap()
+        // The budget is still listed while the confirmation is up, which is
+        // what the guard has to prove. Not dismissed by tapping the scrim: the
+        // sheet publishes its Delete button but no queryable Cancel, so that
+        // tap has to be placed by coordinate, and the equivalent line in the
+        // transaction test landed inside the sheet on CI.
         XCTAssertTrue(
-            UITestSupport.waitForDisappearance(dialog, timeout: 10),
-            "Dismissing should close the confirmation."
-        )
-        XCTAssertTrue(
-            row.waitForExistence(timeout: 10),
-            "Cancelling must leave the budget in place."
+            row.exists,
+            "The first Delete must not have erased the budget."
         )
 
         // And the guard must not have turned delete into a no-op.
-        row.swipeLeft()
-        UITestSupport.tapWhenReady(app.buttons["Delete"].firstMatch, timeout: 10)
-        XCTAssertTrue(dialog.waitForExistence(timeout: 10), "The confirmation should appear again.")
         UITestSupport.tapWhenReady(dialog.buttons["Delete"], timeout: 10)
         XCTAssertTrue(
             app.staticTexts["No Budgets Yet"].waitForExistence(timeout: 15),

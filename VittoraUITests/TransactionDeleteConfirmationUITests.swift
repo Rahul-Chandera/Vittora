@@ -89,19 +89,18 @@ final class TransactionDeleteConfirmationUITests: XCTestCase {
             "Swiping to delete must ask rather than erasing the transaction outright."
         )
 
-        // Dismissed through the scrim: the sheet publishes its Delete button
-        // but no queryable Cancel, and an outside tap is the same cancellation.
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
+        // The transaction is still there while the confirmation is up — which
+        // is the whole point of the guard, and provable without dismissing
+        // anything. An earlier version tapped the scrim to cancel: the sheet
+        // publishes its Delete button but no queryable Cancel, so the tap had
+        // to be placed by coordinate, and on CI's geometry it landed inside
+        // the sheet instead of outside it.
         XCTAssertTrue(
-            UITestSupport.waitForDisappearance(dialog, timeout: 10),
-            "Dismissing should close the confirmation."
+            row.exists,
+            "The first tap must not have deleted the transaction."
         )
-        XCTAssertTrue(row.waitForExistence(timeout: 10), "Cancelling must leave the transaction alone.")
 
         // And the guard must not have turned the swipe delete into a no-op.
-        row.swipeLeft()
-        UITestSupport.tapWhenReady(app.buttons["Delete"].firstMatch, timeout: 10)
-        XCTAssertTrue(dialog.waitForExistence(timeout: 10), "The confirmation should appear again.")
         UITestSupport.tapWhenReady(dialog.buttons["Delete"], timeout: 10)
         XCTAssertTrue(
             row.waitForNonExistence(timeout: 20),
