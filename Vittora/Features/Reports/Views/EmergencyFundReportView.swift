@@ -52,7 +52,8 @@ struct EmergencyFundReportView: View {
                     accountRepository: dependencies.accountRepository,
                     savingsGoalRepository: dependencies.savingsGoalRepository
                 ),
-                selectionStore: UserDefaultsEmergencyFundAccountSelectionStore()
+                selectionStore: UserDefaultsEmergencyFundAccountSelectionStore(),
+                currencyCode: currencyCode
             )
             vm = model
             await model.load()

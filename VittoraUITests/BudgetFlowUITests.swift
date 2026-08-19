@@ -64,6 +64,70 @@ final class BudgetFlowUITests: XCTestCase {
         )
     }
 
+    /// Deleting a budget asks first.
+    ///
+    /// Found by deleting a real budget in the Mac app: one click of the context
+    /// menu's Delete erased it outright, totals dropped, no undo. Same gap the
+    /// transaction delete had — see TransactionDeleteConfirmationUITests. The
+    /// savings goal list had it too and was fixed in the same change.
+    ///
+    /// Driven through the swipe action rather than the context menu because a
+    /// long-press menu is the flakier of the two paths; both set the same state.
+    @MainActor
+    func testDeletingABudgetAsksBeforeErasingIt() throws {
+        launch(seedDemo: false)
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
+        XCTAssertTrue(
+            UITestSupport.navigateToTab(named: "Budgets", in: app, timeout: 15),
+            "Budgets tab should be reachable."
+        )
+        createBudget(amount: "250")
+
+        let row = app.descendants(matching: .any)["budget-row"].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 15), "The new budget should be listed.")
+
+        row.swipeLeft()
+        UITestSupport.tapWhenReady(app.buttons["Delete"].firstMatch, timeout: 10)
+
+        // The guard: the first Delete must ask, not erase.
+        let dialog = app.sheets["Delete this budget?"]
+        XCTAssertTrue(
+            dialog.waitForExistence(timeout: 10),
+            "Deleting a budget must ask for confirmation rather than erasing it outright."
+        )
+
+        // The budget is still listed while the confirmation is up, which is
+        // what the guard has to prove. Not dismissed by tapping the scrim: the
+        // sheet publishes its Delete button but no queryable Cancel, so that
+        // tap has to be placed by coordinate, and the equivalent line in the
+        // transaction test landed inside the sheet on CI.
+        XCTAssertTrue(
+            row.exists,
+            "The first Delete must not have erased the budget."
+        )
+
+        // And the guard must not have turned delete into a no-op.
+        UITestSupport.tapWhenReady(dialog.buttons["Delete"], timeout: 10)
+        XCTAssertTrue(
+            app.staticTexts["No Budgets Yet"].waitForExistence(timeout: 15),
+            "Confirming must actually delete the budget."
+        )
+    }
+
+    @MainActor
+    private func createBudget(amount: String) {
+        UITestSupport.tapWhenReady(app.buttons["budget-add-button"], timeout: 10)
+        let amountField = app.textFields["budget-amount-field"]
+        XCTAssertTrue(amountField.waitForExistence(timeout: 8))
+        amountField.tap()
+        amountField.typeText(amount)
+        UITestSupport.tapWhenReady(app.buttons["budget-save-button"], timeout: 8)
+        XCTAssertTrue(
+            UITestSupport.waitForDisappearance(amountField, timeout: 8),
+            "The budget form should dismiss after saving."
+        )
+    }
+
     /// Reported from device: a budget row's progress and spent figure do not
     /// move after adding an expense in that category — only after relaunching.
     ///

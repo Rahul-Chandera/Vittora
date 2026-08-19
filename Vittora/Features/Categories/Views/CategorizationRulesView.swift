@@ -6,6 +6,9 @@ struct CategorizationRulesView: View {
     @State private var viewModel: CategorizationRulesViewModel?
     @State private var showAddRule = false
     @State private var ruleToEdit: CategorizationRuleRowModel?
+    /// A rule the user wrote by hand; deleting it silently was the last of the
+    /// unguarded deletes.
+    @State private var ruleToDelete: CategorizationRuleRowModel?
 
     var body: some View {
         Group {
@@ -16,6 +19,23 @@ struct CategorizationRulesView: View {
             }
         }
         .navigationTitle(String(localized: "Categorization Rules"))
+        .confirmationDialog(
+            String(localized: "Delete this rule?"),
+            isPresented: Binding(
+                get: { ruleToDelete != nil },
+                set: { if !$0 { ruleToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Delete"), role: .destructive) {
+                guard let rule = ruleToDelete, let viewModel else { return }
+                ruleToDelete = nil
+                Task { await viewModel.deleteRule(id: rule.id) }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) { ruleToDelete = nil }
+        } message: {
+            Text(String(localized: "Transactions will stop being categorised by this rule. Ones it has already categorised keep their category. This cannot be undone."))
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -113,7 +133,7 @@ struct CategorizationRulesView: View {
         }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {
-                Task { await vm.deleteRule(id: rule.id) }
+                ruleToDelete = rule
             } label: {
                 Label(String(localized: "Delete"), systemImage: "trash")
             }

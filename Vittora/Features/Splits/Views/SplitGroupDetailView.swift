@@ -8,6 +8,8 @@ struct SplitGroupDetailView: View {
     @State private var vm: SplitGroupDetailViewModel?
     @State private var showAddExpense = false
     @State private var showEditGroup = false
+    /// Staged by the delete action so the confirmation can name the expense.
+    @State private var expenseToDelete: GroupExpense?
 
     let group: SplitGroup
 
@@ -29,6 +31,25 @@ struct SplitGroupDetailView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.groupedBackground)
         .navigationTitle(group.name)
+        .confirmationDialog(
+            String(localized: "Delete this expense?"),
+            isPresented: Binding(
+                get: { expenseToDelete != nil },
+                set: { if !$0 { expenseToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Delete"), role: .destructive) {
+                guard let expense = expenseToDelete, let vm else { return }
+                expenseToDelete = nil
+                Task { await vm.deleteExpense(expense.id) }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) { expenseToDelete = nil }
+        } message: {
+            if let expense = expenseToDelete {
+                Text(String(localized: "\(expense.title) will be removed from this group and everyone's share recalculated. This cannot be undone."))
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -181,9 +202,28 @@ struct SplitGroupDetailView: View {
                         payerName: vm.memberName(for: expense.paidByMemberID)
                     )
                     .padding(.horizontal, VSpacing.md)
+                    // These rows are in a ScrollView, not a List, so the
+                    // .swipeActions below never fire on either platform —
+                    // deleting or settling a group expense had no reachable
+                    // path at all. The menu is the one that actually works;
+                    // the swipe actions stay for if this ever becomes a List.
+                    .contextMenu {
+                        if !expense.isSettled {
+                            Button {
+                                Task { await vm.settleExpense(expense) }
+                            } label: {
+                                Label(String(localized: "Settle"), systemImage: "checkmark.circle")
+                            }
+                        }
+                        Button(role: .destructive) {
+                            expenseToDelete = expense
+                        } label: {
+                            Label(String(localized: "Delete"), systemImage: "trash")
+                        }
+                    }
                     .swipeActions(edge: .trailing) {
                         Button(role: .destructive) {
-                            Task { await vm.deleteExpense(expense.id) }
+                            expenseToDelete = expense
                         } label: {
                             Label(String(localized: "Delete"), systemImage: "trash")
                         }

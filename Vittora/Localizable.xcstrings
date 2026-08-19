@@ -17,6 +17,23 @@
         }
       }
     },
+    "%@ budget will be removed permanently. This cannot be undone." : {
+      "comment" : "Body of the budget delete confirmation. %@ is the budget amount.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El presupuesto de %@ se eliminará permanentemente. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ का बजट स्थायी रूप से हटा दिया जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "-%@" : {
       "localizations" : {
         "es" : {
@@ -351,6 +368,23 @@
         }
       }
     },
+    "%@ and its saved progress will be removed permanently. This cannot be undone." : {
+      "comment" : "Body of the savings goal delete confirmation. %@ is the goal name.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ y el progreso ahorrado se eliminarán permanentemente. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ और उसमें बचाई गई प्रगति स्थायी रूप से हटा दी जाएगी। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "%@ are %@ %@ the guideline" : {
       "localizations" : {
         "es" : {
@@ -679,6 +713,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ ट्रांज़ैक्शन"
+          }
+        }
+      }
+    },
+    "%@ will be removed from this group and everyone's share recalculated. This cannot be undone." : {
+      "comment" : "Body of the group expense delete confirmation. %@ is the expense title.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ se eliminará de este grupo y se recalculará la parte de cada persona. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ इस समूह से हटा दिया जाएगा और सभी का हिस्सा फिर से जोड़ा जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
           }
         }
       }
@@ -1476,6 +1527,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld ट्रांज़ैक्शन"
+          }
+        }
+      }
+    },
+    "%lld transactions will be removed permanently and the account balances updated. This cannot be undone." : {
+      "comment" : "Body of the bulk transaction delete confirmation.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se eliminarán %lld transacciones permanentemente y se actualizarán los saldos de las cuentas. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ट्रांज़ैक्शन स्थायी रूप से हटा दिए जाएँगे और खाता शेष अपडेट हो जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
           }
         }
       }
@@ -7509,6 +7577,23 @@
         }
       }
     },
+    "Delete %lld transactions?" : {
+      "comment" : "Title of the confirmation shown before deleting several selected transactions.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar %lld transacciones?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ट्रांज़ैक्शन हटाएँ?"
+          }
+        }
+      }
+    },
     "Delete Account" : {
       "localizations" : {
         "es" : {
@@ -7592,6 +7677,40 @@
         }
       }
     },
+    "Delete this attachment?" : {
+      "comment" : "Title of the confirmation shown before deleting a document attached to a transaction.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar este archivo adjunto?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह अटैचमेंट हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this budget?" : {
+      "comment" : "Title of the confirmation shown before deleting a budget.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar este presupuesto?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह बजट हटाएँ?"
+          }
+        }
+      }
+    },
     "Delete this debt entry?" : {
       "comment" : "Title of the confirmation dialog shown before deleting a debt entry.",
       "localizations" : {
@@ -7605,6 +7724,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "यह ऋण प्रविष्टि हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this expense?" : {
+      "comment" : "Title of the confirmation shown before deleting a shared group expense.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar este gasto?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह खर्च हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this goal?" : {
+      "comment" : "Title of the confirmation shown before deleting a savings goal.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta meta?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह लक्ष्य हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this recurring rule?" : {
+      "comment" : "Title of the confirmation shown before deleting a recurring transaction rule.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta regla recurrente?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह रेकरिंग नियम हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this rule?" : {
+      "comment" : "Title of the confirmation shown before deleting a categorisation rule.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta regla?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह नियम हटाएँ?"
           }
         }
       }
@@ -21346,6 +21533,23 @@
         }
       }
     },
+    "The file will be removed from this transaction and deleted. This cannot be undone." : {
+      "comment" : "Body of the attachment delete confirmation.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo se quitará de esta transacción y se eliminará. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "फ़ाइल इस ट्रांज़ैक्शन से हटा दी जाएगी और मिटा दी जाएगी। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "The saved amount in this goal will count toward your emergency-fund coverage." : {
       "localizations" : {
         "es" : {
@@ -21362,6 +21566,23 @@
         }
       }
     },
+    "The transaction will be removed permanently and the account balance updated. This cannot be undone." : {
+      "comment" : "Body of the transaction delete confirmation shown from the list.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La transacción se eliminará permanentemente y se actualizará el saldo de la cuenta. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ट्रांज़ैक्शन स्थायी रूप से हटा दिया जाएगा और खाता शेष अपडेट हो जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "Theme" : {
       "localizations" : {
         "es" : {
@@ -21374,6 +21595,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "थीम"
+          }
+        }
+      }
+    },
+    "This %@ rule will stop posting transactions. Transactions it has already created are kept. This cannot be undone." : {
+      "comment" : "Body of the recurring rule delete confirmation. %@ is the rule's amount.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta regla de %@ dejará de registrar transacciones. Las transacciones que ya creó se conservan. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ का यह नियम ट्रांज़ैक्शन बनाना बंद कर देगा। इसके द्वारा पहले बनाए गए ट्रांज़ैक्शन बने रहेंगे। इसे पूर्ववत नहीं किया जा सकता।"
           }
         }
       }
@@ -22313,6 +22551,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "दर्ज ट्रांज़ैक्शन"
+          }
+        }
+      }
+    },
+    "Transactions will stop being categorised by this rule. Ones it has already categorised keep their category. This cannot be undone." : {
+      "comment" : "Body of the categorisation rule delete confirmation.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las transacciones dejarán de clasificarse con esta regla. Las que ya clasificó conservan su categoría. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस नियम से ट्रांज़ैक्शन की कैटेगरी तय होना बंद हो जाएगा। जिनकी कैटेगरी पहले तय हो चुकी है, वे वैसी ही रहेंगी। इसे पूर्ववत नहीं किया जा सकता।"
           }
         }
       }

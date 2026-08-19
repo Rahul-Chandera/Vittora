@@ -895,6 +895,26 @@ final class AccessibilityAuditUITests: XCTestCase {
                     return true
                 }
 
+                // The same shape as the FAB above, for a different miss. The
+                // onboarding currency list reports clipped frames for rows that
+                // are scrolled out of view, and those land over the Continue
+                // button: the "UAE Dirham (AED)" element screenshot contains no
+                // text at all — just the white page meeting the green pill. So
+                // the sampler measures that green-on-white edge, which is the
+                // DEC-012 pairing already accepted two checks above, and files
+                // it under a row label the exemption cannot match.
+                //
+                // Anchored to the CTA's own identifier, not to green in general:
+                // only samples that actually overlap that one button are
+                // excused, and the rows' real text is still audited wherever it
+                // is genuinely on screen.
+                let onboardingCTA = self.app.buttons["onboarding-next-button"]
+                if let elementFrame = issue.element?.frame,
+                   onboardingCTA.exists,
+                   onboardingCTA.frame.intersects(elementFrame) {
+                    return true
+                }
+
                 let systemTabLabels = ["Dashboard", "Transactions", "Budgets", "Reports", "More"]
                 let elementLabel = issue.element?.label ?? ""
                 if systemTabLabels.contains(where: elementLabel.hasPrefix) {

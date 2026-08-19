@@ -69,6 +69,45 @@ final class TransactionDeleteConfirmationUITests: XCTestCase {
         )
     }
 
+    /// The list's own delete paths, which the first fix missed.
+    ///
+    /// The detail screen's trash was the one reported, but the row swipe, the
+    /// row context menu and the multi-select bulk delete all called delete
+    /// directly too — and the swipe had allowsFullSwipe, so one fast drag
+    /// erased a transaction with no tap at all.
+    @MainActor
+    func testSwipingToDeleteAsksBeforeErasingIt() throws {
+        let row = app.descendants(matching: .any)["transaction-row-coffee-run"]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), "The seeded transaction must exist.")
+
+        row.swipeLeft()
+        UITestSupport.tapWhenReady(app.buttons["Delete"].firstMatch, timeout: 10)
+
+        let dialog = app.sheets["Delete this transaction?"]
+        XCTAssertTrue(
+            dialog.waitForExistence(timeout: 10),
+            "Swiping to delete must ask rather than erasing the transaction outright."
+        )
+
+        // The transaction is still there while the confirmation is up — which
+        // is the whole point of the guard, and provable without dismissing
+        // anything. An earlier version tapped the scrim to cancel: the sheet
+        // publishes its Delete button but no queryable Cancel, so the tap had
+        // to be placed by coordinate, and on CI's geometry it landed inside
+        // the sheet instead of outside it.
+        XCTAssertTrue(
+            row.exists,
+            "The first tap must not have deleted the transaction."
+        )
+
+        // And the guard must not have turned the swipe delete into a no-op.
+        UITestSupport.tapWhenReady(dialog.buttons["Delete"], timeout: 10)
+        XCTAssertTrue(
+            row.waitForNonExistence(timeout: 20),
+            "Confirming must actually delete the transaction."
+        )
+    }
+
     @MainActor
     func testConfirmingActuallyDeletes() throws {
         let row = app.descendants(matching: .any)["transaction-row-coffee-run"]

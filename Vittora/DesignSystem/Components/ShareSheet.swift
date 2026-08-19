@@ -14,6 +14,7 @@ struct ShareSheet: UIViewControllerRepresentable {
 #else
 struct ShareSheet: View {
     let items: [Any]
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         if let url = items.first as? URL {
@@ -43,6 +44,16 @@ struct ShareSheet: View {
             link()
                 .buttonStyle(.borderedProminent)
                 .tint(VColors.primary)
+
+            // Without this the sheet is a dead end. macOS gives a SwiftUI
+            // sheet no close affordance of its own, and this one had no
+            // cancel action for Escape to run either — so exporting data
+            // trapped the window until the file was actually shared. The
+            // iOS branch is a UIActivityViewController, which brings its own.
+            Button(String(localized: "Cancel")) { dismiss() }
+                .buttonStyle(.plain)
+                .foregroundStyle(VColors.textSecondary)
+                .keyboardShortcut(.cancelAction)
         }
         .padding(VSpacing.screenPadding)
     }
