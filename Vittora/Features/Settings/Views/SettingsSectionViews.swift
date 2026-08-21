@@ -234,6 +234,13 @@ struct AppearanceSettingsView: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
+                // The same prominent style as every other action button in the
+                // app. With no buttonStyle at all, macOS rendered the label
+                // through its own treatment: pale green on the row's own fill,
+                // which read as a disabled label rather than this screen's
+                // primary action.
+                .buttonStyle(.borderedProminent)
+                .tint(VColors.primary)
                 // VoiceOver gets the same confirmation the sighted user sees.
                 .accessibilityValue(didApplyAppearance ? String(localized: "Applied") : "")
                 .frame(maxWidth: .infinity)
