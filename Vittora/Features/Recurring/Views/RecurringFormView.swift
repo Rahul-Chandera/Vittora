@@ -68,7 +68,12 @@ struct RecurringFormView: View {
                                 )
                                 .datePickerStyle(.compact)
                                 .labelsHidden()
-                                .frame(maxWidth: .infinity)
+                                // alignment: .leading, not a bare maxWidth. A
+                                // compact DatePicker sizes to its content, so
+                                // filling the row only centred a small control
+                                // in a wide white field; every other field on
+                                // this form starts at the leading edge.
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(VSpacing.md)
                                 .background(VColors.secondaryGroupedBackground)
                                 .cornerRadius(VSpacing.cornerRadiusMD)
@@ -139,6 +144,10 @@ struct RecurringFormView: View {
                                     .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
+                                // .plain, or macOS draws its own link chrome
+                                // behind the label: a grey rounded rect around
+                                // the white one this row already paints.
+                                .buttonStyle(.plain)
                                 .accessibilityIdentifier("recurring-account-picker")
                                 .accessibilityLabel(
                                     selectedAccount(for: viewModel)?.name ?? String(localized: "Choose Account")
@@ -182,6 +191,10 @@ struct RecurringFormView: View {
                                     .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
+                                // .plain, or macOS draws its own link chrome
+                                // behind the label: a grey rounded rect around
+                                // the white one this row already paints.
+                                .buttonStyle(.plain)
                                 .accessibilityIdentifier("recurring-category-picker")
                                 .accessibilityLabel(
                                     selectedCategory(for: viewModel)?.name ?? String(localized: "Choose Category")
@@ -222,6 +235,10 @@ struct RecurringFormView: View {
                                     .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
+                                // .plain, or macOS draws its own link chrome
+                                // behind the label: a grey rounded rect around
+                                // the white one this row already paints.
+                                .buttonStyle(.plain)
                                 .accessibilityIdentifier("recurring-payee-picker")
                                 .accessibilityLabel(
                                     selectedPayee(for: viewModel)?.name ?? String(localized: "Choose Payee")
