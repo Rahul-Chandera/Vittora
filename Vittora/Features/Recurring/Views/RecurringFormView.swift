@@ -430,9 +430,22 @@ struct RecurringCategoryPickerView: View {
                             .foregroundStyle(VColors.primaryOnSurface)
                     }
                 }
+                .contentShape(Rectangle())
             }
+            // .plain, as in the account and payee pickers: without it macOS
+            // draws its own button chrome behind the row's content.
+            .buttonStyle(.plain)
         }
         .navigationTitle(String(localized: "Select Category"))
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #else
+        // macOS sheets resize to the pushed view's ideal size; List reports a
+        // near-zero ideal height, collapsing the sheet without an explicit min.
+        // The account and payee pickers already carry this; this one did not,
+        // so picking a category opened a sheet one row tall.
+        .frame(minWidth: 440, minHeight: 480)
+        #endif
     }
 }
 
