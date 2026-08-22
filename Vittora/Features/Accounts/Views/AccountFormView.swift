@@ -165,7 +165,7 @@ struct AccountFormView: View {
                 }
             }
         }
-        .tint(VColors.textPrimary)
+        .tint(VColors.textCursor)
     }
 
     private func billingDayPicker(title: String, selection: Binding<Int?>) -> some View {

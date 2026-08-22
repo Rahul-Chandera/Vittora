@@ -170,7 +170,7 @@ struct CategoryFormView: View {
                 }
             }
         }
-        .tint(VColors.textPrimary)
+        .tint(VColors.textCursor)
     }
 
     private func save() async {

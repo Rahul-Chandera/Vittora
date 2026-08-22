@@ -145,6 +145,22 @@ enum VColors {
     ///
     /// Same value as placeholderText today; kept separate because "unavailable
     /// control" and "hint text" are different roles that may diverge.
+    /// The text insertion caret.
+    ///
+    /// Not `textPrimary`. That is `Color(nsColor: .labelColor)`, and when the
+    /// app's Appearance is Light while macOS itself is Dark, a caret tinted
+    /// with it came out white on a light field — measured 1.1:1, so there was
+    /// no visible cursor. `@Environment(\.colorScheme)` is no good here
+    /// either: inside a sheet it reports the SYSTEM appearance, not the one
+    /// `preferredColorScheme` is rendering, so it picks the wrong branch.
+    ///
+    /// `adaptive` resolves against the NSAppearance actually drawing the view,
+    /// which is the only one of the three that follows what the user sees.
+    static var textCursor: Color {
+        adaptive(light: (0.109804, 0.109804, 0.117647),   // #1C1C1E
+                 dark: (0.921569, 0.921569, 0.960784))    // #EBEBF5
+    }
+
     static var controlDisabled: Color {
         adaptive(light: (0.431, 0.431, 0.451),   // #6E6E73
                  dark: (0.557, 0.557, 0.576))    // #8E8E93

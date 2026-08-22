@@ -32,6 +32,14 @@ struct AmountInputView: View {
                     TextField("", text: $amountString)
                         .font(VTypography.amountLarge)
                         .foregroundColor(transactionColor(for: type))
+                        // The caret, not the text. A tint set on the enclosing
+                        // Form does not reach this field's insertion point on
+                        // macOS — measured white-on-grey at about 1.1:1, so
+                        // there was no visible cursor at all.
+                        // The caret. `.tint` does drive it — a probe with red
+                        // turned it red — but textPrimary resolved white here.
+                        // See VColors.textCursor for why.
+                        .tint(VColors.textCursor)
                         .accessibilityLabel(String(localized: "Amount"))
                         .accessibilityValue(amountAccessibilityValue)
                         .accessibilityIdentifier(textFieldAccessibilityIdentifier ?? "")

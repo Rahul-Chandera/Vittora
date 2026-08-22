@@ -84,7 +84,7 @@ struct TransactionFormView: View {
                     }
                 }
                 .headerProminence(.increased)
-                .tint(VColors.textPrimary)
+                .tint(VColors.textCursor)
                 // Without an explicit title the pushed form inherits the
                 // window's ("Vittora") on macOS.
                 .navigationTitle(transactionID != nil

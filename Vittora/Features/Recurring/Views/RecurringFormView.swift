@@ -280,7 +280,7 @@ struct RecurringFormView: View {
                     ProgressView()
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(viewModel?.isEditing ?? false ? String(localized: "Edit Recurring") : String(localized: "New Recurring"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

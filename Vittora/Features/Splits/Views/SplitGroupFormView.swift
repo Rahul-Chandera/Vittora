@@ -94,7 +94,7 @@ struct SplitGroupFormView: View {
                     }
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(navigationTitle)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
