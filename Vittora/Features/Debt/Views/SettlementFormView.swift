@@ -84,9 +84,7 @@ struct SettlementFormView: View {
                         guard canSettle, !isLoading else { return }
                         Task { await settle() }
                     }
-                    .font(.headline)
                     .accessibilityRespondsToUserInteraction(canSettle && !isLoading)
-                    .foregroundStyle(.primary)
                     .vDialogConfirmButton()
                 }
             }

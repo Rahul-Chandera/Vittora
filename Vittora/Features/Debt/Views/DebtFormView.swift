@@ -109,8 +109,6 @@ struct DebtFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.headline)
-                        .foregroundStyle(.primary)
                     .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -133,7 +131,6 @@ struct DebtFormView: View {
                     // See SplitGroupFormView for why the colour is explicit
                     // rather than relying on SwiftUI's dimming.
                     .disabled(!(vm?.canSave ?? false))
-                    .font(.headline)
                     .vDialogConfirmButton()
                 }
             }
