@@ -415,9 +415,15 @@ struct RecurringCategoryPickerView: View {
                 selectedID = category.id
                 dismiss()
             }) {
-                HStack {
+                HStack(spacing: VSpacing.md) {
+                    // Fixed column, not an intrinsic glyph. SF Symbols vary in
+                    // width — fork.knife is narrow, bus and tv are wide — so
+                    // letting each size itself started every title at a
+                    // different x and the names read as ragged.
                     Image(systemName: category.icon)
+                        .font(.system(size: 16))
                         .foregroundColor(Color(hex: category.colorHex) ?? .blue)
+                        .frame(width: VSpacing.xxl, alignment: .center)
 
                     Text(category.displayName)
                         .font(VTypography.callout)
@@ -430,6 +436,9 @@ struct RecurringCategoryPickerView: View {
                             .foregroundStyle(VColors.primaryOnSurface)
                     }
                 }
+                // The rows were only as tall as their text.
+                .padding(.vertical, VSpacing.xs)
+                .frame(minHeight: VSpacing.xxxl)
                 .contentShape(Rectangle())
             }
             // .plain, as in the account and payee pickers: without it macOS
