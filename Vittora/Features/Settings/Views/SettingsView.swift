@@ -265,6 +265,7 @@ struct SettingsView: View {
                         Button(String(localized: "Done")) {
                             showContactSupport = false
                         }
+                        .vDialogCancelButton()
                     }
                 }
             }
@@ -329,12 +330,14 @@ struct SettingsView: View {
                         showDeleteAccountConfirm = false
                     }
                     .disabled(isDeletingAllData)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Permanently Delete"), role: .destructive) {
                         Task { await confirmDeleteAllData() }
                     }
                     .disabled(!canConfirmDeleteAllData || isDeletingAllData)
+                    .vDialogConfirmButton()
                 }
             }
         }

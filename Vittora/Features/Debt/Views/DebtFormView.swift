@@ -111,6 +111,7 @@ struct DebtFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                         .font(.headline)
                         .foregroundStyle(.primary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -133,7 +134,7 @@ struct DebtFormView: View {
                     // rather than relying on SwiftUI's dimming.
                     .disabled(!(vm?.canSave ?? false))
                     .font(.headline)
-                    .foregroundStyle((vm?.canSave ?? false) ? Color.primary : VColors.controlDisabled)
+                    .vDialogConfirmButton()
                 }
             }
         }

@@ -290,8 +290,7 @@ struct RecurringFormView: View {
                     Button(String(localized: "Cancel")) {
                         dismiss()
                     }
-                    .font(.body)
-                    .foregroundStyle(VColors.textPrimary)
+                    .vDialogCancelButton()
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -300,10 +299,9 @@ struct RecurringFormView: View {
                             ProgressView()
                         } else {
                             Text(String(localized: "Save"))
-                                .font(.body)
-                                .foregroundColor(VColors.textPrimary)
                         }
                     }
+                    .vDialogConfirmButton()
                     .disabled(!(viewModel?.canSave ?? false) || isLoading)
                 }
             }

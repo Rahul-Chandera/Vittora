@@ -102,6 +102,7 @@ struct BudgetFormView: View {
                     }
                     .keyboardShortcut(.cancelAction)
                     .accessibilityIdentifier("budget-cancel-button")
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -121,6 +122,7 @@ struct BudgetFormView: View {
                     .disabled(viewModel?.canSave != true)
                     .keyboardShortcut(.defaultAction)
                     .accessibilityIdentifier("budget-save-button")
+                    .vDialogConfirmButton()
                 }
             }
             .accessibilityIdentifier("budget-form-root")

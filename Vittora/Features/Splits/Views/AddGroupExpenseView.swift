@@ -118,8 +118,7 @@ struct AddGroupExpenseView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.body)
-                        .foregroundStyle(VColors.textPrimary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
@@ -136,9 +135,8 @@ struct AddGroupExpenseView: View {
                             }
                         }
                     }
-                    .font(.body)
                     .accessibilityRespondsToUserInteraction(vm.canSave && !vm.isSaving)
-                    .foregroundStyle(VColors.textPrimary)
+                    .vDialogConfirmButton()
                 }
             }
         }

@@ -79,6 +79,7 @@ struct BatchReceiptScanView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
                         .disabled(isProcessing)
+                    .vDialogCancelButton()
                 }
                 #if os(iOS)
                 ToolbarItem(placement: .confirmationAction) {
@@ -86,6 +87,7 @@ struct BatchReceiptScanView: View {
                         Task { await processSelectedPhotos() }
                     }
                     .disabled(selectedItems.isEmpty || isProcessing)
+                    .vDialogConfirmButton()
                 }
                 #endif
             }

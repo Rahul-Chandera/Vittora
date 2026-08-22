@@ -77,8 +77,7 @@ struct SettlementFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                            .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Settle")) {
@@ -88,6 +87,7 @@ struct SettlementFormView: View {
                     .font(.headline)
                     .accessibilityRespondsToUserInteraction(canSettle && !isLoading)
                     .foregroundStyle(.primary)
+                    .vDialogConfirmButton()
                 }
             }
         }

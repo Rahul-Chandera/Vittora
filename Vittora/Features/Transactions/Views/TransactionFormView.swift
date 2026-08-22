@@ -103,6 +103,7 @@ struct TransactionFormView: View {
                             }
                             .keyboardShortcut(.cancelAction)
                             .accessibilityIdentifier("transaction-form-cancel-button")
+                            .vDialogCancelButton()
                         }
                     }
 
@@ -137,6 +138,7 @@ struct TransactionFormView: View {
                                 : String(localized: "Enter an amount first")
                         )
                         .accessibilityIdentifier("transaction-form-save-button")
+                        .vDialogConfirmButton()
                     }
                 }
                 .if(vm.isLoading) { view in

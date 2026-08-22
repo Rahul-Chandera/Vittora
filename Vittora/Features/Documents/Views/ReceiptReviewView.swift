@@ -76,6 +76,7 @@ struct ReceiptReviewView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                    .vDialogCancelButton()
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -85,6 +86,7 @@ struct ReceiptReviewView: View {
                         dismiss()
                     }
                     .disabled(!vm.isValid)
+                    .vDialogConfirmButton()
                 }
             }
         }

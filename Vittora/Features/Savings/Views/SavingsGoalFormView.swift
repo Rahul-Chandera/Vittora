@@ -204,6 +204,7 @@ struct SavingsGoalFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                         .font(.headline)
                         .foregroundStyle(.primary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -214,7 +215,7 @@ struct SavingsGoalFormView: View {
                     .accessibilityRespondsToUserInteraction(canSave && !isSaving)
                     // See SplitGroupFormView for why the colour is explicit.
                     .disabled(!canSave || isSaving)
-                    .foregroundStyle(canSave && !isSaving ? Color.primary : VColors.controlDisabled)
+                    .vDialogConfirmButton()
                 }
             }
         }
