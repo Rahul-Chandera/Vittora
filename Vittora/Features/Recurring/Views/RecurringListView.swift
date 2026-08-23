@@ -177,6 +177,10 @@ struct RecurringListView: View {
                             .buttonStyle(.borderedProminent)
                             .tint(VColors.primary)
                         }
+                        // Takes the space left under the summary card and
+                        // centres itself in THAT, rather than the card and the
+                        // placeholder being centred together as one block.
+                        .frame(maxHeight: .infinity)
                     } else {
                         List {
                             ForEach(viewModel.grouped, id: \.label) { group in
@@ -199,6 +203,7 @@ struct RecurringListView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     }
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 }
             } else {
                 ProgressView()
