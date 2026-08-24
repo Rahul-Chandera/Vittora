@@ -157,15 +157,15 @@ public final class DataExportService: DataExportServiceProtocol, Sendable {
 
         if let accountRepo = accountRepository {
             let accounts = try await accountRepo.fetchAll()
-            maps.accountMap = Dictionary(uniqueKeysWithValues: accounts.map { ($0.id, $0.name) })
+            maps.accountMap = Dictionary(accounts.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
         }
         if let catRepo = categoryRepository {
             let categories = try await catRepo.fetchAll()
-            maps.categoryMap = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.name) })
+            maps.categoryMap = Dictionary(categories.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
         }
         if let payeeRepo = payeeRepository {
             let payees = try await payeeRepo.fetchAll()
-            maps.payeeMap = Dictionary(uniqueKeysWithValues: payees.map { ($0.id, $0.name) })
+            maps.payeeMap = Dictionary(payees.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
         }
 
         return maps

@@ -43,7 +43,7 @@ struct SubscriptionAuditUseCase: Sendable {
         let now = nowProvider()
         let rules = try await recurringRuleRepository.fetchActive()
         let categories = try await categoryRepository.fetchAll()
-        let categoryByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+        let categoryByID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
         let expenseRules = rules.filter { rule in
             guard rule.isActive else { return false }
