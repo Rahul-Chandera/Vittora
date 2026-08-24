@@ -169,6 +169,17 @@ struct DebtDetailView: View {
         }
     }
 
+    /// Straight to the share menu on macOS; the sheet is the fallback for when
+    /// nothing can anchor it. Nothing to clean up — this is drafted text.
+    private func presentReminder(_ draft: ReminderDraft) {
+        #if os(macOS)
+        let shown = MacSharePresenter.present(items: [draft.text]) {}
+        if !shown { reminderDraft = draft }
+        #else
+        reminderDraft = draft
+        #endif
+    }
+
     private func reminder(for entry: DebtEntry, payeeName: String?) -> ReminderDraft {
         ReminderDraft(text: DebtContactReminderDraft.message(
             payeeName: payeeName ?? String(localized: "there"),
@@ -225,7 +236,7 @@ struct DebtDetailView: View {
                     if !entry.isSettled {
                         if entry.direction == .lent {
                             Button(String(localized: "Remind")) {
-                                reminderDraft = reminder(for: entry, payeeName: payeeName)
+                                presentReminder(reminder(for: entry, payeeName: payeeName))
                             }
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textPrimary)
@@ -272,7 +283,7 @@ struct DebtDetailView: View {
         )
         .accessibilityAction(named: Text(String(localized: "Remind"))) {
             guard entry.direction == .lent, !entry.isSettled else { return }
-            reminderDraft = reminder(for: entry, payeeName: payeeName)
+            presentReminder(reminder(for: entry, payeeName: payeeName))
         }
         .accessibilityAction(named: Text(String(localized: "Delete"))) {
             debtToDelete = entry

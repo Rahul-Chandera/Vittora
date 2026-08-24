@@ -145,7 +145,18 @@ struct ExportView: View {
                 Button {
                     Task {
                         await vm.export()
-                        if vm.exportURL != nil { showShareSheet = true }
+                        if let url = vm.exportURL {
+                            // Straight to the share menu; the sheet below is
+                            // only a fallback for when nothing can anchor it.
+                            #if os(macOS)
+                            let shown = MacSharePresenter.present(items: [url]) {
+                                Task { await vm.cleanupExport() }
+                            }
+                            if !shown { showShareSheet = true }
+                            #else
+                            showShareSheet = true
+                            #endif
+                        }
                     }
                 } label: {
                     HStack {

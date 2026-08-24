@@ -141,8 +141,17 @@ struct TaxDashboardView: View {
                 ) {
                     Task {
                         await vm.exportReport()
-                        if vm.exportURL != nil {
+                        if let url = vm.exportURL {
+                            // Straight to the share menu. The sheet below is
+                            // only a fallback for when nothing can anchor it.
+                            #if os(macOS)
+                            let shown = MacSharePresenter.present(items: [url]) {
+                                Task { await vm.cleanupExport() }
+                            }
+                            if !shown { showExportSheet = true }
+                            #else
                             showExportSheet = true
+                            #endif
                         }
                     }
                 }
