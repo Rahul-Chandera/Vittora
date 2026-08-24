@@ -48,7 +48,7 @@ private enum VDialogButtonMetrics {
 }
 
 /// Primary action: white on a green that clears AA without an exemption.
-struct VDialogConfirmButtonStyle: ButtonStyle {
+struct VPrimaryActionButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
@@ -65,7 +65,7 @@ struct VDialogConfirmButtonStyle: ButtonStyle {
 
 /// Secondary action: a light grey fill with a dark label, so it reads as a
 /// control beside the confirm button rather than as bare accent text.
-struct VDialogCancelButtonStyle: ButtonStyle {
+struct VSecondaryActionButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
@@ -82,10 +82,16 @@ struct VDialogCancelButtonStyle: ButtonStyle {
 
 extension View {
     func vDialogConfirmButton() -> some View {
-        buttonStyle(VDialogConfirmButtonStyle())
+        buttonStyle(VPrimaryActionButtonStyle())
     }
 
     func vDialogCancelButton() -> some View {
-        buttonStyle(VDialogCancelButtonStyle())
+        buttonStyle(VSecondaryActionButtonStyle())
+    }
+
+    /// The same primary treatment outside a dialog's toolbar — an inline
+    /// action like the savings contribution's Add.
+    func vPrimaryActionButton() -> some View {
+        buttonStyle(VPrimaryActionButtonStyle())
     }
 }
