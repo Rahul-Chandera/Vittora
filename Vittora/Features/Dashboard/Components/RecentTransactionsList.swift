@@ -11,20 +11,26 @@ struct RecentTransactionsList: View {
     let onSelect: (UUID) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             HStack {
+                // textSecondary, as every other section title on this screen
+                // uses. This one was near-black, so the headers did not read
+                // as one family.
                 Text(String(localized: "Recent Transactions"))
                     .font(VTypography.subheadline)
-                    .foregroundColor(highContrastText)
+                    .foregroundColor(VColors.textSecondary)
                 Spacer()
                 Button(action: onSeeAll) {
+                    // Matched to the Accounts section's "Manage": same size,
+                    // same accent. It was bodyBold and near-black, which made
+                    // two identical affordances look like different controls.
                     HStack(spacing: VSpacing.xxs) {
                         Text(String(localized: "See All"))
-                            .font(VTypography.bodyBold)
-                            .foregroundColor(highContrastText)
+                            .font(VTypography.caption1)
+                            .foregroundStyle(VColors.primaryOnSurface)
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundColor(highContrastText)
+                            .foregroundStyle(VColors.primaryOnSurface)
                             .accessibilityHidden(true)
                     }
                 }

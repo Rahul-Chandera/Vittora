@@ -10,7 +10,7 @@ struct AccountsSummaryScroll: View {
     var onAdd: (() -> Void)?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             Button {
                 onManage?()
             } label: {

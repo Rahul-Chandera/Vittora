@@ -159,7 +159,7 @@ struct DashboardView: View {
 
     @ViewBuilder
     private func iOSLayout(_ vm: DashboardViewModel) -> some View {
-        VStack(spacing: VSpacing.sectionSpacing) {
+        VStack(spacing: VSpacing.dashboardSectionSpacing) {
             if let data = vm.dashboardData {
                 HeroSpendingCard(
                     monthSpending: data.monthSpending,
@@ -202,7 +202,7 @@ struct DashboardView: View {
     @ViewBuilder
     private func macLayout(_ vm: DashboardViewModel) -> some View {
         if let data = vm.dashboardData {
-            VStack(spacing: VSpacing.sectionSpacing) {
+            VStack(spacing: VSpacing.dashboardSectionSpacing) {
                 HeroSpendingCard(
                     monthSpending: data.monthSpending,
                     monthIncome: data.monthIncome,
@@ -213,17 +213,24 @@ struct DashboardView: View {
                 // HStack, not LazyVGrid: a grid vertically centers its two
                 // column-VStacks in the shared row, so the shorter column
                 // floated mid-air next to the taller one.
-                HStack(alignment: .top, spacing: VSpacing.sectionSpacing) {
-                    VStack(spacing: VSpacing.sectionSpacing) {
+                HStack(alignment: .top, spacing: VSpacing.dashboardSectionSpacing) {
+                    VStack(spacing: VSpacing.dashboardSectionSpacing) {
                         budgetProgressSection(progress: data.monthBudgetProgress)
                         QuickActionGrid { destination, transactionType in
                             handleQuickAction(destination, transactionType: transactionType)
                         }
                         TopCategoriesChart(categories: data.topCategories, currencyCode: currencyCode)
+
+                        AccountsSummaryScroll(
+                            accounts: data.accountSummary,
+                            onSelect: { id in navigateDestination = .accountDetail(id: id) },
+                            onManage: { navigateDestination = .accountList },
+                            onAdd: { navigateDestination = .addAccount }
+                        )
                     }
                     .frame(maxWidth: .infinity)
 
-                    VStack(spacing: VSpacing.sectionSpacing) {
+                    VStack(spacing: VSpacing.dashboardSectionSpacing) {
                         RecentTransactionsList(
                             transactions: data.recentTransactions,
                             categoryNames: data.recentCategoryNames,
@@ -235,13 +242,6 @@ struct DashboardView: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
-
-                AccountsSummaryScroll(
-                    accounts: data.accountSummary,
-                    onSelect: { id in navigateDestination = .accountDetail(id: id) },
-                    onManage: { navigateDestination = .accountList },
-                    onAdd: { navigateDestination = .addAccount }
-                )
             }
             .padding(VSpacing.screenPadding)
         }
@@ -250,7 +250,7 @@ struct DashboardView: View {
     // MARK: - Shared sub-sections
 
     private func budgetProgressSection(progress: Double) -> some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             HStack {
                 Text(String(localized: "Budget"))
                     .font(VTypography.subheadline)
@@ -328,23 +328,30 @@ struct DashboardView: View {
             ? [NetWorthSummary.CurrencyTotals(currencyCode: currencyCode, assets: 0, liabilities: 0)]
             : netWorth.byCurrency
 
-        return HStack {
-            VStack(alignment: .leading, spacing: VSpacing.xs) {
-                Text(String(localized: "Net Worth"))
-                    .font(VTypography.subheadline)
-                    .foregroundColor(VColors.textSecondary)
-                ForEach(entries) { totals in
-                    Text(CurrencyFormatter.format(totals.netWorth, currencyCode: totals.currencyCode))
-                        .font(VTypography.amountMedium)
-                        .amountScaling()
-                        .foregroundColor(totals.netWorth >= 0 ? VColors.income : VColors.expense)
+        // Title above the card, as every other section on this screen does it.
+        // This was the only one with its heading tucked inside, which is part
+        // of why the sections did not read as one system.
+        return VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
+            Text(String(localized: "Net Worth"))
+                .font(VTypography.subheadline)
+                .foregroundColor(VColors.textSecondary)
+                .accessibilityAddTraits(.isHeader)
+
+            HStack {
+                VStack(alignment: .leading, spacing: VSpacing.xs) {
+                    ForEach(entries) { totals in
+                        Text(CurrencyFormatter.format(totals.netWorth, currencyCode: totals.currencyCode))
+                            .font(VTypography.amountMedium)
+                            .amountScaling()
+                            .foregroundColor(totals.netWorth >= 0 ? VColors.income : VColors.expense)
+                    }
                 }
+                Spacer()
             }
-            Spacer()
+            .padding(VSpacing.cardPadding)
+            .background(VColors.secondaryGroupedBackground)
+            .cornerRadius(VSpacing.cornerRadiusCard)
         }
-        .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryGroupedBackground)
-        .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "Net worth"))
         .accessibilityValue(
