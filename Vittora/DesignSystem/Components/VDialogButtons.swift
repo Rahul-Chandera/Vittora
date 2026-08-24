@@ -35,16 +35,10 @@ private enum VDialogButtonMetrics {
     /// already records — headroom is cheaper than chasing the threshold.
     static let confirmFill = Color(red: 0.090196, green: 0.376471, blue: 0.290196) // #17604A
 
-    /// The disabled fill, and a label dark enough to sit on it with headroom.
-    ///
-    /// `VColors.controlDisabled` is the app's semantic choice here, but its own
-    /// note records 4.54:1 on the grouped grey — and the audit reported every
-    /// disabled Save as "contrast nearly passed" at exactly that pairing. These
-    /// audits open an empty form, so the disabled state is the one they sample.
-    /// This label measures ~6.1:1 on the fill below while staying clearly
-    /// muted against the green-and-white enabled state.
+    /// The disabled fill, and a label with headroom on it in every theme —
+    /// see VColors.controlDisabledOnFill.
     static let disabledFill = VColors.groupedBackground
-    static let disabledLabel = Color(red: 0.352941, green: 0.352941, blue: 0.372549) // #5A5A5F
+    static let disabledLabel = VColors.controlDisabledOnFill
 }
 
 /// Primary action: white on a green that clears AA without an exemption.
@@ -54,6 +48,9 @@ struct VPrimaryActionButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(VTypography.body)
+            // The toolbar can offer less width than the padded label needs and
+            // the audit reported "Text clipped" on Contact Support's Done.
+            .fixedSize(horizontal: true, vertical: false)
             .foregroundStyle(isEnabled ? Color.white : VDialogButtonMetrics.disabledLabel)
             .padding(.horizontal, VDialogButtonMetrics.horizontalPadding)
             .padding(.vertical, VDialogButtonMetrics.verticalPadding)
@@ -71,6 +68,7 @@ struct VSecondaryActionButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(VTypography.body)
+            .fixedSize(horizontal: true, vertical: false)
             .foregroundStyle(isEnabled ? VColors.textPrimary : VDialogButtonMetrics.disabledLabel)
             .padding(.horizontal, VDialogButtonMetrics.horizontalPadding)
             .padding(.vertical, VDialogButtonMetrics.verticalPadding)

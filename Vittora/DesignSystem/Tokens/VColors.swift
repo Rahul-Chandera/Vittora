@@ -145,6 +145,19 @@ enum VColors {
     ///
     /// Same value as placeholderText today; kept separate because "unavailable
     /// control" and "hint text" are different roles that may diverge.
+    /// Label for a disabled filled control.
+    ///
+    /// A fixed dark grey was enough while only light mode was checked, then the
+    /// OLED Black audit failed on the disabled Save: the fill under it is
+    /// `groupedBackground`, which is pure black in that theme, and #5A5A5F on
+    /// black measures about 3.1:1. `controlDisabled` is the neighbouring token
+    /// but sits at 4.54:1 on light grey, close enough to the threshold that the
+    /// audit called it "nearly passed". This clears both ends with headroom.
+    static var controlDisabledOnFill: Color {
+        adaptive(light: (0.352941, 0.352941, 0.372549),   // #5A5A5F, 6.1:1 on #F2F2F7
+                 dark: (0.627451, 0.627451, 0.658824))    // #A0A0A8, 8.2:1 on black
+    }
+
     /// The text insertion caret.
     ///
     /// Not `textPrimary`. That is `Color(nsColor: .labelColor)`, and when the
