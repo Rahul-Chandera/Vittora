@@ -34,8 +34,13 @@ struct RecentTransactionsList: View {
                             .accessibilityHidden(true)
                     }
                 }
-                .frame(minWidth: 44, minHeight: 44)
+                // Grow the tap target, then reclaim the space it would add.
+                // At minHeight 44 the header ROW became 44pt tall, so the gap
+                // under a title with a button was twice that of one without —
+                // "Budget" and "Recent Transactions" against "Quick Actions".
+                .padding(.vertical, VSpacing.lg)
                 .contentShape(Rectangle())
+                .padding(.vertical, -VSpacing.lg)
                 .buttonStyle(.plain)
                 .accessibilityLabel(String(localized: "See all transactions"))
                 .accessibilityHint(String(localized: "Opens the Transactions tab"))
