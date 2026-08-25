@@ -8,6 +8,11 @@ struct AmountInputView: View {
     var currencyCode: String = CurrencyDefaults.code
     var type: TransactionType = .expense
     var textFieldAccessibilityIdentifier: String?
+    /// Raise the keyboard as the screen appears. Opt-in: it is right when the
+    /// user came here to type an amount, wrong when they came to read one.
+    var autoFocus: Bool = false
+
+    @FocusState private var isAmountFocused: Bool
 
     var body: some View {
         VStack(spacing: VSpacing.md) {
@@ -43,6 +48,7 @@ struct AmountInputView: View {
                         .accessibilityLabel(String(localized: "Amount"))
                         .accessibilityValue(amountAccessibilityValue)
                         .accessibilityIdentifier(textFieldAccessibilityIdentifier ?? "")
+                        .focused($isAmountFocused)
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         .textContentType(nil)
@@ -72,6 +78,7 @@ struct AmountInputView: View {
             .background(VColors.secondaryBackground)
             .cornerRadius(VSpacing.cornerRadiusSM)
         }
+        .task { await focusAmountIfRequested() }
     }
 
     private var amountAccessibilityValue: String {
@@ -83,6 +90,15 @@ struct AmountInputView: View {
             return trimmed
         }
         return CurrencyFormatter.format(amount, currencyCode: currencyCode)
+    }
+
+    @MainActor
+    private func focusAmountIfRequested() async {
+        guard autoFocus else { return }
+        // A beat after appearing. Focus set while the sheet is still animating
+        // in is discarded, and the keyboard never comes up.
+        try? await Task.sleep(for: .milliseconds(350))
+        isAmountFocused = true
     }
 
     private func transactionColor(for type: TransactionType) -> Color {
