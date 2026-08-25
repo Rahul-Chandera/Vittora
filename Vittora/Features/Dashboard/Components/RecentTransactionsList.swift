@@ -26,10 +26,10 @@ struct RecentTransactionsList: View {
                     // two identical affordances look like different controls.
                     HStack(spacing: VSpacing.xxs) {
                         Text(String(localized: "See All"))
-                            .font(VTypography.caption1)
+                            .font(VTypography.callout)
                             .foregroundStyle(VColors.primaryOnSurface)
                         Image(systemName: "chevron.right")
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(VColors.primaryOnSurface)
                             .accessibilityHidden(true)
                     }

@@ -27,10 +27,10 @@ struct AccountsSummaryScroll: View {
                     } label: {
                         HStack(spacing: VSpacing.xxs) {
                             Text(String(localized: "Manage"))
-                                .font(VTypography.caption1)
+                                .font(VTypography.callout)
                                 .foregroundStyle(VColors.primaryOnSurface)
                             Image(systemName: "chevron.right")
-                                .font(.caption)
+                                .font(.footnote)
                                 .foregroundStyle(VColors.primaryOnSurface)
                                 .accessibilityHidden(true)
                         }
