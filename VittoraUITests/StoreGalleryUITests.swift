@@ -75,6 +75,11 @@ final class StoreGalleryUITests: XCTestCase {
                 // detail pane is an empty placeholder taking half the shot.
                 app.launchArguments.append("--ui-test-select-first-transaction")
             }
+            if shot.name == "01-dashboard" {
+                // Matches the simctl path: the floating add button sits on top
+                // of an amount in a still.
+                app.launchArguments.append("--ui-test-hide-quick-entry")
+            }
             app.launchEnvironment["UITEST_INITIAL_TAB"] = shot.tab
             app.launchEnvironment["UITEST_DEMO_REGION"] = config.region
             app.launchEnvironment["UITEST_DEMO_MONTHS"] = config.demoMonths
