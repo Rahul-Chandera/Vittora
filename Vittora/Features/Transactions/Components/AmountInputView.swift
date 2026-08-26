@@ -8,8 +8,14 @@ struct AmountInputView: View {
     var currencyCode: String = CurrencyDefaults.code
     var type: TransactionType = .expense
     var textFieldAccessibilityIdentifier: String?
-    /// Raise the keyboard as the screen appears. Opt-in: it is right when the
-    /// user came here to type an amount, wrong when they came to read one.
+    /// Raise the keyboard as the screen appears.
+    ///
+    /// Opt-in, and only quick entry takes it. There the amount is the single
+    /// input and the sheet is short, so the keyboard covers nothing. On the
+    /// full transaction form it covers Category, Account, Date and Payment
+    /// Method the moment the screen opens — the fields the user still has to
+    /// reach — and the accessibility audit reads those occluded rows as
+    /// contrast failures, which is how this surfaced.
     var autoFocus: Bool = false
 
     @FocusState private var isAmountFocused: Bool
