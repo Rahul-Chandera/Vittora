@@ -30,6 +30,7 @@ struct TransferFormView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
                         .accessibilityIdentifier("transfer-cancel-button")
+                    .vDialogCancelButton()
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
@@ -41,6 +42,7 @@ struct TransferFormView: View {
                     }
                     .disabled(viewModel?.canTransfer != true)
                     .accessibilityIdentifier("transfer-submit-button")
+                    .vDialogConfirmButton()
                 }
             }
         }

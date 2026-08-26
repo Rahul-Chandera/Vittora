@@ -94,7 +94,7 @@ struct SplitGroupFormView: View {
                     }
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(navigationTitle)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -102,7 +102,7 @@ struct SplitGroupFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .foregroundStyle(VColors.textPrimary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -115,7 +115,7 @@ struct SplitGroupFormView: View {
                     // fails the contrast audit; an explicit colour keeps the
                     // affordance AND passes at 5.07:1.
                     .disabled(!canSave || isSaving)
-                    .foregroundStyle(canSave && !isSaving ? VColors.textPrimary : VColors.controlDisabled)
+                    .vDialogConfirmButton()
                 }
             }
         }

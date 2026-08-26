@@ -10,31 +10,42 @@ struct AccountsSummaryScroll: View {
     var onAdd: (() -> Void)?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
-            Button {
-                onManage?()
-            } label: {
-                HStack {
-                    Text(String(localized: "Accounts"))
-                        .font(VTypography.subheadline)
-                        .foregroundColor(VColors.textSecondary)
-                    Spacer()
-                    if onManage != nil {
-                        Text(String(localized: "Manage"))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.primaryOnSurface)
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(VColors.primaryOnSurface)
-                            .accessibilityHidden(true)
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
+            // Title outside the button, exactly as Budget and Recent
+            // Transactions do it. Wrapping the whole row made this header
+            // measurably taller than the others — 34 against 31 — and it also
+            // meant tapping the word "Accounts" navigated away.
+            HStack {
+                Text(String(localized: "Accounts"))
+                    .font(VTypography.subheadline)
+                    .foregroundColor(VColors.textSecondary)
+                    .accessibilityAddTraits(.isHeader)
+                Spacer()
+                if onManage != nil {
+                    Button {
+                        onManage?()
+                    } label: {
+                        HStack(spacing: VSpacing.xxs) {
+                            Text(String(localized: "Manage"))
+                                .font(VTypography.callout)
+                                .foregroundStyle(VColors.primaryOnSurface)
+                            Image(systemName: "chevron.right")
+                                .font(.footnote)
+                                .foregroundStyle(VColors.primaryOnSurface)
+                                .accessibilityHidden(true)
+                        }
                     }
+                    // Tap target grown, then its layout cost reclaimed — see
+                    // the same pairing on the Budget header.
+                    .padding(.vertical, VSpacing.lg)
+                    .contentShape(Rectangle())
+                    .padding(.vertical, -VSpacing.lg)
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("dashboard-accounts-manage")
+                    .accessibilityLabel(String(localized: "Manage accounts"))
+                    .accessibilityHint(String(localized: "Opens the accounts list"))
                 }
             }
-            .buttonStyle(.plain)
-            .disabled(onManage == nil)
-            .accessibilityIdentifier("dashboard-accounts-manage")
-            .accessibilityLabel(String(localized: "Manage accounts"))
-            .accessibilityHint(String(localized: "Opens the accounts list"))
 
             if accounts.isEmpty {
                 VStack(spacing: VSpacing.sm) {
@@ -65,7 +76,11 @@ struct AccountsSummaryScroll: View {
                         }
                     }
                     .padding(.horizontal, VSpacing.xxs)
-                    .padding(.vertical, VSpacing.xs)
+                    // No vertical padding. These cards ARE this section's
+                    // content — there is no wrapper card to hide it inside, so
+                    // it read as extra space under the title and left Accounts
+                    // the one section whose header gap did not match the rest.
+                    // Nothing here casts a shadow that needs the room.
                 }
             }
         }

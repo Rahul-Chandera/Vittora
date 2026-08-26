@@ -20,7 +20,10 @@ struct QuickEntryView: View {
                         AmountInputView(
                             amountString: Bindable(vm).amountString,
                             currencyCode: currencyCode,
-                            type: .expense
+                            type: .expense,
+                            // Quick entry exists to type an amount fast, so the
+                            // keyboard should already be up.
+                            autoFocus: true
                         )
                         .padding(VSpacing.lg)
 

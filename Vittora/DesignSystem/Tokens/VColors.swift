@@ -145,6 +145,35 @@ enum VColors {
     ///
     /// Same value as placeholderText today; kept separate because "unavailable
     /// control" and "hint text" are different roles that may diverge.
+    /// Label for a disabled filled control.
+    ///
+    /// A fixed dark grey was enough while only light mode was checked, then the
+    /// OLED Black audit failed on the disabled Save: the fill under it is
+    /// `groupedBackground`, which is pure black in that theme, and #5A5A5F on
+    /// black measures about 3.1:1. `controlDisabled` is the neighbouring token
+    /// but sits at 4.54:1 on light grey, close enough to the threshold that the
+    /// audit called it "nearly passed". This clears both ends with headroom.
+    static var controlDisabledOnFill: Color {
+        adaptive(light: (0.352941, 0.352941, 0.372549),   // #5A5A5F, 6.1:1 on #F2F2F7
+                 dark: (0.627451, 0.627451, 0.658824))    // #A0A0A8, 8.2:1 on black
+    }
+
+    /// The text insertion caret.
+    ///
+    /// Not `textPrimary`. That is `Color(nsColor: .labelColor)`, and when the
+    /// app's Appearance is Light while macOS itself is Dark, a caret tinted
+    /// with it came out white on a light field — measured 1.1:1, so there was
+    /// no visible cursor. `@Environment(\.colorScheme)` is no good here
+    /// either: inside a sheet it reports the SYSTEM appearance, not the one
+    /// `preferredColorScheme` is rendering, so it picks the wrong branch.
+    ///
+    /// `adaptive` resolves against the NSAppearance actually drawing the view,
+    /// which is the only one of the three that follows what the user sees.
+    static var textCursor: Color {
+        adaptive(light: (0.109804, 0.109804, 0.117647),   // #1C1C1E
+                 dark: (0.921569, 0.921569, 0.960784))    // #EBEBF5
+    }
+
     static var controlDisabled: Color {
         adaptive(light: (0.431, 0.431, 0.451),   // #6E6E73
                  dark: (0.557, 0.557, 0.576))    // #8E8E93

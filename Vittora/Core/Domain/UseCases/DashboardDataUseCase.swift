@@ -57,7 +57,7 @@ struct DashboardDataUseCase: Sendable {
         let (allAccounts, monthTransactions, allCategories, activeBudgets, activeRules) =
             try await (allAccountsTask, monthTransactionsTask, allCategoriesTask, activeBudgetsTask, upcomingRulesTask)
 
-        let categoryByID = Dictionary(uniqueKeysWithValues: allCategories.map { ($0.id, $0) })
+        let categoryByID = Dictionary(allCategories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
         let activeAccounts = allAccounts.filter { !$0.isArchived }
 

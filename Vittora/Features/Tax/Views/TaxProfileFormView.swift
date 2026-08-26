@@ -32,8 +32,7 @@ struct TaxProfileFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.body)
-                        .foregroundStyle(VColors.textPrimary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -52,9 +51,8 @@ struct TaxProfileFormView: View {
                             }
                         }
                     }
-                    .font(.body)
                     .disabled(!(vm?.canSave ?? false) || (vm?.isSaving ?? false))
-                    .foregroundStyle(VColors.textPrimary)
+                    .vDialogConfirmButton()
                 }
             }
         }
@@ -593,6 +591,7 @@ private struct AddDeductionSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
@@ -601,6 +600,7 @@ private struct AddDeductionSheet: View {
                         }
                     }
                     .disabled(!canAdd)
+                    .vDialogConfirmButton()
                 }
             }
         }

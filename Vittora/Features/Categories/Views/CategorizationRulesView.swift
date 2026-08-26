@@ -236,6 +236,7 @@ struct CategorizationRuleFormView: View {
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button(String(localized: "Cancel")) { dismiss() }
+                        .vDialogCancelButton()
                     }
                     ToolbarItem(placement: .confirmationAction) {
                         Button(String(localized: "Save")) {
@@ -247,6 +248,7 @@ struct CategorizationRuleFormView: View {
                             }
                         }
                         .disabled(!vm.canSave || vm.isSaving)
+                        .vDialogConfirmButton()
                     }
                 }
                 .errorAlert(message: formErrorBinding)

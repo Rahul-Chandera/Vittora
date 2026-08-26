@@ -76,7 +76,7 @@ public struct WidgetDataProvider: Sendable {
         let categoryRepository = SwiftDataCategoryRepository(modelContainer: container)
 
         let categories = try await categoryRepository.fetchAll()
-        let categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+        let categoriesByID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
         let active = try await budgetRepository.fetchActive()
         let monthly = active.filter { $0.period == .monthly }

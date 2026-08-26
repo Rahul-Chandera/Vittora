@@ -34,6 +34,7 @@ struct TransactionCSVImportView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                    .vDialogCancelButton()
                 }
                 if let vm, vm.canImport {
                     ToolbarItem(placement: .confirmationAction) {
@@ -49,6 +50,7 @@ struct TransactionCSVImportView: View {
                             }
                         }
                         .disabled(vm.isLoading)
+                        .vDialogConfirmButton()
                     }
                 }
             }

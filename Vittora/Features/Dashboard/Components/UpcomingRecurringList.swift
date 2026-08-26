@@ -5,7 +5,7 @@ struct UpcomingRecurringList: View {
     let rules: [RecurringRuleEntity]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             Text(String(localized: "Upcoming"))
                 .font(VTypography.subheadline)
                 .foregroundColor(VColors.textSecondary)

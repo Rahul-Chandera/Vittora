@@ -52,7 +52,11 @@ struct TransactionFormView: View {
                             amountString: Bindable(vm).amountString,
                             currencyCode: currencyCode,
                             type: vm.type,
-                            textFieldAccessibilityIdentifier: "transaction-amount-field"
+                            textFieldAccessibilityIdentifier: "transaction-amount-field",
+                            // New transaction only. Opening the keyboard over an
+                            // existing one, which the user came to read or to
+                            // change some other field on, would be in the way.
+                            autoFocus: transactionID == nil
                         )
 
                         TransactionTypePicker(type: Bindable(vm).type)
@@ -84,7 +88,7 @@ struct TransactionFormView: View {
                     }
                 }
                 .headerProminence(.increased)
-                .tint(VColors.textPrimary)
+                .tint(VColors.textCursor)
                 // Without an explicit title the pushed form inherits the
                 // window's ("Vittora") on macOS.
                 .navigationTitle(transactionID != nil
@@ -103,6 +107,7 @@ struct TransactionFormView: View {
                             }
                             .keyboardShortcut(.cancelAction)
                             .accessibilityIdentifier("transaction-form-cancel-button")
+                            .vDialogCancelButton()
                         }
                     }
 
@@ -127,7 +132,6 @@ struct TransactionFormView: View {
                             }
                         } label: {
                             Text(String(localized: "Save"))
-                                .foregroundColor(vm.canSave ? VColors.primaryOnSurface : VColors.textTertiary)
                         }
                         .disabled(!vm.canSave)
                         .keyboardShortcut(.defaultAction)
@@ -137,6 +141,7 @@ struct TransactionFormView: View {
                                 : String(localized: "Enter an amount first")
                         )
                         .accessibilityIdentifier("transaction-form-save-button")
+                        .vDialogConfirmButton()
                     }
                 }
                 .if(vm.isLoading) { view in

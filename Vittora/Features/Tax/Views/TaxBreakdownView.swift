@@ -38,8 +38,7 @@ struct TaxBreakdownView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Done")) { dismiss() }
-                        .font(.body)
-                        .foregroundStyle(VColors.textPrimary)
+                        .vDialogConfirmButton()
                 }
             }
         }

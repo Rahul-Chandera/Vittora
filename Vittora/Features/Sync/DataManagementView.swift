@@ -152,7 +152,7 @@ struct DataManagementView: View {
                         Text(String(localized: "Export as CSV"))
                     } icon: {
                         // Coloured glyph, label-coloured text. A plain Label
-                        // inherits this Form's .tint(VColors.textPrimary) and
+                        // inherits this Form's .tint(VColors.textCursor) and
                         // draws the icon black along with the text.
                         Image(systemName: "square.and.arrow.up")
                             .foregroundStyle(VColors.primary)
@@ -252,7 +252,7 @@ struct DataManagementView: View {
         // lets content render in the gutter below the tab bar, which the
         // audit reports as text with no accessible element.
         .safeAreaPadding(.bottom, 72)
-        .tint(VColors.textPrimary)
+        .tint(VColors.textCursor)
         .refreshable { await vm.loadStats() }
         .confirmationDialog(
             String(localized: "Clear \(vm.clearScope.displayName)?"),

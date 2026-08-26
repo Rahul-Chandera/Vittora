@@ -69,7 +69,7 @@ struct SettlementFormView: View {
                     }
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Settle Debt"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -77,17 +77,15 @@ struct SettlementFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                            .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Settle")) {
                         guard canSettle, !isLoading else { return }
                         Task { await settle() }
                     }
-                    .font(.headline)
                     .accessibilityRespondsToUserInteraction(canSettle && !isLoading)
-                    .foregroundStyle(.primary)
+                    .vDialogConfirmButton()
                 }
             }
         }

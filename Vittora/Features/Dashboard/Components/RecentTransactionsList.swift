@@ -11,25 +11,36 @@ struct RecentTransactionsList: View {
     let onSelect: (UUID) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             HStack {
+                // textSecondary, as every other section title on this screen
+                // uses. This one was near-black, so the headers did not read
+                // as one family.
                 Text(String(localized: "Recent Transactions"))
                     .font(VTypography.subheadline)
-                    .foregroundColor(highContrastText)
+                    .foregroundColor(VColors.textSecondary)
                 Spacer()
                 Button(action: onSeeAll) {
+                    // Matched to the Accounts section's "Manage": same size,
+                    // same accent. It was bodyBold and near-black, which made
+                    // two identical affordances look like different controls.
                     HStack(spacing: VSpacing.xxs) {
                         Text(String(localized: "See All"))
-                            .font(VTypography.bodyBold)
-                            .foregroundColor(highContrastText)
+                            .font(VTypography.callout)
+                            .foregroundStyle(VColors.primaryOnSurface)
                         Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundColor(highContrastText)
+                            .font(.footnote)
+                            .foregroundStyle(VColors.primaryOnSurface)
                             .accessibilityHidden(true)
                     }
                 }
-                .frame(minWidth: 44, minHeight: 44)
+                // Grow the tap target, then reclaim the space it would add.
+                // At minHeight 44 the header ROW became 44pt tall, so the gap
+                // under a title with a button was twice that of one without —
+                // "Budget" and "Recent Transactions" against "Quick Actions".
+                .padding(.vertical, VSpacing.lg)
                 .contentShape(Rectangle())
+                .padding(.vertical, -VSpacing.lg)
                 .buttonStyle(.plain)
                 .accessibilityLabel(String(localized: "See all transactions"))
                 .accessibilityHint(String(localized: "Opens the Transactions tab"))

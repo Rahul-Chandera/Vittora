@@ -101,7 +101,7 @@ struct DebtFormView: View {
                     .headerProminence(.increased)
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Add Debt"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -109,8 +109,7 @@ struct DebtFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -132,8 +131,7 @@ struct DebtFormView: View {
                     // See SplitGroupFormView for why the colour is explicit
                     // rather than relying on SwiftUI's dimming.
                     .disabled(!(vm?.canSave ?? false))
-                    .font(.headline)
-                    .foregroundStyle((vm?.canSave ?? false) ? Color.primary : VColors.controlDisabled)
+                    .vDialogConfirmButton()
                 }
             }
         }

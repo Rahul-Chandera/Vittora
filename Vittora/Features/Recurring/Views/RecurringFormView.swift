@@ -68,7 +68,12 @@ struct RecurringFormView: View {
                                 )
                                 .datePickerStyle(.compact)
                                 .labelsHidden()
-                                .frame(maxWidth: .infinity)
+                                // alignment: .leading, not a bare maxWidth. A
+                                // compact DatePicker sizes to its content, so
+                                // filling the row only centred a small control
+                                // in a wide white field; every other field on
+                                // this form starts at the leading edge.
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(VSpacing.md)
                                 .background(VColors.secondaryGroupedBackground)
                                 .cornerRadius(VSpacing.cornerRadiusMD)
@@ -139,6 +144,10 @@ struct RecurringFormView: View {
                                     .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
+                                // .plain, or macOS draws its own link chrome
+                                // behind the label: a grey rounded rect around
+                                // the white one this row already paints.
+                                .buttonStyle(.plain)
                                 .accessibilityIdentifier("recurring-account-picker")
                                 .accessibilityLabel(
                                     selectedAccount(for: viewModel)?.name ?? String(localized: "Choose Account")
@@ -182,6 +191,10 @@ struct RecurringFormView: View {
                                     .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
+                                // .plain, or macOS draws its own link chrome
+                                // behind the label: a grey rounded rect around
+                                // the white one this row already paints.
+                                .buttonStyle(.plain)
                                 .accessibilityIdentifier("recurring-category-picker")
                                 .accessibilityLabel(
                                     selectedCategory(for: viewModel)?.name ?? String(localized: "Choose Category")
@@ -222,6 +235,10 @@ struct RecurringFormView: View {
                                     .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                                 }
+                                // .plain, or macOS draws its own link chrome
+                                // behind the label: a grey rounded rect around
+                                // the white one this row already paints.
+                                .buttonStyle(.plain)
                                 .accessibilityIdentifier("recurring-payee-picker")
                                 .accessibilityLabel(
                                     selectedPayee(for: viewModel)?.name ?? String(localized: "Choose Payee")
@@ -263,7 +280,7 @@ struct RecurringFormView: View {
                     ProgressView()
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(viewModel?.isEditing ?? false ? String(localized: "Edit Recurring") : String(localized: "New Recurring"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -273,8 +290,7 @@ struct RecurringFormView: View {
                     Button(String(localized: "Cancel")) {
                         dismiss()
                     }
-                    .font(.body)
-                    .foregroundStyle(VColors.textPrimary)
+                    .vDialogCancelButton()
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -283,10 +299,9 @@ struct RecurringFormView: View {
                             ProgressView()
                         } else {
                             Text(String(localized: "Save"))
-                                .font(.body)
-                                .foregroundColor(VColors.textPrimary)
                         }
                     }
+                    .vDialogConfirmButton()
                     .disabled(!(viewModel?.canSave ?? false) || isLoading)
                 }
             }
@@ -398,9 +413,15 @@ struct RecurringCategoryPickerView: View {
                 selectedID = category.id
                 dismiss()
             }) {
-                HStack {
+                HStack(spacing: VSpacing.md) {
+                    // Fixed column, not an intrinsic glyph. SF Symbols vary in
+                    // width — fork.knife is narrow, bus and tv are wide — so
+                    // letting each size itself started every title at a
+                    // different x and the names read as ragged.
                     Image(systemName: category.icon)
+                        .font(.system(size: 16))
                         .foregroundColor(Color(hex: category.colorHex) ?? .blue)
+                        .frame(width: VSpacing.xxl, alignment: .center)
 
                     Text(category.displayName)
                         .font(VTypography.callout)
@@ -413,9 +434,25 @@ struct RecurringCategoryPickerView: View {
                             .foregroundStyle(VColors.primaryOnSurface)
                     }
                 }
+                // The rows were only as tall as their text.
+                .padding(.vertical, VSpacing.xs)
+                .frame(minHeight: VSpacing.xxxl)
+                .contentShape(Rectangle())
             }
+            // .plain, as in the account and payee pickers: without it macOS
+            // draws its own button chrome behind the row's content.
+            .buttonStyle(.plain)
         }
         .navigationTitle(String(localized: "Select Category"))
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #else
+        // macOS sheets resize to the pushed view's ideal size; List reports a
+        // near-zero ideal height, collapsing the sheet without an explicit min.
+        // The account and payee pickers already carry this; this one did not,
+        // so picking a category opened a sheet one row tall.
+        .frame(minWidth: 440, minHeight: 480)
+        #endif
     }
 }
 

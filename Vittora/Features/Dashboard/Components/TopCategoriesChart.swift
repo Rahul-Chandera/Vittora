@@ -7,7 +7,7 @@ struct TopCategoriesChart: View {
     var currencyCode: String = CurrencyDefaults.code
 
     var body: some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             Text(String(localized: "Top Categories"))
                 .font(VTypography.subheadline)
                 .foregroundColor(VColors.textSecondary)

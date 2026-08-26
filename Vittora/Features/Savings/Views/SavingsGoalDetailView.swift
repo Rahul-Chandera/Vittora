@@ -224,6 +224,10 @@ struct SavingsGoalDetailView: View {
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
+    /// Shared by the amount field and the Add button so the row lines up, and
+    /// large enough to stay a comfortable target.
+    private var contributionRowHeight: CGFloat { 44 }
+
     private func contributionSection(_ vm: SavingsGoalDetailViewModel) -> some View {
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.md) {
@@ -248,6 +252,7 @@ struct SavingsGoalDetailView: View {
                         .accessibilityLabel(String(localized: "Contribution amount"))
                         .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
                         .accessibilityIdentifier("savings-contribution-field")
+                        .frame(minHeight: contributionRowHeight)
                     Spacer()
                     Button {
                         guard vm.canContribute, !vm.isAddingContribution else { return }
@@ -260,14 +265,12 @@ struct SavingsGoalDetailView: View {
                                 .font(VTypography.bodyBold)
                         }
                     }
-                    .padding(.horizontal, VSpacing.md)
-                    .frame(minHeight: 44)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: VSpacing.cornerRadiusSM)
-                            .stroke(VColors.textPrimary, lineWidth: 1)
-                    }
-                    .foregroundStyle(VColors.textPrimary)
-                    .buttonStyle(.plain)
+                    // An outlined box with black text read as a field, not a
+                    // control. Same treatment as the app's other primary
+                    // actions, and the same height as the amount field beside
+                    // it — the two used to differ.
+                    .frame(minHeight: contributionRowHeight)
+                    .vPrimaryActionButton()
                     .accessibilityRespondsToUserInteraction(vm.canContribute && !vm.isAddingContribution)
                     .accessibilityIdentifier("savings-contribution-add-button")
                 }

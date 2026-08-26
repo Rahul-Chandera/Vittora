@@ -102,7 +102,7 @@ struct CashFlowForecastUseCase: Sendable {
         )
 
         let categories = try await categoryRepository.fetchAll()
-        let categoryTypeByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.type) })
+        let categoryTypeByID = Dictionary(categories.map { ($0.id, $0.type) }, uniquingKeysWith: { first, _ in first })
         let activeRules = try await recurringRuleRepository.fetchActive()
 
         guard let forecastStart = calendar.date(byAdding: .day, value: 1, to: todayStart),
