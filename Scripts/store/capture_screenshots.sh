@@ -74,8 +74,11 @@ xcrun simctl status_bar "$UDID" override \
 # tab|url|output-name  — url is "-" when the tab alone is the screen.
 # Routes go through --ui-test-open-url, not `simctl openurl`: the latter makes
 # SpringBoard show an "Open in Vittora?" alert, which lands in the capture.
+# A fourth field marks slots that hide the floating add button. It overlaps a
+# transaction amount on the dashboard, which reads fine in use — you scroll and
+# it moves — but not in a still.
 SHOTS=(
-  "dashboard|-|01-dashboard"
+  "dashboard|-|01-dashboard|hide-fab"
   "transactions|-|02-transactions"
   "budgets|-|03-budgets"
   # Savings is NOT capturable: AppTabView routes overflow tabs (savings/debt/
@@ -87,7 +90,7 @@ SHOTS=(
 )
 
 for entry in "${SHOTS[@]}"; do
-  IFS='|' read -r tab url name <<< "$entry"
+  IFS='|' read -r tab url name flags <<< "$entry"
   # ONLY=04-fiftythirtytwenty re-shoots a single slot without a full pass.
   if [ -n "${ONLY:-}" ] && [ "$name" != "$ONLY" ]; then continue; fi
 
@@ -96,6 +99,9 @@ for entry in "${SHOTS[@]}"; do
   route_arg=""
   [ "$url" != "-" ] && route_arg="--ui-test-open-url=$url"
 
+  fab_arg=""
+  [ "${flags:-}" = "hide-fab" ] && fab_arg="--ui-test-hide-quick-entry"
+
   xcrun simctl terminate "$UDID" "$APP_ID" >/dev/null 2>&1 || true
   # Relaunching per screen costs a few seconds but removes every ordering
   # dependency — a bad capture can be re-run alone.
@@ -103,7 +109,7 @@ for entry in "${SHOTS[@]}"; do
   SIMCTL_CHILD_UITEST_DEMO_REGION="$REGION" \
   SIMCTL_CHILD_UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
     xcrun simctl launch "$UDID" "$APP_ID" \
-      --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" $route_arg \
+      --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" $route_arg $fab_arg \
       -AppleLanguages "($LOCALE)" -AppleLocale "$APPLE_LOCALE" >/dev/null
 
   sleep 12  # seeding is async (a year of history), and report aggregates

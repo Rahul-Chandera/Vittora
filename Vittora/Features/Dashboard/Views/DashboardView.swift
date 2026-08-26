@@ -13,6 +13,11 @@ struct DashboardView: View {
     @State private var navigateDestination: NavigationDestination?
     @State private var activeQuickActionModal: QuickActionModal?
     @State private var isQuickEntryButtonVisible: Bool = true
+
+    /// Set by `--ui-test-hide-quick-entry`, which only the screenshot scripts
+    /// pass. Read once: the launch arguments do not change while running.
+    static let hidesQuickEntryForCapture = ProcessInfo.processInfo.arguments
+        .contains("--ui-test-hide-quick-entry")
     @State private var lastScrollOffsetY: CGFloat = 0
 
     var body: some View {
@@ -30,7 +35,19 @@ struct DashboardView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            quickEntryFloatingButton
+            // Hidden only for App Store captures. The button floats over
+            // scrollable content, which is fine in use — you scroll and it
+            // gets out of the way, and it hides itself on scroll down. In a
+            // still it just sits on top of a number: the 1.6.0 dashboard is
+            // denser than 1.5.0's, so a transaction row now reaches under it
+            // where there used to be blank space.
+            //
+            // A capture-time flag, not a layout change, because the app
+            // behaviour is correct. Same pattern as --ui-test-open-url and
+            // UITEST_DEMO_MONTHS, both of which exist for this pipeline.
+            if !DashboardView.hidesQuickEntryForCapture {
+                quickEntryFloatingButton
+            }
         }
         .navigationTitle(String(localized: "Dashboard"))
         .task {
