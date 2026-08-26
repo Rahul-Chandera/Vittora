@@ -52,7 +52,11 @@ struct TransactionFormView: View {
                             amountString: Bindable(vm).amountString,
                             currencyCode: currencyCode,
                             type: vm.type,
-                            textFieldAccessibilityIdentifier: "transaction-amount-field"
+                            textFieldAccessibilityIdentifier: "transaction-amount-field",
+                            // New transaction only. Opening the keyboard over an
+                            // existing one, which the user came to read or to
+                            // change some other field on, would be in the way.
+                            autoFocus: transactionID == nil
                         )
 
                         TransactionTypePicker(type: Bindable(vm).type)

@@ -821,8 +821,29 @@ final class AccessibilityAuditUITests: XCTestCase {
         return app.descendants(matching: .any).matching(predicate).firstMatch
     }
 
+    /// Put the keyboard away before sampling.
+    ///
+    /// The add-transaction screens focus the amount field on appear, so the
+    /// keyboard covers the rows beneath it. Apple's sampler reads those
+    /// occluded rows as contrast failures — "Account" and "Date" went red on
+    /// CI — which measures the keyboard sitting over the form rather than the
+    /// form's own colours. Nothing is excused here: the rows are audited, just
+    /// once they are actually visible.
+    ///
+    /// A decimal pad has no Return key, so focus is resigned by tapping the
+    /// navigation bar, which is inert on these screens.
+    @MainActor
+    private func dismissKeyboardIfPresent() {
+        guard app.keyboards.element.exists else { return }
+        let bar = app.navigationBars.firstMatch
+        guard bar.exists else { return }
+        bar.tap()
+        _ = app.keyboards.element.waitForNonExistence(timeout: 3)
+    }
+
     @MainActor
     private func performCoreFlowAudit() throws {
+        dismissKeyboardIfPresent()
         // Keep the one documented P1 exception narrow: Apple's contrast sampler
         // treats decorative chart paint as text. Every other issue, including
         // hit regions, is actionable.
