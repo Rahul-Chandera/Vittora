@@ -6,7 +6,7 @@ captures are reproducible, and a hand-shot one drifts from the rest.
 ```bash
 # iPhone / iPad, one set per locale
 Scripts/store/capture_screenshots.sh iphone-69    "iPhone 17 Pro Max"
-Scripts/store/capture_screenshots.sh iphone-69-in "iPhone 17 Pro Max" en en_IN IN
+Scripts/store/capture_screenshots.sh iphone-69-in "iPhone 17 Pro Max" en en_IN US
 Scripts/store/capture_screenshots.sh iphone-69-hi "iPhone 17 Pro Max" hi hi_IN IN
 Scripts/store/capture_screenshots.sh iphone-69-es "iPhone 17 Pro Max" es es_MX US
 Scripts/store/capture_screenshots.sh ipad-13      "iPad Pro 13-inch (M5)"
@@ -16,6 +16,12 @@ Scripts/store/capture_mac_screenshots.sh        # runs the real Mac app, see bel
 
 python3 Scripts/store/make_marketing.py         # frame + headline -> marketing/
 ```
+
+**The `-in` set takes region `US`, not `IN`.** It is the English gallery and
+must show `$`. The region argument drives `UITEST_DEMO_REGION`, which picks the
+currency and payee set — it is independent of the display language, so passing
+`IN` here renders English screens full of rupees. Only `-hi` uses `IN`. This
+line said `IN` through 1.5.0 and 1.6.0 and produced exactly that both times.
 
 `ONLY=04-fiftythirtytwenty` re-shoots a single slot. `KEEP_DEVICE=1` skips the
 device erase (faster, but the previous locale and data survive — only for
