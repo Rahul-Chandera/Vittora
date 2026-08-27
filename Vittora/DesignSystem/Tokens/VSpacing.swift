@@ -16,6 +16,17 @@ enum VSpacing {
     // MARK: - Semantic Spacings
     static let cardPadding: CGFloat = 16
     static let listRowSpacing: CGFloat = 12
+    /// Between a section's title and the content it labels.
+    ///
+    /// Deliberately much smaller than the gap BETWEEN sections. At `md` the two
+    /// were the same optically — measured 20pt under a title and 19pt between
+    /// sections — so nothing grouped and the dashboard read as loose parts.
+    static let sectionHeaderGap: CGFloat = 8
+
+    /// Between whole sections on the dashboard. Wider than `sectionSpacing` so
+    /// the header-to-content gap above is unmistakably the tighter of the two.
+    static let dashboardSectionSpacing: CGFloat = 32
+
     static let sectionSpacing: CGFloat = 24
     static let screenPadding: CGFloat = 16
     static let groupedScreenPadding: CGFloat = 20

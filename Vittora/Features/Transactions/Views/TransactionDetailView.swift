@@ -10,6 +10,7 @@ struct TransactionDetailView: View {
     @State private var vm: TransactionDetailViewModel?
     let transactionID: UUID
     @State private var showEditSheet = false
+    @State private var showDeleteConfirm = false
 
     var body: some View {
         ZStack {
@@ -100,6 +101,12 @@ struct TransactionDetailView: View {
                                 }
                             }
 
+                            if let categoryName = vm.categoryName {
+                                detailRow(label: String(localized: "Category"), value: categoryName)
+                            }
+                            if let accountName = vm.accountName {
+                                detailRow(label: String(localized: "Account"), value: accountName)
+                            }
                             detailRow(label: String(localized: "Payment Method"), value: transaction.paymentMethod.displayName)
                         }
                         .padding(VSpacing.lg)
@@ -128,7 +135,7 @@ struct TransactionDetailView: View {
                                     }
                                     .padding(VSpacing.md)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(VColors.secondaryBackground)
+                                    .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusSM)
                                 }
                             }
@@ -163,7 +170,7 @@ struct TransactionDetailView: View {
                                                     .foregroundColor(VColors.textPrimary)
                                             }
                                             .padding(VSpacing.md)
-                                            .background(VColors.secondaryBackground)
+                                            .background(VColors.secondaryGroupedBackground)
                                             .cornerRadius(VSpacing.cornerRadiusSM)
                                         }
                                     }
@@ -176,11 +183,14 @@ struct TransactionDetailView: View {
                     }
                     .padding(VSpacing.screenPadding)
                 }
-                .safeAreaInset(edge: .bottom) {
-                    VColors.background
-                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
-                        .allowsHitTesting(false)
-                }
+                // Grouped page like every other screen (owner decision
+                // 2026-08-09). This screen had no page paint at all — it relied
+                // on the system default white — so colouring only the clearance
+                // strip grey put a visible band across the content.
+                .background(VColors.groupedBackground)
+                // safeAreaPadding, not safeAreaInset: a stack of cards, and an
+                // opaque inset paints OVER the last one, slicing it mid-glyph.
+                .safeAreaPadding(.bottom, dynamicTypeSize.isAccessibilitySize ? 140 : 72)
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
@@ -197,17 +207,7 @@ struct TransactionDetailView: View {
                             .accessibilityHint(String(localized: "Opens the transaction form"))
 
                             Button(role: .destructive) {
-                                Task {
-                                    do {
-                                        try await vm.delete()
-                                        appState.notifyChanged([.transactions, .accounts, .budgets])
-                                        dismiss()
-                                    } catch {
-                                        vm.error = error.userFacingMessage(
-                                            fallback: String(localized: "We couldn't delete this transaction.")
-                                        )
-                                    }
-                                }
+                                showDeleteConfirm = true
                             } label: {
                                 Image(systemName: "trash")
                             }
@@ -241,6 +241,34 @@ struct TransactionDetailView: View {
         }
         .accessibilityIdentifier("transaction-detail-root")
         .advertisesHandoff(.transactionDetail(transactionID))
+        // Deleting a transaction moves money. One click of the toolbar trash
+        // erased it outright — no confirmation, no undo — while the debt entry
+        // delete and Delete All Data both confirm. Names the amount, as those do.
+        .confirmationDialog(
+            String(localized: "Delete this transaction?"),
+            isPresented: $showDeleteConfirm,
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Delete"), role: .destructive) {
+                guard let vm else { return }
+                Task {
+                    do {
+                        try await vm.delete()
+                        appState.notifyChanged([.transactions, .accounts, .budgets])
+                        dismiss()
+                    } catch {
+                        vm.error = error.userFacingMessage(
+                            fallback: String(localized: "We couldn't delete this transaction.")
+                        )
+                    }
+                }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) { showDeleteConfirm = false }
+        } message: {
+            if let amount = vm?.transaction?.amount {
+                Text(String(localized: "\(CurrencyFormatter.format(amount, currencyCode: currencyCode)) will be removed permanently. This cannot be undone."))
+            }
+        }
         .errorAlert(message: transactionDetailErrorBinding)
         .task {
             if vm == nil {

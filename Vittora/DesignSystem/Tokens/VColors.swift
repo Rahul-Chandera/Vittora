@@ -38,8 +38,36 @@ enum VColors {
     static var tertiaryBackground: Color {
         isOLEDBlack ? Color(red: 0.08, green: 0.08, blue: 0.085) : Color(nsColor: .textBackgroundColor)
     }
+    // Literal values, NOT system colours. On macOS 26 windowBackgroundColor,
+    // textBackgroundColor and controlBackgroundColor all resolve to #FFFFFF in
+    // light and #1E1E1E in dark — measured, not assumed. So the page and the
+    // cards drawn on it came out the same colour, 1.00:1, and every card on
+    // every grouped screen was invisible.
+    //
+    // The comment this replaces already blamed controlBackgroundColor for being
+    // white-on-white and moved to textBackgroundColor to escape it. That is no
+    // longer an escape: all three are now the same value. Borrowing any system
+    // surface colour for one half of a pair only works while Apple keeps them
+    // distinct, and here they stopped being distinct.
+    //
+    // Values mirror the iOS pair so the two platforms read alike.
     static var groupedBackground: Color {
-        isOLEDBlack ? .black : Color(nsColor: .windowBackgroundColor)
+        isOLEDBlack
+            ? .black
+            : adaptive(light: (0.949, 0.949, 0.969),   // #F2F2F7, as iOS
+                       dark: (0.118, 0.118, 0.118))    // #1E1E1E, the macOS window grey
+    }
+    // Card ON a grouped page — white on the grey page, the way iOS's
+    // secondarySystemGroupedBackground pairs with systemGroupedBackground.
+    // Distinct from secondaryBackground, which is the grey FILL that sits on
+    // white surfaces (form fields, chips). Collapsing those two roles into one
+    // token is what made past background sweeps fail with invisible
+    // white-on-white chips.
+    static var secondaryGroupedBackground: Color {
+        isOLEDBlack
+            ? .black
+            : adaptive(light: (1.000, 1.000, 1.000),   // #FFFFFF
+                       dark: (0.173, 0.173, 0.180))    // #2C2C2E, lifted off the page
     }
     #else
     static var background: Color {
@@ -53,6 +81,11 @@ enum VColors {
     }
     static var groupedBackground: Color {
         isOLEDBlack ? .black : Color(uiColor: .systemGroupedBackground)
+    }
+    // See the macOS twin above for why this exists as its own role.
+    // OLED mirrors secondaryBackground: cards sit on pure black.
+    static var secondaryGroupedBackground: Color {
+        isOLEDBlack ? .black : Color(uiColor: .secondarySystemGroupedBackground)
     }
     #endif
 
@@ -100,6 +133,76 @@ enum VColors {
     /// brand green. Owner decision (2026-08-01): selection is neutral, so row
     /// content stays readable whatever accent is chosen and whatever colour an
     /// individual amount happens to be.
+    /// A control that is present but currently unavailable — a Save button
+    /// with required fields still empty, for example.
+    ///
+    /// Needed because SwiftUI's own disabled rendering is roughly 30% opacity,
+    /// which fails the contrast audit. af8b34c8 worked around that by dropping
+    /// `.disabled()` entirely and guarding inside the action, so the button
+    /// stayed fully enabled-looking and gave no hint that anything was missing.
+    /// An explicit colour lets the control BE disabled and still measure 5.07:1
+    /// on a white card.
+    ///
+    /// Same value as placeholderText today; kept separate because "unavailable
+    /// control" and "hint text" are different roles that may diverge.
+    /// Label for a disabled filled control.
+    ///
+    /// A fixed dark grey was enough while only light mode was checked, then the
+    /// OLED Black audit failed on the disabled Save: the fill under it is
+    /// `groupedBackground`, which is pure black in that theme, and #5A5A5F on
+    /// black measures about 3.1:1. `controlDisabled` is the neighbouring token
+    /// but sits at 4.54:1 on light grey, close enough to the threshold that the
+    /// audit called it "nearly passed". This clears both ends with headroom.
+    static var controlDisabledOnFill: Color {
+        adaptive(light: (0.352941, 0.352941, 0.372549),   // #5A5A5F, 6.1:1 on #F2F2F7
+                 dark: (0.627451, 0.627451, 0.658824))    // #A0A0A8, 8.2:1 on black
+    }
+
+    /// The text insertion caret.
+    ///
+    /// Not `textPrimary`. That is `Color(nsColor: .labelColor)`, and when the
+    /// app's Appearance is Light while macOS itself is Dark, a caret tinted
+    /// with it came out white on a light field — measured 1.1:1, so there was
+    /// no visible cursor. `@Environment(\.colorScheme)` is no good here
+    /// either: inside a sheet it reports the SYSTEM appearance, not the one
+    /// `preferredColorScheme` is rendering, so it picks the wrong branch.
+    ///
+    /// `adaptive` resolves against the NSAppearance actually drawing the view,
+    /// which is the only one of the three that follows what the user sees.
+    static var textCursor: Color {
+        adaptive(light: (0.109804, 0.109804, 0.117647),   // #1C1C1E
+                 dark: (0.921569, 0.921569, 0.960784))    // #EBEBF5
+    }
+
+    static var controlDisabled: Color {
+        adaptive(light: (0.431, 0.431, 0.451),   // #6E6E73
+                 dark: (0.557, 0.557, 0.576))    // #8E8E93
+    }
+
+    /// Placeholder text inside an input field.
+    ///
+    /// af8b34c8 (the P1 accessibility pass) set these to textPrimary, which is
+    /// black — so "Amount" read as a label and the field did not look editable.
+    /// The system placeholder colour is the other extreme at 1.68:1. This is
+    /// the middle: 5.07:1 on a white card and 4.54:1 on the grouped page, so it
+    /// clears AA on both while staying clearly lighter than entered text.
+    static var placeholderText: Color {
+        adaptive(light: (0.431, 0.431, 0.451),   // #6E6E73
+                 dark: (0.557, 0.557, 0.576))    // #8E8E93
+    }
+
+    /// Unfilled portion of a progress bar or ring.
+    ///
+    /// Its own token because a track has to read against BOTH a white card and
+    /// the grouped grey page, and no existing surface token does. Using
+    /// secondaryBackground here measured 1.00:1 on the page — the identical
+    /// colour — so the Budget Details ring had no visible track at all.
+    /// #D1D1D6 gives 1.52:1 on white and 1.36:1 on the page.
+    static var progressTrack: Color {
+        adaptive(light: (0.820, 0.820, 0.839),   // #D1D1D6
+                 dark: (0.227, 0.227, 0.235))    // #3A3A3C
+    }
+
     static var rowSelection: Color {
         adaptive(light: (0.890, 0.890, 0.906),   // #E3E3E7
                  dark: (0.173, 0.173, 0.180))    // #2C2C2E

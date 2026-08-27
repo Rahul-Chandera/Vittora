@@ -37,7 +37,7 @@ struct SpendingTrendsView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Spending Trends"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -93,7 +93,7 @@ struct SpendingTrendsView: View {
         }
         .padding(VSpacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusMD)
     }
 
@@ -111,7 +111,7 @@ struct SpendingTrendsView: View {
             )
                 .frame(height: 220)
                 .padding(VSpacing.md)
-                .background(VColors.secondaryBackground)
+                .background(VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }

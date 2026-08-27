@@ -13,13 +13,18 @@ final class EmergencyFundViewModel {
 
     private let useCase: EmergencyFundUseCase
     private let selectionStore: any EmergencyFundAccountSelectionStoring
+    /// The fund is counted in one currency — goals have none of their own, so
+    /// they are treated as display-currency and accounts are scoped to match.
+    private let currencyCode: String
 
     init(
         useCase: EmergencyFundUseCase,
-        selectionStore: any EmergencyFundAccountSelectionStoring
+        selectionStore: any EmergencyFundAccountSelectionStoring,
+        currencyCode: String = CurrencyDefaults.code
     ) {
         self.useCase = useCase
         self.selectionStore = selectionStore
+        self.currencyCode = currencyCode
     }
 
     func load() async {
@@ -27,7 +32,8 @@ final class EmergencyFundViewModel {
         error = nil
         do {
             let report = try await useCase.execute(
-                selectedAccountIDs: selectionStore.selectedAccountIDs
+                selectedAccountIDs: selectionStore.selectedAccountIDs,
+                currencyCode: currencyCode
             )
             snapshot = report.snapshot
             accounts = report.eligibleAccounts

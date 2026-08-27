@@ -39,11 +39,11 @@ struct SplitGroupFormView: View {
                         "",
                         text: $groupName,
                         prompt: Text(String(localized: "Group name"))
-                            .foregroundStyle(VColors.textPrimary)
+                            .foregroundStyle(VColors.placeholderText)
                     )
                         .accessibilityLabel(String(localized: "Group name"))
                 } header: {
-                    Text(String(localized: "Group Name"))
+                    VFormSectionHeader(String(localized: "Group Name"))
                         .font(.headline)
                         .foregroundStyle(.primary)
                 }
@@ -82,7 +82,7 @@ struct SplitGroupFormView: View {
                         .accessibilityElement(children: .combine)
                     }
                 } header: {
-                    Text(String(localized: "Members (\(selectedMemberIDs.count) selected)"))
+                    VFormSectionHeader(String(localized: "Members (\(selectedMemberIDs.count) selected)"))
                         .font(.headline)
                         .foregroundStyle(.primary)
                 }
@@ -94,7 +94,7 @@ struct SplitGroupFormView: View {
                     }
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(navigationTitle)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -102,7 +102,7 @@ struct SplitGroupFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .foregroundStyle(VColors.textPrimary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -110,7 +110,12 @@ struct SplitGroupFormView: View {
                         Task { await save() }
                     }
                     .accessibilityRespondsToUserInteraction(canSave && !isSaving)
-                    .foregroundStyle(VColors.textPrimary)
+                    // Actually disabled, not just inert on tap. af8b34c8 removed
+                    // .disabled() because SwiftUI dims to ~30% opacity and that
+                    // fails the contrast audit; an explicit colour keeps the
+                    // affordance AND passes at 5.07:1.
+                    .disabled(!canSave || isSaving)
+                    .vDialogConfirmButton()
                 }
             }
         }

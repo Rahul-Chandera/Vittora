@@ -5,7 +5,7 @@ struct UpcomingRecurringList: View {
     let rules: [RecurringRuleEntity]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             Text(String(localized: "Upcoming"))
                 .font(VTypography.subheadline)
                 .foregroundColor(VColors.textSecondary)
@@ -27,7 +27,7 @@ struct UpcomingRecurringList: View {
                     }
                 }
                 .padding(VSpacing.md)
-                .background(VColors.secondaryBackground)
+                .background(VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusCard)
             }
         }
@@ -52,12 +52,12 @@ private struct UpcomingRuleRow: View {
 
             VStack(alignment: .leading, spacing: VSpacing.xxs) {
                 Text(rule.templateNote ?? String(localized: "Recurring"))
-                    .font(VTypography.caption1Bold)
+                    .font(VTypography.body)
                     .foregroundColor(VColors.textPrimary)
                     .adaptiveLineLimit(1)
 
                 Text(frequencyLabel(rule.frequency))
-                    .font(VTypography.caption2)
+                    .font(VTypography.callout)
                     .foregroundColor(VColors.textSecondary)
             }
 
@@ -65,8 +65,10 @@ private struct UpcomingRuleRow: View {
 
             VStack(alignment: .trailing, spacing: VSpacing.xxs) {
                 Text(CurrencyFormatter.format(rule.templateAmount, currencyCode: currencyCode))
-                    .font(VTypography.amountCaption)
+                    .font(VTypography.amountSmall)
                     .foregroundColor(VColors.textPrimary)
+                    .amountScaling(0.85)
+                    .layoutPriority(1)
 
                 Text(dueDateLabel(rule.nextDate))
                     .font(VTypography.caption2)

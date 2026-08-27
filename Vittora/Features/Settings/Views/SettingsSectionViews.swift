@@ -16,7 +16,7 @@ struct ProfileSettingsView: View {
                     .textContentType(.name)
                     #endif
             } header: {
-                Text(String(localized: "Display Name"))
+                VFormSectionHeader(String(localized: "Display Name"))
                     .foregroundStyle(VColors.textPrimary)
             }
         }
@@ -35,6 +35,7 @@ struct ProfileSettingsView: View {
 
 struct CurrencySettingsView: View {
     @Bindable var vm: SettingsViewModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         Form {
@@ -44,6 +45,15 @@ struct CurrencySettingsView: View {
                         vm.selectedCurrencyCode = currency.code
                     } label: {
                         HStack {
+                            // Same flag treatment as onboarding — see
+                            // currencyFlagImage for why it is an Image and not
+                            // a Text. Dropped at accessibility sizes, where the
+                            // row needs its width for the name.
+                            if !dynamicTypeSize.isAccessibilitySize,
+                               let flag = currencyFlagImage(for: currency.code) {
+                                flag
+                                    .accessibilityHidden(true)
+                            }
                             Text(currency.name)
                                 .foregroundStyle(VColors.textPrimary)
                             Spacer()
@@ -64,7 +74,7 @@ struct CurrencySettingsView: View {
                     )
                 }
             } header: {
-                Text(String(localized: "Select Currency"))
+                VFormSectionHeader(String(localized: "Select Currency"))
                     .foregroundStyle(VColors.textPrimary)
             }
         }
@@ -177,10 +187,14 @@ struct AppearanceSettingsView: View {
                             .foregroundStyle(previewTextPrimary)
                     }
 
+                    // Decorative: this bar exists to show what the accent looks
+                    // like, and the row above already reads "Monthly overview,
+                    // 72%". Exposing it as its own element made a 4pt-tall
+                    // accessibility target, which the audit flags as too small
+                    // to interact with.
                     ProgressView(value: 0.72)
                         .tint(previewAccent)
-                        .accessibilityLabel(String(localized: "Preview progress"))
-                        .accessibilityValue(Text(verbatim: "72%"))
+                        .accessibilityHidden(true)
 
                     Text(String(localized: "See how text, surfaces, and your accent work together."))
                         .font(VTypography.body)
@@ -220,6 +234,13 @@ struct AppearanceSettingsView: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
+                // The same prominent style as every other action button in the
+                // app. With no buttonStyle at all, macOS rendered the label
+                // through its own treatment: pale green on the row's own fill,
+                // which read as a disabled label rather than this screen's
+                // primary action.
+                .buttonStyle(.borderedProminent)
+                .tint(VColors.primary)
                 // VoiceOver gets the same confirmation the sighted user sees.
                 .accessibilityValue(didApplyAppearance ? String(localized: "Applied") : "")
                 .frame(maxWidth: .infinity)
@@ -229,11 +250,17 @@ struct AppearanceSettingsView: View {
                 .accessibilityIdentifier("appearance-apply-button")
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            VColors.background
-                .frame(height: 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: an inset paints an opaque view OVER the list, and
+        // rows passing behind it are sliced mid-glyph. The Appearance
+        // screen's Live Preview card was cut that way, and the audit's
+        // contrast sampler reads the surviving sliver as failing text.
+        // Padding reserves the same space without drawing.
+        //
+        // The plain ScrollView screens keep their inset: removing it there
+        // lets content render in the gutter below the tab bar, which the
+        // audit reports as text with no accessible element.
+        .safeAreaPadding(.bottom, 72)
         .navigationTitle(String(localized: "Appearance"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -351,7 +378,7 @@ struct SecuritySettingsView: View {
                         )
                     }
                 } header: {
-                    Text(String(localized: "Lock After"))
+                    VFormSectionHeader(String(localized: "Lock After"))
                 } footer: {
                     Text(String(localized: "Require authentication again after the app has been in the background for this long."))
                         .foregroundStyle(VColors.textSecondary)

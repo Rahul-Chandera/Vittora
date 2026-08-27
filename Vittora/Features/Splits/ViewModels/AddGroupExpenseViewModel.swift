@@ -95,7 +95,7 @@ final class AddGroupExpenseViewModel {
             return
         }
 
-        let byMember = Dictionary(uniqueKeysWithValues: shares.map { ($0.memberID, $0.amount) })
+        let byMember = Dictionary(shares.map { ($0.memberID, $0.amount) }, uniquingKeysWith: { first, _ in first })
         for i in allocations.indices {
             allocations[i].calculatedAmount = byMember[allocations[i].memberID] ?? 0
         }

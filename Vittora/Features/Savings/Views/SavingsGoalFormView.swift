@@ -151,14 +151,10 @@ struct SavingsGoalFormView: View {
                                         .fill(Color(hex: hex) ?? .purple)
                                         .frame(width: 32, height: 32)
                                         .overlay {
-                                            Circle()
-                                                .stroke(VColors.textPrimary, lineWidth: 2)
-                                        }
-                                        .overlay {
                                             if hex == selectedColor {
                                                 Image(systemName: "checkmark")
                                                     .font(.body.bold())
-                                                    .foregroundStyle(VColors.textPrimary)
+                                                    .foregroundStyle(.white)
                                             }
                                         }
                                         .frame(minWidth: 44, minHeight: 44)
@@ -198,7 +194,7 @@ struct SavingsGoalFormView: View {
                     }
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(isEditing ? String(localized: "Edit Goal") : String(localized: "New Goal"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -206,17 +202,17 @@ struct SavingsGoalFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
                         guard canSave, !isSaving else { return }
                         Task { await save() }
                     }
-                    .font(.headline)
                     .accessibilityRespondsToUserInteraction(canSave && !isSaving)
-                    .foregroundStyle(.primary)
+                    // See SplitGroupFormView for why the colour is explicit.
+                    .disabled(!canSave || isSaving)
+                    .vDialogConfirmButton()
                 }
             }
         }
@@ -270,7 +266,7 @@ struct SavingsGoalFormView: View {
         TextField(
             "",
             text: text,
-            prompt: Text("0").foregroundStyle(VColors.textPrimary)
+            prompt: Text("0").foregroundStyle(VColors.placeholderText)
         )
             #if os(iOS)
             .keyboardType(.decimalPad)

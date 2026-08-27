@@ -62,7 +62,7 @@ final class RecurringListViewModel {
             self.rules = fetchedRules
             self.costSummary = calculateCostUseCase.execute(rules: fetchedRules)
             let categories = try await categoryRepository.fetchAll()
-            self.categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+            self.categoriesByID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load recurring transactions right now.")

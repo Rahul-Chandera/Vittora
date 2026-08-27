@@ -61,14 +61,14 @@ struct ReceiptReviewView: View {
                                     .padding(VSpacing.md)
                             }
                             .frame(maxHeight: 120)
-                            .background(VColors.secondaryBackground)
+                            .background(VColors.secondaryGroupedBackground)
                             .cornerRadius(VSpacing.cornerRadiusMD)
                         }
                     }
                 }
                 .padding(VSpacing.screenPadding)
             }
-            .background(VColors.background)
+            .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Review Receipt"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -76,6 +76,7 @@ struct ReceiptReviewView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                    .vDialogCancelButton()
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -85,6 +86,7 @@ struct ReceiptReviewView: View {
                         dismiss()
                     }
                     .disabled(!vm.isValid)
+                    .vDialogConfirmButton()
                 }
             }
         }

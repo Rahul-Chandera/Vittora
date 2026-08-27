@@ -8,13 +8,13 @@ struct VCard<Content: View>: View {
     var padding: CGFloat = VSpacing.cardPadding
     var cornerRadius: CGFloat = VSpacing.cornerRadiusCard
     var shadow: VSpacing.Shadow = .subtle
-    var backgroundColor: Color = VColors.secondaryBackground
+    var backgroundColor: Color = VColors.secondaryGroupedBackground
 
     init(
         padding: CGFloat = VSpacing.cardPadding,
         cornerRadius: CGFloat = VSpacing.cornerRadiusCard,
         shadow: VSpacing.Shadow = .subtle,
-        backgroundColor: Color = VColors.secondaryBackground,
+        backgroundColor: Color = VColors.secondaryGroupedBackground,
         @ViewBuilder content: () -> Content
     ) {
         self.content = content()
@@ -45,7 +45,7 @@ extension View {
         padding: CGFloat = VSpacing.cardPadding,
         cornerRadius: CGFloat = VSpacing.cornerRadiusCard,
         shadow: VSpacing.Shadow = .subtle,
-        backgroundColor: Color = VColors.secondaryBackground
+        backgroundColor: Color = VColors.secondaryGroupedBackground
     ) -> some View {
         self
             .padding(padding)

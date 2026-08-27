@@ -15,38 +15,66 @@
 # %@/%lld keys) or bare SwiftUI `Text("literal")`, and both were a large part of
 # the original gap.
 #
+# Scan every platform's build, not just iOS. Strings inside `#if os(macOS)`
+# are never compiled by the iOS build, so an iOS-only scan cannot see them at
+# all — they are structurally invisible to the gate rather than merely missed.
+# That is how "Running on macOS" sat in the catalogue untranslated, and how the
+# macOS ShareSheet strings were nearly shipped the same way.
+#
 # Usage: check-localization-coverage.sh [--list]
-#   Requires a prior build. Set DERIVED to point at its derived data;
-#   defaults to the same path `make build-ios` uses.
+#   Requires a prior build. Set DERIVED to its derived data, or to a
+#   colon-separated list to span several builds:
+#       DERIVED=.build-ios:.build-macos check-localization-coverage.sh
+#   Defaults to the single path `make build-ios` uses.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DERIVED="${DERIVED:-$ROOT/.build-ci}"
 LIST="${1:-}"
 
-if ! find "$DERIVED" -name '*.stringsdata' -print -quit 2>/dev/null | grep -q .; then
-  echo "no .stringsdata under $DERIVED — build first (make build-ios), or set DERIVED" >&2
-  exit 2
-fi
+IFS=':' read -r -a DERIVED_PATHS <<< "$DERIVED"
 
-python3 - "$ROOT" "$DERIVED" "$LIST" <<'PY'
+# Every listed path must have been built. A silent skip would turn "the macOS
+# build is missing" into a green run, which is the exact failure this gate is
+# supposed to close.
+for derived_path in "${DERIVED_PATHS[@]}"; do
+  if ! find "$derived_path" -name '*.stringsdata' -print -quit 2>/dev/null | grep -q .; then
+    echo "no .stringsdata under $derived_path — build it first" >&2
+    echo "  .build-ios   comes from make build-ios" >&2
+    echo "  .build-macos comes from make build-macos" >&2
+    exit 2
+  fi
+done
+
+python3 - "$ROOT" "$LIST" "${DERIVED_PATHS[@]}" <<'PY'
 import glob, json, os, sys
 
-root, derived, list_flag = sys.argv[1], sys.argv[2], (len(sys.argv) > 3 and sys.argv[3] == "--list")
+root, list_flag, derived_paths = sys.argv[1], sys.argv[2] == "--list", sys.argv[3:]
 
+# Union across platforms: a key only needs to be reachable from one of them.
 extracted = {}
-for path in glob.glob(os.path.join(derived, "**", "*.stringsdata"), recursive=True):
-    try:
-        data = json.load(open(path))
-    except Exception:
-        continue
-    for table, entries in (data.get("tables") or {}).items():
-        if table != "Localizable":
+for derived in derived_paths:
+    for path in glob.glob(os.path.join(derived, "**", "*.stringsdata"), recursive=True):
+        try:
+            data = json.load(open(path))
+        except Exception:
             continue
-        for entry in entries:
-            extracted.setdefault(entry["key"], set()).add(
-                os.path.basename(path)[: -len(".stringsdata")]
+        for table, entries in (data.get("tables") or {}).items():
+            if table != "Localizable":
+                continue
+            # Name the platform build directory alongside the source file. One
+            # derived path can hold several (a live Debug-iphoneos next to a
+            # leftover Debug-iphonesimulator), and a build only refreshes the
+            # one it targets. Naming it makes a stale tree obvious instead of
+            # looking like a genuine missing key.
+            build_dir = next(
+                (c for c in path.split(os.sep) if c.startswith(("Debug-", "Release-"))),
+                "?",
             )
+            for entry in entries:
+                extracted.setdefault(entry["key"], set()).add(
+                    f"{os.path.basename(path)[: -len('.stringsdata')]} @ {build_dir}"
+                )
 
 catalog = json.load(open(os.path.join(root, "Vittora", "Localizable.xcstrings")))["strings"]
 LANGS = ("hi", "es")
@@ -62,6 +90,7 @@ untranslated = {
     for lang in LANGS
 }
 
+print(f"builds scanned                 : {len(derived_paths)} ({', '.join(derived_paths)})")
 print(f"extracted keys                 : {len(extracted)}")
 print(f"catalogue keys                 : {len(catalog)}")
 print(f"extracted but not in catalogue : {len(missing)}")
@@ -81,7 +110,12 @@ if missing or any(untranslated[l] for l in LANGS):
         "and translate them. Opening the project in Xcode and building once will\n"
         "add the keys for you; `xcodebuild` alone will NOT update the catalogue.\n"
         "Mark preview/fixture strings with \"shouldTranslate\": false instead of\n"
-        "translating them. Re-run with --list to see every key."
+        "translating them. Re-run with --list to see every key.\n"
+        "\n"
+        "Seeing a key you already renamed? Check the build dir named beside it.\n"
+        "A derived path can hold a stale tree from an earlier build for another\n"
+        "platform, which the current build does not refresh. Delete the derived\n"
+        "path and rebuild."
     )
     sys.exit(1)
 PY

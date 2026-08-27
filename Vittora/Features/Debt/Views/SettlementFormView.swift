@@ -32,7 +32,7 @@ struct SettlementFormView: View {
                             "",
                             text: $amountString,
                             prompt: Text(String(localized: "Amount"))
-                                .foregroundStyle(VColors.textPrimary)
+                                .foregroundStyle(VColors.placeholderText)
                         )
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -69,7 +69,7 @@ struct SettlementFormView: View {
                     }
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Settle Debt"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -77,17 +77,15 @@ struct SettlementFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                            .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Settle")) {
                         guard canSettle, !isLoading else { return }
                         Task { await settle() }
                     }
-                    .font(.headline)
                     .accessibilityRespondsToUserInteraction(canSettle && !isLoading)
-                    .foregroundStyle(.primary)
+                    .vDialogConfirmButton()
                 }
             }
         }
@@ -125,7 +123,9 @@ struct SettlementFormView: View {
                 accountID: selectedAccountID
             )
             await dependencies.refreshRecurringAndDebtReminders()
-            appState.notifyChanged([.debt, .transactions, .accounts])
+            // .budgets too: settling writes a transaction, so a budget
+            // covering its category is now stale.
+            appState.notifyChanged([.debt, .transactions, .accounts, .budgets])
             onSettled()
             dismiss()
         } catch {

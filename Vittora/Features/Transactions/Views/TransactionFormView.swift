@@ -17,6 +17,16 @@ struct TransactionFormView: View {
     @State private var showAddPayee = false
     @State private var showAddAccount = false
 
+    /// Tags for the "Add New…" rows at the foot of the Account and Payee
+    /// pickers. Selecting one opens the add sheet rather than changing the
+    /// selection: the previous value is restored immediately, and the sheet's
+    /// completion handler selects whatever was just created.
+    ///
+    /// These replaced standalone "Add Account" / "Add Payee" rows in the
+    /// Details section, which read as list items rather than buttons.
+    private static let addAccountTag = UUID()
+    private static let addPayeeTag = UUID()
+
     let transactionID: UUID?
     let initialType: TransactionType?
     /// Show a Cancel button. Only pass `true` when presenting modally; a pushed
@@ -42,7 +52,11 @@ struct TransactionFormView: View {
                             amountString: Bindable(vm).amountString,
                             currencyCode: currencyCode,
                             type: vm.type,
-                            textFieldAccessibilityIdentifier: "transaction-amount-field"
+                            textFieldAccessibilityIdentifier: "transaction-amount-field",
+                            // New transaction only. Opening the keyboard over an
+                            // existing one, which the user came to read or to
+                            // change some other field on, would be in the way.
+                            autoFocus: transactionID == nil
                         )
 
                         TransactionTypePicker(type: Bindable(vm).type)
@@ -74,7 +88,7 @@ struct TransactionFormView: View {
                     }
                 }
                 .headerProminence(.increased)
-                .tint(VColors.textPrimary)
+                .tint(VColors.textCursor)
                 // Without an explicit title the pushed form inherits the
                 // window's ("Vittora") on macOS.
                 .navigationTitle(transactionID != nil
@@ -93,6 +107,7 @@ struct TransactionFormView: View {
                             }
                             .keyboardShortcut(.cancelAction)
                             .accessibilityIdentifier("transaction-form-cancel-button")
+                            .vDialogCancelButton()
                         }
                     }
 
@@ -117,7 +132,6 @@ struct TransactionFormView: View {
                             }
                         } label: {
                             Text(String(localized: "Save"))
-                                .foregroundColor(vm.canSave ? VColors.primaryOnSurface : VColors.textTertiary)
                         }
                         .disabled(!vm.canSave)
                         .keyboardShortcut(.defaultAction)
@@ -127,6 +141,7 @@ struct TransactionFormView: View {
                                 : String(localized: "Enter an amount first")
                         )
                         .accessibilityIdentifier("transaction-form-save-button")
+                        .vDialogConfirmButton()
                     }
                 }
                 .if(vm.isLoading) { view in
@@ -140,6 +155,15 @@ struct TransactionFormView: View {
                     .tint(VColors.primary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+        }
+        .onChange(of: vm?.type) { _, newType in
+            // Drop a category that does not belong to the new type. Without
+            // this, choosing an expense category and then switching to Income
+            // saved an income transaction carrying an expense category — the
+            // picker simply showed no selection while the ID stayed set.
+            guard let vm, let newType else { return }
+            let valid = newType == .income ? categories.income : categories.expense
+            vm.clearCategoryIfIncompatible(validCategoryIDs: Set(valid.map(\.id)))
         }
         .accessibilityIdentifier("transaction-form-root")
         .errorAlert(message: transactionErrorBinding)
@@ -197,7 +221,10 @@ struct TransactionFormView: View {
         Section {
             Picker(String(localized: "Category"), selection: Bindable(vm).selectedCategoryID) {
                 Text(String(localized: "Select category")).tag(UUID?.none)
-                ForEach(categories.expense) { category in
+                // Match the type, like the full form does. This was hardcoded
+                // to categories.expense, so Quick Entry offered expense
+                // categories even for an income transaction.
+                ForEach(vm.type == .income ? categories.income : categories.expense) { category in
                     HStack {
                         Image(systemName: category.icon)
                             .foregroundColor(Color(hex: category.colorHex) ?? .blue)
@@ -241,16 +268,16 @@ struct TransactionFormView: View {
                 ForEach(accounts) { account in
                     Text(account.name).tag(UUID?(account.id))
                 }
+                Text(String(localized: "Add New Account")).tag(UUID?(Self.addAccountTag))
             }
             .accessibilityIdentifier("transaction-account-picker")
-
-            Button {
+            .onChange(of: vm.selectedAccountID) { previous, current in
+                guard current == Self.addAccountTag else { return }
+                // Restore first: the sentinel is a command, never a value. The
+                // guard stops the restore from re-entering this handler.
+                vm.selectedAccountID = previous
                 showAddAccount = true
-            } label: {
-                Text(String(localized: "Add Account"))
             }
-            .accessibilityIdentifier("transaction-add-account-button")
-            .accessibilityLabel(String(localized: "Add Account"))
 
             // Native Picker with its own label, not a hand-rolled row: SwiftUI
             // wraps the label and control itself at accessibility text sizes.
@@ -263,23 +290,24 @@ struct TransactionFormView: View {
                 ForEach(payees) { payee in
                     Text(payee.name).tag(UUID?(payee.id))
                 }
+                Text(String(localized: "Add New Payee")).tag(UUID?(Self.addPayeeTag))
             }
             .accessibilityValue(payeeName(for: vm.selectedPayeeID) ?? String(localized: "None"))
             .accessibilityIdentifier("transaction-payee-picker")
-            .onChange(of: vm.selectedPayeeID) { _, _ in
+            .onChange(of: vm.selectedPayeeID) { previous, current in
+                // The sentinel check lives inside this handler rather than in a
+                // second .onChange: two handlers on one value have no defined
+                // order, and the suggestion below must never run for a sentinel.
+                if current == Self.addPayeeTag {
+                    vm.selectedPayeeID = previous
+                    showAddPayee = true
+                    return
+                }
                 Task {
                     await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
                     await vm.checkDuplicates()
                 }
             }
-
-            Button {
-                showAddPayee = true
-            } label: {
-                Text(String(localized: "Add Payee"))
-            }
-            .accessibilityIdentifier("transaction-add-payee-button")
-            .accessibilityLabel(String(localized: "Add Payee"))
 
             if let suggestedID = vm.suggestedCategoryID,
                let suggested = (categories.expense + categories.income).first(where: { $0.id == suggestedID }) {

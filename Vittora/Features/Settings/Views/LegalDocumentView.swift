@@ -30,7 +30,7 @@ struct LegalDocumentView: View {
                         .padding(VSpacing.screenPadding)
                         .textSelection(.enabled)
                 }
-                .background(VColors.background)
+                .background(VColors.groupedBackground)
             } else if let errorMessage {
                 ContentUnavailableView(
                     String(localized: "Legal Document Unavailable"),

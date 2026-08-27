@@ -63,7 +63,7 @@ struct IndiaComplianceTipsSection: View {
             TaxDisclaimerView()
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityIdentifier("india-compliance-tip-\(tip.ruleID.rawValue)")
     }

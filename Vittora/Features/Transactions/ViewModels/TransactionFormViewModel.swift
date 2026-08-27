@@ -206,4 +206,21 @@ import VittoraCore
             )
         }
     }
+
+    /// Drops the selected category when it does not belong to `type`.
+    ///
+    /// Switching Expense -> Income left the previously chosen expense category
+    /// in `selectedCategoryID`, and `save()` writes that value straight through
+    /// — so an income transaction could be stored carrying an expense category.
+    /// The picker gave no hint, because the stale ID simply matched none of the
+    /// rows it was showing.
+    ///
+    /// Takes the valid IDs rather than the categories themselves: the view owns
+    /// the loaded lists, and this stays a pure decision the tests can drive.
+    func clearCategoryIfIncompatible(validCategoryIDs: Set<UUID>) {
+        guard let selected = selectedCategoryID else { return }
+        if !validCategoryIDs.contains(selected) {
+            selectedCategoryID = nil
+        }
+    }
 }

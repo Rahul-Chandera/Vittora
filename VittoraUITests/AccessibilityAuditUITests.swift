@@ -110,7 +110,6 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     @MainActor
     func testTaxSurfacesAccessibilityAudit() throws {
-        throw XCTSkip("Deferred to 1.4.2 — audit fails only on CI iOS 26.2, not reproducible locally; see Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md")
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
@@ -149,7 +148,6 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     @MainActor
     func testSavingsSurfacesAccessibilityAudit() throws {
-        throw XCTSkip("Deferred to 1.4.2 — audit fails only on CI iOS 26.2, not reproducible locally; see Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md")
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
@@ -173,7 +171,6 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     @MainActor
     func testSplitSurfacesAccessibilityAudit() throws {
-        throw XCTSkip("Deferred to 1.4.2 — audit fails only on CI iOS 26.2, not reproducible locally; see Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md")
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
@@ -199,7 +196,6 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     @MainActor
     func testDebtSurfacesAccessibilityAudit() throws {
-        throw XCTSkip("Deferred to 1.4.2 — audit fails only on CI iOS 26.2, not reproducible locally; see Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md")
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
@@ -229,7 +225,6 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     @MainActor
     func testSettingsSectionsAccessibilityAudit() throws {
-        throw XCTSkip("Deferred to 1.4.2 — audit fails only on CI iOS 26.2, not reproducible locally; see Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md")
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
@@ -264,7 +259,35 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     @MainActor
     func testManagedListsFormsAndDocumentsAccessibilityAudit() throws {
-        throw XCTSkip("Deferred to 1.4.2 — audit fails only on CI iOS 26.2, not reproducible locally; see Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md")
+        throw XCTSkip("""
+            Still deferred. Re-measured 2026-08-07 on iPhone 17 Pro Max / \
+            iOS 26.2 — the device the CI resolver picks — with both skips \
+            removed and the full class run in order. The earlier reason \
+            recorded here was wrong in its specifics and is replaced:
+
+            * It claimed 15 mis-sampled contrast elements and 3 genuine \
+              elementDetection findings. Actual counts are now 3 contrast and \
+              ZERO elementDetection. Most of the 15 were the clearance strip \
+              slicing rows mid-glyph, fixed in #197 — an opaque safeAreaInset \
+              painted OVER scrolling content, and the sampler read the \
+              surviving sliver as failing text.
+            * What blocks re-enabling is not a count, it is VARIANCE. Two \
+              runs of near-identical code produced 1 and then 10 contrast \
+              findings in this test. Every exported element image is clean \
+              dark-on-light text — "Monthly", "13 Aug 2026", black on #F2F2F7 \
+              at roughly 18:1. They are false positives, and how many appear \
+              changes run to run.
+            * Un-skipping these two also destabilises the rest of the class: \
+              they add many app launches, and testSettingsSectionsAccessibility\
+              Audit flipped from pass to fail between those same two runs \
+              without any change touching it.
+
+            So these stay skipped because they are not yet reliable GATES, \
+            not because the app has known defects here. Forcing them green \
+            would need an exclusion broad enough to hide real findings. \
+            Re-measure when Apple's sampler stabilises; the diagnostic recipe \
+            is in Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md.
+            """)
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
@@ -343,7 +366,6 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     @MainActor
     func testNewReportsAccessibilityAudit() throws {
-        throw XCTSkip("Deferred to 1.4.2 — audit fails only on CI iOS 26.2, not reproducible locally; see Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md")
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
@@ -519,7 +541,35 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     @MainActor
     func testAccessibility3ScreenshotsForRemainingSurfaces() throws {
-        throw XCTSkip("Deferred to 1.4.2 — audit fails only on CI iOS 26.2, not reproducible locally; see Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md")
+        throw XCTSkip("""
+            Still deferred. Re-measured 2026-08-07 on iPhone 17 Pro Max / \
+            iOS 26.2 — the device the CI resolver picks — with both skips \
+            removed and the full class run in order. The earlier reason \
+            recorded here was wrong in its specifics and is replaced:
+
+            * It claimed 15 mis-sampled contrast elements and 3 genuine \
+              elementDetection findings. Actual counts are now 3 contrast and \
+              ZERO elementDetection. Most of the 15 were the clearance strip \
+              slicing rows mid-glyph, fixed in #197 — an opaque safeAreaInset \
+              painted OVER scrolling content, and the sampler read the \
+              surviving sliver as failing text.
+            * What blocks re-enabling is not a count, it is VARIANCE. Two \
+              runs of near-identical code produced 1 and then 10 contrast \
+              findings in this test. Every exported element image is clean \
+              dark-on-light text — "Monthly", "13 Aug 2026", black on #F2F2F7 \
+              at roughly 18:1. They are false positives, and how many appear \
+              changes run to run.
+            * Un-skipping these two also destabilises the rest of the class: \
+              they add many app launches, and testSettingsSectionsAccessibility\
+              Audit flipped from pass to fail between those same two runs \
+              without any change touching it.
+
+            So these stay skipped because they are not yet reliable GATES, \
+            not because the app has known defects here. Forcing them green \
+            would need an exclusion broad enough to hide real findings. \
+            Re-measure when Apple's sampler stabilises; the diagnostic recipe \
+            is in Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md.
+            """)
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
@@ -771,8 +821,29 @@ final class AccessibilityAuditUITests: XCTestCase {
         return app.descendants(matching: .any).matching(predicate).firstMatch
     }
 
+    /// Put the keyboard away before sampling.
+    ///
+    /// The add-transaction screens focus the amount field on appear, so the
+    /// keyboard covers the rows beneath it. Apple's sampler reads those
+    /// occluded rows as contrast failures — "Account" and "Date" went red on
+    /// CI — which measures the keyboard sitting over the form rather than the
+    /// form's own colours. Nothing is excused here: the rows are audited, just
+    /// once they are actually visible.
+    ///
+    /// A decimal pad has no Return key, so focus is resigned by tapping the
+    /// navigation bar, which is inert on these screens.
+    @MainActor
+    private func dismissKeyboardIfPresent() {
+        guard app.keyboards.element.exists else { return }
+        let bar = app.navigationBars.firstMatch
+        guard bar.exists else { return }
+        bar.tap()
+        _ = app.keyboards.element.waitForNonExistence(timeout: 3)
+    }
+
     @MainActor
     private func performCoreFlowAudit() throws {
+        dismissKeyboardIfPresent()
         // Keep the one documented P1 exception narrow: Apple's contrast sampler
         // treats decorative chart paint as text. Every other issue, including
         // hit regions, is actionable.
@@ -801,7 +872,8 @@ final class AccessibilityAuditUITests: XCTestCase {
                 // it must be added here consciously rather than inherited.
                 let brandGreenFilledContent: Set<String> = [
                     "Get Started", "Continue", "Set Up Account", "Review Setup",
-                    "Start Tracking", "Save Transaction", "Add transaction"
+                    "Start Tracking", "Save Transaction", "Add transaction",
+                    "Choose File"
                 ]
                 // Case-insensitive: the FAB's label is "Add Transaction" and
                 // this set carried "Add transaction", so the exemption silently
@@ -816,6 +888,20 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if (issue.element?.identifier ?? "").hasPrefix("brand-mark-") {
                     return true
                 }
+                // The Net Worth card carries white content on the brand-green
+                // fill by owner decision (2026-08-08), overriding the dark-text
+                // choice of 2026-08-03 after seeing both on device. That pairing
+                // is 1.97:1 and this is a DATA surface, not a CTA — so unlike the
+                // rest of DEC-012 it is a real, knowingly accepted miss, not a
+                // sampler artifact. The owner was offered a darker fill that
+                // would pass AA and declined it to keep the accent exact.
+                //
+                // Anchored to one identifier so it cannot spread: any other
+                // white-on-green surface must opt in deliberately. The figures
+                // stay reachable via the card's accessibilityValue.
+                if issue.element?.identifier == "brand-green-filled-card" {
+                    return true
+                }
                 // On CI's iOS 26.2 the audit flags an inner node of the floating
                 // add button that carries neither the label nor the identifier,
                 // so both checks above miss it and the DEC-012 exemption never
@@ -827,6 +913,26 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if let elementFrame = issue.element?.frame,
                    fab.exists,
                    fab.frame.intersects(elementFrame) {
+                    return true
+                }
+
+                // The same shape as the FAB above, for a different miss. The
+                // onboarding currency list reports clipped frames for rows that
+                // are scrolled out of view, and those land over the Continue
+                // button: the "UAE Dirham (AED)" element screenshot contains no
+                // text at all — just the white page meeting the green pill. So
+                // the sampler measures that green-on-white edge, which is the
+                // DEC-012 pairing already accepted two checks above, and files
+                // it under a row label the exemption cannot match.
+                //
+                // Anchored to the CTA's own identifier, not to green in general:
+                // only samples that actually overlap that one button are
+                // excused, and the rows' real text is still audited wherever it
+                // is genuinely on screen.
+                let onboardingCTA = self.app.buttons["onboarding-next-button"]
+                if let elementFrame = issue.element?.frame,
+                   onboardingCTA.exists,
+                   onboardingCTA.frame.intersects(elementFrame) {
                     return true
                 }
 
@@ -868,48 +974,57 @@ final class AccessibilityAuditUITests: XCTestCase {
                     // / dark materials; list rows and custom controls stay audited.
                     return true
                 }
-                if issue.element?.elementType == .staticText,
-                   issue.element?.label == "Amount",
-                   self.app.navigationBars["New Recurring"].exists {
-                    // XCTest mis-samples this adaptive primary headline even
-                    // though the attached element image is black-on-white.
-                    // Scope the workaround to this exact rendered label.
+                // Form section headers, mis-sampled.
+                //
+                // VFormSectionHeader pins VColors.textPrimary, so these render
+                // black-on-#F2F2F7 at roughly 18:1 — the exported element image
+                // confirms it. XCTest still reports a contrast failure because
+                // it samples the header's full-width row, which is background
+                // against background. The same header passes and fails across
+                // runs of identical code, which is what a sampling artifact
+                // looks like.
+                //
+                // Matched by identifier rather than by text: this replaced six
+                // near-identical label+screen checks ("Amount", "Country",
+                // "Theme", "Type", "Expense", "Date & Payment") that had to grow
+                // by one every time a new screen was audited. A real contrast
+                // problem here would require the component's own token to
+                // regress, which DesignTokenTests covers.
+                if issue.element?.identifier == "form-section-header" {
                     return true
                 }
-                if issue.element?.elementType == .staticText,
-                   issue.element?.label == "Date & Payment",
-                   ["New Transaction", "Edit Transaction"].contains(where: {
-                       self.app.navigationBars[$0].exists
-                   }) {
-                    // iPhone 16 / iOS 26.5: XCTest mis-samples this Form section
-                    // header near the bottom of the pushed New Transaction form.
-                    // Confirmed false positive — same failure with develop's
-                    // caption1/textSecondary header, develop's AmountInputView,
-                    // and develop's VColors; develop stayed green only because
-                    // it ignored all contrast. Scope to this exact label on the
-                    // transaction form.
+                // The debt row's "Delete" (owner decision, 2026-08-16).
+                //
+                // Measured from the audit's own exported element image: glyph
+                // core #C5221F on #FFFFFF is 5.80:1, past the 4.5:1 AA bar for
+                // small text. So this is a sampler artifact, NOT an accepted
+                // miss — unlike the DEC-012 brand-green cases above, which
+                // really are below AA and knowingly shipped that way.
+                //
+                // Environment-specific, and deterministic on each side rather
+                // than flaky: identical code passes every local run on the same
+                // device and OS as CI (iPhone 17 Pro Max / iOS 26.2, six runs)
+                // and fails every CI run (two of two). The likely difference is
+                // the runner's software renderer anti-aliasing small red glyphs
+                // differently, which changes the pixels the sampler averages
+                // even though the glyph core is unchanged.
+                //
+                // Worth stating plainly because the first read of this was
+                // "flaky, re-run it" — it is not. A re-run will fail again.
+                //
+                // Frame anchor as well as identifier, for the reason the FAB
+                // exemption above needed one: the flagged node was reported as
+                // a bare SwiftUI.AccessibilityNode carrying neither label nor
+                // identifier, so an identifier-only check would silently stop
+                // matching — exactly how the form-section-header exemption
+                // broke when its component was restructured.
+                let deleteButton = self.app.descendants(matching: .any)["debt-entry-delete"]
+                if issue.element?.identifier == "debt-entry-delete" {
                     return true
                 }
-                // Same Form-section-header sampler false positive as Date & Payment /
-                // Amount: headline + textPrimary still fails intermittently on
-                // iPhone 16 / iOS 26.5 at AccessibilityXL. Scope to the exact
-                // labels CI reported on Settings / managed forms / Add Expense.
-                if issue.element?.elementType == .staticText,
-                   issue.element?.label == "Theme",
-                   self.app.navigationBars["Appearance"].exists {
-                    return true
-                }
-                if issue.element?.elementType == .staticText,
-                   issue.element?.label == "Type",
-                   ["New Payee", "Edit Payee", "New Account", "Edit Account",
-                    "New Category", "Edit Category"].contains(where: {
-                       self.app.navigationBars[$0].exists
-                   }) {
-                    return true
-                }
-                if issue.element?.elementType == .staticText,
-                   issue.element?.label == "Expense",
-                   self.app.navigationBars["Add Expense"].exists {
+                if let elementFrame = issue.element?.frame,
+                   deleteButton.exists,
+                   deleteButton.frame.intersects(elementFrame) {
                     return true
                 }
                 if self.app.navigationBars["Dashboard"].exists {
@@ -975,6 +1090,31 @@ final class AccessibilityAuditUITests: XCTestCase {
                 // that do scale. Fixed-size and fully unsupported fonts still fail,
                 // while accessibility3 screenshots verify the rendered result.
                 return issue.compactDescription.localizedCaseInsensitiveContains("partially")
+            }
+            if issue.auditType == .elementDetection,
+               issue.element == nil,
+               self.app.tabBars.firstMatch.exists {
+                // Scroll content beneath iOS 26's floating tab bar.
+                //
+                // The bar is a capsule with transparent gutters, so content
+                // scrolls visibly under and around it — that is the platform's
+                // intended rendering, not a layout mistake. The accessibility
+                // tree drops those rows as occluded while the glyphs are still
+                // on screen, so the vision pass reports text with no element.
+                // VoiceOver still reaches every one of them by scrolling.
+                //
+                // Owner decision (2026-08-08). The alternative was an opaque
+                // strip painted over the content to hide it, which is what
+                // produced the banner slicing cards above the tab bar that was
+                // reported from device three times. Measured three ways —
+                // #197's CI plus two local full-class runs — so this is a
+                // structural trade-off, not a tunable padding value.
+                //
+                // Deliberately narrow: only nil-element findings (whole-screen,
+                // nothing to point at) and only where a tab bar is present. An
+                // elementDetection issue that names an element still fails, and
+                // so does anything on a screen without the floating bar.
+                return true
             }
             self.logAuditIssue(issue)
             return false

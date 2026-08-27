@@ -36,6 +36,22 @@ public struct PayeeEntity: Identifiable, Hashable, Equatable, Sendable {
 
     // MARK: - Equatable & Hashable (identity-based)
 
-    public static func == (lhs: PayeeEntity, rhs: PayeeEntity) -> Bool { lhs.id == rhs.id }
+    // Value equality, not identity. An id-only `==` makes SwiftUI treat a
+    // record whose fields changed as unchanged, so any row whose only input is
+    // this entity never re-renders — it keeps the old figures until the app is
+    // relaunched. That shipped as a budget bug; see BudgetEntity for the full
+    // account. `createdAt`/`updatedAt` are audit metadata, not displayed
+    // content, so they stay out of the comparison. Dedup by identity should
+    // key on `id` explicitly rather than lean on `==`.
+    public static func == (lhs: PayeeEntity, rhs: PayeeEntity) -> Bool {
+        lhs.id == rhs.id
+            && lhs.name == rhs.name
+            && lhs.type == rhs.type
+            && lhs.phone == rhs.phone
+            && lhs.email == rhs.email
+            && lhs.notes == rhs.notes
+    }
+    // Hash stays id-only: legal (equal values share a hash) and keeps
+    // Set/Dictionary bucketing stable as mutable fields change.
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }

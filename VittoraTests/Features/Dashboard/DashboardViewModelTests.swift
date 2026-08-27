@@ -73,7 +73,8 @@ struct DashboardViewModelTests {
     func loadZeroNetWorthNoAccounts() async {
         let vm = makeViewModel()
         await vm.load()
-        #expect(vm.dashboardData?.netWorth == 0)
+        // No accounts: no subtotals rather than a zero in some currency.
+        #expect(vm.dashboardData?.netWorth.byCurrency.isEmpty == true)
     }
 
     @Test("load() computes net worth from active accounts")
@@ -88,7 +89,7 @@ struct DashboardViewModelTests {
         await vm.load()
 
         // net worth = assets (5000) - liabilities (1000) = 4000
-        #expect(vm.dashboardData?.netWorth == 4000)
+        #expect(vm.dashboardData?.netWorth.singleCurrency?.netWorth == 4000)
     }
 
     @Test("load() excludes archived accounts from net worth")
@@ -102,7 +103,7 @@ struct DashboardViewModelTests {
         let vm = makeViewModel(txRepo: MockTransactionRepository(), accountRepo: accountRepo)
         await vm.load()
 
-        #expect(vm.dashboardData?.netWorth == 3000)
+        #expect(vm.dashboardData?.netWorth.singleCurrency?.netWorth == 3000)
         #expect(vm.dashboardData?.accountSummary.count == 1)
     }
 

@@ -39,7 +39,7 @@ final class BudgetListViewModel {
         error = nil
         do {
             let categories = try await categoryRepository.fetchAll()
-            categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+            categoriesByID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
             var allBudgets = try await fetchUseCase.execute()
             hasAnyBudgets = !allBudgets.isEmpty

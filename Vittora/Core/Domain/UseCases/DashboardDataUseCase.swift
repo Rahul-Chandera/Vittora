@@ -12,8 +12,12 @@ struct DashboardData: Sendable {
     let monthIncome: Decimal
     let monthBudgetProgress: Double
     let recentTransactions: [TransactionEntity]
+    /// Category name per transaction id, so the recent rows can name what a
+    /// transaction was filed under instead of repeating the word "Transaction".
+    let recentCategoryNames: [UUID: String]
     let topCategories: [CategorySpend]
-    let netWorth: Decimal
+    /// Per currency — see NetWorthSummary. There is no combined figure.
+    let netWorth: NetWorthSummary
     let accountSummary: [AccountEntity]
     let upcomingRecurring: [RecurringRuleEntity]
 }
@@ -53,21 +57,12 @@ struct DashboardDataUseCase: Sendable {
         let (allAccounts, monthTransactions, allCategories, activeBudgets, activeRules) =
             try await (allAccountsTask, monthTransactionsTask, allCategoriesTask, activeBudgetsTask, upcomingRulesTask)
 
-        let categoryByID = Dictionary(uniqueKeysWithValues: allCategories.map { ($0.id, $0) })
+        let categoryByID = Dictionary(allCategories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
         let activeAccounts = allAccounts.filter { !$0.isArchived }
 
-        // Net worth
-        var totalAssets: Decimal = 0
-        var totalLiabilities: Decimal = 0
-        for account in activeAccounts {
-            if account.type.isAsset {
-                totalAssets += account.balance
-            } else {
-                totalLiabilities += account.balance
-            }
-        }
-        let netWorth = totalAssets - totalLiabilities
+        // Net worth, subtotalled per currency rather than summed across them.
+        let netWorth = NetWorthSummary.build(from: activeAccounts)
 
         // Today's spending (subset of this month)
         let todaySpending = monthTransactions
@@ -83,9 +78,16 @@ struct DashboardDataUseCase: Sendable {
             .reduce(Decimal(0)) { $0 + $1.amount }
 
         // Recent transactions (last 5 within this month)
-        let recentTransactions = Array(
+        let recentTransactionsList = Array(
             monthTransactions.sorted { $0.date > $1.date }.prefix(5)
         )
+        var recentCategoryNames: [UUID: String] = [:]
+        for transaction in recentTransactionsList {
+            if let categoryID = transaction.categoryID,
+               let category = categoryByID[categoryID] {
+                recentCategoryNames[transaction.id] = category.name
+            }
+        }
 
         // Top categories by expense spend this month
         var categorySpend: [UUID: Decimal] = [:]
@@ -127,7 +129,8 @@ struct DashboardDataUseCase: Sendable {
             monthSpending: monthSpending,
             monthIncome: monthIncome,
             monthBudgetProgress: monthBudgetProgress,
-            recentTransactions: recentTransactions,
+            recentTransactions: recentTransactionsList,
+            recentCategoryNames: recentCategoryNames,
             topCategories: topCategories,
             netWorth: netWorth,
             accountSummary: activeAccounts,

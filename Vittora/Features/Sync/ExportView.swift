@@ -124,7 +124,7 @@ struct ExportView: View {
                     )
                 }
             } header: {
-                Text(String(localized: "Date Range"))
+                VFormSectionHeader(String(localized: "Date Range"))
             } footer: {
                 Text(vm.useCustomDateRange
                      ? String(localized: "Only transactions within this range will be exported.")
@@ -145,7 +145,18 @@ struct ExportView: View {
                 Button {
                     Task {
                         await vm.export()
-                        if vm.exportURL != nil { showShareSheet = true }
+                        if let url = vm.exportURL {
+                            // Straight to the share menu; the sheet below is
+                            // only a fallback for when nothing can anchor it.
+                            #if os(macOS)
+                            let shown = MacSharePresenter.present(items: [url]) {
+                                Task { await vm.cleanupExport() }
+                            }
+                            if !shown { showShareSheet = true }
+                            #else
+                            showShareSheet = true
+                            #endif
+                        }
                     }
                 } label: {
                     HStack {
@@ -160,6 +171,11 @@ struct ExportView: View {
                     }
                 }
                 .disabled(vm.isExporting)
+                // .plain, or macOS renders the label through its own button
+                // treatment and the accent below never lands: this row's text
+                // measured #8AC9A7 on #F2F5F3 — about 1.8:1 — so the screen's
+                // primary action read as disabled while being perfectly usable.
+                .buttonStyle(.plain)
                 .foregroundStyle(VColors.primaryOnSurface)
             }
 

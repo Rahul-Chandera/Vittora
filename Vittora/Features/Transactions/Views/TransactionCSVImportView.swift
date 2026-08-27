@@ -34,19 +34,23 @@ struct TransactionCSVImportView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                    .vDialogCancelButton()
                 }
                 if let vm, vm.canImport {
                     ToolbarItem(placement: .confirmationAction) {
                         Button(String(localized: "Import")) {
                             Task {
                                 if await vm.importTransactions(currencyCode: currencyCode) {
-                                    appState.notifyChanged([.transactions, .accounts, .payees])
+                                    // .budgets too: an import can land dozens of expenses, and
+                                    // every budget covering their categories is stale.
+                                    appState.notifyChanged([.transactions, .accounts, .payees, .budgets])
                                     onComplete()
                                     dismiss()
                                 }
                             }
                         }
                         .disabled(vm.isLoading)
+                        .vDialogConfirmButton()
                     }
                 }
             }

@@ -6,9 +6,11 @@ struct PaymentMethodPicker: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpacing.md) {
-            Text(String(localized: "Payment Method"))
-                .font(VTypography.caption2)
-                .foregroundColor(VColors.textSecondary)
+            // Standalone section heading, so it needs the same treatment as a
+            // Form `header:` — VFormSectionHeader pins textPrimary and carries
+            // the identifier the audit uses to recognise a header it has
+            // mis-sampled. As a bare caption2 Text it was neither.
+            VFormSectionHeader(String(localized: "Payment Method"))
 
             LazyVGrid(columns: [
                 GridItem(.flexible()),
@@ -36,10 +38,18 @@ struct PaymentMethodPicker: View {
                         .frame(maxWidth: .infinity)
                         .padding(VSpacing.md)
                         .background(
+                            // Control fill, NOT a card: these chips sit on an
+                            // already-white surface, so they need the plain
+                            // secondary grey to stay visible. The grouped
+                            // token would make them white-on-white.
                             selectedMethod == method ? VColors.primary : VColors.secondaryBackground
                         )
                         .cornerRadius(VSpacing.cornerRadiusSM)
                     }
+                    // .plain: the label supplies its own appearance. Without it macOS
+                    // draws the standard AppKit button chrome behind it — a second,
+                    // lighter fill around the custom one (see QuickEntryButton).
+                    .buttonStyle(.plain)
                 }
             }
         }

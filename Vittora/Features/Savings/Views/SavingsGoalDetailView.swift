@@ -23,7 +23,11 @@ struct SavingsGoalDetailView: View {
                 ProgressView().tint(VColors.primary)
             }
         }
-        .background(VColors.background)
+        // Fill first, then paint — a ZStack sizes to its child, so the page
+        // colour would only cover the empty/loading state's own height and
+        // leave the system default white above and below it.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(VColors.groupedBackground)
         .navigationTitle(vm?.goal.name ?? initialGoal.name)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -123,7 +127,8 @@ struct SavingsGoalDetailView: View {
             VStack(spacing: VSpacing.md) {
                 SavingsProgressRingView(
                     progress: vm.goal.progressFraction,
-                    color: VColors.textPrimary,
+                    // The goal's own colour — see SavingsGoalCardView.
+                    color: Color(hex: vm.goal.colorHex) ?? VColors.primary,
                     size: 120,
                     lineWidth: 12
                 )
@@ -183,7 +188,7 @@ struct SavingsGoalDetailView: View {
             Spacer()
         }
         .padding(VSpacing.cardPadding)
-        .background(days < 0 ? VColors.expense.opacity(0.08) : VColors.secondaryBackground)
+        .background(days < 0 ? VColors.expense.opacity(0.08) : VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
@@ -215,9 +220,13 @@ struct SavingsGoalDetailView: View {
             Spacer()
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
+
+    /// Shared by the amount field and the Add button so the row lines up, and
+    /// large enough to stay a comfortable target.
+    private var contributionRowHeight: CGFloat { 44 }
 
     private func contributionSection(_ vm: SavingsGoalDetailViewModel) -> some View {
         VCard {
@@ -234,7 +243,7 @@ struct SavingsGoalDetailView: View {
                         "",
                         text: Bindable(vm).contributionString,
                         prompt: Text(String(localized: "Amount"))
-                            .foregroundStyle(VColors.textPrimary)
+                            .foregroundStyle(VColors.placeholderText)
                     )
                         #if os(iOS)
                         .keyboardType(.decimalPad)
@@ -243,6 +252,7 @@ struct SavingsGoalDetailView: View {
                         .accessibilityLabel(String(localized: "Contribution amount"))
                         .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
                         .accessibilityIdentifier("savings-contribution-field")
+                        .frame(minHeight: contributionRowHeight)
                     Spacer()
                     Button {
                         guard vm.canContribute, !vm.isAddingContribution else { return }
@@ -255,14 +265,12 @@ struct SavingsGoalDetailView: View {
                                 .font(VTypography.bodyBold)
                         }
                     }
-                    .padding(.horizontal, VSpacing.md)
-                    .frame(minHeight: 44)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: VSpacing.cornerRadiusSM)
-                            .stroke(VColors.textPrimary, lineWidth: 1)
-                    }
-                    .foregroundStyle(VColors.textPrimary)
-                    .buttonStyle(.plain)
+                    // An outlined box with black text read as a field, not a
+                    // control. Same treatment as the app's other primary
+                    // actions, and the same height as the amount field beside
+                    // it — the two used to differ.
+                    .frame(minHeight: contributionRowHeight)
+                    .vPrimaryActionButton()
                     .accessibilityRespondsToUserInteraction(vm.canContribute && !vm.isAddingContribution)
                     .accessibilityIdentifier("savings-contribution-add-button")
                 }

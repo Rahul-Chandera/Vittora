@@ -27,16 +27,14 @@ struct PayeeFormView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(String(localized: "Cancel")) { dismiss() }
-                    .font(.body)
-                    .foregroundStyle(VColors.textPrimary)
+                .vDialogCancelButton()
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(String(localized: "Save")) {
                     Task { await save() }
                 }
                 .disabled(viewModel?.canSave != true || isSaving)
-                .font(.body)
-                .foregroundStyle(VColors.textPrimary)
+                .vDialogConfirmButton()
             }
         }
         .task {
@@ -133,7 +131,7 @@ struct PayeeFormView: View {
                 }
             }
         }
-        .tint(VColors.textPrimary)
+        .tint(VColors.textCursor)
     }
 
     private func save() async {

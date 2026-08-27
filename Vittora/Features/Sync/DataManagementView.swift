@@ -148,7 +148,15 @@ struct DataManagementView: View {
                 NavigationLink {
                     ExportView()
                 } label: {
-                    Label(String(localized: "Export as CSV"), systemImage: "square.and.arrow.up")
+                    Label {
+                        Text(String(localized: "Export as CSV"))
+                    } icon: {
+                        // Coloured glyph, label-coloured text. A plain Label
+                        // inherits this Form's .tint(VColors.textCursor) and
+                        // draws the icon black along with the text.
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundStyle(VColors.primary)
+                    }
                 }
 
                 Picker(String(localized: "Automatic Export"), selection: Binding(
@@ -160,7 +168,7 @@ struct DataManagementView: View {
                     }
                 }
             } header: {
-                Text(String(localized: "Export"))
+                VFormSectionHeader(String(localized: "Export"))
             } footer: {
                 if exportSchedule != .off {
                     Text(String(localized: "Vittora will generate and share a CSV export \(exportSchedule.displayName.lowercased())."))
@@ -187,8 +195,13 @@ struct DataManagementView: View {
                     if vm.isClearing {
                         HStack { ProgressView(); Text(String(localized: "Clearing…")) }
                     } else {
-                        Label(String(localized: "Clear \(vm.clearScope.displayName)"), systemImage: "trash")
-                            .foregroundStyle(VColors.textPrimary)
+                        Label {
+                            Text(String(localized: "Clear \(vm.clearScope.displayName)"))
+                                .foregroundStyle(VColors.textPrimary)
+                        } icon: {
+                            Image(systemName: "trash")
+                                .foregroundStyle(VColors.expense)
+                        }
                     }
                 }
                 .disabled(vm.isClearing)
@@ -203,7 +216,13 @@ struct DataManagementView: View {
                 Button(role: .destructive) {
                     vm.showFactoryResetConfirm = true
                 } label: {
-                    Label(String(localized: "Factory Reset"), systemImage: "arrow.counterclockwise")
+                    Label {
+                        Text(String(localized: "Factory Reset"))
+                            .foregroundStyle(VColors.textPrimary)
+                    } icon: {
+                        Image(systemName: "arrow.counterclockwise")
+                            .foregroundStyle(VColors.expense)
+                    }
                 }
                 .disabled(vm.isClearing)
             } footer: {
@@ -222,12 +241,18 @@ struct DataManagementView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            VColors.background
-                .frame(height: 72)
-                .allowsHitTesting(false)
-        }
-        .tint(VColors.textPrimary)
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: an inset paints an opaque view OVER the list, and
+        // rows passing behind it are sliced mid-glyph. The Appearance
+        // screen's Live Preview card was cut that way, and the audit's
+        // contrast sampler reads the surviving sliver as failing text.
+        // Padding reserves the same space without drawing.
+        //
+        // The plain ScrollView screens keep their inset: removing it there
+        // lets content render in the gutter below the tab bar, which the
+        // audit reports as text with no accessible element.
+        .safeAreaPadding(.bottom, 72)
+        .tint(VColors.textCursor)
         .refreshable { await vm.loadStats() }
         .confirmationDialog(
             String(localized: "Clear \(vm.clearScope.displayName)?"),
@@ -271,12 +296,17 @@ struct DataManagementView: View {
             : AnyLayout(HStackLayout())
         return layout {
             HStack(spacing: VSpacing.sm) {
+                // Brand colour, not the label colour. The HStack used to carry
+                // one .foregroundStyle(.primary) for both, which made the icon
+                // black — the row's meaning is in the label, so the glyph can
+                // carry colour without hurting legibility.
                 Image(systemName: icon)
+                    .foregroundStyle(VColors.primary)
                     .accessibilityHidden(true)
                 Text(label)
+                    .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .foregroundStyle(.primary)
             if !dynamicTypeSize.isAccessibilitySize {
                 Spacer()
             }

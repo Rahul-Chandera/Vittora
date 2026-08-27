@@ -216,7 +216,7 @@ struct AppTabView: View {
         //
         // Swap to `.tint(.blue)` for the system-default look.
         .tint(VColors.primary)
-        .toolbarBackground(VColors.background, for: .tabBar)
+        .toolbarBackground(VColors.groupedBackground, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
     }
 

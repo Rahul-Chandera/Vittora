@@ -31,11 +31,13 @@ struct EmergencyFundReportView: View {
             .padding(VSpacing.screenPadding)
         }
         .safeAreaInset(edge: .bottom) {
-            VColors.background
+            // Clearance for the floating tab bar, painted in THIS screen's page
+            // colour — plain background, because this screen is not grouped.
+            VColors.groupedBackground
                 .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
                 .allowsHitTesting(false)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Emergency Fund"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -50,7 +52,8 @@ struct EmergencyFundReportView: View {
                     accountRepository: dependencies.accountRepository,
                     savingsGoalRepository: dependencies.savingsGoalRepository
                 ),
-                selectionStore: UserDefaultsEmergencyFundAccountSelectionStore()
+                selectionStore: UserDefaultsEmergencyFundAccountSelectionStore(),
+                currencyCode: currencyCode
             )
             vm = model
             await model.load()
@@ -82,7 +85,7 @@ struct EmergencyFundReportView: View {
 
                 ZStack {
                     Circle()
-                        .stroke(VColors.textTertiary, lineWidth: ringLine)
+                        .stroke(VColors.progressTrack, lineWidth: ringLine)
                     Circle()
                         .trim(from: 0, to: arcProgress(snapshot.coverageMonths))
                         .stroke(
@@ -139,8 +142,8 @@ struct EmergencyFundReportView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
                     VStack(alignment: .leading, spacing: VSpacing.xs) {
-                        targetLegendRow(String(localized: "3-month target"))
-                        targetLegendRow(String(localized: "6-month target"))
+                        targetLegendRow(String(localized: "3-month target"), marker: VColors.budgetWarning)
+                        targetLegendRow(String(localized: "6-month target"), marker: VColors.budgetSafe)
                     }
                     .font(VTypography.bodyBold)
                     .foregroundStyle(VColors.textPrimary)
@@ -286,7 +289,7 @@ struct EmergencyFundReportView: View {
                                                 .foregroundStyle(VColors.textPrimary)
                                                 .fixedSize(horizontal: false, vertical: true)
                                             HStack {
-                                                Text(CurrencyFormatter.format(account.balance, currencyCode: currencyCode))
+                                                Text(CurrencyFormatter.format(account.balance, currencyCode: account.currencyCode))
                                                     .foregroundStyle(VColors.textPrimary)
                                                 Spacer()
                                                 Image(systemName: vm.selectedAccountIDs.contains(account.id)
@@ -299,7 +302,7 @@ struct EmergencyFundReportView: View {
                                             Label(account.name, systemImage: account.icon)
                                                 .foregroundStyle(VColors.textPrimary)
                                             Spacer()
-                                            Text(CurrencyFormatter.format(account.balance, currencyCode: currencyCode))
+                                            Text(CurrencyFormatter.format(account.balance, currencyCode: account.currencyCode))
                                                 .foregroundStyle(VColors.textPrimary)
                                             Image(systemName: vm.selectedAccountIDs.contains(account.id)
                                                   ? "checkmark.circle.fill" : "circle")
@@ -317,10 +320,10 @@ struct EmergencyFundReportView: View {
                             .accessibilityValue(
                                 vm.selectedAccountIDs.contains(account.id)
                                 ? String(
-                                    localized: "\(CurrencyFormatter.format(account.balance, currencyCode: currencyCode)), selected"
+                                    localized: "\(CurrencyFormatter.format(account.balance, currencyCode: account.currencyCode)), selected"
                                 )
                                 : String(
-                                    localized: "\(CurrencyFormatter.format(account.balance, currencyCode: currencyCode)), not selected"
+                                    localized: "\(CurrencyFormatter.format(account.balance, currencyCode: account.currencyCode)), not selected"
                                 )
                             )
                             if account.id != vm.accounts.last?.id {
@@ -344,10 +347,10 @@ struct EmergencyFundReportView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func targetLegendRow(_ title: String) -> some View {
+    private func targetLegendRow(_ title: String, marker: Color = VColors.textPrimary) -> some View {
         HStack(spacing: VSpacing.sm) {
             Circle()
-                .fill(VColors.textPrimary)
+                .fill(marker)
                 .frame(width: 8, height: 8)
                 .accessibilityHidden(true)
             Text(title)
@@ -364,7 +367,11 @@ struct EmergencyFundReportView: View {
             action: { showAddRecurring = true }
         )
         .frame(maxWidth: .infinity)
-        .padding(.top, VSpacing.xxxl)
+        // Centre in the viewport, not pushed down from the top. This sits in a
+        // ScrollView, so maxHeight: .infinity alone does nothing — the content
+        // has to fill the scroll container's height first for the empty state
+        // to have anything to centre within.
+        .containerRelativeFrame(.vertical, alignment: .center)
     }
 
     private func arcProgress(_ coverage: Decimal) -> CGFloat {
