@@ -34,6 +34,17 @@ struct SettingsView: View {
                                     .font(VTypography.title3.bold())
                                     .foregroundStyle(VColors.onPrimary)
                             }
+                            // Opts into the DEC-012 exemption by identifier, the
+                            // way brand-mark-fab does. Measured from the audit's
+                            // own element image: #FFFFFF on #3FCFA4 is 1.97:1 —
+                            // the accepted brand pairing, not a new miss.
+                            //
+                            // Decorative: the initials repeat the name shown
+                            // beside them, so nothing is lost if a reader cannot
+                            // resolve the glyph. This element had no identifier,
+                            // so it never claimed the exemption and tripped
+                            // testSettingsSections whenever the sampler picked it.
+                            .accessibilityIdentifier("brand-mark-profile-avatar")
                         VStack(alignment: .leading, spacing: 2) {
                             Text(vm.userName.isEmpty ? String(localized: "Your Name") : vm.userName)
                                 .font(VTypography.bodyBold)
@@ -59,6 +70,10 @@ struct SettingsView: View {
                     SettingsRow(icon: "envelope.fill", iconColor: .green,
                                 title: String(localized: "Contact Support"), value: "")
                 }
+                // .plain: the label supplies its own appearance. Without it macOS
+                // draws the standard AppKit button chrome behind it — a second,
+                // lighter fill around the custom one (see QuickEntryButton).
+                .buttonStyle(.plain)
                 .accessibilityIdentifier("settings-contact-support")
                 NavigationLink {
                     CurrencySettingsView(vm: vm)
@@ -192,6 +207,10 @@ struct SettingsView: View {
                                 title: String(localized: "Delete All Data"),
                                 value: "")
                 }
+                // .plain: the label supplies its own appearance. Without it macOS
+                // draws the standard AppKit button chrome behind it — a second,
+                // lighter fill around the custom one (see QuickEntryButton).
+                .buttonStyle(.plain)
                 Text(String(localized: "Permanently deletes all financial data and resets the app."))
                     .font(.body)
                     .foregroundStyle(VColors.textPrimary)
@@ -210,11 +229,17 @@ struct SettingsView: View {
             }
             .headerProminence(.increased)
         }
-        .safeAreaInset(edge: .bottom) {
-            VColors.background
-                .frame(height: 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: an inset paints an opaque view OVER the list, and
+        // rows passing behind it are sliced mid-glyph. The Appearance
+        // screen's Live Preview card was cut that way, and the audit's
+        // contrast sampler reads the surviving sliver as failing text.
+        // Padding reserves the same space without drawing.
+        //
+        // The plain ScrollView screens keep their inset: removing it there
+        // lets content render in the gutter below the tab bar, which the
+        // audit reports as text with no accessible element.
+        .safeAreaPadding(.bottom, 72)
         .navigationLinkIndicatorVisibility(.hidden)
         .tint(.primary)
         .navigationTitle(String(localized: "Settings"))
@@ -240,6 +265,7 @@ struct SettingsView: View {
                         Button(String(localized: "Done")) {
                             showContactSupport = false
                         }
+                        .vDialogCancelButton()
                     }
                 }
             }
@@ -304,12 +330,14 @@ struct SettingsView: View {
                         showDeleteAccountConfirm = false
                     }
                     .disabled(isDeletingAllData)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Permanently Delete"), role: .destructive) {
                         Task { await confirmDeleteAllData() }
                     }
                     .disabled(!canConfirmDeleteAllData || isDeletingAllData)
+                    .vDialogConfirmButton()
                 }
             }
         }

@@ -22,6 +22,26 @@ struct SplitGroupDeepLinkTests {
         #expect(SplitGroupDeepLink.groupID(from: URL(string: "vittora://dashboard")!) == nil)
         #expect(SplitGroupDeepLink.groupID(from: URL(string: "vittora://splits")!) == nil)
     }
+
+    @Test("parses URLs with uppercase scheme and host identically to lowercase")
+    func caseInsensitiveSchemeAndHost() {
+        let groupID = UUID(uuidString: "A1B2C3D4-E5F6-7890-ABCD-EF1234567890") ?? UUID()
+        let url = URL(string: "VITTORA://SPLITS/group/\(groupID.uuidString)")!
+        #expect(SplitGroupDeepLink.groupID(from: url) == groupID)
+    }
+
+    @Test("returns nil when path segment is not a valid UUID")
+    func rejectsMalformedUUID() {
+        let url = URL(string: "vittora://splits/group/not-a-uuid")!
+        #expect(SplitGroupDeepLink.groupID(from: url) == nil)
+    }
+
+    @Test("returns nil when path prefix is wrong")
+    func rejectsWrongPathPrefix() {
+        let groupID = UUID(uuidString: "A1B2C3D4-E5F6-7890-ABCD-EF1234567890") ?? UUID()
+        let url = URL(string: "vittora://splits/member/\(groupID.uuidString)")!
+        #expect(SplitGroupDeepLink.groupID(from: url) == nil)
+    }
 }
 
 @Suite("Split Group Share Draft Tests")

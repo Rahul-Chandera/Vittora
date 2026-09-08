@@ -13,6 +13,11 @@ struct DashboardView: View {
     @State private var navigateDestination: NavigationDestination?
     @State private var activeQuickActionModal: QuickActionModal?
     @State private var isQuickEntryButtonVisible: Bool = true
+
+    /// Set by `--ui-test-hide-quick-entry`, which only the screenshot scripts
+    /// pass. Read once: the launch arguments do not change while running.
+    static let hidesQuickEntryForCapture = ProcessInfo.processInfo.arguments
+        .contains("--ui-test-hide-quick-entry")
     @State private var lastScrollOffsetY: CGFloat = 0
 
     var body: some View {
@@ -30,7 +35,19 @@ struct DashboardView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            quickEntryFloatingButton
+            // Hidden only for App Store captures. The button floats over
+            // scrollable content, which is fine in use — you scroll and it
+            // gets out of the way, and it hides itself on scroll down. In a
+            // still it just sits on top of a number: the 1.6.0 dashboard is
+            // denser than 1.5.0's, so a transaction row now reaches under it
+            // where there used to be blank space.
+            //
+            // A capture-time flag, not a layout change, because the app
+            // behaviour is correct. Same pattern as --ui-test-open-url and
+            // UITEST_DEMO_MONTHS, both of which exist for this pipeline.
+            if !DashboardView.hidesQuickEntryForCapture {
+                quickEntryFloatingButton
+            }
         }
         .navigationTitle(String(localized: "Dashboard"))
         .task {
@@ -88,11 +105,26 @@ struct DashboardView: View {
             macLayout(vm)
             #endif
         }
-        .safeAreaInset(edge: .bottom) {
-            VColors.background
-                .frame(height: 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: an inset paints an opaque view OVER the content.
+        //
+        // #197 left this screen on an inset because removing it tripped three
+        // elementDetection audits, and the strip is VColors.background — the
+        // same white as the page, so it looked safe. It was not: this screen's
+        // CARDS are grey on that white page, so the strip matched the page and
+        // still sliced the card, which is what was reported from device. The
+        // classification was made on which audits broke rather than on how the
+        // screen looked, which was the wrong test.
+        //
+        // 88 rather than the 72 the other screens use: this screen also has a
+        // permanent bottomTrailing add button, so at 72 the last row could
+        // never be scrolled clear of it. 56pt button + 16pt inset + 16pt.
+        .safeAreaPadding(.bottom, 88)
+        // Grouped page like every other screen (owner decision 2026-08-09:
+        // grouped everywhere). This screen previously relied on the system
+        // default white, which is why its grey cards existed — those cards are
+        // now secondaryGroupedBackground white on this grey.
+        .background(VColors.groupedBackground)
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
             geometry.contentOffset.y
         } action: { oldValue, newValue in
@@ -144,7 +176,7 @@ struct DashboardView: View {
 
     @ViewBuilder
     private func iOSLayout(_ vm: DashboardViewModel) -> some View {
-        VStack(spacing: VSpacing.sectionSpacing) {
+        VStack(spacing: VSpacing.dashboardSectionSpacing) {
             if let data = vm.dashboardData {
                 HeroSpendingCard(
                     monthSpending: data.monthSpending,
@@ -187,7 +219,7 @@ struct DashboardView: View {
     @ViewBuilder
     private func macLayout(_ vm: DashboardViewModel) -> some View {
         if let data = vm.dashboardData {
-            VStack(spacing: VSpacing.sectionSpacing) {
+            VStack(spacing: VSpacing.dashboardSectionSpacing) {
                 HeroSpendingCard(
                     monthSpending: data.monthSpending,
                     monthIncome: data.monthIncome,
@@ -198,19 +230,27 @@ struct DashboardView: View {
                 // HStack, not LazyVGrid: a grid vertically centers its two
                 // column-VStacks in the shared row, so the shorter column
                 // floated mid-air next to the taller one.
-                HStack(alignment: .top, spacing: VSpacing.sectionSpacing) {
-                    VStack(spacing: VSpacing.sectionSpacing) {
+                HStack(alignment: .top, spacing: VSpacing.dashboardSectionSpacing) {
+                    VStack(spacing: VSpacing.dashboardSectionSpacing) {
                         budgetProgressSection(progress: data.monthBudgetProgress)
                         QuickActionGrid { destination, transactionType in
                             handleQuickAction(destination, transactionType: transactionType)
                         }
                         TopCategoriesChart(categories: data.topCategories, currencyCode: currencyCode)
+
+                        AccountsSummaryScroll(
+                            accounts: data.accountSummary,
+                            onSelect: { id in navigateDestination = .accountDetail(id: id) },
+                            onManage: { navigateDestination = .accountList },
+                            onAdd: { navigateDestination = .addAccount }
+                        )
                     }
                     .frame(maxWidth: .infinity)
 
-                    VStack(spacing: VSpacing.sectionSpacing) {
+                    VStack(spacing: VSpacing.dashboardSectionSpacing) {
                         RecentTransactionsList(
                             transactions: data.recentTransactions,
+                            categoryNames: data.recentCategoryNames,
                             onSeeAll: { appState.selectedTab = .transactions },
                             onSelect: { id in navigateDestination = .transactionDetail(id: id) }
                         )
@@ -219,13 +259,6 @@ struct DashboardView: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
-
-                AccountsSummaryScroll(
-                    accounts: data.accountSummary,
-                    onSelect: { id in navigateDestination = .accountDetail(id: id) },
-                    onManage: { navigateDestination = .accountList },
-                    onAdd: { navigateDestination = .addAccount }
-                )
             }
             .padding(VSpacing.screenPadding)
         }
@@ -234,7 +267,7 @@ struct DashboardView: View {
     // MARK: - Shared sub-sections
 
     private func budgetProgressSection(progress: Double) -> some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             HStack {
                 Text(String(localized: "Budget"))
                     .font(VTypography.subheadline)
@@ -245,16 +278,21 @@ struct DashboardView: View {
                 } label: {
                     HStack(spacing: VSpacing.xxs) {
                         Text(String(localized: "Manage"))
-                            .font(VTypography.caption1)
+                            .font(VTypography.callout)
                             .foregroundStyle(VColors.primaryOnSurface)
                         Image(systemName: "chevron.right")
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundStyle(VColors.primaryOnSurface)
                             .accessibilityHidden(true)
                     }
                 }
-                .frame(minWidth: 44, minHeight: 44)
+                // Grow the tap target, then reclaim the space it would add.
+                // At minHeight 44 the header ROW became 44pt tall, so the gap
+                // under a title with a button was twice that of one without —
+                // "Budget" and "Recent Transactions" against "Quick Actions".
+                .padding(.vertical, VSpacing.lg)
                 .contentShape(Rectangle())
+                .padding(.vertical, -VSpacing.lg)
                 .buttonStyle(.plain)
                 .accessibilityLabel(String(localized: "Manage budgets"))
                 .accessibilityHint(String(localized: "Opens the Budgets tab"))
@@ -263,7 +301,7 @@ struct DashboardView: View {
             VStack(spacing: VSpacing.sm) {
                 HStack {
                     Text(String(localized: "Overall Progress"))
-                        .font(VTypography.caption1)
+                        .font(VTypography.body)
                         .foregroundColor(VColors.textPrimary)
                     Spacer()
                     if progress >= 0.75 {
@@ -272,15 +310,19 @@ struct DashboardView: View {
                             .foregroundColor(progressColor(progress))
                             .accessibilityHidden(true)
                     }
+                    // The card's only figure, and it sat at caption — the same
+                    // 10pt tier the other Dashboard cards used for their data.
                     Text(String(format: "%.0f%%", progress * 100))
-                        .font(VTypography.caption1Bold)
+                        .font(VTypography.amountSmall)
                         .foregroundColor(progressColor(progress))
+                        .amountScaling(0.85)
+                        .layoutPriority(1)
                 }
 
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
-                            .fill(VColors.tertiaryBackground)
+                            .fill(VColors.secondaryBackground)
                             .frame(height: 8)
 
                         RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
@@ -293,7 +335,7 @@ struct DashboardView: View {
                 .accessibilityHidden(true)
             }
             .padding(VSpacing.md)
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(String(localized: "Budget overall progress"))
@@ -301,25 +343,44 @@ struct DashboardView: View {
         }
     }
 
-    private func netWorthSection(netWorth: Decimal) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: VSpacing.xs) {
-                Text(String(localized: "Net Worth"))
-                    .font(VTypography.subheadline)
-                    .foregroundColor(VColors.textSecondary)
-                Text(CurrencyFormatter.format(netWorth, currencyCode: currencyCode))
-                    .font(VTypography.amountMedium)
-                    .amountScaling()
-                    .foregroundColor(netWorth >= 0 ? VColors.income : VColors.expense)
+    private func netWorthSection(netWorth: NetWorthSummary) -> some View {
+        // One subtotal per currency. Summing across currencies would need
+        // exchange rates the app does not have — see NetWorthSummary.
+        let entries = netWorth.byCurrency.isEmpty
+            ? [NetWorthSummary.CurrencyTotals(currencyCode: currencyCode, assets: 0, liabilities: 0)]
+            : netWorth.byCurrency
+
+        // Title above the card, as every other section on this screen does it.
+        // This was the only one with its heading tucked inside, which is part
+        // of why the sections did not read as one system.
+        return VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
+            Text(String(localized: "Net Worth"))
+                .font(VTypography.subheadline)
+                .foregroundColor(VColors.textSecondary)
+                .accessibilityAddTraits(.isHeader)
+
+            HStack {
+                VStack(alignment: .leading, spacing: VSpacing.xs) {
+                    ForEach(entries) { totals in
+                        Text(CurrencyFormatter.format(totals.netWorth, currencyCode: totals.currencyCode))
+                            .font(VTypography.amountMedium)
+                            .amountScaling()
+                            .foregroundColor(totals.netWorth >= 0 ? VColors.income : VColors.expense)
+                    }
+                }
+                Spacer()
             }
-            Spacer()
+            .padding(VSpacing.cardPadding)
+            .background(VColors.secondaryGroupedBackground)
+            .cornerRadius(VSpacing.cornerRadiusCard)
         }
-        .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
-        .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "Net worth"))
-        .accessibilityValue(CurrencyFormatter.format(netWorth, currencyCode: currencyCode))
+        .accessibilityValue(
+            entries
+                .map { CurrencyFormatter.format($0.netWorth, currencyCode: $0.currencyCode) }
+                .joined(separator: ", ")
+        )
     }
 
     private func progressColor(_ progress: Double) -> Color {

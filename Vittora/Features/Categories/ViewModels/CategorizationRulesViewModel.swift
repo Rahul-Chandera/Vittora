@@ -36,7 +36,7 @@ struct CategorizationRuleRowModel: Identifiable, Sendable {
         do {
             let fetchedCategories = try await fetchCategoriesUseCase.execute()
             categories = fetchedCategories
-            let categoryLookup = Dictionary(uniqueKeysWithValues: fetchedCategories.map { ($0.id, $0) })
+            let categoryLookup = Dictionary(fetchedCategories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
             let storedRules = try await manageRulesUseCase.fetchAll()
             rules = storedRules.map { rule in
                 let category = categoryLookup[rule.categoryID]

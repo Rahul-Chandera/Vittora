@@ -115,6 +115,7 @@ struct TransactionFilterSheet: View {
                         dismiss()
                     }
                     .accessibilityIdentifier("transaction-filter-cancel-button")
+                    .vDialogCancelButton()
                 }
 
                 ToolbarItem(placement: .destructiveAction) {
@@ -138,6 +139,7 @@ struct TransactionFilterSheet: View {
                         dismiss()
                     }
                     .accessibilityIdentifier("transaction-filter-apply-button")
+                    .vDialogConfirmButton()
                 }
             }
             .alert(String(localized: "Save Filter"), isPresented: $showSaveAlert) {

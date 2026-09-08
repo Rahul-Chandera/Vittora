@@ -11,9 +11,12 @@ private final class NetWorthViewModel {
 
     var assets: [AccountEntity] { accounts.filter { $0.type.isAsset && !$0.isArchived } }
     var liabilities: [AccountEntity] { accounts.filter { !$0.type.isAsset && !$0.isArchived } }
-    var totalAssets: Decimal { assets.reduce(Decimal(0)) { $0 + $1.balance } }
-    var totalLiabilities: Decimal { liabilities.reduce(Decimal(0)) { $0 + $1.balance } }
-    var netWorth: Decimal { totalAssets - totalLiabilities }
+    /// Per currency. Summing balances across currencies and labelling the
+    /// result with the display currency relabels rather than converts — see
+    /// NetWorthSummary.
+    var summary: NetWorthSummary {
+        NetWorthSummary.build(from: accounts.filter { !$0.isArchived })
+    }
 
     private let repository: any AccountRepository
 
@@ -55,7 +58,6 @@ struct NetWorthReportView: View {
                             accountSection(
                                 title: String(localized: "Assets"),
                                 accounts: vm.assets,
-                                total: vm.totalAssets,
                                 accentColor: VColors.income
                             )
                         }
@@ -63,7 +65,6 @@ struct NetWorthReportView: View {
                             accountSection(
                                 title: String(localized: "Liabilities"),
                                 accounts: vm.liabilities,
-                                total: vm.totalLiabilities,
                                 accentColor: VColors.expense
                             )
                         }
@@ -72,7 +73,7 @@ struct NetWorthReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Net Worth"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -90,46 +91,68 @@ struct NetWorthReportView: View {
 
     // MARK: - Net Worth Summary
 
+    @ViewBuilder
+    private func currencySummaryBlock(
+        _ totals: NetWorthSummary.CurrencyTotals,
+        showsCode: Bool
+    ) -> some View {
+        let net = totals.netWorth
+        VStack(spacing: VSpacing.lg) {
+            VStack(spacing: 4) {
+                Text(showsCode
+                     ? String(localized: "Net Worth (\(totals.currencyCode))")
+                     : String(localized: "Net Worth"))
+                    .font(VTypography.subheadline)
+                    .foregroundStyle(VColors.textSecondary)
+                Text(net >= 0
+                     ? net.formatted(.currency(code: totals.currencyCode))
+                     : "-\(abs(net).formatted(.currency(code: totals.currencyCode)))")
+                    .font(VTypography.amountLarge)
+                    .amountScaling()
+                    .foregroundStyle(net >= 0 ? VColors.income : VColors.expense)
+            }
+
+            Divider()
+
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(localized: "Total Assets"))
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
+                    Text(totals.assets.formatted(.currency(code: totals.currencyCode)))
+                        .font(VTypography.bodyBold)
+                        .foregroundStyle(VColors.income)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(String(localized: "Total Liabilities"))
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
+                    Text(totals.liabilities.formatted(.currency(code: totals.currencyCode)))
+                        .font(VTypography.bodyBold)
+                        .foregroundStyle(VColors.expense)
+                }
+            }
+        }
+    }
+
     private func netWorthSummary(_ vm: NetWorthViewModel) -> some View {
-        let nw = vm.netWorth
+        let entries = vm.summary.byCurrency.isEmpty
+            ? [NetWorthSummary.CurrencyTotals(currencyCode: currencyCode, assets: 0, liabilities: 0)]
+            : vm.summary.byCurrency
+
         return VCard {
             VStack(spacing: VSpacing.lg) {
-                VStack(spacing: 4) {
-                    Text(String(localized: "Net Worth"))
-                        .font(VTypography.subheadline)
-                        .foregroundStyle(VColors.textSecondary)
-                    Text(nw >= 0
-                         ? nw.formatted(.currency(code: currencyCode))
-                         : "-\(abs(nw).formatted(.currency(code: currencyCode)))")
-                        .font(VTypography.amountLarge)
-                        .amountScaling()
-                        .foregroundStyle(nw >= 0 ? VColors.income : VColors.expense)
+                // One block per currency: an INR balance shown under a dollar
+                // sign was overstating net worth by the whole exchange rate.
+                ForEach(Array(entries.enumerated()), id: \.element.id) { index, totals in
+                    if index > 0 { Divider() }
+                    currencySummaryBlock(totals, showsCode: vm.summary.isMultiCurrency)
                 }
 
-                Divider()
-
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: "Total Assets"))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
-                        Text(vm.totalAssets.formatted(.currency(code: currencyCode)))
-                            .font(VTypography.bodyBold)
-                            .foregroundStyle(VColors.income)
-                    }
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 4) {
-                        Text(String(localized: "Total Liabilities"))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
-                        Text(vm.totalLiabilities.formatted(.currency(code: currencyCode)))
-                            .font(VTypography.bodyBold)
-                            .foregroundStyle(VColors.expense)
-                    }
-                }
-
-                // Composition bar
-                if vm.totalAssets > 0 {
+                // Composition bar reads the dominant currency only; mixing
+                // currencies into one bar would be the same category error.
+                if let leading = entries.first, leading.assets > 0 {
                     compositionBar(vm)
                 }
             }
@@ -137,9 +160,14 @@ struct NetWorthReportView: View {
     }
 
     private func compositionBar(_ vm: NetWorthViewModel) -> some View {
-        let total = vm.totalAssets + vm.totalLiabilities
+        // Dominant currency only. Adding an INR asset to a USD liability to get
+        // a ratio is the same category error as summing them for a total.
+        let leading = vm.summary.byCurrency.first
+        let assets = leading?.assets ?? 0
+        let liabilities = leading?.liabilities ?? 0
+        let total = assets + liabilities
         let assetFraction = total > 0
-            ? Double(truncating: (vm.totalAssets / total) as NSDecimalNumber)
+            ? Double(truncating: (assets / total) as NSDecimalNumber)
             : 1.0
 
         return GeometryReader { geo in
@@ -160,18 +188,31 @@ struct NetWorthReportView: View {
     private func accountSection(
         title: String,
         accounts: [AccountEntity],
-        total: Decimal,
         accentColor: Color
     ) -> some View {
-        VStack(alignment: .leading, spacing: VSpacing.sm) {
-            HStack {
+        // Subtotal per currency rather than one figure: these accounts can be
+        // in different currencies and there is nothing to convert them with.
+        var byCurrency: [String: Decimal] = [:]
+        for account in accounts {
+            byCurrency[account.currencyCode, default: 0] += account.balance
+        }
+        let subtotals = byCurrency.keys.sorted().map { code in
+            (code: code, amount: byCurrency[code] ?? 0)
+        }
+
+        return VStack(alignment: .leading, spacing: VSpacing.sm) {
+            HStack(alignment: .firstTextBaseline) {
                 Text(title)
                     .font(VTypography.subheadline)
                     .foregroundStyle(VColors.textSecondary)
                 Spacer()
-                Text(total.formatted(.currency(code: currencyCode)))
-                    .font(VTypography.caption1.bold())
-                    .foregroundStyle(accentColor)
+                VStack(alignment: .trailing, spacing: 2) {
+                    ForEach(subtotals, id: \.code) { subtotal in
+                        Text(subtotal.amount.formatted(.currency(code: subtotal.code)))
+                            .font(VTypography.caption1.bold())
+                            .foregroundStyle(accentColor)
+                    }
+                }
             }
 
             VStack(spacing: 0) {
@@ -207,7 +248,7 @@ struct NetWorthReportView: View {
             }
             .padding(.horizontal, VSpacing.cardPadding)
             .padding(.vertical, VSpacing.xs)
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }

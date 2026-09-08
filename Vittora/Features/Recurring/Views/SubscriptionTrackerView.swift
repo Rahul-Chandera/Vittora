@@ -8,7 +8,7 @@ struct SubscriptionTrackerView: View {
 
     var body: some View {
         ZStack {
-            VColors.background.ignoresSafeArea()
+            VColors.groupedBackground.ignoresSafeArea()
 
             if let viewModel = viewModel {
                 ScrollView {
@@ -53,7 +53,7 @@ struct SubscriptionTrackerView: View {
                                 }
                             }
                             .padding(VSpacing.lg)
-                            .background(VColors.secondaryBackground)
+                            .background(VColors.secondaryGroupedBackground)
                             .cornerRadius(VSpacing.cornerRadiusMD)
 
                             // Breakdown

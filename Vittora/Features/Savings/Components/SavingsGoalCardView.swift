@@ -15,7 +15,10 @@ struct SavingsGoalCardView: View {
             layout {
                 SavingsProgressRingView(
                     progress: goal.progressFraction,
-                    color: VColors.textPrimary,
+                    // The goal's own colour, which is what the user picked it
+                    // for. This was textPrimary, so every ring drew black and the
+                    // filled arc was nearly invisible against the track.
+                    color: Color(hex: goal.colorHex) ?? VColors.primary,
                     size: 60,
                     lineWidth: 6
                 )

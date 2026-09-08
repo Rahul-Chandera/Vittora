@@ -115,6 +115,8 @@ struct OnboardingView: View {
 
     // MARK: - CTA Button
 
+    private var isEnabled: Bool { vm.canAdvance && !vm.isSaving }
+
     private var ctaButton: some View {
         Button {
             guard vm.canAdvance, !vm.isSaving else { return }
@@ -140,16 +142,25 @@ struct OnboardingView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(VSpacing.md)
-            .background(VColors.primary)
+            // Reads as unavailable when it is. It stayed solid brand green
+            // while inert, so pressing it with an empty name did nothing at
+            // all — no advance, no error, no hint that anything was missing.
+            .background(isEnabled ? VColors.primary : VColors.controlDisabled)
             .foregroundStyle(VColors.onPrimary)
             .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD))
         }
         // .plain: the label is fully custom; without this, macOS wraps it in
         // the standard AppKit button bezel (a gray rounded container).
         .buttonStyle(.plain)
-        .accessibilityRespondsToUserInteraction(vm.canAdvance && !vm.isSaving)
+        // Actually disabled, not just guarded inside the action. This screen
+        // kept the af8b34c8 pattern the twelve forms were moved off: the guard
+        // made the tap inert while the control still looked live. An explicit
+        // colour is used above because SwiftUI's own ~30% dimming fails the
+        // contrast audit.
+        .disabled(!isEnabled)
+        .accessibilityRespondsToUserInteraction(isEnabled)
         .accessibilityValue(
-            vm.canAdvance && !vm.isSaving
+            isEnabled
                 ? String(localized: "Available")
                 : String(localized: "Unavailable")
         )
@@ -299,7 +310,7 @@ private struct CurrencyStepView: View {
                         } label: {
                             HStack(spacing: VSpacing.md) {
                                 if !dynamicTypeSize.isAccessibilitySize,
-                                   let flag = flagImage(for: currency.code) {
+                                   let flag = currencyFlagImage(for: currency.code) {
                                     flag
                                         .accessibilityHidden(true)
                                 }
@@ -342,56 +353,6 @@ private struct CurrencyStepView: View {
     }
 }
 
-/// Flag for a currency code, as an **Image** rather than Text.
-///
-/// Rasterising is not cosmetic. As a `Text` node the flag is audited as text, and
-/// flags are mostly white (🇯🇵 🇸🇬 🇦🇪 🇺🇸) so they miss AA against the row —
-/// and because the row is an `.accessibilityElement(children: .combine)`, the
-/// glyph also widened the combined element enough to report clipping. That was
-/// 4 contrast + 9 clipped failures in testOnboardingAccessibilityAudit.
-/// An emoji flag is a fixed-palette image whose colours cannot be adjusted, so
-/// the honest fix is to present it as the image it is rather than exempt the
-/// screen from the audit.
-private func flagImage(for currencyCode: String) -> Image? {
-    #if canImport(UIKit)
-    let emoji = flagEmoji(for: currencyCode)
-    if let cached = FlagImageCache.shared.image(for: emoji) { return Image(uiImage: cached) }
-    let font = UIFont.systemFont(ofSize: 22)
-    let attributes: [NSAttributedString.Key: Any] = [.font: font]
-    let size = (emoji as NSString).size(withAttributes: attributes)
-    guard size.width > 0, size.height > 0 else { return nil }
-    let rendered = UIGraphicsImageRenderer(size: size).image { _ in
-        (emoji as NSString).draw(at: .zero, withAttributes: attributes)
-    }
-    FlagImageCache.shared.store(rendered, for: emoji)
-    return Image(uiImage: rendered)
-    #else
-    return nil
-    #endif
-}
-
-#if canImport(UIKit)
-/// Rasterised flags are reused across rows and redraws; rendering per row per
-/// frame is needless work in a scrolling list.
-private final class FlagImageCache {
-    static let shared = FlagImageCache()
-    private var storage: [String: UIImage] = [:]
-    func image(for key: String) -> UIImage? { storage[key] }
-    func store(_ image: UIImage, for key: String) { storage[key] = image }
-}
-#endif
-
-private func flagEmoji(for currencyCode: String) -> String {
-    let special = ["EUR": "🇪🇺", "XAF": "🌍", "XOF": "🌍", "XCD": "🌎", "XPF": "🌏"]
-    if let s = special[currencyCode] { return s }
-    let region = String(currencyCode.prefix(2)).uppercased()
-    guard region.count == 2, region.allSatisfy({ $0.isLetter }) else { return "🏳️" }
-    // Regional indicators sit 0x1F1E6 above "A".
-    let scalars = region.unicodeScalars.compactMap { UnicodeScalar($0.value + 0x1F1E6 - 65) }
-    guard scalars.count == 2 else { return "🏳️" }
-    return String(String.UnicodeScalarView(scalars))
-}
-
 private struct ProfileStepView: View {
     @Bindable var vm: OnboardingViewModel
     @FocusState private var isFocused: Bool
@@ -417,6 +378,12 @@ private struct ProfileStepView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, VSpacing.xl)
             }
+
+            // canAdvance gates the profile step on hasValidProfileName, so
+            // this is a required field and now says so.
+            VRequiredFieldLabel(String(localized: "Your name"))
+                .font(VTypography.caption1.bold())
+                .foregroundStyle(VColors.textSecondary)
 
             TextField(String(localized: "Your name"), text: $vm.userName)
                 .font(VTypography.title3)
@@ -509,7 +476,7 @@ private struct AccountSetupStepView: View {
 
                 VStack(spacing: VSpacing.md) {
                     VStack(alignment: .leading, spacing: VSpacing.sm) {
-                        Text(String(localized: "Account Name"))
+                        VRequiredFieldLabel(String(localized: "Account Name"))
                             .font(VTypography.caption1.bold())
                             .foregroundStyle(VColors.textSecondary)
 
@@ -635,7 +602,7 @@ private struct AccountSetupStepView: View {
 
                 VStack(spacing: VSpacing.md) {
                     VStack(alignment: .leading, spacing: VSpacing.sm) {
-                        Text(String(localized: "Account Name"))
+                        VRequiredFieldLabel(String(localized: "Account Name"))
                             .font(VTypography.caption1.bold())
                             .foregroundStyle(VColors.textSecondary)
 

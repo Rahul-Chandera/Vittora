@@ -9,6 +9,10 @@ struct SavingsGoalListView: View {
     @State private var vm: SavingsGoalListViewModel?
     @State private var showAddGoal = false
     @State private var selectedGoalID: UUID?
+    /// Staged by either delete path so the confirmation can name the goal.
+    /// A goal carries its contribution history, and deleting one was the last
+    /// destructive action in the app that happened on a single click.
+    @State private var goalToDelete: SavingsGoalEntity?
 
     var body: some View {
         ZStack {
@@ -22,8 +26,34 @@ struct SavingsGoalListView: View {
                 }
             }
         }
-        .background(VColors.background)
+        // Fill first, then paint — a ZStack sizes to its child, so the page
+        // colour would only cover the empty/loading state's own height and
+        // leave the system default white above and below it.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Savings Goals"))
+        .confirmationDialog(
+            String(localized: "Delete this goal?"),
+            isPresented: Binding(
+                get: { goalToDelete != nil },
+                set: { if !$0 { goalToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Delete"), role: .destructive) {
+                guard let goal = goalToDelete, let vm else { return }
+                goalToDelete = nil
+                Task {
+                    await vm.delete(id: goal.id)
+                    appState.notifyChanged(.savings)
+                }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) { goalToDelete = nil }
+        } message: {
+            if let goal = goalToDelete {
+                Text(String(localized: "\(goal.name) and its saved progress will be removed permanently. This cannot be undone."))
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { showAddGoal = true } label: {
@@ -107,13 +137,17 @@ struct SavingsGoalListView: View {
             .padding(VSpacing.screenPadding)
         }
         .safeAreaInset(edge: .bottom) {
-            VColors.background
+            // Clearance for the floating tab bar, painted in THIS screen's page
+            // colour — plain background, because this screen is not grouped.
+            VColors.groupedBackground
                 .frame(height: 72)
                 .allowsHitTesting(false)
         }
     }
 
     private func summaryHeader(_ summary: GoalProgressSummary) -> some View {
+        // Fills the width like the goal list below it. Without this the card
+        // sized to its own content and floated as a narrow centred island.
         VCard {
             let layout = dynamicTypeSize.isAccessibilitySize
                 ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.md))
@@ -121,7 +155,9 @@ struct SavingsGoalListView: View {
             layout {
                 SavingsProgressRingView(
                     progress: summary.overallProgressFraction,
-                    color: VColors.textPrimary,
+                    // Brand colour, not a goal colour: this ring aggregates
+                    // every goal, so no single one owns it.
+                    color: VColors.primary,
                     size: 56,
                     lineWidth: 6
                 )
@@ -142,7 +178,9 @@ struct SavingsGoalListView: View {
                         .font(VTypography.caption2)
                         .foregroundStyle(VColors.textPrimary)
                 }
+                Spacer(minLength: 0)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "Overall savings progress"))
@@ -184,20 +222,14 @@ struct SavingsGoalListView: View {
                         Label(String(localized: "Edit"), systemImage: "pencil")
                     }
                     Button(role: .destructive) {
-                        Task {
-                            await vm.delete(id: goal.id)
-                            appState.notifyChanged(.savings)
-                        }
+                        goalToDelete = goal
                     } label: {
                         Label(String(localized: "Delete"), systemImage: "trash")
                     }
                 }
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
-                        Task {
-                            await vm.delete(id: goal.id)
-                            appState.notifyChanged(.savings)
-                        }
+                        goalToDelete = goal
                     } label: {
                         Label(String(localized: "Delete"), systemImage: "trash")
                     }

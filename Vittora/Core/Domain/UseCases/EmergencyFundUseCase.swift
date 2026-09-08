@@ -34,7 +34,10 @@ struct EmergencyFundUseCase: Sendable {
         self.calendar = calendar
     }
 
-    func execute(selectedAccountIDs: Set<UUID>) async throws -> EmergencyFundReport {
+    func execute(
+        selectedAccountIDs: Set<UUID>,
+        currencyCode: String = CurrencyDefaults.code
+    ) async throws -> EmergencyFundReport {
         let today = todayProvider()
         let categories = try await categoryRepository.fetchAll()
         let needsCategoryIDs = Set(
@@ -62,14 +65,18 @@ struct EmergencyFundUseCase: Sendable {
             )
         }
 
+        // Scoped to the fund's currency, which also constrains the picker:
+        // eligibleAccounts is what the view offers, so an account whose balance
+        // could not be counted is never selectable in the first place.
         let accounts = try await accountRepository.fetchActive()
-            .filter { $0.type.isAsset }
+            .filter { $0.type.isAsset && $0.currencyCode == currencyCode }
         let goals = try await savingsGoalRepository.fetchAll()
         let validSelection = selectedAccountIDs.intersection(accounts.map(\.id))
         let currentFund = EmergencyFundMath.currentFund(
             accounts: accounts,
             selectedAccountIDs: validSelection,
-            goals: goals
+            goals: goals,
+            currencyCode: currencyCode
         )
         return EmergencyFundReport(
             snapshot: baseline.flatMap {

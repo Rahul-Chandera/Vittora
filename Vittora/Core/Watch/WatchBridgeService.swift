@@ -203,7 +203,7 @@ enum WatchSnapshotBuilder {
         let spending = try await provider.todaySpendingSnapshot()
         let budget = try await provider.budgetRemainingSnapshot()
         let categories = try await categoryRepository.fetchAll()
-        let categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+        let categoriesByID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
         let recentEntities = try await transactionRepository.fetchPage(
             filter: nil,

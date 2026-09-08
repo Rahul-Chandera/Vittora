@@ -340,10 +340,17 @@ def watch_device(shot, screen_w):
     return canvas, margin
 
 
-def compose_watch(raw_path, out_path, copy, W=416, H=496):
-    """Apple Watch slot. 416x496 is the Series 10/11 46mm size the capture
-    script produces and an ASC-accepted one, so the canvas matches the source."""
+def compose_watch(raw_path, out_path, copy, W=None, H=None):
+    """Apple Watch slot.
+
+    The canvas is taken from the capture rather than hardcoded. App Store
+    Connect has a slot per watch size and they are not interchangeable —
+    Ultra 3 is 422x514, the Series 46mm 416x496 — so pinning one size here
+    silently produced artwork the Ultra slot rejects."""
     key = os.path.splitext(os.path.basename(raw_path))[0]
+    if W is None or H is None:
+        with Image.open(raw_path) as probe:
+            W, H = probe.size
     suffix = next((k for k in copy if key.endswith(k)), None)
     if suffix is None:
         print(f"skip watch/{os.path.basename(raw_path)}: no copy for this screen")
@@ -446,6 +453,12 @@ def main():
         ("iphone-69-in", "iphone-69-in", "en", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
         ("iphone-69-hi", "iphone-69-hi", "hi", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
         ("iphone-69-es", "iphone-69-es", "es", lambda r, o, c: compose_phone(r, o, c, 1320, 2868)),
+        # 6.5" counterparts. Apple keeps a separate 6.5" slot that will not
+        # accept the 6.9" canvas, and it is per-localization — the English
+        # iphone-65 set alone does not cover the hi/es/en-IN listings.
+        ("iphone-69-in", "iphone-65-in", "en", lambda r, o, c: compose_phone(r, o, c, 1284, 2778)),
+        ("iphone-69-hi", "iphone-65-hi", "hi", lambda r, o, c: compose_phone(r, o, c, 1284, 2778)),
+        ("iphone-69-es", "iphone-65-es", "es", lambda r, o, c: compose_phone(r, o, c, 1284, 2778)),
         ("ipad-13",      "ipad-13",      "en", compose_pad),
         ("ipad-13-in",   "ipad-13-in",   "en", compose_pad),
         ("ipad-13-hi",   "ipad-13-hi",   "hi", compose_pad),

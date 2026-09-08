@@ -27,7 +27,7 @@ struct CategoryBreakdownUseCase: Sendable {
 
         let (transactions, categories) = try await (transactionsTask, categoriesTask)
 
-        let categoryByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+        let categoryByID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
         var categoryAmounts: [UUID: (amount: Decimal, count: Int)] = [:]
         for transaction in transactions {

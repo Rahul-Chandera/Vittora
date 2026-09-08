@@ -32,7 +32,7 @@ struct CustomReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Custom Report"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -119,7 +119,7 @@ struct CustomReportView: View {
             .pickerStyle(.segmented)
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
@@ -156,7 +156,7 @@ struct CustomReportView: View {
                     }
                 }
                 .padding(VSpacing.cardPadding)
-                .background(VColors.secondaryBackground)
+                .background(VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusCard)
 
                 totalRow(result.total)
@@ -176,7 +176,7 @@ struct CustomReportView: View {
                 .foregroundColor(VColors.textPrimary)
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 

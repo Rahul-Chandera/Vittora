@@ -17,6 +17,23 @@
         }
       }
     },
+    "%@ budget will be removed permanently. This cannot be undone." : {
+      "comment" : "Body of the budget delete confirmation. %@ is the budget amount.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El presupuesto de %@ se eliminará permanentemente. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ का बजट स्थायी रूप से हटा दिया जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "-%@" : {
       "localizations" : {
         "es" : {
@@ -184,6 +201,23 @@
         }
       }
     },
+    "%@ will be removed permanently. This cannot be undone." : {
+      "comment" : "Confirmation message when deleting a debt entry. The argument is the formatted amount.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ se eliminará permanentemente. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ स्थायी रूप से हटा दिया जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "%@ · Itemized Deductions" : {
       "localizations" : {
         "es" : {
@@ -330,6 +364,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ वास्तविक · %@ लक्ष्य"
+          }
+        }
+      }
+    },
+    "%@ and its saved progress will be removed permanently. This cannot be undone." : {
+      "comment" : "Body of the savings goal delete confirmation. %@ is the goal name.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ y el progreso ahorrado se eliminarán permanentemente. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ और उसमें बचाई गई प्रगति स्थायी रूप से हटा दी जाएगी। इसे पूर्ववत नहीं किया जा सकता।"
           }
         }
       }
@@ -666,6 +717,23 @@
         }
       }
     },
+    "%@ will be removed from this group and everyone's share recalculated. This cannot be undone." : {
+      "comment" : "Body of the group expense delete confirmation. %@ is the expense title.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ se eliminará de este grupo y se recalculará la parte de cada persona. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ इस समूह से हटा दिया जाएगा और सभी का हिस्सा फिर से जोड़ा जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "%@, %@" : {
       "localizations" : {
         "en" : {
@@ -864,6 +932,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@, सुझाया गया। टैक्स: %2$@। प्रभावी दर %3$@%%"
+          }
+        }
+      }
+    },
+    "%@, required" : {
+      "comment" : "VoiceOver label for a required form field. %@ is the field name.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, obligatorio"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, आवश्यक"
           }
         }
       }
@@ -1446,6 +1531,23 @@
         }
       }
     },
+    "%lld transactions will be removed permanently and the account balances updated. This cannot be undone." : {
+      "comment" : "Body of the bulk transaction delete confirmation.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se eliminarán %lld transacciones permanentemente y se actualizarán los saldos de las cuentas. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ट्रांज़ैक्शन स्थायी रूप से हटा दिए जाएँगे और खाता शेष अपडेट हो जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "%lld transactions · %lld-day streak" : {
       "localizations" : {
         "es" : {
@@ -1985,6 +2087,23 @@
         }
       }
     },
+    "A transfer needs a second account. Add one to continue." : {
+      "comment" : "Subtitle on the account picker when a transfer has no eligible destination.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una transferencia necesita una segunda cuenta. Agregue una para continuar."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ट्रांसफ़र के लिए दूसरा अकाउंट चाहिए। जारी रखने के लिए एक जोड़ें।"
+          }
+        }
+      }
+    },
     "A year of tracking" : {
       "localizations" : {
         "es" : {
@@ -2082,6 +2201,7 @@
       }
     },
     "Account *" : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -2447,6 +2567,23 @@
         }
       }
     },
+    "Add an account to continue" : {
+      "comment" : "Subtitle on the account picker when no accounts exist.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregue una cuenta para continuar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जारी रखने के लिए एक अकाउंट जोड़ें"
+          }
+        }
+      }
+    },
     "Add an expense in \\(.applicationName)" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2718,6 +2855,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "मिलते-जुलते प्राप्तकर्ता और नोट के लिए अपने-आप कैटेगरी सुझाने हेतु कीवर्ड नियम जोड़ें।"
+          }
+        }
+      }
+    },
+    "Add New Account" : {
+      "comment" : "Row at the foot of the Account picker that opens the new-account sheet.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregar cuenta nueva"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नया अकाउंट जोड़ें"
+          }
+        }
+      }
+    },
+    "Add New Payee" : {
+      "comment" : "Row at the foot of the Payee picker that opens the new-payee sheet.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregar beneficiario nuevo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नया पेयी जोड़ें"
           }
         }
       }
@@ -4697,6 +4868,23 @@
         }
       }
     },
+    "Budget amount" : {
+      "comment" : "VoiceOver label for the budget amount field.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe del presupuesto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बजट राशि"
+          }
+        }
+      }
+    },
     "Budget Amount" : {
       "localizations" : {
         "es" : {
@@ -6342,6 +6530,23 @@
         }
       }
     },
+    "Create Budget" : {
+      "comment" : "Action on the VEmptyState displayed when the user has no budgets.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear presupuesto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बजट बनाएँ"
+          }
+        }
+      }
+    },
     "Create Goal" : {
       "localizations" : {
         "es" : {
@@ -7372,6 +7577,23 @@
         }
       }
     },
+    "Delete %lld transactions?" : {
+      "comment" : "Title of the confirmation shown before deleting several selected transactions.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar %lld transacciones?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ट्रांज़ैक्शन हटाएँ?"
+          }
+        }
+      }
+    },
     "Delete Account" : {
       "localizations" : {
         "es" : {
@@ -7422,6 +7644,23 @@
         }
       }
     },
+    "Delete Entry" : {
+      "comment" : "Context menu action that deletes a single debt entry.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar entrada"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रविष्टि हटाएँ"
+          }
+        }
+      }
+    },
     "Delete Payee" : {
       "localizations" : {
         "es" : {
@@ -7434,6 +7673,142 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "भुगतान पाने वाला डिलीट करें"
+          }
+        }
+      }
+    },
+    "Delete this attachment?" : {
+      "comment" : "Title of the confirmation shown before deleting a document attached to a transaction.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar este archivo adjunto?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह अटैचमेंट हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this budget?" : {
+      "comment" : "Title of the confirmation shown before deleting a budget.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar este presupuesto?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह बजट हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this debt entry?" : {
+      "comment" : "Title of the confirmation dialog shown before deleting a debt entry.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta entrada de deuda?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह ऋण प्रविष्टि हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this expense?" : {
+      "comment" : "Title of the confirmation shown before deleting a shared group expense.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar este gasto?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह खर्च हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this goal?" : {
+      "comment" : "Title of the confirmation shown before deleting a savings goal.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta meta?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह लक्ष्य हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this recurring rule?" : {
+      "comment" : "Title of the confirmation shown before deleting a recurring transaction rule.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta regla recurrente?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह रेकरिंग नियम हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this rule?" : {
+      "comment" : "Title of the confirmation shown before deleting a categorisation rule.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta regla?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह नियम हटाएँ?"
+          }
+        }
+      }
+    },
+    "Delete this transaction?" : {
+      "comment" : "Title of the confirmation shown before deleting a transaction.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta transacción?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह ट्रांज़ैक्शन हटाएँ?"
           }
         }
       }
@@ -8987,6 +9362,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सब कुछ"
+          }
+        }
+      }
+    },
+    "Exact amount" : {
+      "comment" : "VoiceOver label for the exact-split amount field.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe exacto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सटीक राशि"
           }
         }
       }
@@ -12112,6 +12504,23 @@
         }
       }
     },
+    "Message ready to share" : {
+      "comment" : "macOS share sheet heading when the item being shared is a drafted text message.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mensaje listo para compartir"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "साझा करने के लिए संदेश तैयार है"
+          }
+        }
+      }
+    },
     "Method" : {
       "localizations" : {
         "es" : {
@@ -12635,6 +13044,23 @@
         }
       }
     },
+    "Net Worth (%@)" : {
+      "comment" : "Net worth heading when several currencies are shown, one block each. The argument is the ISO currency code.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Patrimonio neto (%@)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नेट वर्थ (%@)"
+          }
+        }
+      }
+    },
     "Net cash flow" : {
       "localizations" : {
         "es" : {
@@ -13032,6 +13458,23 @@
         }
       }
     },
+    "No Accounts Yet" : {
+      "comment" : "Title on the account picker when no accounts exist.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay cuentas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी कोई अकाउंट नहीं"
+          }
+        }
+      }
+    },
     "No Active Subscriptions" : {
       "localizations" : {
         "es" : {
@@ -13316,6 +13759,23 @@
         }
       }
     },
+    "No entries left for this person" : {
+      "comment" : "Shown under History on the debt detail screen once every entry for that person has been deleted or removed.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No quedan entradas para esta persona"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस व्यक्ति के लिए कोई प्रविष्टि शेष नहीं है"
+          }
+        }
+      }
+    },
     "No expenses yet" : {
       "localizations" : {
         "es" : {
@@ -13410,6 +13870,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "कोई नया पेयी इम्पोर्ट नहीं हुआ। पहले से मौजूद होने के कारण %lld कॉन्टैक्ट छोड़ दिए गए।"
+          }
+        }
+      }
+    },
+    "No Other Accounts" : {
+      "comment" : "Title on the account picker when the only account is the transfer source.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay otras cuentas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कोई अन्य अकाउंट नहीं"
           }
         }
       }
@@ -15510,6 +15987,23 @@
         }
       }
     },
+    "Percentage share" : {
+      "comment" : "VoiceOver label for the percentage-split field.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porcentaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रतिशत हिस्सा"
+          }
+        }
+      }
+    },
     "Percentages must sum to 100%% (currently %@%%)." : {
       "comment" : "A localized error message that can be displayed to the user.",
       "isCommentAutoGenerated" : true,
@@ -15995,6 +16489,7 @@
       }
     },
     "Preview progress" : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -19109,6 +19604,23 @@
         }
       }
     },
+    "Share Message" : {
+      "comment" : "macOS button that opens the system share picker for a drafted text message.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir mensaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संदेश साझा करें"
+          }
+        }
+      }
+    },
     "Share Summary" : {
       "comment" : "A share option that shares a summary of the group's balances and expenses.",
       "isCommentAutoGenerated" : true,
@@ -19178,7 +19690,6 @@
       }
     },
     "Shares" : {
-      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -21022,6 +21533,23 @@
         }
       }
     },
+    "The file will be removed from this transaction and deleted. This cannot be undone." : {
+      "comment" : "Body of the attachment delete confirmation.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo se quitará de esta transacción y se eliminará. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "फ़ाइल इस ट्रांज़ैक्शन से हटा दी जाएगी और मिटा दी जाएगी। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "The saved amount in this goal will count toward your emergency-fund coverage." : {
       "localizations" : {
         "es" : {
@@ -21038,6 +21566,23 @@
         }
       }
     },
+    "The transaction will be removed permanently and the account balance updated. This cannot be undone." : {
+      "comment" : "Body of the transaction delete confirmation shown from the list.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La transacción se eliminará permanentemente y se actualizará el saldo de la cuenta. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ट्रांज़ैक्शन स्थायी रूप से हटा दिया जाएगा और खाता शेष अपडेट हो जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
     "Theme" : {
       "localizations" : {
         "es" : {
@@ -21050,6 +21595,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "थीम"
+          }
+        }
+      }
+    },
+    "This %@ rule will stop posting transactions. Transactions it has already created are kept. This cannot be undone." : {
+      "comment" : "Body of the recurring rule delete confirmation. %@ is the rule's amount.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta regla de %@ dejará de registrar transacciones. Las transacciones que ya creó se conservan. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ का यह नियम ट्रांज़ैक्शन बनाना बंद कर देगा। इसके द्वारा पहले बनाए गए ट्रांज़ैक्शन बने रहेंगे। इसे पूर्ववत नहीं किया जा सकता।"
           }
         }
       }
@@ -21959,20 +22521,20 @@
         }
       }
     },
-    "Transactions in %lld will appear here once you add them." : {
+    "Transactions in %@ will appear here once you add them." : {
       "comment" : "A message that appears when there is no data for the selected year. The argument is the year that is currently selected.",
       "isCommentAutoGenerated" : true,
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Las transacciones en %lld aparecerán aquí cuando las agregue."
+            "value" : "Las transacciones en %@ aparecerán aquí cuando las agregue."
           }
         },
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld के ट्रांज़ैक्शन जोड़ने के बाद यहाँ दिखाई देंगे।"
+            "value" : "%@ के ट्रांज़ैक्शन जोड़ने के बाद यहाँ दिखाई देंगे।"
           }
         }
       }
@@ -21989,6 +22551,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "दर्ज ट्रांज़ैक्शन"
+          }
+        }
+      }
+    },
+    "Transactions will stop being categorised by this rule. Ones it has already categorised keep their category. This cannot be undone." : {
+      "comment" : "Body of the categorisation rule delete confirmation.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las transacciones dejarán de clasificarse con esta regla. Las que ya clasificó conservan su categoría. Esta acción no se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस नियम से ट्रांज़ैक्शन की कैटेगरी तय होना बंद हो जाएगा। जिनकी कैटेगरी पहले तय हो चुकी है, वे वैसी ही रहेंगी। इसे पूर्ववत नहीं किया जा सकता।"
           }
         }
       }
@@ -24507,24 +25086,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "वर्ष %@, %lld ट्रांज़ैक्शन"
-          }
-        }
-      }
-    },
-    "Year %lld" : {
-      "comment" : "The subtitle of the annual report.",
-      "isCommentAutoGenerated" : true,
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Año %lld"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "वर्ष %lld"
           }
         }
       }

@@ -49,7 +49,8 @@ struct FetchTransactionsUseCase: Sendable {
         with newTransactions: [TransactionEntity]
     ) -> [(date: Date, transactions: [TransactionEntity])] {
         var byDate: [Date: [TransactionEntity]] = Dictionary(
-            uniqueKeysWithValues: existing.map { ($0.date, $0.transactions) }
+            existing.map { ($0.date, $0.transactions) },
+            uniquingKeysWith: { first, _ in first }
         )
         let calendar = Calendar.current
         for transaction in newTransactions {

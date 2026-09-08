@@ -162,32 +162,37 @@ struct BudgetEntityTests {
 
     @Test("Equatable conformance")
     func testEquatable() {
+        // Value equality: same id AND same content. `startDate` is pinned
+        // because it defaults to .now, so two fixtures built a moment apart
+        // are genuinely different values.
         let id = UUID()
+        let start = Date(timeIntervalSince1970: 1_700_000_000)
         let entity1 = BudgetEntity(
-            id: id,
-            amount: Decimal(1000.0),
-            spent: Decimal(500.0)
+            id: id, amount: Decimal(1000.0), spent: Decimal(500.0), startDate: start
         )
         let entity2 = BudgetEntity(
-            id: id,
-            amount: Decimal(1000.0),
-            spent: Decimal(500.0)
+            id: id, amount: Decimal(1000.0), spent: Decimal(500.0), startDate: start
         )
 
         #expect(entity1 == entity2)
+
+        // The property the UI depends on: a changed `spent` must NOT compare
+        // equal. An id-only `==` here made SwiftUI skip re-rendering the budget
+        // row, so it showed a stale figure until the app was relaunched.
+        let spentMore = BudgetEntity(
+            id: id, amount: Decimal(1000.0), spent: Decimal(620.0), startDate: start
+        )
+        #expect(entity1 != spentMore)
     }
 
     @Test("Hashable conformance")
     func testHashable() {
+        // Hash is id-only by design, so equal values share a bucket and
+        // Set/Dictionary membership stays stable as mutable fields change.
         let id = UUID()
-        let entity1 = BudgetEntity(
-            id: id,
-            amount: Decimal(1000.0)
-        )
-        let entity2 = BudgetEntity(
-            id: id,
-            amount: Decimal(1000.0)
-        )
+        let start = Date(timeIntervalSince1970: 1_700_000_000)
+        let entity1 = BudgetEntity(id: id, amount: Decimal(1000.0), startDate: start)
+        let entity2 = BudgetEntity(id: id, amount: Decimal(1000.0), startDate: start)
 
         var set: Set<BudgetEntity> = [entity1]
         set.insert(entity2)

@@ -55,7 +55,7 @@ struct CustomReportUseCase: Sendable {
         switch grouping {
         case .category:
             let categories = try await categoryRepository.fetchAll()
-            let categoryNames = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.displayName) })
+            let categoryNames = Dictionary(categories.map { ($0.id, $0.displayName) }, uniquingKeysWith: { first, _ in first })
             for t in transactions {
                 let name = t.categoryID
                     .flatMap { categoryNames[$0] }
@@ -68,7 +68,7 @@ struct CustomReportUseCase: Sendable {
 
         case .account:
             let accounts = try await accountRepository.fetchAll()
-            let accountNames = Dictionary(uniqueKeysWithValues: accounts.map { ($0.id, $0.name) })
+            let accountNames = Dictionary(accounts.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
             for t in transactions {
                 let name = t.accountID
                     .flatMap { accountNames[$0] }
@@ -81,7 +81,7 @@ struct CustomReportUseCase: Sendable {
 
         case .payee:
             let payees = try await payeeRepository.fetchAll()
-            let payeeNames = Dictionary(uniqueKeysWithValues: payees.map { ($0.id, $0.name) })
+            let payeeNames = Dictionary(payees.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
             for t in transactions {
                 let name = t.payeeID
                     .flatMap { payeeNames[$0] }

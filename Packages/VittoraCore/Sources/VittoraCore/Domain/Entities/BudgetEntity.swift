@@ -73,6 +73,21 @@ public struct BudgetEntity: Identifiable, Hashable, Equatable, Sendable {
 
     // MARK: - Equatable & Hashable (identity-based)
 
-    public static func == (lhs: BudgetEntity, rhs: BudgetEntity) -> Bool { lhs.id == rhs.id }
+    // Value equality, not identity. An id-only `==` made SwiftUI treat a
+    // budget whose `spent` had changed as unchanged, so BudgetCardView never
+    // re-ran its body: the row kept showing the old figure until the app was
+    // relaunched, while the header — a plain Decimal — updated. Dedup by
+    // identity should key on `id` explicitly rather than lean on `==`.
+    public static func == (lhs: BudgetEntity, rhs: BudgetEntity) -> Bool {
+        lhs.id == rhs.id
+            && lhs.amount == rhs.amount
+            && lhs.spent == rhs.spent
+            && lhs.period == rhs.period
+            && lhs.startDate == rhs.startDate
+            && lhs.rollover == rhs.rollover
+            && lhs.categoryID == rhs.categoryID
+    }
+    // Hash stays id-only: legal (equal values share a hash) and keeps
+    // Set/Dictionary bucketing stable as mutable fields change.
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }

@@ -14,20 +14,17 @@ struct PeriodSelectorView: View {
             periodPicker.pickerStyle(.segmented)
         }
         #else
-        HStack(spacing: VSpacing.md) {
-            ForEach(BudgetPeriod.allCases, id: \.self) { period in
-                Button(action: { selectedPeriod = period }) {
-                    Text(period.displayName)
-                        .font(VTypography.caption1)
-                        .foregroundColor(selectedPeriod == period ? VColors.primaryOnSurface : VColors.textSecondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(VSpacing.sm)
-                        .background(selectedPeriod == period ? VColors.primary.opacity(0.1) : VColors.tertiaryBackground)
-                        .cornerRadius(VSpacing.cornerRadiusSM)
-                }
-                .buttonStyle(.plain)
-            }
-        }
+        // The native segmented control, same as iOS at regular width.
+        //
+        // This was a hand-rolled row of buttons whose selected state was
+        // VColors.primary at 10% opacity over VColors.tertiaryBackground. On
+        // macOS 26 that background resolves to #FFFFFF, so the selection was a
+        // barely-there green wash on white and you could not tell which period
+        // was active. The platform control draws a proper selection indicator
+        // and is less code than getting a custom one right.
+        periodPicker
+            .pickerStyle(.segmented)
+            .labelsHidden()
         #endif
     }
 

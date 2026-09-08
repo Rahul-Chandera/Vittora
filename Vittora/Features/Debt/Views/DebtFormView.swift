@@ -9,7 +9,14 @@ struct DebtFormView: View {
     @Environment(\.currencySymbol) private var currencySymbol
     @State private var vm: DebtFormViewModel?
     @State private var payees: [PayeeEntity] = []
+    @State private var showAddPayee = false
     let onSaved: () -> Void
+
+    /// Tag for the "Add New" row at the foot of the Person / Business picker.
+    /// Selecting it opens the payee sheet rather than changing the selection —
+    /// the previous value is restored immediately, and the sheet's completion
+    /// reloads and selects whatever was just created.
+    private static let addPayeeTag = UUID()
 
     var body: some View {
         NavigationStack {
@@ -28,22 +35,30 @@ struct DebtFormView: View {
                     .headerProminence(.increased)
 
                     Section {
-                        Picker(String(localized: "Person / Business"), selection: Bindable(vm).selectedPayeeID) {
+                        Picker(selection: Bindable(vm).selectedPayeeID) {
                             Text(String(localized: "Select…")).tag(UUID?.none)
                             ForEach(payees) { payee in
                                 Text(payee.name).tag(UUID?(payee.id))
                             }
+                            Text(String(localized: "Add New Payee")).tag(UUID?(Self.addPayeeTag))
+                        } label: {
+                            VRequiredFieldLabel(String(localized: "Person / Business"))
+                        }
+                        .onChange(of: vm.selectedPayeeID) { previous, current in
+                            guard current == Self.addPayeeTag else { return }
+                            // Restore first: the sentinel is a command, never a
+                            // value. The guard stops the restore re-entering.
+                            vm.selectedPayeeID = previous
+                            showAddPayee = true
                         }
 
                         HStack {
-                            Text(currencySymbol)
-                                .foregroundColor(VColors.textPrimary)
-                                .accessibilityHidden(true)
+                            VRequiredFieldLabel(currencySymbol)
                             TextField(
                                 "",
                                 text: Bindable(vm).amountString,
                                 prompt: Text(String(localized: "Amount"))
-                                    .foregroundStyle(VColors.textPrimary)
+                                    .foregroundStyle(VColors.placeholderText)
                             )
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
@@ -76,7 +91,7 @@ struct DebtFormView: View {
                             "",
                             text: Bindable(vm).note,
                             prompt: Text(String(localized: "Optional note"))
-                                .foregroundStyle(VColors.textPrimary),
+                                .foregroundStyle(VColors.placeholderText),
                             axis: .vertical
                         )
                             .lineLimit(2...4)
@@ -86,7 +101,7 @@ struct DebtFormView: View {
                     .headerProminence(.increased)
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Add Debt"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -94,8 +109,7 @@ struct DebtFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -114,8 +128,17 @@ struct DebtFormView: View {
                         }
                     }
                     .accessibilityRespondsToUserInteraction(vm?.canSave ?? false)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                    // See SplitGroupFormView for why the colour is explicit
+                    // rather than relying on SwiftUI's dimming.
+                    .disabled(!(vm?.canSave ?? false))
+                    .vDialogConfirmButton()
+                }
+            }
+        }
+        .sheet(isPresented: $showAddPayee) {
+            NavigationStack {
+                PayeeFormView {
+                    Task { await reloadPayeesSelectingNewest() }
                 }
             }
         }
@@ -130,6 +153,17 @@ struct DebtFormView: View {
             } catch {
                 formVM.error = error.localizedDescription
             }
+        }
+    }
+
+    /// Newest by createdAt, not "the one that was not there before": the sheet
+    /// does not report back what it made, and comparing snapshots would break
+    /// if a sync landed a payee at the same moment.
+    private func reloadPayeesSelectingNewest() async {
+        guard let existing = try? await dependencies.payeeRepository.fetchAll() else { return }
+        payees = existing
+        if let newest = existing.max(by: { $0.createdAt < $1.createdAt }) {
+            vm?.selectedPayeeID = newest.id
         }
     }
 

@@ -57,9 +57,13 @@ struct AccountUseCaseTests {
             let useCase = CalculateNetWorthUseCase(accountRepository: repo)
             let summary = try await useCase.execute()
 
-            #expect(summary.totalAssets == Decimal(15000))
-            #expect(summary.totalLiabilities == Decimal(2000))
-            #expect(summary.netWorth == Decimal(13000))
+            // Same expectations, expressed through the per-currency shape.
+            // These accounts all use the default currency, so there is exactly
+            // one subtotal — see NetWorthPerCurrencyTests for the mixed case.
+            let totals = try #require(summary.singleCurrency)
+            #expect(totals.assets == Decimal(15000))
+            #expect(totals.liabilities == Decimal(2000))
+            #expect(totals.netWorth == Decimal(13000))
         }
 
         @Test("Net worth is zero when no accounts")
@@ -68,9 +72,10 @@ struct AccountUseCaseTests {
             let useCase = CalculateNetWorthUseCase(accountRepository: repo)
             let summary = try await useCase.execute()
 
-            #expect(summary.netWorth == 0)
-            #expect(summary.totalAssets == 0)
-            #expect(summary.totalLiabilities == 0)
+            // No accounts means no subtotals at all, rather than a zero
+            // attributed to some arbitrary currency.
+            #expect(summary.byCurrency.isEmpty)
+            #expect(summary.singleCurrency == nil)
         }
     }
 

@@ -160,14 +160,16 @@ struct ImportTransactionsFromCSVUseCase: Sendable {
     private func loadPayeeLookup() async throws -> [String: UUID] {
         let payees = try await payeeRepository.fetchAll()
         return Dictionary(
-            uniqueKeysWithValues: payees.map { ($0.name.lowercased(), $0.id) }
+            payees.map { ($0.name.lowercased(), $0.id) },
+            uniquingKeysWith: { first, _ in first }
         )
     }
 
     private func loadCategoryLookup() async throws -> [String: UUID] {
         let categories = try await categoryRepository.fetchAll()
         return Dictionary(
-            uniqueKeysWithValues: categories.map { ($0.name.lowercased(), $0.id) }
+            categories.map { ($0.name.lowercased(), $0.id) },
+            uniquingKeysWith: { first, _ in first }
         )
     }
 

@@ -10,35 +10,39 @@ struct TaxDashboardView: View {
     @State private var showExportSheet = false
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                if let vm {
-                    if vm.isLoading {
-                        ProgressView().tint(VColors.primary)
-                    } else if let estimate = vm.estimate {
-                        dashboardContent(vm: vm, estimate: estimate)
-                    } else {
-                        emptyState
-                    }
+        // Nested stack — see DebtLedgerView. Same defect, no reported symptom
+        // only because this screen presents sheets rather than pushing.
+        ZStack {
+            if let vm {
+                if vm.isLoading {
+                    ProgressView().tint(VColors.primary)
+                } else if let estimate = vm.estimate {
+                    dashboardContent(vm: vm, estimate: estimate)
+                } else {
+                    emptyState
                 }
             }
-            .background(VColors.background)
-            .navigationTitle(String(localized: "Tax Estimator"))
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showProfileForm = true
-                    } label: {
-                        Image(systemName: vm?.estimate == nil ? "plus" : "pencil")
-                    }
-                    .accessibilityLabel(
-                        vm?.estimate == nil
-                        ? String(localized: "Set up tax profile")
-                        : String(localized: "Edit tax profile")
-                    )
-                    .accessibilityHint(String(localized: "Opens the tax profile form"))
-                    .accessibilityIdentifier("tax-profile-button")
+        }
+        // Fill first, then paint. A ZStack sizes to its child, so the page
+        // colour only covered the empty state's own height and left white
+        // above and below it.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(VColors.groupedBackground)
+        .navigationTitle(String(localized: "Tax Estimator"))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showProfileForm = true
+                } label: {
+                    Image(systemName: vm?.estimate == nil ? "plus" : "pencil")
                 }
+                .accessibilityLabel(
+                    vm?.estimate == nil
+                    ? String(localized: "Set up tax profile")
+                    : String(localized: "Edit tax profile")
+                )
+                .accessibilityHint(String(localized: "Opens the tax profile form"))
+                .accessibilityIdentifier("tax-profile-button")
             }
         }
         .task {
@@ -137,8 +141,17 @@ struct TaxDashboardView: View {
                 ) {
                     Task {
                         await vm.exportReport()
-                        if vm.exportURL != nil {
+                        if let url = vm.exportURL {
+                            // Straight to the share menu. The sheet below is
+                            // only a fallback for when nothing can anchor it.
+                            #if os(macOS)
+                            let shown = MacSharePresenter.present(items: [url]) {
+                                Task { await vm.cleanupExport() }
+                            }
+                            if !shown { showExportSheet = true }
+                            #else
                             showExportSheet = true
+                            #endif
                         }
                     }
                 }
@@ -151,11 +164,16 @@ struct TaxDashboardView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .safeAreaInset(edge: .bottom) {
-            VColors.background
-                .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: this screen is a stack of cards, and an opaque inset
+        // paints OVER the last one, slicing it mid-glyph — which the audit's
+        // contrast sampler reads as failing text. Padding reserves the same
+        // space without drawing.
+        //
+        // Dashboard and the report screens keep their inset: they are the ones
+        // where removing it lets content render in the gutter below the tab
+        // bar, which the audit reports as text with no accessible element.
+        .safeAreaPadding(.bottom, dynamicTypeSize.isAccessibilitySize ? 140 : 72)
     }
 
     private func quickStatsGrid(estimate: TaxEstimate) -> some View {
@@ -225,7 +243,7 @@ struct TaxDashboardView: View {
             .foregroundStyle(VColors.textPrimary)
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
     }
 
@@ -255,7 +273,7 @@ struct TaxDashboardView: View {
             .padding(VSpacing.cardPadding)
             .frame(minHeight: 44)
             .contentShape(Rectangle())
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
         }
         .buttonStyle(.plain)
@@ -329,7 +347,7 @@ private struct StatTile: View {
         }
         .padding(VSpacing.cardPadding)
         .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title)

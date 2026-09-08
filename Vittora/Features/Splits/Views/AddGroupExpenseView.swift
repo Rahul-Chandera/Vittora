@@ -110,7 +110,7 @@ struct AddGroupExpenseView: View {
                     }
                 }
             }
-            .tint(VColors.textPrimary)
+            .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Add Expense"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -118,8 +118,7 @@ struct AddGroupExpenseView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.body)
-                        .foregroundStyle(VColors.textPrimary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
@@ -128,15 +127,16 @@ struct AddGroupExpenseView: View {
                             let saved = await vm.save()
                             if saved {
                                 dependencies.conversionEventRecorder.afterSplitExpenseCreated()
-                                appState.notifyChanged([.splits, .transactions, .accounts])
+                                // .budgets too: a group expense writes an expense transaction,
+                                // so any budget covering its category is now stale.
+                                appState.notifyChanged([.splits, .transactions, .accounts, .budgets])
                                 onSaved()
                                 dismiss()
                             }
                         }
                     }
-                    .font(.body)
                     .accessibilityRespondsToUserInteraction(vm.canSave && !vm.isSaving)
-                    .foregroundStyle(VColors.textPrimary)
+                    .vDialogConfirmButton()
                 }
             }
         }
@@ -183,7 +183,8 @@ private struct AllocationRow: View {
             } else {
                 HStack(spacing: 4) {
                     if method == .percentage {
-                        TextField("0", text: $row.inputValue)
+                        TextField("", text: $row.inputValue, prompt: Text("0").foregroundStyle(VColors.placeholderText))
+                            .accessibilityLabel(String(localized: "Percentage share"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)
                             .textContentType(nil)
@@ -194,7 +195,8 @@ private struct AllocationRow: View {
                         Text("%").foregroundStyle(VColors.textSecondary)
                     } else if method == .exact {
                         Text(currencySymbol).foregroundStyle(VColors.textSecondary)
-                        TextField("0.00", text: $row.inputValue)
+                        TextField("", text: $row.inputValue, prompt: Text("0.00").foregroundStyle(VColors.placeholderText))
+                            .accessibilityLabel(String(localized: "Exact amount"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)
                             .textContentType(nil)
@@ -203,7 +205,8 @@ private struct AllocationRow: View {
                             .frame(width: 80)
                             .onChange(of: row.inputValue) { _, _ in onValueChanged() }
                     } else if method == .shares {
-                        TextField("1", text: $row.inputValue)
+                        TextField("", text: $row.inputValue, prompt: Text("1").foregroundStyle(VColors.placeholderText))
+                            .accessibilityLabel(String(localized: "Shares"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)
                             .textContentType(nil)

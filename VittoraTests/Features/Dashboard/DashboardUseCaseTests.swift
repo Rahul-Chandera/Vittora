@@ -108,7 +108,7 @@ struct DashboardUseCaseTests {
             let useCase = await makeDashboardUseCase(accounts: [checking, savings, credit])
             let data = try await useCase.execute()
 
-            #expect(data.netWorth == 13000)
+            #expect(data.netWorth.singleCurrency?.netWorth == 13000)
         }
 
         @Test("Excludes archived accounts from account summary")

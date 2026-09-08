@@ -55,7 +55,7 @@ struct UpcomingDatesView: View {
                             .cornerRadius(VSpacing.cornerRadiusSM)
                     }
                     .padding(VSpacing.md)
-                    .background(VColors.secondaryBackground)
+                    .background(VColors.secondaryGroupedBackground)
                     .cornerRadius(VSpacing.cornerRadiusMD)
                 }
             }

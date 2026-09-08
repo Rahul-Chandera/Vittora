@@ -5,6 +5,9 @@ import VittoraCore
 @MainActor
 final class CashFlowForecastViewModel {
     var result: CashFlowForecastResult?
+    /// The currency the projection is in — see the use case. nil falls back to
+    /// the display currency.
+    var projectedCurrencyCode: String?
     var isLoading = false
     var error: String?
 
@@ -33,6 +36,7 @@ final class CashFlowForecastViewModel {
         error = nil
         do {
             result = try await useCase.execute()
+            projectedCurrencyCode = try? await useCase.projectedCurrencyCode()
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load the cash flow forecast right now.")

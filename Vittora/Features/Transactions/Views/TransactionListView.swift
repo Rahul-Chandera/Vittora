@@ -12,6 +12,15 @@ struct TransactionListView: View {
     @State private var filterVM: TransactionFilterViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var selectedTransactionID: UUID?
+    /// Staged by every delete path on this screen so they all ask first.
+    /// The detail screen's trash was guarded in 91c44b3b; these three — the
+    /// row menu, the swipe, and the multi-select bulk delete — were not.
+    @State private var pendingDelete: PendingDelete?
+
+    private enum PendingDelete: Equatable {
+        case single(UUID)
+        case selected(count: Int)
+    }
 
     private var prefersSplitDetail: Bool {
         #if os(macOS)
@@ -38,6 +47,44 @@ struct TransactionListView: View {
             }
         }
         .navigationTitle(String(localized: "Transactions"))
+        .confirmationDialog(
+            {
+                // Multi-select can hold exactly one row, and "Delete 1
+                // transactions?" is not a sentence.
+                if case .selected(let count) = pendingDelete, count > 1 {
+                    return String(localized: "Delete \(count) transactions?")
+                }
+                return String(localized: "Delete this transaction?")
+            }(),
+            isPresented: Binding(
+                get: { pendingDelete != nil },
+                set: { if !$0 { pendingDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Delete"), role: .destructive) {
+                guard let pending = pendingDelete, let vm else { return }
+                pendingDelete = nil
+                dependencies.hapticService.warning()
+                Task {
+                    switch pending {
+                    case .single(let id):
+                        await vm.deleteTransaction(id: id)
+                    case .selected:
+                        await vm.deleteSelected()
+                    }
+                    appState.notifyChanged([.transactions, .accounts, .budgets])
+                }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) { pendingDelete = nil }
+        } message: {
+            switch pendingDelete {
+            case .selected(let count) where count > 1:
+                Text(String(localized: "\(count) transactions will be removed permanently and the account balances updated. This cannot be undone."))
+            default:
+                Text(String(localized: "The transaction will be removed permanently and the account balance updated. This cannot be undone."))
+            }
+        }
         .accessibilityIdentifier("transaction-list-root")
         .advertisesHandoff(transactionListHandoffRoute)
         .task {
@@ -301,9 +348,7 @@ struct TransactionListView: View {
                 ToolbarItem(placement: .bottomBar) {
                     HStack {
                         Button(role: .destructive) {
-                            Task {
-                                await vm.deleteSelected()
-                            }
+                            pendingDelete = .selected(count: vm.selectedTransactionIDs.count)
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
@@ -319,9 +364,7 @@ struct TransactionListView: View {
                 ToolbarItem(placement: .automatic) {
                     HStack {
                         Button(role: .destructive) {
-                            Task {
-                                await vm.deleteSelected()
-                            }
+                            pendingDelete = .selected(count: vm.selectedTransactionIDs.count)
                         } label: {
                             Label("Delete \(vm.selectedTransactionIDs.count) selected", systemImage: "trash")
                         }
@@ -398,7 +441,8 @@ struct TransactionListView: View {
             .transactionRowModifiers(
                 vm: vm,
                 transaction: transaction,
-                onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
+                onEdit: { navigateDestination = .editTransaction(id: transaction.id) },
+                onRequestDelete: { pendingDelete = .single($0) }
             )
         } else {
             Button {
@@ -414,7 +458,8 @@ struct TransactionListView: View {
             .transactionRowModifiers(
                 vm: vm,
                 transaction: transaction,
-                onEdit: { navigateDestination = .editTransaction(id: transaction.id) }
+                onEdit: { navigateDestination = .editTransaction(id: transaction.id) },
+                onRequestDelete: { pendingDelete = .single($0) }
             )
         }
     }
@@ -428,7 +473,7 @@ struct TransactionListView: View {
             action: { navigateDestination = .addTransaction }
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .accessibilityIdentifier("transaction-empty-state")
     }
 
@@ -470,6 +515,8 @@ private struct TransactionRowModifier: ViewModifier {
     let vm: TransactionListViewModel
     let transaction: TransactionEntity
     let onEdit: () -> Void
+    /// The row asks; the screen owns the confirmation and does the deleting.
+    let onRequestDelete: (UUID) -> Void
 
     func body(content: Content) -> some View {
         content
@@ -492,20 +539,11 @@ private struct TransactionRowModifier: ViewModifier {
                         appState.notifyChanged([.transactions, .accounts, .budgets])
                     }
                 },
-                onDelete: {
-                    Task {
-                        dependencies.hapticService.warning()
-                        await vm.deleteTransaction(id: transaction.id)
-                        appState.notifyChanged([.transactions, .accounts, .budgets])
-                    }
-                }
+                onDelete: { onRequestDelete(transaction.id) }
             ))
-            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                 Button(role: .destructive) {
-                    Task {
-                        dependencies.hapticService.warning()
-                        await vm.deleteTransaction(id: transaction.id)
-                    }
+                    onRequestDelete(transaction.id)
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }
@@ -528,9 +566,15 @@ private extension View {
     func transactionRowModifiers(
         vm: TransactionListViewModel,
         transaction: TransactionEntity,
-        onEdit: @escaping () -> Void
+        onEdit: @escaping () -> Void,
+        onRequestDelete: @escaping (UUID) -> Void
     ) -> some View {
-        modifier(TransactionRowModifier(vm: vm, transaction: transaction, onEdit: onEdit))
+        modifier(TransactionRowModifier(
+            vm: vm,
+            transaction: transaction,
+            onEdit: onEdit,
+            onRequestDelete: onRequestDelete
+        ))
     }
 }
 

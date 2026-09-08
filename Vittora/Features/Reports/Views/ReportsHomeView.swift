@@ -39,7 +39,7 @@ struct ReportsHomeView: View {
                             ProgressView()
                                 .frame(maxWidth: .infinity)
                                 .padding(VSpacing.cardPadding)
-                                .background(VColors.secondaryBackground)
+                                .background(VColors.secondaryGroupedBackground)
                                 .cornerRadius(VSpacing.cornerRadiusCard)
                         } else if vm.error == nil {
                             summaryCard(vm)
@@ -66,7 +66,7 @@ struct ReportsHomeView: View {
                 }
                 .padding(VSpacing.screenPadding)
             }
-            .background(VColors.background)
+            .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Reports"))
             .navigationDestination(for: ReportType.self) { type in
                 reportView(for: type)
@@ -124,7 +124,7 @@ struct ReportsHomeView: View {
             }
         }
         .padding(VSpacing.cardPadding)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "This month summary"))

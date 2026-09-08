@@ -10,6 +10,10 @@ struct DocumentListView: View {
     @State private var showBatchScan = false
     @State private var showImport = false
     @State private var previewItem: DocumentPreviewItem?
+    /// An attachment is a receipt the user photographed once. Deleting it on a
+    /// single click, with the file gone from disk, was the least recoverable
+    /// delete in the app.
+    @State private var documentToDelete: DocumentEntity?
     @State private var selectedPhoto: PhotosPickerItem?
 
     var body: some View {
@@ -156,12 +160,27 @@ struct DocumentListView: View {
                                     }
                                 }
                             },
-                            onDelete: {
-                                Task { await vm.delete(id: entity.id) }
-                            }
+                            onDelete: { documentToDelete = entity }
                         )
                     }
                 }
+            }
+            .confirmationDialog(
+                String(localized: "Delete this attachment?"),
+                isPresented: Binding(
+                    get: { documentToDelete != nil },
+                    set: { if !$0 { documentToDelete = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button(String(localized: "Delete"), role: .destructive) {
+                    guard let entity = documentToDelete else { return }
+                    documentToDelete = nil
+                    Task { await vm.delete(id: entity.id) }
+                }
+                Button(String(localized: "Cancel"), role: .cancel) { documentToDelete = nil }
+            } message: {
+                Text(String(localized: "The file will be removed from this transaction and deleted. This cannot be undone."))
             }
         }
     }

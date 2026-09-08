@@ -32,8 +32,7 @@ struct TaxProfileFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.body)
-                        .foregroundStyle(VColors.textPrimary)
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -52,9 +51,8 @@ struct TaxProfileFormView: View {
                             }
                         }
                     }
-                    .font(.body)
                     .disabled(!(vm?.canSave ?? false) || (vm?.isSaving ?? false))
-                    .foregroundStyle(VColors.textPrimary)
+                    .vDialogConfirmButton()
                 }
             }
         }
@@ -163,7 +161,7 @@ struct TaxProfileFormView: View {
                             }
                         ))
                     } header: {
-                        Text(String(localized: "Age (for senior citizen slabs)"))
+                        VFormSectionHeader(String(localized: "Age (for senior citizen slabs)"))
                     } footer: {
                         Text(String(localized: "Senior citizens (60+) and super-senior citizens (80+) have higher basic exemption limits under the old regime."))
                     }
@@ -204,7 +202,7 @@ struct TaxProfileFormView: View {
                             }
                         ))
                     } header: {
-                        Text(String(localized: "HRA Exemption"))
+                        VFormSectionHeader(String(localized: "HRA Exemption"))
                     } footer: {
                         Text(String(localized: "HRA exemption uses the minimum of actual HRA, rent minus 10% of salary, and 50%/40% of salary."))
                     }
@@ -218,7 +216,7 @@ struct TaxProfileFormView: View {
                     }
                     .onChange(of: vm.filingStatus) { _, _ in vm.recalculateLive() }
                 } header: {
-                    Text(String(localized: "Filing Status"))
+                    VFormSectionHeader(String(localized: "Filing Status"))
                 } footer: {
                     if vm.filingStatus == .qualifyingSurvivingSpouse {
                         Text(
@@ -262,7 +260,7 @@ struct TaxProfileFormView: View {
                     }
                     .accessibilityElement(children: .combine)
                 } header: {
-                    Text(String(localized: "Retirement & HSA Contributions"))
+                    VFormSectionHeader(String(localized: "Retirement & HSA Contributions"))
                 } footer: {
                     Text(String(localized: "Track year-to-date contributions to see remaining statutory headroom in your estimate."))
                         .foregroundStyle(VColors.textSecondary)
@@ -280,8 +278,13 @@ struct TaxProfileFormView: View {
                                     )
                                     .font(VTypography.caption1.bold())
                                 }
+                                // Decorative: the amounts above and the
+                                // "N remaining" line below already carry this
+                                // value. As its own element it is a 4pt-tall
+                                // interaction target.
                                 ProgressView(value: item.utilizationFraction)
                                     .tint(item.headroom > 0 ? VColors.primary : VColors.warning)
+                                    .accessibilityHidden(true)
                                 Text(
                                     String(
                                         localized: "\(item.headroom.formatted(.currency(code: vm.country.currencyCode))) remaining"
@@ -318,7 +321,7 @@ struct TaxProfileFormView: View {
                     }
                     .onDelete { offsets in vm.removeDeduction(at: offsets) }
                 } header: {
-                    Text(String(localized: "Deductions"))
+                    VFormSectionHeader(String(localized: "Deductions"))
                 } footer: {
                     AddDeductionFooter(country: vm.country, onAdd: { name, amount, section in
                         vm.addDeduction(name: name, amount: amount, section: section)
@@ -336,8 +339,11 @@ struct TaxProfileFormView: View {
                                 )
                                 .font(VTypography.bodyBold)
                             }
+                            // Same as above: the allowed / cap amounts are
+                            // stated in the row directly above this bar.
                             ProgressView(value: Double(truncating: (utilization.allowed / utilization.statutoryCap) as NSDecimalNumber))
                                 .tint(VColors.primary)
+                                .accessibilityHidden(true)
                             if utilization.claimed > utilization.allowed {
                                 Text(String(localized: "Claims above ₹1.5 lakh are capped for tax calculation."))
                                     .font(VTypography.caption1)
@@ -475,7 +481,7 @@ struct TaxProfileFormView: View {
         stacksVertically: Bool
     ) -> some View {
         let amountField = HStack {
-            TextField("0", text: text)
+            TextField("", text: text, prompt: Text("0").foregroundStyle(VColors.placeholderText))
                 #if os(iOS)
                 .keyboardType(.decimalPad)
                 .textContentType(nil)
@@ -553,7 +559,7 @@ private struct AddDeductionSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: VFormSectionHeader(String(localized: "Name"))) {
+                Section(header: VFormSectionHeader(String(localized: "Name"), isRequired: true)) {
                     TextField(String(localized: "e.g. Life Insurance Premium"), text: $name)
                 }
                 if country == .india {
@@ -564,14 +570,17 @@ private struct AddDeductionSheet: View {
                         }
                     }
                 }
-                Section(header: VFormSectionHeader(String(localized: "Amount"))) {
+                Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
                     HStack {
                         Text(country.currencySymbol).foregroundStyle(VColors.textSecondary)
-                        TextField("0", text: $amountString)
+                        TextField("", text: $amountString, prompt: Text("0").foregroundStyle(VColors.placeholderText))
                             #if os(iOS)
                             .keyboardType(.numberPad)
                             .textContentType(nil)
                             #endif
+                            // VoiceOver announced this field as "0" — the
+                            // placeholder was doubling as the label.
+                            .accessibilityLabel(String(localized: "Amount"))
                     }
                 }
             }
@@ -582,6 +591,7 @@ private struct AddDeductionSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
@@ -590,6 +600,7 @@ private struct AddDeductionSheet: View {
                         }
                     }
                     .disabled(!canAdd)
+                    .vDialogConfirmButton()
                 }
             }
         }

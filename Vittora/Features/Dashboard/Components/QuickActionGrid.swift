@@ -60,12 +60,16 @@ struct QuickActionGrid: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             Text(String(localized: "Quick Actions"))
                 .font(VTypography.subheadline)
                 .foregroundColor(VColors.textSecondary)
                 .accessibilityAddTraits(.isHeader)
 
+            // On a card, like every other section's content. This was the one
+            // section whose content sat bare on the page, so the row of
+            // circles read as floating rather than as a block belonging to
+            // the title above it.
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: VSpacing.md) {
                     ForEach(actions) { action in
@@ -77,6 +81,10 @@ struct QuickActionGrid: View {
                 .padding(.horizontal, VSpacing.xxs)
                 .padding(.vertical, VSpacing.xs)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(VSpacing.cardPadding)
+            .background(VColors.secondaryGroupedBackground)
+            .cornerRadius(VSpacing.cornerRadiusCard)
         }
     }
 }

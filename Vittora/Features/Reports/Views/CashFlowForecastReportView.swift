@@ -6,6 +6,13 @@ struct CashFlowForecastReportView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dependencies) private var dependencies
     @Environment(\.currencyCode) private var currencyCode
+
+    /// The projection's own currency, falling back to the display default when
+    /// there are no accounts. Labelling these with the display currency showed
+    /// an INR balance as dollars.
+    private func projectionCurrency(_ vm: CashFlowForecastViewModel) -> String {
+        vm.projectedCurrencyCode ?? currencyCode
+    }
     @State private var vm: CashFlowForecastViewModel?
 
     var body: some View {
@@ -19,13 +26,13 @@ struct CashFlowForecastReportView: View {
                         estimateDisclaimer
                         summaryCards(result, vm: vm)
                         forecastChart(vm)
-                        inputsNote(result)
+                        inputsNote(result, currency: projectionCurrency(vm))
                     }
                 }
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Cash Flow Forecast"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -93,14 +100,16 @@ struct CashFlowForecastReportView: View {
                     summaryColumn(
                         title: String(localized: "Today"),
                         amount: result.startingBalance,
-                        color: VColors.textPrimary
+                        color: VColors.textPrimary,
+                        currency: projectionCurrency(vm)
                     )
                     Spacer()
                     if let day30 = vm.day30Balance {
                         summaryColumn(
                             title: String(localized: "Day 30"),
                             amount: day30,
-                            color: day30 >= result.startingBalance ? VColors.income : VColors.expense
+                            color: day30 >= result.startingBalance ? VColors.income : VColors.expense,
+                            currency: projectionCurrency(vm)
                         )
                         .accessibilityIdentifier("cash-flow-forecast-day-30")
                     }
@@ -109,7 +118,8 @@ struct CashFlowForecastReportView: View {
                         summaryColumn(
                             title: String(localized: "Day 90"),
                             amount: day90,
-                            color: day90 >= result.startingBalance ? VColors.income : VColors.expense
+                            color: day90 >= result.startingBalance ? VColors.income : VColors.expense,
+                            currency: projectionCurrency(vm)
                         )
                     }
                 }
@@ -117,12 +127,17 @@ struct CashFlowForecastReportView: View {
         }
     }
 
-    private func summaryColumn(title: String, amount: Decimal, color: Color) -> some View {
+    private func summaryColumn(
+        title: String,
+        amount: Decimal,
+        color: Color,
+        currency: String
+    ) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(VTypography.caption1)
                 .foregroundStyle(VColors.textSecondary)
-            Text(CurrencyFormatter.format(amount, currencyCode: currencyCode))
+            Text(CurrencyFormatter.format(amount, currencyCode: currency))
                 .font(VTypography.amountSmall)
                 .amountScaling()
                 .foregroundStyle(color)
@@ -140,17 +155,17 @@ struct CashFlowForecastReportView: View {
             TrendAreaChart(
                 dataPoints: vm.chartPoints,
                 color: VColors.primary,
-                currencyCode: currencyCode
+                currencyCode: projectionCurrency(vm)
             )
             .frame(height: 220)
             .padding(VSpacing.md)
-            .background(VColors.secondaryBackground)
+            .background(VColors.secondaryGroupedBackground)
             .cornerRadius(VSpacing.cornerRadiusCard)
             .accessibilityIdentifier("cash-flow-forecast-chart")
         }
     }
 
-    private func inputsNote(_ result: CashFlowForecastResult) -> some View {
+    private func inputsNote(_ result: CashFlowForecastResult, currency: String) -> some View {
         VCard {
             VStack(alignment: .leading, spacing: VSpacing.sm) {
                 Text(String(localized: "How this is calculated"))
@@ -159,7 +174,7 @@ struct CashFlowForecastReportView: View {
 
                 Text(
                     String(
-                        localized: "Average daily discretionary spend: \(CurrencyFormatter.format(result.averageDailyDiscretionarySpend, currencyCode: currencyCode)) (from \(result.historyDayCount) days of history)."
+                        localized: "Average daily discretionary spend: \(CurrencyFormatter.format(result.averageDailyDiscretionarySpend, currencyCode: currency)) (from \(result.historyDayCount) days of history)."
                     )
                 )
                 .font(VTypography.caption1)

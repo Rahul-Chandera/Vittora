@@ -112,7 +112,7 @@ struct RecurringRowView: View {
             }
         }
         .padding(VSpacing.md)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusMD)
         .accessibilityElement(children: .combine)
         .accessibilityHint(String(localized: "Shows recurring transaction details"))

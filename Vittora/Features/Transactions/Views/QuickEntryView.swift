@@ -20,7 +20,10 @@ struct QuickEntryView: View {
                         AmountInputView(
                             amountString: Bindable(vm).amountString,
                             currencyCode: currencyCode,
-                            type: .expense
+                            type: .expense,
+                            // Quick entry exists to type an amount fast, so the
+                            // keyboard should already be up.
+                            autoFocus: true
                         )
                         .padding(VSpacing.lg)
 
@@ -108,6 +111,10 @@ struct QuickEntryView: View {
                                 .background(VColors.primary)
                                 .cornerRadius(VSpacing.cornerRadiusSM)
                         }
+                        // .plain: the label supplies its own appearance. Without it macOS
+                        // draws the standard AppKit button chrome behind it — a second,
+                        // lighter fill around the custom one (see QuickEntryButton).
+                        .buttonStyle(.plain)
                         .disabled(!vm.canSave)
                         .keyboardShortcut(.defaultAction)
                         .padding(VSpacing.lg)

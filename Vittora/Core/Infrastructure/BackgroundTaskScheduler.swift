@@ -24,9 +24,30 @@ final class BackgroundTaskScheduler: Sendable {
     static func register(coordinator: RecurringGenerationCoordinator) {
         let scheduler = BackgroundTaskScheduler(coordinator: coordinator)
 
+        // The launch handler's isolation must match the queue it runs on.
+        //
+        // `register` is called from the App's init, which is @MainActor, so
+        // without this the closure inherits main-actor isolation. BackgroundTasks
+        // then invokes it on its own queue — `using: nil` means a default
+        // BACKGROUND queue, not the main one — and Swift 6's isolation check
+        // traps: EXC_BREAKPOINT in _dispatch_assert_queue_fail, via
+        // swift_task_isCurrentExecutorWithFlags.
+        //
+        // The app is launched into the background specifically to run this task
+        // ("Role: Non UI" in the reports), so it crashed roughly a second after
+        // launch every time iOS scheduled a refresh — meaning recurring
+        // transactions never generated in the background. Present since 1.0.0;
+        // invisible because the crash happens with no UI on screen.
+        //
+        // Fixed by running the handler ON the main queue rather than by
+        // stripping the closure's isolation: BGAppRefreshTask is not Sendable,
+        // so a @Sendable closure cannot hand it to the Task that does the work.
+        // Passing `.main` makes the inherited assumption true instead. The
+        // handler only spawns a Task, so this puts no real work on the main
+        // queue, and the actual generation still runs on the coordinator actor.
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: recurringTaskID,
-            using: nil
+            using: .main
         ) { task in
             guard let refreshTask = task as? BGAppRefreshTask else {
                 task.setTaskCompleted(success: false)

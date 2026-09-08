@@ -6,7 +6,7 @@ struct EstimateTaxUseCase: Sendable {
     private let calculators: [TaxCountry: any TaxCalculatorProtocol]
 
     nonisolated init(calculators: [any TaxCalculatorProtocol] = [IndiaTaxCalculator(), USTaxCalculator()]) {
-        self.calculators = Dictionary(uniqueKeysWithValues: calculators.map { ($0.country, $0) })
+        self.calculators = Dictionary(calculators.map { ($0.country, $0) }, uniquingKeysWith: { first, _ in first })
     }
 
     func execute(profile: TaxProfile) -> TaxEstimate {

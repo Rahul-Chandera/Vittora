@@ -5,29 +5,42 @@ struct RecentTransactionsList: View {
     @Environment(\.colorScheme) private var colorScheme
 
     let transactions: [TransactionEntity]
+    /// Category name per transaction id — see RecentTransactionRow's label.
+    var categoryNames: [UUID: String] = [:]
     let onSeeAll: () -> Void
     let onSelect: (UUID) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             HStack {
+                // textSecondary, as every other section title on this screen
+                // uses. This one was near-black, so the headers did not read
+                // as one family.
                 Text(String(localized: "Recent Transactions"))
                     .font(VTypography.subheadline)
-                    .foregroundColor(highContrastText)
+                    .foregroundColor(VColors.textSecondary)
                 Spacer()
                 Button(action: onSeeAll) {
+                    // Matched to the Accounts section's "Manage": same size,
+                    // same accent. It was bodyBold and near-black, which made
+                    // two identical affordances look like different controls.
                     HStack(spacing: VSpacing.xxs) {
                         Text(String(localized: "See All"))
-                            .font(VTypography.bodyBold)
-                            .foregroundColor(highContrastText)
+                            .font(VTypography.callout)
+                            .foregroundStyle(VColors.primaryOnSurface)
                         Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundColor(highContrastText)
+                            .font(.footnote)
+                            .foregroundStyle(VColors.primaryOnSurface)
                             .accessibilityHidden(true)
                     }
                 }
-                .frame(minWidth: 44, minHeight: 44)
+                // Grow the tap target, then reclaim the space it would add.
+                // At minHeight 44 the header ROW became 44pt tall, so the gap
+                // under a title with a button was twice that of one without —
+                // "Budget" and "Recent Transactions" against "Quick Actions".
+                .padding(.vertical, VSpacing.lg)
                 .contentShape(Rectangle())
+                .padding(.vertical, -VSpacing.lg)
                 .buttonStyle(.plain)
                 .accessibilityLabel(String(localized: "See all transactions"))
                 .accessibilityHint(String(localized: "Opens the Transactions tab"))
@@ -42,7 +55,10 @@ struct RecentTransactionsList: View {
             } else {
                 VStack(spacing: VSpacing.xs) {
                     ForEach(transactions) { transaction in
-                        RecentTransactionRow(transaction: transaction) {
+                        RecentTransactionRow(
+                            transaction: transaction,
+                            categoryName: categoryNames[transaction.id]
+                        ) {
                             onSelect(transaction.id)
                         }
                         if transaction.id != transactions.last?.id {
@@ -52,7 +68,7 @@ struct RecentTransactionsList: View {
                     }
                 }
                 .padding(VSpacing.md)
-                .background(VColors.secondaryBackground)
+                .background(VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusCard)
             }
         }
@@ -65,6 +81,7 @@ struct RecentTransactionsList: View {
 
 private struct RecentTransactionRow: View {
     let transaction: TransactionEntity
+    let categoryName: String?
     let onTap: () -> Void
     @Environment(\.currencyCode) private var currencyCode
     @Environment(\.colorScheme) private var colorScheme
@@ -73,7 +90,7 @@ private struct RecentTransactionRow: View {
         Button(action: onTap) {
             HStack(spacing: VSpacing.md) {
                 Circle()
-                    .fill(VColors.tertiaryBackground)
+                    .fill(VColors.secondaryBackground)
                     .frame(width: 36, height: 36)
                     .overlay {
                         Image(systemName: typeIcon(for: transaction.type))
@@ -83,26 +100,53 @@ private struct RecentTransactionRow: View {
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                    Text(transaction.note ?? String(localized: "Transaction"))
-                        .font(VTypography.bodyBold)
+                    // Note, else the category, else the generic word. Falling
+                    // straight to "Transaction" made every row on the Dashboard
+                    // read identically while the Transactions list named the
+                    // category for the same rows.
+                    Text(transaction.note
+                         ?? categoryName
+                         ?? String(localized: "Transaction"))
+                        .font(VTypography.title3)
                         .foregroundColor(highContrastText)
                         .adaptiveLineLimit(1)
                         .adaptiveMinimumScaleFactor(0.7)
                         .accessibilityHidden(true)
 
+                    // Secondary metadata: caption weight and colour. It was
+                    // bodyBold in the title's own colour, so the date read as
+                    // loudly as the transaction name beside it.
                     Text(transaction.date.formatted(.dateTime.month(.abbreviated).day()))
-                        .font(VTypography.bodyBold)
-                        .foregroundColor(highContrastText)
+                        .font(VTypography.callout)
+                        .foregroundColor(VColors.textSecondary)
                         .accessibilityIdentifier("dashboard-recent-date-\(transaction.id.uuidString)")
                         .accessibilityHidden(true)
                 }
 
                 Spacer()
 
+                // Semantic amount colour, matching TransactionRowCell and the
+                // This Month card. Both clear AA on a white card: income
+                // #1B7A36 is 5.41:1 and expense #C5221F is 5.80:1.
+                // Sized up a tier. The amount was amountCaption — .callout, a
+                // step SMALLER than the row's own title — so the figure that
+                // matters most was the least readable thing in the card. Title
+                // and amount now share the title3 tier, with the date a step
+                // below as secondary metadata.
                 Text(CurrencyFormatter.formatSigned(transaction.amount, type: transaction.type, currencyCode: currencyCode))
-                    .font(VTypography.amountCaption)
-                    .foregroundColor(highContrastText)
-                    .amountScaling()
+                    .font(VTypography.amountSmall)
+                    .foregroundColor(transaction.type == .income ? VColors.income : VColors.expense)
+                    // 0.85, not the default 0.5. Measured from a screenshot,
+                    // the amount was rendering at 60% of the title's glyph
+                    // height despite both asking for title3 — in this narrow
+                    // column it was the side that gave way. The figure is the
+                    // point of the row, so it barely shrinks; the title
+                    // truncates instead.
+                    .amountScaling(0.85)
+                    // Last in the chain: layoutPriority applies to the view it
+                    // is attached to, so placing it before amountScaling left
+                    // it on an inner view and the outer one still yielded.
+                    .layoutPriority(1)
                     .accessibilityHidden(true)
             }
             .padding(.vertical, VSpacing.xs)
