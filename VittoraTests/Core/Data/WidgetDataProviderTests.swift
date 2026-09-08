@@ -31,6 +31,43 @@ struct WidgetDataProviderTests {
         }
     }
 
+    /// Two categories sharing an id must not kill the app.
+    ///
+    /// Reported from a real iPhone: `Task 27: Fatal error: Duplicate values
+    /// for key` at the line building `categoriesByID`.
+    /// `Dictionary(uniqueKeysWithValues:)` traps on a repeated key, and
+    /// SDCategory.id is a plain UUID property — not @Attribute(.unique) — so
+    /// nothing in the store prevents two rows sharing one. DefaultDataSeeder
+    /// already carries duplicate-cleanup logic for exactly this, which is the
+    /// clue that duplicates are a state the app really reaches: the same
+    /// defaults seeded on two devices, merged by CloudKit, which does not
+    /// enforce uniqueness either.
+    ///
+    /// The widget path is where it surfaced, but the same trapping initialiser
+    /// was on thirty-one code paths.
+    @Test("duplicate category ids do not trap the widget snapshot")
+    func duplicateCategoryIDsDoNotTrap() async throws {
+        try await withPinnedCurrency {
+            let (provider, container) = try makeProvider()
+            let context = ModelContext(container)
+
+            let sharedID = UUID()
+            for name in ["Groceries", "Groceries (merged copy)"] {
+                let duplicate = SDCategory()
+                duplicate.id = sharedID
+                duplicate.name = name
+                duplicate.typeRawValue = CategoryType.expense.rawValue
+                context.insert(duplicate)
+            }
+            try context.save()
+
+            // Confirmed reproducing: without the fix this line traps with
+            // "Fatal error: Duplicate values for key", the reported crash.
+            let snapshot = try await provider.budgetRemainingSnapshot()
+            #expect(snapshot.currencyCode == "USD")
+        }
+    }
+
     private func restore(_ key: String, _ value: String?, on defaults: UserDefaults) {
         if let value {
             defaults.set(value, forKey: key)

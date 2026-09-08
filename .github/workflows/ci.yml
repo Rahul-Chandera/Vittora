@@ -63,19 +63,23 @@ jobs:
       - name: make build-ios
         run: make build-ios
 
-      # After build-ios: the check reads the compiler's .stringsdata, which only
-      # exists once something has been compiled.
-      - name: Localization coverage
-        run: DERIVED=.build-ios Scripts/ci/check-localization-coverage.sh --list
-
-      # Same reason as above: reads the watch target's .stringsdata, which
-      # `make build-ios` produces because the watch app is embedded. This is
-      # the check that would have caught the watch shipping unlocalized.
+      # Reads the watch target's .stringsdata, which `make build-ios` produces
+      # because the watch app is embedded. This is the check that would have
+      # caught the watch shipping unlocalized.
       - name: Watch string catalogue in sync
         run: DERIVED=.build-ios Scripts/ci/sync-watch-strings.py --check
 
       - name: make build-macos
         run: make build-macos
+
+      # Deliberately after BOTH builds. The check reads the compiler's
+      # .stringsdata, and a string inside `#if os(macOS)` is never compiled by
+      # the iOS build — so an iOS-only scan cannot see it at all. Running it
+      # against .build-ios alone let "Running on macOS" sit in the catalogue
+      # untranslated and nearly shipped the macOS ShareSheet strings the same
+      # way. Both paths, or the gap silently reopens.
+      - name: Localization coverage
+        run: DERIVED=.build-ios:.build-macos Scripts/ci/check-localization-coverage.sh --list
 
       - name: make test
         run: make test

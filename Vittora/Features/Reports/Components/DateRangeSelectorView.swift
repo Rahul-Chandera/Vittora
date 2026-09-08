@@ -117,7 +117,7 @@ struct DateRangeSelectorView: View {
                 .foregroundColor(isSelected ? .white : VColors.textPrimary)
                 .padding(.horizontal, VSpacing.md)
                 .padding(.vertical, VSpacing.sm)
-                .background(isSelected ? VColors.primary : VColors.secondaryBackground)
+                .background(isSelected ? VColors.primary : VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusPill)
         }
         .buttonStyle(.plain)

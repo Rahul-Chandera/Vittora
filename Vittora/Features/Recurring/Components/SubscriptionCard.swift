@@ -115,7 +115,7 @@ struct SubscriptionCard: View {
             }
         }
         .padding(VSpacing.lg)
-        .background(VColors.secondaryBackground)
+        .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusMD)
         .overlay(
             RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD)

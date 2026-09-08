@@ -92,13 +92,26 @@ public enum EmergencyFundMath {
         )
     }
 
+    /// The fund total, counted in a single currency.
+    ///
+    /// Accounts carry their own `currencyCode` and there are no exchange rates,
+    /// so adding balances across currencies produced a total that was wrong by
+    /// the FX factor — the same defect fixed in CalculateNetWorthUseCase and
+    /// CashFlowForecastUseCase, here in a third place.
+    ///
+    /// Owner decision (2026-08-17): savings goals are treated as being in the
+    /// display currency — SavingsGoalEntity has no currencyCode of its own — and
+    /// contributing accounts are scoped to match, so only accounts held in that
+    /// currency count. The picker is constrained to the same set, so a user
+    /// cannot select an account whose balance would then be silently ignored.
     public nonisolated static func currentFund(
         accounts: [AccountEntity],
         selectedAccountIDs: Set<UUID>,
-        goals: [SavingsGoalEntity]
+        goals: [SavingsGoalEntity],
+        currencyCode: String
     ) -> Decimal {
         let accountTotal = accounts
-            .filter { selectedAccountIDs.contains($0.id) }
+            .filter { selectedAccountIDs.contains($0.id) && $0.currencyCode == currencyCode }
             .reduce(Decimal(0)) { $0 + $1.balance }
         let goalTotal = goals
             .filter(\.isEmergencyFund)

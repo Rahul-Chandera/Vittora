@@ -7,7 +7,7 @@ struct TopCategoriesChart: View {
     var currencyCode: String = CurrencyDefaults.code
 
     var body: some View {
-        VStack(alignment: .leading, spacing: VSpacing.md) {
+        VStack(alignment: .leading, spacing: VSpacing.sectionHeaderGap) {
             Text(String(localized: "Top Categories"))
                 .font(VTypography.subheadline)
                 .foregroundColor(VColors.textSecondary)
@@ -26,7 +26,7 @@ struct TopCategoriesChart: View {
                     legend
                 }
                 .padding(VSpacing.md)
-                .background(VColors.secondaryBackground)
+                .background(VColors.secondaryGroupedBackground)
                 .cornerRadius(VSpacing.cornerRadiusCard)
             }
         }
@@ -62,16 +62,19 @@ struct TopCategoriesChart: View {
                         .accessibilityHidden(true)
 
                     Text(item.category.displayName)
-                        .font(VTypography.caption2)
+                        .font(VTypography.body)
                         .foregroundColor(VColors.textPrimary)
                         .adaptiveLineLimit(1)
 
                     Spacer()
 
+                    // Both name and amount sat at caption here — 10pt, the
+                    // smallest tier in the app, for the card's only data.
                     Text(CurrencyFormatter.formatCompact(item.amount, currencyCode: currencyCode))
-                        .font(VTypography.caption2Bold)
+                        .font(VTypography.amountSmall)
                         .foregroundColor(VColors.textSecondary)
-                        .amountScaling()
+                        .amountScaling(0.85)
+                        .layoutPriority(1)
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(item.category.displayName)

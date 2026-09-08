@@ -37,7 +37,7 @@ final class SplitGroupDetailViewModel {
             async let allPayees = payeeRepository.fetchAll()
 
             let (exp, payees) = try await (fetchedExpenses, allPayees)
-            let payeeMap = Dictionary(uniqueKeysWithValues: payees.map { ($0.id, $0.name) })
+            let payeeMap = Dictionary(payees.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
 
             expenses = exp
             memberNames = group.memberIDs.reduce(into: [:]) { dict, id in

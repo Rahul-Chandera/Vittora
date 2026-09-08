@@ -40,8 +40,8 @@ struct EvaluateIndiaComplianceTipsUseCase: Sendable {
                 incomeSourceType: profile.incomeSourceType,
                 annualIncome: profile.annualIncome,
                 transactions: transactions,
-                accountsByID: Dictionary(uniqueKeysWithValues: accounts.map { ($0.id, $0) }),
-                categoriesByID: Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) }),
+                accountsByID: Dictionary(accounts.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first }),
+                categoriesByID: Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first }),
                 calendar: calendar
             )
         )

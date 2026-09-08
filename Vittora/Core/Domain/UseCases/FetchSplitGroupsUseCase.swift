@@ -9,7 +9,7 @@ struct FetchSplitGroupsUseCase: Sendable {
     func execute() async throws -> [SplitGroupSummary] {
         let groups = try await splitGroupRepository.fetchAllGroups()
         let allPayees = try await payeeRepository.fetchAll()
-        let payeeMap = Dictionary(uniqueKeysWithValues: allPayees.map { ($0.id, $0.name) })
+        let payeeMap = Dictionary(allPayees.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
 
         return try await withThrowingTaskGroup(of: SplitGroupSummary.self) { taskGroup in
             for group in groups {

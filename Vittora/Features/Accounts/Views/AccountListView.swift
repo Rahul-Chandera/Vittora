@@ -128,12 +128,7 @@ struct AccountListView: View {
         List {
             // Net Worth card
             Section {
-                NetWorthCard(
-                    netWorth: vm.netWorth,
-                    totalAssets: vm.totalAssets,
-                    totalLiabilities: vm.totalLiabilities,
-                    currencyCode: currencyCode
-                )
+                NetWorthCard(summary: vm.netWorthSummary, currencyCode: currencyCode)
                 .listRowInsets(EdgeInsets(
                     top: VSpacing.sm,
                     leading: VSpacing.screenPadding,
@@ -207,11 +202,17 @@ struct AccountListView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            VColors.background
-                .frame(height: 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar. safeAreaPadding, not
+        // safeAreaInset: an inset paints an opaque view OVER the list, and
+        // rows passing behind it are sliced mid-glyph. The Appearance
+        // screen's Live Preview card was cut that way, and the audit's
+        // contrast sampler reads the surviving sliver as failing text.
+        // Padding reserves the same space without drawing.
+        //
+        // The plain ScrollView screens keep their inset: removing it there
+        // lets content render in the gutter below the tab bar, which the
+        // audit reports as text with no accessible element.
+        .safeAreaPadding(.bottom, 72)
         .tint(.primary)
         #if os(iOS)
         .listStyle(.insetGrouped)

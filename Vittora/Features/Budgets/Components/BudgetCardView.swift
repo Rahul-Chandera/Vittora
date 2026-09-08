@@ -3,7 +3,6 @@ import VittoraCore
 
 struct BudgetCardView: View {
     let budget: BudgetEntity
-    let progress: BudgetProgress?
     let category: CategoryEntity?
     @Environment(\.currencyCode) private var currencyCode
 
@@ -122,7 +121,6 @@ struct BudgetCardView: View {
                 period: .monthly,
                 startDate: .now
             ),
-            progress: nil,
             category: CategoryEntity(
                 id: UUID(),
                 name: "Groceries",
@@ -140,7 +138,6 @@ struct BudgetCardView: View {
                 period: .weekly,
                 startDate: .now
             ),
-            progress: nil,
             category: CategoryEntity(
                 id: UUID(),
                 name: "Dining",

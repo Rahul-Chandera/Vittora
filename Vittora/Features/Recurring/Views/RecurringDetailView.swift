@@ -16,7 +16,7 @@ struct RecurringDetailView: View {
 
     var body: some View {
         ZStack {
-            VColors.background.ignoresSafeArea()
+            VColors.groupedBackground.ignoresSafeArea()
 
             if let rule = rule {
                 ScrollView {
@@ -97,7 +97,7 @@ struct RecurringDetailView: View {
                             }
                         }
                         .padding(VSpacing.lg)
-                        .background(VColors.secondaryBackground)
+                        .background(VColors.secondaryGroupedBackground)
                         .cornerRadius(VSpacing.cornerRadiusMD)
 
                         // Pause/Resume Button
@@ -114,6 +114,10 @@ struct RecurringDetailView: View {
                                 .foregroundColor(VColors.textPrimary)
                                 .cornerRadius(VSpacing.cornerRadiusMD)
                             }
+                            // .plain: the label supplies its own appearance. Without it macOS
+                            // draws the standard AppKit button chrome behind it — a second,
+                            // lighter fill around the custom one (see QuickEntryButton).
+                            .buttonStyle(.plain)
 
                             Button(action: { showEditSheet = true }) {
                                 Label("Edit", systemImage: "pencil")
@@ -124,6 +128,10 @@ struct RecurringDetailView: View {
                                     .foregroundColor(VColors.textPrimary)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
                             }
+                            // .plain: the label supplies its own appearance. Without it macOS
+                            // draws the standard AppKit button chrome behind it — a second,
+                            // lighter fill around the custom one (see QuickEntryButton).
+                            .buttonStyle(.plain)
                             .accessibilityIdentifier("recurring-edit-button")
                         }
 
@@ -179,7 +187,7 @@ struct RecurringDetailView: View {
                                                 .foregroundColor(VColors.expense)
                                         }
                                         .padding(VSpacing.md)
-                                        .background(VColors.secondaryBackground)
+                                        .background(VColors.secondaryGroupedBackground)
                                         .cornerRadius(VSpacing.cornerRadiusMD)
                                     }
                                 }

@@ -27,7 +27,7 @@ struct SecurityAuditLogView: View {
                 }
                 .padding(VSpacing.screenPadding)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(VColors.background)
+                .background(VColors.groupedBackground)
             } else {
                 List(entries.reversed()) { entry in
                     VStack(alignment: .leading, spacing: VSpacing.sm) {
@@ -47,7 +47,9 @@ struct SecurityAuditLogView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            VColors.background
+            // Clearance for the floating tab bar, painted in THIS screen's page
+            // colour — plain background, because this screen is not grouped.
+            VColors.groupedBackground
                 .frame(height: 72)
                 .allowsHitTesting(false)
         }

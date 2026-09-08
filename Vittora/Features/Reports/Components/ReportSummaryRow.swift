@@ -40,7 +40,7 @@ struct ReportSummaryRow: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)
-                        .fill(VColors.tertiaryBackground)
+                        .fill(VColors.secondaryBackground)
                         .frame(height: 4)
 
                     RoundedRectangle(cornerRadius: VSpacing.cornerRadiusPill)

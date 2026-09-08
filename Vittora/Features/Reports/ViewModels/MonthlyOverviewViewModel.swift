@@ -19,11 +19,17 @@ final class MonthlyOverviewViewModel {
         self.useCase = useCase
     }
 
-    func load() async {
+    /// `year: nil` keeps the rolling 12-month window (Monthly Overview);
+    /// passing a year scopes to that calendar year (Annual Summary).
+    func load(year: Int? = nil) async {
         isLoading = true
         error = nil
         do {
-            monthlyData = try await useCase.execute(monthCount: 12)
+            if let year {
+                monthlyData = try await useCase.execute(year: year)
+            } else {
+                monthlyData = try await useCase.execute(monthCount: 12)
+            }
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load the monthly report right now.")

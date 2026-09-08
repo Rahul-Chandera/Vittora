@@ -27,7 +27,7 @@ struct CashFlowReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .background(VColors.background)
+        .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Cash Flow"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -254,6 +254,11 @@ struct CashFlowReportView: View {
             Text(String(localized: "Income and expense transactions will create your cash-flow view."))
         }
         .padding(VSpacing.xxxl)
+        // Centre in the viewport, not pushed down from the top. This sits in a
+        // ScrollView, so maxHeight: .infinity alone does nothing — the content
+        // has to fill the scroll container's height first for the empty state
+        // to have anything to centre within.
+        .containerRelativeFrame(.vertical, alignment: .center)
     }
 
     private var cashFlowReportErrorBinding: Binding<String?> {

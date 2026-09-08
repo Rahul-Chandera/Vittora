@@ -127,7 +127,11 @@ struct PayeeDetailView: View {
             if !vm.recentTransactions.isEmpty {
                 Section(header: VFormSectionHeader(String(localized: "Recent Transactions"))) {
                     ForEach(vm.recentTransactions) { tx in
-                        NavigationLink(value: NavigationDestination.transactionDetail(id: tx.id)) {
+                        // See BudgetListView: a value-based link inside a
+                        // List does not activate on macOS.
+                        NavigationLink {
+                            NavigationDestinationView(destination: .transactionDetail(id: tx.id))
+                        } label: {
                             HStack(spacing: VSpacing.sm) {
                                 VStack(alignment: .leading, spacing: VSpacing.xxs) {
                                     Text(tx.note ?? "Transaction")

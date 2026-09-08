@@ -54,6 +54,21 @@ final class DebtDetailViewModel {
         isLoading = false
     }
 
+    /// Removes a debt entry outright.
+    ///
+    /// Distinct from settling: settling records that the money came back and
+    /// keeps the history, whereas this erases the entry as though it were never
+    /// recorded. Only for entries logged by mistake.
+    func delete(debtID: UUID) async {
+        error = nil
+        do {
+            try await debtRepository.delete(debtID)
+            await load()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
     func settle(debtID: UUID, amount: Decimal, accountID: UUID?) async {
         error = nil
         do {

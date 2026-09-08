@@ -86,40 +86,30 @@ struct TransactionEntityTests {
 
     @Test("Equatable conformance")
     func testEquatable() {
+        // Value equality: same id AND same content. `date` is pinned because it
+        // defaults to .now, so two fixtures built a moment apart differ.
         let id = UUID()
-        let entity1 = TransactionEntity(
-            id: id,
-            amount: Decimal(50.0),
-            type: .expense
-        )
-        let entity2 = TransactionEntity(
-            id: id,
-            amount: Decimal(50.0),
-            type: .expense
-        )
-        let entity3 = TransactionEntity(
-            id: UUID(),
-            amount: Decimal(50.0),
-            type: .expense
-        )
+        let when = Date(timeIntervalSince1970: 1_700_000_000)
+        let entity1 = TransactionEntity(id: id, amount: Decimal(50.0), date: when, type: .expense)
+        let entity2 = TransactionEntity(id: id, amount: Decimal(50.0), date: when, type: .expense)
+        let entity3 = TransactionEntity(id: UUID(), amount: Decimal(50.0), date: when, type: .expense)
 
         #expect(entity1 == entity2)
         #expect(entity1 != entity3)
+
+        // A changed amount must NOT compare equal, or SwiftUI skips re-rendering
+        // the row and it shows a stale figure until relaunch.
+        let edited = TransactionEntity(id: id, amount: Decimal(75.0), date: when, type: .expense)
+        #expect(entity1 != edited)
     }
 
     @Test("Hashable conformance")
     func testHashable() {
+        // Hash is id-only by design; see the note on the entity.
         let id = UUID()
-        let entity1 = TransactionEntity(
-            id: id,
-            amount: Decimal(50.0),
-            type: .expense
-        )
-        let entity2 = TransactionEntity(
-            id: id,
-            amount: Decimal(50.0),
-            type: .expense
-        )
+        let when = Date(timeIntervalSince1970: 1_700_000_000)
+        let entity1 = TransactionEntity(id: id, amount: Decimal(50.0), date: when, type: .expense)
+        let entity2 = TransactionEntity(id: id, amount: Decimal(50.0), date: when, type: .expense)
 
         var set: Set<TransactionEntity> = [entity1]
         set.insert(entity2)

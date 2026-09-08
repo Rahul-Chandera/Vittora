@@ -81,6 +81,32 @@ Totals: **185 keys added** — 131 + 54 translated, and 38 marked
 5. **Rewrote the check to read `.stringsdata`** instead of grepping source, and
    wired it into CI *after* `make build-ios` (it needs a compile to exist).
 
+## A third way strings escaped: platform-conditional code (2026-08-16)
+
+The `.stringsdata` rewrite closed the regex hole but left a structural one. The
+gate ran against `.build-ios` only, and a string inside `#if os(macOS)` is never
+compiled by the iOS build — so it produces no `.stringsdata` entry and the gate
+cannot see it. Not "missed": invisible.
+
+Found when `ShareSheet` gained a macOS text branch. Running the gate against
+`.build-macos` reported the two new keys *and* a pre-existing one,
+`"Running on macOS"` in a `#Preview`, whose iOS twin two lines above already used
+`Text(verbatim:)` while the macOS branch did not.
+
+`DERIVED` now takes a colon-separated list and CI runs
+`DERIVED=.build-ios:.build-macos` after **both** builds. Keys are unioned, so a
+string only has to be reachable from one platform. A listed path with no
+`.stringsdata` is a hard error (exit 2) rather than a silent skip — otherwise a
+missing macOS build would turn straight back into a green run.
+
+Confirmed by deleting a macOS-only key from the catalogue: the iOS-only scan
+exits 0, the two-build scan exits 1 and names it.
+
+Watch out for: the gate globs *every* `.stringsdata` under each path, including
+stale slices from earlier builds. A leftover x86_64 slice once reported two keys
+as missing that were in fact already fixed. CI checks out clean, so this only
+bites locally.
+
 ## Verified
 
 - `Scripts/ci/check-localization-coverage.sh` → 0 missing, 0 untranslated.
@@ -94,5 +120,6 @@ Totals: **185 keys added** — 131 + 54 translated, and 38 marked
 - [x] `Scripts/ci/check-localization-coverage.sh` exits 0 (now driven by the compiler's `.stringsdata`, not a regex).
 - [x] Preview and fixture strings carry `"shouldTranslate": false` rather than being translated.
 - [ ] **STILL OPEN:** a Hindi and a Spanish speaker should read the new entries — 185 strings of user-facing product text, authored without native review.
-- [x] The script runs in CI / build-and-test, after `make build-ios`.
+- [x] The script runs in CI / build-and-test, after **both** `make build-ios`
+      and `make build-macos`, so `#if os(macOS)` strings are covered.
 - [x] hi/es sets fully re-captured and the marketing sets regenerated.

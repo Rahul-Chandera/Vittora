@@ -68,3 +68,6 @@ fastlane/test_output
 
 # Local verification artifacts (screenshots, ad-hoc exports)
 /verification/
+
+# macOS
+.DS_Store

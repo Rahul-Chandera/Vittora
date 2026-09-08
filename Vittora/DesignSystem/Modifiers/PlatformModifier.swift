@@ -106,7 +106,7 @@ extension View {
                 .font(VTypography.body)
                 .foregroundColor(VColors.textSecondary)
             #elseif os(macOS)
-            Text("Running on macOS")
+            Text(verbatim: "Running on macOS")
                 .font(VTypography.body)
                 .foregroundColor(VColors.textSecondary)
             #endif

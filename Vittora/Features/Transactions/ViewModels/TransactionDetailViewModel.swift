@@ -5,21 +5,32 @@ import VittoraCore
     var transaction: TransactionEntity?
     var relatedTransactions: [TransactionEntity] = []
     var editHistory: [TransactionEditRecord] = []
+    /// Resolved names for the transaction's category and account. The detail
+    /// screen showed neither, so you could not tell what a transaction was
+    /// filed under or which account it came out of.
+    var categoryName: String?
+    var accountName: String?
     var isLoading = false
     var error: String?
 
     private let fetchUseCase: FetchTransactionsUseCase
     private let deleteUseCase: DeleteTransactionUseCase
     private let editHistoryStore: any TransactionEditHistoryStoring
+    private let categoryRepository: any CategoryRepository
+    private let accountRepository: any AccountRepository
 
     init(
         fetchUseCase: FetchTransactionsUseCase,
         deleteUseCase: DeleteTransactionUseCase,
-        editHistoryStore: any TransactionEditHistoryStoring
+        editHistoryStore: any TransactionEditHistoryStoring,
+        categoryRepository: any CategoryRepository,
+        accountRepository: any AccountRepository
     ) {
         self.fetchUseCase = fetchUseCase
         self.deleteUseCase = deleteUseCase
         self.editHistoryStore = editHistoryStore
+        self.categoryRepository = categoryRepository
+        self.accountRepository = accountRepository
     }
 
     func loadTransaction(id: UUID) async {
@@ -35,6 +46,20 @@ import VittoraCore
             }
             transaction = found
             editHistory = (try? editHistoryStore.fetch(for: id)) ?? []
+
+            // Names are resolved here rather than in the view so a missing
+            // category or account simply hides its row instead of showing a
+            // raw UUID or an empty label.
+            if let categoryID = found.categoryID {
+                categoryName = try? await categoryRepository.fetchByID(categoryID)?.name
+            } else {
+                categoryName = nil
+            }
+            if let accountID = found.accountID {
+                accountName = try? await accountRepository.fetchByID(accountID)?.name
+            } else {
+                accountName = nil
+            }
 
             // Load related transactions (same payee, same account, within 30 days)
             if let payeeID = found.payeeID, let accountID = found.accountID {

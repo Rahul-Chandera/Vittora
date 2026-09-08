@@ -119,7 +119,11 @@ struct AccountDetailView: View {
             if !vm.recentTransactions.isEmpty {
                 Section(header: VFormSectionHeader(String(localized: "Recent Transactions"))) {
                     ForEach(vm.recentTransactions) { tx in
-                        NavigationLink(value: NavigationDestination.transactionDetail(id: tx.id)) {
+                        // See BudgetListView: a value-based link inside a
+                        // List does not activate on macOS.
+                        NavigationLink {
+                            NavigationDestinationView(destination: .transactionDetail(id: tx.id))
+                        } label: {
                             TransactionRowCell(transaction: tx)
                         }
                     }

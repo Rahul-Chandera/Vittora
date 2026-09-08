@@ -40,8 +40,7 @@ struct AccountFormView: View {
             if showsCancelButton {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
-                        .font(.body)
-                        .foregroundStyle(VColors.textPrimary)
+                    .vDialogCancelButton()
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
@@ -49,8 +48,7 @@ struct AccountFormView: View {
                     Task { await save() }
                 }
                 .disabled(viewModel?.canSave != true || isSaving)
-                .font(.body)
-                .foregroundStyle(VColors.textPrimary)
+                .vDialogConfirmButton()
             }
         }
         .task {
@@ -137,7 +135,7 @@ struct AccountFormView: View {
                         } label: {
                             ZStack {
                                 Circle()
-                                    .fill(VColors.tertiaryBackground)
+                                    .fill(VColors.secondaryBackground)
                                     .frame(width: 44, height: 44)
                                     .overlay {
                                         if vm.selectedIcon == iconName {
@@ -167,7 +165,7 @@ struct AccountFormView: View {
                 }
             }
         }
-        .tint(VColors.textPrimary)
+        .tint(VColors.textCursor)
     }
 
     private func billingDayPicker(title: String, selection: Binding<Int?>) -> some View {

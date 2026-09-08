@@ -12,7 +12,7 @@ struct FetchDebtLedgerUseCase: Sendable {
         let (outstandingDebts, allPayees) = try await (outstandingDebtsTask, allPayeesTask)
 
         // O(1) payee lookup instead of O(n) linear scan per entry
-        let payeeByID: [UUID: PayeeEntity] = Dictionary(uniqueKeysWithValues: allPayees.map { ($0.id, $0) })
+        let payeeByID: [UUID: PayeeEntity] = Dictionary(allPayees.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
         var payeeDebts: [UUID: [DebtEntry]] = [:]
         for debt in outstandingDebts {

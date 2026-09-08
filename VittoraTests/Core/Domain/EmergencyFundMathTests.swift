@@ -114,11 +114,64 @@ struct EmergencyFundMathTests {
             currentAmount: 1_800
         )
 
+        // Same expectation, expressed through the currency-scoped signature.
+        // These accounts use the default currency, so nothing is excluded.
         #expect(EmergencyFundMath.currentFund(
             accounts: [selected, ignored],
             selectedAccountIDs: [selected.id],
-            goals: [fundGoal, otherGoal]
+            goals: [fundGoal, otherGoal],
+            currencyCode: CurrencyDefaults.code
         ) == 13_700)
+    }
+
+    /// The fund is counted in one currency.
+    ///
+    /// This was the third place summing balances across currencies, after
+    /// CalculateNetWorthUseCase and CashFlowForecastUseCase. Owner decision
+    /// (2026-08-17): goals count as display-currency — SavingsGoalEntity has no
+    /// currencyCode — and contributing accounts are scoped to match.
+    @Test("an account in another currency is not added to the fund")
+    func foreignCurrencyAccountIsExcluded() {
+        let home = AccountEntity(name: "Savings", type: .bank, balance: 4_200, currencyCode: "USD")
+        let foreign = AccountEntity(name: "ICICI", type: .bank, balance: 100_000, currencyCode: "INR")
+        let fundGoal = SavingsGoalEntity(
+            name: "Buffer",
+            targetAmount: 15_000,
+            currentAmount: 9_500,
+            isEmergencyFund: true
+        )
+
+        let total = EmergencyFundMath.currentFund(
+            accounts: [home, foreign],
+            selectedAccountIDs: [home.id, foreign.id],
+            goals: [fundGoal],
+            currencyCode: "USD"
+        )
+
+        // 4_200 + 9_500, with the INR balance left out entirely.
+        #expect(total == 13_700)
+        // The bug: 100_000 added straight onto a dollar total.
+        #expect(total != 113_700)
+    }
+
+    @Test("goals count regardless of the account currency in play")
+    func goalsAreDisplayCurrency() {
+        let foreign = AccountEntity(name: "ICICI", type: .bank, balance: 100_000, currencyCode: "INR")
+        let fundGoal = SavingsGoalEntity(
+            name: "Buffer",
+            targetAmount: 15_000,
+            currentAmount: 9_500,
+            isEmergencyFund: true
+        )
+
+        // Goals have no currency of their own, so they are always counted in
+        // the fund's currency even when no account qualifies.
+        #expect(EmergencyFundMath.currentFund(
+            accounts: [foreign],
+            selectedAccountIDs: [foreign.id],
+            goals: [fundGoal],
+            currencyCode: "USD"
+        ) == 9_500)
     }
 }
 

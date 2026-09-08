@@ -113,6 +113,25 @@ public struct CategoryEntity: Identifiable, Hashable, Equatable, Sendable {
 
     // MARK: - Equatable & Hashable (identity-based)
 
-    public static func == (lhs: CategoryEntity, rhs: CategoryEntity) -> Bool { lhs.id == rhs.id }
+    // Value equality, not identity. An id-only `==` makes SwiftUI treat a
+    // record whose fields changed as unchanged, so any row whose only input is
+    // this entity never re-renders — it keeps the old figures until the app is
+    // relaunched. That shipped as a budget bug; see BudgetEntity for the full
+    // account. `createdAt`/`updatedAt` are audit metadata, not displayed
+    // content, so they stay out of the comparison. Dedup by identity should
+    // key on `id` explicitly rather than lean on `==`.
+    public static func == (lhs: CategoryEntity, rhs: CategoryEntity) -> Bool {
+        lhs.id == rhs.id
+            && lhs.name == rhs.name
+            && lhs.icon == rhs.icon
+            && lhs.colorHex == rhs.colorHex
+            && lhs.type == rhs.type
+            && lhs.isDefault == rhs.isDefault
+            && lhs.sortOrder == rhs.sortOrder
+            && lhs.parentID == rhs.parentID
+            && lhs.spendingBucket == rhs.spendingBucket
+    }
+    // Hash stays id-only: legal (equal values share a hash) and keeps
+    // Set/Dictionary bucketing stable as mutable fields change.
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }

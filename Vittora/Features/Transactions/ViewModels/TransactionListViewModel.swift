@@ -74,7 +74,7 @@ import VittoraCore
             loadedOffset = page.count
             hasMorePages = page.count == FetchTransactionsUseCase.listPageSize
             let categories = try await categoryRepository.fetchAll()
-            categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+            categoriesByID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load transactions right now.")
