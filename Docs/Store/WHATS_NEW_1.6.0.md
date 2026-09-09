@@ -102,7 +102,9 @@ Still no accounts, no ads, no tracking — your data stays on your devices.
 ## Related
 
 - `Docs/Store/WHATS_NEW_1.5.0.md` — previous release
-- `Vittora/Resources/AppStoreMetadata/whats-new.txt` — **stale**, still reads
-  "Version 0.1.0" and describes pre-1.0 content. It was not updated for 1.4.0,
-  1.5.0 or 1.6.0; either bring it in line with this file or delete it, because
-  right now it is a trap for anyone who reads it as current.
+- `Vittora/Resources/AppStoreMetadata/whats-new.txt` **was deleted** (2026-09-09).
+  It duplicated these notes, nothing read it, and it sat on "Version 0.1.0"
+  through three releases. Per-version copy lives in `WHATS_NEW_<version>.md`;
+  the persistent Description field and the iOS 26+/macOS 26+ requirement line
+  that `Docs/Compliance/Privacy_Compliance_Checklist.md` asks for both remain in
+  that directory's `description.txt`.
