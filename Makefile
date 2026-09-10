@@ -4,6 +4,12 @@ SCHEME := Vittora
 CONFIG := Debug
 TEST_DERIVED := .build-ci
 
+# One derived-data tree for all three test targets. They run serially (`make test`
+# and CI's matrix legs are one target per runner), and the scheme builds the same
+# 10-target graph for each, so separate trees meant compiling the identical 983
+# files three times — about 14 minutes per CI run.
+TEST_DD := $(TEST_DERIVED)/DerivedData
+
 # Override in CI after Scripts/ci/resolve-ios-simulator-destination.sh
 IOS_SIM_DEST ?= platform=iOS Simulator,name=iPhone 16
 
@@ -64,7 +70,7 @@ test-unit:
 		-scheme $(SCHEME) \
 		-configuration $(CONFIG) \
 		-destination '$(IOS_SIM_DEST)' \
-		-derivedDataPath $(TEST_DERIVED)/DerivedData-unit \
+		-derivedDataPath $(TEST_DD) \
 		-resultBundlePath '$(TEST_DERIVED)/Test-Unit.xcresult' \
 		-only-testing:VittoraTests \
 		-skip-testing:VittoraTests/ModelContainerOnDiskTests \
@@ -80,7 +86,7 @@ test-ios-ui-core:
 		-scheme $(SCHEME) \
 		-configuration $(CONFIG) \
 		-destination '$(IOS_SIM_DEST)' \
-		-derivedDataPath $(TEST_DERIVED)/DerivedData-ios-ui \
+		-derivedDataPath $(TEST_DD) \
 		-resultBundlePath '$(TEST_DERIVED)/Test-iOS-UI.xcresult' \
 		-only-testing:VittoraUITests \
 		-skip-testing:VittoraUITests/OnboardingFlowUITests \
@@ -94,7 +100,7 @@ test-ios-ui-onboarding:
 		-scheme $(SCHEME) \
 		-configuration $(CONFIG) \
 		-destination '$(IOS_SIM_DEST)' \
-		-derivedDataPath $(TEST_DERIVED)/DerivedData-ios-ui-onboarding \
+		-derivedDataPath $(TEST_DD) \
 		-resultBundlePath '$(TEST_DERIVED)/Test-iOS-UI-Onboarding.xcresult' \
 		-only-testing:VittoraUITests/OnboardingFlowUITests \
 		$(IOS_TEST_SIGN_FLAGS) \
