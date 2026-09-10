@@ -70,8 +70,14 @@ Use `Makefile` targets for consistency:
 
 GitHub Actions workflow **CI / build-and-test** runs on push/PR to `develop`, `staging`, and `main` (flow: develop → staging for QA → main for release):
 
-- `make build-ios`, `make build-macos`, `make test` (unit + UI on iOS Simulator; see `.github/BRANCH_PROTECTION.md`)
+- job `build`: `make build-ios`, `make build-macos`, watch-strings and localization checks
+- jobs `test (test-unit)`, `test (test-ios-ui-core)`, `test (test-ios-ui-onboarding)`: the
+  three suites of `make test`, run **concurrently** on separate runners
+- `build-and-test` does no work of its own; it fails unless all of the above pass, which is
+  why it stays the single required check (see `.github/BRANCH_PROTECTION.md`)
 - Uploads `.build-ci/*.xcresult` artifacts; US locale pinned on the runner
+
+`make test` still runs the three suites serially, for local use.
 
 See `.github/BRANCH_PROTECTION.md` to require the check before merging.
 
