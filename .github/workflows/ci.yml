@@ -30,7 +30,13 @@ jobs:
   build-and-test:
     name: build-and-test
     runs-on: macos-15
-    timeout-minutes: 90
+    # `make test` runs the unit, UI-core and UI-onboarding suites serially and
+    # its wall-clock swings widely on identical content — 52 to 72 minutes
+    # measured across six runs — which put the job total at 64 to 92 minutes
+    # against the previous 90 cap. PR #215 was cancelled at 92 and #212 passed
+    # at 83, so the cap was decided by runner speed rather than by anything in
+    # the change. 120 buys headroom; it does not make the suite faster.
+    timeout-minutes: 120
 
     steps:
       - name: Checkout
