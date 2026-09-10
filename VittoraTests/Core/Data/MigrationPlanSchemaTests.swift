@@ -57,5 +57,39 @@ struct MigrationPlanSchemaTests {
             "SDCategory.spendingBucketRawValue",
             "SDSavingsGoal.isEmergencyFund",
         ])
+        #expect(added(VittoraSchemaV7.self, VittoraSchemaV8.self) == [
+            "SDTransaction.categorySuggestionRawValue",
+        ])
+    }
+
+    /// CloudKit rejects a new non-optional attribute that has no default: the
+    /// mirrored record type cannot be evolved, and sync breaks for every existing
+    /// user. Every attribute in the shipping schema must therefore be optional or
+    /// carry a default.
+    @Test("every attribute in the current schema is CloudKit-safe")
+    func currentSchemaIsCloudKitSafe() {
+        for entity in Schema(VittoraSchemaV8.models).entities {
+            for attribute in entity.attributes {
+                #expect(
+                    attribute.isOptional || attribute.defaultValue != nil,
+                    "\(entity.name).\(attribute.name) is non-optional with no default — CloudKit cannot evolve the record type, which breaks sync for existing users."
+                )
+            }
+        }
+    }
+
+    /// The V8 column specifically: pinned separately so a later refactor that
+    /// makes it non-optional fails here with an unmissable message.
+    @Test("the V8 category-suggestion column is optional")
+    func categorySuggestionColumnIsOptional() throws {
+        let entity = try #require(
+            Schema(VittoraSchemaV8.models).entities.first { $0.name == "SDTransaction" },
+            "V8 must register SDTransaction"
+        )
+        let attribute = try #require(
+            entity.attributes.first { $0.name == "categorySuggestionRawValue" },
+            "V8 must add SDTransaction.categorySuggestionRawValue"
+        )
+        #expect(attribute.isOptional)
     }
 }

@@ -5,7 +5,7 @@ import os
 public enum ModelContainerConfig {
     /// All SwiftData model types registered in the app (current schema version).
     public nonisolated static var allModels: [any PersistentModel.Type] {
-        VittoraSchemaV7.models
+        VittoraSchemaV8.models
     }
 
     /// Create the shared model container using a versioned schema baseline.

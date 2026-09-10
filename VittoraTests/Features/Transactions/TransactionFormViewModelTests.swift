@@ -410,4 +410,106 @@ struct TransactionFormViewModelTests {
         vm.clearCategoryIfIncompatible(validCategoryIDs: [UUID()])
         #expect(vm.selectedCategoryID == nil)
     }
+
+    // MARK: - category suggestion capture
+
+    @Test("saving records an accepted suggestion")
+    func saveRecordsAcceptedSuggestion() async throws {
+        let (vm, txRepo, accountRepo, categoryRepo, ruleStore) = makeViewModel()
+        let account = AccountEntity(name: "Wallet", type: .cash, balance: 1000)
+        await accountRepo.seed(account)
+
+        let suggestedID = UUID()
+        try await categoryRepo.create(
+            CategoryEntity(id: suggestedID, name: "Streaming", icon: "play.tv", colorHex: "#FF0000", type: .expense)
+        )
+        try ruleStore.save(CategorizationRule(keyword: "netflix", categoryID: suggestedID))
+
+        vm.amountString = "15"
+        vm.selectedAccountID = account.id
+        vm.note = "Netflix monthly"
+        await vm.suggestCategory()
+        #expect(vm.suggestedCategoryID == suggestedID)
+
+        // categorizer proposes X, user keeps X
+        vm.selectedCategoryID = suggestedID
+        try await vm.save()
+
+        let all = await txRepo.transactions
+        #expect(all.count == 1)
+        #expect(all.first?.categorySuggestion == .suggested(suggestedID))
+        #expect(all.first?.categoryID == suggestedID)
+    }
+
+    @Test("saving records an overridden suggestion")
+    func saveRecordsOverriddenSuggestion() async throws {
+        let (vm, txRepo, accountRepo, categoryRepo, ruleStore) = makeViewModel()
+        let account = AccountEntity(name: "Wallet", type: .cash, balance: 1000)
+        await accountRepo.seed(account)
+
+        let suggestedID = UUID()
+        let chosenID = UUID()
+        try await categoryRepo.create(
+            CategoryEntity(id: suggestedID, name: "Streaming", icon: "play.tv", colorHex: "#FF0000", type: .expense)
+        )
+        try await categoryRepo.create(
+            CategoryEntity(id: chosenID, name: "Entertainment", icon: "tv", colorHex: "#00FF00", type: .expense)
+        )
+        try ruleStore.save(CategorizationRule(keyword: "netflix", categoryID: suggestedID))
+
+        vm.amountString = "15"
+        vm.selectedAccountID = account.id
+        vm.note = "Netflix monthly"
+        await vm.suggestCategory()
+        #expect(vm.suggestedCategoryID == suggestedID)
+
+        // categorizer proposes X, user picks Y
+        vm.selectedCategoryID = chosenID
+        try await vm.save()
+
+        let all = await txRepo.transactions
+        #expect(all.count == 1)
+        #expect(all.first?.categorySuggestion == .suggested(suggestedID))
+        #expect(all.first?.categoryID == chosenID)
+    }
+
+    @Test("saving records that the categorizer ran and proposed nothing")
+    func saveRecordsNoSuggestionWhenCategorizerProposedNothing() async throws {
+        let (vm, txRepo, accountRepo, _, _) = makeViewModel()
+        let account = AccountEntity(name: "Wallet", type: .cash, balance: 1000)
+        await accountRepo.seed(account)
+
+        vm.amountString = "15"
+        vm.selectedAccountID = account.id
+        // No payee, note, or rules — suggestCategory still completes with nil.
+        await vm.suggestCategory()
+        #expect(vm.suggestedCategoryID == nil)
+        #expect(vm.didRunCategorySuggestion == true)
+
+        try await vm.save()
+
+        let all = await txRepo.transactions
+        #expect(all.count == 1)
+        // Critical: .noSuggestion must not collapse into nil ("not instrumented").
+        #expect(all.first?.categorySuggestion == .noSuggestion)
+        #expect(all.first?.categorySuggestion != nil)
+    }
+
+    @Test("saving records nothing when the categorizer never ran")
+    func saveRecordsNilWhenCategorizerNeverRan() async throws {
+        let (vm, txRepo, accountRepo, _, _) = makeViewModel()
+        let account = AccountEntity(name: "Wallet", type: .cash, balance: 1000)
+        await accountRepo.seed(account)
+
+        vm.amountString = "15"
+        vm.selectedAccountID = account.id
+        // suggestCategory never called -> nil ("not instrumented")
+        #expect(vm.didRunCategorySuggestion == false)
+
+        try await vm.save()
+
+        let all = await txRepo.transactions
+        #expect(all.count == 1)
+        #expect(all.first?.categorySuggestion == nil)
+    }
 }

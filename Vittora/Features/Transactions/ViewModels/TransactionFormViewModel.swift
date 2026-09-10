@@ -16,6 +16,11 @@ import VittoraCore
     var isEditing = false
     var editingID: UUID?
     var suggestedCategoryID: UUID?
+    /// Whether the last `suggestCategory()` call actually completed against the
+    /// current input. Keeps "the categorizer never ran" distinguishable from "it
+    /// ran and proposed nothing" — the two are different training signals and
+    /// must not collapse. Only the create path records it.
+    private(set) var didRunCategorySuggestion = false
     var duplicateWarning: [TransactionEntity] = []
     var isLoading = false
     var error: String?
@@ -100,6 +105,7 @@ import VittoraCore
     ) async {
         guard let parsedAmount, parsedAmount > 0 else {
             suggestedCategoryID = nil
+            didRunCategorySuggestion = false
             return
         }
 
@@ -118,11 +124,25 @@ import VittoraCore
                     amount: parsedAmount
                 )
             )
+            didRunCategorySuggestion = true
         } catch {
+            // The categorizer did not produce an answer for the current input, and
+            // `suggestedCategoryID` still holds whatever a previous call left there.
+            // Clearing the flag makes this row record nil ("not instrumented")
+            // rather than a stale or falsely-negative training label.
+            didRunCategorySuggestion = false
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't suggest a category right now.")
             )
         }
+    }
+
+    /// What to persist alongside a newly created transaction. Nil unless the
+    /// categorizer actually ran, so "no data" never masquerades as "no suggestion".
+    var capturedCategorySuggestion: CategorySuggestion? {
+        guard didRunCategorySuggestion else { return nil }
+        guard let suggestedCategoryID else { return .noSuggestion }
+        return .suggested(suggestedCategoryID)
     }
 
     func checkDuplicates() async {
@@ -202,7 +222,8 @@ import VittoraCore
                 note: note.isEmpty ? nil : note,
                 tags: tags,
                 paymentMethod: paymentMethod,
-                currencyCode: currencyCode
+                currencyCode: currencyCode,
+                categorySuggestion: capturedCategorySuggestion
             )
         }
     }

@@ -29,7 +29,8 @@ struct AddTransactionUseCase: Sendable {
         note: String?,
         tags: [String],
         paymentMethod: PaymentMethod,
-        currencyCode: String
+        currencyCode: String,
+        categorySuggestion: CategorySuggestion? = nil
     ) async throws -> TransactionEntity {
         // Validate amount is positive
         guard amount > 0 else {
@@ -64,7 +65,8 @@ struct AddTransactionUseCase: Sendable {
             tags: tags,
             categoryID: categoryID,
             accountID: accountID,
-            payeeID: payeeID
+            payeeID: payeeID,
+            categorySuggestion: categorySuggestion
         )
 
         // Insert the transaction and adjust the account balance atomically.
