@@ -1,4 +1,4 @@
-.PHONY: help build-ios build-macos test test-unit test-ios-ui test-ios-ui-core test-ios-ui-onboarding test-tax test-sync test-data test-recurring ci-clean
+.PHONY: help build-ios build-macos build-for-testing test test-unit test-ios-ui test-ios-ui-core test-ios-ui-onboarding test-tax test-sync test-data test-recurring ci-clean
 
 SCHEME := Vittora
 CONFIG := Debug
@@ -24,12 +24,28 @@ else
 IOS_CI_SERIAL_FLAGS :=
 endif
 
+# CI sets PREBUILT_TESTS=1 after unpacking the products from the
+# `build-for-testing` job. The three test targets then run the identical test
+# selection against those products instead of compiling their own copy. Unset
+# locally, so `make test` builds and tests in one step exactly as before.
+PREBUILT_TESTS ?=
+ifeq ($(PREBUILT_TESTS),)
+XC_TEST_INPUT := -scheme $(SCHEME) -configuration $(CONFIG) -derivedDataPath $(TEST_DD) $(IOS_TEST_SIGN_FLAGS)
+XC_TEST_ACTION := test
+else
+# Recursive `=`: the glob has to run when the recipe does, after CI untars the
+# products. The filename embeds the SDK version and archs, so it cannot be spelled out.
+XC_TEST_INPUT = -xctestrun $(firstword $(wildcard $(TEST_DD)/Build/Products/*.xctestrun))
+XC_TEST_ACTION := test-without-building
+endif
+
 help:
 	@echo "Vittora developer commands"
 	@echo ""
 	@echo "  make build-ios        Compile iOS target (no signing)"
 	@echo "  make build-macos      Compile macOS target (no signing)"
 	@echo "  make test             Run unit + UI tests on iOS Simulator (CI default)"
+	@echo "  make build-for-testing  Compile the simulator test bundle only (CI shares it across jobs)"
 	@echo "  make test-unit        Run VittoraTests on iOS Simulator"
 	@echo "  make test-ios-ui      Run VittoraUITests on iOS Simulator (core suite, then onboarding)"
 	@echo "  make test-ios-ui-onboarding  Run OnboardingFlowUITests only (second pass in CI gate)"
@@ -62,50 +78,56 @@ build-macos:
 ci-clean:
 	rm -rf $(TEST_DERIVED)
 
+# Compile the simulator test bundle once per CI run. Each matrix leg then only
+# installs and runs it — measured at 8.7-12.1 min of duplicated compile per leg.
+# ARCHS=arm64: every macos-15 runner is arm64, and the simulator executes the
+# arm64 slice, so the x86_64 slice was compiled and shipped but never run.
+build-for-testing:
+	@mkdir -p $(TEST_DERIVED)
+	xcodebuild \
+		-scheme $(SCHEME) \
+		-configuration $(CONFIG) \
+		-destination 'generic/platform=iOS Simulator' \
+		-derivedDataPath $(TEST_DD) \
+		ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
+		$(IOS_TEST_SIGN_FLAGS) \
+		build-for-testing
+
 test: ci-clean test-unit test-ios-ui
 
 test-unit:
 	@mkdir -p $(TEST_DERIVED)
 	xcodebuild \
-		-scheme $(SCHEME) \
-		-configuration $(CONFIG) \
+		$(XC_TEST_INPUT) \
 		-destination '$(IOS_SIM_DEST)' \
-		-derivedDataPath $(TEST_DD) \
 		-resultBundlePath '$(TEST_DERIVED)/Test-Unit.xcresult' \
 		-only-testing:VittoraTests \
 		-skip-testing:VittoraTests/ModelContainerOnDiskTests \
-		$(IOS_TEST_SIGN_FLAGS) \
 		$(IOS_CI_SERIAL_FLAGS) \
-		test
+		$(XC_TEST_ACTION)
 
 test-ios-ui: test-ios-ui-core test-ios-ui-onboarding
 
 test-ios-ui-core:
 	@mkdir -p $(TEST_DERIVED)
 	xcodebuild \
-		-scheme $(SCHEME) \
-		-configuration $(CONFIG) \
+		$(XC_TEST_INPUT) \
 		-destination '$(IOS_SIM_DEST)' \
-		-derivedDataPath $(TEST_DD) \
 		-resultBundlePath '$(TEST_DERIVED)/Test-iOS-UI.xcresult' \
 		-only-testing:VittoraUITests \
 		-skip-testing:VittoraUITests/OnboardingFlowUITests \
-		$(IOS_TEST_SIGN_FLAGS) \
 		$(IOS_CI_SERIAL_FLAGS) \
-		test
+		$(XC_TEST_ACTION)
 
 test-ios-ui-onboarding:
 	@mkdir -p $(TEST_DERIVED)
 	xcodebuild \
-		-scheme $(SCHEME) \
-		-configuration $(CONFIG) \
+		$(XC_TEST_INPUT) \
 		-destination '$(IOS_SIM_DEST)' \
-		-derivedDataPath $(TEST_DD) \
 		-resultBundlePath '$(TEST_DERIVED)/Test-iOS-UI-Onboarding.xcresult' \
 		-only-testing:VittoraUITests/OnboardingFlowUITests \
-		$(IOS_TEST_SIGN_FLAGS) \
 		$(IOS_CI_SERIAL_FLAGS) \
-		test
+		$(XC_TEST_ACTION)
 
 test-tax:
 	xcodebuild \
