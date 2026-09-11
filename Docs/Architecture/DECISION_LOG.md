@@ -91,7 +91,7 @@ Lightweight ADR-style history for major architectural decisions.
 - Status: Accepted (2026-07-14, Rahul)
 - Decision: When monetization ships (per DEC-008 it remains a post-PMF fast-follow, not a launch blocker), Vittora sells **one paid tier — "Vittora Pro"** — plus a capped/seasonal lifetime unlock. The plan doc's §8 two-tier Plus/Pro ladder is formally superseded.
 - Pricing (App Store tiers, adjust to nearest tier at implementation):
-  - US: **$39.99/yr** hero price with **$29.99 first-year intro offer**; $4.99/mo monthly.
+  - US: **$39.99/yr** hero price with **$29.99 first-year intro offer**; $4.99/mo monthly. *(The $29.99 intro offer is superseded by DEC-013 — it is not buildable alongside the 7-day trial.)*
   - India: **₹899/yr**; ₹129/mo monthly. Tax-season (Jan–Mar) In-App Event promos.
   - **Lifetime one-time**: $99.99 / ₹4,999 — capped quantity or seasonal windows only.
   - Family Sharing enabled on annual and lifetime.
@@ -143,3 +143,15 @@ audit exclusion finds the reasoning rather than guessing.
 customer feedback reports the labels as hard to read, reopen this and take the
 `#1F7D61` + white option, which keeps white labels and clears AA at 5.04:1.
 
+## DEC-013: The annual introductory offer is the 7-day free trial, not the $29.99 first year
+
+- Status: Accepted (2026-09-11, Rahul)
+- Decision: Vittora Pro annual sells at **$39.99/yr with a 7-day free trial** as its introductory offer. The **$29.99 first-year price from DEC-011 is dropped**, not deferred. Monthly ($4.99) and lifetime ($99.99 / ₹4,999) are unchanged, as is India annual (₹899/yr).
+- Why: DEC-011 specified both a 7-day free trial *and* a $29.99 first-year intro price on the same plan. **The App Store cannot express that.** A subscription gets one introductory offer per user per subscription group, and its payment mode is exactly one of free trial, pay-as-you-go, or pay-up-front — the trial and the discounted first year are two mutually exclusive forms of the same slot. This was found while building F1, not at planning time; the `.storekit` file could not encode DEC-011 as written.
+- Why the trial and not the discount: both DEC-008 and DEC-011 state the trial as *policy*, reasoned from abuse-resistance and App Store nativeness. The $29.99 price was an acquisition lever with no equivalent argument behind it. Given one slot, the reasoned commitment keeps it.
+- Alternatives considered and rejected:
+  - **$29.99 pay-up-front, no trial** — cheaper entry, but discards the trial policy both prior decisions committed to, and removes the try-before-you-buy step that a finance app benefits from most.
+  - **Trial as the intro offer, $29.99 as an offer code** — technically viable and recommended by both the reviewing agent and the lead. Rejected by the owner in favour of a single, simpler price. Offer codes remain available for marketing and win-back per §8, so this can be revisited without a code change.
+- Build impact: **none.** `Vittora.storekit` already encodes annual at $39.99 with a `free` / `P1W` introductory offer, which is exactly this decision; it was written as a placeholder pending this ruling and is now correct as-is. `StoreKitConfigurationTests` already asserts trial-on-annual-only.
+- Also updated: `Docs/Vittora_Final_Plan.md` §8 pricing table, which carried the same unbuildable pairing.
+- Revisit: with the first 90 days of paid data, alongside the DEC-011 pricing review. If acquisition is the constraint, an offer code is the lever to reach for first — it needs no build change.
