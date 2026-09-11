@@ -117,6 +117,11 @@ nonisolated struct CalculateDebtAnalyticsUseCase: Sendable {
         let settledSampleSize = settled.count
         let velocity: SettlementVelocity?
         if settledSampleSize >= DebtAnalytics.minimumVelocitySample {
+            // ponytail: createdAt -> updatedAt is a proxy for time-to-settle; DebtEntry has
+            // no settledAt and updateModel bumps updatedAt on every write, so editing a
+            // settled debt later inflates its measured duration. Accurate for the common
+            // settle-then-leave-alone case. Upgrade path is a settledAt field (schema
+            // migration, owner sign-off).
             let days = settled.map { daysBetween(from: $0.createdAt, to: $0.updatedAt) }
             velocity = SettlementVelocity(
                 medianDays: median(of: days),
@@ -192,6 +197,7 @@ nonisolated struct CalculateDebtAnalyticsUseCase: Sendable {
                 }
                 oldest = max(oldest, daysBetween(from: entry.createdAt, to: now))
             }
+            // ponytail: same createdAt -> updatedAt proxy as the portfolio-wide velocity above.
             let settledDays = settledByPayee[group.payee.id, default: []].map {
                 daysBetween(from: $0.createdAt, to: $0.updatedAt)
             }
