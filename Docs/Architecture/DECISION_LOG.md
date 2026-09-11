@@ -155,3 +155,35 @@ customer feedback reports the labels as hard to read, reopen this and take the
 - Build impact: **none.** `Vittora.storekit` already encodes annual at $39.99 with a `free` / `P1W` introductory offer, which is exactly this decision; it was written as a placeholder pending this ruling and is now correct as-is. `StoreKitConfigurationTests` already asserts trial-on-annual-only.
 - Also updated: `Docs/Vittora_Final_Plan.md` §8 pricing table, which carried the same unbuildable pairing.
 - Revisit: with the first 90 days of paid data, alongside the DEC-011 pricing review. If acquisition is the constraint, an offer code is the lever to reach for first — it needs no build change.
+
+## DEC-014: The 1.7.0 gate list — forward-looking analysis is paid, record-keeping and sharing are free
+
+- Status: Accepted (2026-09-11, Rahul)
+- Decision: Vittora Pro gates exactly the following, and nothing else.
+
+| Vittora Pro | Always free |
+|---|---|
+| Full tax planning & regime comparison | iCloud sync |
+| Advanced / custom reports + PDF export | Expense splitting (viral loop) |
+| Cash flow forecast | Year in Review (shareable growth loop) |
+| Subscription audit | Unlimited manual transactions |
+| 50/30/20 report | Basic budgets and dashboard |
+| Emergency fund tracker | Payee analytics |
+| Unlimited receipt OCR (free: 5 scans/month) | CSV export (data-ownership promise) |
+| Future ML insights (1.8.0) | **Unlimited accounts and budgets** |
+
+- The principle: **forward-looking analysis is paid; record-keeping and sharing stay free.** This is the line to apply when a new feature arrives and the gate question comes up, rather than re-litigating feature by feature.
+- Supersedes the gate list in DEC-011, which named "advanced debt analytics" and did not mention the cash flow forecast, subscription audit, 50/30/20 report or emergency fund tracker. Those four are the concrete shipped surfaces the principle points at.
+
+### Account and budget caps are removed
+
+- `FreeTierLimits.maxAccounts` and `maxBudgets` are **deleted, not retained unused**. A cap on how many accounts or budgets a user may keep is a cap on record-keeping, which the principle above puts on the free side.
+- Deleted with them: the `accountLimitReached` and `budgetLimitReached` milestones in `ConversionMilestone`, `ConversionEventRecorder.afterAccountCreated` / `afterBudgetCreated`, and their call sites in `AccountFormView.swift` and `BudgetFormView.swift`.
+- `FreeTierLimits.maxOCRScansPerMonth = 5` **stays.** It is a real gate: OCR has a per-scan cost and unlimited OCR is a named Pro feature.
+- Consequence for App Review and for existing users: with the caps gone, the only enforcement F3 adds is the OCR monthly cap. **No existing user loses access to anything they already created.** That property is a requirement, not an accident — any future gate that would take away access to existing user data is an owner decision, not an implementation detail.
+
+### Offline grace
+
+- Entitlement resolution keeps a **16-day offline grace** (`Entitlement.swift`). Accepted as proposed. Gating must go through `EntitlementPolicy.resolve` so the grace applies uniformly rather than being re-implemented per call site.
+
+- Revisit: with the first 90 days of paid data, alongside DEC-011 and DEC-013.
