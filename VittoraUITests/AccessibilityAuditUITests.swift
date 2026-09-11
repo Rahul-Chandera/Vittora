@@ -203,6 +203,12 @@ final class AccessibilityAuditUITests: XCTestCase {
         openOverflowDestination(named: "Debt", navigationTitle: "Debt Ledger")
         try performCoreFlowAudit()
 
+        UITestSupport.tapWhenReady(app.buttons["debt-analytics-button"], timeout: 10)
+        XCTAssertTrue(app.navigationBars["Debt Analytics"].waitForExistence(timeout: 10))
+        try performCoreFlowAudit()
+        app.navigationBars.buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Debt Ledger"].waitForExistence(timeout: 10))
+
         tapText("Alex Carter")
         XCTAssertTrue(app.navigationBars["Alex Carter"].waitForExistence(timeout: 10))
         try performCoreFlowAudit()

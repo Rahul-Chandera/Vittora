@@ -25571,6 +25571,550 @@
           }
         }
       }
+    },
+    "%@ accounts for %@ of what you are owed" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ representa el %@ de lo que le deben"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ का हिस्सा आपको मिलने वाली राशि का %@ है"
+          }
+        }
+      }
+    },
+    "%@ owed to you" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ que le deben"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ आपको मिलने हैं"
+          }
+        }
+      }
+    },
+    "%@ you owe" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ que usted debe"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ आपको देने हैं"
+          }
+        }
+      }
+    },
+    "%@, net %@, oldest %lld day(s)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, neto %@, más antiguo %lld día(s)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, नेट %@, सबसे पुराना %lld दिन"
+          }
+        }
+      }
+    },
+    "%lld debt(s)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld deuda(s)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld उधार"
+          }
+        }
+      }
+    },
+    "%lld due in the next 7 days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld vencen en los próximos 7 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अगले 7 दिनों में %lld देय"
+          }
+        }
+      }
+    },
+    "%lld overdue" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld vencida(s)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld अतिदेय"
+          }
+        }
+      }
+    },
+    "%lld overdue debt(s), %@ outstanding, worst %lld day(s) overdue, %lld due in the next 7 days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld deuda(s) vencida(s), %@ pendiente, la peor con %lld día(s) de retraso, %lld vencen en los próximos 7 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld अतिदेय उधार, %@ बकाया, सबसे अधिक %lld दिन का विलंब, अगले 7 दिनों में %lld देय"
+          }
+        }
+      }
+    },
+    ", %lld overdue" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ", %lld vencida(s)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ", %lld अतिदेय"
+          }
+        }
+      }
+    },
+    ", usually settles in %lld day(s)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ", normalmente se salda en %lld día(s)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ", आमतौर पर %lld दिन में चुकता है"
+          }
+        }
+      }
+    },
+    "0-30 days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0-30 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0-30 दिन"
+          }
+        }
+      }
+    },
+    "31-60 days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "31-60 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "31-60 दिन"
+          }
+        }
+      }
+    },
+    "61-90 days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "61-90 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "61-90 दिन"
+          }
+        }
+      }
+    },
+    "90+ days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más de 90 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "90+ दिन"
+          }
+        }
+      }
+    },
+    "Add debts you lent or borrowed and their analytics will appear here" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregue las deudas que prestó o pidió y su análisis aparecerá aquí"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने जो उधार दिया या लिया है उसे जोड़ें, उसका विश्लेषण यहाँ दिखेगा"
+          }
+        }
+      }
+    },
+    "Aging bucket" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rango de antigüedad"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अवधि श्रेणी"
+          }
+        }
+      }
+    },
+    "Counterparty exposure" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exposición por persona"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "व्यक्ति-वार जोखिम"
+          }
+        }
+      }
+    },
+    "Debt Analytics" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Análisis de deudas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उधार विश्लेषण"
+          }
+        }
+      }
+    },
+    "Debt analytics" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Análisis de deudas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उधार विश्लेषण"
+          }
+        }
+      }
+    },
+    "Exposure by Person" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exposición por persona"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "व्यक्ति-वार जोखिम"
+          }
+        }
+      }
+    },
+    "How Fast Debts Get Settled" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con qué rapidez se saldan las deudas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उधार कितनी जल्दी चुकते हैं"
+          }
+        }
+      }
+    },
+    "How Long Debts Have Been Open" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto tiempo llevan abiertas las deudas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उधार कितने समय से बकाया हैं"
+          }
+        }
+      }
+    },
+    "Median of %lld settled debts" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mediana de %lld deudas saldadas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld चुकाए गए उधारों की माध्यिका"
+          }
+        }
+      }
+    },
+    "Not enough settled debts yet — %lld of %lld needed" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay suficientes deudas saldadas: %lld de %lld necesarias"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी पर्याप्त चुकाए गए उधार नहीं — %lld, %lld चाहिए"
+          }
+        }
+      }
+    },
+    "Nothing to analyse yet" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay nada que analizar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी विश्लेषण के लिए कुछ नहीं"
+          }
+        }
+      }
+    },
+    "Oldest: %lld day(s)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más antiguo: %lld día(s)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सबसे पुराना: %lld दिन"
+          }
+        }
+      }
+    },
+    "Opens aging, exposure and settlement analytics" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre el análisis de antigüedad, exposición y saldos"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अवधि, जोखिम और निपटान विश्लेषण खोलता है"
+          }
+        }
+      }
+    },
+    "Overdue Risk" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riesgo de vencimiento"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अतिदेय जोखिम"
+          }
+        }
+      }
+    },
+    "Showing top 10 of %lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrando los 10 principales de %lld"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld में से शीर्ष 10 दिखाए जा रहे हैं"
+          }
+        }
+      }
+    },
+    "Typically settled in %lld day(s)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normalmente se salda en %lld día(s)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आमतौर पर %lld दिन में चुकता है"
+          }
+        }
+      }
+    },
+    "Typically settled in %lld day(s), median of %lld settled debts" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normalmente se salda en %lld día(s), mediana de %lld deudas saldadas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आमतौर पर %lld दिन में चुकता है, %lld चुकाए गए उधारों की माध्यिका"
+          }
+        }
+      }
+    },
+    "Usually settles in %lld day(s)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suele saldarse en %lld día(s)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आमतौर पर %lld दिन में चुकता है"
+          }
+        }
+      }
+    },
+    "We couldn't load debt analytics right now." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos cargar el análisis de deudas en este momento."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हम अभी उधार विश्लेषण लोड नहीं कर सके।"
+          }
+        }
+      }
+    },
+    "Worst: %lld day(s) overdue" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peor: %lld día(s) de retraso"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सबसे ज़्यादा: %lld दिन का विलंब"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

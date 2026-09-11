@@ -43,6 +43,16 @@ struct DebtLedgerView: View {
         .navigationTitle(String(localized: "Debt Ledger"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
+                NavigationLink {
+                    DebtAnalyticsView()
+                } label: {
+                    Image(systemName: "chart.bar.xaxis")
+                }
+                .accessibilityLabel(String(localized: "Debt analytics"))
+                .accessibilityHint(String(localized: "Opens aging, exposure and settlement analytics"))
+                .accessibilityIdentifier("debt-analytics-button")
+            }
+            ToolbarItem(placement: .primaryAction) {
                 Button {
                     showAddDebt = true
                 } label: {
