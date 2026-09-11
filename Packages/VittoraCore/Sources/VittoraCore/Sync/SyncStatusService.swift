@@ -158,11 +158,12 @@ public final class SyncStatusService: Sendable {
         }
     }
 
-    public func markError(_ message: String) {
+    public func markError(_ message: String, diagnosticCode: String? = nil) {
         syncState = .error(message)
-        // Code path only — never the sync message (may mention account/CloudKit detail).
+        // Code path plus the non-identifying error code - never the sync message
+        // itself (may mention account/CloudKit detail).
         RecentErrorLogStore.shared.record(
-            errorType: "SyncError",
+            errorType: diagnosticCode.map { "SyncError(\($0))" } ?? "SyncError",
             codePath: "SyncStatusService.markError"
         )
     }

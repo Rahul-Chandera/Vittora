@@ -150,6 +150,7 @@ test-sync:
 		-only-testing:VittoraTests/SyncConflictHandlerTests \
 		-only-testing:VittoraTests/ReconcileAccountBalanceUseCaseTests \
 		-only-testing:VittoraTests/SyncIntegrityValidatorTests \
+		-only-testing:VittoraTests/CloudKitSyncMonitorMessageTests \
 		test
 
 test-data:
