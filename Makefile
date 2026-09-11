@@ -135,7 +135,7 @@ test-tax:
 		-configuration $(CONFIG) \
 		-destination 'platform=macOS' \
 		-derivedDataPath .build \
-		-only-testing:VittoraTests/USTaxCalculatorTests \
+		-only-testing:VittoraTests/TaxUseCaseTests/USTaxCalculatorTests \
 		-only-testing:VittoraTests/TaxCalculatorRegressionTests \
 		-only-testing:VittoraTests/IndiaSectionDeductionEngineTests \
 		-only-testing:VittoraTests/IndiaComplianceTipsTests \
