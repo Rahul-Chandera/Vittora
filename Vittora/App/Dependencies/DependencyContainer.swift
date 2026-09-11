@@ -187,9 +187,7 @@ final class DependencyContainer {
         let conversionEventTracker = UserDefaultsConversionEventTracker()
         let conversionEventRecorder = ConversionEventRecorder(
             tracker: conversionEventTracker,
-            transactionRepository: transactionRepository,
-            accountRepository: accountRepository,
-            budgetRepository: budgetRepository
+            transactionRepository: transactionRepository
         )
 
         return DependencyContainer(

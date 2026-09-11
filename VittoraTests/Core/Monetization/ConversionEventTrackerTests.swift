@@ -86,10 +86,10 @@ struct ConversionEventTrackerTests {
     func paywallCooldownWhenEnabled() {
         // StoreKit is disabled in production config; verify tracker state transitions only.
         let tracker = makeTracker()
-        let result = tracker.record(.accountLimitReached)
+        let result = tracker.record(.firstReport)
         #expect(result.shouldPresentPaywall == false)
-        tracker.markPaywallPresented(for: .accountLimitReached)
-        #expect(tracker.shouldPresentPaywall(for: .accountLimitReached) == false)
+        tracker.markPaywallPresented(for: .firstReport)
+        #expect(tracker.shouldPresentPaywall(for: .firstReport) == false)
     }
 }
 
@@ -111,9 +111,7 @@ struct ConversionEventRecorderTests {
         }
         let recorder = ConversionEventRecorder(
             tracker: tracker,
-            transactionRepository: transactionRepo,
-            accountRepository: await MainActor.run { MockAccountRepository() },
-            budgetRepository: MockBudgetRepository()
+            transactionRepository: transactionRepo
         )
 
         let result = await recorder.afterTransactionCreated()
@@ -121,28 +119,16 @@ struct ConversionEventRecorderTests {
         #expect(result?.isFirstTime == true)
     }
 
-    @Test("Account cap milestone fires at limit")
-    func accountCapThreshold() async {
-        let tracker = UserDefaultsConversionEventTracker(
-            defaults: UserDefaults(suiteName: "test.conversion.\(UUID().uuidString)") ?? .standard
-        )
-        let accountRepo = await MainActor.run { MockAccountRepository() }
-        for index in 0..<FreeTierLimits.maxAccounts {
-            let account = AccountEntity(
-                name: "Account \(index)",
-                type: .bank,
-                balance: 0
-            )
-            try? await accountRepo.create(account)
-        }
-        let recorder = ConversionEventRecorder(
-            tracker: tracker,
-            transactionRepository: MockTransactionRepository(),
-            accountRepository: accountRepo,
-            budgetRepository: MockBudgetRepository()
-        )
-
-        let result = await recorder.afterAccountCreated()
-        #expect(result?.milestone == .accountLimitReached)
+    /// DEC-014 removed the account and budget caps: capping how many records a
+    /// user may keep is a cap on record-keeping, which stays free. This guards
+    /// against either cap being reintroduced as a conversion milestone.
+    @Test("Accounts and budgets are not capped")
+    func accountsAndBudgetsAreUncapped() {
+        let names = ConversionMilestone.allCases.map(\.rawValue)
+        #expect(!names.contains { $0.localizedCaseInsensitiveContains("account") })
+        #expect(!names.contains { $0.localizedCaseInsensitiveContains("budget") })
+        // OCR stays capped — unlimited receipt OCR is a named Pro feature.
+        #expect(ConversionMilestone.allCases.contains(.ocrMonthlyLimitReached))
+        #expect(FreeTierLimits.maxOCRScansPerMonth == 5)
     }
 }
