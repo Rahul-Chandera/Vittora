@@ -139,7 +139,6 @@ test-tax:
 		-only-testing:VittoraTests/TaxCalculatorRegressionTests \
 		-only-testing:VittoraTests/IndiaSectionDeductionEngineTests \
 		-only-testing:VittoraTests/IndiaComplianceTipsTests \
-		CODE_SIGNING_ALLOWED=NO \
 		test
 
 test-sync:
