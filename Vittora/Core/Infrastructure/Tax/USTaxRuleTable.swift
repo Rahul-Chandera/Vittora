@@ -55,7 +55,7 @@ enum USTaxRuleTable {
         let rules: YearRules
     }
 
-    /// Sorted ascending by year. Lookup clamps to the nearest present year.
+    /// Ascending by year. Lookup floors to the latest row not after the request.
     nonisolated private static let entries: [Entry] = [
         Entry(year: 2024, rules: year2024),
         Entry(year: 2025, rules: year2025),
