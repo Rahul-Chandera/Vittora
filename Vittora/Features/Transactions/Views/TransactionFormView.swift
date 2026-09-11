@@ -144,8 +144,8 @@ struct TransactionFormView: View {
                         .vDialogConfirmButton()
                     }
                 }
-                .if(vm.isLoading) { view in
-                    view.overlay {
+                .overlay {
+                    if vm.isLoading {
                         ProgressView()
                             .tint(VColors.primary)
                     }
@@ -349,10 +349,13 @@ struct TransactionFormView: View {
             TextField(String(localized: "Notes"), text: Bindable(vm).note, axis: .vertical)
                 .lineLimit(3...5)
                 .accessibilityIdentifier("transaction-note-field")
-                .onChange(of: vm.note) { _, _ in
-                    Task {
-                        await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
-                    }
+                .task(id: vm.note) {
+                    // Debounce: .task(id:) cancels the previous run on every
+                    // keystroke, so this only reaches suggestCategory once the
+                    // user pauses.
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard !Task.isCancelled else { return }
+                    await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
                 }
         } header: {
             formSectionHeader(String(localized: "Notes"))
