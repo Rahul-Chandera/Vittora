@@ -36,7 +36,7 @@ Use `AGENTS.md` as the canonical version.
 
 ## CI (Epic L1)
 
-GitHub Actions **CI / build-and-test** on push/PR to `develop`, `staging`, and `main` (flow: develop → staging for QA → main for release). A `build` job (`make build-ios`, `make build-macos`, localization checks) and three `test (…)` jobs (the suites of `make test`) run concurrently; `build-and-test` is the aggregating required check. See `.github/BRANCH_PROTECTION.md`.
+GitHub Actions **CI / build-and-test** on push/PR to `develop`, `staging`, and `main` (flow: develop → staging for QA → main for release). A `build` job (`make build-ios`, `make build-macos`, localization checks), a `build-for-testing` job that compiles the simulator test bundle once, and three `test (…)` jobs (the suites of `make test`, run against that prebuilt bundle) run concurrently; `build-and-test` is the aggregating required check. See `.github/BRANCH_PROTECTION.md`.
 
 ## Architecture/Runbook Docs
 
