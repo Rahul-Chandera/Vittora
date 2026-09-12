@@ -66,6 +66,9 @@ public actor SwiftDataTransactionRepository: TransactionRepository {
 
         var results: [SDTransaction]
         var needsInMemoryPagination = false
+        // Only three predicate branches include type; track that so a single-type filter
+        // is still applied in-memory on every other branch.
+        var typePredicateApplied = false
 
         func applyPagination(to descriptor: inout FetchDescriptor<SDTransaction>) {
             if let pageLimit {
@@ -85,6 +88,7 @@ public actor SwiftDataTransactionRepository: TransactionRepository {
         }
 
         if let accountID = singleAccountID, let typeRaw = singleTypeRaw, hasDateRange {
+            typePredicateApplied = true
             let capturedAccountID = accountID
             let predicate = #Predicate<SDTransaction> { tx in
                 (tx.accountID == capturedAccountID || tx.destinationAccountID == capturedAccountID)
@@ -153,6 +157,7 @@ public actor SwiftDataTransactionRepository: TransactionRepository {
             }
             results = try modelContext.fetch(descriptor)
         } else if let typeRaw = singleTypeRaw, hasDateRange {
+            typePredicateApplied = true
             let predicate = #Predicate<SDTransaction> { tx in
                 tx.typeRawValue == typeRaw
                     && tx.date >= startDate
@@ -165,6 +170,7 @@ public actor SwiftDataTransactionRepository: TransactionRepository {
             applyPagination(to: &descriptor)
             results = try modelContext.fetch(descriptor)
         } else if let typeRaw = singleTypeRaw {
+            typePredicateApplied = true
             let predicate = #Predicate<SDTransaction> { tx in
                 tx.typeRawValue == typeRaw
             }
@@ -208,7 +214,7 @@ public actor SwiftDataTransactionRepository: TransactionRepository {
             results = try modelContext.fetch(descriptor)
         }
 
-        if let types = filter.types, types.count != 1 {
+        if let types = filter.types, !typePredicateApplied {
             needsInMemoryPagination = true
             let rawValues = Set(types.map(\.rawValue))
             results = results.filter { rawValues.contains($0.typeRawValue) }
