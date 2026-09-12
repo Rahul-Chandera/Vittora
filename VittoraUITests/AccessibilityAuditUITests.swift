@@ -33,7 +33,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "dashboard")
+        launchSeeded(initialTab: "dashboard", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         XCTAssertTrue(app.navigationBars["Dashboard"].waitForExistence(timeout: 15))
         try performCoreFlowAudit()
@@ -45,7 +45,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "transactions")
+        launchSeeded(initialTab: "transactions", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         openAddTransactionForm()
         try performCoreFlowAudit()
@@ -57,7 +57,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "transactions")
+        launchSeeded(initialTab: "transactions", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         XCTAssertTrue(
             app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 15),
@@ -82,7 +82,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "budgets")
+        launchSeeded(initialTab: "budgets", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         XCTAssertTrue(
             app.descendants(matching: .any)["budget-list-root"].waitForExistence(timeout: 15)
@@ -99,7 +99,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "reports")
+        launchSeeded(initialTab: "reports", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         XCTAssertTrue(app.navigationBars["Reports"].waitForExistence(timeout: 15))
         try performCoreFlowAudit()
@@ -124,6 +124,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         for region in ["US", "IN"] {
             launchSeeded(
                 initialTab: "settings",
+                extraArguments: ["--ui-test-pro"],
                 extraEnvironment: ["UITEST_DEMO_REGION": region]
             )
             openOverflowDestination(named: "Tax", navigationTitle: "Tax Estimator")
@@ -159,7 +160,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "settings")
+        launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
         openOverflowDestination(named: "Savings", navigationTitle: "Savings Goals")
         try performCoreFlowAudit()
 
@@ -182,7 +183,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "settings")
+        launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
         openOverflowDestination(named: "Splits", navigationTitle: "Split Expenses")
         try performCoreFlowAudit()
 
@@ -207,7 +208,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "settings")
+        launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
         openOverflowDestination(named: "Debt", navigationTitle: "Debt Ledger")
         try performCoreFlowAudit()
 
@@ -228,7 +229,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         dismissPresentedScreen()
 
         app.terminate()
-        launchSeeded(initialTab: "settings")
+        launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
         openOverflowDestination(named: "Debt", navigationTitle: "Debt Ledger")
         XCTAssertTrue(app.navigationBars["Debt Ledger"].waitForExistence(timeout: 10))
         UITestSupport.tapWhenReady(app.buttons["debt-add-button"], timeout: 10)
@@ -255,13 +256,13 @@ final class AccessibilityAuditUITests: XCTestCase {
             ("About Vittora", "About Vittora")
         ]
 
-        launchSeeded(initialTab: "settings")
+        launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
         openOverflowDestination(named: "Settings", navigationTitle: "Settings")
         try performCoreFlowAudit()
         app.terminate()
 
         for section in sections {
-            launchSeeded(initialTab: "settings")
+            launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
             openOverflowDestination(named: "Settings", navigationTitle: "Settings")
             tapText(section.0)
             XCTAssertTrue(app.navigationBars[section.1].waitForExistence(timeout: 10))
@@ -312,7 +313,7 @@ final class AccessibilityAuditUITests: XCTestCase {
             ("Recurring", "settings-manage-recurring", "Recurring Transactions", "recurring-add-button", "New Recurring")
         ]
         for surface in surfaces {
-            launchSeeded(initialTab: "settings")
+            launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
             openOverflowDestination(named: "Settings", navigationTitle: "Settings")
             openManagedSettingsDestination(
                 title: surface.0,
@@ -326,7 +327,7 @@ final class AccessibilityAuditUITests: XCTestCase {
             app.terminate()
         }
 
-        launchSeeded(initialTab: "transactions")
+        launchSeeded(initialTab: "transactions", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         UITestSupport.tapWhenReady(firstTransactionRow(), timeout: 15)
         XCTAssertTrue(app.descendants(matching: .any)["transaction-detail-root"].waitForExistence(timeout: 10))
@@ -348,7 +349,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #else
         app.launchArguments = [
             "--uitesting", "--ui-test-onboarding", "--ui-test-seed-demo",
-            "--ui-test-reset-app-lock"
+            "--ui-test-reset-app-lock", "--ui-test-pro"
         ]
         app.launchEnvironment["UITEST_FORCE_ONBOARDING"] = "1"
         app.launch()
@@ -427,7 +428,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "reports")
+        launchSeeded(initialTab: "reports", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(app.navigationBars["Reports"].waitForExistence(timeout: 15))
         let emergency = app.descendants(matching: .any)["report-card-emergencyFund"].firstMatch
         for _ in 0..<10 {
@@ -470,7 +471,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #else
         launchSeeded(
             initialTab: "dashboard",
-            extraArguments: ["--ui-test-appearance=oledBlack", "--ui-test-accent=purple"]
+            extraArguments: ["--ui-test-appearance=oledBlack", "--ui-test-accent=purple", "--ui-test-pro"]
         )
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         XCTAssertTrue(app.navigationBars["Dashboard"].waitForExistence(timeout: 15))
@@ -518,7 +519,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         for accent in ["brandGreen", "blue", "purple", "orange"] {
             launchSeeded(
                 initialTab: "dashboard",
-                extraArguments: ["--ui-test-appearance=oledBlack", "--ui-test-accent=\(accent)"]
+                extraArguments: ["--ui-test-appearance=oledBlack", "--ui-test-accent=\(accent)", "--ui-test-pro"]
             )
             XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
             XCTAssertTrue(app.navigationBars["Dashboard"].waitForExistence(timeout: 15))
@@ -545,7 +546,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #else
         launchSeeded(
             initialTab: "dashboard",
-            extraArguments: ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXL"]
+            extraArguments: ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXL", "--ui-test-pro"]
         )
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
 
@@ -631,7 +632,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        let accessibility3 = ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXL"]
+        let accessibility3 = ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXL", "--ui-test-pro"]
         let overflowSurfaces = [
             ("Savings", "Savings Goals", "a11y3-savings"),
             ("Splits", "Split Expenses", "a11y3-splits"),
@@ -706,7 +707,7 @@ final class AccessibilityAuditUITests: XCTestCase {
 
         app.launchArguments = [
             "--uitesting", "--ui-test-onboarding", "--ui-test-seed-demo",
-            "--ui-test-reset-app-lock"
+            "--ui-test-reset-app-lock", "--ui-test-pro"
         ] + accessibility3
         app.launchEnvironment["UITEST_FORCE_ONBOARDING"] = "1"
         app.launch()

@@ -82,6 +82,10 @@ struct VittoraApp: App {
             Self.resetAppLockUITestState()
         }
 
+        if isUITesting {
+            Self.applyEntitlementUITestState(arguments: launchArguments)
+        }
+
         if exercisesAppLockPolicy {
             KeychainService.syncSave(Data([1]), forKey: AppUserDefaults.KeychainKey.appLockEnabled)
             UserDefaults.standard.set(
@@ -159,6 +163,30 @@ struct VittoraApp: App {
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
         UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockTimeout)
         AppLockSessionMirror.clearAll()
+    }
+
+    /// UI tests must declare free vs Pro rather than inheriting the previous case's
+    /// entitlement: the snapshot lives in `AppUserDefaults.conversion`, which survives
+    /// relaunch on the simulator exactly as App Lock state does. Without the reset, one
+    /// test that seeds Pro would silently unlock every case that ran after it.
+    ///
+    /// A lifetime snapshot is used deliberately: it has no expiry, so it is never put to
+    /// `EntitlementStore`'s subscription-standing question and cannot lapse mid-run.
+    private static func applyEntitlementUITestState(arguments: [String]) {
+        let cache = EntitlementCache()
+        guard arguments.contains("--ui-test-pro") else {
+            cache.clear()
+            return
+        }
+        cache.save(
+            EntitlementSnapshot(
+                level: .pro,
+                productID: ProProduct.lifetime.rawValue,
+                expirationDate: nil,
+                isInBillingRetry: false,
+                recordedAt: Date.now
+            )
+        )
     }
 
     private static func configureAppearanceForUITesting(arguments: [String]) {

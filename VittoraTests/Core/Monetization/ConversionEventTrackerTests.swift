@@ -5,6 +5,9 @@ import VittoraCore
 
 @Suite("Conversion Event Tracker Tests")
 struct ConversionEventTrackerTests {
+    /// A tracker with StoreKit dormant. Declared rather than inherited: these cases pin the
+    /// kill-switch-off contract, and must keep testing it after the switch ships flipped on.
+    /// Use `makeEnabledTracker` for the live-monetization cases.
     private func makeTracker(
         now: Date = Date(timeIntervalSince1970: 1_700_000_000)
     ) -> UserDefaultsConversionEventTracker {
@@ -15,7 +18,8 @@ struct ConversionEventTrackerTests {
         return UserDefaultsConversionEventTracker(
             defaults: defaults,
             calendar: Calendar(identifier: .gregorian),
-            nowProvider: { now }
+            nowProvider: { now },
+            storeKitEnabled: false
         )
     }
 
@@ -97,9 +101,10 @@ struct ConversionEventTrackerTests {
         #expect(tracker.ocrScansThisMonth() == 0)
     }
 
-    @Test("Paywall presentation respects cooldown when StoreKit would be enabled")
-    func paywallCooldownWhenEnabled() {
-        // StoreKit is disabled in production config; verify tracker state transitions only.
+    @Test("Paywall never presents while StoreKit is dormant, and marking presentation is inert")
+    func paywallCooldownWhenDormant() {
+        // The kill switch is off here, so no milestone may present and markPaywallPresented
+        // must not make a later check say yes.
         let tracker = makeTracker()
         let result = tracker.record(.firstReport)
         #expect(result.shouldPresentPaywall == false)

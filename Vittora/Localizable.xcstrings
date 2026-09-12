@@ -306,6 +306,22 @@
         }
       }
     },
+    "Vittora Pro is restored on this device." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro se ha restaurado en este dispositivo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर Vittora Pro बहाल कर दिया गया है।"
+          }
+        }
+      }
+    },
     "Vittora Pro unlocks the forward-looking analysis. Your records, your splits, iCloud sync and CSV export stay free, always." : {
       "localizations" : {
         "es" : {
@@ -2602,6 +2618,22 @@
         }
       }
     },
+    "A Vittora Pro report" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un informe de Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एक Vittora Pro रिपोर्ट"
+          }
+        }
+      }
+    },
     "A budget for this category is already running. Edit or delete it before adding another." : {
       "comment" : "Validation error when creating a second budget for a category that already has an active one.",
       "localizations" : {
@@ -3867,6 +3899,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "आयु (वरिष्ठ नागरिक टैक्स स्लैब के लिए)"
+          }
+        }
+      }
+    },
+    "Aging, exposure and settlement analytics are part of Vittora Pro. Your debt ledger and every record in it stay free." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El análisis de antigüedad, exposición y liquidación forma parte de Vittora Pro. Tu libro de deudas y todos sus registros siguen siendo gratis."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एजिंग, एक्सपोज़र और सेटलमेंट एनालिटिक्स Vittora Pro का हिस्सा हैं। आपकी उधार खाता-बही और उसमें मौजूद हर रिकॉर्ड मुफ़्त रहता है।"
           }
         }
       }
@@ -6025,6 +6073,22 @@
         }
       }
     },
+    "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La previsión de flujo de caja, la auditoría de suscripciones, el 50/30/20, el seguimiento del fondo de emergencia y los informes personalizados forman parte de Vittora Pro. Tus registros, tus divisiones, la sincronización con iCloud y la exportación CSV siguen siendo gratis."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कैश फ़्लो पूर्वानुमान, सब्सक्रिप्शन ऑडिट, 50/30/20, इमरजेंसी फंड ट्रैकर और कस्टम रिपोर्ट Vittora Pro का हिस्सा हैं। आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट मुफ़्त रहते हैं।"
+          }
+        }
+      }
+    },
     "Cash receipt limit (Section 269ST)" : {
       "localizations" : {
         "es" : {
@@ -7950,6 +8014,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "उधार राशि"
+          }
+        }
+      }
+    },
+    "Debt analytics is Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El análisis de deudas es de Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डेट एनालिटिक्स Vittora Pro है"
           }
         }
       }
@@ -10037,6 +10117,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सटीक राशि"
+          }
+        }
+      }
+    },
+    "Everything in Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo lo que incluye Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro में सब कुछ"
           }
         }
       }
@@ -14582,6 +14678,22 @@
         }
       }
     },
+    "No previous Vittora Pro purchase was found for this Apple Account." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encontró ninguna compra anterior de Vittora Pro en esta cuenta de Apple."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस Apple खाते के लिए Vittora Pro की कोई पिछली खरीद नहीं मिली।"
+          }
+        }
+      }
+    },
     "No recent sync conflicts" : {
       "localizations" : {
         "es" : {
@@ -18437,6 +18549,22 @@
         }
       }
     },
+    "Restore Purchases" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar compras"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "खरीदारी बहाल करें"
+          }
+        }
+      }
+    },
     "Results" : {
       "localizations" : {
         "es" : {
@@ -19395,6 +19523,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सभी देखें"
+          }
+        }
+      }
+    },
+    "See Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro देखें"
           }
         }
       }
@@ -22017,6 +22161,22 @@
         }
       }
     },
+    "Tax estimates are Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las estimaciones fiscales son de Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स अनुमान Vittora Pro हैं"
+          }
+        }
+      }
+    },
     "Tax export is not available right now." : {
       "localizations" : {
         "es" : {
@@ -22246,6 +22406,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "प्रीव्यू के लिए एन्क्रिप्टेड दस्तावेज़ को डीकोड नहीं किया जा सका।"
+          }
+        }
+      }
+    },
+    "The estimate, the regime comparison and the tax report export are part of Vittora Pro. Your tax profile stays free — open it any time with the button in the toolbar." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La estimación, la comparación de regímenes y la exportación del informe fiscal forman parte de Vittora Pro. Tu perfil fiscal sigue siendo gratis: ábrelo cuando quieras con el botón de la barra de herramientas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अनुमान, रिजीम तुलना और टैक्स रिपोर्ट एक्सपोर्ट Vittora Pro का हिस्सा हैं। आपकी टैक्स प्रोफ़ाइल मुफ़्त रहती है — इसे टूलबार के बटन से कभी भी खोलें।"
           }
         }
       }
@@ -24078,6 +24254,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "इस अकाउंट में अभी मौजूद राशि को धनात्मक संख्या में दर्ज करें।"
+          }
+        }
+      }
+    },
+    "Upgrade" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mejorar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अपग्रेड करें"
           }
         }
       }
