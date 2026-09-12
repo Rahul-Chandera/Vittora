@@ -14,6 +14,7 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
     private nonisolated(unsafe) let defaults: UserDefaults
     private nonisolated let calendar: Calendar
     private nonisolated let nowProvider: @Sendable () -> Date
+    private nonisolated let storeKitEnabled: Bool
     private nonisolated let lock = NSLock()
 
     private enum Keys {
@@ -30,11 +31,13 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
     nonisolated init(
         defaults: UserDefaults = AppUserDefaults.conversion,
         calendar: Calendar = .current,
-        nowProvider: @escaping @Sendable () -> Date = { Date.now }
+        nowProvider: @escaping @Sendable () -> Date = { Date.now },
+        storeKitEnabled: Bool = MonetizationConfiguration.isStoreKitEnabled
     ) {
         self.defaults = defaults
         self.calendar = calendar
         self.nowProvider = nowProvider
+        self.storeKitEnabled = storeKitEnabled
     }
 
     nonisolated func record(_ milestone: ConversionMilestone) -> ConversionEventResult {
@@ -62,7 +65,7 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         lock.lock()
         defer { lock.unlock() }
 
-        let isFirstTime = defaults.bool(forKey: Keys.milestone(milestone))
+        let isFirstTime = !defaults.bool(forKey: Keys.milestone(milestone))
         return evaluatePaywallPresentation(milestone: milestone, isFirstTime: isFirstTime)
     }
 
@@ -101,7 +104,7 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         milestone: ConversionMilestone,
         isFirstTime: Bool
     ) -> Bool {
-        guard MonetizationConfiguration.isStoreKitEnabled else { return false }
+        guard storeKitEnabled else { return false }
         guard isFirstTime else { return false }
 
         if let lastPresented = defaults.object(forKey: Keys.lastPaywallPresented) as? Date {

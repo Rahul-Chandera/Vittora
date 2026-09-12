@@ -19,6 +19,21 @@ struct ConversionEventTrackerTests {
         )
     }
 
+    private func makeEnabledTracker(
+        now: Date = Date(timeIntervalSince1970: 1_700_000_000)
+    ) -> UserDefaultsConversionEventTracker {
+        let suiteName = "test.conversion.\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            fatalError("Failed to create test defaults suite")
+        }
+        return UserDefaultsConversionEventTracker(
+            defaults: defaults,
+            calendar: Calendar(identifier: .gregorian),
+            nowProvider: { now },
+            storeKitEnabled: true
+        )
+    }
+
     @Test("Each milestone records only once")
     func milestoneRecordsOnce() {
         let tracker = makeTracker()
@@ -90,6 +105,53 @@ struct ConversionEventTrackerTests {
         #expect(result.shouldPresentPaywall == false)
         tracker.markPaywallPresented(for: .firstReport)
         #expect(tracker.shouldPresentPaywall(for: .firstReport) == false)
+    }
+
+    // Guards against the isFirstTime inversion in shouldPresentPaywall(for:).
+    @Test("Paywall presents on a milestone's first occurrence when StoreKit is enabled")
+    func paywallPresentsOnFirstOccurrenceWhenStoreKitEnabled() {
+        let tracker = makeEnabledTracker()
+        // Not yet recorded, so this is a first-time opportunity.
+        #expect(tracker.shouldPresentPaywall(for: .firstReport) == true)
+        let result = tracker.record(.firstReport)
+        #expect(result.isFirstTime)
+        #expect(result.shouldPresentPaywall == true)
+    }
+
+    @Test("Paywall does not present again for an already-fired milestone")
+    func paywallDoesNotPresentAgainForAlreadyFiredMilestone() {
+        let tracker = makeEnabledTracker()
+        _ = tracker.record(.firstSplit)
+        #expect(tracker.hasRecorded(.firstSplit))
+        #expect(tracker.shouldPresentPaywall(for: .firstSplit) == false)
+        #expect(tracker.record(.firstSplit).shouldPresentPaywall == false)
+    }
+
+    @Test("Paywall cooldown suppresses a different milestone's first occurrence")
+    func paywallCooldownSuppressesDifferentMilestoneFirstOccurrence() {
+        final class NowBox: @unchecked Sendable {
+            var value: Date
+            init(_ value: Date) { self.value = value }
+        }
+
+        let nowBox = NowBox(Date(timeIntervalSince1970: 1_700_000_000))
+        let tracker = UserDefaultsConversionEventTracker(
+            defaults: UserDefaults(suiteName: "test.conversion.\(UUID().uuidString)") ?? .standard,
+            calendar: Calendar(identifier: .gregorian),
+            nowProvider: { nowBox.value },
+            storeKitEnabled: true
+        )
+
+        _ = tracker.record(.firstReport)
+        tracker.markPaywallPresented(for: .firstReport)
+        #expect(tracker.shouldPresentPaywall(for: .firstSplit) == false)
+
+        nowBox.value = Calendar(identifier: .gregorian).date(
+            byAdding: .day,
+            value: MonetizationConfiguration.paywallPresentationCooldownDays + 1,
+            to: nowBox.value
+        ) ?? nowBox.value
+        #expect(tracker.shouldPresentPaywall(for: .firstSplit) == true)
     }
 }
 
