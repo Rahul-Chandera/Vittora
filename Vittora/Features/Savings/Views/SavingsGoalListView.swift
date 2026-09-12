@@ -114,7 +114,7 @@ struct SavingsGoalListView: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.white)
                             .accessibilityHidden(true)
-                        Text(String(localized: "\(vm.overdueGoals.count) goal(s) past deadline"))
+                        Text(String(localized: "\(vm.overdueGoals.count) goals past deadline"))
                             .font(VTypography.caption1.bold())
                             .foregroundStyle(.white)
                         Spacer()

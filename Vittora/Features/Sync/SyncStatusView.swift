@@ -244,7 +244,7 @@ struct SyncDetailView: View {
             let repaired = try await useCase.repair()
             reconcileMessage = repaired.isEmpty
                 ? String(localized: "All account balances are already reconciled.")
-                : String(localized: "Repaired \(repaired.count) account balance(s).")
+                : String(localized: "Repaired \(repaired.count) account balances.")
         } catch {
             reconcileMessage = String(localized: "Reconciliation failed: \(error.localizedDescription)")
         }
@@ -256,7 +256,7 @@ struct SyncDetailView: View {
         let informationalCount = syncConflictHandler.recentConflicts.count - actionableCount
         if actionableCount > 0 {
             return String(
-                localized: "\(actionableCount) sync event(s) need review. \(informationalCount) were auto-resolved."
+                localized: "\(actionableCount) sync events need review. \(informationalCount) were auto-resolved."
             )
         }
         return String(localized: "\(informationalCount) recent sync events were resolved automatically.")
