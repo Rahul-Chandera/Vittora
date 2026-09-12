@@ -81,14 +81,14 @@ struct DebtAnalyticsView: View {
 
                 if dynamicTypeSize.isAccessibilitySize {
                     VStack(alignment: .leading, spacing: VSpacing.sm) {
-                        Text(String(localized: "\(overdue.count) overdue debt(s)"))
+                        Text(String(localized: "\(overdue.count) overdue debts"))
                             .font(VTypography.body)
                             .foregroundStyle(VColors.textPrimary)
                         Text(outstanding)
                             .font(VTypography.amountMedium)
                             .amountScaling()
                             .foregroundStyle(VColors.expense)
-                        Text(String(localized: "Worst: \(overdue.maxDaysOverdue) day(s) overdue"))
+                        Text(String(localized: "Worst: \(overdue.maxDaysOverdue) days overdue"))
                             .font(VTypography.caption1)
                             .foregroundStyle(VColors.textSecondary)
                         Text(String(localized: "\(overdue.dueWithin7DaysCount) due in the next 7 days"))
@@ -98,10 +98,10 @@ struct DebtAnalyticsView: View {
                 } else {
                     HStack(alignment: .firstTextBaseline) {
                         VStack(alignment: .leading, spacing: VSpacing.xs) {
-                            Text(String(localized: "\(overdue.count) overdue debt(s)"))
+                            Text(String(localized: "\(overdue.count) overdue debts"))
                                 .font(VTypography.body)
                                 .foregroundStyle(VColors.textPrimary)
-                            Text(String(localized: "Worst: \(overdue.maxDaysOverdue) day(s) overdue"))
+                            Text(String(localized: "Worst: \(overdue.maxDaysOverdue) days overdue"))
                                 .font(VTypography.caption1)
                                 .foregroundStyle(VColors.textSecondary)
                             Text(String(localized: "\(overdue.dueWithin7DaysCount) due in the next 7 days"))
@@ -121,7 +121,7 @@ struct DebtAnalyticsView: View {
         .accessibilityLabel(String(localized: "Overdue Risk"))
         .accessibilityValue(
             String(
-                localized: "\(overdue.count) overdue debt(s), \(outstanding) outstanding, worst \(overdue.maxDaysOverdue) day(s) overdue, \(overdue.dueWithin7DaysCount) due in the next 7 days"
+                localized: "\(overdue.count) overdue debts, \(outstanding) outstanding, worst \(overdue.maxDaysOverdue) days overdue, \(overdue.dueWithin7DaysCount) due in the next 7 days"
             )
         )
     }
@@ -170,7 +170,7 @@ struct DebtAnalyticsView: View {
                             .amountScaling()
                             .foregroundStyle(VColors.expense)
                     }
-                    Text(String(localized: "\(bucket.count) debt(s)"))
+                    Text(String(localized: "\(bucket.count) debts"))
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textSecondary)
                 }
@@ -195,7 +195,7 @@ struct DebtAnalyticsView: View {
                                 .amountScaling()
                                 .foregroundStyle(VColors.expense)
                         }
-                        Text(String(localized: "\(bucket.count) debt(s)"))
+                        Text(String(localized: "\(bucket.count) debts"))
                             .font(VTypography.caption1)
                             .foregroundStyle(VColors.textSecondary)
                     }
@@ -214,7 +214,7 @@ struct DebtAnalyticsView: View {
         owedToMe: String,
         iOwe: String
     ) -> String {
-        var parts: [String] = [name, String(localized: "\(bucket.count) debt(s)")]
+        var parts: [String] = [name, String(localized: "\(bucket.count) debts")]
         if bucket.owedToMe != 0 {
             parts.append(String(localized: "\(owedToMe) owed to you"))
         }
@@ -280,11 +280,11 @@ struct DebtAnalyticsView: View {
                         .font(VTypography.body)
                         .amountScaling()
                         .foregroundStyle(netColor)
-                    Text(String(localized: "Oldest: \(exposure.oldestOutstandingDays) day(s)"))
+                    Text(String(localized: "Oldest: \(exposure.oldestOutstandingDays) days"))
                         .font(VTypography.caption1)
                         .foregroundStyle(VColors.textSecondary)
                     if let velocity = exposure.settlementVelocity {
-                        Text(String(localized: "Usually settles in \(velocity.medianDays) day(s)"))
+                        Text(String(localized: "Usually settles in \(velocity.medianDays) days"))
                             .font(VTypography.caption1)
                             .foregroundStyle(VColors.textSecondary)
                     }
@@ -303,9 +303,9 @@ struct DebtAnalyticsView: View {
                             .font(VTypography.bodyBold)
                             .foregroundStyle(VColors.textPrimary)
                         HStack(spacing: VSpacing.md) {
-                            Text(String(localized: "Oldest: \(exposure.oldestOutstandingDays) day(s)"))
+                            Text(String(localized: "Oldest: \(exposure.oldestOutstandingDays) days"))
                             if let velocity = exposure.settlementVelocity {
-                                Text(String(localized: "Usually settles in \(velocity.medianDays) day(s)"))
+                                Text(String(localized: "Usually settles in \(velocity.medianDays) days"))
                                     .font(VTypography.caption1)
                                     .foregroundStyle(VColors.textSecondary)
                             }
@@ -336,13 +336,13 @@ struct DebtAnalyticsView: View {
         netFormatted: String
     ) -> String {
         var value = String(
-            localized: "\(exposure.payeeName), net \(netFormatted), oldest \(exposure.oldestOutstandingDays) day(s)"
+            localized: "\(exposure.payeeName), net \(netFormatted), oldest \(exposure.oldestOutstandingDays) days"
         )
         if exposure.overdueCount > 0 {
             value += String(localized: ", \(exposure.overdueCount) overdue")
         }
         if let velocity = exposure.settlementVelocity {
-            value += String(localized: ", usually settles in \(velocity.medianDays) day(s)")
+            value += String(localized: ", usually settles in \(velocity.medianDays) days")
         }
         return value
     }
@@ -357,7 +357,7 @@ struct DebtAnalyticsView: View {
                     .foregroundStyle(VColors.textPrimary)
 
                 if let velocity = analytics.velocity {
-                    Text(String(localized: "Typically settled in \(velocity.medianDays) day(s)"))
+                    Text(String(localized: "Typically settled in \(velocity.medianDays) days"))
                         .font(VTypography.body)
                         .foregroundStyle(VColors.textPrimary)
                     Text(String(localized: "Median of \(velocity.sampleSize) settled debts"))
@@ -383,7 +383,7 @@ struct DebtAnalyticsView: View {
     private func velocityAccessibilityValue(_ analytics: DebtAnalytics) -> String {
         if let velocity = analytics.velocity {
             return String(
-                localized: "Typically settled in \(velocity.medianDays) day(s), median of \(velocity.sampleSize) settled debts"
+                localized: "Typically settled in \(velocity.medianDays) days, median of \(velocity.sampleSize) settled debts"
             )
         }
         return String(

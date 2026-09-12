@@ -186,7 +186,7 @@ struct DebtLedgerView: View {
         HStack(spacing: VSpacing.sm) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundColor(.white)
-            Text(String(localized: "\(count) overdue debt(s)"))
+            Text(String(localized: "\(count) overdue debts"))
                 .font(VTypography.caption1Bold)
                 .foregroundColor(.white)
             Spacer()
