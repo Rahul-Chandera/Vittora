@@ -2298,6 +2298,23 @@
         }
       }
     },
+    "A budget for this category is already running. Edit or delete it before adding another." : {
+      "comment" : "Validation error when creating a second budget for a category that already has an active one.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya hay un presupuesto activo para esta categoría. Edítalo o elimínalo antes de añadir otro."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस श्रेणी के लिए एक बजट पहले से चल रहा है। दूसरा जोड़ने से पहले उसे संपादित करें या हटाएँ।"
+          }
+        }
+      }
+    },
     "A group requires at least 2 members." : {
       "localizations" : {
         "es" : {
@@ -3875,6 +3892,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "एक त्रुटि हुई: %@"
+          }
+        }
+      }
+    },
+    "An overall budget is already running. Edit or delete it before adding another." : {
+      "comment" : "Validation error when creating a second budget with no category while an overall budget is already active.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya hay un presupuesto general activo. Edítalo o elimínalo antes de añadir otro."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एक समग्र बजट पहले से चल रहा है। दूसरा जोड़ने से पहले उसे संपादित करें या हटाएँ।"
           }
         }
       }
@@ -13193,6 +13227,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "मासिक कुल"
+          }
+        }
+      }
+    },
+    "More than one budget covers %@. Your totals count that spending twice — delete the extra budgets to fix them." : {
+      "comment" : "Warning on the Budgets list when duplicate budgets share a category. %@ is a list of category names.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más de un presupuesto cubre %@. Tus totales cuentan ese gasto dos veces: elimina los presupuestos sobrantes para corregirlos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ के लिए एक से अधिक बजट हैं। आपके कुल योग उस खर्च को दो बार गिन रहे हैं — इसे ठीक करने के लिए अतिरिक्त बजट हटाएँ।"
           }
         }
       }

@@ -14,7 +14,15 @@ final class AccessibilityAuditUITests: XCTestCase {
         #endif
     }
 
+    // This class launches the app far more often than it terminates it, and the first
+    // test to run alphabetically (testAccessibility3ScreenshotsForCoreFlows) launches at
+    // AccessibilityXL, so per-process content-size and app state can carry into the
+    // launches that follow; launchSeeded already pins an explicit content size category
+    // for the same reason. Terminating here gives every test a cold process.
     override func tearDownWithError() throws {
+        #if !os(macOS)
+        app?.terminate()
+        #endif
         app = nil
     }
 

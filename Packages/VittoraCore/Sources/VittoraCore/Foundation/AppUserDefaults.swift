@@ -24,7 +24,6 @@ public enum AppUserDefaults {
         public nonisolated static let notificationQuietHoursEnd = "vittora.notificationQuietHoursEnd"
         public nonisolated static let billReminderLeadDays = "vittora.billReminderLeadDays"
         public nonisolated static let exportSchedule = "vittora.exportSchedule"
-        public nonisolated static let cloudSyncEnabled = "vittora.cloudSyncEnabled"
         public nonisolated static let appLockTimeout = "vittora.appLockTimeout"
         /// Legacy UserDefaults location for app-lock intent before keychain migration (B1).
         /// Intentionally matches `KeychainKey.appLockEnabled` so reads can migrate UD → keychain.

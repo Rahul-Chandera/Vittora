@@ -11,10 +11,10 @@ import VittoraCore
 struct ModelContainerOnDiskTests {
 
     /// Seeds an on-disk store at **Schema V1** (nested snapshot without `transferPairID`),
-    /// reopens at Schema V2 with `VittoraMigrationPlan`, and asserts legacy rows survive
+    /// reopens at Schema V7 with `VittoraMigrationPlan`, and asserts legacy rows survive
     /// with `transferPairID == nil` until explicitly set post-migrate.
-    @Test("on-disk V1 store migrates to V2 preserving transaction data")
-    func onDiskStoreMigratesV1ToV2() throws {
+    @Test("on-disk V1 store migrates to current schema preserving transaction data")
+    func onDiskStoreMigratesV1ToCurrent() throws {
         let dir = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -46,16 +46,20 @@ struct ModelContainerOnDiskTests {
             try ctx.save()
         }
 
-        // Phase 2: reopen at Schema V2; the lightweight V1→V2 stage runs on open.
-        let v2Schema = Schema(VittoraSchemaV2.models)
-        let config = ModelConfiguration(schema: v2Schema, url: storeURL, cloudKitDatabase: .none)
+        // Phase 2: reopen at V7, the plan's terminal version. A SchemaMigrationPlan always
+        // migrates the store all the way to its last version, so opening at an intermediate
+        // version (V2 here, until V7 was added on 2026-07-21) throws loadIssueModelContainer
+        // with 'store version hashes didn't migrate'. The V1 stage still runs; this asserts
+        // the seeded V1 row survives the whole V1 to V7 chain.
+        let currentSchema = Schema(VittoraSchemaV7.models)
+        let config = ModelConfiguration(schema: currentSchema, url: storeURL, cloudKitDatabase: .none)
         let container = try ModelContainer(
-            for: v2Schema,
+            for: currentSchema,
             migrationPlan: VittoraMigrationPlan.self,
             configurations: [config]
         )
         let ctx = ModelContext(container)
-        let rows = try ctx.fetch(FetchDescriptor<VittoraSchemaV2.SDTransaction>())
+        let rows = try ctx.fetch(FetchDescriptor<SDTransaction>())
         let migrated = try #require(rows.first { $0.id == txID })
 
         #expect(rows.count == 1)
@@ -71,15 +75,15 @@ struct ModelContainerOnDiskTests {
         migrated.transferPairID = pairID
         try ctx.save()
 
-        // Phase 3: round-trip at V2 to confirm the new column persists.
+        // Phase 3: round-trip at V7 to confirm the new column persists.
         let reopened = try ModelContainer(
-            for: v2Schema,
+            for: currentSchema,
             migrationPlan: VittoraMigrationPlan.self,
             configurations: [config]
         )
         let reloadCtx = ModelContext(reopened)
         let reloaded = try #require(
-            try reloadCtx.fetch(FetchDescriptor<VittoraSchemaV2.SDTransaction>()).first { $0.id == txID }
+            try reloadCtx.fetch(FetchDescriptor<SDTransaction>()).first { $0.id == txID }
         )
         #expect(reloaded.transferPairID == pairID)
     }
@@ -397,11 +401,12 @@ struct ModelContainerOnDiskTests {
 
     /// Regression for the "Duplicate version checksums detected" launch crash:
     /// a store created at the true V3 shape (pre-`openingBalance` account,
-    /// pre-JSON debt) must stage-migrate V3→V6 on open. Before the schemas
-    /// were frozen, V3–V6 aliased the live models, the on-disk store matched
-    /// no version in the plan, and CoreData threw while building the stages.
-    @Test("on-disk V3-era store stage-migrates to V6 preserving account and debt data")
-    func onDiskStoreMigratesV3ToV6() throws {
+    /// pre-JSON debt) must stage-migrate V3 to the current schema on open.
+    /// Before the schemas were frozen, V3–V6 aliased the live models, the
+    /// on-disk store matched no version in the plan, and CoreData threw while
+    /// building the stages.
+    @Test("on-disk V3-era store stage-migrates to current schema preserving account and debt data")
+    func onDiskStoreMigratesV3ToCurrent() throws {
         let dir = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -430,8 +435,8 @@ struct ModelContainerOnDiskTests {
             try ctx.save()
         }
 
-        // Phase 2: reopen at V6 with the plan — runs stages V3→V4→V5→V6.
-        let schema = Schema(VittoraSchemaV6.models)
+        // Phase 2: reopen at V7 with the plan — runs stages V3→V4→V5→V6→V7.
+        let schema = Schema(VittoraSchemaV7.models)
         let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
         let container = try ModelContainer(
             for: schema,

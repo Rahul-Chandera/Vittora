@@ -290,17 +290,6 @@ struct SupportDiagnosticsTests {
         let errorLog = RecentErrorLogStore(defaults: errorDefaults)
         errorLog.record(errorType: "TestError", codePath: "SupportDiagnosticsTests.builder")
 
-        let syncKey = AppUserDefaults.StandardKey.cloudSyncEnabled
-        let previousSync = UserDefaults.standard.object(forKey: syncKey)
-        UserDefaults.standard.set(false, forKey: syncKey)
-        defer {
-            if let previousSync {
-                UserDefaults.standard.set(previousSync, forKey: syncKey)
-            } else {
-                UserDefaults.standard.removeObject(forKey: syncKey)
-            }
-        }
-
         let service = DataManagementService(
             transactionRepository: transactionRepo,
             accountRepository: accountRepo,

@@ -24,13 +24,14 @@ struct CreateBudgetUseCase: Sendable {
             throw VittoraError.validationFailed("Budget amount must be greater than 0")
         }
 
-        // Check for existing active budget with same category and period
-        if let categoryID = categoryID {
-            if try await budgetRepository.fetchForCategory(categoryID, period: period) != nil {
-                throw VittoraError.validationFailed(
-                    "An active \(period.rawValue) budget already exists for this category"
-                )
-            }
+        // Two active budgets on one category make a transaction count against both,
+        // so the totals stop meaning anything.
+        let activeBudgets = try await budgetRepository.fetchActive()
+        if activeBudgets.contains(where: { $0.categoryID == categoryID }) {
+            let message = categoryID == nil
+                ? String(localized: "An overall budget is already running. Edit or delete it before adding another.")
+                : String(localized: "A budget for this category is already running. Edit or delete it before adding another.")
+            throw VittoraError.validationFailed(message)
         }
 
         let budget = BudgetEntity(

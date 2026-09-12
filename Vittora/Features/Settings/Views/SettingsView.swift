@@ -408,7 +408,8 @@ struct SettingsView: View {
         if syncConflictHandler.hasActionableConflicts {
             return String(localized: "Review")
         }
-        return vm.isCloudSyncEnabled ? String(localized: "On") : String(localized: "Off")
+        // Mirror the detail screen: the old preference key was never written.
+        return syncService.syncState.displayText
     }
 }
 

@@ -57,4 +57,49 @@ struct CloudKitSyncMonitorMessageTests {
         )
         #expect(message.contains("Your data is safe on this device"))
     }
+
+    @Test("syncDiagnosticCode returns the CloudKit code for a plain CKError")
+    func diagnosticCodeForPlainCKError() throws {
+        let monitor = try makeMonitor()
+        let codes: [CKError.Code] = [
+            .quotaExceeded,
+            .notAuthenticated,
+            .internalError,
+            .partialFailure,
+        ]
+        for code in codes {
+            #expect(
+                monitor.syncDiagnosticCode(for: CKError(code)) == "CKError.\(code.rawValue)",
+                "\(code) should fingerprint as CKError.\(code.rawValue)"
+            )
+        }
+    }
+
+    @Test("syncDiagnosticCode unwraps CKError nested under NSUnderlyingErrorKey")
+    func diagnosticCodeForWrappedCKError() throws {
+        let monitor = try makeMonitor()
+        let wrapped = NSError(
+            domain: "NSCocoaErrorDomain",
+            code: 134400,
+            userInfo: [NSUnderlyingErrorKey: CKError(.quotaExceeded)]
+        )
+        #expect(
+            monitor.syncDiagnosticCode(for: wrapped) == "CKError.\(CKError.Code.quotaExceeded.rawValue)",
+            "wrapped quotaExceeded should still fingerprint as CKError"
+        )
+    }
+
+    @Test("syncDiagnosticCode falls back to domain.code and leaks no user-identifying detail")
+    func diagnosticCodeForNonCloudKitError() throws {
+        let monitor = try makeMonitor()
+        let error = NSError(
+            domain: "SomeDomain",
+            code: 42,
+            userInfo: [NSLocalizedDescriptionKey: "account rahul@example.com quota"]
+        )
+        let result = monitor.syncDiagnosticCode(for: error)
+        #expect(result == "SomeDomain.42", "non-CKError should be domain.code only")
+        #expect(!result.contains("rahul"), "diagnostic must not contain account local-part")
+        #expect(!result.contains("@"), "diagnostic must not contain email @")
+    }
 }

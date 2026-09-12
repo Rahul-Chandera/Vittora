@@ -27,16 +27,114 @@ env:
   LC_CTYPE: en_US.UTF-8
 
 jobs:
-  build-and-test:
-    name: build-and-test
+  build:
     runs-on: macos-15
-    # `make test` runs the unit, UI-core and UI-onboarding suites serially and
-    # its wall-clock swings widely on identical content — 52 to 72 minutes
-    # measured across six runs — which put the job total at 64 to 92 minutes
-    # against the previous 90 cap. PR #215 was cancelled at 92 and #212 passed
-    # at 83, so the cap was decided by runner speed rather than by anything in
-    # the change. 120 buys headroom; it does not make the suite faster.
-    timeout-minutes: 120
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Set US locale
+        run: ./Scripts/ci/set-us-locale.sh
+
+      - name: Show toolchain
+        run: xcodebuild -version
+
+      - name: make build-ios
+        run: make build-ios
+
+      # Reads the watch target's .stringsdata, which `make build-ios` produces
+      # because the watch app is embedded. This is the check that would have
+      # caught the watch shipping unlocalized.
+      - name: Watch string catalogue in sync
+        run: DERIVED=.build-ios Scripts/ci/sync-watch-strings.py --check
+
+      - name: make build-macos
+        run: make build-macos
+
+      # Deliberately after BOTH builds. The check reads the compiler's
+      # .stringsdata, and a string inside `#if os(macOS)` is never compiled by
+      # the iOS build — so an iOS-only scan cannot see it at all. Running it
+      # against .build-ios alone let "Running on macOS" sit in the catalogue
+      # untranslated and nearly shipped the macOS ShareSheet strings the same
+      # way. Both paths, or the gap silently reopens.
+      - name: Localization coverage
+        run: DERIVED=.build-ios:.build-macos Scripts/ci/check-localization-coverage.sh --list
+
+  # The three test legs each compiled the same 983-file graph on their own
+  # runner — 8.7, 11.8 and 12.1 min in run 34498303869, ~33 runner-min per run.
+  # Compile once here and pass the products on.
+  #
+  # Deliberately a separate job from `build`: the iOS-device and macOS compiles
+  # plus the localization checks are 6.4 min that the test legs do not need, and
+  # folding them in would push that onto the critical path in front of the 42
+  # min UI-core suite.
+  build-for-testing:
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Set US locale
+        run: ./Scripts/ci/set-us-locale.sh
+
+      - name: make build-for-testing
+        run: make build-for-testing
+
+      # tar, not a bare upload-artifact of the directory: upload-artifact zips
+      # and drops the executable bit, which leaves the .app unlaunchable. tar
+      # also turns 324 files into one and compresses 363 MB to ~90 MB.
+      - name: Package test products
+        run: tar -czf test-products.tar.gz -C .build-ci/DerivedData/Build Products
+
+      - name: Report artifact size
+        run: ls -lh test-products.tar.gz && du -sh .build-ci/DerivedData/Build/Products
+
+      - name: Upload test products
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-products-${{ github.run_id }}
+          path: test-products.tar.gz
+          # Already gzipped; re-deflating it just burns runner time.
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 1
+
+  # `make test` ran the three suites serially at 53-80 min; UI-core is 49 min
+  # of that and sets the floor; the three suites each rebuilt the same 983
+  # compile tasks into separate derived-data trees.
+  #
+  # 90, not 75: runner speed varies ~1.5x on identical content (measured), so
+  # UI-core's 49 min can land near 70. A tight cap here would reintroduce the
+  # timeout kills that #216 raised the old cap to escape.
+  test:
+    name: test (${{ matrix.suite }})
+    runs-on: macos-15
+    needs: build-for-testing
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: test-unit
+            result: Test-Unit.xcresult
+          - suite: test-ios-ui-core
+            result: Test-iOS-UI.xcresult
+          - suite: test-ios-ui-onboarding
+            result: Test-iOS-UI-Onboarding.xcresult
 
     steps:
       - name: Checkout
@@ -66,39 +164,44 @@ jobs:
       - name: Boot iOS Simulator
         run: ./Scripts/ci/boot-simulator-if-needed.sh "$IOS_SIM_DEST"
 
-      - name: make build-ios
-        run: make build-ios
+      - name: Download test products
+        uses: actions/download-artifact@v4
+        with:
+          name: test-products-${{ github.run_id }}
 
-      # Reads the watch target's .stringsdata, which `make build-ios` produces
-      # because the watch app is embedded. This is the check that would have
-      # caught the watch shipping unlocalized.
-      - name: Watch string catalogue in sync
-        run: DERIVED=.build-ios Scripts/ci/sync-watch-strings.py --check
+      - name: Unpack test products
+        run: |
+          mkdir -p .build-ci/DerivedData/Build
+          tar -xzf test-products.tar.gz -C .build-ci/DerivedData/Build
+          ls -l .build-ci/DerivedData/Build/Products/*.xctestrun
 
-      - name: make build-macos
-        run: make build-macos
-
-      # Deliberately after BOTH builds. The check reads the compiler's
-      # .stringsdata, and a string inside `#if os(macOS)` is never compiled by
-      # the iOS build — so an iOS-only scan cannot see it at all. Running it
-      # against .build-ios alone let "Running on macOS" sit in the catalogue
-      # untranslated and nearly shipped the macOS ShareSheet strings the same
-      # way. Both paths, or the gap silently reopens.
-      - name: Localization coverage
-        run: DERIVED=.build-ios:.build-macos Scripts/ci/check-localization-coverage.sh --list
-
-      - name: make test
-        run: make test
+      - name: make ${{ matrix.suite }}
+        run: make ${{ matrix.suite }}
         env:
           IOS_SIM_DEST: ${{ env.IOS_SIM_DEST }}
+          PREBUILT_TESTS: "1"
 
-      - name: Upload xcresult bundles
+      - name: Upload xcresult bundle
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: xcresult-${{ github.run_id }}
-          path: |
-            .build-ci/Test-Unit.xcresult
-            .build-ci/Test-iOS-UI.xcresult
+          name: xcresult-${{ matrix.suite }}-${{ github.run_id }}
+          path: .build-ci/${{ matrix.result }}
           if-no-files-found: warn
           retention-days: 14
+
+  # Branch protection requires a check called `build-and-test` (see
+  # `.github/BRANCH_PROTECTION.md`), so the name is kept as an aggregator
+  # over the real jobs rather than renamed.
+  build-and-test:
+    name: build-and-test
+    runs-on: ubuntu-latest
+    needs: [build, build-for-testing, test]
+    if: always()
+    steps:
+      - name: Gate on build and test results
+        run: |
+          echo "build=${{ needs.build.result }} build-for-testing=${{ needs.build-for-testing.result }} test=${{ needs.test.result }}"
+          [ "${{ needs.build.result }}" = "success" ] || exit 1
+          [ "${{ needs.build-for-testing.result }}" = "success" ] || exit 1
+          [ "${{ needs.test.result }}" = "success" ] || exit 1
