@@ -512,4 +512,43 @@ struct TransactionFormViewModelTests {
         #expect(all.count == 1)
         #expect(all.first?.categorySuggestion == nil)
     }
+
+    @Test("quick entry save instruments the row rather than leaving it uninstrumented")
+    func quickEntrySaveInstrumentsRow() async throws {
+        let (vm, txRepo, accountRepo, _, _) = makeViewModel()
+        let account = AccountEntity(name: "Wallet", type: .cash, balance: 1000)
+        await accountRepo.seed(account)
+
+        vm.amountString = "15"
+        vm.selectedAccountID = account.id
+        #expect(vm.didRunCategorySuggestion == false)
+
+        await vm.captureCategorySuggestionIfNeeded()
+        #expect(vm.didRunCategorySuggestion == true)
+
+        try await vm.save()
+
+        let all = await txRepo.transactions
+        #expect(all.count == 1)
+        #expect(all.first?.categorySuggestion == .noSuggestion)
+        #expect(all.first?.categorySuggestion != nil)
+    }
+
+    @Test("capture does not re-run or overwrite a suggestion that already ran")
+    func captureDoesNotRerunOrOverwrite() async {
+        let (vm, _, accountRepo, _, _) = makeViewModel()
+        let account = AccountEntity(name: "Wallet", type: .cash, balance: 1000)
+        await accountRepo.seed(account)
+
+        vm.amountString = "15"
+        vm.selectedAccountID = account.id
+        await vm.suggestCategory()
+        // A re-run would overwrite that sentinel with nil, so the test now fails if the guard stops working.
+        let recorded = UUID()
+        vm.suggestedCategoryID = recorded
+
+        await vm.captureCategorySuggestionIfNeeded()
+        #expect(vm.suggestedCategoryID == recorded)
+        #expect(vm.didRunCategorySuggestion == true)
+    }
 }

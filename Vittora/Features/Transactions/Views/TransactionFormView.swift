@@ -115,6 +115,7 @@ struct TransactionFormView: View {
                         Button {
                             Task {
                                 do {
+                                    await vm.captureCategorySuggestionIfNeeded()
                                     try await vm.save()
                                     if !vm.isEditing {
                                         await dependencies.conversionEventRecorder.afterTransactionCreated()

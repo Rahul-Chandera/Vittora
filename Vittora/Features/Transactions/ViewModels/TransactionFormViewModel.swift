@@ -145,6 +145,22 @@ import VittoraCore
         return .suggested(suggestedCategoryID)
     }
 
+    /// Runs the categorizer once before a create, for surfaces that have no
+    /// payee or note field to trigger it (both Quick Entry paths). Without this
+    /// every quick-entry row records nil ("not instrumented") rather than
+    /// `.noSuggestion`, and the 1.8.0 training corpus would be full-form only.
+    ///
+    /// Silent by design: this is instrumentation the user never asked for, so a
+    /// categorizer failure must not raise an alert on the save the user did ask
+    /// for. A failure leaves `didRunCategorySuggestion` false and the row
+    /// records nil, which is the honest value.
+    func captureCategorySuggestionIfNeeded() async {
+        guard !isEditing, !didRunCategorySuggestion else { return }
+        let previousError = error
+        await suggestCategory()
+        error = previousError
+    }
+
     func checkDuplicates() async {
         guard let parsedAmount, parsedAmount > 0, let accountID = selectedAccountID else {
             duplicateWarning = []

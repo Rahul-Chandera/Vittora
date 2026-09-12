@@ -87,6 +87,7 @@ struct QuickEntryView: View {
                         Button {
                             Task {
                                 do {
+                                    await vm.captureCategorySuggestionIfNeeded()
                                     try await vm.save()
                                     await dependencies.conversionEventRecorder.afterTransactionCreated()
                                     await dependencies.refreshBudgetThresholdAlerts()
