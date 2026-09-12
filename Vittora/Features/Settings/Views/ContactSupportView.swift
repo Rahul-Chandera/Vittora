@@ -21,7 +21,7 @@ enum DiagnosticSnapshotBuilder {
         lastSyncDate: Date? = nil,
         errorLog: RecentErrorLogStore = .shared
     ) -> DiagnosticSnapshot {
-        let syncEnabled = settingsVM.isCloudSyncEnabled
+        let syncEnabled = CloudKitRuntimeSupport.isEnabled
         let resolvedLastSync = lastSyncDate
             ?? (AppUserDefaults.sync.object(forKey: AppUserDefaults.SyncKey.lastSyncDate) as? Date)
         let lastSyncResult: String

@@ -254,18 +254,6 @@ final class SettingsViewModel {
         }
     }
 
-    var isCloudSyncEnabled: Bool {
-        get {
-            access(keyPath: \.isCloudSyncEnabled)
-            return UserDefaults.standard.bool(forKey: AppUserDefaults.StandardKey.cloudSyncEnabled)
-        }
-        set {
-            withMutation(keyPath: \.isCloudSyncEnabled) {
-                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.cloudSyncEnabled)
-            }
-        }
-    }
-
     /// Show transactions in system Search / Spotlight (default ON). Amounts are
     /// visible outside App Lock by OS design — turning OFF clears the index.
     var isSpotlightIndexingEnabled: Bool {
