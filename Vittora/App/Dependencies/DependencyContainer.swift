@@ -43,6 +43,7 @@ final class DependencyContainer {
     // Tests that substitute conversionEventTracker must substitute featureGate too.
     var featureGate: FeatureGate
     let purchaseService: PurchaseService
+    let paywallPresenter: PaywallPresenter
     let conversionEventRecorder: ConversionEventRecorder
     let securityAuditLogService: SecurityAuditLogService
     let dataSeeder: any DataSeederProtocol
@@ -116,6 +117,7 @@ final class DependencyContainer {
         self.savedTransactionFilterStore = savedTransactionFilterStore
         self.featureGate = FeatureGate(store: entitlementStore, tracker: UserDefaultsConversionEventTracker())
         self.purchaseService = PurchaseService(entitlements: entitlementStore)
+        self.paywallPresenter = PaywallPresenter(tracker: UserDefaultsConversionEventTracker())
     }
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {

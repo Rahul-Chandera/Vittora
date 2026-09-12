@@ -89,7 +89,7 @@ struct QuickEntryView: View {
                                 do {
                                     await vm.captureCategorySuggestionIfNeeded()
                                     try await vm.save()
-                                    await dependencies.conversionEventRecorder.afterTransactionCreated()
+                                    let paywallEvent = await dependencies.conversionEventRecorder.afterTransactionCreated()
                                     await dependencies.refreshBudgetThresholdAlerts()
                                     appState.notifyChanged([.transactions, .accounts, .budgets])
                                     #if os(iOS)
@@ -97,6 +97,7 @@ struct QuickEntryView: View {
                                     feedback.impactOccurred()
                                     #endif
                                     dismiss()
+                                    dependencies.paywallPresenter.present(paywallEvent)
                                 } catch {
                                     vm.error = error.userFacingMessage(
                                         fallback: String(localized: "We couldn't save this transaction.")

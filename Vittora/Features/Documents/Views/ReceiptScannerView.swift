@@ -49,7 +49,9 @@ struct ReceiptScannerView: View {
                     Task {
                         await vm.processImage(cgImage)
                         if let data = vm.scannedReceiptData {
-                            dependencies.conversionEventRecorder.afterOCRScanCompleted()
+                            dependencies.paywallPresenter.present(
+                                dependencies.conversionEventRecorder.afterOCRScanCompleted()
+                            )
                             receiptData = data
                             showReview = true
                         }

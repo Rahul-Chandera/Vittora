@@ -117,7 +117,9 @@ struct BatchReceiptScanView: View {
                 localized: "\(outcome.attachedCount) attached; \(outcome.failureCount) couldn't be processed."
             )
         }
-        dependencies.conversionEventRecorder.afterOCRScanCompleted()
+        dependencies.paywallPresenter.present(
+            dependencies.conversionEventRecorder.afterOCRScanCompleted()
+        )
         onComplete()
         if !outcome.hadPartialFailure {
             dismiss()

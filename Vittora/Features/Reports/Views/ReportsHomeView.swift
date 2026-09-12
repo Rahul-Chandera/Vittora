@@ -84,7 +84,9 @@ struct ReportsHomeView: View {
             }
         }
         .task {
-            dependencies.conversionEventRecorder.afterReportOpened()
+            dependencies.paywallPresenter.present(
+                dependencies.conversionEventRecorder.afterReportOpened()
+            )
         }
         // Keyed on the transaction version, like DashboardView: the summary card
         // aggregates transactions, so a once-only load left it showing the totals

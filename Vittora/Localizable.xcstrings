@@ -50,6 +50,310 @@
         }
       }
     },
+    "50/30/20 report and emergency fund tracker" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informe 50/30/20 y seguimiento del fondo de emergencia"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50/30/20 रिपोर्ट और इमरजेंसी फंड ट्रैकर"
+          }
+        }
+      }
+    },
+    "Annual includes a 7-day free trial, then renews yearly. Monthly renews every month. Both renew automatically unless you turn off auto-renew at least 24 hours before the period ends, and renewals are charged within 24 hours of the period ending. Manage or cancel in your Apple Account settings. Subscribing before a trial ends forfeits the unused part of the trial. Vittora Pro Lifetime is a one-time purchase and does not renew." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El plan anual incluye una prueba gratuita de 7 días y después se renueva cada año. El plan mensual se renueva cada mes. Ambos se renuevan automáticamente salvo que desactives la renovación automática al menos 24 horas antes de que termine el periodo; el cobro de la renovación se realiza en las 24 horas previas al fin del periodo. Puedes gestionarlos o cancelarlos en los ajustes de tu cuenta de Apple. Si te suscribes antes de que acabe la prueba, pierdes la parte no utilizada. Vittora Pro Lifetime es una compra única y no se renueva."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वार्षिक प्लान में 7 दिन का मुफ़्त ट्रायल शामिल है, जिसके बाद यह हर साल रिन्यू होता है। मासिक प्लान हर महीने रिन्यू होता है। दोनों अपने आप रिन्यू होते हैं, बशर्ते आप अवधि खत्म होने से कम से कम 24 घंटे पहले ऑटो-रिन्यू बंद न कर दें; रिन्यूअल का शुल्क अवधि खत्म होने से 24 घंटे के भीतर लिया जाता है। आप इन्हें अपनी Apple खाता सेटिंग्स में मैनेज या रद्द कर सकते हैं। ट्रायल खत्म होने से पहले सब्सक्राइब करने पर ट्रायल का बचा हुआ हिस्सा समाप्त हो जाता है। Vittora Pro Lifetime एक बार की खरीद है और रिन्यू नहीं होती।"
+          }
+        }
+      }
+    },
+    "Annual includes a 7-day free trial; your Apple Account is charged %@ when it ends. Monthly is %@. Both renew automatically unless you turn off auto-renew at least 24 hours before the period ends, and renewals are charged within 24 hours of the period ending. Manage or cancel in your Apple Account settings. Subscribing before a trial ends forfeits the unused part of the trial. Vittora Pro Lifetime is a one-time purchase and does not renew." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El plan anual incluye una prueba gratuita de 7 días; al terminar, se cobrarán %@ a tu cuenta de Apple. El plan mensual cuesta %@. Ambos se renuevan automáticamente salvo que desactives la renovación automática al menos 24 horas antes de que termine el periodo; el cobro de la renovación se realiza en las 24 horas previas al fin del periodo. Puedes gestionarlos o cancelarlos en los ajustes de tu cuenta de Apple. Si te suscribes antes de que acabe la prueba, pierdes la parte no utilizada. Vittora Pro Lifetime es una compra única y no se renueva."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वार्षिक प्लान में 7 दिन का मुफ़्त ट्रायल शामिल है; ट्रायल खत्म होने पर आपके Apple खाते से %@ लिए जाएंगे। मासिक प्लान %@ का है। दोनों अपने आप रिन्यू होते हैं, बशर्ते आप अवधि खत्म होने से कम से कम 24 घंटे पहले ऑटो-रिन्यू बंद न कर दें; रिन्यूअल का शुल्क अवधि खत्म होने से 24 घंटे के भीतर लिया जाता है। आप इन्हें अपनी Apple खाता सेटिंग्स में मैनेज या रद्द कर सकते हैं। ट्रायल खत्म होने से पहले सब्सक्राइब करने पर ट्रायल का बचा हुआ हिस्सा समाप्त हो जाता है। Vittora Pro Lifetime एक बार की खरीद है और रिन्यू नहीं होती।"
+          }
+        }
+      }
+    },
+    "Cash flow forecast and subscription audit" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previsión de flujo de caja y auditoría de suscripciones"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कैश फ़्लो पूर्वानुमान और सब्सक्रिप्शन ऑडिट"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बंद करें"
+          }
+        }
+      }
+    },
+    "Custom reports with PDF export" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informes personalizados con exportación a PDF"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PDF एक्सपोर्ट के साथ कस्टम रिपोर्ट"
+          }
+        }
+      }
+    },
+    "Every future Pro feature, included" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las funciones Pro futuras, incluidas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भविष्य की हर Pro सुविधा, शामिल"
+          }
+        }
+      }
+    },
+    "Full tax planning and regime comparison" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planificación fiscal completa y comparación de regímenes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पूरी टैक्स प्लानिंग और रिजीम तुलना"
+          }
+        }
+      }
+    },
+    "Or buy Vittora Pro Lifetime for %@, once" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O compra Vittora Pro Lifetime por %@, una sola vez"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "या Vittora Pro Lifetime एक बार %@ में खरीदें"
+          }
+        }
+      }
+    },
+    "Purchase Failed" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error en la compra"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "खरीदारी विफल"
+          }
+        }
+      }
+    },
+    "Scan every receipt, not just five" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanea todos los recibos, no solo cinco"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हर रसीद स्कैन करें, सिर्फ़ पाँच नहीं"
+          }
+        }
+      }
+    },
+    "See where your money is going next" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descubre a dónde irá tu dinero"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "देखें कि आपका पैसा आगे कहाँ जा रहा है"
+          }
+        }
+      }
+    },
+    "There's more in Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hay más en Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro में और भी बहुत कुछ है"
+          }
+        }
+      }
+    },
+    "This purchase could not be verified. Nothing was unlocked. Contact Apple Support if you were charged." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha podido verificar esta compra. No se ha desbloqueado nada. Ponte en contacto con el soporte de Apple si se te ha cobrado."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस खरीदारी को सत्यापित नहीं किया जा सका। कुछ भी अनलॉक नहीं हुआ। अगर आपसे शुल्क लिया गया है, तो Apple सपोर्ट से संपर्क करें।"
+          }
+        }
+      }
+    },
+    "Unlimited receipt scanning" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escaneo de recibos ilimitado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "असीमित रसीद स्कैनिंग"
+          }
+        }
+      }
+    },
+    "Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro"
+          }
+        }
+      }
+    },
+    "Vittora Pro unlocks the forward-looking analysis. Your records, your splits, iCloud sync and CSV export stay free, always." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro desbloquea el análisis de futuro. Tus registros, tus gastos compartidos, la sincronización con iCloud y la exportación a CSV siguen siendo gratis, siempre."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro आगे की योजना बताने वाला विश्लेषण अनलॉक करता है। आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट हमेशा मुफ़्त रहेंगे।"
+          }
+        }
+      }
+    },
+    "You're keeping real records now" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya estás llevando un registro de verdad"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अब आप सचमुच हिसाब रख रहे हैं"
+          }
+        }
+      }
+    },
+    "You've used this month's free receipt scans" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Has usado los escaneos de recibos gratuitos de este mes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने इस महीने के मुफ़्त रसीद स्कैन इस्तेमाल कर लिए हैं"
+          }
+        }
+      }
+    },
     "–" : {
       "comment" : "A separator between two date pickers in a date range selector.",
       "isCommentAutoGenerated" : true,
