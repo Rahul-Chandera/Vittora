@@ -30,7 +30,7 @@ struct PaywallPresenterTests {
     func nilResultNeverPresents() {
         let clock = TestClock(Date(timeIntervalSince1970: 1_700_000_000))
         let tracker = makeTracker(clock: clock)
-        let presenter = PaywallPresenter(tracker: tracker)
+        let presenter = PaywallPresenter(tracker: tracker, isProUnlocked: { false })
         presenter.present(nil)
         #expect(presenter.milestone == nil)
     }
@@ -40,7 +40,7 @@ struct PaywallPresenterTests {
     func firstTimeMilestonePresents() {
         let clock = TestClock(Date(timeIntervalSince1970: 1_700_000_000))
         let tracker = makeTracker(clock: clock)
-        let presenter = PaywallPresenter(tracker: tracker)
+        let presenter = PaywallPresenter(tracker: tracker, isProUnlocked: { false })
         presenter.present(tracker.record(.firstReport))
         #expect(presenter.milestone == .firstReport)
     }
@@ -50,7 +50,7 @@ struct PaywallPresenterTests {
     func paywallDormantWhenStoreKitDisabled() {
         let clock = TestClock(Date(timeIntervalSince1970: 1_700_000_000))
         let tracker = makeTracker(clock: clock, storeKitEnabled: false)
-        let presenter = PaywallPresenter(tracker: tracker)
+        let presenter = PaywallPresenter(tracker: tracker, isProUnlocked: { false })
         presenter.present(tracker.record(.firstReport))
         #expect(presenter.milestone == nil)
     }
@@ -60,7 +60,7 @@ struct PaywallPresenterTests {
     func repeatedMilestoneDoesNotPresentAgain() {
         let clock = TestClock(Date(timeIntervalSince1970: 1_700_000_000))
         let tracker = makeTracker(clock: clock)
-        let presenter = PaywallPresenter(tracker: tracker)
+        let presenter = PaywallPresenter(tracker: tracker, isProUnlocked: { false })
         presenter.present(tracker.record(.firstReport))
         presenter.dismiss()
         presenter.present(tracker.record(.firstReport))
@@ -73,7 +73,7 @@ struct PaywallPresenterTests {
         let t = Date(timeIntervalSince1970: 1_700_000_000)
         let clock = TestClock(t)
         let tracker = makeTracker(clock: clock)
-        let presenter = PaywallPresenter(tracker: tracker)
+        let presenter = PaywallPresenter(tracker: tracker, isProUnlocked: { false })
         presenter.present(tracker.record(.firstReport))
         #expect(presenter.milestone == .firstReport)
         presenter.dismiss()
@@ -88,7 +88,7 @@ struct PaywallPresenterTests {
         let t = Date(timeIntervalSince1970: 1_700_000_000)
         let clock = TestClock(t)
         let tracker = makeTracker(clock: clock)
-        let presenter = PaywallPresenter(tracker: tracker)
+        let presenter = PaywallPresenter(tracker: tracker, isProUnlocked: { false })
         presenter.present(tracker.record(.firstReport))
         #expect(presenter.milestone == .firstReport)
         presenter.dismiss()
@@ -109,7 +109,7 @@ struct PaywallPresenterTests {
         let t = Date(timeIntervalSince1970: 1_700_000_000)
         let clock = TestClock(t)
         let tracker = makeTracker(clock: clock)
-        let presenter = PaywallPresenter(tracker: tracker)
+        let presenter = PaywallPresenter(tracker: tracker, isProUnlocked: { false })
         _ = tracker.record(.firstReport)
         presenter.present(tracker.record(.firstReport)) // second time -> not first-time -> declined
         #expect(presenter.milestone == nil)
@@ -122,7 +122,7 @@ struct PaywallPresenterTests {
     func deferredResultDoesNotPresentUntilSheetCloses() {
         let clock = TestClock(Date(timeIntervalSince1970: 1_700_000_000))
         let tracker = makeTracker(clock: clock)
-        let presenter = PaywallPresenter(tracker: tracker)
+        let presenter = PaywallPresenter(tracker: tracker, isProUnlocked: { false })
         let result = tracker.record(.firstOCRScan)
         presenter.presentWhenSheetCloses(result)
         #expect(presenter.milestone == nil)
@@ -135,9 +135,34 @@ struct PaywallPresenterTests {
     func deferredResultNeverFlushedDoesNotConsumeCooldown() {
         let clock = TestClock(Date(timeIntervalSince1970: 1_700_000_000))
         let tracker = makeTracker(clock: clock)
-        let presenter = PaywallPresenter(tracker: tracker)
+        let presenter = PaywallPresenter(tracker: tracker, isProUnlocked: { false })
         presenter.presentWhenSheetCloses(tracker.record(.firstOCRScan))
         presenter.present(tracker.record(.firstReport))
         #expect(presenter.milestone == .firstReport)
+    }
+
+    /// Catches the regression this was written for: a paying subscriber being shown the
+    /// upgrade paywall by an ordinary value event.
+    @Test("a Pro user is never shown the value-event paywall")
+    func proUserIsNeverShownThePaywall() {
+        let clock = TestClock(Date(timeIntervalSince1970: 1_700_000_000))
+        let tracker = makeTracker(clock: clock)
+        let presenter = PaywallPresenter(tracker: tracker, isProUnlocked: { true })
+        presenter.present(tracker.record(.firstReport))
+        #expect(presenter.milestone == nil)
+    }
+
+    /// Catches a regression where suppressing the paywall for a Pro user still burns the
+    /// cooldown, so a later downgrade to free sees no paywall for a week.
+    @Test("suppressing the paywall for a Pro user does not consume the cooldown")
+    func suppressedProPresentationDoesNotConsumeCooldown() {
+        let clock = TestClock(Date(timeIntervalSince1970: 1_700_000_000))
+        let tracker = makeTracker(clock: clock)
+        let proPresenter = PaywallPresenter(tracker: tracker, isProUnlocked: { true })
+        proPresenter.present(tracker.record(.firstReport))
+        #expect(proPresenter.milestone == nil)
+        let freePresenter = PaywallPresenter(tracker: tracker, isProUnlocked: { false })
+        freePresenter.present(tracker.record(.firstSplit))
+        #expect(freePresenter.milestone == .firstSplit)
     }
 }

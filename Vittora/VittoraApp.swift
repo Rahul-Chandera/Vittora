@@ -173,6 +173,7 @@ struct VittoraApp: App {
     /// A lifetime snapshot is used deliberately: it has no expiry, so it is never put to
     /// `EntitlementStore`'s subscription-standing question and cannot lapse mid-run.
     private static func applyEntitlementUITestState(arguments: [String]) {
+        UserDefaultsConversionEventTracker.suppressValueEventPaywallsForUITesting()
         let cache = EntitlementCache()
         guard arguments.contains("--ui-test-pro") else {
             cache.clear()

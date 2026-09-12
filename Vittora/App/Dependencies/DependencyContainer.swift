@@ -115,9 +115,13 @@ final class DependencyContainer {
         self.categorizationRuleStore = categorizationRuleStore
         self.transactionEditHistoryStore = transactionEditHistoryStore
         self.savedTransactionFilterStore = savedTransactionFilterStore
-        self.featureGate = FeatureGate(store: entitlementStore, tracker: UserDefaultsConversionEventTracker())
+        let gate = FeatureGate(store: entitlementStore, tracker: UserDefaultsConversionEventTracker())
+        self.featureGate = gate
         self.purchaseService = PurchaseService(entitlements: entitlementStore)
-        self.paywallPresenter = PaywallPresenter(tracker: UserDefaultsConversionEventTracker())
+        self.paywallPresenter = PaywallPresenter(
+            tracker: UserDefaultsConversionEventTracker(),
+            isProUnlocked: { gate.isProUnlocked }
+        )
     }
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {

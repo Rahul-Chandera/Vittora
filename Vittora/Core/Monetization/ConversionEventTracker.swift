@@ -40,6 +40,18 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         self.storeKitEnabled = storeKitEnabled
     }
 
+    /// Starts the presentation cooldown immediately so no value event opens the paywall
+    /// during a UI test run. Value-event paywalls fire from ordinary record-keeping (10th
+    /// transaction, first report, first split) and would otherwise drop a sheet over
+    /// whichever unrelated test got there first — and, because this state survives relaunch,
+    /// a different test each run. Unit tests cover the value-event path; the manual Settings
+    /// route and the lock-screen route stay covered by UI tests.
+    nonisolated static func suppressValueEventPaywallsForUITesting(
+        in defaults: UserDefaults = AppUserDefaults.conversion
+    ) {
+        defaults.set(Date.now, forKey: Keys.lastPaywallPresented)
+    }
+
     nonisolated func record(_ milestone: ConversionMilestone) -> ConversionEventResult {
         lock.lock()
         defer { lock.unlock() }

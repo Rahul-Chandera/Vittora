@@ -19,6 +19,7 @@ extension ConversionMilestone: Identifiable {
 @Observable
 final class PaywallPresenter {
     private let tracker: any ConversionEventTracking
+    private let isProUnlocked: @Sendable () -> Bool
 
     /// Non-nil while the paywall sheet is up. Settable only so `.sheet(item:)` can clear it
     /// on dismiss -- call `present(_:)` to show the paywall, never assign this directly.
@@ -29,9 +30,18 @@ final class PaywallPresenter {
     /// and the covering sheet's `onDismiss:` calls `presentPending()` once it is gone.
     private var pendingResult: ConversionEventResult?
 
-    init(tracker: any ConversionEventTracking) { self.tracker = tracker }
+    init(
+        tracker: any ConversionEventTracking,
+        isProUnlocked: @escaping @Sendable () -> Bool
+    ) {
+        self.tracker = tracker
+        self.isProUnlocked = isProUnlocked
+    }
 
     func present(_ result: ConversionEventResult?) {
+        // Someone who already bought Pro must never be sold it again. Every value event
+        // funnels through here, so this is the one place the check belongs.
+        guard !isProUnlocked() else { return }
         guard let result, result.shouldPresentPaywall else { return }
         milestone = result.milestone
         tracker.markPaywallPresented(for: result.milestone)

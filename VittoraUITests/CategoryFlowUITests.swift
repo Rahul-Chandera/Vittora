@@ -23,6 +23,9 @@ final class CategoryFlowUITests: XCTestCase {
         )
 
         let manageCategories = app.descendants(matching: .any)["settings-manage-categories"]
+        // Settings gained the Vittora Pro section above Manage, and Form is lazy, so the row
+        // is no longer materialised at launch. Scroll to it like a user would.
+        UITestSupport.scrollToElement(manageCategories, in: app)
         XCTAssertTrue(manageCategories.waitForExistence(timeout: 15), "Manage › Categories row missing.")
         UITestSupport.tapWhenReady(manageCategories, timeout: 10)
 
