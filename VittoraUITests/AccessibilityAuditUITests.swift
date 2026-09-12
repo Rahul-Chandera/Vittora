@@ -378,6 +378,50 @@ final class AccessibilityAuditUITests: XCTestCase {
         #endif
     }
 
+    /// The paywall is a sheet, so `testSettingsSectionsAccessibilityAudit`'s
+    /// NavigationLink walk never reaches it. It is audited here, together with the
+    /// manual Settings entry point that App Review 3.1.1 requires — a user who bought
+    /// on another device must be able to restore without a value event firing first.
+    ///
+    /// No DEC-012 exemption is claimed: the store view is tinted
+    /// `VColors.primaryOnSurface` (#1F7D61, ~5:1), not `VColors.primary`
+    /// (#3FCFA4, 1.97:1 behind a white label).
+    @MainActor
+    func testPaywallAccessibilityAudit() throws {
+        #if os(macOS)
+        throw XCTSkip("iOS only")
+        #else
+        launchSeeded(initialTab: "settings")
+        openOverflowDestination(named: "Settings", navigationTitle: "Settings")
+
+        let proRow = app.descendants(matching: .any)["settings-vittora-pro"].firstMatch
+        UITestSupport.scrollToElement(proRow, in: app)
+        XCTAssertTrue(
+            proRow.waitForExistence(timeout: 15),
+            "Settings must expose a manual Vittora Pro entry point (App Review 3.1.1)."
+        )
+
+        let restore = app.descendants(matching: .any)["settings-restore-purchases"].firstMatch
+        XCTAssertTrue(
+            restore.waitForExistence(timeout: 15),
+            "Restore Purchases must be reachable from Settings without a value event (App Review 3.1.1)."
+        )
+
+        UITestSupport.tapWhenReady(proRow, timeout: 15)
+        XCTAssertTrue(app.navigationBars["Vittora Pro"].waitForExistence(timeout: 20))
+
+        // SubscriptionStoreView fills in asynchronously once StoreKit answers. Audit the
+        // loaded state, not the placeholder: the disclosure text is the last thing to render.
+        XCTAssertTrue(
+            app.descendants(matching: .any)["paywall-auto-renew-disclosure"]
+                .waitForExistence(timeout: 20),
+            "Paywall should finish loading its products before the audit samples it."
+        )
+
+        try performCoreFlowAudit()
+        #endif
+    }
+
     @MainActor
     func testNewReportsAccessibilityAudit() throws {
         #if os(macOS)
