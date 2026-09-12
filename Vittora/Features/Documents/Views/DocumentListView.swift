@@ -55,12 +55,12 @@ struct DocumentListView: View {
                 await vm?.load()
             }
         }
-        .sheet(isPresented: $showScanner) {
+        .sheet(isPresented: $showScanner, onDismiss: { dependencies.paywallPresenter.presentPending() }) {
             ReceiptScannerView(onImageCaptured: { data in
                 Task { await vm?.attach(imageData: data, mimeType: "image/jpeg") }
             })
         }
-        .sheet(isPresented: $showBatchScan) {
+        .sheet(isPresented: $showBatchScan, onDismiss: { dependencies.paywallPresenter.presentPending() }) {
             BatchReceiptScanView(transactionID: transactionID) {
                 Task { await vm?.load() }
             }

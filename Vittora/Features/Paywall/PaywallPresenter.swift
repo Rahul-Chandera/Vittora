@@ -12,10 +12,9 @@ extension ConversionMilestone: Identifiable {
 /// and the `isStoreKitEnabled` kill switch. This type's whole job is to honour that answer and
 /// then start the cooldown by telling the tracker the paywall was shown.
 ///
-/// There is deliberately no manual entry point yet: the paywall only opens from a value
-/// event. Before isStoreKitEnabled is flipped, Settings needs its own Vittora Pro row with
-/// Restore Purchases, because App Review requires restore to be reachable without one of
-/// these milestones firing first.
+/// Settings has a manual "Vittora Pro" entry point (SettingsView) so restore is reachable
+/// without a milestone firing; that route presents its own sheet and does not touch the
+/// cooldown. This presenter owns only the value-event path.
 @MainActor
 @Observable
 final class PaywallPresenter {
@@ -25,12 +24,28 @@ final class PaywallPresenter {
     /// on dismiss -- call `present(_:)` to show the paywall, never assign this directly.
     var milestone: ConversionMilestone?
 
+    /// A decision made while a feature sheet was on screen. SwiftUI will not stack the
+    /// app-wide paywall sheet under another sheet, so the call site records the event now
+    /// and the covering sheet's `onDismiss:` calls `presentPending()` once it is gone.
+    private var pendingResult: ConversionEventResult?
+
     init(tracker: any ConversionEventTracking) { self.tracker = tracker }
 
     func present(_ result: ConversionEventResult?) {
         guard let result, result.shouldPresentPaywall else { return }
         milestone = result.milestone
         tracker.markPaywallPresented(for: result.milestone)
+    }
+
+    func presentWhenSheetCloses(_ result: ConversionEventResult?) {
+        guard let result, result.shouldPresentPaywall else { return }
+        pendingResult = result
+    }
+
+    func presentPending() {
+        let pending = pendingResult
+        pendingResult = nil
+        present(pending)
     }
 
     func dismiss() { milestone = nil }

@@ -3,7 +3,7 @@ import StoreKit
 import VittoraCore
 
 struct PaywallView: View {
-    let milestone: ConversionMilestone
+    var milestone: ConversionMilestone?
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @State private var isPurchasingLifetime = false
@@ -143,6 +143,8 @@ struct PaywallView: View {
             String(localized: "There's more in Vittora Pro")
         case .ocrMonthlyLimitReached:
             String(localized: "You've used this month's free receipt scans")
+        case nil:
+            String(localized: "Everything in Vittora Pro")
         }
     }
 

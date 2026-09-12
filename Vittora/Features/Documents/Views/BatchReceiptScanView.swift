@@ -117,12 +117,9 @@ struct BatchReceiptScanView: View {
                 localized: "\(outcome.attachedCount) attached; \(outcome.failureCount) couldn't be processed."
             )
         }
-        // ponytail: this fires while the scanner sheet is still up and
-        // this sheet is about to open. SwiftUI will not stack a root sheet
-        // under a feature sheet, so the paywall may be swallowed here. It is
-        // harmless while isStoreKitEnabled is false; whoever flips that flag
-        // should defer presentation until this sheet dismisses.
-        dependencies.paywallPresenter.present(
+        // SwiftUI will not stack the root paywall sheet under this one. Record now,
+        // present from DocumentListView's onDismiss once this sheet is gone.
+        dependencies.paywallPresenter.presentWhenSheetCloses(
             dependencies.conversionEventRecorder.afterOCRScanCompleted()
         )
         onComplete()

@@ -116,4 +116,28 @@ struct PaywallPresenterTests {
         presenter.present(tracker.record(.firstSplit))
         #expect(presenter.milestone == .firstSplit) // the declined attempt must NOT have consumed the cooldown
     }
+
+    /// Catches a regression where deferring presents immediately instead of waiting for the covering sheet.
+    @Test("a deferred result does not present until the covering sheet closes")
+    func deferredResultDoesNotPresentUntilSheetCloses() {
+        let clock = TestClock(Date(timeIntervalSince1970: 1_700_000_000))
+        let tracker = makeTracker(clock: clock)
+        let presenter = PaywallPresenter(tracker: tracker)
+        let result = tracker.record(.firstOCRScan)
+        presenter.presentWhenSheetCloses(result)
+        #expect(presenter.milestone == nil)
+        presenter.presentPending()
+        #expect(presenter.milestone == .firstOCRScan)
+    }
+
+    /// Catches a regression where deferring alone starts the cooldown before the paywall is shown.
+    @Test("a deferred result that was never flushed does not consume the cooldown")
+    func deferredResultNeverFlushedDoesNotConsumeCooldown() {
+        let clock = TestClock(Date(timeIntervalSince1970: 1_700_000_000))
+        let tracker = makeTracker(clock: clock)
+        let presenter = PaywallPresenter(tracker: tracker)
+        presenter.presentWhenSheetCloses(tracker.record(.firstOCRScan))
+        presenter.present(tracker.record(.firstReport))
+        #expect(presenter.milestone == .firstReport)
+    }
 }
