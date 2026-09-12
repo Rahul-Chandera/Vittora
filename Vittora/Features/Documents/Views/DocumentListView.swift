@@ -9,6 +9,7 @@ struct DocumentListView: View {
     @State private var showScanner = false
     @State private var showBatchScan = false
     @State private var showImport = false
+    @State private var showOCRPaywall = false
     @State private var previewItem: DocumentPreviewItem?
     /// An attachment is a receipt the user photographed once. Deleting it on a
     /// single click, with the file gone from disk, was the least recoverable
@@ -70,6 +71,11 @@ struct DocumentListView: View {
                 Task { await vm?.attach(imageData: data, mimeType: mimeType) }
             })
         }
+        // Local sheet, not PaywallPresenter: a blocked action must always show the paywall
+        // and must not be suppressed by the value-event cooldown.
+        .sheet(isPresented: $showOCRPaywall) {
+            PaywallView(milestone: .ocrMonthlyLimitReached)
+        }
         .sheet(item: $previewItem) { item in
             DocumentPreviewView(item: item)
         }
@@ -102,13 +108,13 @@ struct DocumentListView: View {
             Menu {
                 #if os(iOS)
                 Button {
-                    showScanner = true
+                    startScanIfAllowed { showScanner = true }
                 } label: {
                     Label(String(localized: "Scan Receipt"), systemImage: "camera.viewfinder")
                 }
 
                 Button {
-                    showBatchScan = true
+                    startScanIfAllowed { showBatchScan = true }
                 } label: {
                     Label(String(localized: "Batch Scan"), systemImage: "doc.on.doc")
                 }
@@ -122,7 +128,7 @@ struct DocumentListView: View {
 
                 #if os(macOS)
                 Button {
-                    showBatchScan = true
+                    startScanIfAllowed { showBatchScan = true }
                 } label: {
                     Label(String(localized: "Batch Scan"), systemImage: "doc.on.doc")
                 }
@@ -136,6 +142,17 @@ struct DocumentListView: View {
             .accessibilityLabel(String(localized: "Add attachment"))
             .accessibilityHint(String(localized: "Shows attachment options"))
             .accessibilityIdentifier("document-add-button")
+        }
+    }
+
+    /// OCR is a free-tier quota, not a binary lock (DEC-014): the first
+    /// `FreeTierLimits.maxOCRScansPerMonth` scans a month are free. Past that the scanner
+    /// is replaced by the paywall rather than failing silently.
+    private func startScanIfAllowed(_ begin: () -> Void) {
+        if dependencies.featureGate.canScanReceipt {
+            begin()
+        } else {
+            showOCRPaywall = true
         }
     }
 

@@ -45,6 +45,11 @@ struct DebtLedgerView: View {
             ToolbarItem(placement: .primaryAction) {
                 NavigationLink {
                     DebtAnalyticsView()
+                        .proGated(
+                            true,
+                            title: String(localized: "Debt analytics is Vittora Pro"),
+                            message: String(localized: "Aging, exposure and settlement analytics are part of Vittora Pro. Your debt ledger and every record in it stay free.")
+                        )
                 } label: {
                     Image(systemName: "chart.bar.xaxis")
                 }
