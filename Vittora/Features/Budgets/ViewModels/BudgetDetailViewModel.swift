@@ -39,7 +39,7 @@ final class BudgetDetailViewModel {
             }
 
             // Calculate spent
-            let dateRange = calculateDateRange(for: loadedBudget.period, startingFrom: loadedBudget.startDate)
+            let dateRange = loadedBudget.currentDateRange()
             let filter = TransactionFilter(
                 dateRange: dateRange,
                 types: Set([.expense]),
@@ -63,27 +63,5 @@ final class BudgetDetailViewModel {
                 fallback: String(localized: "We couldn't load this budget right now.")
             )
         }
-    }
-
-    private func calculateDateRange(for period: BudgetPeriod, startingFrom startDate: Date) -> ClosedRange<Date> {
-        let calendar = Calendar.current
-
-        let dateOffset: (component: Calendar.Component, value: Int) = switch period {
-        case .weekly:
-            (.day, 7)
-        case .monthly:
-            (.month, 1)
-        case .quarterly:
-            (.month, 3)
-        case .yearly:
-            (.year, 1)
-        }
-
-        let endDate = calendar.date(
-            byAdding: dateOffset.component,
-            value: dateOffset.value,
-            to: startDate
-        ) ?? startDate
-        return startDate...endDate
     }
 }

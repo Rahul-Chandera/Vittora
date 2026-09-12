@@ -122,7 +122,7 @@ public struct WidgetDataProvider: Sendable {
         for budget: BudgetEntity,
         transactionRepository: SwiftDataTransactionRepository
     ) async throws -> Decimal {
-        let dateRange = budget.period.dateRange(startingFrom: budget.startDate)
+        let dateRange = budget.currentDateRange()
         let filter = TransactionFilter(
             dateRange: dateRange,
             types: Set([.expense]),

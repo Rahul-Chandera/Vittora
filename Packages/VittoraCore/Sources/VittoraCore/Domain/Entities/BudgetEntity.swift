@@ -12,19 +12,42 @@ public enum BudgetPeriod: String, Sendable, Hashable, CaseIterable, Codable {
         }
     }
 
+    /// Calendar component and step that make up one period.
+    private var step: (component: Calendar.Component, value: Int) {
+        switch self {
+        case .weekly: (.day, 7)
+        case .monthly: (.month, 1)
+        case .quarterly: (.month, 3)
+        case .yearly: (.year, 1)
+        }
+    }
+
+    /// The period window that contains `date`, advancing from `startDate` in whole
+    /// periods. Budgets roll forward forever instead of expiring one period after
+    /// they were created. Both bounds are measured from the ORIGINAL `startDate` so
+    /// month-length clamping (Jan 31 -> Feb 28) cannot drift or leave a gap between
+    /// consecutive windows. If `date` is before `startDate` the first window is returned.
+    public nonisolated func currentDateRange(startingFrom startDate: Date, asOf date: Date = Date()) -> ClosedRange<Date> {
+        let calendar = Calendar.current
+        let step = step
+        let elapsed = calendar.dateComponents([step.component], from: startDate, to: date)
+        let elapsedValue: Int = {
+            switch step.component {
+            case .day: elapsed.day ?? 0
+            case .month: elapsed.month ?? 0
+            case .year: elapsed.year ?? 0
+            default: 0
+            }
+        }()
+        let periodsElapsed = max(0, elapsedValue / step.value)
+        let lower = calendar.date(byAdding: step.component, value: periodsElapsed * step.value, to: startDate) ?? startDate
+        let upper = calendar.date(byAdding: step.component, value: (periodsElapsed + 1) * step.value, to: startDate) ?? lower
+        return lower...max(lower, upper)
+    }
+
     public nonisolated func dateRange(startingFrom startDate: Date) -> ClosedRange<Date> {
         let calendar = Calendar.current
-        let endDate: Date
-        switch self {
-        case .weekly:
-            endDate = calendar.date(byAdding: .day, value: 7, to: startDate) ?? startDate
-        case .monthly:
-            endDate = calendar.date(byAdding: .month, value: 1, to: startDate) ?? startDate
-        case .quarterly:
-            endDate = calendar.date(byAdding: .month, value: 3, to: startDate) ?? startDate
-        case .yearly:
-            endDate = calendar.date(byAdding: .year, value: 1, to: startDate) ?? startDate
-        }
+        let endDate = calendar.date(byAdding: step.component, value: step.value, to: startDate) ?? startDate
         return startDate...endDate
     }
 }
@@ -48,6 +71,11 @@ public struct BudgetEntity: Identifiable, Hashable, Equatable, Sendable {
     }
 
     public var isOverBudget: Bool { spent > amount }
+
+    /// The live period window for this budget - the one containing `date`. Budgets roll forward.
+    public nonisolated func currentDateRange(asOf date: Date = Date()) -> ClosedRange<Date> {
+        period.currentDateRange(startingFrom: startDate, asOf: date)
+    }
 
     public nonisolated init(
         id: UUID = UUID(),

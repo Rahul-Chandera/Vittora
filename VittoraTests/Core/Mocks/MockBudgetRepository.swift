@@ -50,7 +50,8 @@ actor MockBudgetRepository: BudgetRepository {
 
     func fetchActive() async throws -> [BudgetEntity] {
         if shouldThrowError { throw throwError }
-        return budgets
+        let now = Date()
+        return budgets.filter { $0.startDate <= now }.sorted { $0.startDate > $1.startDate }
     }
 
     func fetchForCategory(_ categoryID: UUID, period: BudgetPeriod) async throws -> BudgetEntity? {
