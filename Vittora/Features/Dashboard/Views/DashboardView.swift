@@ -34,6 +34,10 @@ struct DashboardView: View {
                     .tint(VColors.primary)
             }
         }
+        // Fill the screen even while loading: a ZStack sizes to its content,
+        // so the bare ProgressView collapsed it and the bottomTrailing overlay
+        // aligned the FAB to the corner of that tiny centred box.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottomTrailing) {
             // Hidden only for App Store captures. The button floats over
             // scrollable content, which is fine in use — you scroll and it
