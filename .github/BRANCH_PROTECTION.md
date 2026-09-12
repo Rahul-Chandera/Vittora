@@ -10,17 +10,28 @@ Branch flow: feature branches → `develop` (ongoing development) → `staging` 
 2. **Branch name pattern:** `develop`, `staging`, and `main` (not all branches — feature branches push freely; checks gate merges into protected branches).
 3. Enable **Require status checks to pass before merging**.
 4. Search and select status check: **`build-and-test`** (workflow job name under the **CI** workflow).
+   `build-and-test` is now an **aggregator**: the real work runs in the `build` job and the
+   three parallel `test (…)` matrix legs, and `build-and-test` fails unless all of them pass.
+   Keep requiring only `build-and-test` — requiring the individual legs by name would need a
+   protection edit every time the matrix changes.
 5. Enable **Require branches to be up to date before merging** (recommended).
 6. Save.
 
 ## What CI runs
 
-On every PR to `develop`, `staging`, or `main` (and direct pushes to `develop`):
+On every PR to `develop`, `staging`, or `main` (and direct pushes to `develop`), across
+jobs that run **concurrently**:
 
-- `make build-ios`
-- `make build-macos`
-- `make test` (VittoraTests + full VittoraUITests on iOS Simulator — core UI suite then onboarding in a second pass; GitHub `macos-15` has no macOS 26 host)
-- Uploads `.build-ci/*.xcresult` artifacts on completion (pass or fail)
+- job `build` — `make build-ios`, the watch string-catalogue check, `make build-macos`,
+  the localization coverage check
+- job `test (test-unit)` — `VittoraTests` on iOS Simulator
+- job `test (test-ios-ui-core)` — `VittoraUITests` minus `OnboardingFlowUITests`
+- job `test (test-ios-ui-onboarding)` — `OnboardingFlowUITests`
+- job `build-and-test` — no work of its own; fails unless every job above passed
+
+The same suites run as before; they are only distributed across runners instead of chained
+in one job. Each test job uploads its own `.xcresult` artifact on completion (pass or fail).
+`make test` still runs all three serially for local use.
 
 US locale is pinned on the runner (`en_US`); tests remain locale-independent in code.
 

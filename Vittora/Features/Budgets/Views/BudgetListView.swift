@@ -33,6 +33,21 @@ struct BudgetListView: View {
                 .background(VColors.groupedBackground)
             } else {
                 List {
+                    if let viewModel = viewModel, let warning = viewModel.duplicateCategoryWarning {
+                        Section {
+                            HStack(spacing: VSpacing.sm) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(VColors.warning)
+                                    .accessibilityHidden(true)
+                                Text(warning)
+                                    .font(VTypography.caption1)
+                                    .foregroundStyle(VColors.textPrimary)
+                            }
+                            .accessibilityIdentifier("budget-duplicate-warning")
+                            .listRowBackground(VColors.secondaryGroupedBackground)
+                        }
+                    }
+
                     // Overview card
                     if let viewModel = viewModel {
                         Section {

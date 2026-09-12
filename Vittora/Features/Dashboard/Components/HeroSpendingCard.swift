@@ -25,14 +25,16 @@ struct HeroSpendingCard: View {
                 .foregroundColor(highContrastText)
 
             ViewThatFits(in: .horizontal) {
-                HStack(alignment: .bottom, spacing: VSpacing.xl) {
+                // Equal-width columns + top alignment (no Spacer/.bottom) so Indian-grouped amounts stay level.
+                HStack(alignment: .top, spacing: VSpacing.md) {
                     spentColumn
-                    Spacer(minLength: 0)
-                    incomeColumn
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    incomeColumn(.trailing)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 VStack(alignment: .leading, spacing: VSpacing.md) {
                     spentColumn
-                    incomeColumn
+                    incomeColumn(.leading)
                 }
             }
 
@@ -63,8 +65,9 @@ struct HeroSpendingCard: View {
         }
     }
 
-    private var incomeColumn: some View {
-        VStack(alignment: .trailing, spacing: VSpacing.xs) {
+    // Stacked ViewThatFits fallback must be leading-aligned.
+    private func incomeColumn(_ alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: VSpacing.xs) {
             Text(String(localized: "Income"))
                 .font(VTypography.bodyBold)
                 .foregroundColor(highContrastText)
