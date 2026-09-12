@@ -2,12 +2,12 @@ import Foundation
 import VittoraCore
 
 protocol ConversionEventTracking: Sendable {
-    func record(_ milestone: ConversionMilestone) -> ConversionEventResult
-    func shouldPresentPaywall(for milestone: ConversionMilestone) -> Bool
-    func markPaywallPresented(for milestone: ConversionMilestone)
-    func hasRecorded(_ milestone: ConversionMilestone) -> Bool
-    func recordOCRScan() -> ConversionEventResult
-    func ocrScansThisMonth() -> Int
+    nonisolated func record(_ milestone: ConversionMilestone) -> ConversionEventResult
+    nonisolated func shouldPresentPaywall(for milestone: ConversionMilestone) -> Bool
+    nonisolated func markPaywallPresented(for milestone: ConversionMilestone)
+    nonisolated func hasRecorded(_ milestone: ConversionMilestone) -> Bool
+    nonisolated func recordOCRScan() -> ConversionEventResult
+    nonisolated func ocrScansThisMonth() -> Int
 }
 
 final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchecked Sendable {

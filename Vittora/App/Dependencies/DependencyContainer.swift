@@ -38,6 +38,9 @@ final class DependencyContainer {
     let scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase
     let scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase
     var conversionEventTracker: any ConversionEventTracking = UserDefaultsConversionEventTracker()
+    // Second tracker instance is fine: both read AppUserDefaults.conversion, so OCR counts agree.
+    // Tests that substitute conversionEventTracker must substitute featureGate too.
+    var featureGate = FeatureGate(store: EntitlementStore(), tracker: UserDefaultsConversionEventTracker())
     let conversionEventRecorder: ConversionEventRecorder
     let securityAuditLogService: SecurityAuditLogService
     let dataSeeder: any DataSeederProtocol
