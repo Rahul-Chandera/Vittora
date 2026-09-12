@@ -219,7 +219,7 @@ pricing claim to retract.
    confirm those pages are live and that their URLs are the ones to register.
 3. Refund and support contact: the Privacy Policy's contact section says "the support
    channel associated with your distribution", which is too vague once money changes hands.
-4. **Localized App Store description copy** in the seven `metadata-*.md` files still claims
+4. **Localized App Store description copy** in all eight `metadata-*.md` files still claims
    every feature is free, in English, Spanish, and Hindi. Headers were updated with a TODO;
    body copy needs owner sign-off before the 1.7.0 submission.
 5. **`MonetizationConfiguration.isStoreKitEnabled` vs. submitted documents.** Repository
