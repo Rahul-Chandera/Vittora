@@ -1,6 +1,6 @@
 # Vittora Terms of Service
 
-Last updated: April 16, 2026
+Last updated: September 12, 2026
 
 ## Acceptance
 
@@ -29,7 +29,27 @@ We may update, improve, suspend, or remove features over time. Some functionalit
 
 ## Pricing
 
-Vittora is currently offered without in-app purchases or subscriptions. iCloud sync is included at no additional cost. If paid features are introduced in a future release, they will be described in the app and in updated terms before you are charged.
+Vittora is free to use. Some features are part of Vittora Pro, a paid upgrade available as
+an auto-renewing subscription or a one-time lifetime purchase. iCloud sync, unlimited
+transactions, expense splitting, and exporting your own records as CSV remain free and are not part of Vittora Pro.
+
+## Subscriptions and auto-renewal
+
+Vittora Pro subscriptions are sold through the App Store and charged to your Apple Account.
+
+- Subscriptions renew automatically at the end of each period unless auto-renew is turned
+  off at least 24 hours before the period ends.
+- Your Apple Account is charged for renewal within 24 hours before the current period ends.
+- You can view, manage, and cancel subscriptions in your Apple Account settings. Deleting
+  the app does not cancel a subscription.
+- The annual plan may include a free trial. If you subscribe before a trial ends, the
+  unused portion of the trial is forfeited.
+- Vittora Pro Lifetime is a one-time purchase and does not renew.
+- Annual and lifetime purchases can be shared through Apple's Family Sharing.
+- Refunds are handled by Apple under the Apple Media Services Terms and Conditions. We
+  cannot issue refunds for App Store purchases directly.
+- Prices vary by storefront and may change; you will always see the current price before
+  you are charged.
 
 ## Data and privacy
 

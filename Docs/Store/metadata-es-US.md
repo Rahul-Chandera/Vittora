@@ -8,6 +8,9 @@ American Spanish, matching the in-app translations shipped in 1.5 (L2).
 from `metadata-en-US.md` — that file still describes v1.0.0 and predates the
 Watch app, widgets, Siri, Handoff and Year in Review. See the note at the end.
 
+**Binding constraints:** price tier stays Free but the app offers in-app purchases from 1.7.0 (DEC-013/014/015); Vittora Pro may now be described. The "no ads, no trackers, no accounts, no data selling" claims remain true and must be kept.
+TODO (1.7.0 submission): the "todas las funciones" line in the description below is no longer accurate once Vittora Pro ships. Owner sign-off needed on replacement copy before submission.
+
 Terminology follows the in-app catalogue so the listing and the app agree:
 *saldo*, *presupuesto*, *meta de ahorro*, *patrimonio neto*, *deuda*,
 *beneficiario*, *monto*, *impuestos*.

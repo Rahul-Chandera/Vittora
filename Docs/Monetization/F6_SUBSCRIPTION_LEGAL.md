@@ -1,10 +1,16 @@
 # F6 — Subscription legal groundwork (1.7.0)
 
-**Status: DRAFT. Nothing here is published or submitted.** No file under
-`Vittora/Resources/Legal/`, `Docs/Store/`, or App Store Connect has been changed. This
-document is the proposed copy plus the exact inventory of what must change when the owner
-signs off. Prices below follow DEC-011; see the open question at the end about the annual
-introductory offer.
+**Status: Repository copy applied 2026-09-12 (sections 2, 3, and 5).** Nothing has
+been published to the live website, submitted to App Store Connect, or otherwise
+released. App Store Connect commercial configuration is still outstanding. Prices
+below follow DEC-013 (annual $39.99 with a 7-day free trial; the $29.99 first-year
+intro from DEC-011 is dropped).
+
+**Build-flag conditionality (open):** The repository copy now describes the paid
+app (Vittora Pro / IAP), but `MonetizationConfiguration.isStoreKitEnabled` is
+still `false` on release/1.7.0 — a binary built today has no paywall and no
+purchase flow. Whichever state the submitted build is in, the store listing,
+App Review notes, and launch copy must match it. See open item 5 below.
 
 ---
 
@@ -62,19 +68,16 @@ Restore Purchases control | Paywall footer — required, and a common rejection 
 
 ## 2. `Vittora/Resources/Legal/TermsOfService.md`
 
-The current "Pricing" section (line 32) is now false the day IAP ships:
-
-> Vittora is currently offered without in-app purchases or subscriptions.
-
-Proposed replacement — a rewritten **Pricing** section plus a new **Subscriptions and
-auto-renewal** section:
+**Applied 2026-09-12.** The Pricing section and the new Subscriptions and auto-renewal
+section below are now in the file (and mirrored into `Docs/Store/site/terms.html`).
+`Last updated:` set to September 12, 2026.
 
 ```markdown
 ## Pricing
 
 Vittora is free to use. Some features are part of Vittora Pro, a paid upgrade available as
 an auto-renewing subscription or a one-time lifetime purchase. iCloud sync, unlimited
-transactions, expense splitting, and CSV export remain free and are not part of Vittora Pro.
+transactions, expense splitting, and exporting your own records as CSV remain free and are not part of Vittora Pro.
 
 ## Subscriptions and auto-renewal
 
@@ -95,25 +98,23 @@ Vittora Pro subscriptions are sold through the App Store and charged to your App
   you are charged.
 ```
 
-Also update `Last updated:` at the top, and mirror the change into
-`Docs/Store/site/terms.html` (line 43 carries the same sentence).
-
 ---
 
 ## 3. `Vittora/Resources/Legal/PrivacyPolicy.md`
 
-One addition is warranted. Suggested, appended under "What data Vittora stores":
+**Applied 2026-09-12.** Appended under "What data Vittora stores":
 
 ```markdown
 - Whether you have an active Vittora Pro purchase, stored on your device only
 ```
 
-and under "What Vittora does not do", the existing list stays true and is worth
-strengthening rather than weakening:
+and under "What Vittora does not do":
 
 ```markdown
 - Send purchase or subscription information to any server we operate
 ```
+
+Mirrored into `Docs/Store/site/privacy.html`. `Last updated:` set to September 12, 2026.
 
 That claim is currently accurate: the entitlement lives in `EntitlementCache`
 (`Vittora/Core/Monetization/Entitlement.swift`) inside the isolated
@@ -166,15 +167,30 @@ entire marketing position, for no regulatory benefit.
 
 ## 5. Marketing and store copy that becomes false
 
-Found by grepping every user-facing surface. None of these have been edited.
+Inventory of what was found and what was changed on 2026-09-12. The original draft's
+grep missed several lines; those are listed too.
 
-File | Line | Problem
----|---|---
-`Vittora/Resources/Legal/TermsOfService.md` | 32 | "offered without in-app purchases or subscriptions"
-`Docs/Store/site/terms.html` | 43 | same sentence, published on the website
-`Docs/Store/APP_REVIEW_NOTES.md` | 151 | "the app is free, no in-app purchases" — goes to App Review
-`Docs/Store/LAUNCH_COPY.md` | 27, 105, 157 | "Free, with every feature included", "no trial timers", "no locked features"
-`Docs/Store/APP_STORE_SUBMISSION_CHECKLIST.md` | 16 | records Price = Free per DEC-008
+File | Line | Problem | Action (2026-09-12)
+---|---|---|---
+`Vittora/Resources/Legal/TermsOfService.md` | 32 | "offered without in-app purchases or subscriptions" | **Updated** — Pricing + Subscriptions sections
+`Docs/Store/site/terms.html` | 43 | same sentence, published on the website | **Updated** (repo only; not deployed)
+`Docs/Store/APP_REVIEW_NOTES.md` | 28 | "app is 100% free at launch, no IAP" | **Updated**
+`Docs/Store/APP_REVIEW_NOTES.md` | 151 | "the app is free, no in-app purchases" | **Updated**
+`Docs/Store/APP_REVIEW_NOTES.md` | 233 | "No payment processor (app is free, no IAP yet)" | **Updated**
+`Docs/Store/LAUNCH_COPY.md` | 27 | "Free, with every feature included" | **Updated** (≤260 chars)
+`Docs/Store/LAUNCH_COPY.md` | 52 | "It's free. Every feature… no locked features" | **Updated** — commitment kept for recording/export/sync/splitting
+`Docs/Store/LAUNCH_COPY.md` | 105 | "Free at launch, every feature included" | **Updated**
+`Docs/Store/LAUNCH_COPY.md` | 130 | "It's free, with every feature included" | **Updated**
+`Docs/Store/LAUNCH_COPY.md` | 157 | "Free with every feature included" | **Updated**
+`Docs/Store/APP_STORE_SUBMISSION_CHECKLIST.md` | 16 | Price = Free per DEC-008 | **Updated** — Free with IAP; privacy note + IAP config section added
+`Docs/Store/metadata-en-IN.md` | header | "Free, no IAP (DEC-008). Pro… must not appear" | **Header updated** + TODO for description
+`Docs/Store/metadata-en-US.md` | header | same | **Header updated** + TODO
+`Docs/Store/metadata-hi.md` | header | same | **Header updated** + TODO
+`Docs/Store/metadata-mac-es-US.md` | header | same | **Header updated** + TODO
+`Docs/Store/metadata-mac-en-IN.md` | header | same | **Header updated** + TODO
+`Docs/Store/metadata-mac-en-US.md` | header | same | **Header updated** + TODO
+`Docs/Store/metadata-mac-hi.md` | header | same | **Header updated** + TODO
+`Docs/Store/metadata-*.md` description bodies | en / es / hi "every feature" lines | **Left alone** pending owner sign-off before 1.7.0 submission
 
 Safe as written, because they are about ads and tracking rather than price — do **not**
 rewrite these, the claims stay true:
@@ -192,16 +208,24 @@ pricing claim to retract.
 
 ## 6. Open questions for the owner
 
-1. **The annual plan cannot have both a 7-day free trial and a $29.99 first-year price.**
-   App Store subscriptions allow exactly one introductory offer per user per subscription
-   group, and free trial / pay-up-front are mutually exclusive types of that one offer.
-   DEC-011 specifies both. `Vittora.storekit` currently encodes the **free trial**, because
-   both DEC-008 and DEC-011 state the trial as policy. Options: (a) trial only, hero price
-   $39.99; (b) $29.99 pay-up-front first year, no trial; (c) trial as the introductory
-   offer and $29.99 delivered as an **offer code** — which §8 already contemplates under
-   "Offer Codes for marketing, win-back, and creator partnerships". Recommend (c).
+1. **SETTLED by DEC-013.** The annual plan cannot have both a 7-day free trial and a
+   $29.99 first-year price. App Store subscriptions allow exactly one introductory offer
+   per user per subscription group, and free trial / pay-up-front are mutually exclusive
+   types of that one offer. DEC-011 specified both. Owner ruling (DEC-013): **trial only,
+   hero price $39.99**; the $29.99 intro price is dropped. Offer codes remain available for
+   marketing and win-back per §8.
 2. Terms and Privacy Policy currently ship inside the app. Auto-renewing subscriptions
    require **publicly reachable URLs** in App Store Connect. `Docs/Store/site/` exists —
    confirm those pages are live and that their URLs are the ones to register.
 3. Refund and support contact: the Privacy Policy's contact section says "the support
    channel associated with your distribution", which is too vague once money changes hands.
+4. **Localized App Store description copy** in the seven `metadata-*.md` files still claims
+   every feature is free, in English, Spanish, and Hindi. Headers were updated with a TODO;
+   body copy needs owner sign-off before the 1.7.0 submission.
+5. **`MonetizationConfiguration.isStoreKitEnabled` vs. submitted documents.** Repository
+   copy (Terms, Privacy, store docs, review notes, launch copy) now describes the paid
+   app. The flag is still `false`, so a 1.7.0 binary built today has no paywall and no
+   purchase flow. Before submission, either flip the flag (owner decision) and keep the
+   paid-app documents, or leave the flag off and strip/revert the IAP claims in every
+   document handed to Apple so they match the free-only binary. Store and review
+   documents must match the submitted build either way.

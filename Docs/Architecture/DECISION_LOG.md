@@ -164,7 +164,7 @@ customer feedback reports the labels as hard to read, reopen this and take the
 | Vittora Pro | Always free |
 |---|---|
 | Full tax planning & regime comparison *(narrowed by DEC-015 — the tax profile form and its CSV export stay free; only the computed planning outputs and regime comparison are gated.)* | iCloud sync |
-| Advanced / custom reports + PDF export | Expense splitting (viral loop) |
+| Advanced / custom reports + PDF export *(narrowed by the owner ruling of 2026-09-12 — PDF export is gated only on `CustomReportView`; `ReportPDFShareLink` on `MonthlyOverviewView`, `AnnualReportView` and `SplitGroupDetailView` stays free, because splitting is never gated and monthly/annual reports are not in the Pro list.)* | Expense splitting (viral loop) |
 | Cash flow forecast | Year in Review (shareable growth loop) |
 | Subscription audit | Unlimited manual transactions |
 | 50/30/20 report | Basic budgets and dashboard |
@@ -186,6 +186,11 @@ customer feedback reports the labels as hard to read, reopen this and take the
 
 - Entitlement resolution keeps a **16-day offline grace** (`Entitlement.swift`). Accepted as proposed. Gating must go through `EntitlementPolicy.resolve` so the grace applies uniformly rather than being re-implemented per call site.
 
+### PDF export is Pro only on Custom Report
+
+- Owner ruling, 2026-09-12. `ReportPDFShareLink` appears at four call sites: `CustomReportView.swift:43`, `MonthlyOverviewView.swift:35`, `AnnualReportView.swift:54` and `SplitGroupDetailView.swift:308`. Only the first is gated. Expense splitting is in the never-gated column and monthly and annual overviews are not in the Pro list, so gating their share links would take away a shipped free surface for no revenue reason.
+- This is a note for F3's wiring. No gate call site is wired yet.
+
 - Revisit: with the first 90 days of paid data, alongside DEC-011 and DEC-013.
 
 ## DEC-015: Your data stays yours; the analysis is paid — the tax feature splits at the profile form
@@ -196,4 +201,5 @@ customer feedback reports the labels as hard to read, reopen this and take the
 - The principle, which generalises to future gating decisions: **your data stays yours; the analysis is paid.** This sits underneath DEC-014's "forward-looking analysis is paid; record-keeping stays free" and settles the case DEC-014 did not anticipate — a feature that is analysis at the top and record-keeping underneath. The gate goes at the seam, not around the whole feature.
 - Relationship to DEC-014: **annotation only.** DEC-014's gate table row is annotated in place and its text is otherwise unchanged; the eight-row table, the principle, the removed account and budget caps, and the offline grace all stand.
 - Open question raised while implementing F3 (owner decision needed, not an implementation detail): the only tax CSV export is `DataExportService.exportTaxReportCSV(profile:estimate:comparison:summary:)`, and its contents are mostly the **computed analysis** — taxable income, total tax payable, effective and marginal rate, every bracket result, and the full regime comparison — over three rows of profile data. It cannot run at all without a computed estimate (`TaxEstimateViewModel.exportReport()` guards on `estimate`). So "the tax profile's CSV export" is in practice the tax *report* export. Left **ungated** pending the ruling, because keeping a surface free is reversible and carries no 3.1.2 risk, whereas gating it wrongly does. If the owner intends the principle to govern, this export is analysis and should be gated, with a profile-only export offered in its place to honour the data-ownership promise.
+- **Owner ruling (2026-09-12): the tax report CSV is Pro.** `DataExportService.buildTaxReportCSV` (`Packages/VittoraCore/Sources/VittoraCore/Data/Persistence/DataExportService.swift:235`) emits taxable income, total tax payable, effective and marginal rates, every bracket result and the regime comparison. That is the analysis, not profile data, and it cannot run without a computed estimate. It is therefore gated. The data-ownership promise is served instead by `DataExportService`'s general full export, which stays **free**. This closes the open question above.
 - Revisit: with the first 90 days of paid data, alongside DEC-011, DEC-013 and DEC-014.

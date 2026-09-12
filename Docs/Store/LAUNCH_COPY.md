@@ -1,5 +1,10 @@
 # Launch-Day Copy — Product Hunt + Social
 
+> Pricing lines updated for 1.7.0 per DEC-013/014/015. This copy has not been published.
+> Pro / paid lines apply **only to a build where `MonetizationConfiguration.isStoreKitEnabled`
+> is `true`**. If a build ships with that flag still `false`, use the earlier free-only
+> wording — it is preserved in git history.
+
 Paste-ready copy for the coordinated launch morning (plan §9). Fill in the
 two placeholders before posting: `[APP STORE URL]` and `[PH URL]` (the
 Product Hunt page link, once the listing is scheduled). Character limits
@@ -21,10 +26,10 @@ update `appLinks.ts` on the website.
 Private personal finance for iPhone, iPad, and Mac
 ```
 
-**Description** (260 chars max — this is 257):
+**Description** (260 chars max — this is 254):
 
 ```
-Track spending, budgets, savings goals, shared expenses, and tax estimates — without linking a bank account. It all lives on your device and syncs through your own iCloud. No accounts, no ads, no trackers, no data selling. Free, with every feature included.
+Track spending, budgets, savings goals, shared expenses, and tax estimates — without linking a bank account. It all lives on your device and syncs through your own iCloud. No accounts, no ads, no trackers, no data selling. Free to use, with optional Pro.
 ```
 
 **Topics:** Fintech · Personal Finance · Privacy · Mac · iPhone
@@ -49,7 +54,7 @@ Vittora takes the opposite bet:
 
 What's inside: expense/income tracking with quick capture, category budgets with overspend warnings, savings goals, group expense splitting, a lent/borrowed debt ledger, recurring transactions, reports (category breakdown, trends, cash flow, net worth), CSV import/export, Face ID/Touch ID app lock — and a lightweight tax estimator: US federal (with 401(k)/IRA headroom) or India's old-vs-new regime comparison.
 
-It's free. Every feature, every device — no trial timers, no locked features. If we ever add optional paid conveniences, recording and exporting your own data stay free. That's a commitment, not a launch promo.
+Recording your own data, exporting it, iCloud sync, and expense splitting are free and stay free — that commitment is kept, not broken. Vittora Pro is the optional paid upgrade for the forward-looking analysis. That's the promise being honoured.
 
 Native SwiftUI on all three platforms — real sidebar + split views on Mac and iPad, not a stretched phone app.
 
@@ -102,7 +107,7 @@ iPhone for capture, iPad for planning, Mac for deep review. One private iCloud s
 **Tweet 5 (the close):**
 
 ```
-Free at launch, every feature included. No ads, no trackers, no accounts, no trial timers.
+Free to use; Pro is optional for the analysis. No ads, no trackers, no accounts. Recording, export, sync, and splitting stay free.
 
 App Store: [APP STORE URL]
 Product Hunt (an upvote means a lot today 🙏): [PH URL]
@@ -127,7 +132,7 @@ What it does:
 • Reports: category breakdown, spending trends, cash flow, net worth
 • CSV import/export — your data is never locked in
 
-It's free, with every feature included, on iPhone, iPad, and Mac.
+It's free to download, with Vittora Pro optional for the analysis — recording, export, sync, and splitting stay free, on iPhone, iPad, and Mac.
 
 If you've ever abandoned an expense tracker after two weeks, I'd love for you to try this one and tell me why you stopped last time: [APP STORE URL]
 ```
@@ -154,7 +159,7 @@ After bouncing off finance apps that all wanted bank credentials or a vendor clo
 
 Fully native SwiftUI on all three platforms — proper sidebar + split view on Mac/iPad rather than a scaled-up iPhone app. Budgets, savings goals, expense splitting, a debt ledger, recurring transactions, reports, CSV import/export, Face ID/Touch ID lock, and a lightweight tax estimator (US + India).
 
-Free with every feature included — no trial, no locked features, no ads.
+Free to use; Pro optional for analysis — no locked record-keeping, no ads.
 
 Happy to answer anything about the CloudKit/SwiftData setup or the no-backend architecture. [APP STORE URL]
 ```
