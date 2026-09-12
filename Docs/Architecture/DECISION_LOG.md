@@ -163,7 +163,7 @@ customer feedback reports the labels as hard to read, reopen this and take the
 
 | Vittora Pro | Always free |
 |---|---|
-| Full tax planning & regime comparison | iCloud sync |
+| Full tax planning & regime comparison *(narrowed by DEC-015 — the tax profile form and its CSV export stay free; only the computed planning outputs and regime comparison are gated.)* | iCloud sync |
 | Advanced / custom reports + PDF export | Expense splitting (viral loop) |
 | Cash flow forecast | Year in Review (shareable growth loop) |
 | Subscription audit | Unlimited manual transactions |
@@ -187,3 +187,13 @@ customer feedback reports the labels as hard to read, reopen this and take the
 - Entitlement resolution keeps a **16-day offline grace** (`Entitlement.swift`). Accepted as proposed. Gating must go through `EntitlementPolicy.resolve` so the grace applies uniformly rather than being re-implemented per call site.
 
 - Revisit: with the first 90 days of paid data, alongside DEC-011 and DEC-013.
+
+## DEC-015: Your data stays yours; the analysis is paid — the tax feature splits at the profile form
+
+- Status: Accepted (2026-09-12, Rahul)
+- Decision: Vittora Pro gates the tax feature's **computed planning outputs and regime comparison** only. The **tax profile form and its CSV export stay free.** This narrows, but does not replace, the "Full tax planning & regime comparison" row of DEC-014's gate table.
+- Why: `SDTaxProfile` holds user-entered data — annual income, regime, filing status, date of birth, custom deductions. `TaxProfileFormView` has exactly one entry point (`TaxDashboardView.swift:71`), inside the feature that would be gated, and the only tax CSV export is reached solely from within that feature. Gating the whole feature would take away data users already created: an App Store guideline **3.1.2** risk, and a direct contradiction of DEC-014's own written requirement that no existing user loses access to anything they made. Tax planning has been free since 2026-04-13, so the exposed installed base is real.
+- The principle, which generalises to future gating decisions: **your data stays yours; the analysis is paid.** This sits underneath DEC-014's "forward-looking analysis is paid; record-keeping stays free" and settles the case DEC-014 did not anticipate — a feature that is analysis at the top and record-keeping underneath. The gate goes at the seam, not around the whole feature.
+- Relationship to DEC-014: **annotation only.** DEC-014's gate table row is annotated in place and its text is otherwise unchanged; the eight-row table, the principle, the removed account and budget caps, and the offline grace all stand.
+- Open question raised while implementing F3 (owner decision needed, not an implementation detail): the only tax CSV export is `DataExportService.exportTaxReportCSV(profile:estimate:comparison:summary:)`, and its contents are mostly the **computed analysis** — taxable income, total tax payable, effective and marginal rate, every bracket result, and the full regime comparison — over three rows of profile data. It cannot run at all without a computed estimate (`TaxEstimateViewModel.exportReport()` guards on `estimate`). So "the tax profile's CSV export" is in practice the tax *report* export. Left **ungated** pending the ruling, because keeping a surface free is reversible and carries no 3.1.2 risk, whereas gating it wrongly does. If the owner intends the principle to govern, this export is analysis and should be gated, with a profile-only export offered in its place to honour the data-ownership promise.
+- Revisit: with the first 90 days of paid data, alongside DEC-011, DEC-013 and DEC-014.
