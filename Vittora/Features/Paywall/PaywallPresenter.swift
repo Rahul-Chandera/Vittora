@@ -11,6 +11,11 @@ extension ConversionMilestone: Identifiable {
 /// folds in the first-occurrence check, `MonetizationConfiguration.paywallPresentationCooldownDays`
 /// and the `isStoreKitEnabled` kill switch. This type's whole job is to honour that answer and
 /// then start the cooldown by telling the tracker the paywall was shown.
+///
+/// There is deliberately no manual entry point yet: the paywall only opens from a value
+/// event. Before isStoreKitEnabled is flipped, Settings needs its own Vittora Pro row with
+/// Restore Purchases, because App Review requires restore to be reachable without one of
+/// these milestones firing first.
 @MainActor
 @Observable
 final class PaywallPresenter {

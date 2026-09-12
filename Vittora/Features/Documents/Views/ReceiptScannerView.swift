@@ -49,6 +49,11 @@ struct ReceiptScannerView: View {
                     Task {
                         await vm.processImage(cgImage)
                         if let data = vm.scannedReceiptData {
+                            // ponytail: this fires while the scanner sheet is still up and the
+                            // review sheet is about to open. SwiftUI will not stack a root sheet
+                            // under a feature sheet, so the paywall may be swallowed here. It is
+                            // harmless while isStoreKitEnabled is false; whoever flips that flag
+                            // should defer presentation until the review sheet dismisses.
                             dependencies.paywallPresenter.present(
                                 dependencies.conversionEventRecorder.afterOCRScanCompleted()
                             )
