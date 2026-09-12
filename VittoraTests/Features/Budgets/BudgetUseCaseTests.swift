@@ -66,20 +66,76 @@ struct BudgetUseCaseTests {
             }
         }
 
-        @Test("Allows budget without category even if same period exists")
-        func testAllowsNoCategoryBudget() async throws {
+        @Test("Throws when a second active budget exists for the same category")
+        func testThrowsForSecondActiveBudgetSameCategory() async throws {
             let repo = MockBudgetRepository()
+            let categoryID = UUID()
+            await repo.seed(BudgetEntity(amount: 200, period: .monthly, categoryID: categoryID))
 
-            // Existing budget with no category
+            let useCase = CreateBudgetUseCase(budgetRepository: repo)
+
+            await #expect(throws: VittoraError.self) {
+                try await useCase.execute(
+                    amount: 300,
+                    period: .monthly,
+                    categoryID: categoryID
+                )
+            }
+
+            let all = await repo.budgets
+            #expect(all.count == 1)
+        }
+
+        @Test("Throws when second budget has a different period for the same category")
+        func testThrowsForSameCategoryDifferentPeriod() async throws {
+            let repo = MockBudgetRepository()
+            let categoryID = UUID()
+            await repo.seed(BudgetEntity(amount: 200, period: .monthly, categoryID: categoryID))
+
+            let useCase = CreateBudgetUseCase(budgetRepository: repo)
+
+            await #expect(throws: VittoraError.self) {
+                try await useCase.execute(
+                    amount: 300,
+                    period: .weekly,
+                    categoryID: categoryID
+                )
+            }
+
+            let all = await repo.budgets
+            #expect(all.count == 1)
+        }
+
+        @Test("Throws when a second overall budget is created with nil category")
+        func testThrowsForSecondOverallBudget() async throws {
+            let repo = MockBudgetRepository()
             await repo.seed(BudgetEntity(amount: 200, period: .monthly))
 
             let useCase = CreateBudgetUseCase(budgetRepository: repo)
 
-            // Should not throw — no category means no duplicate check
+            await #expect(throws: VittoraError.self) {
+                try await useCase.execute(amount: 300, period: .monthly)
+            }
+
+            let all = await repo.budgets
+            #expect(all.count == 1)
+        }
+
+        @Test("Allows an overall budget alongside a category budget")
+        func testAllowsOverallBudgetAlongsideCategoryBudget() async throws {
+            let repo = MockBudgetRepository()
+            let categoryID = UUID()
+
+            // Overall and category budgets are different slots — not a duplicate
+            await repo.seed(BudgetEntity(amount: 200, period: .monthly, categoryID: categoryID))
+
+            let useCase = CreateBudgetUseCase(budgetRepository: repo)
+
             try await useCase.execute(amount: 300, period: .monthly)
 
             let all = await repo.budgets
             #expect(all.count == 2)
+            #expect(all.filter { $0.categoryID == nil }.count == 1)
         }
 
         @Test("Creates budget with rollover enabled")
