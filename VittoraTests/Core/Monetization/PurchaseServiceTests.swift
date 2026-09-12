@@ -50,4 +50,26 @@ struct PurchaseServiceTests {
         #expect(service.product(for: .lifetime) == nil)
         #expect(!service.didFailToLoadProducts)
     }
+
+    /// Catches a regression where restore syncs with the App Store but never refreshes the
+    /// published level, leaving a restored user looking free until the next cold launch.
+    @Test("refreshing the entitlement republishes the level")
+    func refreshEntitlementRepublishesLevel() async {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        let store = EntitlementStore(cache: cache, now: { now }, standing: { _ in .unknown })
+        let service = PurchaseService(entitlements: store)
+        #expect(service.level == .free)
+        cache.save(
+            EntitlementSnapshot(
+                level: .pro,
+                productID: ProProduct.lifetime.rawValue,
+                expirationDate: nil,
+                isInBillingRetry: false,
+                recordedAt: now
+            )
+        )
+        await service.refreshEntitlement()
+        #expect(service.level == .pro)
+    }
 }
