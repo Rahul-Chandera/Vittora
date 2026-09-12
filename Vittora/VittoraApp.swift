@@ -256,6 +256,7 @@ struct VittoraApp: App {
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
                     .task {
+                        dependencies.purchaseService.start()
                         registerQuickAddIntentHandler()
                         #if os(iOS)
                         activateWatchBridgeIfNeeded()

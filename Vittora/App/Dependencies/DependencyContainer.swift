@@ -38,9 +38,11 @@ final class DependencyContainer {
     let scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase
     let scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase
     var conversionEventTracker: any ConversionEventTracking = UserDefaultsConversionEventTracker()
+    let entitlementStore = EntitlementStore()
     // Second tracker instance is fine: both read AppUserDefaults.conversion, so OCR counts agree.
     // Tests that substitute conversionEventTracker must substitute featureGate too.
-    var featureGate = FeatureGate(store: EntitlementStore(), tracker: UserDefaultsConversionEventTracker())
+    var featureGate: FeatureGate
+    let purchaseService: PurchaseService
     let conversionEventRecorder: ConversionEventRecorder
     let securityAuditLogService: SecurityAuditLogService
     let dataSeeder: any DataSeederProtocol
@@ -112,6 +114,8 @@ final class DependencyContainer {
         self.categorizationRuleStore = categorizationRuleStore
         self.transactionEditHistoryStore = transactionEditHistoryStore
         self.savedTransactionFilterStore = savedTransactionFilterStore
+        self.featureGate = FeatureGate(store: entitlementStore, tracker: UserDefaultsConversionEventTracker())
+        self.purchaseService = PurchaseService(entitlements: entitlementStore)
     }
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
