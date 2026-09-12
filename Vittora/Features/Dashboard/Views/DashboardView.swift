@@ -56,9 +56,15 @@ struct DashboardView: View {
                 await vm?.load()
             }
         }
-        .task(id: appState.dashboardRefreshToken) {
+        // onChange, not .task(id:). A .task(id:) attached to a tab that is not
+        // frontmost does not restart when the id changes - the same SwiftUI
+        // behaviour already recorded in BudgetListView. It left the Dashboard
+        // serving the snapshot it took at launch: a write made from another tab
+        // bumped the token, the Dashboard never re-read, and Overall Progress
+        // stayed at its old value while the Budgets page showed the new one.
+        .onChange(of: appState.dashboardRefreshToken) { _, _ in
             guard vm != nil, appState.hasAnyRefresh(in: [.transactions, .accounts, .budgets, .recurring]) else { return }
-            await vm?.refresh()
+            Task { await vm?.refresh() }
         }
         .navigationDestination(item: $navigateDestination) { dest in
             NavigationDestinationView(destination: dest)
