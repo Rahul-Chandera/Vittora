@@ -26,18 +26,20 @@ struct PaywallView: View {
             Group {
                 if dependencies.purchaseService.didFailToLoadProducts {
                     productsUnavailableContent
+                        // SubscriptionStoreView draws its own dismiss control; the degraded
+                        // branch draws none, so Close lives only here.
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button(String(localized: "Close")) { dismiss() }
+                                    .accessibilityIdentifier("paywall-close-button")
+                            }
+                        }
                 } else {
                     subscriptionStore
                 }
             }
             .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Vittora Pro"))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(String(localized: "Close")) { dismiss() }
-                        .accessibilityIdentifier("paywall-close-button")
-                }
-            }
             .task { await dependencies.purchaseService.loadProducts() }
             .alert(
                 String(localized: "Purchase Failed"),
