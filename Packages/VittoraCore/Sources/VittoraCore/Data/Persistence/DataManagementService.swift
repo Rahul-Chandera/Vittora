@@ -53,6 +53,7 @@ public final class DataManagementService: Sendable {
     private let documentStorageService: (any DocumentStorageServiceProtocol)?
     private let keychainService: any KeychainServiceProtocol
     private let dataSeeder: (any DataSeederProtocol)?
+    private let defaultsSuiteName: String?
 
     public init(
         transactionRepository: any TransactionRepository,
@@ -68,7 +69,8 @@ public final class DataManagementService: Sendable {
         taxProfileRepository: (any TaxProfileRepository)? = nil,
         documentStorageService: (any DocumentStorageServiceProtocol)? = nil,
         keychainService: any KeychainServiceProtocol,
-        dataSeeder: (any DataSeederProtocol)? = nil
+        dataSeeder: (any DataSeederProtocol)? = nil,
+        defaultsSuiteName: String? = nil
     ) {
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
@@ -84,7 +86,12 @@ public final class DataManagementService: Sendable {
         self.documentStorageService = documentStorageService
         self.keychainService = keychainService
         self.dataSeeder = dataSeeder
+        self.defaultsSuiteName = defaultsSuiteName
     }
+
+    /// Non-secret preference store. Tests inject a private suite name so parallel
+    /// suites do not clobber each other's `.standard` keys.
+    private var defaults: UserDefaults { AppUserDefaults.suite(named: defaultsSuiteName) }
 
     // MARK: - Statistics
 
@@ -184,14 +191,14 @@ public final class DataManagementService: Sendable {
         AppUserDefaults.appGroup.removeObject(forKey: QuickAddDeepLink.pendingIntentDestinationKey)
         RecentErrorLogStore.shared.clear()
 
-        UserDefaults.standard.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
+        defaults.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
         AppUserDefaults.sync.removeObject(forKey: AppUserDefaults.SyncKey.lastSyncDate)
-        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.categorizationRules)
-        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.transactionEditHistory)
-        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.savedTransactionFilters)
-        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.indiaComplianceTipDismissals)
-        UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled)
-        UserDefaults.standard.removeObject(forKey: TransactionSpotlightIndex.needsFullReindexKey)
+        defaults.removeObject(forKey: AppUserDefaults.StandardKey.categorizationRules)
+        defaults.removeObject(forKey: AppUserDefaults.StandardKey.transactionEditHistory)
+        defaults.removeObject(forKey: AppUserDefaults.StandardKey.savedTransactionFilters)
+        defaults.removeObject(forKey: AppUserDefaults.StandardKey.indiaComplianceTipDismissals)
+        defaults.removeObject(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled)
+        defaults.removeObject(forKey: TransactionSpotlightIndex.needsFullReindexKey)
 
         // Financial amounts must not outlive the ledger in Spotlight.
         await TransactionSpotlightIndex.deleteAllIndexedTransactions()
@@ -253,8 +260,8 @@ public final class DataManagementService: Sendable {
 
     private func clearSpotlightAfterTransactionDeletion() async {
         await TransactionSpotlightIndex.deleteAllIndexedTransactions()
-        if TransactionSpotlightIndex.isIndexingEnabled() {
-            UserDefaults.standard.set(true, forKey: TransactionSpotlightIndex.needsFullReindexKey)
+        if TransactionSpotlightIndex.isIndexingEnabled(userDefaults: defaults) {
+            TransactionSpotlightIndex.setNeedsFullReindex(userDefaults: defaults)
         }
     }
 }
