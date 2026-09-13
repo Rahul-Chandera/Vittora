@@ -322,6 +322,22 @@
         }
       }
     },
+    "Vittora Pro pricing is unavailable right now" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los precios de Vittora Pro no están disponibles ahora"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro की कीमतें अभी उपलब्ध नहीं हैं"
+          }
+        }
+      }
+    },
     "Vittora Pro unlocks the forward-looking analysis. Your records, your splits, iCloud sync and CSV export stay free, always." : {
       "localizations" : {
         "es" : {
@@ -334,6 +350,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vittora Pro आगे की योजना बताने वाला विश्लेषण अनलॉक करता है। आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट हमेशा मुफ़्त रहेंगे।"
+          }
+        }
+      }
+    },
+    "We could not reach the App Store, so prices and purchase options cannot be shown. Check your connection and try again. If you have already bought Vittora Pro, Restore Purchases brings it back on this device." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos contactar con el App Store, por lo que no se pueden mostrar los precios ni las opciones de compra. Comprueba tu conexión e inténtalo de nuevo. Si ya compraste Vittora Pro, Restaurar compras lo recupera en este dispositivo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हम App Store तक नहीं पहुँच सके, इसलिए कीमतें और खरीद विकल्प नहीं दिखाए जा सकते। अपना कनेक्शन जाँचें और फिर कोशिश करें। अगर आपने पहले से Vittora Pro खरीदा है, तो खरीदारी बहाल करें इसे इस डिवाइस पर वापस ला देता है।"
           }
         }
       }

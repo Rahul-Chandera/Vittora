@@ -8,6 +8,9 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isPurchasingLifetime = false
     @State private var errorMessage: String?
+    @State private var isRetrying = false
+    @State private var isRestoring = false
+    @State private var restoreMessage: String?
 
     private let proFeatures: [String] = [
         String(localized: "Full tax planning and regime comparison"),
@@ -20,28 +23,12 @@ struct PaywallView: View {
 
     var body: some View {
         NavigationStack {
-            SubscriptionStoreView(
-                productIDs: [ProProduct.annual.rawValue, ProProduct.monthly.rawValue]
-            ) {
-                marketingContent
-            }
-            .subscriptionStoreControlStyle(.prominentPicker)
-            .storeButton(.visible, for: .restorePurchases)
-            .storeButton(.visible, for: .policies)
-            .subscriptionStorePolicyDestination(for: .termsOfService) {
-                LegalDocumentView(document: .termsOfService)
-            }
-            .subscriptionStorePolicyDestination(for: .privacyPolicy) {
-                LegalDocumentView(document: .privacyPolicy)
-            }
-            // AA-safe brand green. VColors.primary (#3FCFA4) behind the white Subscribe label is
-            // 1.97:1; primaryOnSurface (#1F7D61) is the same hue dark enough to clear 4.5:1, so the
-            // paywall needs no DEC-012 contrast exemption.
-            .tint(VColors.primaryOnSurface)
-            .onInAppPurchaseCompletion { _, result in
-                // Entitlement itself comes from the Transaction.updates listener in PurchaseService;
-                // this only closes the sheet once StoreKit says the purchase went through.
-                if case .success(.success(_)) = result { dismiss() }
+            Group {
+                if dependencies.purchaseService.didFailToLoadProducts {
+                    productsUnavailableContent
+                } else {
+                    subscriptionStore
+                }
             }
             .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Vittora Pro"))
@@ -62,6 +49,118 @@ struct PaywallView: View {
                 Button(String(localized: "OK"), role: .cancel) { errorMessage = nil }
             } message: {
                 Text(errorMessage ?? "")
+            }
+            .alert(
+                String(localized: "Restore Purchases"),
+                isPresented: Binding(
+                    get: { restoreMessage != nil },
+                    set: { if !$0 { restoreMessage = nil } }
+                )
+            ) {
+                Button(String(localized: "OK"), role: .cancel) { restoreMessage = nil }
+            } message: {
+                Text(restoreMessage ?? "")
+            }
+        }
+    }
+
+    private var subscriptionStore: some View {
+        SubscriptionStoreView(
+            productIDs: [ProProduct.annual.rawValue, ProProduct.monthly.rawValue]
+        ) {
+            marketingContent
+        }
+        .subscriptionStoreControlStyle(.prominentPicker)
+        .storeButton(.visible, for: .restorePurchases)
+        .storeButton(.visible, for: .policies)
+        .subscriptionStorePolicyDestination(for: .termsOfService) {
+            LegalDocumentView(document: .termsOfService)
+        }
+        .subscriptionStorePolicyDestination(for: .privacyPolicy) {
+            LegalDocumentView(document: .privacyPolicy)
+        }
+        // AA-safe brand green. VColors.primary (#3FCFA4) behind the white Subscribe label is
+        // 1.97:1; primaryOnSurface (#17604A) is the same hue dark enough to clear 6.70:1 on the
+        // grouped background, so the paywall needs no DEC-012 contrast exemption.
+        .tint(VColors.primaryOnSurface)
+        .onInAppPurchaseCompletion { _, result in
+            // Entitlement itself comes from the Transaction.updates listener in PurchaseService;
+            // this only closes the sheet once StoreKit says the purchase went through.
+            if case .success(.success(_)) = result { dismiss() }
+        }
+    }
+
+    @ViewBuilder
+    private var productsUnavailableContent: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: VSpacing.lg) {
+                VStack(alignment: .leading, spacing: VSpacing.lg) {
+                    Image(systemName: "exclamationmark.icloud")
+                        .font(.largeTitle)
+                        .foregroundStyle(VColors.primaryOnSurface)
+                        .frame(maxWidth: .infinity)
+                        .accessibilityHidden(true)
+
+                    Text(String(localized: "Vittora Pro pricing is unavailable right now"))
+                        .font(.title3.bold())
+                        .foregroundStyle(VColors.textPrimary)
+
+                    Text(String(localized: "We could not reach the App Store, so prices and purchase options cannot be shown. Check your connection and try again. If you have already bought Vittora Pro, Restore Purchases brings it back on this device."))
+                        .font(.subheadline)
+                        .foregroundStyle(VColors.textSecondary)
+                        .accessibilityIdentifier("paywall-products-unavailable")
+                }
+                .padding(.horizontal, VSpacing.screenPadding)
+
+                HStack(spacing: VSpacing.sm) {
+                    Button {
+                        Task {
+                            isRetrying = true
+                            defer { isRetrying = false }
+                            await dependencies.purchaseService.loadProducts()
+                        }
+                    } label: {
+                        Text(String(localized: "Try Again"))
+                    }
+                    .vPrimaryActionButton()
+                    .accessibilityIdentifier("paywall-retry-button")
+                    .disabled(isRetrying)
+
+                    if isRetrying {
+                        ProgressView()
+                    }
+                }
+                .padding(.horizontal, VSpacing.screenPadding)
+
+                HStack(spacing: VSpacing.sm) {
+                    Button {
+                        Task {
+                            isRestoring = true
+                            defer { isRestoring = false }
+                            do {
+                                try await dependencies.purchaseService.restore()
+                                restoreMessage = dependencies.purchaseService.level == .pro
+                                    ? String(localized: "Vittora Pro is restored on this device.")
+                                    : String(localized: "No previous Vittora Pro purchase was found for this Apple Account.")
+                            } catch {
+                                restoreMessage = error.localizedDescription
+                            }
+                        }
+                    } label: {
+                        Text(String(localized: "Restore Purchases"))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(VColors.primaryOnSurface)
+                    }
+                    .accessibilityIdentifier("paywall-restore-button")
+                    .disabled(isRestoring)
+
+                    if isRestoring {
+                        ProgressView()
+                    }
+                }
+                .padding(.horizontal, VSpacing.screenPadding)
+
+                marketingContent
             }
         }
     }

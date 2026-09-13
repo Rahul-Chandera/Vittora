@@ -16,7 +16,7 @@ struct ProLockView: View {
         } actions: {
             Button(String(localized: "See Vittora Pro")) { showPaywall = true }
                 .buttonStyle(.borderedProminent)
-                // AA-safe brand green: white on primaryOnSurface (#1F7D61) clears 4.5:1,
+                // AA-safe brand green: white on primaryOnSurface (#17604A) is 7.5:1,
                 // white on primary (#3FCFA4) is 1.97:1 and would need a DEC-012 exemption.
                 .tint(VColors.primaryOnSurface)
                 .accessibilityIdentifier("pro-lock-upgrade-button")
