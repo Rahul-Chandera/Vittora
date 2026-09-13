@@ -130,6 +130,22 @@
         }
       }
     },
+    "Completing your purchase…" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completando tu compra…"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपकी खरीद पूरी की जा रही है…"
+          }
+        }
+      }
+    },
     "Custom reports with PDF export" : {
       "localizations" : {
         "es" : {
@@ -158,6 +174,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "भविष्य की हर Pro सुविधा, शामिल"
+          }
+        }
+      }
+    },
+    "Every Pro feature is unlocked on this device. You can change or cancel your plan any time in your Apple Account settings." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las funciones Pro están desbloqueadas en este dispositivo. Puedes cambiar o cancelar tu plan cuando quieras en los ajustes de tu Cuenta de Apple."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर हर Pro सुविधा अनलॉक है। आप अपनी Apple Account सेटिंग्स में कभी भी अपना प्लान बदल या रद्द कर सकते हैं।"
           }
         }
       }
@@ -366,6 +398,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "हम App Store तक नहीं पहुँच सके, इसलिए कीमतें और खरीद विकल्प नहीं दिखाए जा सकते। अपना कनेक्शन जाँचें और फिर कोशिश करें। अगर आपने पहले से Vittora Pro खरीदा है, तो खरीदारी बहाल करें इसे इस डिवाइस पर वापस ला देता है।"
+          }
+        }
+      }
+    },
+    "You already have Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya tienes Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके पास पहले से Vittora Pro है"
           }
         }
       }

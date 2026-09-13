@@ -99,6 +99,18 @@ final class PurchaseService {
         await refreshEntitlement()
     }
 
+    /// SubscriptionStoreView runs its own purchase, so the transaction never reaches
+    /// purchase(_:), and StoreKit does not redeliver an app-initiated purchase through
+    /// Transaction.updates. The paywall hands the result here so verification, finishing
+    /// and the entitlement refresh stay in exactly one place.
+    @discardableResult
+    func completeStorePurchase(_ result: Result<Product.PurchaseResult, any Error>) async -> Bool {
+        guard case .success(let purchaseResult) = result,
+              case .success(let verification) = purchaseResult else { return false }
+        await handle(verification)
+        return level == .pro
+    }
+
     private func handle(_ update: VerificationResult<Transaction>) async {
         guard case .verified(let transaction) = update else {
             if case .unverified(let transaction, _) = update { await transaction.finish() }

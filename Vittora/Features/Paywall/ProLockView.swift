@@ -35,9 +35,10 @@ private struct ProGateModifier: ViewModifier {
     let message: String
     @Environment(\.dependencies) private var dependencies
 
-    /// FeatureGate owns the decision (offline grace, kill switch). `purchaseService.level`
-    /// is read as well so @Observable re-evaluates this gate the moment a purchase or
-    /// restore lands -- FeatureGate is a plain struct and publishes nothing itself.
+    /// FeatureGate owns the decision (offline grace, kill switch). Reading
+    /// `purchaseService.level` as well is what makes this gate @Observable-tracked, so a
+    /// purchase, restore or Transaction.updates event re-renders every gated surface --
+    /// FeatureGate is a plain struct and publishes nothing itself.
     private var isUnlocked: Bool {
         _ = dependencies.purchaseService.level
         return dependencies.featureGate.isProUnlocked

@@ -2,6 +2,21 @@ import Foundation
 import Testing
 @testable import Vittora
 
+private struct ZeroScanTracker: ConversionEventTracking, Sendable {
+    nonisolated func record(_ milestone: ConversionMilestone) -> ConversionEventResult {
+        ConversionEventResult(milestone: milestone, isFirstTime: false, shouldPresentPaywall: false)
+    }
+    nonisolated func shouldPresentPaywall(for milestone: ConversionMilestone) -> Bool { false }
+    nonisolated func markPaywallPresented(for milestone: ConversionMilestone) {}
+    nonisolated func hasRecorded(_ milestone: ConversionMilestone) -> Bool { false }
+    nonisolated func recordOCRScan() -> ConversionEventResult {
+        ConversionEventResult(milestone: .firstOCRScan, isFirstTime: false, shouldPresentPaywall: false)
+    }
+    nonisolated func ocrScansThisMonth() -> Int { 0 }
+}
+
+private struct StubPurchaseFailure: Error {}
+
 @Suite("Purchase Service Tests")
 @MainActor
 struct PurchaseServiceTests {
@@ -83,5 +98,79 @@ struct PurchaseServiceTests {
         let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
         await service.loadProducts()
         #expect(service.didFailToLoadProducts == service.products.isEmpty)
+    }
+
+    /// Catches the 1.7.0 "paid but still locked" regression: the entitlement changed but the
+    /// gate kept answering from a stale source, so a paying user stayed locked out of every Pro
+    /// surface. Asserting that refreshEntitlement() ran would have passed against that bug —
+    /// this asserts what the gated views actually read.
+    @Test("the gate unlocks as soon as the entitlement becomes Pro")
+    func gateFollowsEntitlementUpgrade() async {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        // Mirrors DependencyContainer: one EntitlementStore behind both the service and the gate.
+        let store = EntitlementStore(cache: cache, now: { now }, standing: { _ in .unknown })
+        let service = PurchaseService(entitlements: store)
+        let gate = FeatureGate(store: store, tracker: ZeroScanTracker(), storeKitEnabled: true)
+
+        #expect(service.level == .free)
+        #expect(gate.isProUnlocked == false)
+
+        cache.save(
+            EntitlementSnapshot(
+                level: .pro,
+                productID: ProProduct.annual.rawValue,
+                expirationDate: now.addingTimeInterval(365 * 86_400),
+                isInBillingRetry: false,
+                recordedAt: now
+            )
+        )
+        await service.refreshEntitlement()
+
+        #expect(service.level == .pro)
+        #expect(gate.isProUnlocked == true)
+    }
+
+    /// The gate must follow the entitlement downward too: a lapsed subscription that StoreKit
+    /// confirms is over must relock Pro rather than leaving the last cached answer in place.
+    @Test("the gate relocks once a lapsed subscription is confirmed over")
+    func gateFollowsEntitlementDowngrade() async {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        let store = EntitlementStore(cache: cache, now: { now }, standing: { _ in .lapsed })
+        cache.save(
+            EntitlementSnapshot(
+                level: .pro,
+                productID: ProProduct.annual.rawValue,
+                expirationDate: now.addingTimeInterval(-86_400),
+                isInBillingRetry: false,
+                recordedAt: now.addingTimeInterval(-365 * 86_400)
+            )
+        )
+        let service = PurchaseService(entitlements: store)
+        let gate = FeatureGate(store: store, tracker: ZeroScanTracker(), storeKitEnabled: true)
+        #expect(service.level == .pro)
+        #expect(gate.isProUnlocked == true)
+
+        await service.refreshEntitlement()
+
+        #expect(service.level == .free)
+        #expect(gate.isProUnlocked == false)
+    }
+
+    /// Catches a regression where a failed or cancelled StoreKit-view purchase still unlocks Pro.
+    @Test("a failed store purchase unlocks nothing")
+    func failedStorePurchaseUnlocksNothing() async {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        let store = EntitlementStore(cache: cache, now: { now }, standing: { _ in .unknown })
+        let service = PurchaseService(entitlements: store)
+        let gate = FeatureGate(store: store, tracker: ZeroScanTracker(), storeKitEnabled: true)
+
+        let granted = await service.completeStorePurchase(.failure(StubPurchaseFailure()))
+
+        #expect(granted == false)
+        #expect(service.level == .free)
+        #expect(gate.isProUnlocked == false)
     }
 }

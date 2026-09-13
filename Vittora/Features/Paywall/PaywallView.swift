@@ -11,6 +11,7 @@ struct PaywallView: View {
     @State private var isRetrying = false
     @State private var isRestoring = false
     @State private var restoreMessage: String?
+    @State private var isCompletingPurchase = false
 
     private let proFeatures: [String] = [
         String(localized: "Full tax planning and regime comparison"),
@@ -24,21 +25,27 @@ struct PaywallView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if dependencies.purchaseService.didFailToLoadProducts {
+                if dependencies.purchaseService.level == .pro {
+                    alreadySubscribedContent
+                        .toolbar { closeToolbarItem }
+                } else if dependencies.purchaseService.didFailToLoadProducts {
                     productsUnavailableContent
-                        // SubscriptionStoreView draws its own dismiss control; the degraded
-                        // branch draws none, so Close lives only here.
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                Button(String(localized: "Close")) { dismiss() }
-                                    .accessibilityIdentifier("paywall-close-button")
-                            }
-                        }
+                        .toolbar { closeToolbarItem }
                 } else {
                     subscriptionStore
                 }
             }
             .background(VColors.groupedBackground)
+            .overlay {
+                if isCompletingPurchase {
+                    ZStack {
+                        VColors.groupedBackground.opacity(0.8).ignoresSafeArea()
+                        ProgressView(String(localized: "Completing your purchase…"))
+                            .accessibilityIdentifier("paywall-completing-progress")
+                    }
+                    .transition(.opacity)
+                }
+            }
             .navigationTitle(String(localized: "Vittora Pro"))
             .task { await dependencies.purchaseService.loadProducts() }
             .alert(
@@ -63,6 +70,16 @@ struct PaywallView: View {
             } message: {
                 Text(restoreMessage ?? "")
             }
+        }
+    }
+
+    /// SubscriptionStoreView draws its own dismiss control; the branches that replace it
+    /// draw none, so Close is attached to those two and only those two.
+    @ToolbarContentBuilder
+    private var closeToolbarItem: some ToolbarContent {
+        ToolbarItem(placement: .cancellationAction) {
+            Button(String(localized: "Close")) { dismiss() }
+                .accessibilityIdentifier("paywall-close-button")
         }
     }
 
@@ -100,9 +117,34 @@ struct PaywallView: View {
         // Keep the links at the AA-safe #17604A.
         .subscriptionStorePolicyForegroundStyle(VColors.primaryOnSurface)
         .onInAppPurchaseCompletion { _, result in
-            // Entitlement itself comes from the Transaction.updates listener in PurchaseService;
-            // this only closes the sheet once StoreKit says the purchase went through.
-            if case .success(.success(_)) = result { dismiss() }
+            isCompletingPurchase = true
+            defer { isCompletingPurchase = false }
+            if await dependencies.purchaseService.completeStorePurchase(result) { dismiss() }
+        }
+    }
+
+    @ViewBuilder
+    private var alreadySubscribedContent: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: VSpacing.lg) {
+                Image(systemName: "checkmark.seal.fill")
+                    .font(.largeTitle)
+                    .foregroundStyle(VColors.primaryOnSurface)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityHidden(true)
+
+                Text(String(localized: "You already have Vittora Pro"))
+                    .font(.title3.bold())
+                    .foregroundStyle(VColors.textPrimary)
+                    .accessibilityIdentifier("paywall-already-subscribed")
+
+                Text(String(localized: "Every Pro feature is unlocked on this device. You can change or cancel your plan any time in your Apple Account settings."))
+                    .font(.subheadline)
+                    .foregroundStyle(VColors.textSecondary)
+            }
+            .padding(.horizontal, VSpacing.screenPadding)
+            .padding(.top, VSpacing.xl)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
