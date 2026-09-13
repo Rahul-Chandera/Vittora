@@ -128,7 +128,7 @@ owner after being shown side by side:
 | `#3FCFA4` + white label | 1.97:1 — **chosen** |
 
 **Scope of the exception.** Only the contrast pairing of white-on-brand-green.
-*(Extended by DEC-017 to the paywall's filled purchase CTA; that entry records what is and is not covered.)*
+*(DEC-017 briefly extended this to the paywall's filled purchase CTA; DEC-018 reversed that, so the paywall is NOT covered by this exception.)*
 The audit gate is not disabled: `AccessibilityAuditUITests` still runs every
 category on every screen, and the exclusion is written narrowly against this
 pairing. Every other contrast rule, hit-target rule, Dynamic Type rule and
@@ -217,10 +217,22 @@ customer feedback reports the labels as hard to read, reopen this and take the
 
 ## DEC-017: The paywall's filled purchase CTA joins DEC-012; its policy links do not
 
-- Status: Accepted (2026-09-13, Rahul)
+- Status: **Reversed by DEC-018 (2026-09-13, Rahul).** The tint decision below is no longer in force; the paywall is back on `VColors.primaryOnSurface` (`#17604A`) and claims no DEC-012 exemption. The entry is kept intact as the record of what was tried and why it was undone. Originally: Accepted (2026-09-13, Rahul)
 - Decision: The paywall `SubscriptionStoreView` tint becomes `VColors.primary` (`#3FCFA4`) with white content at 1.97:1, matching the onboarding hero CTAs. `"Try It Free"` / `"Subscribe"` are added to `AccessibilityAuditUITests`' `brandGreenFilledContent` set.
 - Why: Owner decision — the primary purchase CTA must match every other hero CTA in the app (`OnboardingView` and elsewhere). The previous `VColors.primaryOnSurface` (`#17604A`) fill looked wrong next to the rest of the product.
 - What is and is not covered: DEC-012 covers white-on-green **fills**. The Terms of Service and Privacy Policy links are pinned to `VColors.primaryOnSurface` (`#17604A`) via `subscriptionStorePolicyForegroundStyle` because pale green foreground text on a near-white page is not that pairing and is a real legibility regression. The marketing glyphs and the Restore Purchases label in `PaywallView` also stay `#17604A` for the same reason.
 - Build impact: `PaywallView.subscriptionStore` tint + policy foreground style; `brandGreenFilledContent` labels `"Try It Free"` and `"Subscribe"` in `AccessibilityAuditUITests`.
 - Revisit: if the paywall control chrome changes, or if DEC-012 itself is revisited.
+
+## DEC-018: The paywall tint reverts to the house primary `#17604A`; DEC-017 is undone
+
+- Status: Accepted (2026-09-13, Rahul — owner approved). **Reverses DEC-017.**
+- Decision: `PaywallView`'s `SubscriptionStoreView` tint returns to `VColors.primaryOnSurface` (`#17604A`). The marketing bullet glyphs return to monochrome `#17604A` discs with the check knocked out in white. The lifetime button keeps its white label, now on a `#17604A` capsule. The `"Try It Free"` / `"Subscribe"` labels and the `paywall-lifetime-button` identifier are **removed** from the DEC-012 exemptions in `AccessibilityAuditUITests`, because nothing on the paywall needs one any more.
+- Why DEC-017 was wrong on its own premise: DEC-017 justified brand green as matching "the app's other hero CTAs". It does not. The app's primary filled action is `VDialogButtonMetrics.confirmFill` = `#17604A` (`Vittora/DesignSystem/Components/VDialogButtons.swift:36`), and the comment directly above that constant already rejected brand green for this exact role — white on `#3FCFA4` is the 1.97:1 DEC-012 pairing, while white on `#17604A` computes to 7.48:1. Moving the paywall to `#3FCFA4` made it the outlier, not the match.
+- What it cost while it was in force: the lifetime button fell from 3.80:1 to 1.97:1; the bullet checks fell from 7.48:1 to 1.97:1; and `SubscriptionStoreView` derived a **black** purchase-button label, because black beats white against `#3FCFA4`. Two knowing sub-AA pairings and a CTA label colour the app did not choose.
+- Why the label could not simply be fixed: `SubscriptionStoreView` exposes no API to override its purchase button's label colour. `subscriptionStoreButtonLabel(_:)` selects *which text* the button shows, not what colour it is drawn in; the foreground is derived from the tint. So on a brand-green tint the black label is not a bug to patch — it is the only lever StoreKit offers, and it is StoreKit's lever, not ours. Setting the tint to `#17604A` makes StoreKit derive white at 7.48:1 with no exemption and no override.
+- Why the exemptions were removed rather than left in place: a dead exemption silently excuses a future regression. Each was deleted and the audit re-run to confirm the paywall passes without it.
+- Build impact: `Vittora/Features/Paywall/PaywallView.swift` (tint, bullet glyph rendering, comments); `VittoraUITests/AccessibilityAuditUITests.swift` (`brandGreenFilledContent` loses `"Try It Free"` and `"Subscribe"`; the `paywall-lifetime-button` identifier check is deleted; the `testPaywallAccessibilityAudit` doc comment is corrected).
+- Unchanged by this: DEC-012 itself still stands for onboarding CTAs, the FAB, and the Net Worth card. `subscriptionStorePolicyForegroundStyle(VColors.primaryOnSurface)` is kept even though it now matches the tint — StoreKit's policy links do not otherwise inherit the tint, and pinning them is what keeps them at `#17604A`.
+- Revisit: if DEC-012 itself is revisited, or if StoreKit ever exposes a purchase-button foreground API.
 

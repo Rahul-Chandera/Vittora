@@ -384,11 +384,10 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// manual Settings entry point that App Review 3.1.1 requires — a user who bought
     /// on another device must be able to restore without a value event firing first.
     ///
-    /// The store view's tint is `VColors.primary` (#3FCFA4) by owner decision
-    /// (DEC-017). The filled purchase CTA therefore claims the DEC-012 exemption
-    /// by label. The policy links keep #17604A via
-    /// `subscriptionStorePolicyForegroundStyle`, so no foreground text claims
-    /// the exemption.
+    /// The store view's tint is `VColors.primaryOnSurface` (#17604A), the house
+    /// primary fill (DEC-018 reverses DEC-017). StoreKit derives a white label on
+    /// it at 7.48:1, so the purchase CTA claims NO DEC-012 exemption — neither do
+    /// the lifetime button, the bullet glyphs, or the policy links.
     ///
     /// This test deliberately audits whichever state the paywall reaches. On a
     /// toolchain where StoreKit Testing does not serve products,
@@ -960,16 +959,10 @@ final class AccessibilityAuditUITests: XCTestCase {
                 // This is the ONLY accepted contrast miss; every other element on
                 // every screen is still audited. If a new green surface appears,
                 // it must be added here consciously rather than inherited.
-                // "Try It Free" / "Subscribe": the paywall's SubscriptionStoreView
-                // subscribe button is now tinted VColors.primary by owner decision
-                // (DEC-017). It is a filled CTA carrying white content. StoreKit
-                // renders the label as "Try It Free" when the annual introductory
-                // offer applies and "Subscribe" when it does not; both are the
-                // same one control.
                 let brandGreenFilledContent: Set<String> = [
                     "Get Started", "Continue", "Set Up Account", "Review Setup",
                     "Start Tracking", "Save Transaction", "Add transaction",
-                    "Choose File", "Try It Free", "Subscribe"
+                    "Choose File"
                 ]
                 // Case-insensitive: the FAB's label is "Add Transaction" and
                 // this set carried "Add transaction", so the exemption silently
@@ -982,15 +975,6 @@ final class AccessibilityAuditUITests: XCTestCase {
                 // new one has to be marked deliberately rather than inheriting
                 // the exemption by being unlabelled.
                 if (issue.element?.identifier ?? "").hasPrefix("brand-mark-") {
-                    return true
-                }
-                // DEC-012, added deliberately for 1.7.0: the paywall's lifetime
-                // purchase button is drawn by iOS 26 as a prominent capsule filled
-                // with the view's #3FCFA4 tint, and now carries a white label - the
-                // same 1.97:1 pairing as the subscribe CTA above. It is matched by
-                // identifier rather than by label because the label embeds a
-                // storefront-localised price and so is not a stable string.
-                if issue.element?.identifier == "paywall-lifetime-button" {
                     return true
                 }
                 // The Net Worth card carries white content on the brand-green
