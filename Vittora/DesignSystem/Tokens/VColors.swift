@@ -280,11 +280,18 @@ enum VColors {
     /// reads anti-aliased edges. #17604A is 6.70:1 on #F2F2F7 and 7.48:1 on white.
     /// Same value and same lesson already recorded at VDialogButtons.swift
     /// confirmFill.
+    /// Light blue was #356FBE (4.51:1 on #F2F2F7) and light purple was #8954C5
+    /// (4.55:1) — both inside the same 0.05 margin brandGreen was. Darkened along
+    /// their own hue and saturation to #295592 (6.70:1 on #F2F2F7, 7.48:1 on white)
+    /// and #6D39A9 (6.70:1 / 7.48:1), matching brandGreen's headroom. Light orange
+    /// is knowingly still #AF5600 at 4.53:1: orange is a high-luminance hue, and
+    /// the only lever left is lightness, so any value at ~6.7:1 lands on #8A4400 —
+    /// SaddleBrown, not orange. That one is an open owner decision, not an oversight.
     static func accentOnSurface(_ accent: SettingsViewModel.AccentColor) -> Color {
         switch accent {
         case .brandGreen: return adaptive(light: (0.090196, 0.376471, 0.290196), dark: (0.247, 0.812, 0.643)) // #17604A / #3FCFA4
-        case .blue:       return adaptive(light: (0.208, 0.435, 0.745),  dark: (0.404, 0.584, 0.831)) // #356FBE / #6795D4
-        case .purple:     return adaptive(light: (0.537, 0.329, 0.773),  dark: (0.659, 0.510, 0.831)) // #8954C5 / #A882D4
+        case .blue:       return adaptive(light: (0.160784, 0.333333, 0.572549),  dark: (0.404, 0.584, 0.831)) // #295592 / #6795D4
+        case .purple:     return adaptive(light: (0.427451, 0.223529, 0.662745),  dark: (0.659, 0.510, 0.831)) // #6D39A9 / #A882D4
         case .orange:     return adaptive(light: (0.686, 0.337, 0.000),  dark: (0.910, 0.447, 0.000)) // #AF5600 / #E87200
         }
     }
