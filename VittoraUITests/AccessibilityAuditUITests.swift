@@ -384,9 +384,11 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// manual Settings entry point that App Review 3.1.1 requires — a user who bought
     /// on another device must be able to restore without a value event firing first.
     ///
-    /// No DEC-012 exemption is claimed: the store view is tinted
-    /// `VColors.primaryOnSurface`, now #17604A at 6.70:1 on the grouped background,
-    /// not `VColors.primary` (#3FCFA4, 1.97:1 behind a white label).
+    /// The store view's tint is `VColors.primary` (#3FCFA4) by owner decision
+    /// (DEC-017). The filled purchase CTA therefore claims the DEC-012 exemption
+    /// by label. The policy links keep #17604A via
+    /// `subscriptionStorePolicyForegroundStyle`, so no foreground text claims
+    /// the exemption.
     ///
     /// This test deliberately audits whichever state the paywall reaches. On a
     /// toolchain where StoreKit Testing does not serve products,
@@ -958,10 +960,16 @@ final class AccessibilityAuditUITests: XCTestCase {
                 // This is the ONLY accepted contrast miss; every other element on
                 // every screen is still audited. If a new green surface appears,
                 // it must be added here consciously rather than inherited.
+                // "Try It Free" / "Subscribe": the paywall's SubscriptionStoreView
+                // subscribe button is now tinted VColors.primary by owner decision
+                // (DEC-017). It is a filled CTA carrying white content. StoreKit
+                // renders the label as "Try It Free" when the annual introductory
+                // offer applies and "Subscribe" when it does not; both are the
+                // same one control.
                 let brandGreenFilledContent: Set<String> = [
                     "Get Started", "Continue", "Set Up Account", "Review Setup",
                     "Start Tracking", "Save Transaction", "Add transaction",
-                    "Choose File"
+                    "Choose File", "Try It Free", "Subscribe"
                 ]
                 // Case-insensitive: the FAB's label is "Add Transaction" and
                 // this set carried "Add transaction", so the exemption silently

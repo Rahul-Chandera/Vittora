@@ -81,10 +81,16 @@ struct PaywallView: View {
         .subscriptionStorePolicyDestination(for: .privacyPolicy) {
             LegalDocumentView(document: .privacyPolicy)
         }
-        // AA-safe brand green. VColors.primary (#3FCFA4) behind the white Subscribe label is
-        // 1.97:1; primaryOnSurface (#17604A) is the same hue dark enough to clear 6.70:1 on the
-        // grouped background, so the paywall needs no DEC-012 contrast exemption.
-        .tint(VColors.primaryOnSurface)
+        // The tint paints the filled purchase CTA, which carries white content at 1.97:1 —
+        // the DEC-012 pairing, added to the audit's brandGreenFilledContent list deliberately
+        // (see DEC-017). VColors.primaryOnSurface was the old value; owner decision changed it
+        // to match the app's other hero CTAs.
+        .tint(VColors.primary)
+        // `.tint` would otherwise repaint the Terms of Service and Privacy Policy links in
+        // #3FCFA4 — pale green foreground text on a near-white page, which DEC-012 does NOT
+        // cover (it covers white-on-green FILLS) and which is a real legibility regression.
+        // Keep the links at the AA-safe #17604A.
+        .subscriptionStorePolicyForegroundStyle(VColors.primaryOnSurface)
         .onInAppPurchaseCompletion { _, result in
             // Entitlement itself comes from the Transaction.updates listener in PurchaseService;
             // this only closes the sheet once StoreKit says the purchase went through.

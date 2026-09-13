@@ -128,6 +128,7 @@ owner after being shown side by side:
 | `#3FCFA4` + white label | 1.97:1 — **chosen** |
 
 **Scope of the exception.** Only the contrast pairing of white-on-brand-green.
+*(Extended by DEC-017 to the paywall's filled purchase CTA; that entry records what is and is not covered.)*
 The audit gate is not disabled: `AccessibilityAuditUITests` still runs every
 category on every screen, and the exclusion is written narrowly against this
 pairing. Every other contrast rule, hit-target rule, Dynamic Type rule and
@@ -213,4 +214,13 @@ customer feedback reports the labels as hard to read, reopen this and take the
 - Why 4.53:1 is acceptable here, where 1.97:1 needed DEC-012: this is a **user-selected accent rendered as a foreground on a light card**, and it clears WCAG AA (4.5:1) for normal text. DEC-012's brand green was white text on a saturated green **fill** — a harsher pairing that genuinely failed AA. Accepting a 0.03 margin on a colour the user chose is a different question from shipping a 1.97:1 pairing by default.
 - **The `DesignTokenTests.accentOnSurfaceIsReadableOnCards` threshold stays at 4.5 and must not be raised.** Raising it to 6.0 would fail on orange, and the only way to raise it and stay green would be an orange carve-out — which is the "change the assertion so the offending input stops being produced" move AGENTS.md rule 9 forbids. The flat 4.5 is honest: it is the bar orange actually meets.
 - Revisit: if the accessibility audit ever flags an orange-accented surface, or if the accent set is redesigned. Dropping Orange from the choices, or renaming it to a brown, both remain open — they were considered and declined in favour of keeping the colour the user picked.
+
+## DEC-017: The paywall's filled purchase CTA joins DEC-012; its policy links do not
+
+- Status: Accepted (2026-09-13, Rahul)
+- Decision: The paywall `SubscriptionStoreView` tint becomes `VColors.primary` (`#3FCFA4`) with white content at 1.97:1, matching the onboarding hero CTAs. `"Try It Free"` / `"Subscribe"` are added to `AccessibilityAuditUITests`' `brandGreenFilledContent` set.
+- Why: Owner decision — the primary purchase CTA must match every other hero CTA in the app (`OnboardingView` and elsewhere). The previous `VColors.primaryOnSurface` (`#17604A`) fill looked wrong next to the rest of the product.
+- What is and is not covered: DEC-012 covers white-on-green **fills**. The Terms of Service and Privacy Policy links are pinned to `VColors.primaryOnSurface` (`#17604A`) via `subscriptionStorePolicyForegroundStyle` because pale green foreground text on a near-white page is not that pairing and is a real legibility regression. The marketing glyphs and the Restore Purchases label in `PaywallView` also stay `#17604A` for the same reason.
+- Build impact: `PaywallView.subscriptionStore` tint + policy foreground style; `brandGreenFilledContent` labels `"Try It Free"` and `"Subscribe"` in `AccessibilityAuditUITests`.
+- Revisit: if the paywall control chrome changes, or if DEC-012 itself is revisited.
 
