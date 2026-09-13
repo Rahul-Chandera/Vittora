@@ -27,10 +27,8 @@ struct PaywallView: View {
             Group {
                 if dependencies.purchaseService.level == .pro {
                     alreadySubscribedContent
-                        .toolbar { closeToolbarItem }
                 } else if dependencies.purchaseService.didFailToLoadProducts {
                     productsUnavailableContent
-                        .toolbar { closeToolbarItem }
                 } else {
                     subscriptionStore
                 }
@@ -47,6 +45,10 @@ struct PaywallView: View {
                 }
             }
             .navigationTitle(String(localized: "Vittora Pro"))
+            .toolbar { closeToolbarItem }
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
             .task { await dependencies.purchaseService.loadProducts() }
             .alert(
                 String(localized: "Purchase Failed"),
@@ -73,8 +75,9 @@ struct PaywallView: View {
         }
     }
 
-    /// SubscriptionStoreView draws its own dismiss control; the branches that replace it
-    /// draw none, so Close is attached to those two and only those two.
+    /// The one dismiss control for this sheet, in the navigation bar so it aligns with the
+    /// inline title. SubscriptionStoreView's built-in control is hidden (see subscriptionStore),
+    /// so attaching this to every branch still leaves exactly one way out.
     @ToolbarContentBuilder
     private var closeToolbarItem: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
@@ -98,6 +101,10 @@ struct PaywallView: View {
         // content past the control area: scrolling to the bottom shows the full disclosure
         // paragraph, the policy links and the plan picker clear of the buttons.
         .scrollEdgeEffectStyle(.hard, for: .bottom)
+        // SubscriptionStoreView's own dismiss control renders inside its scroll content, so it
+        // can never line up with the navigation title. Hide it and let the navigation bar own
+        // the single Close control for every branch of this sheet.
+        .storeButton(.hidden, for: .cancellation)
         .storeButton(.visible, for: .restorePurchases)
         .storeButton(.visible, for: .policies)
         .subscriptionStorePolicyDestination(for: .termsOfService) {
