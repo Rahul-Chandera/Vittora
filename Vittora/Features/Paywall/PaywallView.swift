@@ -243,7 +243,13 @@ struct PaywallView: View {
             ForEach(proFeatures, id: \.self) { feature in
                 HStack(alignment: .firstTextBaseline, spacing: VSpacing.sm) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(VColors.primaryOnSurface)
+                        .symbolRenderingMode(.palette)
+                        // DEC-012's sanctioned pairing: white content ON a brand-green
+                        // fill. Monochrome rendering made the disc #17604A while the
+                        // page's CTAs are #3FCFA4 - visibly two greens on one screen.
+                        // Recolouring the whole symbol to #3FCFA4 instead would put a
+                        // 1.97:1 green glyph on a light page, which DEC-012 does not cover.
+                        .foregroundStyle(Color.white, VColors.primary)
                         .accessibilityHidden(true)
                     Text(feature)
                         .foregroundStyle(VColors.textPrimary)
@@ -267,7 +273,11 @@ struct PaywallView: View {
                     } label: {
                         Text(String(localized: "Or buy Vittora Pro Lifetime for \(product.displayPrice), once"))
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(VColors.primaryOnSurface)
+                            // iOS 26 draws this bare Button as a prominent capsule filled
+                            // with the ambient tint (#3FCFA4), so the old #17604A label was
+                            // dark-on-green. White on the brand-green fill is the DEC-012
+                            // pairing the app's other primary CTAs use.
+                            .foregroundStyle(Color.white)
                     }
                     .accessibilityIdentifier("paywall-lifetime-button")
                     .disabled(isPurchasingLifetime)

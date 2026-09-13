@@ -984,6 +984,15 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if (issue.element?.identifier ?? "").hasPrefix("brand-mark-") {
                     return true
                 }
+                // DEC-012, added deliberately for 1.7.0: the paywall's lifetime
+                // purchase button is drawn by iOS 26 as a prominent capsule filled
+                // with the view's #3FCFA4 tint, and now carries a white label - the
+                // same 1.97:1 pairing as the subscribe CTA above. It is matched by
+                // identifier rather than by label because the label embeds a
+                // storefront-localised price and so is not a stable string.
+                if issue.element?.identifier == "paywall-lifetime-button" {
+                    return true
+                }
                 // The Net Worth card carries white content on the brand-green
                 // fill by owner decision (2026-08-08), overriding the dark-text
                 // choice of 2026-08-03 after seeing both on device. That pairing
