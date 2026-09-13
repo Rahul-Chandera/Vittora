@@ -37,6 +37,21 @@ struct EmergencyFundReportView: View {
                 .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
                 .allowsHitTesting(false)
         }
+        // iOS 26's default SOFT scroll edge effect fades this screen's content into
+        // the navigation bar, and the accessibility audit reads the faded text as a
+        // contrast failure. Measured on iPhone 16 / iOS 26.5: with the page scrolled
+        // to "Contributing Accounts", the coverage card's "3-month target" row sits
+        // in the top edge effect and samples as grey-on-white, while "6-month target"
+        // one line below it is crisp black — the audit's own exported element images
+        // show exactly that pair. `.hard` cuts the content at a solid edge instead of
+        // fading it, which is the same fix PaywallView.subscriptionStore already uses
+        // for its bottom edge.
+        //
+        // `.all` rather than `.top`: the bottom edge is already covered by the opaque
+        // safeAreaInset above, so a hard bottom edge changes nothing visible there,
+        // and pinning both ends means a future layout change cannot reintroduce the
+        // defect at the other edge.
+        .scrollEdgeEffectStyle(.hard, for: .all)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Emergency Fund"))
         #if os(iOS)
