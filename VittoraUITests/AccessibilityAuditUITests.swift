@@ -385,8 +385,20 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// on another device must be able to restore without a value event firing first.
     ///
     /// No DEC-012 exemption is claimed: the store view is tinted
-    /// `VColors.primaryOnSurface` (#1F7D61, ~5:1), not `VColors.primary`
-    /// (#3FCFA4, 1.97:1 behind a white label).
+    /// `VColors.primaryOnSurface`, now #17604A at 6.70:1 on the grouped background,
+    /// not `VColors.primary` (#3FCFA4, 1.97:1 behind a white label).
+    ///
+    /// This test deliberately audits whichever state the paywall reaches. On a
+    /// toolchain where StoreKit Testing does not serve products,
+    /// `Product.products(for:)` returns zero and the paywall renders its
+    /// products-unavailable state — which is exactly the state a real offline user
+    /// gets, so it is worth auditing on its own merits. There is no `XCTSkip` here:
+    /// a skip would hide that the purchase path never executed.
+    ///
+    /// The branch is recorded as a test activity so the result bundle says which
+    /// state ran. If every run for a release only ever reports the
+    /// products-unavailable activity, the loaded purchase path has never been
+    /// exercised on CI and still needs a manual sandbox pass before shipping.
     @MainActor
     func testPaywallAccessibilityAudit() throws {
         #if os(macOS)
@@ -416,8 +428,25 @@ final class AccessibilityAuditUITests: XCTestCase {
         XCTAssertTrue(
             app.descendants(matching: .any)["paywall-auto-renew-disclosure"]
                 .waitForExistence(timeout: 20),
-            "Paywall should finish loading its products before the audit samples it."
+            "Paywall must finish rendering either its loaded store content or its products-unavailable content before the audit samples it."
         )
+
+        let unavailable = app.descendants(matching: .any)["paywall-products-unavailable"].firstMatch
+        if unavailable.exists {
+            XCTContext.runActivity(named: "Paywall rendered its products-unavailable state") { _ in }
+            // A user whose product load failed must still be able to recover a purchase
+            // they already made, and must still see the 3.1.2 auto-renew disclosure.
+            XCTAssertTrue(
+                app.descendants(matching: .any)["paywall-restore-button"].firstMatch.waitForExistence(timeout: 10),
+                "The degraded paywall must still offer Restore Purchases (App Review 3.1.1)."
+            )
+            XCTAssertTrue(
+                app.descendants(matching: .any)["paywall-retry-button"].firstMatch.exists,
+                "The degraded paywall must offer a retry."
+            )
+        } else {
+            XCTContext.runActivity(named: "Paywall rendered its loaded store state") { _ in }
+        }
 
         try performCoreFlowAudit()
         #endif

@@ -45,6 +45,10 @@ final class PurchaseService {
         updatesTask = nil
     }
 
+    /// Product.products(for:) returns [] rather than throwing when a storefront cannot serve
+    /// the identifiers (unapproved products, unfinished ASC propagation, unsupported region).
+    /// An empty success is indistinguishable from a failure from the user's point of view, so
+    /// PaywallView keys its degraded state off didFailToLoadProducts tracking that outcome.
     func loadProducts() async {
         do {
             let loaded = try await Product.products(for: ProProduct.allIdentifiers)
@@ -53,7 +57,7 @@ final class PurchaseService {
                 let rhsIndex = ProProduct.allIdentifiers.firstIndex(of: rhs.id) ?? .max
                 return lhsIndex < rhsIndex
             }
-            didFailToLoadProducts = false
+            didFailToLoadProducts = products.isEmpty
         } catch {
             products = []
             didFailToLoadProducts = true

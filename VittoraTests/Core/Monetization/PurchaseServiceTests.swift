@@ -72,4 +72,16 @@ struct PurchaseServiceTests {
         await service.refreshEntitlement()
         #expect(service.level == .pro)
     }
+
+    /// Catches a regression where an empty success is still treated as a successful load;
+    /// PaywallView keys its degraded state off this flag, so the flag must track what the
+    /// user can actually be shown, not merely whether StoreKit threw.
+    @Test("a load that serves no products is reported as a failed load")
+    func emptyProductLoadIsReportedAsFailure() async {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
+        await service.loadProducts()
+        #expect(service.didFailToLoadProducts == service.products.isEmpty)
+    }
 }
