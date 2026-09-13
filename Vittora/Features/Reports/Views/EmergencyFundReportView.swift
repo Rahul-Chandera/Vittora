@@ -38,19 +38,24 @@ struct EmergencyFundReportView: View {
                 .allowsHitTesting(false)
         }
         // iOS 26's default SOFT scroll edge effect fades this screen's content into
-        // the navigation bar, and the accessibility audit reads the faded text as a
-        // contrast failure. Measured on iPhone 16 / iOS 26.5: with the page scrolled
-        // to "Contributing Accounts", the coverage card's "3-month target" row sits
-        // in the top edge effect and samples as grey-on-white, while "6-month target"
-        // one line below it is crisp black — the audit's own exported element images
-        // show exactly that pair. `.hard` cuts the content at a solid edge instead of
-        // fading it, which is the same fix PaywallView.subscriptionStore already uses
-        // for its bottom edge.
+        // the navigation bar. Measured on iPhone 16 / iOS 26.5: with the page
+        // scrolled to "Contributing Accounts", the coverage card's "3-month target"
+        // row sat in the top edge effect and rendered as washed-out grey, while
+        // "6-month target" one line below it was crisp black. `.hard` cuts the
+        // content at a solid edge instead of fading it — the same fix
+        // PaywallView.subscriptionStore uses for its bottom edge — and the row now
+        // renders crisp, clipped at the card boundary.
         //
-        // `.all` rather than `.top`: the bottom edge is already covered by the opaque
-        // safeAreaInset above, so a hard bottom edge changes nothing visible there,
-        // and pinning both ends means a future layout change cannot reintroduce the
-        // defect at the other edge.
+        // This is a legibility fix ONLY. It does NOT fix
+        // testNewReportsAccessibilityAudit: that test still reports "Contrast
+        // failed" for this screen with the fade gone, and its own exported element
+        // images show crisp black-on-white text at tight bounds. That failure is a
+        // sampler defect, not paint — do not attribute it to this modifier.
+        //
+        // `.all` rather than `.top`: the bottom edge is already covered by the
+        // opaque safeAreaInset above, so a hard bottom edge changes nothing visible
+        // there, and pinning both ends means a later layout change cannot
+        // reintroduce the fade at the other edge.
         .scrollEdgeEffectStyle(.hard, for: .all)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Emergency Fund"))
