@@ -273,9 +273,16 @@ enum VColors {
     /// colours the selected tab, and at a bare 4.50:1 the audit intermittently
     /// reported contrast failures when element frames came back as clipped
     /// strips. Headroom is cheaper than chasing that.
+    ///
+    /// Light brandGreen was #1F7D61, which computed to only 4.52:1 on
+    /// VColors.groupedBackground (#F2F2F7) — 0.02 over AA — and the accessibility
+    /// audit reports 'contrast nearly passed' at that margin because the sampler
+    /// reads anti-aliased edges. #17604A is 6.70:1 on #F2F2F7 and 7.48:1 on white.
+    /// Same value and same lesson already recorded at VDialogButtons.swift
+    /// confirmFill.
     static func accentOnSurface(_ accent: SettingsViewModel.AccentColor) -> Color {
         switch accent {
-        case .brandGreen: return adaptive(light: (0.121569, 0.490196, 0.380392), dark: (0.247, 0.812, 0.643)) // #1F7D61 / #3FCFA4
+        case .brandGreen: return adaptive(light: (0.090196, 0.376471, 0.290196), dark: (0.247, 0.812, 0.643)) // #17604A / #3FCFA4
         case .blue:       return adaptive(light: (0.208, 0.435, 0.745),  dark: (0.404, 0.584, 0.831)) // #356FBE / #6795D4
         case .purple:     return adaptive(light: (0.537, 0.329, 0.773),  dark: (0.659, 0.510, 0.831)) // #8954C5 / #A882D4
         case .orange:     return adaptive(light: (0.686, 0.337, 0.000),  dark: (0.910, 0.447, 0.000)) // #AF5600 / #E87200
