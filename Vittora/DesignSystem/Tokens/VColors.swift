@@ -286,7 +286,7 @@ enum VColors {
     /// and #6D39A9 (6.70:1 / 7.48:1), matching brandGreen's headroom. Light orange
     /// is knowingly still #AF5600 at 4.53:1: orange is a high-luminance hue, and
     /// the only lever left is lightness, so any value at ~6.7:1 lands on #8A4400 —
-    /// SaddleBrown, not orange. That one is an open owner decision, not an oversight.
+    /// SaddleBrown, not orange. Kept at 4.53:1 by owner decision, DEC-016.
     static func accentOnSurface(_ accent: SettingsViewModel.AccentColor) -> Color {
         switch accent {
         case .brandGreen: return adaptive(light: (0.090196, 0.376471, 0.290196), dark: (0.247, 0.812, 0.643)) // #17604A / #3FCFA4
