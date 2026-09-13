@@ -228,4 +228,36 @@ struct TransactionMapperTests {
             #expect(entity.paymentMethod == method)
         }
     }
+
+    @Test("toEntity carries the recorded category suggestion")
+    func testToEntityCarriesCategorySuggestion() {
+        let suggestedID = UUID()
+        let model = SDTransaction(amount: 10, categorySuggestion: .suggested(suggestedID))
+        #expect(TransactionMapper.toEntity(model).categorySuggestion == .suggested(suggestedID))
+
+        let silent = SDTransaction(amount: 10, categorySuggestion: .noSuggestion)
+        #expect(TransactionMapper.toEntity(silent).categorySuggestion == .noSuggestion)
+
+        let legacy = SDTransaction(amount: 10)
+        #expect(TransactionMapper.toEntity(legacy).categorySuggestion == nil)
+    }
+
+    /// The capture is write-once at creation. `updateModel` must leave it alone:
+    /// the edit path builds a fresh entity carrying no suggestion, so writing it
+    /// through would blank the recorded signal on every single edit — and an edit
+    /// that re-categorises the row is exactly the override we are trying to keep.
+    @Test("updateModel never overwrites the recorded category suggestion")
+    func testUpdateModelPreservesCategorySuggestion() {
+        let suggestedID = UUID()
+        let chosenID = UUID()
+        let model = SDTransaction(amount: 10, categorySuggestion: .suggested(suggestedID))
+
+        // An edit that re-categorises the row, carrying no suggestion of its own.
+        let entity = TransactionEntity(amount: 25, categoryID: chosenID)
+        TransactionMapper.updateModel(model, from: entity)
+
+        #expect(model.amount == 25)
+        #expect(model.categoryID == chosenID)
+        #expect(model.categorySuggestion == .suggested(suggestedID))
+    }
 }

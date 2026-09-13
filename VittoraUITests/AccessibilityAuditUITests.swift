@@ -33,7 +33,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "dashboard")
+        launchSeeded(initialTab: "dashboard", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         XCTAssertTrue(app.navigationBars["Dashboard"].waitForExistence(timeout: 15))
         try performCoreFlowAudit()
@@ -45,7 +45,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "transactions")
+        launchSeeded(initialTab: "transactions", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         openAddTransactionForm()
         try performCoreFlowAudit()
@@ -57,7 +57,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "transactions")
+        launchSeeded(initialTab: "transactions", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         XCTAssertTrue(
             app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 15),
@@ -82,7 +82,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "budgets")
+        launchSeeded(initialTab: "budgets", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         XCTAssertTrue(
             app.descendants(matching: .any)["budget-list-root"].waitForExistence(timeout: 15)
@@ -99,7 +99,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "reports")
+        launchSeeded(initialTab: "reports", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         XCTAssertTrue(app.navigationBars["Reports"].waitForExistence(timeout: 15))
         try performCoreFlowAudit()
@@ -124,6 +124,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         for region in ["US", "IN"] {
             launchSeeded(
                 initialTab: "settings",
+                extraArguments: ["--ui-test-pro"],
                 extraEnvironment: ["UITEST_DEMO_REGION": region]
             )
             openOverflowDestination(named: "Tax", navigationTitle: "Tax Estimator")
@@ -159,7 +160,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "settings")
+        launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
         openOverflowDestination(named: "Savings", navigationTitle: "Savings Goals")
         try performCoreFlowAudit()
 
@@ -182,7 +183,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "settings")
+        launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
         openOverflowDestination(named: "Splits", navigationTitle: "Split Expenses")
         try performCoreFlowAudit()
 
@@ -207,9 +208,15 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "settings")
+        launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
         openOverflowDestination(named: "Debt", navigationTitle: "Debt Ledger")
         try performCoreFlowAudit()
+
+        UITestSupport.tapWhenReady(app.buttons["debt-analytics-button"], timeout: 10)
+        XCTAssertTrue(app.navigationBars["Debt Analytics"].waitForExistence(timeout: 10))
+        try performCoreFlowAudit()
+        app.navigationBars.buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Debt Ledger"].waitForExistence(timeout: 10))
 
         tapText("Alex Carter")
         XCTAssertTrue(app.navigationBars["Alex Carter"].waitForExistence(timeout: 10))
@@ -222,7 +229,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         dismissPresentedScreen()
 
         app.terminate()
-        launchSeeded(initialTab: "settings")
+        launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
         openOverflowDestination(named: "Debt", navigationTitle: "Debt Ledger")
         XCTAssertTrue(app.navigationBars["Debt Ledger"].waitForExistence(timeout: 10))
         UITestSupport.tapWhenReady(app.buttons["debt-add-button"], timeout: 10)
@@ -249,13 +256,13 @@ final class AccessibilityAuditUITests: XCTestCase {
             ("About Vittora", "About Vittora")
         ]
 
-        launchSeeded(initialTab: "settings")
+        launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
         openOverflowDestination(named: "Settings", navigationTitle: "Settings")
         try performCoreFlowAudit()
         app.terminate()
 
         for section in sections {
-            launchSeeded(initialTab: "settings")
+            launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
             openOverflowDestination(named: "Settings", navigationTitle: "Settings")
             tapText(section.0)
             XCTAssertTrue(app.navigationBars[section.1].waitForExistence(timeout: 10))
@@ -306,7 +313,7 @@ final class AccessibilityAuditUITests: XCTestCase {
             ("Recurring", "settings-manage-recurring", "Recurring Transactions", "recurring-add-button", "New Recurring")
         ]
         for surface in surfaces {
-            launchSeeded(initialTab: "settings")
+            launchSeeded(initialTab: "settings", extraArguments: ["--ui-test-pro"])
             openOverflowDestination(named: "Settings", navigationTitle: "Settings")
             openManagedSettingsDestination(
                 title: surface.0,
@@ -320,7 +327,7 @@ final class AccessibilityAuditUITests: XCTestCase {
             app.terminate()
         }
 
-        launchSeeded(initialTab: "transactions")
+        launchSeeded(initialTab: "transactions", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         UITestSupport.tapWhenReady(firstTransactionRow(), timeout: 15)
         XCTAssertTrue(app.descendants(matching: .any)["transaction-detail-root"].waitForExistence(timeout: 10))
@@ -342,7 +349,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #else
         app.launchArguments = [
             "--uitesting", "--ui-test-onboarding", "--ui-test-seed-demo",
-            "--ui-test-reset-app-lock"
+            "--ui-test-reset-app-lock", "--ui-test-pro"
         ]
         app.launchEnvironment["UITEST_FORCE_ONBOARDING"] = "1"
         app.launch()
@@ -372,12 +379,87 @@ final class AccessibilityAuditUITests: XCTestCase {
         #endif
     }
 
+    /// The paywall is a sheet, so `testSettingsSectionsAccessibilityAudit`'s
+    /// NavigationLink walk never reaches it. It is audited here, together with the
+    /// manual Settings entry point that App Review 3.1.1 requires — a user who bought
+    /// on another device must be able to restore without a value event firing first.
+    ///
+    /// The store view's tint is `VColors.primary` (#3FCFA4) by owner decision
+    /// (DEC-017). The filled purchase CTA therefore claims the DEC-012 exemption
+    /// by label. The policy links keep #17604A via
+    /// `subscriptionStorePolicyForegroundStyle`, so no foreground text claims
+    /// the exemption.
+    ///
+    /// This test deliberately audits whichever state the paywall reaches. On a
+    /// toolchain where StoreKit Testing does not serve products,
+    /// `Product.products(for:)` returns zero and the paywall renders its
+    /// products-unavailable state — which is exactly the state a real offline user
+    /// gets, so it is worth auditing on its own merits. There is no `XCTSkip` here:
+    /// a skip would hide that the purchase path never executed.
+    ///
+    /// The branch is recorded as a test activity so the result bundle says which
+    /// state ran. If every run for a release only ever reports the
+    /// products-unavailable activity, the loaded purchase path has never been
+    /// exercised on CI and still needs a manual sandbox pass before shipping.
+    @MainActor
+    func testPaywallAccessibilityAudit() throws {
+        #if os(macOS)
+        throw XCTSkip("iOS only")
+        #else
+        launchSeeded(initialTab: "settings")
+        openOverflowDestination(named: "Settings", navigationTitle: "Settings")
+
+        let proRow = app.descendants(matching: .any)["settings-vittora-pro"].firstMatch
+        UITestSupport.scrollToElement(proRow, in: app)
+        XCTAssertTrue(
+            proRow.waitForExistence(timeout: 15),
+            "Settings must expose a manual Vittora Pro entry point (App Review 3.1.1)."
+        )
+
+        let restore = app.descendants(matching: .any)["settings-restore-purchases"].firstMatch
+        XCTAssertTrue(
+            restore.waitForExistence(timeout: 15),
+            "Restore Purchases must be reachable from Settings without a value event (App Review 3.1.1)."
+        )
+
+        UITestSupport.tapWhenReady(proRow, timeout: 15)
+        XCTAssertTrue(app.navigationBars["Vittora Pro"].waitForExistence(timeout: 20))
+
+        // SubscriptionStoreView fills in asynchronously once StoreKit answers. Audit the
+        // loaded state, not the placeholder: the disclosure text is the last thing to render.
+        XCTAssertTrue(
+            app.descendants(matching: .any)["paywall-auto-renew-disclosure"]
+                .waitForExistence(timeout: 20),
+            "Paywall must finish rendering either its loaded store content or its products-unavailable content before the audit samples it."
+        )
+
+        let unavailable = app.descendants(matching: .any)["paywall-products-unavailable"].firstMatch
+        if unavailable.exists {
+            XCTContext.runActivity(named: "Paywall rendered its products-unavailable state") { _ in }
+            // A user whose product load failed must still be able to recover a purchase
+            // they already made, and must still see the 3.1.2 auto-renew disclosure.
+            XCTAssertTrue(
+                app.descendants(matching: .any)["paywall-restore-button"].firstMatch.waitForExistence(timeout: 10),
+                "The degraded paywall must still offer Restore Purchases (App Review 3.1.1)."
+            )
+            XCTAssertTrue(
+                app.descendants(matching: .any)["paywall-retry-button"].firstMatch.exists,
+                "The degraded paywall must offer a retry."
+            )
+        } else {
+            XCTContext.runActivity(named: "Paywall rendered its loaded store state") { _ in }
+        }
+
+        try performCoreFlowAudit()
+        #endif
+    }
+
     @MainActor
     func testNewReportsAccessibilityAudit() throws {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        launchSeeded(initialTab: "reports")
+        launchSeeded(initialTab: "reports", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(app.navigationBars["Reports"].waitForExistence(timeout: 15))
         let emergency = app.descendants(matching: .any)["report-card-emergencyFund"].firstMatch
         for _ in 0..<10 {
@@ -420,7 +502,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #else
         launchSeeded(
             initialTab: "dashboard",
-            extraArguments: ["--ui-test-appearance=oledBlack", "--ui-test-accent=purple"]
+            extraArguments: ["--ui-test-appearance=oledBlack", "--ui-test-accent=purple", "--ui-test-pro"]
         )
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         XCTAssertTrue(app.navigationBars["Dashboard"].waitForExistence(timeout: 15))
@@ -468,7 +550,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         for accent in ["brandGreen", "blue", "purple", "orange"] {
             launchSeeded(
                 initialTab: "dashboard",
-                extraArguments: ["--ui-test-appearance=oledBlack", "--ui-test-accent=\(accent)"]
+                extraArguments: ["--ui-test-appearance=oledBlack", "--ui-test-accent=\(accent)", "--ui-test-pro"]
             )
             XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
             XCTAssertTrue(app.navigationBars["Dashboard"].waitForExistence(timeout: 15))
@@ -495,7 +577,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #else
         launchSeeded(
             initialTab: "dashboard",
-            extraArguments: ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXL"]
+            extraArguments: ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXL", "--ui-test-pro"]
         )
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
 
@@ -581,7 +663,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
-        let accessibility3 = ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXL"]
+        let accessibility3 = ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXL", "--ui-test-pro"]
         let overflowSurfaces = [
             ("Savings", "Savings Goals", "a11y3-savings"),
             ("Splits", "Split Expenses", "a11y3-splits"),
@@ -656,7 +738,7 @@ final class AccessibilityAuditUITests: XCTestCase {
 
         app.launchArguments = [
             "--uitesting", "--ui-test-onboarding", "--ui-test-seed-demo",
-            "--ui-test-reset-app-lock"
+            "--ui-test-reset-app-lock", "--ui-test-pro"
         ] + accessibility3
         app.launchEnvironment["UITEST_FORCE_ONBOARDING"] = "1"
         app.launch()
@@ -878,10 +960,16 @@ final class AccessibilityAuditUITests: XCTestCase {
                 // This is the ONLY accepted contrast miss; every other element on
                 // every screen is still audited. If a new green surface appears,
                 // it must be added here consciously rather than inherited.
+                // "Try It Free" / "Subscribe": the paywall's SubscriptionStoreView
+                // subscribe button is now tinted VColors.primary by owner decision
+                // (DEC-017). It is a filled CTA carrying white content. StoreKit
+                // renders the label as "Try It Free" when the annual introductory
+                // offer applies and "Subscribe" when it does not; both are the
+                // same one control.
                 let brandGreenFilledContent: Set<String> = [
                     "Get Started", "Continue", "Set Up Account", "Review Setup",
                     "Start Tracking", "Save Transaction", "Add transaction",
-                    "Choose File"
+                    "Choose File", "Try It Free", "Subscribe"
                 ]
                 // Case-insensitive: the FAB's label is "Add Transaction" and
                 // this set carried "Add transaction", so the exemption silently

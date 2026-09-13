@@ -38,6 +38,19 @@ enum ReportType: String, Hashable, Sendable, CaseIterable {
     case fiftyThirtyTwenty, monthly, category, trends, custom, annual, cashFlow, cashFlowForecast, netWorth, subscriptionAudit, emergencyFund, yearInReview
 }
 
+extension ReportType {
+    /// The five Pro reports (F3). Listed exhaustively with no `default` so adding a
+    /// report forces an explicit free-or-Pro decision instead of defaulting to free.
+    nonisolated var requiresPro: Bool {
+        switch self {
+        case .cashFlowForecast, .subscriptionAudit, .fiftyThirtyTwenty, .emergencyFund, .custom:
+            true
+        case .monthly, .category, .trends, .annual, .cashFlow, .netWorth, .yearInReview:
+            false
+        }
+    }
+}
+
 enum SettingsSection: String, Hashable, Sendable {
     case profile, security, sync, notifications, appearance, data, about, support
 }

@@ -5,8 +5,6 @@ import VittoraCore
 struct ConversionEventRecorder: Sendable {
     let tracker: any ConversionEventTracking
     let transactionRepository: any TransactionRepository
-    let accountRepository: any AccountRepository
-    let budgetRepository: any BudgetRepository
 
     @discardableResult
     func afterTransactionCreated() async -> ConversionEventResult? {
@@ -30,23 +28,5 @@ struct ConversionEventRecorder: Sendable {
     @discardableResult
     func afterSplitExpenseCreated() -> ConversionEventResult {
         tracker.record(.firstSplit)
-    }
-
-    @discardableResult
-    func afterAccountCreated() async -> ConversionEventResult? {
-        guard let accounts = try? await accountRepository.fetchAll(),
-              accounts.count >= FreeTierLimits.maxAccounts else {
-            return nil
-        }
-        return tracker.record(.accountLimitReached)
-    }
-
-    @discardableResult
-    func afterBudgetCreated() async -> ConversionEventResult? {
-        guard let budgets = try? await budgetRepository.fetchAll(),
-              budgets.count >= FreeTierLimits.maxBudgets else {
-            return nil
-        }
-        return tracker.record(.budgetLimitReached)
     }
 }

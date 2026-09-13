@@ -117,7 +117,11 @@ struct BatchReceiptScanView: View {
                 localized: "\(outcome.attachedCount) attached; \(outcome.failureCount) couldn't be processed."
             )
         }
-        dependencies.conversionEventRecorder.afterOCRScanCompleted()
+        // SwiftUI will not stack the root paywall sheet under this one. Record now,
+        // present from DocumentListView's onDismiss once this sheet is gone.
+        dependencies.paywallPresenter.presentWhenSheetCloses(
+            dependencies.conversionEventRecorder.afterOCRScanCompleted()
+        )
         onComplete()
         if !outcome.hadPartialFailure {
             dismiss()

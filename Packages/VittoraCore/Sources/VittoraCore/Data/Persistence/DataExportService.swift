@@ -322,7 +322,7 @@ public final class DataExportService: DataExportServiceProtocol, Sendable {
                         "Tax Category",
                         item.category.name,
                         item.totalAmount.formatted(.currency(code: estimate.country.currencyCode)),
-                        String(localized: "\(item.transactionCount.formatted()) transaction(s)"),
+                        String(localized: "\(item.transactionCount) transactions"),
                     ],
                     to: &csv
                 )

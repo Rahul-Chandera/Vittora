@@ -1,6 +1,6 @@
 # Vittora Privacy Policy
 
-Last updated: April 16, 2026
+Last updated: September 12, 2026
 
 ## Overview
 
@@ -14,6 +14,7 @@ Vittora may store the following information that you enter or attach:
 - Receipt images, PDFs, and OCR-derived document details
 - Tax profiles and tax estimate inputs
 - App settings such as currency, appearance, lock preferences, and onboarding completion
+- Whether you have an active Vittora Pro purchase, stored on your device only
 
 ## Where your data lives
 
@@ -36,6 +37,7 @@ Vittora does not:
 - Share financial data with advertisers
 - Include third-party analytics or marketing trackers
 - Use your financial records to build advertising profiles
+- Send purchase or subscription information to any server we operate
 
 ## Permissions
 

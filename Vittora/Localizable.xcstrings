@@ -50,6 +50,406 @@
         }
       }
     },
+    "50/30/20 report and emergency fund tracker" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informe 50/30/20 y seguimiento del fondo de emergencia"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50/30/20 रिपोर्ट और इमरजेंसी फंड ट्रैकर"
+          }
+        }
+      }
+    },
+    "Annual includes a 7-day free trial, then renews yearly. Monthly renews every month. Both renew automatically unless you turn off auto-renew at least 24 hours before the period ends, and renewals are charged within 24 hours of the period ending. Manage or cancel in your Apple Account settings. Subscribing before a trial ends forfeits the unused part of the trial. Vittora Pro Lifetime is a one-time purchase and does not renew." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El plan anual incluye una prueba gratuita de 7 días y después se renueva cada año. El plan mensual se renueva cada mes. Ambos se renuevan automáticamente salvo que desactives la renovación automática al menos 24 horas antes de que termine el periodo; el cobro de la renovación se realiza en las 24 horas previas al fin del periodo. Puedes gestionarlos o cancelarlos en los ajustes de tu cuenta de Apple. Si te suscribes antes de que acabe la prueba, pierdes la parte no utilizada. Vittora Pro Lifetime es una compra única y no se renueva."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वार्षिक प्लान में 7 दिन का मुफ़्त ट्रायल शामिल है, जिसके बाद यह हर साल रिन्यू होता है। मासिक प्लान हर महीने रिन्यू होता है। दोनों अपने आप रिन्यू होते हैं, बशर्ते आप अवधि खत्म होने से कम से कम 24 घंटे पहले ऑटो-रिन्यू बंद न कर दें; रिन्यूअल का शुल्क अवधि खत्म होने से 24 घंटे के भीतर लिया जाता है। आप इन्हें अपनी Apple खाता सेटिंग्स में मैनेज या रद्द कर सकते हैं। ट्रायल खत्म होने से पहले सब्सक्राइब करने पर ट्रायल का बचा हुआ हिस्सा समाप्त हो जाता है। Vittora Pro Lifetime एक बार की खरीद है और रिन्यू नहीं होती।"
+          }
+        }
+      }
+    },
+    "Annual includes a 7-day free trial; your Apple Account is charged %@ when it ends. Monthly is %@. Both renew automatically unless you turn off auto-renew at least 24 hours before the period ends, and renewals are charged within 24 hours of the period ending. Manage or cancel in your Apple Account settings. Subscribing before a trial ends forfeits the unused part of the trial. Vittora Pro Lifetime is a one-time purchase and does not renew." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El plan anual incluye una prueba gratuita de 7 días; al terminar, se cobrarán %@ a tu cuenta de Apple. El plan mensual cuesta %@. Ambos se renuevan automáticamente salvo que desactives la renovación automática al menos 24 horas antes de que termine el periodo; el cobro de la renovación se realiza en las 24 horas previas al fin del periodo. Puedes gestionarlos o cancelarlos en los ajustes de tu cuenta de Apple. Si te suscribes antes de que acabe la prueba, pierdes la parte no utilizada. Vittora Pro Lifetime es una compra única y no se renueva."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वार्षिक प्लान में 7 दिन का मुफ़्त ट्रायल शामिल है; ट्रायल खत्म होने पर आपके Apple खाते से %@ लिए जाएंगे। मासिक प्लान %@ का है। दोनों अपने आप रिन्यू होते हैं, बशर्ते आप अवधि खत्म होने से कम से कम 24 घंटे पहले ऑटो-रिन्यू बंद न कर दें; रिन्यूअल का शुल्क अवधि खत्म होने से 24 घंटे के भीतर लिया जाता है। आप इन्हें अपनी Apple खाता सेटिंग्स में मैनेज या रद्द कर सकते हैं। ट्रायल खत्म होने से पहले सब्सक्राइब करने पर ट्रायल का बचा हुआ हिस्सा समाप्त हो जाता है। Vittora Pro Lifetime एक बार की खरीद है और रिन्यू नहीं होती।"
+          }
+        }
+      }
+    },
+    "Cash flow forecast and subscription audit" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previsión de flujo de caja y auditoría de suscripciones"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कैश फ़्लो पूर्वानुमान और सब्सक्रिप्शन ऑडिट"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बंद करें"
+          }
+        }
+      }
+    },
+    "Completing your purchase…" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completando tu compra…"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपकी खरीद पूरी की जा रही है…"
+          }
+        }
+      }
+    },
+    "Custom reports with PDF export" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informes personalizados con exportación a PDF"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PDF एक्सपोर्ट के साथ कस्टम रिपोर्ट"
+          }
+        }
+      }
+    },
+    "Every future Pro feature, included" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las funciones Pro futuras, incluidas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भविष्य की हर Pro सुविधा, शामिल"
+          }
+        }
+      }
+    },
+    "Every Pro feature is unlocked on this device. You can change or cancel your plan any time in your Apple Account settings." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las funciones Pro están desbloqueadas en este dispositivo. Puedes cambiar o cancelar tu plan cuando quieras en los ajustes de tu Cuenta de Apple."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर हर Pro सुविधा अनलॉक है। आप अपनी Apple Account सेटिंग्स में कभी भी अपना प्लान बदल या रद्द कर सकते हैं।"
+          }
+        }
+      }
+    },
+    "Full tax planning and regime comparison" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planificación fiscal completa y comparación de regímenes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पूरी टैक्स प्लानिंग और रिजीम तुलना"
+          }
+        }
+      }
+    },
+    "Or buy Vittora Pro Lifetime for %@, once" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O compra Vittora Pro Lifetime por %@, una sola vez"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "या Vittora Pro Lifetime एक बार %@ में खरीदें"
+          }
+        }
+      }
+    },
+    "Purchase Failed" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error en la compra"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "खरीदारी विफल"
+          }
+        }
+      }
+    },
+    "Scan every receipt, not just five" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanea todos los recibos, no solo cinco"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हर रसीद स्कैन करें, सिर्फ़ पाँच नहीं"
+          }
+        }
+      }
+    },
+    "See where your money is going next" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descubre a dónde irá tu dinero"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "देखें कि आपका पैसा आगे कहाँ जा रहा है"
+          }
+        }
+      }
+    },
+    "There's more in Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hay más en Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro में और भी बहुत कुछ है"
+          }
+        }
+      }
+    },
+    "This purchase could not be verified. Nothing was unlocked. Contact Apple Support if you were charged." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha podido verificar esta compra. No se ha desbloqueado nada. Ponte en contacto con el soporte de Apple si se te ha cobrado."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस खरीदारी को सत्यापित नहीं किया जा सका। कुछ भी अनलॉक नहीं हुआ। अगर आपसे शुल्क लिया गया है, तो Apple सपोर्ट से संपर्क करें।"
+          }
+        }
+      }
+    },
+    "Unlimited receipt scanning" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escaneo de recibos ilimitado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "असीमित रसीद स्कैनिंग"
+          }
+        }
+      }
+    },
+    "Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro"
+          }
+        }
+      }
+    },
+    "Vittora Pro is restored on this device." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro se ha restaurado en este dispositivo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर Vittora Pro बहाल कर दिया गया है।"
+          }
+        }
+      }
+    },
+    "Vittora Pro pricing is unavailable right now" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los precios de Vittora Pro no están disponibles ahora"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro की कीमतें अभी उपलब्ध नहीं हैं"
+          }
+        }
+      }
+    },
+    "Vittora Pro unlocks the forward-looking analysis. Your records, your splits, iCloud sync and CSV export stay free, always." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro desbloquea el análisis de futuro. Tus registros, tus gastos compartidos, la sincronización con iCloud y la exportación a CSV siguen siendo gratis, siempre."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro आगे की योजना बताने वाला विश्लेषण अनलॉक करता है। आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट हमेशा मुफ़्त रहेंगे।"
+          }
+        }
+      }
+    },
+    "We could not reach the App Store, so prices and purchase options cannot be shown. Check your connection and try again. If you have already bought Vittora Pro, Restore Purchases brings it back on this device." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos contactar con el App Store, por lo que no se pueden mostrar los precios ni las opciones de compra. Comprueba tu conexión e inténtalo de nuevo. Si ya compraste Vittora Pro, Restaurar compras lo recupera en este dispositivo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हम App Store तक नहीं पहुँच सके, इसलिए कीमतें और खरीद विकल्प नहीं दिखाए जा सकते। अपना कनेक्शन जाँचें और फिर कोशिश करें। अगर आपने पहले से Vittora Pro खरीदा है, तो खरीदारी बहाल करें इसे इस डिवाइस पर वापस ला देता है।"
+          }
+        }
+      }
+    },
+    "You already have Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya tienes Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके पास पहले से Vittora Pro है"
+          }
+        }
+      }
+    },
+    "You're keeping real records now" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya estás llevando un registro de verdad"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अब आप सचमुच हिसाब रख रहे हैं"
+          }
+        }
+      }
+    },
+    "You've used this month's free receipt scans" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Has usado los escaneos de recibos gratuitos de este mes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने इस महीने के मुफ़्त रसीद स्कैन इस्तेमाल कर लिए हैं"
+          }
+        }
+      }
+    },
     "–" : {
       "comment" : "A separator between two date pickers in a date range selector.",
       "isCommentAutoGenerated" : true,
@@ -701,18 +1101,60 @@
         }
       }
     },
-    "%@ transaction(s)" : {
+    "%lld transactions" : {
       "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ transacción(es)"
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld transaction"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld transactions"
+                }
+              }
+            }
           }
         },
         "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ ट्रांज़ैक्शन"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld ट्रांज़ैक्शन"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld ट्रांज़ैक्शन"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld transacción"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld transacciones"
+                }
+              }
+            }
           }
         }
       }
@@ -1257,18 +1699,60 @@
         }
       }
     },
-    "%lld goal(s) past deadline" : {
+    "%lld goals past deadline" : {
       "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld meta(s) vencida(s)"
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld goal past deadline"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld goals past deadline"
+                }
+              }
+            }
           }
         },
         "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld लक्ष्य की समय-सीमा बीत चुकी है"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld लक्ष्य की समय-सीमा बीत चुकी है"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld लक्ष्यों की समय-सीमा बीत चुकी है"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld meta vencida"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld metas vencidas"
+                }
+              }
+            }
           }
         }
       }
@@ -1337,18 +1821,60 @@
         }
       }
     },
-    "%lld month(s) of available history" : {
+    "%lld months of available history" : {
       "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld mes(es) de historial disponible"
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld month of available history"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld months of available history"
+                }
+              }
+            }
           }
         },
         "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld महीने का उपलब्ध इतिहास"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld महीने का उपलब्ध इतिहास"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld महीनों का उपलब्ध इतिहास"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld mes de historial disponible"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld meses de historial disponible"
+                }
+              }
+            }
           }
         }
       }
@@ -1369,18 +1895,60 @@
         }
       }
     },
-    "%lld overdue debt(s)" : {
+    "%lld overdue debts" : {
       "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld deuda(s) vencida(s)"
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld overdue debt"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld overdue debts"
+                }
+              }
+            }
           }
         },
         "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld अतिदेय कर्ज़"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld अतिदेय उधार"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld अतिदेय उधार"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld deuda vencida"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld deudas vencidas"
+                }
+              }
+            }
           }
         }
       }
@@ -1491,42 +2059,152 @@
         }
       }
     },
-    "%lld sync event(s) need review. %lld were auto-resolved." : {
+    "%lld sync events need review. %lld were auto-resolved." : {
       "comment" : "A summary of sync conflicts that need attention. The first argument is the number of actionable conflicts. The second argument is the number of informational conflicts.",
       "isCommentAutoGenerated" : true,
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld sync event(s) need review. %2$lld were auto-resolved."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld evento(s) de sincronización requieren revisión. %lld se resolvieron automáticamente."
+            "value" : "%#@events@ %#@resolved@"
+          },
+          "substitutions" : {
+            "events" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg sync event needs review."
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg sync events need review."
+                    }
+                  }
+                }
+              }
+            },
+            "resolved" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg was auto-resolved."
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg were auto-resolved."
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld सिंक इवेंट की समीक्षा ज़रूरी है। %2$lld अपने-आप हल हो गए।"
+            "value" : "%#@events@ %#@resolved@"
+          },
+          "substitutions" : {
+            "events" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg सिंक इवेंट की समीक्षा ज़रूरी है।"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg सिंक इवेंट की समीक्षा ज़रूरी है।"
+                    }
+                  }
+                }
+              }
+            },
+            "resolved" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg अपने-आप हल हो गया।"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg अपने-आप हल हो गए।"
+                    }
+                  }
+                }
+              }
+            }
           }
-        }
-      }
-    },
-    "%lld transactions" : {
-      "localizations" : {
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld transacciones"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld ट्रांज़ैक्शन"
+            "value" : "%#@events@ %#@resolved@"
+          },
+          "substitutions" : {
+            "events" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg evento de sincronización requiere revisión."
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg eventos de sincronización requieren revisión."
+                    }
+                  }
+                }
+              }
+            },
+            "resolved" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg se resolvió automáticamente."
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg se resolvieron automáticamente."
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -2016,6 +2694,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "401(k) वैकल्पिक डिफ़रल सीमा (सलाह हेतु)"
+          }
+        }
+      }
+    },
+    "A Vittora Pro report" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un informe de Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एक Vittora Pro रिपोर्ट"
           }
         }
       }
@@ -3289,6 +3983,22 @@
         }
       }
     },
+    "Aging, exposure and settlement analytics are part of Vittora Pro. Your debt ledger and every record in it stay free." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El análisis de antigüedad, exposición y liquidación forma parte de Vittora Pro. Tu libro de deudas y todos sus registros siguen siendo gratis."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एजिंग, एक्सपोज़र और सेटलमेंट एनालिटिक्स Vittora Pro का हिस्सा हैं। आपकी उधार खाता-बही और उसमें मौजूद हर रिकॉर्ड मुफ़्त रहता है।"
+          }
+        }
+      }
+    },
     "Align receipt within the frame" : {
       "localizations" : {
         "es" : {
@@ -4483,20 +5193,62 @@
         }
       }
     },
-    "Based on %lld month(s) until your deadline." : {
+    "Based on %lld months until your deadline." : {
       "comment" : "A footnote explaining that the savings plan is based on the number of months until the goal's deadline.",
       "isCommentAutoGenerated" : true,
       "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Según %lld mes(es) hasta su fecha límite."
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Based on %lld month until your deadline."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Based on %lld months until your deadline."
+                }
+              }
+            }
           }
         },
         "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "आपकी समय-सीमा तक बचे %lld महीनों के आधार पर।"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "आपकी समय-सीमा तक बचे %lld महीने के आधार पर।"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "आपकी समय-सीमा तक बचे %lld महीनों के आधार पर।"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Según %lld mes hasta su fecha límite."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Según %lld meses hasta su fecha límite."
+                }
+              }
+            }
           }
         }
       }
@@ -5397,6 +6149,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "कैश फ़्लो पूर्वानुमान"
+          }
+        }
+      }
+    },
+    "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La previsión de flujo de caja, la auditoría de suscripciones, el 50/30/20, el seguimiento del fondo de emergencia y los informes personalizados forman parte de Vittora Pro. Tus registros, tus divisiones, la sincronización con iCloud y la exportación CSV siguen siendo gratis."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कैश फ़्लो पूर्वानुमान, सब्सक्रिप्शन ऑडिट, 50/30/20, इमरजेंसी फंड ट्रैकर और कस्टम रिपोर्ट Vittora Pro का हिस्सा हैं। आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट मुफ़्त रहते हैं।"
           }
         }
       }
@@ -7326,6 +8094,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "उधार राशि"
+          }
+        }
+      }
+    },
+    "Debt analytics is Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El análisis de deudas es de Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डेट एनालिटिक्स Vittora Pro है"
           }
         }
       }
@@ -9413,6 +10197,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सटीक राशि"
+          }
+        }
+      }
+    },
+    "Everything in Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo lo que incluye Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro में सब कुछ"
           }
         }
       }
@@ -13958,6 +14758,22 @@
         }
       }
     },
+    "No previous Vittora Pro purchase was found for this Apple Account." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encontró ninguna compra anterior de Vittora Pro en esta cuenta de Apple."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस Apple खाते के लिए Vittora Pro की कोई पिछली खरीद नहीं मिली।"
+          }
+        }
+      }
+    },
     "No recent sync conflicts" : {
       "localizations" : {
         "es" : {
@@ -17655,20 +18471,62 @@
         }
       }
     },
-    "Repaired %lld account balance(s)." : {
+    "Repaired %lld account balances." : {
       "comment" : "A message indicating that a number of account balances have been reconciled. The argument is the number of balances that were reconciled.",
       "isCommentAutoGenerated" : true,
       "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se repararon %lld saldo(s) de cuenta."
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Repaired %lld account balance."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Repaired %lld account balances."
+                }
+              }
+            }
           }
         },
         "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld अकाउंट बैलेंस ठीक किए गए।"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld अकाउंट बैलेंस ठीक किया गया।"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld अकाउंट बैलेंस ठीक किए गए।"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Se reparó %lld saldo de cuenta."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Se repararon %lld saldos de cuenta."
+                }
+              }
+            }
           }
         }
       }
@@ -17767,6 +18625,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सब कुछ रीसेट करें"
+          }
+        }
+      }
+    },
+    "Restore Purchases" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar compras"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "खरीदारी बहाल करें"
           }
         }
       }
@@ -18729,6 +19603,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सभी देखें"
+          }
+        }
+      }
+    },
+    "See Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro देखें"
           }
         }
       }
@@ -21351,6 +22241,22 @@
         }
       }
     },
+    "Tax estimates are Vittora Pro" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las estimaciones fiscales son de Vittora Pro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स अनुमान Vittora Pro हैं"
+          }
+        }
+      }
+    },
     "Tax export is not available right now." : {
       "localizations" : {
         "es" : {
@@ -21580,6 +22486,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "प्रीव्यू के लिए एन्क्रिप्टेड दस्तावेज़ को डीकोड नहीं किया जा सका।"
+          }
+        }
+      }
+    },
+    "The estimate, the regime comparison and the tax report export are part of Vittora Pro. Your tax profile stays free — open it any time with the button in the toolbar." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La estimación, la comparación de regímenes y la exportación del informe fiscal forman parte de Vittora Pro. Tu perfil fiscal sigue siendo gratis: ábrelo cuando quieras con el botón de la barra de herramientas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अनुमान, रिजीम तुलना और टैक्स रिपोर्ट एक्सपोर्ट Vittora Pro का हिस्सा हैं। आपकी टैक्स प्रोफ़ाइल मुफ़्त रहती है — इसे टूलबार के बटन से कभी भी खोलें।"
           }
         }
       }
@@ -23412,6 +24334,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "इस अकाउंट में अभी मौजूद राशि को धनात्मक संख्या में दर्ज करें।"
+          }
+        }
+      }
+    },
+    "Upgrade" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mejorar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अपग्रेड करें"
           }
         }
       }
@@ -25619,6 +26557,1098 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "शून्य"
+          }
+        }
+      }
+    },
+    "%@ accounts for %@ of what you are owed" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ representa el %@ de lo que le deben"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ का हिस्सा आपको मिलने वाली राशि का %@ है"
+          }
+        }
+      }
+    },
+    "%@ owed to you" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ que le deben"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ आपको मिलने हैं"
+          }
+        }
+      }
+    },
+    "%@ you owe" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ que usted debe"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ आपको देने हैं"
+          }
+        }
+      }
+    },
+    "%@, net %@, oldest %lld days" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, net %2$@, oldest %#@days@"
+          },
+          "substitutions" : {
+            "days" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg day"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg days"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, नेट %2$@, सबसे पुराना %#@days@"
+          },
+          "substitutions" : {
+            "days" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg दिन"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg दिन"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, neto %2$@, más antiguo %#@days@"
+          },
+          "substitutions" : {
+            "days" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg día"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg días"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld debts" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld debt"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld debts"
+                }
+              }
+            }
+          }
+        },
+        "hi" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld उधार"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld उधार"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld deuda"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld deudas"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld due in the next 7 days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld vencen en los próximos 7 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अगले 7 दिनों में %lld देय"
+          }
+        }
+      }
+    },
+    "%lld overdue" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld vencida(s)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld अतिदेय"
+          }
+        }
+      }
+    },
+    "%lld overdue debts, %@ outstanding, worst %lld days overdue, %lld due in the next 7 days" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@debts@, %2$@ outstanding, worst %#@days@ overdue, %4$lld due in the next 7 days"
+          },
+          "substitutions" : {
+            "debts" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg overdue debt"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg overdue debts"
+                    }
+                  }
+                }
+              }
+            },
+            "days" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg day"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg days"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@debts@, %2$@ बकाया, सबसे अधिक %#@days@ का विलंब, अगले 7 दिनों में %4$lld देय"
+          },
+          "substitutions" : {
+            "debts" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg अतिदेय उधार"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg अतिदेय उधार"
+                    }
+                  }
+                }
+              }
+            },
+            "days" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg दिन"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg दिन"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@debts@, %2$@ pendiente, la peor con %#@days@ de retraso, %#@due@ en los próximos 7 días"
+          },
+          "substitutions" : {
+            "debts" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg deuda vencida"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg deudas vencidas"
+                    }
+                  }
+                }
+              }
+            },
+            "days" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg día"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg días"
+                    }
+                  }
+                }
+              }
+            },
+            "due" : {
+              "argNum" : 4,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg vence"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg vencen"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    ", %lld overdue" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ", %lld vencida(s)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ", %lld अतिदेय"
+          }
+        }
+      }
+    },
+    ", usually settles in %lld days" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : ", usually settles in %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : ", usually settles in %lld days"
+                }
+              }
+            }
+          }
+        },
+        "hi" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : ", आमतौर पर %lld दिन में चुकता है"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : ", आमतौर पर %lld दिन में चुकता है"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : ", normalmente se salda en %lld día"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : ", normalmente se salda en %lld días"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "0-30 days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0-30 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0-30 दिन"
+          }
+        }
+      }
+    },
+    "31-60 days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "31-60 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "31-60 दिन"
+          }
+        }
+      }
+    },
+    "61-90 days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "61-90 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "61-90 दिन"
+          }
+        }
+      }
+    },
+    "90+ days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más de 90 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "90+ दिन"
+          }
+        }
+      }
+    },
+    "Add debts you lent or borrowed and their analytics will appear here" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregue las deudas que prestó o pidió y su análisis aparecerá aquí"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने जो उधार दिया या लिया है उसे जोड़ें, उसका विश्लेषण यहाँ दिखेगा"
+          }
+        }
+      }
+    },
+    "Aging bucket" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rango de antigüedad"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अवधि श्रेणी"
+          }
+        }
+      }
+    },
+    "Counterparty exposure" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exposición por persona"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "व्यक्ति-वार जोखिम"
+          }
+        }
+      }
+    },
+    "Debt Analytics" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Análisis de deudas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उधार विश्लेषण"
+          }
+        }
+      }
+    },
+    "Debt analytics" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Análisis de deudas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उधार विश्लेषण"
+          }
+        }
+      }
+    },
+    "Exposure by Person" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exposición por persona"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "व्यक्ति-वार जोखिम"
+          }
+        }
+      }
+    },
+    "How Fast Debts Get Settled" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con qué rapidez se saldan las deudas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उधार कितनी जल्दी चुकते हैं"
+          }
+        }
+      }
+    },
+    "How Long Debts Have Been Open" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto tiempo llevan abiertas las deudas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उधार कितने समय से बकाया हैं"
+          }
+        }
+      }
+    },
+    "Median of %lld settled debts" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mediana de %lld deudas saldadas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld चुकाए गए उधारों की माध्यिका"
+          }
+        }
+      }
+    },
+    "Not enough settled debts yet — %lld of %lld needed" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay suficientes deudas saldadas: %lld de %lld necesarias"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी पर्याप्त चुकाए गए उधार नहीं — %lld, %lld चाहिए"
+          }
+        }
+      }
+    },
+    "Nothing to analyse yet" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay nada que analizar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी विश्लेषण के लिए कुछ नहीं"
+          }
+        }
+      }
+    },
+    "Oldest: %lld days" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Oldest: %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Oldest: %lld days"
+                }
+              }
+            }
+          }
+        },
+        "hi" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "सबसे पुराना: %lld दिन"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "सबसे पुराना: %lld दिन"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Más antiguo: %lld día"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Más antiguo: %lld días"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Opens aging, exposure and settlement analytics" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre el análisis de antigüedad, exposición y saldos"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अवधि, जोखिम और निपटान विश्लेषण खोलता है"
+          }
+        }
+      }
+    },
+    "Overdue Risk" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riesgo de vencimiento"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अतिदेय जोखिम"
+          }
+        }
+      }
+    },
+    "Showing top 10 of %lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrando los 10 principales de %lld"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld में से शीर्ष 10 दिखाए जा रहे हैं"
+          }
+        }
+      }
+    },
+    "Typically settled in %lld days" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Typically settled in %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Typically settled in %lld days"
+                }
+              }
+            }
+          }
+        },
+        "hi" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "आमतौर पर %lld दिन में चुकता है"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "आमतौर पर %lld दिन में चुकता है"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Normalmente se salda en %lld día"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Normalmente se salda en %lld días"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Typically settled in %lld days, median of %lld settled debts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typically settled in %#@days@, median of %2$lld settled debts"
+          },
+          "substitutions" : {
+            "days" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg day"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg days"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आमतौर पर %#@days@ में चुकता है, %2$lld चुकाए गए उधारों की माध्यिका"
+          },
+          "substitutions" : {
+            "days" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg दिन"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg दिन"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normalmente se salda en %#@days@, mediana de %2$lld deudas saldadas"
+          },
+          "substitutions" : {
+            "days" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg día"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg días"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Usually settles in %lld days" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Usually settles in %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Usually settles in %lld days"
+                }
+              }
+            }
+          }
+        },
+        "hi" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "आमतौर पर %lld दिन में चुकता है"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "आमतौर पर %lld दिन में चुकता है"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Suele saldarse en %lld día"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Suele saldarse en %lld días"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "We couldn't load debt analytics right now." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos cargar el análisis de deudas en este momento."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हम अभी उधार विश्लेषण लोड नहीं कर सके।"
+          }
+        }
+      }
+    },
+    "Worst: %lld days overdue" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Worst: %lld day overdue"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Worst: %lld days overdue"
+                }
+              }
+            }
+          }
+        },
+        "hi" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "सबसे ज़्यादा: %lld दिन का विलंब"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "सबसे ज़्यादा: %lld दिन का विलंब"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Peor: %lld día de retraso"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Peor: %lld días de retraso"
+                }
+              }
+            }
           }
         }
       }

@@ -109,9 +109,6 @@ struct BudgetFormView: View {
                         Task {
                             do {
                                 try await viewModel?.save()
-                                if viewModel?.isEditing != true {
-                                    await dependencies.conversionEventRecorder.afterBudgetCreated()
-                                }
                                 appState.notifyChanged(.budgets)
                                 isPresented = false
                             } catch {

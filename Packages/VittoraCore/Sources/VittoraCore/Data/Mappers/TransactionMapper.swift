@@ -19,6 +19,7 @@ public enum TransactionMapper {
             recurringRuleID: model.recurringRuleID,
             transferPairID: model.transferPairID,
             transferDirection: model.transferDirection,
+            categorySuggestion: model.categorySuggestion,
             documentIDs: [],
             createdAt: model.createdAt,
             updatedAt: model.updatedAt
@@ -40,6 +41,12 @@ public enum TransactionMapper {
         model.recurringRuleID = entity.recurringRuleID
         model.transferPairID = entity.transferPairID
         model.transferDirection = entity.transferDirection
+        // categorySuggestion is deliberately write-once at creation and is NOT
+        // updated here. It records what the categorizer proposed when the row was
+        // first entered; an edit that re-categorises the row is precisely the
+        // override signal we want to keep, and rewriting the suggestion on save
+        // would erase it. The edit path also builds a fresh entity with no
+        // suggestion, so assigning here would blank the column on every edit.
         model.updatedAt = .now
     }
 }

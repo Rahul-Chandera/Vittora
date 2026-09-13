@@ -24,6 +24,11 @@ public final class SDTransaction {
     /// Raw value of the transfer leg's `TransferDirection` (Schema V3, A3). Optional
     /// for CloudKit additive compatibility; nil on non-transfer and legacy rows.
     public var transferDirectionRawValue: String?
+    /// Encoded `CategorySuggestion` recorded at creation (Schema V8). Optional for
+    /// CloudKit additive compatibility: nil on every pre-V8 row. Empty string means
+    /// "the categorizer ran and proposed nothing", which must stay distinguishable
+    /// from nil ("no data").
+    public var categorySuggestionRawValue: String?
     public var externalID: String = ""
     public var createdAt: Date = Date.now
     public var updatedAt: Date = Date.now
@@ -46,6 +51,7 @@ public final class SDTransaction {
         recurringRuleID: UUID? = nil,
         transferPairID: UUID? = nil,
         transferDirection: TransferDirection? = nil,
+        categorySuggestion: CategorySuggestion? = nil,
         externalID: String = UUID().uuidString,
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -65,6 +71,7 @@ public final class SDTransaction {
         self.recurringRuleID = recurringRuleID
         self.transferPairID = transferPairID
         self.transferDirectionRawValue = transferDirection?.rawValue
+        self.categorySuggestionRawValue = categorySuggestion?.rawValue
         self.externalID = externalID
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -83,5 +90,10 @@ public final class SDTransaction {
     public var transferDirection: TransferDirection? {
         get { transferDirectionRawValue.flatMap(TransferDirection.init(rawValue:)) }
         set { transferDirectionRawValue = newValue?.rawValue }
+    }
+
+    public var categorySuggestion: CategorySuggestion? {
+        get { CategorySuggestion(rawValue: categorySuggestionRawValue) }
+        set { categorySuggestionRawValue = newValue?.rawValue }
     }
 }

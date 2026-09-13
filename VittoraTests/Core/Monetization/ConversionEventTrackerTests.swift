@@ -5,6 +5,9 @@ import VittoraCore
 
 @Suite("Conversion Event Tracker Tests")
 struct ConversionEventTrackerTests {
+    /// A tracker with StoreKit dormant. Declared rather than inherited: these cases pin the
+    /// kill-switch-off contract, and must keep testing it after the switch ships flipped on.
+    /// Use `makeEnabledTracker` for the live-monetization cases.
     private func makeTracker(
         now: Date = Date(timeIntervalSince1970: 1_700_000_000)
     ) -> UserDefaultsConversionEventTracker {
@@ -15,7 +18,23 @@ struct ConversionEventTrackerTests {
         return UserDefaultsConversionEventTracker(
             defaults: defaults,
             calendar: Calendar(identifier: .gregorian),
-            nowProvider: { now }
+            nowProvider: { now },
+            storeKitEnabled: false
+        )
+    }
+
+    private func makeEnabledTracker(
+        now: Date = Date(timeIntervalSince1970: 1_700_000_000)
+    ) -> UserDefaultsConversionEventTracker {
+        let suiteName = "test.conversion.\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            fatalError("Failed to create test defaults suite")
+        }
+        return UserDefaultsConversionEventTracker(
+            defaults: defaults,
+            calendar: Calendar(identifier: .gregorian),
+            nowProvider: { now },
+            storeKitEnabled: true
         )
     }
 
@@ -82,14 +101,62 @@ struct ConversionEventTrackerTests {
         #expect(tracker.ocrScansThisMonth() == 0)
     }
 
-    @Test("Paywall presentation respects cooldown when StoreKit would be enabled")
-    func paywallCooldownWhenEnabled() {
-        // StoreKit is disabled in production config; verify tracker state transitions only.
+    @Test("Paywall never presents while StoreKit is dormant, and marking presentation is inert")
+    func paywallCooldownWhenDormant() {
+        // The kill switch is off here, so no milestone may present and markPaywallPresented
+        // must not make a later check say yes.
         let tracker = makeTracker()
-        let result = tracker.record(.accountLimitReached)
+        let result = tracker.record(.firstReport)
         #expect(result.shouldPresentPaywall == false)
-        tracker.markPaywallPresented(for: .accountLimitReached)
-        #expect(tracker.shouldPresentPaywall(for: .accountLimitReached) == false)
+        tracker.markPaywallPresented(for: .firstReport)
+        #expect(tracker.shouldPresentPaywall(for: .firstReport) == false)
+    }
+
+    // Guards against the isFirstTime inversion in shouldPresentPaywall(for:).
+    @Test("Paywall presents on a milestone's first occurrence when StoreKit is enabled")
+    func paywallPresentsOnFirstOccurrenceWhenStoreKitEnabled() {
+        let tracker = makeEnabledTracker()
+        // Not yet recorded, so this is a first-time opportunity.
+        #expect(tracker.shouldPresentPaywall(for: .firstReport) == true)
+        let result = tracker.record(.firstReport)
+        #expect(result.isFirstTime)
+        #expect(result.shouldPresentPaywall == true)
+    }
+
+    @Test("Paywall does not present again for an already-fired milestone")
+    func paywallDoesNotPresentAgainForAlreadyFiredMilestone() {
+        let tracker = makeEnabledTracker()
+        _ = tracker.record(.firstSplit)
+        #expect(tracker.hasRecorded(.firstSplit))
+        #expect(tracker.shouldPresentPaywall(for: .firstSplit) == false)
+        #expect(tracker.record(.firstSplit).shouldPresentPaywall == false)
+    }
+
+    @Test("Paywall cooldown suppresses a different milestone's first occurrence")
+    func paywallCooldownSuppressesDifferentMilestoneFirstOccurrence() {
+        final class NowBox: @unchecked Sendable {
+            var value: Date
+            init(_ value: Date) { self.value = value }
+        }
+
+        let nowBox = NowBox(Date(timeIntervalSince1970: 1_700_000_000))
+        let tracker = UserDefaultsConversionEventTracker(
+            defaults: UserDefaults(suiteName: "test.conversion.\(UUID().uuidString)") ?? .standard,
+            calendar: Calendar(identifier: .gregorian),
+            nowProvider: { nowBox.value },
+            storeKitEnabled: true
+        )
+
+        _ = tracker.record(.firstReport)
+        tracker.markPaywallPresented(for: .firstReport)
+        #expect(tracker.shouldPresentPaywall(for: .firstSplit) == false)
+
+        nowBox.value = Calendar(identifier: .gregorian).date(
+            byAdding: .day,
+            value: MonetizationConfiguration.paywallPresentationCooldownDays + 1,
+            to: nowBox.value
+        ) ?? nowBox.value
+        #expect(tracker.shouldPresentPaywall(for: .firstSplit) == true)
     }
 }
 
@@ -111,9 +178,7 @@ struct ConversionEventRecorderTests {
         }
         let recorder = ConversionEventRecorder(
             tracker: tracker,
-            transactionRepository: transactionRepo,
-            accountRepository: await MainActor.run { MockAccountRepository() },
-            budgetRepository: MockBudgetRepository()
+            transactionRepository: transactionRepo
         )
 
         let result = await recorder.afterTransactionCreated()
@@ -121,28 +186,16 @@ struct ConversionEventRecorderTests {
         #expect(result?.isFirstTime == true)
     }
 
-    @Test("Account cap milestone fires at limit")
-    func accountCapThreshold() async {
-        let tracker = UserDefaultsConversionEventTracker(
-            defaults: UserDefaults(suiteName: "test.conversion.\(UUID().uuidString)") ?? .standard
-        )
-        let accountRepo = await MainActor.run { MockAccountRepository() }
-        for index in 0..<FreeTierLimits.maxAccounts {
-            let account = AccountEntity(
-                name: "Account \(index)",
-                type: .bank,
-                balance: 0
-            )
-            try? await accountRepo.create(account)
-        }
-        let recorder = ConversionEventRecorder(
-            tracker: tracker,
-            transactionRepository: MockTransactionRepository(),
-            accountRepository: accountRepo,
-            budgetRepository: MockBudgetRepository()
-        )
-
-        let result = await recorder.afterAccountCreated()
-        #expect(result?.milestone == .accountLimitReached)
+    /// DEC-014 removed the account and budget caps: capping how many records a
+    /// user may keep is a cap on record-keeping, which stays free. This guards
+    /// against either cap being reintroduced as a conversion milestone.
+    @Test("Accounts and budgets are not capped")
+    func accountsAndBudgetsAreUncapped() {
+        let names = ConversionMilestone.allCases.map(\.rawValue)
+        #expect(!names.contains { $0.localizedCaseInsensitiveContains("account") })
+        #expect(!names.contains { $0.localizedCaseInsensitiveContains("budget") })
+        // OCR stays capped — unlimited receipt OCR is a named Pro feature.
+        #expect(ConversionMilestone.allCases.contains(.ocrMonthlyLimitReached))
+        #expect(FreeTierLimits.maxOCRScansPerMonth == 5)
     }
 }

@@ -399,7 +399,7 @@ struct EmergencyFundReportView: View {
         case .recurringRules:
             String(localized: "Recurring essentials")
         case .spendingHistory(let monthCount):
-            String(localized: "\(monthCount) month(s) of available history")
+            String(localized: "\(monthCount) months of available history")
         }
     }
 

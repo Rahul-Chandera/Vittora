@@ -174,6 +174,11 @@ struct TaxDashboardView: View {
         // where removing it lets content render in the gutter below the tab
         // bar, which the audit reports as text with no accessible element.
         .safeAreaPadding(.bottom, dynamicTypeSize.isAccessibilitySize ? 140 : 72)
+        .proGated(
+            true,
+            title: String(localized: "Tax estimates are Vittora Pro"),
+            message: String(localized: "The estimate, the regime comparison and the tax report export are part of Vittora Pro. Your tax profile stays free — open it any time with the button in the toolbar.")
+        )
     }
 
     private func quickStatsGrid(estimate: TaxEstimate) -> some View {

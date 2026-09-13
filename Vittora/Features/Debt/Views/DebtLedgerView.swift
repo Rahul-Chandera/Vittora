@@ -43,6 +43,21 @@ struct DebtLedgerView: View {
         .navigationTitle(String(localized: "Debt Ledger"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
+                NavigationLink {
+                    DebtAnalyticsView()
+                        .proGated(
+                            true,
+                            title: String(localized: "Debt analytics is Vittora Pro"),
+                            message: String(localized: "Aging, exposure and settlement analytics are part of Vittora Pro. Your debt ledger and every record in it stay free.")
+                        )
+                } label: {
+                    Image(systemName: "chart.bar.xaxis")
+                }
+                .accessibilityLabel(String(localized: "Debt analytics"))
+                .accessibilityHint(String(localized: "Opens aging, exposure and settlement analytics"))
+                .accessibilityIdentifier("debt-analytics-button")
+            }
+            ToolbarItem(placement: .primaryAction) {
                 Button {
                     showAddDebt = true
                 } label: {
@@ -176,7 +191,7 @@ struct DebtLedgerView: View {
         HStack(spacing: VSpacing.sm) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundColor(.white)
-            Text(String(localized: "\(count) overdue debt(s)"))
+            Text(String(localized: "\(count) overdue debts"))
                 .font(VTypography.caption1Bold)
                 .foregroundColor(.white)
             Spacer()

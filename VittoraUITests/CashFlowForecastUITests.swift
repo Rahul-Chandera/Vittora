@@ -10,7 +10,7 @@ final class CashFlowForecastUITests: XCTestCase {
         throw XCTSkip("R3 UI screenshots are captured on iPhone; Mac uses the same SwiftUI surface.")
         #else
         app = XCUIApplication()
-        app.launchArguments = ["--uitesting", "--ui-test-seed-demo"]
+        app.launchArguments = ["--uitesting", "--ui-test-seed-demo", "--ui-test-pro"]
         app.launchEnvironment["UITEST_INITIAL_TAB"] = "reports"
         app.launch()
         #endif
