@@ -73,6 +73,14 @@ struct PaywallView: View {
             marketingContent
         }
         .subscriptionStoreControlStyle(.prominentPicker)
+        // The default soft scroll edge effect fades the marketing content and StoreKit's own
+        // auto-renew description into a half-legible ghost behind the purchase buttons — an
+        // App Store Review 3.1.2 legibility problem and two accessibility-audit contrast
+        // failures. `.hard` cuts the content off at a solid edge instead of fading it. No
+        // bottom padding is added because SubscriptionStoreView already insets its scroll
+        // content past the control area: scrolling to the bottom shows the full disclosure
+        // paragraph, the policy links and the plan picker clear of the buttons.
+        .scrollEdgeEffectStyle(.hard, for: .bottom)
         .storeButton(.visible, for: .restorePurchases)
         .storeButton(.visible, for: .policies)
         .subscriptionStorePolicyDestination(for: .termsOfService) {
