@@ -34,13 +34,12 @@ struct DebtDetailView: View {
         .background(VColors.groupedBackground)
         // Deleting money records is not undoable, so it is confirmed and the
         // amount is named in the prompt rather than a bare "Are you sure?".
-        .confirmationDialog(
+        .alert(
             String(localized: "Delete this debt entry?"),
             isPresented: Binding(
                 get: { debtToDelete != nil },
                 set: { if !$0 { debtToDelete = nil } }
-            ),
-            titleVisibility: .visible
+            )
         ) {
             Button(String(localized: "Delete"), role: .destructive) {
                 guard let entry = debtToDelete else { return }

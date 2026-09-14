@@ -244,10 +244,9 @@ struct TransactionDetailView: View {
         // Deleting a transaction moves money. One click of the toolbar trash
         // erased it outright — no confirmation, no undo — while the debt entry
         // delete and Delete All Data both confirm. Names the amount, as those do.
-        .confirmationDialog(
+        .alert(
             String(localized: "Delete this transaction?"),
-            isPresented: $showDeleteConfirm,
-            titleVisibility: .visible
+            isPresented: $showDeleteConfirm
         ) {
             Button(String(localized: "Delete"), role: .destructive) {
                 guard let vm else { return }

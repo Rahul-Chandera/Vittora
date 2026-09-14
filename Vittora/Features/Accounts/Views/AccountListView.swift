@@ -184,6 +184,9 @@ struct AccountListView: View {
                                 } label: {
                                     Label(String(localized: "Delete"), systemImage: "trash")
                                 }
+                                    // role: .destructive alone is not enough — the NavigationStack tint in
+                                    // AppTabView.contentStack repaints swipe actions, so the red is explicit.
+                                    .tint(.red)
                                 Button {
                                     Task {
                                         await vm.archiveAccount(id: account.id)
