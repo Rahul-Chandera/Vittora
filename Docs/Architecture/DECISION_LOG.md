@@ -414,3 +414,17 @@ All on `C7B59D69-56FC-4FD6-A5D6-18DB5DCBC852` (iPhone 16 / iOS 26.5), counts fro
 - Evidence: three consecutive single-test runs of `testPaywallAccessibilityAudit` on the iPhone 16 simulator, all green, against the entry. One green run would not have been evidence: this failure is intermittent by nature, which is the whole reason it needed a deliberate fix rather than a re-run.
 - Build impact: `VittoraUITests/AccessibilityAuditUITests.swift` only — one identifier check in the contrast branch. No production code, no assertion weakened, no `XCTSkip`.
 - Revisit if: the owner chooses a black lifetime label, in which case delete this entry rather than keep a dead exemption; or DEC-012 is reopened.
+
+## DEC-026: The paywall's iPad control overlap is deferred past 1.7.0
+
+- Status: Accepted (2026-09-14, Rahul — owner). Known defect, deliberately not fixed in 1.7.0.
+- The defect: on iPad the last feature row, the lifetime button and the auto-renew disclosure come to rest UNDERNEATH the price caption, the purchase button and Restore. The scroll edge effect fades them, so it reads as a rendering artifact; it is not one. The content is still reachable by scrolling.
+- Found by: the 12-shot paywall verification matrix (macOS / iPhone / iPad x before and after subscription x light and dark). iPhone and macOS are clean; only iPad overlaps.
+- Why the existing comment was wrong: `subscriptionStore` carries a note saying no bottom padding is needed because `SubscriptionStoreView` already insets its scroll content past its control area. That is true on iPhone and false on iPad.
+- Three fixes were tried against iPad Pro 11 (iOS 26.5) and each was verified by screenshot, not assumed:
+  1. `.padding(.bottom, VSpacing.xxxl)` on `marketingContent` — no visible change. Padding extends the scroll extent; it does not move where the content comes to rest.
+  2. `.scrollEdgeEffectHidden(true, for: .bottom)` — removed the fade and exposed the overlap as plain text on text. Strictly worse, and it is what proved the overlap is real rather than cosmetic.
+  3. `.contentMargins(.bottom, 200, for: .scrollContent)` — not honoured. StoreKit owns that scroll view.
+- What a real fix requires: moving the lifetime button and the disclosure OUT of the store view's marketing content so they are not inside StoreKit's scroll view. That is a paywall restructure, not a modifier, and the owner scoped it out of 1.7.0.
+- Recorded in `PaywallView.swift` beside `.scrollEdgeEffectStyle` as well, including the three failed attempts, so the next attempt does not repeat them.
+- Revisit if: the paywall is restructured for another reason; or Apple exposes a way to inset `SubscriptionStoreView`'s scroll content; or App Review raises 3.1.2 on the iPad build.

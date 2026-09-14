@@ -92,6 +92,17 @@ struct PaywallView: View {
         ) {
             marketingContent
         }
+        #if os(macOS)
+        // A sheet on macOS is a fixed-size dialog, not a full-height sheet: without an
+        // explicit size AppKit sizes it to something this branch's content overflows, so
+        // the marketing list scrolled inside a cramped box and "Restore Subscription" sat
+        // hard against the Close bar.
+        //
+        // Scoped to THIS branch deliberately. Putting it on the NavigationStack sized every
+        // branch, and alreadySubscribedContent is four lines of text — it rendered with
+        // ~500pt of empty space below it. Only the store needs the height.
+        .frame(minWidth: 520, idealWidth: 560, minHeight: 660, idealHeight: 720)
+        #endif
         .subscriptionStoreControlStyle(.prominentPicker)
         // The default soft scroll edge effect fades the marketing content and StoreKit's own
         // auto-renew description into a half-legible ghost behind the purchase buttons — an
@@ -101,6 +112,18 @@ struct PaywallView: View {
         // content past the control area: scrolling to the bottom shows the full disclosure
         // paragraph, the policy links and the plan picker clear of the buttons.
         .scrollEdgeEffectStyle(.hard, for: .bottom)
+        // KNOWN, UNFIXED (iPad only): the last feature row, the lifetime button and the
+        // disclosure come to rest UNDER the price caption, purchase button and Restore,
+        // faded by the scroll edge effect. The claim above that SubscriptionStoreView
+        // insets its scroll content past its own controls holds on iPhone and does NOT
+        // hold on iPad. Three fixes were tried against iPad Pro 11 and none reached
+        // StoreKit's internal scroll view: bottom padding on marketingContent (no effect —
+        // it extends the scroll extent, not the resting position), .scrollEdgeEffectHidden
+        // (removed the fade and exposed the overlap as plain text-on-text, worse), and
+        // .contentMargins(.bottom:for: .scrollContent) (not honoured). The content is
+        // still reachable by scrolling. Fixing this needs the lifetime button and
+        // disclosure moved OUT of the store view's marketing content, which is a paywall
+        // restructure, not a modifier.
         // SubscriptionStoreView's own dismiss control renders inside its scroll content, so it
         // can never line up with the navigation title. Hide it and let the navigation bar own
         // the single Close control for every branch of this sheet.
@@ -141,7 +164,12 @@ struct PaywallView: View {
             VStack(alignment: .leading, spacing: VSpacing.lg) {
                 Image(systemName: "checkmark.seal.fill")
                     .font(.largeTitle)
-                    .foregroundStyle(VColors.primaryOnSurface)
+                    // Brand green with the rest of the paywall's decorative marks
+                    // (DEC-024). This was missed when the hero and the feature discs
+                    // moved, leaving it the only dark-green mark on any paywall surface.
+                    // accessibilityHidden and purely decorative, so no contrast rule
+                    // applies and no DEC-012 exemption is needed.
+                    .foregroundStyle(VColors.primary)
                     .frame(maxWidth: .infinity)
                     .accessibilityHidden(true)
 
