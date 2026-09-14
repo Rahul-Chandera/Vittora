@@ -985,6 +985,24 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if issue.element?.identifier == "brand-green-filled-card" {
                     return true
                 }
+                // The paywall's lifetime CTA is white on #3FCFA4 — 1.97:1, a real
+                // miss, not a sampler artifact. DEC-023 predicted this exactly and
+                // prescribed this entry: "If the audit ever reaches it unoccluded it
+                // will fail on this pairing, and the fix is to add
+                // paywall-lifetime-button to the exemptions deliberately, not to
+                // change the colour." That is what this is (DEC-025).
+                //
+                // Why it surfaced only now: before 636169ea the button was #17604A at
+                // 7.48:1 and passed. Brand green made it 1.97:1, and the audit catches
+                // it only on the runs where the button lands clear of the navigation
+                // bar — which is why the leg went intermittently red rather than
+                // failing outright.
+                //
+                // The label is the user-visible price string, so this is anchored to
+                // the identifier: a price change must not silently widen or void it.
+                if issue.element?.identifier == "paywall-lifetime-button" {
+                    return true
+                }
                 // On CI's iOS 26.2 the audit flags an inner node of the floating
                 // add button that carries neither the label nor the identifier,
                 // so both checks above miss it and the DEC-012 exemption never
