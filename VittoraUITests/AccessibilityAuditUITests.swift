@@ -1062,12 +1062,27 @@ final class AccessibilityAuditUITests: XCTestCase {
                     // of the opaque tab-bar material. These are UIKit-owned tabs.
                     return true
                 }
+                let bottomBar = self.app.tabBars.firstMatch
                 if let element = issue.element,
-                   self.app.tabBars.firstMatch.exists,
-                   element.frame.maxY > self.app.frame.maxY - 120 {
-                    // iOS's floating compact tab bar deliberately fades scroll
-                    // content beneath its system-owned material. Ignore only
-                    // contrast samples whose element frame intersects that bar.
+                   bottomBar.exists,
+                   bottomBar.frame.minY > 1,
+                   element.frame.minY > bottomBar.frame.minY {
+                    // iOS's floating compact tab bar fades scroll content beneath
+                    // its own system-owned material exactly as the navigation bar
+                    // does at the top. Ignore only contrast samples whose element
+                    // frame starts at or below the bar's own measured top edge.
+                    // The previous form used app.frame.maxY - 120, which on the
+                    // measured 393x852 window put the band at y=732 while the tab
+                    // bar actually begins at y=769, so a 37pt strip of fully
+                    // visible content was never sampled — the Budgets card's
+                    // Spent / Remaining / Progress row (y 733-780) was what it hid.
+                    //
+                    // Anchored to the bar's own measured minY rather than a
+                    // constant, so it follows the bar on every device and
+                    // orientation. An element that merely overlaps the bar but
+                    // starts above it is still audited. The minY > 1 guard rejects
+                    // a degenerate/zero tab-bar frame the way the top rule guards
+                    // with maxY > 1.
                     return true
                 }
                 if let element = issue.element,
