@@ -291,3 +291,83 @@ customer feedback reports the labels as hard to read, reopen this and take the
   3. Whether the audit suite's run-to-run nondeterminism (DEC-019) should be chased down before any further conclusion is drawn from a single UI-core run. Three of the six failures in the verification run above did not appear in the `1ec1a498` stable set at all.
 - Build impact: `VittoraUITests/AccessibilityAuditUITests.swift` only, inside the `auditType == .contrast` branch. No production code changes, no new dependencies, no `XCTSkip`.
 - Revisit: when any of the three open questions above is decided; or if the floating tab bar stops being a capsule with transparent gutters, which is what makes the sampler average chrome into straddling elements in the first place.
+
+
+## DEC-022: a contrast finding is excused only when the element's own rendered pixels are re-measured and clear the AA bar — the first exemption anchored to a measurement rather than to a name
+
+- Status: Accepted (2026-09-14, Rahul — owner approved). Decides open question 1 of DEC-021, which DEC-020 had also left open.
+- Decision: `AccessibilityAuditUITests.performCoreFlowAudit()` gains one rung in the `auditType == .contrast` branch, placed last, immediately before the chart-mark fallback. It reads:
+
+  ```swift
+  if let element = issue.element,
+     let ratio = self.measuredContrastRatio(for: element),
+     ratio >= 4.5 {
+      return true
+  }
+  ```
+
+  `measuredContrastRatio(for:)` takes the flagged element's own screenshot — the very image XCTest attaches to the failure — redraws it into 8-bit sRGB, and returns the WCAG relative-contrast ratio between the 2nd and 98th percentile relative luminance of its pixels. It returns `nil`, so the finding stands, whenever the element is gone, its frame is degenerate, the screenshot cannot be decoded, or the region is smaller than 64 pixels.
+
+### What the class is, and what it measures
+
+- The class: Apple's contrast sampler reports `Contrast failed for SwiftUI.AccessibilityNode` — a bare node carrying neither label nor identifier — against text that is fully on screen, clear of both bars, and legible. The complete issue description carries no ratio and no element name; that string *is* the whole finding.
+- Measured on `C7B59D69-56FC-4FD6-A5D6-18DB5DCBC852` (iPhone 16 / iOS 26.5), independently from the audit's own exported element images, using the same WCAG formula the new helper implements:
+
+  | Screen | Element | Measured ratio |
+  |---|---|---|
+  | Reports home | `Custom Report` | **20.62:1** |
+  | Monthly Overview | `April 2026` | **18.88:1** |
+  | Monthly Overview | `$0` (brand red) | **5.36:1** |
+  | Monthly Overview | `$0` (brand green) | **4.81:1** |
+  | Tax Estimator | `Basic Tax` | **19.91:1** |
+  | Tax Estimator | `Marginal Rate` | **19.80:1** |
+  | Accessibility-3 | `Savings Rate` | **20.87:1** |
+
+  Every one clears the 4.5:1 AA bar for small text. Note the two `$0` figures at 4.81:1 and 5.36:1 — the class has been described as "typically ~18–21:1", and two of its seven members are not; they pass, but with far less headroom than that prose suggests. Recorded here because it is exactly the margin the threshold has to be right about.
+- **Five separate investigations have found no genuine contrast defect in this class.** DEC-020 declined to excuse it; DEC-021 declined twice more, once as shipped and once in its amendment. The element screenshots have been exported and inspected every time and have never shown anything but well-contrasted text.
+
+### Why this anchor, and not a list
+
+- Every prior exemption in the file names something: a label (`brandGreenFilledContent`), an identifier (`form-section-header`, `debt-entry-delete`, `brand-green-filled-card`, Apple's subscribe-button caption), a screen, or a geometric relationship to chrome. Each such anchor has two failure modes this file has already been bitten by: it silently stops matching when the thing is renamed or restructured, and it has to grow by one entry every time a new surface appears.
+- This rung asserts something about the *reported finding* instead: that the pixels inside the frame the sampler itself named already satisfy the standard the audit exists to enforce. It does not claim the screen is fine, or that the element is special. It claims the measurement disagrees with the verdict, and shows its working.
+- The bar is 4.5:1, WCAG AA for small text — the stricter of the two AA bars, applied regardless of type size. A large-text element between 3:1 and 4.5:1 satisfies WCAG but is **not** excused here.
+- Percentiles rather than min/max so a single stray pixel from an adjacent border cannot manufacture a passing ratio. Both error directions of that choice push the reported ratio *down*, i.e. toward the finding standing, never toward excusing it.
+
+### Exactly what coverage is given up
+
+Stated plainly, because this is the part that matters:
+
+1. **Composite frames.** If the sampler ever flags an element whose frame contains both high-contrast and genuinely low-contrast content, the percentiles take their extremes from the high-contrast part and the finding is excused. The low-contrast text inside it remains audited only to the extent XCTest also reports it as its own leaf element — which is what it does for every finding observed in this class, but is not guaranteed. **This is the one real hole, and it is the thing to look at first if a contrast defect is ever reported from a user on a covered screen.**
+2. **Agreement with the sampler about *where*.** The helper measures the frame the sampler reported. If the sampler names the wrong frame, the measurement is wrong the same way. A defect whose reported frame does not contain it was never detectable by this audit, but it is now also un-flaggable by accident.
+3. **The instant of measurement.** The screenshot is taken inside the audit handler, moments after the sampler's own read, but it is a second read. On an animating surface the two could disagree.
+
+Not given up, despite appearances: the knowingly sub-AA DEC-012 pairings (white on `#3FCFA4`, 1.97:1) and the DEC-019 caption (3.39:1) are all below 4.5:1, so this rung would never have excused them. They keep their own explicit exemptions, and those rungs run first regardless.
+
+### What a genuine contrast failure would look like now, and whether it is still caught
+
+A genuine defect means pixels rendered below the bar — `VColors.textSecondary` drifting lighter, a brand colour regressing, a token swapped on a surface. The element's screenshot would then measure below 4.5:1, `measuredContrastRatio` would return that number, the rung would not fire, `logAuditIssue` would print the element, and **the test would fail exactly as it does today.** The audit still catches it.
+
+That is not an argument, it is a measured result. See the negative control below.
+
+### Verification
+
+All on `C7B59D69-56FC-4FD6-A5D6-18DB5DCBC852` (iPhone 16 / iOS 26.5), counts from `xcrun xcresulttool get test-results summary`:
+
+- **Without the rung** (at `42027dc1`): `testTaxSurfacesAccessibilityAudit`, `testReportsHomeAndMonthlyOverviewAccessibilityAudit` and `testAccessibility3ScreenshotsForCoreFlows` all **failed**, on seven `Contrast failed for SwiftUI.AccessibilityNode` findings.
+- **With the rung**, same three tests, identical code minutes later: all three **passed**.
+- **Negative control — the rung discriminates by ratio, it does not blanket-excuse.** With the threshold temporarily raised from `4.5` to `6.0` and nothing else changed: Tax **passed** (19.91:1 and 19.80:1 still clear 6.0), while Reports and Accessibility-3 **failed** — and the findings that survived were precisely the two elements measuring 4.81:1 and 5.36:1. The Swift helper's numbers matched an independent measurement of the same exported images to two decimal places. An element at 4.81:1 is excused at a 4.5 bar and refused at a 6.0 bar, which is the whole claim, demonstrated rather than asserted. The control was reverted before the full legs below.
+- Full legs:
+  - UI core (`make test-ios-ui-core`) — 75 total, **70 passed, 0 failed, 5 skipped**. Baseline at `42027dc1` was 64 passed / 6 failed / 5 skipped. All six cleared: the three stable failures and the three DEC-019 intermittents (`testBudgetsAccessibilityAudit`, `testNewReportsAccessibilityAudit`, `testSettingsSectionsAccessibilityAudit`).
+  - unit (`make test-unit`) — 1305 passed, 0 failed, 0 skipped. Unchanged from baseline.
+- **What this evidence does not support.** One green UI-core run is one sample, and DEC-019's nondeterminism is unresolved — three of the six baseline failures were already known to come and go on identical code. A green leg does not prove the class is gone; it proves that on this run every finding in it measured above the bar. What the without / with / negative-control triple *does* support, and support strongly, is that the rung is load-bearing and that it keys on the measured ratio. CI on PR #222 is the second opinion.
+
+### Why it was accepted despite being broader than DEC-012
+
+- It is genuinely broader, and that should not be glossed. DEC-012's exemptions each have a finite, enumerable blast radius: one label, one identifier, one screen. A new surface has to opt in by hand, which is the property those entries were written to have. This rung applies to every contrast finding on every screen the suite audits.
+- It was accepted because the width is bounded by a predicate that is the audit's own success condition. The set of covered findings is large; the thing asserted about each of them is the very thing the audit is there to check. An exemption that can only fire when the element already passes the standard cannot, by construction, excuse a failure of that standard — modulo the composite-frame hole named above, which is why that hole is written down rather than buried.
+- A blanket "ignore contrast findings on these three tests" was rejected outright. So was an identifier list: the elements carry no identifier and no label to key on, so such a list would have had to be a list of *screens*, which is the blanket in another costume.
+
+### Build impact and revisit
+
+- Build impact: `VittoraUITests/AccessibilityAuditUITests.swift` only — a `#if canImport(UIKit)` import, the new rung in the contrast branch, and two private helpers (`measuredContrastRatio(for:)`, `relativeLuminance(red:green:blue:)`). No production code changes, no new dependencies, no `XCTSkip`, no assertion changed.
+- Revisit if: a genuine contrast defect is ever reported on a surface this covers — that would mean the composite-frame hole is real and the rung needs a size or leaf-node constraint; or the sampler starts reporting a ratio of its own, which would let the rung compare the two numbers instead of trusting one; or DEC-019's nondeterminism is chased down, which would make a single green run mean something it does not mean today.
