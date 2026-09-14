@@ -49,7 +49,12 @@ struct ReceiptScannerView: View {
                     Task {
                         await vm.processImage(cgImage)
                         if let data = vm.scannedReceiptData {
-                            dependencies.conversionEventRecorder.afterOCRScanCompleted()
+                            // The review sheet opens next; SwiftUI will not stack the root
+                            // paywall sheet under it. Record now, present from
+                            // DocumentListView's onDismiss once this scanner sheet is gone.
+                            dependencies.paywallPresenter.presentWhenSheetCloses(
+                                dependencies.conversionEventRecorder.afterOCRScanCompleted()
+                            )
                             receiptData = data
                             showReview = true
                         }

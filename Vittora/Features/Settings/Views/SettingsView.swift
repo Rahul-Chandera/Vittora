@@ -13,6 +13,9 @@ struct SettingsView: View {
     @State private var deleteAllDataError: String?
     @State private var showRestartAfterRecoveryReset = false
     @State private var showContactSupport = false
+    @State private var showPaywall = false
+    @State private var isRestoring = false
+    @State private var restoreMessage: String?
 
     private let deleteConfirmationPhrase = String(localized: "DELETE")
 
@@ -60,6 +63,58 @@ struct SettingsView: View {
                     }
                     .padding(.vertical, 4)
                 }
+            }
+
+            // Vittora Pro -- App Review 3.1.1 requires restore to be reachable without a
+            // value-event paywall trigger, so this is the manual entry point.
+            if MonetizationConfiguration.isStoreKitEnabled {
+                Section {
+                    Button {
+                        showPaywall = true
+                    } label: {
+                        SettingsRow(
+                            icon: "sparkles",
+                            iconColor: .teal,
+                            title: String(localized: "Vittora Pro"),
+                            value: dependencies.purchaseService.level == .pro
+                                ? String(localized: "Active")
+                                : String(localized: "Upgrade")
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("settings-vittora-pro")
+
+                    Button {
+                        Task {
+                            isRestoring = true
+                            defer { isRestoring = false }
+                            do {
+                                try await dependencies.purchaseService.restore()
+                                restoreMessage = dependencies.purchaseService.level == .pro
+                                    ? String(localized: "Vittora Pro is restored on this device.")
+                                    : String(localized: "No previous Vittora Pro purchase was found for this Apple Account.")
+                            } catch {
+                                restoreMessage = error.localizedDescription
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            SettingsRow(
+                                icon: "arrow.clockwise",
+                                iconColor: .blue,
+                                title: String(localized: "Restore Purchases"),
+                                value: ""
+                            )
+                            if isRestoring { ProgressView() }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isRestoring)
+                    .accessibilityIdentifier("settings-restore-purchases")
+                } header: {
+                    VFormSectionHeader(String(localized: "Vittora Pro"))
+                }
+                .headerProminence(.increased)
             }
 
             // Preferences
@@ -269,6 +324,20 @@ struct SettingsView: View {
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(milestone: nil)
+        }
+        .alert(
+            String(localized: "Restore Purchases"),
+            isPresented: Binding(
+                get: { restoreMessage != nil },
+                set: { if !$0 { restoreMessage = nil } }
+            )
+        ) {
+            Button(String(localized: "OK"), role: .cancel) { restoreMessage = nil }
+        } message: {
+            Text(restoreMessage ?? "")
         }
         .alert(
             String(localized: "Data Erased"),

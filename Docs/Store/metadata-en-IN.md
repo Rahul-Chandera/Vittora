@@ -4,8 +4,11 @@ Paste-ready per field. India uses **en-GB** as its base English variant, so
 spelling here is en-GB (organise, colour, personalise) — verify the localization
 slot in App Store Connect before pasting.
 
-Free, no IAP (DEC-008). Pro is DEC-011 and must not appear. INR examples and
-regime language per DEC-010 D5.
+Price tier stays Free but the app offers in-app purchases from 1.7.0
+(DEC-013/014/015); Vittora Pro may now be described. The "no ads, no
+trackers, no accounts, no data selling" claims remain true and must be kept.
+INR examples and regime language per DEC-010 D5.
+TODO (1.7.0 submission): the "every feature" line in the description below is no longer accurate once Vittora Pro ships. Owner sign-off needed on replacement copy before submission.
 
 **Verified against `develop`:** the compliance tip engine
 (`IndiaComplianceTipEngine.swift`) really does cover Section 269ST, Section

@@ -180,23 +180,17 @@ struct SpotlightSettingsToggleWiringTests {
 
     @Test("SettingsViewModel Spotlight toggle writes the preference key used by the indexer")
     func settingsToggleWritesIndexerPreference() {
-        let key = AppUserDefaults.StandardKey.spotlightIndexingEnabled
-        let previous = UserDefaults.standard.object(forKey: key)
-        defer {
-            if let previous {
-                UserDefaults.standard.set(previous, forKey: key)
-            } else {
-                UserDefaults.standard.removeObject(forKey: key)
-            }
-        }
+        let suiteName = "SpotlightToggleWiring.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName) ?? .standard
+        defer { defaults.removePersistentDomain(forName: suiteName) }
 
-        let vm = SettingsViewModel(keychainService: MockKeychainService())
+        let vm = SettingsViewModel(keychainService: MockKeychainService(), defaults: defaults)
         vm.isSpotlightIndexingEnabled = false
-        #expect(TransactionSpotlightIndex.isIndexingEnabled() == false)
-        #expect(UserDefaults.standard.object(forKey: key) as? Bool == false)
+        #expect(TransactionSpotlightIndex.isIndexingEnabled(userDefaults: defaults) == false)
+        #expect(defaults.object(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled) as? Bool == false)
 
         vm.isSpotlightIndexingEnabled = true
-        #expect(TransactionSpotlightIndex.isIndexingEnabled())
+        #expect(TransactionSpotlightIndex.isIndexingEnabled(userDefaults: defaults))
     }
 
     @Test("indexing then deleteAllIndexedTransactions completes (toggle OFF / factory-reset path)")

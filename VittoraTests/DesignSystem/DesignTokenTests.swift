@@ -88,15 +88,18 @@ struct DesignTokenTests {
     /// OLED audit caught the purple fill at 3.35:1 on a dark card after the
     /// TabView tint leaked into every Picker and Menu label. Assert the split
     /// holds for every accent, in the direction that actually bit.
+    ///
+    /// rgba() resolves light-mode only, so the light card is the surface actually
+    /// under test. The old max() could not catch a light variant sitting at
+    /// 4.52:1 on #F2F2F7.
     @Test("every accent's on-surface variant clears AA where the fill does not")
     func accentOnSurfaceIsReadableOnCards() {
-        let darkCard = Color(red: 0.110, green: 0.110, blue: 0.118)   // #1C1C1E
         let lightCard = Color(red: 0.949, green: 0.949, blue: 0.969)  // #F2F2F7
         for accent in SettingsViewModel.AccentColor.allCases {
             let onSurface = VColors.accentOnSurface(accent)
-            let best = max(contrast(onSurface, darkCard), contrast(onSurface, lightCard))
-            #expect(best >= 4.5,
-                    "\(accent) on-surface must clear 4.5:1 on the card it is meant for, got \(best)")
+            let ratio = contrast(onSurface, lightCard)
+            #expect(ratio >= 4.5,
+                    "\(accent) on-surface must clear 4.5:1 on the light card, got \(ratio)")
         }
     }
 

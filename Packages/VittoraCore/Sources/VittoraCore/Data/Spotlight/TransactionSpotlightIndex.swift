@@ -116,6 +116,16 @@ public enum TransactionSpotlightIndex: Sendable {
         userDefaults.set(false, forKey: needsFullReindexKey)
     }
 
+    /// Flags that the next sync must replace the whole Spotlight domain.
+    /// Callers must use this rather than writing `needsFullReindexKey` directly,
+    /// so every write goes through the same injectable suite.
+    public nonisolated static func setNeedsFullReindex(
+        _ needsReindex: Bool = true,
+        userDefaults: UserDefaults = .standard
+    ) {
+        userDefaults.set(needsReindex, forKey: needsFullReindexKey)
+    }
+
     /// Removes every Vittora transaction from Spotlight (factory reset / toggle OFF).
     public static func deleteAllIndexedTransactions() async {
         #if canImport(CoreSpotlight)

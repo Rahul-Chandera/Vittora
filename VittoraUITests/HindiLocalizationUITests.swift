@@ -127,6 +127,7 @@ final class HindiLocalizationUITests: XCTestCase {
             "--uitesting",
             "--ui-test-onboarding",
             "--ui-test-reset-app-lock",
+            "--ui-test-pro",
             "-AppleLanguages", "(hi)",
             "-AppleLocale", "hi_IN"
         ]
@@ -145,6 +146,7 @@ final class HindiLocalizationUITests: XCTestCase {
             "--uitesting",
             "--ui-test-seed-demo",
             "--ui-test-reset-app-lock",
+            "--ui-test-pro",
             "-AppleLanguages", "(hi)",
             "-AppleLocale", "hi_IN"
         ]
@@ -163,6 +165,7 @@ final class HindiLocalizationUITests: XCTestCase {
         app.launchArguments = [
             "--uitesting",
             "--ui-test-reset-app-lock",
+            "--ui-test-pro",
             "-AppleLanguages", "(hi)",
             "-AppleLocale", "hi_IN"
         ]

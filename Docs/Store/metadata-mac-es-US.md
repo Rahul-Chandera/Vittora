@@ -10,7 +10,10 @@ Neutral Latin American Spanish, matching the in-app translations shipped in 1.5
 catalogue so the listing and the app agree: *saldo*, *presupuesto*, *meta de
 ahorro*, *patrimonio neto*, *deuda*, *beneficiario*, *monto*, *impuestos*.
 
-Free, no IAP (DEC-008). Pro is DEC-011 and must not appear.
+Price tier stays Free but the app offers in-app purchases from 1.7.0
+(DEC-013/014/015); Vittora Pro may now be described. The "no ads, no
+trackers, no accounts, no data selling" claims remain true and must be kept.
+TODO (1.7.0 submission): the "every feature" line in the description below is no longer accurate once Vittora Pro ships. Owner sign-off needed on replacement copy before submission.
 
 **What the Mac build must NOT claim** (same target audit as
 `metadata-mac-en-US.md`): the Apple Watch app, complications, Smart Stack, Home

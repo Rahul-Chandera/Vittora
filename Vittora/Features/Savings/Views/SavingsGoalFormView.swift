@@ -129,7 +129,7 @@ struct SavingsGoalFormView: View {
                             }
                         }
                         if let months = preview.remainingMonths, months > 0 {
-                            Text(String(localized: "Based on \(months) month(s) until your deadline."))
+                            Text(String(localized: "Based on \(months) months until your deadline."))
                                 .font(VTypography.caption1)
                                 .foregroundStyle(VColors.textPrimary)
                         }

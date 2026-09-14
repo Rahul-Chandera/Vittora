@@ -62,22 +62,22 @@ enum USContributionHeadroomEngine {
     }
 
     nonisolated static func statutory401kLimit(taxYear: Int, age50Plus: Bool) -> Decimal {
-        let base: Decimal = taxYear >= 2026 ? 24_500 : 23_500
-        let catchUp: Decimal = taxYear >= 2026 ? 8_000 : 7_500
-        return age50Plus ? base + catchUp : base
+        let rules = USTaxRuleTable.rules(for: taxYear)
+        return age50Plus
+            ? rules.contribution401kBase + rules.contribution401kCatchUp
+            : rules.contribution401kBase
     }
 
     nonisolated static func statutoryIRALimit(taxYear: Int, age50Plus: Bool) -> Decimal {
-        let base: Decimal = taxYear >= 2026 ? 7_500 : 7_000
-        let catchUp: Decimal = 1_000
-        return age50Plus ? base + catchUp : base
+        let rules = USTaxRuleTable.rules(for: taxYear)
+        return age50Plus
+            ? rules.contributionIRABase + rules.contributionIRACatchUp
+            : rules.contributionIRABase
     }
 
     nonisolated static func statutoryHSALimit(taxYear: Int, familyCoverage: Bool) -> Decimal {
-        if familyCoverage {
-            return taxYear >= 2026 ? 8_750 : 8_550
-        }
-        return taxYear >= 2026 ? 4_400 : 4_300
+        let rules = USTaxRuleTable.rules(for: taxYear)
+        return familyCoverage ? rules.contributionHSAFamily : rules.contributionHSAIndividual
     }
 
     nonisolated private static func ageAtEndOfTaxYear(dateOfBirth: Date?, taxYear: Int) -> Int? {

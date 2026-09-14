@@ -650,7 +650,7 @@ This is the heart of the document. Three clear phases, each with a distinct goal
 
 | | United States | India |
 |---|---|---|
-| **Annual (hero)** | $39.99/yr — first-year intro offer $29.99 | ₹899/yr |
+| **Annual (hero)** | $39.99/yr — 7-day free trial (DEC-013) | ₹899/yr |
 | **Monthly** | $4.99/mo | ₹129/mo |
 | **Lifetime (capped/seasonal)** | $99.99 one-time | ₹4,999 one-time |
 

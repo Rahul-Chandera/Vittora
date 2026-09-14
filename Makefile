@@ -97,6 +97,7 @@ test: ci-clean test-unit test-ios-ui
 
 test-unit:
 	@mkdir -p $(TEST_DERIVED)
+	@rm -rf '$(TEST_DERIVED)/Test-Unit.xcresult'
 	xcodebuild \
 		$(XC_TEST_INPUT) \
 		-destination '$(IOS_SIM_DEST)' \
@@ -110,6 +111,7 @@ test-ios-ui: test-ios-ui-core test-ios-ui-onboarding
 
 test-ios-ui-core:
 	@mkdir -p $(TEST_DERIVED)
+	@rm -rf '$(TEST_DERIVED)/Test-iOS-UI.xcresult'
 	xcodebuild \
 		$(XC_TEST_INPUT) \
 		-destination '$(IOS_SIM_DEST)' \
@@ -121,6 +123,7 @@ test-ios-ui-core:
 
 test-ios-ui-onboarding:
 	@mkdir -p $(TEST_DERIVED)
+	@rm -rf '$(TEST_DERIVED)/Test-iOS-UI-Onboarding.xcresult'
 	xcodebuild \
 		$(XC_TEST_INPUT) \
 		-destination '$(IOS_SIM_DEST)' \

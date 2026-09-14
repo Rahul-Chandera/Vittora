@@ -63,6 +63,7 @@ final class StoreGalleryUITests: XCTestCase {
             app.launchArguments = [
                 "--uitesting",
                 "--ui-test-seed-demo",
+                "--ui-test-pro",
                 "--ui-test-appearance=light",
                 "-AppleLanguages", "(\(config.locale))",
                 "-AppleLocale", config.appleLocale,

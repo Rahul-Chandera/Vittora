@@ -3,7 +3,7 @@ import SwiftData
 // MARK: - Shared model sets
 
 private enum VittoraSchemaModels {
-    /// Model types whose shape never changed across V1–V7; nonisolated so
+    /// Model types whose shape never changed across V1–V8; nonisolated so
     /// `VersionedSchema.models` stays Sendable-safe.
     ///
     /// IMPORTANT: models that changed between versions (SDTransaction,
@@ -68,7 +68,7 @@ public enum VittoraSchemaV3: VersionedSchema {
 
     public static var models: [any PersistentModel.Type] {
         [
-            SDTransaction.self,
+            VittoraSchemaV7.SDTransaction.self,
             VittoraSchemaV1.SDAccount.self,
             VittoraSchemaV1.SDDebt.self,
         ] + VittoraSchemaModels.sharedBaseline + VittoraSchemaModels.preV7CategoryAndGoal
@@ -89,7 +89,7 @@ public enum VittoraSchemaV4: VersionedSchema {
 
     public static var models: [any PersistentModel.Type] {
         [
-            SDTransaction.self,
+            VittoraSchemaV7.SDTransaction.self,
             VittoraSchemaV4.SDAccount.self,
             VittoraSchemaV1.SDDebt.self,
         ] + VittoraSchemaModels.sharedBaseline + VittoraSchemaModels.preV7CategoryAndGoal
@@ -106,7 +106,7 @@ public enum VittoraSchemaV5: VersionedSchema {
 
     public static var models: [any PersistentModel.Type] {
         [
-            SDTransaction.self,
+            VittoraSchemaV7.SDTransaction.self,
             VittoraSchemaV4.SDAccount.self,
             SDDebt.self,
         ] + VittoraSchemaModels.sharedBaseline + VittoraSchemaModels.preV7CategoryAndGoal
@@ -122,7 +122,7 @@ public enum VittoraSchemaV6: VersionedSchema {
 
     public static var models: [any PersistentModel.Type] {
         [
-            SDTransaction.self,
+            VittoraSchemaV7.SDTransaction.self,
             SDAccount.self,
             SDDebt.self,
         ] + VittoraSchemaModels.sharedBaseline + VittoraSchemaModels.preV7CategoryAndGoal
@@ -133,6 +133,26 @@ public enum VittoraSchemaV6: VersionedSchema {
 /// savings goals. Both additions are CloudKit-safe lightweight columns.
 public enum VittoraSchemaV7: VersionedSchema {
     public static let versionIdentifier = Schema.Version(7, 0, 0)
+
+    public static var models: [any PersistentModel.Type] {
+        [
+            VittoraSchemaV7.SDTransaction.self,
+            SDAccount.self,
+            SDDebt.self,
+            SDCategory.self,
+            SDSavingsGoal.self,
+        ] + VittoraSchemaModels.sharedBaseline
+    }
+}
+
+/// Schema V8 (M3.2 instrumentation): adds the optional
+/// `SDTransaction.categorySuggestionRawValue`, recording what the smart categorizer
+/// proposed at creation so 1.8.0's on-device classifier has a labelled corpus.
+/// Purely additive (one new optional String column, no default required), so the
+/// V7→V8 step is a CloudKit-safe lightweight migration. Pre-V8 rows keep nil, which
+/// reads as "not instrumented" and is deliberately NOT backfilled.
+public enum VittoraSchemaV8: VersionedSchema {
+    public static let versionIdentifier = Schema.Version(8, 0, 0)
 
     /// Current version — the only one that references the live changed models.
     public static var models: [any PersistentModel.Type] {
@@ -156,6 +176,7 @@ public enum VittoraMigrationPlan: SchemaMigrationPlan {
             VittoraSchemaV5.self,
             VittoraSchemaV6.self,
             VittoraSchemaV7.self,
+            VittoraSchemaV8.self,
         ]
     }
 
@@ -195,6 +216,10 @@ public enum VittoraMigrationPlan: SchemaMigrationPlan {
                     }
                     try context.save()
                 }
+            ),
+            .lightweight(
+                fromVersion: VittoraSchemaV7.self,
+                toVersion: VittoraSchemaV8.self
             ),
         ]
     }

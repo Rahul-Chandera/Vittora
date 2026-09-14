@@ -5,14 +5,26 @@ import SwiftData
 /// Opens the App Group store without migrations, writes, or CloudKit.
 public struct WidgetDataProvider: Sendable {
     private let container: ModelContainer
+    private let defaultsSuiteName: String?
 
-    public init(container: ModelContainer) {
+    public init(container: ModelContainer, defaultsSuiteName: String? = nil) {
         self.container = container
+        self.defaultsSuiteName = defaultsSuiteName
     }
 
     /// Opens the shared on-disk store read-only for extension processes.
     public static func makeSharedReadOnly() throws -> WidgetDataProvider {
         WidgetDataProvider(container: try ModelContainerConfig.makeReadOnlyContainer())
+    }
+
+    /// Currency for snapshot values. When a suite name is injected (tests), both
+    /// legs of the lookup resolve from that suite so parallel suites cannot race
+    /// the process-wide stores.
+    private var currencyCode: String {
+        guard let defaultsSuiteName, let suite = UserDefaults(suiteName: defaultsSuiteName) else {
+            return CurrencyDefaults.code
+        }
+        return CurrencyDefaults.code(userDefaults: suite, groupDefaults: suite)
     }
 
     /// Today's expense total, matching Dashboard's definition.
@@ -57,7 +69,7 @@ public struct WidgetDataProvider: Sendable {
             todayAmount: todayAmount,
             yesterdayAmount: yesterdayAmount,
             last7DayAmounts: dayTotals,
-            currencyCode: CurrencyDefaults.code
+            currencyCode: currencyCode
         )
     }
 
@@ -111,7 +123,7 @@ public struct WidgetDataProvider: Sendable {
         return BudgetRemainingSnapshot(
             spent: totalSpent,
             total: totalBudget,
-            currencyCode: CurrencyDefaults.code,
+            currencyCode: currencyCode,
             categories: topCategories,
             hasBudgets: !monthly.isEmpty
         )

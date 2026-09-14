@@ -7,8 +7,11 @@ plans.
 `metadata-mac-en-US.md` is the macOS tab of the same App Store record; the two
 must differ, because the Mac build ships no Watch app and no widgets.
 
-**Binding constraints:** free, no IAP (DEC-008). Pro is DEC-011 and must not
-appear here.
+**Binding constraints:** price tier stays Free but the app offers in-app
+purchases from 1.7.0 (DEC-013/014/015); Vittora Pro may now be described.
+The "no ads, no trackers, no accounts, no data selling" claims remain true
+and must be kept.
+TODO (1.7.0 submission): the "every feature" line in the description below is no longer accurate once Vittora Pro ships. Owner sign-off needed on replacement copy before submission.
 
 Last refreshed 2026-07-30. The previous text had described v1.0.0 for four
 releases — no Watch app, widgets, Siri, Spotlight, Handoff, 50/30/20, emergency

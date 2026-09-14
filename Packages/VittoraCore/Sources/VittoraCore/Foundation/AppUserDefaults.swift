@@ -80,6 +80,16 @@ public enum AppUserDefaults {
         return .standard
     }
 
+    /// Resolves a named suite, falling back to `.standard` when the name is nil
+    /// or the suite cannot be opened.
+    ///
+    /// `UserDefaults` is not `Sendable`, so `Sendable` types hold the suite
+    /// *name* and resolve it here at each use rather than storing the instance.
+    public nonisolated static func suite(named name: String?) -> UserDefaults {
+        guard let name, let suite = UserDefaults(suiteName: name) else { return .standard }
+        return suite
+    }
+
     /// Mirrors the app currency into the App Group suite without moving `.standard` storage.
     /// Extensions cannot see the host app's `.standard` defaults.
     public nonisolated static func mirrorCurrencyCodeToAppGroup() {

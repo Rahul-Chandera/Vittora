@@ -124,6 +124,12 @@ struct DataManagementServiceTests {
         let splitRepo = MockSplitGroupRepo()
         let docRepo   = MockDocumentRepo()
 
+        // ponytail: one stable suite per helper, wiped on handout — a fresh UUID
+        // suite per call leaks a preferences plist into the simulator on every run.
+        // Nothing asserts on this suite; the test that does makes its own.
+        let suiteName = "DataManagementServiceTests.makeService"
+        UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName)
+
         let service = DataManagementService(
             transactionRepository: txRepo,
             accountRepository: accRepo,
@@ -133,7 +139,8 @@ struct DataManagementServiceTests {
             savingsGoalRepository: goalRepo,
             splitGroupRepository: splitRepo,
             documentRepository: docRepo,
-            keychainService: MockKeychainService()
+            keychainService: MockKeychainService(),
+            defaultsSuiteName: suiteName
         )
         return (service, txRepo, accRepo, catRepo, budRepo, debtRepo, goalRepo, splitRepo, docRepo)
     }
@@ -294,12 +301,11 @@ struct DataManagementServiceTests {
         try await keychain.save(Data([1]), forKey: "com.vittora.encryption.key", access: .standard)
         try await keychain.save(Data([1]), forKey: "com.vittora.encryption.key.se_wrapped", access: .standard)
 
-        UserDefaults.standard.set(false, forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled)
-        UserDefaults.standard.set(false, forKey: TransactionSpotlightIndex.needsFullReindexKey)
-        defer {
-            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled)
-            UserDefaults.standard.removeObject(forKey: TransactionSpotlightIndex.needsFullReindexKey)
-        }
+        let suiteName = "DataManagementServiceTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName) ?? .standard
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set(false, forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled)
+        defaults.set(false, forKey: TransactionSpotlightIndex.needsFullReindexKey)
 
         let service = DataManagementService(
             transactionRepository: txRepo,
@@ -314,7 +320,8 @@ struct DataManagementServiceTests {
             recurringRuleRepository: recurringRepo,
             taxProfileRepository: taxRepo,
             documentStorageService: documentStorage,
-            keychainService: keychain
+            keychainService: keychain,
+            defaultsSuiteName: suiteName
         )
 
         try await service.factoryReset()
@@ -331,8 +338,8 @@ struct DataManagementServiceTests {
         #expect((try await keychain.exists(forKey: "vittora.userName")) == false)
         #expect((try await keychain.exists(forKey: "com.vittora.encryption.key")) == false)
         #expect((try await keychain.exists(forKey: "com.vittora.encryption.key.se_wrapped")) == false)
-        #expect(UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled) == nil)
-        #expect(UserDefaults.standard.object(forKey: TransactionSpotlightIndex.needsFullReindexKey) == nil)
+        #expect(defaults.object(forKey: AppUserDefaults.StandardKey.spotlightIndexingEnabled) == nil)
+        #expect(defaults.object(forKey: TransactionSpotlightIndex.needsFullReindexKey) == nil)
     }
 
     @Test("factoryReset re-seeds default categories via the data seeder")
@@ -352,6 +359,10 @@ struct DataManagementServiceTests {
             CategoryEntity(name: "Custom", icon: "tag.fill", colorHex: "#000000", type: .expense)
         )
 
+        let suiteName = "DataManagementServiceTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName) ?? .standard
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
         let service = DataManagementService(
             transactionRepository: txRepo,
             accountRepository: accRepo,
@@ -362,7 +373,8 @@ struct DataManagementServiceTests {
             splitGroupRepository: splitRepo,
             documentRepository: docRepo,
             keychainService: keychain,
-            dataSeeder: seeder
+            dataSeeder: seeder,
+            defaultsSuiteName: suiteName
         )
 
         try await service.factoryReset()

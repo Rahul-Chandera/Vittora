@@ -10,12 +10,19 @@ public enum CurrencyDefaults {
     ///
     /// Prefers `.standard` (authoritative in the app process), then the App Group
     /// suite (what extensions can see after the app mirrors the value).
-    public nonisolated static var code: String {
-        UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.currencyCode)
-            ?? AppUserDefaults.appGroup.string(forKey: AppUserDefaults.StandardKey.currencyCode)
+    /// Takes the two stores as parameters so callers — and tests — can resolve
+    /// currency from their own suite instead of the process-wide `.standard`.
+    public nonisolated static func code(
+        userDefaults: UserDefaults = .standard,
+        groupDefaults: UserDefaults = AppUserDefaults.appGroup
+    ) -> String {
+        userDefaults.string(forKey: AppUserDefaults.StandardKey.currencyCode)
+            ?? groupDefaults.string(forKey: AppUserDefaults.StandardKey.currencyCode)
             ?? Locale.current.currency?.identifier
             ?? fallbackCode
     }
+
+    public nonisolated static var code: String { code() }
 
     public nonisolated static var symbol: String {
         symbol(for: code)

@@ -13,7 +13,7 @@ with the decided value for each field. Work top to bottom on submission day.
 |---|---|---|
 | **Primary category** | **Finance** | Only honest fit. |
 | **Secondary category** | *(none)* | A second category dilutes ranking; nothing else fits. |
-| **Price** | Free | F0 Option A (DEC-008): no IAP, no subscription at 1.0. |
+| **Price** | Free, with in-app purchases **only when `MonetizationConfiguration.isStoreKitEnabled` is `true`**; otherwise plain **Free** | When the flag is on: Price tier stays Free (DEC-008 superseded for the tier only). Vittora Pro ships as IAP per DEC-013/014/015: annual $39.99 with a 7-day free trial, monthly $4.99, lifetime $99.99. The listing badge becomes "Offers In-App Purchases". When the flag is off: enter plain **Free** — no IAP badge. |
 | **Availability** | United States + India (+ worldwide optional) | M1 Wave-1 = US ∥ India. Simplest compliant choice: release worldwide, market US+India only. |
 | **Copyright** | `© 2026 EnerjikTech` | Adjust to the exact legal entity name on the Apple Developer account. |
 | **Age rating** | 4+ | Questionnaire: answer **None/No** to every content category (no UGC, no gambling — the app has no user-generated *shared* content, no web access, no mature themes). |
@@ -23,11 +23,30 @@ with the decided value for each field. Work top to bottom on submission day.
 
 Answer the ASC questionnaire as **"Data Not Collected"** — the app has zero
 telemetry, zero third-party SDKs, no accounts, and no developer-accessible
-storage (verified in M2-D1(a); `PrivacyInfo.xcprivacy` is in-repo).
+storage (verified in M2-D1(a); `PrivacyInfo.xcprivacy` is in-repo). This answer
+is **unchanged by in-app purchases**: StoreKit purchases are processed by
+Apple, the entitlement never leaves the device, so Purchases / Identifiers /
+Usage Data all stay "not collected", and answering otherwise out of caution
+would add a Data Collected card that contradicts the app's positioning.
 
 > Rationale if Review asks: all financial data is stored on-device and in the
 > user's **private** iCloud database (CloudKit private DB). The developer cannot
 > access it, so under Apple's definitions it is not "collected".
+
+## 2b · In-App Purchase configuration
+
+- [ ] **`MonetizationConfiguration.isStoreKitEnabled` is `true` in the build being
+  submitted.** While it is `false` there is no paywall and no purchase flow, so
+  every item below is not applicable and the Price row must read plain **Free**.
+  Flipping that flag is an owner decision.
+- [ ] Three products created and localized in App Store Connect (annual,
+  monthly, lifetime).
+- [ ] Subscription group **"Vittora Pro"** with both subscription plans and a
+  ranking.
+- [ ] 7-day free-trial introductory offer on the annual plan.
+- [ ] Family Sharing **ON** for annual and lifetime; **OFF** for monthly.
+- [ ] App-level Terms of Use (EULA) and Privacy Policy URLs — mandatory for an
+  app with auto-renewing subscriptions.
 
 ## 3 · URLs (host `Docs/Store/site/` first)
 

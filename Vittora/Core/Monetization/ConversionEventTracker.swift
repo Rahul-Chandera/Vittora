@@ -2,18 +2,19 @@ import Foundation
 import VittoraCore
 
 protocol ConversionEventTracking: Sendable {
-    func record(_ milestone: ConversionMilestone) -> ConversionEventResult
-    func shouldPresentPaywall(for milestone: ConversionMilestone) -> Bool
-    func markPaywallPresented(for milestone: ConversionMilestone)
-    func hasRecorded(_ milestone: ConversionMilestone) -> Bool
-    func recordOCRScan() -> ConversionEventResult
-    func ocrScansThisMonth() -> Int
+    nonisolated func record(_ milestone: ConversionMilestone) -> ConversionEventResult
+    nonisolated func shouldPresentPaywall(for milestone: ConversionMilestone) -> Bool
+    nonisolated func markPaywallPresented(for milestone: ConversionMilestone)
+    nonisolated func hasRecorded(_ milestone: ConversionMilestone) -> Bool
+    nonisolated func recordOCRScan() -> ConversionEventResult
+    nonisolated func ocrScansThisMonth() -> Int
 }
 
 final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchecked Sendable {
     private nonisolated(unsafe) let defaults: UserDefaults
     private nonisolated let calendar: Calendar
     private nonisolated let nowProvider: @Sendable () -> Date
+    private nonisolated let storeKitEnabled: Bool
     private nonisolated let lock = NSLock()
 
     private enum Keys {
@@ -30,11 +31,25 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
     nonisolated init(
         defaults: UserDefaults = AppUserDefaults.conversion,
         calendar: Calendar = .current,
-        nowProvider: @escaping @Sendable () -> Date = { Date.now }
+        nowProvider: @escaping @Sendable () -> Date = { Date.now },
+        storeKitEnabled: Bool = MonetizationConfiguration.isStoreKitEnabled
     ) {
         self.defaults = defaults
         self.calendar = calendar
         self.nowProvider = nowProvider
+        self.storeKitEnabled = storeKitEnabled
+    }
+
+    /// Starts the presentation cooldown immediately so no value event opens the paywall
+    /// during a UI test run. Value-event paywalls fire from ordinary record-keeping (10th
+    /// transaction, first report, first split) and would otherwise drop a sheet over
+    /// whichever unrelated test got there first — and, because this state survives relaunch,
+    /// a different test each run. Unit tests cover the value-event path; the manual Settings
+    /// route and the lock-screen route stay covered by UI tests.
+    nonisolated static func suppressValueEventPaywallsForUITesting(
+        in defaults: UserDefaults = AppUserDefaults.conversion
+    ) {
+        defaults.set(Date.now, forKey: Keys.lastPaywallPresented)
     }
 
     nonisolated func record(_ milestone: ConversionMilestone) -> ConversionEventResult {
@@ -62,7 +77,7 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         lock.lock()
         defer { lock.unlock() }
 
-        let isFirstTime = defaults.bool(forKey: Keys.milestone(milestone))
+        let isFirstTime = !defaults.bool(forKey: Keys.milestone(milestone))
         return evaluatePaywallPresentation(milestone: milestone, isFirstTime: isFirstTime)
     }
 
@@ -101,7 +116,7 @@ final class UserDefaultsConversionEventTracker: ConversionEventTracking, @unchec
         milestone: ConversionMilestone,
         isFirstTime: Bool
     ) -> Bool {
-        guard MonetizationConfiguration.isStoreKitEnabled else { return false }
+        guard storeKitEnabled else { return false }
         guard isFirstTime else { return false }
 
         if let lastPresented = defaults.object(forKey: Keys.lastPaywallPresented) as? Date {

@@ -45,6 +45,32 @@ This document tracks what is modeled vs intentionally out of scope.
 - Some payroll/contribution lines are advisory, not full filing outputs
 - NIIT and other special cases use simplified assumptions
 
+## Versioned Rule Tables (1.7.0)
+
+Rates are **in-binary data, keyed by year**, not literals inside the calculators:
+
+- `Vittora/Core/Infrastructure/Tax/USTaxRuleTable.swift` — tax years 2024, 2025, 2026
+- `Vittora/Core/Infrastructure/Tax/IndiaTaxRuleTable.swift` — FY 2024-25, FY 2025-26
+
+The calculators contain logic only. Adding a future year is a data edit: one
+`YearRules` literal plus golden rows.
+
+**In-binary only, deliberately.** There is no remote config and no network call
+for tax rules. The plan's M2.3.15 proposed remote config; it was not taken,
+because the zero-server architecture is load-bearing for the pricing story and
+the privacy label. Shipping new rates means shipping a build.
+
+**Values are restated per year, never shared across years** — including
+thresholds that do not currently differ (US NIIT and additional-Medicare, the
+India old-regime slabs). Each year is self-contained so nothing silently
+inherits a stale value when a year is added.
+
+**Year resolution is a floor, not a nearest match.** A requested year resolves
+to the most recent row *not later than* it, clamping up to the earliest row for
+years before the table. Rules enacted for a later year must never be applied to
+an earlier one: with rows for 2024 and 2030, 2028 resolves to 2024. Pinned by
+`VittoraTests/Features/Tax/TaxRuleTableLookupTests.swift`.
+
 ## Required Test Expectations
 
 - For any tax logic change:
@@ -52,10 +78,23 @@ This document tracks what is modeled vs intentionally out of scope.
   - Update regression vectors near threshold boundaries
   - Ensure assumptions/warnings/disclaimer strings remain accurate
 
+### Golden snapshot
+
+`VittoraTests/Features/Tax/TaxGoldenFixtures.swift` pins 575 rows of computed
+output across both countries, every modeled year, every filing status/regime,
+and every slab edge — plus an exact dump of the US bracket table.
+
+These fixtures are a record of what users are charged. **Do not regenerate them
+to make a change pass.** A diff means computed tax changed; if that is
+intended, it belongs in a reviewed commit of its own that says so. Adding a
+tax year appends rows, it never edits existing ones.
+
 ## Change Protocol
 
 When changing tax behavior:
 
-1. Update calculator logic.
+1. Update the rule table (data) or the calculator (logic).
 2. Update tests (use-case + regression vectors).
-3. Update this document if coverage/exclusions changed.
+3. If the golden snapshot moves, confirm the change is intended and say so in
+   the commit message.
+4. Update this document if coverage/exclusions changed.

@@ -10,16 +10,18 @@ import WidgetKit
 final class SettingsViewModel {
     private let keychainService: any KeychainServiceProtocol
     private let keychainWriter: KeychainSettingsWriter
+    /// Non-secret preference store. Injected so parallel test suites can each use a private suite rather than racing `.standard`.
+    private let defaults: UserDefaults
 
     // Non-sensitive preferences remain in UserDefaults
     var selectedCurrencyCode: String {
         get {
             access(keyPath: \.selectedCurrencyCode)
-            return UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.currencyCode) ?? CurrencyDefaults.code
+            return defaults.string(forKey: AppUserDefaults.StandardKey.currencyCode) ?? CurrencyDefaults.code
         }
         set {
             withMutation(keyPath: \.selectedCurrencyCode) {
-                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.currencyCode)
+                defaults.set(newValue, forKey: AppUserDefaults.StandardKey.currencyCode)
                 // Mirror for widget/extension processes (do not move primary storage).
                 AppUserDefaults.mirrorCurrencyCodeToAppGroup()
                 #if os(iOS)
@@ -36,12 +38,12 @@ final class SettingsViewModel {
             // checkmark or the app's preferredColorScheme.
             access(keyPath: \.appearanceMode)
             return AppearanceMode(
-                rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.appearanceMode) ?? ""
+                rawValue: defaults.string(forKey: AppUserDefaults.StandardKey.appearanceMode) ?? ""
             ) ?? .system
         }
         set {
             withMutation(keyPath: \.appearanceMode) {
-                UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appearanceMode)
+                defaults.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appearanceMode)
                 ThemeState.shared.isOLEDBlack = newValue == .oledBlack
             }
         }
@@ -51,12 +53,12 @@ final class SettingsViewModel {
         get {
             access(keyPath: \.accentColor)
             return AccentColor(
-                rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.accentColor) ?? ""
+                rawValue: defaults.string(forKey: AppUserDefaults.StandardKey.accentColor) ?? ""
             ) ?? .brandGreen
         }
         set {
             withMutation(keyPath: \.accentColor) {
-                UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.accentColor)
+                defaults.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.accentColor)
                 // Keep the observable theme mirror in step, or the rest of the
                 // app keeps drawing the previous accent until relaunch.
                 ThemeState.shared.accent = newValue
@@ -71,11 +73,11 @@ final class SettingsViewModel {
     var isNotificationsEnabled: Bool {
         get {
             access(keyPath: \.isNotificationsEnabled)
-            return UserDefaults.standard.bool(forKey: AppUserDefaults.StandardKey.notificationsEnabled)
+            return defaults.bool(forKey: AppUserDefaults.StandardKey.notificationsEnabled)
         }
         set {
             withMutation(keyPath: \.isNotificationsEnabled) {
-                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notificationsEnabled)
+                defaults.set(newValue, forKey: AppUserDefaults.StandardKey.notificationsEnabled)
             }
         }
     }
@@ -83,11 +85,11 @@ final class SettingsViewModel {
     var notifyBillsDue: Bool {
         get {
             access(keyPath: \.notifyBillsDue)
-            return UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyBillsDue) as? Bool ?? true
+            return defaults.object(forKey: AppUserDefaults.StandardKey.notifyBillsDue) as? Bool ?? true
         }
         set {
             withMutation(keyPath: \.notifyBillsDue) {
-                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyBillsDue)
+                defaults.set(newValue, forKey: AppUserDefaults.StandardKey.notifyBillsDue)
             }
         }
     }
@@ -95,11 +97,11 @@ final class SettingsViewModel {
     var notifyBudgetAlerts: Bool {
         get {
             access(keyPath: \.notifyBudgetAlerts)
-            return UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyBudgetAlerts) as? Bool ?? true
+            return defaults.object(forKey: AppUserDefaults.StandardKey.notifyBudgetAlerts) as? Bool ?? true
         }
         set {
             withMutation(keyPath: \.notifyBudgetAlerts) {
-                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyBudgetAlerts)
+                defaults.set(newValue, forKey: AppUserDefaults.StandardKey.notifyBudgetAlerts)
             }
         }
     }
@@ -107,11 +109,11 @@ final class SettingsViewModel {
     var notifyGoalMilestones: Bool {
         get {
             access(keyPath: \.notifyGoalMilestones)
-            return UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyGoalMilestones) as? Bool ?? true
+            return defaults.object(forKey: AppUserDefaults.StandardKey.notifyGoalMilestones) as? Bool ?? true
         }
         set {
             withMutation(keyPath: \.notifyGoalMilestones) {
-                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyGoalMilestones)
+                defaults.set(newValue, forKey: AppUserDefaults.StandardKey.notifyGoalMilestones)
             }
         }
     }
@@ -119,11 +121,11 @@ final class SettingsViewModel {
     var notifyRecurringTransactions: Bool {
         get {
             access(keyPath: \.notifyRecurringTransactions)
-            return UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.notifyRecurring) as? Bool ?? true
+            return defaults.object(forKey: AppUserDefaults.StandardKey.notifyRecurring) as? Bool ?? true
         }
         set {
             withMutation(keyPath: \.notifyRecurringTransactions) {
-                UserDefaults.standard.set(newValue, forKey: AppUserDefaults.StandardKey.notifyRecurring)
+                defaults.set(newValue, forKey: AppUserDefaults.StandardKey.notifyRecurring)
             }
         }
     }
@@ -149,13 +151,13 @@ final class SettingsViewModel {
     var notificationQuietHoursEnabled: Bool {
         get {
             access(keyPath: \.notificationQuietHoursEnabled)
-            return UserDefaults.standard.bool(
+            return defaults.bool(
                 forKey: AppUserDefaults.StandardKey.notificationQuietHoursEnabled
             )
         }
         set {
             withMutation(keyPath: \.notificationQuietHoursEnabled) {
-                UserDefaults.standard.set(
+                defaults.set(
                     newValue,
                     forKey: AppUserDefaults.StandardKey.notificationQuietHoursEnabled
                 )
@@ -202,11 +204,11 @@ final class SettingsViewModel {
     var billReminderLeadDays: Int {
         get {
             access(keyPath: \.billReminderLeadDays)
-            return NotificationSchedulePreferences.billLeadDays(in: .standard)
+            return NotificationSchedulePreferences.billLeadDays(in: defaults)
         }
         set {
             withMutation(keyPath: \.billReminderLeadDays) {
-                UserDefaults.standard.set(
+                defaults.set(
                     newValue,
                     forKey: AppUserDefaults.StandardKey.billReminderLeadDays
                 )
@@ -215,7 +217,7 @@ final class SettingsViewModel {
     }
 
     private func notificationTime(forKey key: String, defaultMinutes: Int) -> Date {
-        let minutes = UserDefaults.standard.object(forKey: key) as? Int ?? defaultMinutes
+        let minutes = defaults.object(forKey: key) as? Int ?? defaultMinutes
         return Calendar.current.date(
             bySettingHour: minutes / 60,
             minute: minutes % 60,
@@ -226,7 +228,7 @@ final class SettingsViewModel {
 
     private func storeNotificationTime(_ date: Date, forKey key: String) {
         let components = Calendar.current.dateComponents([.hour, .minute], from: date)
-        UserDefaults.standard.set(
+        defaults.set(
             (components.hour ?? 0) * 60 + (components.minute ?? 0),
             forKey: key
         )
@@ -244,12 +246,12 @@ final class SettingsViewModel {
         get {
             access(keyPath: \.exportSchedule)
             return ExportSchedule(
-                rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.exportSchedule) ?? ""
+                rawValue: defaults.string(forKey: AppUserDefaults.StandardKey.exportSchedule) ?? ""
             ) ?? .off
         }
         set {
             withMutation(keyPath: \.exportSchedule) {
-                UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.exportSchedule)
+                defaults.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.exportSchedule)
             }
         }
     }
@@ -259,11 +261,11 @@ final class SettingsViewModel {
     var isSpotlightIndexingEnabled: Bool {
         get {
             access(keyPath: \.isSpotlightIndexingEnabled)
-            return TransactionSpotlightIndex.isIndexingEnabled()
+            return TransactionSpotlightIndex.isIndexingEnabled(userDefaults: defaults)
         }
         set {
             withMutation(keyPath: \.isSpotlightIndexingEnabled) {
-                TransactionSpotlightIndex.setIndexingEnabled(newValue)
+                TransactionSpotlightIndex.setIndexingEnabled(newValue, userDefaults: defaults)
             }
         }
     }
@@ -272,12 +274,12 @@ final class SettingsViewModel {
         get {
             access(keyPath: \.appLockTimeout)
             return AppLockTimeout(
-                rawValue: UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.appLockTimeout) ?? ""
+                rawValue: defaults.string(forKey: AppUserDefaults.StandardKey.appLockTimeout) ?? ""
             ) ?? .fiveMinutes
         }
         set {
             withMutation(keyPath: \.appLockTimeout) {
-                UserDefaults.standard.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appLockTimeout)
+                defaults.set(newValue.rawValue, forKey: AppUserDefaults.StandardKey.appLockTimeout)
             }
         }
     }
@@ -439,7 +441,8 @@ final class SettingsViewModel {
     ]
 
     /// Pass `nil` to use the default `KeychainService` (production path).
-    init(keychainService: (any KeychainServiceProtocol)? = nil) {
+    init(keychainService: (any KeychainServiceProtocol)? = nil, defaults: UserDefaults = .standard) {
+        self.defaults = defaults
         let service = keychainService ?? KeychainService()
         self.keychainService = service
         self.keychainWriter = KeychainSettingsWriter(service: service)
@@ -447,18 +450,18 @@ final class SettingsViewModel {
         if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.appLockEnabled) {
             _isAppLockEnabled = data.first == 1
         } else {
-            let udValue = UserDefaults.standard.bool(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
+            let udValue = defaults.bool(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
             _isAppLockEnabled = udValue
             KeychainService.syncSave(
                 Data([udValue ? 1 : 0]),
                 forKey: AppUserDefaults.KeychainKey.appLockEnabled
             )
-            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
+            defaults.removeObject(forKey: AppUserDefaults.StandardKey.appLockEnabledLegacy)
         }
 
         if ProcessInfo.processInfo.arguments.contains("--ui-test-app-lock") {
             _isAppLockEnabled = true
-            UserDefaults.standard.set(
+            defaults.set(
                 AppLockTimeout.immediately.rawValue,
                 forKey: AppUserDefaults.StandardKey.appLockTimeout
             )
@@ -467,25 +470,25 @@ final class SettingsViewModel {
         if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.passcodeFallback) {
             _allowPasscodeFallback = data.first == 1
         } else {
-            let udValue = UserDefaults.standard.object(forKey: AppUserDefaults.StandardKey.passcodeFallbackLegacy) as? Bool ?? true
+            let udValue = defaults.object(forKey: AppUserDefaults.StandardKey.passcodeFallbackLegacy) as? Bool ?? true
             _allowPasscodeFallback = udValue
             KeychainService.syncSave(
                 Data([udValue ? 1 : 0]),
                 forKey: AppUserDefaults.KeychainKey.passcodeFallback
             )
-            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.passcodeFallbackLegacy)
+            defaults.removeObject(forKey: AppUserDefaults.StandardKey.passcodeFallbackLegacy)
         }
 
         if let data = KeychainService.syncLoad(forKey: AppUserDefaults.KeychainKey.userName),
            let name = String(data: data, encoding: .utf8) {
             _userName = name
         } else {
-            let udValue = UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.userNameLegacy) ?? ""
+            let udValue = defaults.string(forKey: AppUserDefaults.StandardKey.userNameLegacy) ?? ""
             _userName = udValue
             if !udValue.isEmpty, let data = udValue.data(using: .utf8) {
                 KeychainService.syncSave(data, forKey: AppUserDefaults.KeychainKey.userName)
             }
-            UserDefaults.standard.removeObject(forKey: AppUserDefaults.StandardKey.userNameLegacy)
+            defaults.removeObject(forKey: AppUserDefaults.StandardKey.userNameLegacy)
         }
     }
 
