@@ -1025,6 +1025,46 @@ final class AccessibilityAuditUITests: XCTestCase {
                     return true
                 }
 
+                // DEC-019: StoreKit's own subscribe-button offer caption on the
+                // Vittora Pro paywall — "7 days free, then $39.99/year" at
+                // #828289 on #F1F1F6, 3.39:1.
+                //
+                // This is the FIRST exemption for text Apple renders. Every
+                // DEC-012 case above excuses paint WE chose. This one does not:
+                // no public SubscriptionStoreView API restyles this caption.
+                // `StoreButtonKind` has no case for it, `.productDescription(.hidden)`
+                // targets the plan-card descriptions instead, and the caption is
+                // alpha-composited over the scroll content, so a lighter
+                // background makes it worse rather than better.
+                //
+                // Accepted because nothing is lost: the selected plan card
+                // repeats the identical sentence in black as its
+                // "Product View Secondary Text", so a user who cannot read the
+                // grey line still gets the offer terms — as does VoiceOver,
+                // which reads the caption as part of the subscribe button's own
+                // label ("7 days free, then $39.99 per year, Try It Free").
+                //
+                // Anchored to Apple's identifier for that one caption node, plus
+                // its frame. The frame arm is not redundant: the audit reports
+                // this as a bare SwiftUI.AccessibilityNode carrying no label,
+                // exactly as it does for the FAB and `debt-entry-delete` above,
+                // so an identifier-only check can silently stop matching. The
+                // measured failing element was 500x52px at 3x — the caption's
+                // 166.7x17.3pt box exactly. Screen-scoped to the paywall, so no
+                // other Apple chrome anywhere in the app inherits this.
+                let offerCaptionID = "Subscription Store View Standard Picker Style Subscribe Button Caption"
+                if self.app.navigationBars["Vittora Pro"].exists {
+                    if issue.element?.identifier == offerCaptionID {
+                        return true
+                    }
+                    let offerCaption = self.app.descendants(matching: .any)[offerCaptionID]
+                    if let elementFrame = issue.element?.frame,
+                       offerCaption.exists,
+                       offerCaption.frame.intersects(elementFrame) {
+                        return true
+                    }
+                }
+
                 let systemTabLabels = ["Dashboard", "Transactions", "Budgets", "Reports", "More"]
                 let elementLabel = issue.element?.label ?? ""
                 if systemTabLabels.contains(where: elementLabel.hasPrefix) {
