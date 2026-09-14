@@ -1003,6 +1003,32 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if issue.element?.identifier == "paywall-lifetime-button" {
                     return true
                 }
+                // DEC-027: the paywall's policy links, which the sampler measures
+                // against the subscribe button rather than the page they are drawn on.
+                //
+                // On iPhone 17 Pro Max — CI's device, and the reason DEC-025 did not
+                // make the leg green — the audit reports "Terms of Service", " and "
+                // and "Privacy Policy" at frames of y=836.7, h=17.3. Cropping CI's own
+                // App Screenshot at exactly that rect shows the "Try It Free" capsule
+                // and no link text whatsoever: 40,469 of the pixels there are #3ECDA2.
+                // The links are scrolled elsewhere; only their reported frames land on
+                // the CTA. So the sampler compares #17604A against brand green and
+                // returns 1.58, 1.60 and 1.58 — measured, not inferred.
+                //
+                // Where these links are genuinely painted they are #17604A on the
+                // near-white sheet at 7.48:1, which is why
+                // .subscriptionStorePolicyForegroundStyle pins that colour in the
+                // first place. Nothing here is a real legibility miss.
+                //
+                // Anchored to Apple's three identifiers and screen-scoped to the
+                // paywall. Not anchored to "any green-backed sample", which would
+                // excuse real misses elsewhere on the same screen.
+                let policyLinkIDs: Set<String> = ["Terms of Service", "Privacy Policy", "and"]
+                if self.app.navigationBars["Vittora Pro"].exists,
+                   let identifier = issue.element?.identifier,
+                   policyLinkIDs.contains(identifier) {
+                    return true
+                }
                 // On CI's iOS 26.2 the audit flags an inner node of the floating
                 // add button that carries neither the label nor the identifier,
                 // so both checks above miss it and the DEC-012 exemption never
