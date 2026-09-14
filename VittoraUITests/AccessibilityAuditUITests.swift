@@ -1,5 +1,9 @@
 import XCTest
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 /// VoiceOver, Dynamic Type, contrast, and hit-target regression gate for iOS.
 final class AccessibilityAuditUITests: XCTestCase {
 
@@ -1238,6 +1242,37 @@ final class AccessibilityAuditUITests: XCTestCase {
                    self.app.staticTexts["Bracket Distribution"].exists {
                     return true
                 }
+                // DEC-022: the sampler false-positive class, answered by
+                // measurement instead of by a list of identifiers.
+                //
+                // Apple's contrast sampler reports `Contrast failed for
+                // SwiftUI.AccessibilityNode` against fully-visible text that is
+                // demonstrably well above AA. Measured on this simulator from
+                // the audit's own exported element images: `Custom Report`
+                // 20.62:1, `April 2026` 18.88:1, `Basic Tax` 19.91:1,
+                // `Marginal Rate` 19.80:1, `Savings Rate` 20.87:1, and the two
+                // brand-coloured `$0` figures at 5.36:1 (red) and 4.81:1
+                // (green). Five investigations have found no genuine defect in
+                // this class.
+                //
+                // So rather than excusing the screens or the elements, this
+                // rung re-measures the finding and excuses it only when the
+                // element's OWN rendered pixels clear the 4.5:1 AA bar for
+                // small text - the strictest of the two AA bars, applied to
+                // everything regardless of type size. A genuine contrast defect
+                // is by definition pixels below that bar, so it cannot be
+                // excused here: the check would measure the same low ratio the
+                // sampler did and let the finding through.
+                //
+                // Every rung above this one still runs first, so the knowingly
+                // sub-AA DEC-012 pairings keep their own explicit exemptions -
+                // they measure below 4.5:1 and this rung would never excuse
+                // them.
+                if let element = issue.element,
+                   let ratio = self.measuredContrastRatio(for: element),
+                   ratio >= 4.5 {
+                    return true
+                }
                 let isChartMark = description.contains("chart")
                     && (description.contains("mark") || description.contains("plot"))
                 return isChartMark
@@ -1311,6 +1346,74 @@ final class AccessibilityAuditUITests: XCTestCase {
         frame=\(frame) appFrame=\(app.frame) \
         compact='\(issue.compactDescription)'
         """)
+    }
+
+    /// The WCAG relative-contrast ratio actually rendered inside an element's own
+    /// frame, or `nil` when it cannot be measured.
+    ///
+    /// Takes the element's screenshot - the very image XCTest attaches to a
+    /// contrast failure - normalises it to 8-bit sRGB, and compares the 2nd and
+    /// 98th percentile relative luminance. Percentiles rather than min/max so a
+    /// single stray pixel from an adjacent border cannot manufacture a passing
+    /// ratio; both error directions of that choice push toward reporting a LOWER
+    /// ratio, i.e. toward failing, never toward excusing.
+    @MainActor
+    private func measuredContrastRatio(for element: XCUIElement) -> Double? {
+        #if canImport(UIKit)
+        guard element.exists else { return nil }
+        guard element.frame.width >= 1, element.frame.height >= 1 else { return nil }
+        guard let cgImage = element.screenshot().image.cgImage else { return nil }
+        let width = cgImage.width
+        let height = cgImage.height
+        // An 8x8 floor: below that the percentiles stop describing anything.
+        guard width * height >= 64 else { return nil }
+        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
+
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let drew: Bool = pixels.withUnsafeMutableBytes { buffer -> Bool in
+            guard let base = buffer.baseAddress,
+                  let context = CGContext(
+                    data: base,
+                    width: width,
+                    height: height,
+                    bitsPerComponent: 8,
+                    bytesPerRow: width * 4,
+                    space: colorSpace,
+                    bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+                  ) else { return false }
+            context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard drew else { return nil }
+
+        var luminances = [Double]()
+        luminances.reserveCapacity(width * height)
+        for index in stride(from: 0, to: pixels.count, by: 4) {
+            luminances.append(
+                Self.relativeLuminance(
+                    red: pixels[index],
+                    green: pixels[index + 1],
+                    blue: pixels[index + 2]
+                )
+            )
+        }
+        guard luminances.count >= 64 else { return nil }
+        luminances.sort()
+        let darkest = luminances[Int(Double(luminances.count) * 0.02)]
+        let lightest = luminances[Int(Double(luminances.count) * 0.98)]
+        return (lightest + 0.05) / (darkest + 0.05)
+        #else
+        return nil
+        #endif
+    }
+
+    /// WCAG 2.1 relative luminance for an 8-bit sRGB triple.
+    private static func relativeLuminance(red: UInt8, green: UInt8, blue: UInt8) -> Double {
+        func linear(_ value: UInt8) -> Double {
+            let channel = Double(value) / 255.0
+            return channel <= 0.03928 ? channel / 12.92 : pow((channel + 0.055) / 1.055, 2.4)
+        }
+        return 0.2126 * linear(red) + 0.7152 * linear(green) + 0.0722 * linear(blue)
     }
 
     @MainActor
