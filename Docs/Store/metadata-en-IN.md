@@ -8,7 +8,6 @@ Price tier stays Free but the app offers in-app purchases from 1.7.0
 (DEC-013/014/015); Vittora Pro may now be described. The "no ads, no
 trackers, no accounts, no data selling" claims remain true and must be kept.
 INR examples and regime language per DEC-010 D5.
-TODO (1.7.0 submission): the "every feature" line in the description below is no longer accurate once Vittora Pro ships. Owner sign-off needed on replacement copy before submission.
 
 **Verified against `develop`:** the compliance tip engine
 (`IndiaComplianceTipEngine.swift`) really does cover Section 269ST, Section
@@ -57,12 +56,9 @@ TRACK EVERY RUPEE
 • Scan receipts, attach documents, and import or export CSV any time — it's your data
 
 ON YOUR WRIST AND YOUR HOME SCREEN
-• A full Apple Watch app — log an expense in seconds with the Digital Crown
-• Complications and Smart Stack widgets for today's spending and budget left
-• Home Screen, Lock Screen and StandBy widgets
-• Amounts stay hidden while your device is locked
-• Ask Siri what you've spent, or add an expense by voice
-• Find any transaction through Spotlight
+• An Apple Watch app, with complications and Smart Stack widgets
+• Home Screen, Lock Screen and StandBy widgets; amounts hidden while locked
+• Siri, voice entry and Spotlight search
 
 INDIA TAX ESTIMATOR
 • Instant income tax estimate from your salary and deductions
@@ -104,15 +100,6 @@ RECURRING, HANDLED
 • Upcoming view shows what's about to hit your accounts
 • Choose when reminders arrive, with quiet hours
 
-CONTINUE ANYWHERE
-• Handoff — start a transaction on iPhone and finish it on iPad or Mac
-• Full keyboard navigation on iPad and Mac
-
-YOURS TO SHAPE
-• Hindi, English and Spanish
-• True-black OLED theme and a choice of accent colours
-• Extensive VoiceOver, Dynamic Type and contrast work throughout
-
 PRIVATE BY DESIGN
 • Works fully offline; sync is optional and goes only through your personal iCloud
 • Face ID / Touch ID app lock
@@ -120,7 +107,11 @@ PRIVATE BY DESIGN
 • Contact support from inside the app — you see the whole diagnostic summary before anything is sent, and it never includes your amounts, notes or payees
 • Delete all your data at any time, on your terms
 
-Vittora is free. Every feature, every device.
+Vittora is free to use, on every device. No ads, no trackers, no account, and nothing about you sold to anyone.
+
+Your records, your splits, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis: full tax planning and regime comparison, custom reports with PDF export, cash-flow forecast, subscription audit, the 50/30/20 report, the emergency fund tracker, and unlimited receipt scanning. Without Pro you get five receipt scans a month, and everything you have already created stays yours.
+
+Vittora Pro is available monthly, yearly with a 7-day free trial, or as a one-time Lifetime purchase.
 
 Requires iOS 26, iPadOS 26 or macOS 26.
 ```

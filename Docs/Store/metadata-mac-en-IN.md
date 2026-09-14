@@ -10,7 +10,6 @@ India uses **en-GB** as its base English variant, so spelling here is en-GB
 Price tier stays Free but the app offers in-app purchases from 1.7.0
 (DEC-013/014/015); Vittora Pro may now be described. The "no ads, no
 trackers, no accounts, no data selling" claims remain true and must be kept.
-TODO (1.7.0 submission): the "every feature" line in the description below is no longer accurate once Vittora Pro ships. Owner sign-off needed on replacement copy before submission.
 
 **What the Mac build must NOT claim** (same target audit as
 `metadata-mac-en-US.md`, re-verified against `project.pbxproj`): the Apple Watch
@@ -72,11 +71,6 @@ INDIA TAX, WORKED OUT FOR YOU
 • Cess and surcharge included, so the number you see is the number you pay
 • Heads-ups on the rules that catch people out — Section 269ST cash limits, Section 40A(3), cash-deposit reporting, the GST registration threshold and Section 194-IB TDS on rent
 
-CONTINUE ANYWHERE
-• Handoff — start a transaction on iPhone and finish it on your Mac
-• Find any transaction through Spotlight
-• Ask Siri what you've spent, or add an expense by voice
-
 BUDGETS THAT KEEP UP
 • Weekly, monthly, quarterly or yearly budgets per category
 • Overall and per-budget progress at a glance
@@ -108,18 +102,17 @@ RECURRING, HANDLED
 • Upcoming view shows what's about to hit your accounts
 • Choose when reminders arrive, with quiet hours
 
-YOURS TO SHAPE
-• English, Hindi and Spanish
-• True-black theme and a choice of accent colours
-• Extensive VoiceOver, Dynamic Type and contrast work throughout
-
 PRIVATE BY DESIGN
 • Works fully offline; sync is optional and goes only through your personal iCloud
 • No ads, no trackers, no analytics sold to anyone
 • Contact support from inside the app — you see the whole diagnostic summary before anything is sent, and it never includes your amounts, notes or payees
 • Delete all your data at any time, on your terms
 
-Vittora is free. Every feature, every device.
+Vittora is free to use, on every device. No ads, no trackers, no account, and nothing about you sold to anyone.
+
+Your records, your splits, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis: full tax planning and regime comparison, custom reports with PDF export, cash-flow forecast, subscription audit, the 50/30/20 report, the emergency fund tracker, and unlimited receipt scanning. Without Pro you get five receipt scans a month, and everything you have already created stays yours.
+
+Vittora Pro is available monthly, yearly with a 7-day free trial, or as a one-time Lifetime purchase.
 
 Requires macOS 26. Also available for iPhone, iPad and Apple Watch.
 ```

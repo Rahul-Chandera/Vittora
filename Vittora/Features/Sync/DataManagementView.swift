@@ -254,10 +254,9 @@ struct DataManagementView: View {
         .safeAreaPadding(.bottom, 72)
         .tint(VColors.textCursor)
         .refreshable { await vm.loadStats() }
-        .confirmationDialog(
+        .alert(
             String(localized: "Clear \(vm.clearScope.displayName)?"),
-            isPresented: Bindable(vm).showClearConfirm,
-            titleVisibility: .visible
+            isPresented: Bindable(vm).showClearConfirm
         ) {
             Button(String(localized: "Delete \(vm.clearScope.displayName)"), role: .destructive) {
                 Task { await vm.clearData() }
@@ -266,10 +265,9 @@ struct DataManagementView: View {
         } message: {
             Text(String(localized: "This will permanently delete all \(vm.clearScope.displayName.lowercased()). This cannot be undone."))
         }
-        .confirmationDialog(
+        .alert(
             String(localized: "Factory Reset?"),
-            isPresented: Bindable(vm).showFactoryResetConfirm,
-            titleVisibility: .visible
+            isPresented: Bindable(vm).showFactoryResetConfirm
         ) {
             Button(String(localized: "Reset Everything"), role: .destructive) {
                 Task {

@@ -985,6 +985,86 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if issue.element?.identifier == "brand-green-filled-card" {
                     return true
                 }
+                // The paywall's lifetime CTA is white on #3FCFA4 — 1.97:1, a real
+                // miss, not a sampler artifact. DEC-023 predicted this exactly and
+                // prescribed this entry: "If the audit ever reaches it unoccluded it
+                // will fail on this pairing, and the fix is to add
+                // paywall-lifetime-button to the exemptions deliberately, not to
+                // change the colour." That is what this is (DEC-025).
+                //
+                // Why it surfaced only now: before 636169ea the button was #17604A at
+                // 7.48:1 and passed. Brand green made it 1.97:1, and the audit catches
+                // it only on the runs where the button lands clear of the navigation
+                // bar — which is why the leg went intermittently red rather than
+                // failing outright.
+                //
+                // The label is the user-visible price string, so this is anchored to
+                // the identifier: a price change must not silently widen or void it.
+                if issue.element?.identifier == "paywall-lifetime-button" {
+                    return true
+                }
+                // DEC-027: the paywall's policy links, which the sampler measures
+                // against the subscribe button rather than the page they are drawn on.
+                //
+                // On iPhone 17 Pro Max — CI's device, and the reason DEC-025 did not
+                // make the leg green — the audit reports "Terms of Service", " and "
+                // and "Privacy Policy" at frames of y=836.7, h=17.3. Cropping CI's own
+                // App Screenshot at exactly that rect shows the "Try It Free" capsule
+                // and no link text whatsoever: 40,469 of the pixels there are #3ECDA2.
+                // The links are scrolled elsewhere; only their reported frames land on
+                // the CTA. So the sampler compares #17604A against brand green and
+                // returns 1.58, 1.60 and 1.58 — measured, not inferred.
+                //
+                // Where these links are genuinely painted they are #17604A on the
+                // near-white sheet at 7.48:1, which is why
+                // .subscriptionStorePolicyForegroundStyle pins that colour in the
+                // first place. Nothing here is a real legibility miss.
+                //
+                // Anchored to Apple's three identifiers and screen-scoped to the
+                // paywall. Not anchored to "any green-backed sample", which would
+                // excuse real misses elsewhere on the same screen.
+                let policyLinkIDs: Set<String> = ["Terms of Service", "Privacy Policy", "and"]
+                if self.app.navigationBars["Vittora Pro"].exists,
+                   let identifier = issue.element?.identifier,
+                   policyLinkIDs.contains(identifier) {
+                    return true
+                }
+                // DEC-027, second half: StoreKit's own subscribe button.
+                //
+                // On CI (iPhone 17 Pro Max / iOS 26.2 / Xcode 26.3) the audit flags the
+                // green capsule itself. Its element screenshot is the whole "Try It Free"
+                // button, 1080x150px — exactly the 360x50pt frame of
+                // "Subscription Store View Standard Button" at 3x — plus a 534x47px
+                // sliver of its bottom edge meeting the page. Both arrive as bare
+                // SwiftUI.AccessibilityNodes carrying no label and no identifier, which
+                // is why an identifier-only check does not see them.
+                //
+                // The label inside that capsule is BLACK on brand green at 10.56:1 and
+                // passes; what the sampler measures is the green FILL against the page,
+                // which is the DEC-012 pairing. Apple draws this control and exposes no
+                // API to restyle it — the same reason DEC-019 exists for its caption.
+                //
+                // Anchored to Apple's two identifiers for that control plus their frames,
+                // and screen-scoped to the paywall. The identifiers were read from the
+                // live accessibility tree, not guessed: an earlier attempt invented
+                // "…Standard Picker Style Subscribe Button" and matched nothing.
+                let subscribeIDs = [
+                    "Subscription Store View Standard Button",
+                    "Subscription Store View Button"
+                ]
+                if self.app.navigationBars["Vittora Pro"].exists {
+                    for subscribeID in subscribeIDs {
+                        if issue.element?.identifier == subscribeID {
+                            return true
+                        }
+                        let control = self.app.descendants(matching: .any)[subscribeID]
+                        if let elementFrame = issue.element?.frame,
+                           control.exists,
+                           control.frame.intersects(elementFrame) {
+                            return true
+                        }
+                    }
+                }
                 // On CI's iOS 26.2 the audit flags an inner node of the floating
                 // add button that carries neither the label nor the identifier,
                 // so both checks above miss it and the DEC-012 exemption never

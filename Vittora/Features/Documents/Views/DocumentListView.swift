@@ -182,13 +182,12 @@ struct DocumentListView: View {
                     }
                 }
             }
-            .confirmationDialog(
+            .alert(
                 String(localized: "Delete this attachment?"),
                 isPresented: Binding(
                     get: { documentToDelete != nil },
                     set: { if !$0 { documentToDelete = nil } }
-                ),
-                titleVisibility: .visible
+                )
             ) {
                 Button(String(localized: "Delete"), role: .destructive) {
                     guard let entity = documentToDelete else { return }

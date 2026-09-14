@@ -38,6 +38,13 @@ final class PurchaseService {
             }
         }
         Task { await self.refreshEntitlement() }
+        // Warm StoreKit's product cache at launch. SubscriptionStoreView runs its own
+        // fetch when the paywall opens, and on a cold cache that is a network round trip
+        // the user watches as "Loading Subscription" — measured at 10+ seconds on macOS.
+        // Priming here means the store view resolves from cache instead. Failure is
+        // ignored on purpose: this is a cache warm, and the paywall's own .task still
+        // loads products and still sets didFailToLoadProducts for the degraded state.
+        Task { await self.loadProducts() }
     }
 
     func stop() {

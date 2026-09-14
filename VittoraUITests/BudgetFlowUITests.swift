@@ -90,7 +90,10 @@ final class BudgetFlowUITests: XCTestCase {
         UITestSupport.tapWhenReady(app.buttons["Delete"].firstMatch, timeout: 10)
 
         // The guard: the first Delete must ask, not erase.
-        let dialog = app.sheets["Delete this budget?"]
+        // The confirmation is an .alert, not a confirmationDialog: iOS 26 anchored
+        // the dialog to the presenting view rather than the swiped row, and dropped
+        // its Cancel button. The guard being asserted here is unchanged.
+        let dialog = app.alerts["Delete this budget?"]
         XCTAssertTrue(
             dialog.waitForExistence(timeout: 10),
             "Deleting a budget must ask for confirmation rather than erasing it outright."

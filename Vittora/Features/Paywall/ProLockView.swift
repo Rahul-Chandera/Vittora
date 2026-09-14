@@ -16,9 +16,11 @@ struct ProLockView: View {
         } actions: {
             Button(String(localized: "See Vittora Pro")) { showPaywall = true }
                 .buttonStyle(.borderedProminent)
-                // AA-safe brand green: white on primaryOnSurface (#17604A) is 7.5:1,
-                // white on primary (#3FCFA4) is 1.97:1 and would need a DEC-012 exemption.
-                .tint(VColors.primaryOnSurface)
+                // Brand green, matching every other .borderedProminent button in the app
+                // (VEmptyState, ShareSheet, SavingsGoalListView and ~20 more all use
+                // VColors.primary). White on #3FCFA4 is 1.97:1 - the pairing DEC-012
+                // accepts for CTAs by owner decision. See DEC-023.
+                .tint(VColors.primary)
                 .accessibilityIdentifier("pro-lock-upgrade-button")
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

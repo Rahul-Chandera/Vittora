@@ -19,13 +19,12 @@ struct CategorizationRulesView: View {
             }
         }
         .navigationTitle(String(localized: "Categorization Rules"))
-        .confirmationDialog(
+        .alert(
             String(localized: "Delete this rule?"),
             isPresented: Binding(
                 get: { ruleToDelete != nil },
                 set: { if !$0 { ruleToDelete = nil } }
-            ),
-            titleVisibility: .visible
+            )
         ) {
             Button(String(localized: "Delete"), role: .destructive) {
                 guard let rule = ruleToDelete, let viewModel else { return }
@@ -137,6 +136,9 @@ struct CategorizationRulesView: View {
             } label: {
                 Label(String(localized: "Delete"), systemImage: "trash")
             }
+                // role: .destructive alone is not enough — the NavigationStack tint in
+                // AppTabView.contentStack repaints swipe actions, so the red is explicit.
+                .tint(.red)
         }
     }
 

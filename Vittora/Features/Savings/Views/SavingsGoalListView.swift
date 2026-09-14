@@ -32,13 +32,12 @@ struct SavingsGoalListView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Savings Goals"))
-        .confirmationDialog(
+        .alert(
             String(localized: "Delete this goal?"),
             isPresented: Binding(
                 get: { goalToDelete != nil },
                 set: { if !$0 { goalToDelete = nil } }
-            ),
-            titleVisibility: .visible
+            )
         ) {
             Button(String(localized: "Delete"), role: .destructive) {
                 guard let goal = goalToDelete, let vm else { return }
@@ -233,6 +232,9 @@ struct SavingsGoalListView: View {
                     } label: {
                         Label(String(localized: "Delete"), systemImage: "trash")
                     }
+                        // role: .destructive alone is not enough — the NavigationStack tint in
+                        // AppTabView.contentStack repaints swipe actions, so the red is explicit.
+                        .tint(.red)
                 }
             }
         }

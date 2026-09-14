@@ -138,6 +138,9 @@ struct RecurringListView: View {
         } label: {
             Label(String(localized: "Delete"), systemImage: "trash")
         }
+        // role: .destructive alone is not enough — the NavigationStack tint in
+        // AppTabView.contentStack repaints swipe actions, so the red is explicit.
+        .tint(.red)
     }
 
     var body: some View {
@@ -221,13 +224,12 @@ struct RecurringListView: View {
         // audit reports as text with no accessible element.
         .safeAreaPadding(.bottom, 72)
         .navigationTitle(String(localized: "Recurring Transactions"))
-        .confirmationDialog(
+        .alert(
             String(localized: "Delete this recurring rule?"),
             isPresented: Binding(
                 get: { ruleToDelete != nil },
                 set: { if !$0 { ruleToDelete = nil } }
-            ),
-            titleVisibility: .visible
+            )
         ) {
             Button(String(localized: "Delete"), role: .destructive) {
                 guard let rule = ruleToDelete, let viewModel else { return }

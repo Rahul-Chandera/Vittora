@@ -843,10 +843,9 @@ private struct StartupRecoveryBanner: View {
                 .stroke(VColors.warning.opacity(0.35), lineWidth: 1)
         }
         .cornerRadius(VSpacing.cornerRadiusMD)
-        .confirmationDialog(
+        .alert(
             String(localized: "Erase the unopenable data store?"),
-            isPresented: $showEraseConfirm,
-            titleVisibility: .visible
+            isPresented: $showEraseConfirm
         ) {
             Button(String(localized: "Erase Everything"), role: .destructive) {
                 Task { await eraseAndStartFresh() }
