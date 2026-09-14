@@ -240,7 +240,9 @@ struct PaywallView: View {
         VStack(alignment: .leading, spacing: VSpacing.lg) {
             Image(systemName: "sparkles")
                 .font(.largeTitle)
-                .foregroundStyle(VColors.primaryOnSurface)
+                // Brand green by owner decision (DEC-024). Decorative and
+                // accessibilityHidden, so no contrast rule applies to it.
+                .foregroundStyle(VColors.primary)
                 .frame(maxWidth: .infinity)
                 .accessibilityHidden(true)
 
@@ -256,15 +258,13 @@ struct PaywallView: View {
                 HStack(alignment: .firstTextBaseline, spacing: VSpacing.sm) {
                     Image(systemName: "checkmark.circle.fill")
                         // Monochrome: the foreground colour is the disc and the check is
-                        // knocked out of it in the page colour, so this is white on #17604A
-                        // at 7.48:1. These glyphs deliberately stay #17604A and do NOT
-                        // follow the tint to brand green — they are decorative marketing
-                        // glyphs, not a CTA. DEC-012 covers CTAs; putting these on #3FCFA4
-                        // would drop the check to 1.97:1 and would need an exemption these
-                        // do not warrant. The screen now carries two greens — #3FCFA4 on
-                        // the CTAs and #17604A on these glyphs and the policy links — that
-                        // is accepted as the cost of keeping non-CTA content readable.
-                        .foregroundStyle(VColors.primaryOnSurface)
+                        // knocked out of it in the page colour, so the check renders at
+                        // 1.97:1 on #3FCFA4. Brand green by owner decision (DEC-024), which
+                        // supersedes DEC-023's reasoning for keeping these #17604A. These
+                        // are accessibilityHidden decorative glyphs that repeat the adjacent
+                        // label verbatim, so nothing is conveyed by the glyph alone and no
+                        // DEC-012 exemption is needed — the audit never samples them.
+                        .foregroundStyle(VColors.primary)
                         .accessibilityHidden(true)
                     Text(feature)
                         .foregroundStyle(VColors.textPrimary)
