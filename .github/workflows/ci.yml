@@ -2,16 +2,15 @@ name: CI
 
 on:
   # Push runs only on develop (covers direct admin pushes that bypass PRs).
-  # staging/main receive code exclusively via promotion PRs whose required
-  # check already tested the identical tree (require-up-to-date), so push
-  # runs there were pure duplication of ~40min macOS runner time.
+  # main receives code exclusively via the release PR, whose required check
+  # already tested the identical tree (require-up-to-date), so a push run
+  # there was pure duplication of ~40min macOS runner time.
   push:
     branches:
       - develop
   pull_request:
     branches:
       - develop
-      - staging
       - main
 
 concurrency:

@@ -1,13 +1,17 @@
 # Branch protection — required CI (L1)
 
-Gate merges into **`develop`**, **`staging`**, and **`main`** on a green **CI / build-and-test** check.
+Gate merges into **`develop`** and **`main`** on a green **CI / build-and-test** check.
 
-Branch flow: feature branches → `develop` (ongoing development) → `staging` (QA testing) → `main` (release).
+Branch flow: feature branches → `develop` (ongoing development) → `main` (release).
+
+`staging` was dropped on 2026-09-15 to cut a step out of the merge cycle, and the
+branch was deleted. If a protection rule for `staging` still exists in repo
+settings it matches nothing and should be removed by hand.
 
 ## GitHub settings (repo admin)
 
 1. **Settings → Branches → Add branch ruleset** (or classic protection rule).
-2. **Branch name pattern:** `develop`, `staging`, and `main` (not all branches — feature branches push freely; checks gate merges into protected branches).
+2. **Branch name pattern:** `develop` and `main` (not all branches — feature branches push freely; checks gate merges into protected branches).
 3. Enable **Require status checks to pass before merging**.
 4. Search and select status check: **`build-and-test`** (workflow job name under the **CI** workflow).
    `build-and-test` is now an **aggregator**: the real work runs in the `build` job and the
