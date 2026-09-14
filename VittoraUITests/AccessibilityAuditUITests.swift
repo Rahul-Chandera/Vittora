@@ -1066,23 +1066,29 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if let element = issue.element,
                    bottomBar.exists,
                    bottomBar.frame.minY > 1,
-                   element.frame.minY > bottomBar.frame.minY {
+                   element.frame.maxY > bottomBar.frame.minY {
                     // iOS's floating compact tab bar fades scroll content beneath
                     // its own system-owned material exactly as the navigation bar
-                    // does at the top. Ignore only contrast samples whose element
-                    // frame starts at or below the bar's own measured top edge.
-                    // The previous form used app.frame.maxY - 120, which on the
-                    // measured 393x852 window put the band at y=732 while the tab
-                    // bar actually begins at y=769, so a 37pt strip of fully
-                    // visible content was never sampled — the Budgets card's
-                    // Spent / Remaining / Progress row (y 733-780) was what it hid.
+                    // does at the top. Ignore contrast samples for any element
+                    // whose frame reaches the measured top edge of the bar — that
+                    // is, it overlaps the bar, whether or not it starts below it.
+                    // minY > asked whether the element starts below the bar,
+                    // which left elements that merely cross the bar's top edge
+                    // being audited against glass-material pixels they were never
+                    // drawn on. maxY > asks whether the element reaches the bar,
+                    // which excuses genuinely occluded elements while still
+                    // auditing elements that sit fully above the bar. Measured on
+                    // Budgets, where the tab bar's minY is 769: Spent
+                    // (733.0-750.3), Remaining (733.0-750.3) and Progress
+                    // (736.0-753.3) sit entirely above the bar and are audited;
+                    // $27.35 (756.3-779.7), $72.65 (756.3-779.7) and 27%
+                    // (759.3-776.7) cross into the bar and are exempt.
                     //
-                    // Anchored to the bar's own measured minY rather than a
-                    // constant, so it follows the bar on every device and
-                    // orientation. An element that merely overlaps the bar but
-                    // starts above it is still audited. The minY > 1 guard rejects
-                    // a degenerate/zero tab-bar frame the way the top rule guards
-                    // with maxY > 1.
+                    // Anchored to the bar's own measured frame rather than a
+                    // magic constant, so it follows the bar on every device and
+                    // orientation. The minY > 1 guard rejects a degenerate or
+                    // zero tab-bar frame the way the top rule guards with
+                    // maxY > 1.
                     return true
                 }
                 if let element = issue.element,
