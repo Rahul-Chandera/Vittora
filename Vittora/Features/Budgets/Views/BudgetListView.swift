@@ -33,6 +33,21 @@ struct BudgetListView: View {
                 .background(VColors.groupedBackground)
             } else {
                 List {
+                    if let viewModel = viewModel, let warning = viewModel.duplicateCategoryWarning {
+                        Section {
+                            HStack(spacing: VSpacing.sm) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(VColors.warning)
+                                    .accessibilityHidden(true)
+                                Text(warning)
+                                    .font(VTypography.caption1)
+                                    .foregroundStyle(VColors.textPrimary)
+                            }
+                            .accessibilityIdentifier("budget-duplicate-warning")
+                            .listRowBackground(VColors.secondaryGroupedBackground)
+                        }
+                    }
+
                     // Overview card
                     if let viewModel = viewModel {
                         Section {
@@ -139,6 +154,9 @@ struct BudgetListView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
+                                    // role: .destructive alone is not enough — the NavigationStack tint in
+                                    // AppTabView.contentStack repaints swipe actions, so the red is explicit.
+                                    .tint(.red)
                             }
                         }
                     }
@@ -163,13 +181,12 @@ struct BudgetListView: View {
                 #else
                 .listStyle(.inset)
                 #endif
-                .confirmationDialog(
+                .alert(
                     String(localized: "Delete this budget?"),
                     isPresented: Binding(
                         get: { budgetToDelete != nil },
                         set: { if !$0 { budgetToDelete = nil } }
-                    ),
-                    titleVisibility: .visible
+                    )
                 ) {
                     Button(String(localized: "Delete"), role: .destructive) {
                         guard let budget = budgetToDelete, let viewModel else { return }

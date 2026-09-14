@@ -460,7 +460,7 @@ struct PrivacySearchSettingsView: View {
         defer { isUpdatingIndex = false }
         vm.isSpotlightIndexingEnabled = enabled
         if enabled {
-            UserDefaults.standard.set(true, forKey: TransactionSpotlightIndex.needsFullReindexKey)
+            TransactionSpotlightIndex.setNeedsFullReindex()
             let coordinator = TransactionSpotlightCoordinator(
                 transactionRepository: dependencies.transactionRepository,
                 payeeRepository: dependencies.payeeRepository,

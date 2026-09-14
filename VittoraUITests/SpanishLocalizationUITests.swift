@@ -199,6 +199,7 @@ final class SpanishLocalizationUITests: XCTestCase {
             "--uitesting",
             "--ui-test-onboarding",
             "--ui-test-reset-app-lock",
+            "--ui-test-pro",
             "-AppleLanguages", "(es)",
             "-AppleLocale", "es_US"
         ]
@@ -217,6 +218,7 @@ final class SpanishLocalizationUITests: XCTestCase {
         app.launchArguments = [
             "--uitesting",
             "--ui-test-reset-app-lock",
+            "--ui-test-pro",
             "-AppleLanguages", "(es)",
             "-AppleLocale", "es_US"
         ]
@@ -235,6 +237,7 @@ final class SpanishLocalizationUITests: XCTestCase {
             "--uitesting",
             "--ui-test-seed-demo",
             "--ui-test-reset-app-lock",
+            "--ui-test-pro",
             "-AppleLanguages", "(es)",
             "-AppleLocale", "es_US"
         ] + extraArguments

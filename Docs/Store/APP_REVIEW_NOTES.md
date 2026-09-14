@@ -1,5 +1,14 @@
 # App Review Information — Notes field (Guideline 2.1 response)
 
+> **Before submitting, check which build you are submitting.** Everything below
+> describing Vittora Pro and in-app purchases applies **only to a build where
+> `MonetizationConfiguration.isStoreKitEnabled` is `true`**
+> (`Vittora/Core/Monetization/MonetizationConfiguration.swift`). While that flag
+> is `false` the shipped binary has no paywall and no purchase flow, and the
+> in-app-purchase paragraphs here must be removed before the notes are pasted
+> into App Store Connect. Check the flag in the tagged release commit, not in
+> `develop`.
+
 Paste into **App Store Connect → App Review Information → Notes** for both
 the iOS and macOS submissions (same underlying app, same answers — only
 item 2 below differs per platform). Apple's request had 7 items; items are
@@ -24,10 +33,13 @@ sees what's attached to that submission. The Mac UI is also a genuinely
 different shell (`SidebarNavigation` + `HSplitView` panes, not a tab bar),
 so an iPhone recording doesn't stand in for it.
 
-Vittora has no account registration/login, no paid/subscription flow (the
-app is 100% free at launch, no IAP), no user-generated content shared with
-other users, and no runtime permission prompts other than the three listed
-in item 5. So each recording only needs to cover the core flow:
+Vittora has no account registration/login, offers in-app purchases (the
+app is free to download; Vittora Pro is sold as an auto-renewing
+subscription — annual with a 7-day free trial, or monthly — or a one-time
+lifetime purchase; restoring purchases is available from the paywall), no
+user-generated content shared with other users, and no runtime permission
+prompts other than the three listed in item 5. So each recording only needs
+to cover the core flow:
 
 ### iOS/iPadOS recording
 
@@ -127,6 +139,19 @@ The only optional gate is App Lock (Face ID/Touch ID), which is **off by
 default** — reviewers will not be blocked by it unless they explicitly
 enable it in Settings.
 
+### In-app purchases
+
+**Only include this subsection when `MonetizationConfiguration.isStoreKitEnabled` is `true` in the submitted build** — see the caveat at the top of this file.
+
+Vittora Pro unlocks: full tax planning and regime comparison, custom reports
+with PDF export, cash flow forecast, subscription audit, 50/30/20 report,
+emergency fund tracker, and unlimited receipt scanning. What stays free:
+iCloud sync, unlimited transactions, expense splitting, Year in Review,
+budgets, dashboard, payee analytics, the general CSV export, and the tax
+profile form itself. No existing user loses access to data they already
+created. The paywall carries the full auto-renew disclosure plus Terms and
+Privacy links and a Restore Purchases button.
+
 ---
 
 ## 5. External services, tools, or platforms
@@ -148,8 +173,11 @@ analytics, ad networks, or backend servers of any kind:
 - **LocalAuthentication (Face ID / Touch ID)** — optional App Lock; the app
   only receives a pass/fail result from the OS, never biometric data.
 
-No payment processor is integrated (the app is free, no in-app purchases
-at this time), no data providers, and no AI/ML services beyond Apple's
+No third-party payment processor is integrated. All purchases go through
+Apple's StoreKit 2; Vittora operates no server and performs no server-side
+receipt validation. The entitlement is stored on the device only, so no
+purchase data is transmitted to us. Restoring purchases is available from
+the paywall. No data providers, and no AI/ML services beyond Apple's
 on-device VisionKit — no data is sent to any external AI service.
 
 ---
@@ -200,6 +228,8 @@ need to write two different responses.
 
 ## Paste-ready version (fits the 4000-character limit)
 
+**Strip every Vittora Pro / in-app-purchase sentence before pasting if `MonetizationConfiguration.isStoreKitEnabled` is `false` in the submitted build** — see the caveat at the top of this file.
+
 Fill in the device list in item 2, then paste this whole block as-is —
 ~3,530 characters, well under the limit. Same facts as above, tightened.
 
@@ -230,7 +260,7 @@ Only first-party Apple frameworks — no third-party SDKs, analytics, ad network
 - Contacts — optional, user-initiated import of a contact's name/photo to label a Payee or Debt record. Copied locally only.
 - LocalAuthentication (Face ID/Touch ID) — optional App Lock; the app receives only a pass/fail result, never biometric data.
 
-No payment processor (app is free, no IAP yet), no data providers, no AI/ML services beyond Apple's on-device VisionKit.
+No third-party payment processor (all purchases via StoreKit 2; no server-side receipt validation; entitlement on-device only; Restore Purchases on the paywall), no data providers, no AI/ML services beyond Apple's on-device VisionKit.
 
 6. Regional differences
 Vittora functions identically across regions for all core features (transactions, budgets, savings, debts, splits, sync, App Lock). The only region-aware behavior:

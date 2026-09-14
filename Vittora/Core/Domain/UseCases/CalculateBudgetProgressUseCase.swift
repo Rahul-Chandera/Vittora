@@ -35,7 +35,7 @@ struct CalculateBudgetProgressUseCase: Sendable {
 
     private func calculateDaysRemaining(for budget: BudgetEntity) -> Int {
         let calendar = Calendar.current
-        let dateRange = budget.period.dateRange(startingFrom: budget.startDate)
+        let dateRange = budget.currentDateRange()
         let now = Date()
 
         if now > dateRange.upperBound {
@@ -49,7 +49,7 @@ struct CalculateBudgetProgressUseCase: Sendable {
     private func calculateProjectedSpend(spent: Decimal, daysRemaining: Int, budget: BudgetEntity) -> Decimal {
         guard daysRemaining > 0 else { return spent }
 
-        let dateRange = budget.period.dateRange(startingFrom: budget.startDate)
+        let dateRange = budget.currentDateRange()
         let calendar = Calendar.current
         let totalDays = calendar.dateComponents([.day], from: dateRange.lowerBound, to: dateRange.upperBound).day ?? 1
         let daysPassed = max(1, totalDays - daysRemaining)

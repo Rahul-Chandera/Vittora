@@ -183,8 +183,9 @@ struct SwiftDataBudgetRepositoryTests {
         #expect(!activeStarts.contains(futureDate))
     }
 
-    @Test("fetchActive excludes budgets whose period has ended")
-    func testFetchActiveExcludesExpiredPeriod() async throws {
+    // Budgets roll forward so a past startDate no longer deactivates a budget.
+    @Test("fetchActive keeps a budget whose first period ended long ago")
+    func testFetchActiveKeepsBudgetsFromLongPastPeriods() async throws {
         let repo = try makeRepo()
         let calendar = Calendar.current
         let twoMonthsAgo = calendar.date(byAdding: .month, value: -2, to: Date()) ?? Date()
@@ -208,8 +209,8 @@ struct SwiftDataBudgetRepositoryTests {
 
         let active = try await repo.fetchActive()
 
-        #expect(active.count == 1)
-        #expect(active.first?.amount == 200)
+        #expect(active.count == 2)
+        #expect(Set(active.map(\.amount)) == [100, 200])
     }
 
     // MARK: - fetchForCategory

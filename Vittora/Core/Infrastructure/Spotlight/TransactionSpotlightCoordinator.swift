@@ -12,6 +12,7 @@ final class TransactionSpotlightCoordinator {
     private let transactionRepository: any TransactionRepository
     private let payeeRepository: any PayeeRepository
     private let categoryRepository: any CategoryRepository
+    private let userDefaults: UserDefaults
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.enerjiktech.vittora",
         category: "Spotlight"
@@ -22,11 +23,14 @@ final class TransactionSpotlightCoordinator {
     init(
         transactionRepository: any TransactionRepository,
         payeeRepository: any PayeeRepository,
-        categoryRepository: any CategoryRepository
+        categoryRepository: any CategoryRepository,
+        /// Injected so tests can drive the coordinator against a private suite instead of the process-wide `.standard`.
+        userDefaults: UserDefaults = .standard
     ) {
         self.transactionRepository = transactionRepository
         self.payeeRepository = payeeRepository
         self.categoryRepository = categoryRepository
+        self.userDefaults = userDefaults
     }
 
     /// Schedules a background sync. Coalesces rapid `notifyChanged` bursts.
@@ -41,18 +45,18 @@ final class TransactionSpotlightCoordinator {
     }
 
     func syncNow(forceFullReindex: Bool = false) async {
-        guard TransactionSpotlightIndex.isIndexingEnabled() else {
+        guard TransactionSpotlightIndex.isIndexingEnabled(userDefaults: userDefaults) else {
             await TransactionSpotlightIndex.deleteAllIndexedTransactions()
             return
         }
 
-        let replaceDomain = forceFullReindex || TransactionSpotlightIndex.needsFullReindex()
+        let replaceDomain = forceFullReindex || TransactionSpotlightIndex.needsFullReindex(userDefaults: userDefaults)
 
         do {
             let drafts = try await buildDrafts()
             await TransactionSpotlightIndex.index(drafts: drafts, replaceDomain: replaceDomain)
             if replaceDomain {
-                TransactionSpotlightIndex.markFullReindexComplete()
+                TransactionSpotlightIndex.markFullReindexComplete(userDefaults: userDefaults)
             }
         } catch {
             logger.error("Spotlight sync failed: \(error.localizedDescription, privacy: .public)")
@@ -67,9 +71,9 @@ final class TransactionSpotlightCoordinator {
 
     /// Settings toggle ON — full reindex.
     func enableAndReindex() async {
-        TransactionSpotlightIndex.setIndexingEnabled(true)
+        TransactionSpotlightIndex.setIndexingEnabled(true, userDefaults: userDefaults)
         // Force a domain replace so stale rows never linger after a toggle cycle.
-        UserDefaults.standard.set(true, forKey: TransactionSpotlightIndex.needsFullReindexKey)
+        TransactionSpotlightIndex.setNeedsFullReindex(userDefaults: userDefaults)
         await syncNow(forceFullReindex: true)
     }
 
@@ -79,8 +83,7 @@ final class TransactionSpotlightCoordinator {
         let categories = try await categoryRepository.fetchAll()
         let payeeNames = Dictionary(payees.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
         let categoryNames = Dictionary(categories.map { ($0.id, $0.displayName) }, uniquingKeysWith: { first, _ in first })
-        let currencyCode = UserDefaults.standard.string(forKey: AppUserDefaults.StandardKey.currencyCode)
-            ?? CurrencyDefaults.code
+        let currencyCode = CurrencyDefaults.code(userDefaults: userDefaults)
 
         return transactions.map { tx in
             TransactionSpotlightIndex.makeDraft(

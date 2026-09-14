@@ -39,6 +39,15 @@ Use this map to pick the fastest meaningful tests after changes.
   - `xcodebuild ... -only-testing:VittoraTests/BiometricServiceTests test`
   - `xcodebuild ... -only-testing:VittoraTests/SettingsViewModelTests test`
 
+## Localization/string catalogue
+
+- Touch points: Localizable.xcstrings, any String(localized:) literal, plural variations.
+- Run:
+  - `xcodebuild ... -only-testing:VittoraTests/PluralVariationTests test`
+  - `xcodebuild ... -only-testing:VittoraTests/SpanishLocalizationCatalogTests test`
+  - `DERIVED=.build-ios:.build-macos Scripts/ci/check-localization-coverage.sh` (needs make build-ios and make build-macos first)
+- Counted strings must use .xcstrings plural variations, never a `(s)` suffix, because Hindi and Spanish have real plural rules.
+
 ## Build confidence checks
 
 - Compile checks:

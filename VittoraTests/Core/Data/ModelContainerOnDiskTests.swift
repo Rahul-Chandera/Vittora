@@ -11,10 +11,10 @@ import VittoraCore
 struct ModelContainerOnDiskTests {
 
     /// Seeds an on-disk store at **Schema V1** (nested snapshot without `transferPairID`),
-    /// reopens at Schema V2 with `VittoraMigrationPlan`, and asserts legacy rows survive
+    /// reopens at Schema V7 with `VittoraMigrationPlan`, and asserts legacy rows survive
     /// with `transferPairID == nil` until explicitly set post-migrate.
-    @Test("on-disk V1 store migrates to V2 preserving transaction data")
-    func onDiskStoreMigratesV1ToV2() throws {
+    @Test("on-disk V1 store migrates to current schema preserving transaction data")
+    func onDiskStoreMigratesV1ToCurrent() throws {
         let dir = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -46,16 +46,20 @@ struct ModelContainerOnDiskTests {
             try ctx.save()
         }
 
-        // Phase 2: reopen at Schema V2; the lightweight V1→V2 stage runs on open.
-        let v2Schema = Schema(VittoraSchemaV2.models)
-        let config = ModelConfiguration(schema: v2Schema, url: storeURL, cloudKitDatabase: .none)
+        // Phase 2: reopen at V7, the plan's terminal version. A SchemaMigrationPlan always
+        // migrates the store all the way to its last version, so opening at an intermediate
+        // version (V2 here, until V7 was added on 2026-07-21) throws loadIssueModelContainer
+        // with 'store version hashes didn't migrate'. The V1 stage still runs; this asserts
+        // the seeded V1 row survives the whole V1 to V7 chain.
+        let currentSchema = Schema(VittoraSchemaV7.models)
+        let config = ModelConfiguration(schema: currentSchema, url: storeURL, cloudKitDatabase: .none)
         let container = try ModelContainer(
-            for: v2Schema,
+            for: currentSchema,
             migrationPlan: VittoraMigrationPlan.self,
             configurations: [config]
         )
         let ctx = ModelContext(container)
-        let rows = try ctx.fetch(FetchDescriptor<VittoraSchemaV2.SDTransaction>())
+        let rows = try ctx.fetch(FetchDescriptor<SDTransaction>())
         let migrated = try #require(rows.first { $0.id == txID })
 
         #expect(rows.count == 1)
@@ -71,15 +75,15 @@ struct ModelContainerOnDiskTests {
         migrated.transferPairID = pairID
         try ctx.save()
 
-        // Phase 3: round-trip at V2 to confirm the new column persists.
+        // Phase 3: round-trip at V7 to confirm the new column persists.
         let reopened = try ModelContainer(
-            for: v2Schema,
+            for: currentSchema,
             migrationPlan: VittoraMigrationPlan.self,
             configurations: [config]
         )
         let reloadCtx = ModelContext(reopened)
         let reloaded = try #require(
-            try reloadCtx.fetch(FetchDescriptor<VittoraSchemaV2.SDTransaction>()).first { $0.id == txID }
+            try reloadCtx.fetch(FetchDescriptor<SDTransaction>()).first { $0.id == txID }
         )
         #expect(reloaded.transferPairID == pairID)
     }
@@ -152,8 +156,14 @@ struct ModelContainerOnDiskTests {
         let creditID = UUID()
         let plainID = UUID()
 
+        // Opens the CURRENT schema, because this round-trips the live `SDTransaction`.
+        // It used to open V4 back when V4 still aliased the live class; since V8 froze
+        // the pre-V8 shape into `VittoraSchemaV7.SDTransaction`, V4 registers the
+        // snapshot instead and inserting a live row here aborts the process with
+        // "Failed to cast model VittoraCore.SDTransaction". The assertions below are
+        // unchanged — only the schema the store is opened at.
         do {
-            let schema = Schema(VittoraSchemaV4.models)
+            let schema = Schema(VittoraSchemaV8.models)
             let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
             let container = try ModelContainer(
                 for: schema,
@@ -173,7 +183,7 @@ struct ModelContainerOnDiskTests {
             try ctx.save()
         }
 
-        let schema = Schema(VittoraSchemaV4.models)
+        let schema = Schema(VittoraSchemaV8.models)
         let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
         let container = try ModelContainer(
             for: schema,
@@ -391,11 +401,12 @@ struct ModelContainerOnDiskTests {
 
     /// Regression for the "Duplicate version checksums detected" launch crash:
     /// a store created at the true V3 shape (pre-`openingBalance` account,
-    /// pre-JSON debt) must stage-migrate V3→V6 on open. Before the schemas
-    /// were frozen, V3–V6 aliased the live models, the on-disk store matched
-    /// no version in the plan, and CoreData threw while building the stages.
-    @Test("on-disk V3-era store stage-migrates to V6 preserving account and debt data")
-    func onDiskStoreMigratesV3ToV6() throws {
+    /// pre-JSON debt) must stage-migrate V3 to the current schema on open.
+    /// Before the schemas were frozen, V3–V6 aliased the live models, the
+    /// on-disk store matched no version in the plan, and CoreData threw while
+    /// building the stages.
+    @Test("on-disk V3-era store stage-migrates to current schema preserving account and debt data")
+    func onDiskStoreMigratesV3ToCurrent() throws {
         let dir = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -424,8 +435,8 @@ struct ModelContainerOnDiskTests {
             try ctx.save()
         }
 
-        // Phase 2: reopen at V6 with the plan — runs stages V3→V4→V5→V6.
-        let schema = Schema(VittoraSchemaV6.models)
+        // Phase 2: reopen at V7 with the plan — runs stages V3→V4→V5→V6→V7.
+        let schema = Schema(VittoraSchemaV7.models)
         let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
         let container = try ModelContainer(
             for: schema,
@@ -504,5 +515,177 @@ struct ModelContainerOnDiskTests {
             try reloadContext.fetch(FetchDescriptor<SDSavingsGoal>()).first { $0.id == goalID }
         )
         #expect(reloaded.isEmergencyFund)
+    }
+
+    /// V7→V8 (M3.2 instrumentation). Seeds a populated V7 store, migrates it to V8,
+    /// and asserts the pre-existing rows survive with `categorySuggestion == nil` —
+    /// "not instrumented" — because historical rows are deliberately NOT backfilled.
+    /// Then writes all three states and round-trips them through a reopen.
+    @Test("on-disk V7 store migrates to V8 leaving legacy rows uninstrumented")
+    func onDiskStoreMigratesV7ToV8() throws {
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let storeURL = dir.appendingPathComponent("vittora-v7-to-v8.store")
+
+        let legacyID = UUID()
+        let accountID = UUID()
+        let categoryID = UUID()
+        let legacyAmount = Decimal(string: "125.50") ?? 0
+        let seededAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let externalID = UUID().uuidString
+
+        // Phase 1: a populated store at V7, opened WITHOUT the migration plan.
+        do {
+            let schema = Schema(VittoraSchemaV7.models)
+            let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+            let container = try ModelContainer(for: schema, configurations: [config])
+            let context = ModelContext(container)
+            context.insert(VittoraSchemaV7.SDTransaction(
+                id: legacyID,
+                amount: legacyAmount,
+                date: seededAt,
+                note: "pre-V8 row",
+                type: .expense,
+                categoryID: categoryID,
+                accountID: accountID,
+                externalID: externalID
+            ))
+            try context.save()
+        }
+
+        // Phase 2: reopen at V8 — the lightweight V7→V8 stage runs on open.
+        let schema = Schema(VittoraSchemaV8.models)
+        let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let context = ModelContext(container)
+        let rows = try context.fetch(FetchDescriptor<SDTransaction>())
+        #expect(rows.count == 1)
+
+        let migrated = try #require(rows.first { $0.id == legacyID })
+        #expect(migrated.amount == legacyAmount)
+        #expect(migrated.note == "pre-V8 row")
+        #expect(migrated.date == seededAt)
+        #expect(migrated.categoryID == categoryID)
+        #expect(migrated.accountID == accountID)
+        #expect(migrated.externalID == externalID)
+        // Not backfilled: nil means "no data", never "no suggestion was made".
+        #expect(migrated.categorySuggestionRawValue == nil)
+        #expect(migrated.categorySuggestion == nil)
+
+        // Phase 3: write all three states.
+        let suggestedID = UUID()
+        let acceptedID = UUID()
+        let overriddenID = UUID()
+        let silentID = UUID()
+        let otherCategoryID = UUID()
+
+        context.insert(SDTransaction(
+            id: acceptedID, amount: 10, categoryID: suggestedID,
+            accountID: accountID, categorySuggestion: .suggested(suggestedID),
+            externalID: UUID().uuidString
+        ))
+        context.insert(SDTransaction(
+            id: overriddenID, amount: 20, categoryID: otherCategoryID,
+            accountID: accountID, categorySuggestion: .suggested(suggestedID),
+            externalID: UUID().uuidString
+        ))
+        context.insert(SDTransaction(
+            id: silentID, amount: 30, categoryID: otherCategoryID,
+            accountID: accountID, categorySuggestion: .noSuggestion,
+            externalID: UUID().uuidString
+        ))
+        try context.save()
+
+        // Phase 4: reopen and confirm every state survived a real round-trip.
+        let reopened = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let reloadContext = ModelContext(reopened)
+        let reloaded = try reloadContext.fetch(FetchDescriptor<SDTransaction>())
+        #expect(reloaded.count == 4)
+
+        let accepted = try #require(reloaded.first { $0.id == acceptedID })
+        #expect(accepted.categorySuggestion == .suggested(suggestedID))
+        #expect(accepted.categoryID == suggestedID) // accepted: suggestion == chosen
+
+        let overridden = try #require(reloaded.first { $0.id == overriddenID })
+        #expect(overridden.categorySuggestion == .suggested(suggestedID))
+        #expect(overridden.categoryID == otherCategoryID) // overridden: the pair differs
+
+        let silent = try #require(reloaded.first { $0.id == silentID })
+        #expect(silent.categorySuggestion == .noSuggestion)
+        #expect(silent.categorySuggestionRawValue == "")
+
+        let legacy = try #require(reloaded.first { $0.id == legacyID })
+        #expect(legacy.categorySuggestion == nil)
+    }
+
+    /// Full-chain guard for the V8 change. Adding the category-suggestion column to the
+    /// live `SDTransaction` forced V3, V4, V5, V6 and V7 to stop aliasing that class and
+    /// point at the frozen `VittoraSchemaV7.SDTransaction` instead — five versions
+    /// repointed at once. If any of those is now mis-shaped, an old store matches no
+    /// version in the plan and CoreData throws while building the stages, which is a
+    /// launch crash on upgrade rather than a recoverable error. Seeding at the oldest
+    /// shape and opening at the newest walks every stage, including the custom V6→V7.
+    @Test("on-disk V1 store stage-migrates all the way to V8")
+    func onDiskStoreMigratesV1ToV8() throws {
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let storeURL = dir.appendingPathComponent("vittora-v1-to-v8.store")
+
+        let txID = UUID()
+        let accountID = UUID()
+        let amount = Decimal(string: "42.75") ?? 0
+        let seededAt = Date(timeIntervalSince1970: 1_600_000_000)
+
+        // Phase 1: seed at the true V1 shape, with no migration plan.
+        do {
+            let schema = Schema(VittoraSchemaV1.models)
+            let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+            let container = try ModelContainer(for: schema, configurations: [config])
+            let ctx = ModelContext(container)
+            ctx.insert(VittoraSchemaV1.SDTransaction(
+                id: txID,
+                amount: amount,
+                date: seededAt,
+                note: "V1-era row",
+                type: .expense,
+                accountID: accountID,
+                externalID: UUID().uuidString
+            ))
+            try ctx.save()
+        }
+
+        // Phase 2: open at V8 — runs V1→V2→…→V7→V8 in one go.
+        let schema = Schema(VittoraSchemaV8.models)
+        let config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: VittoraMigrationPlan.self,
+            configurations: [config]
+        )
+        let ctx = ModelContext(container)
+        let migrated = try #require(
+            try ctx.fetch(FetchDescriptor<SDTransaction>()).first { $0.id == txID }
+        )
+
+        #expect(migrated.amount == amount)
+        #expect(migrated.note == "V1-era row")
+        #expect(migrated.date == seededAt)
+        #expect(migrated.accountID == accountID)
+        // Columns added along the way are all nil — nothing is backfilled.
+        #expect(migrated.transferPairID == nil)
+        #expect(migrated.transferDirection == nil)
+        #expect(migrated.categorySuggestion == nil)
     }
 }

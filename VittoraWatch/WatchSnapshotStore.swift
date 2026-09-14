@@ -1,3 +1,8 @@
+// This file is also a member of the VittoraTests target, which builds for macOS in
+// make test-tax/test-sync/test-data/test-recurring; WatchConnectivity does not exist on
+// macOS, and its only test (VittoraTests/Core/Watch/WatchBudgetHapticWiringTests.swift)
+// is already `#if os(iOS)` guarded.
+#if os(iOS) || os(watchOS)
 import Foundation
 import Observation
 import WatchConnectivity
@@ -205,3 +210,4 @@ extension WatchSnapshotStore: WCSessionDelegate {
         }
     }
 }
+#endif

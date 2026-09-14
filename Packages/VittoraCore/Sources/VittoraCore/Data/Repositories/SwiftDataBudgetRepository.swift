@@ -69,11 +69,8 @@ public actor SwiftDataBudgetRepository: BudgetRepository {
             sortBy: [SortDescriptor(\.startDate, order: .reverse)]
         )
         let models = try modelContext.fetch(descriptor)
-        return models
-            .map(BudgetMapper.toEntity)
-            .filter { budget in
-                budget.period.dateRange(startingFrom: budget.startDate).contains(now)
-            }
+        // Budgets roll forward, so the startDate predicate alone decides active.
+        return models.map(BudgetMapper.toEntity)
     }
 
     public func fetchForCategory(_ categoryID: UUID, period: BudgetPeriod) async throws -> BudgetEntity? {

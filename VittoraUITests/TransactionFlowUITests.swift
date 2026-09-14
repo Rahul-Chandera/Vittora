@@ -107,6 +107,61 @@ final class TransactionFlowUITests: XCTestCase {
         )
     }
 
+    /// Guard-rail, not a regression gate. The underlying defect was a SwiftUI
+    /// identity swap that tore the Form down mid-keystroke; it depends on the
+    /// suggestion query actually suspending across a frame, which it does on a
+    /// real device but not on the simulator - this test passed against the
+    /// unfixed build. It still catches an outright break of typing into Notes.
+    @MainActor
+    func testTypingInNotesKeepsKeyboardAndFocus() throws {
+        navigateToTransactionsTab()
+
+        let addButton = app.buttons["transaction-add-button"]
+        UITestSupport.tapWhenReady(addButton, timeout: 15)
+
+        // The category suggestion (and the form rebuild it used to cause) only
+        // runs once the amount parses above zero - an empty amount early-returns
+        // before the loading flag is ever toggled, so the bug cannot reproduce.
+        let amountField = app.textFields["transaction-amount-field"]
+        XCTAssertTrue(
+            amountField.waitForExistence(timeout: 8),
+            "Amount field should exist on the transaction form."
+        )
+        amountField.tap()
+        amountField.typeText("42.75")
+
+        let noteQuery = app.descendants(matching: .any)["transaction-note-field"]
+        UITestSupport.scrollToElement(noteQuery, in: app)
+        XCTAssertTrue(
+            noteQuery.waitForExistence(timeout: 10),
+            "Notes field should become visible after scrolling the transaction form."
+        )
+
+        let noteField = app.textViews["transaction-note-field"].exists
+            ? app.textViews["transaction-note-field"]
+            : app.textFields["transaction-note-field"]
+
+        noteField.tap()
+        XCTAssertTrue(
+            app.keyboards.firstMatch.waitForExistence(timeout: 8),
+            "Keyboard should appear when the Notes field is focused."
+        )
+
+        for ch in "Lunch" {
+            noteField.typeText(String(ch))
+        }
+
+        XCTAssertTrue(
+            app.keyboards.firstMatch.exists,
+            "Keyboard should stay visible while typing in Notes; dismissing mid-typing regresses the form rebuild bug."
+        )
+        XCTAssertEqual(
+            noteField.value as? String,
+            "Lunch",
+            "Notes should retain the typed text; if focus jumped to Amount, the characters would have landed there instead."
+        )
+    }
+
     @MainActor
     func testEditFromTransactionDetailOpensForm() throws {
         navigateToTransactionsTab()

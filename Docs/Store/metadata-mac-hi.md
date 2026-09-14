@@ -8,7 +8,9 @@ Terminology follows the in-app catalogue, same as `metadata-hi.md`: *बजट*,
 *बचत*, *कैटेगरी*, *पेयी*, *उधार*, *खर्च*, *आय*, *ट्रांज़ैक्शन*, *राशि*,
 *टैक्स*, *नेट वर्थ*, *आपातकालीन फंड*, *साल की समीक्षा*.
 
-Free, no IAP (DEC-008). Pro is DEC-011 and must not appear.
+Price tier stays Free but the app offers in-app purchases from 1.7.0
+(DEC-013/014/015); Vittora Pro may now be described. The "no ads, no
+trackers, no accounts, no data selling" claims remain true and must be kept.
 
 **What the Mac build must NOT claim** (same target audit as
 `metadata-mac-en-US.md`): the Apple Watch app, complications, Smart Stack, Home
@@ -116,7 +118,11 @@ Mac के लिए बनाई गई
 • ऐप के अंदर से सपोर्ट को संपर्क करें — भेजने से पहले आप पूरा डायग्नोस्टिक सारांश देखते हैं, और उसमें आपकी राशि, नोट्स या पेयी कभी शामिल नहीं होते
 • अपना सारा डेटा जब चाहें, अपनी शर्तों पर मिटाएँ
 
-Vittora मुफ़्त है। हर फ़ीचर, हर डिवाइस पर।
+Vittora मुफ़्त है, हर डिवाइस पर। कोई विज्ञापन नहीं, कोई ट्रैकर नहीं, कोई अकाउंट नहीं, और आपका डेटा कभी किसी को नहीं बेचा जाता।
+
+आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट हमेशा मुफ़्त रहेंगे। Vittora Pro एक वैकल्पिक अपग्रेड है जो आगे की योजना बताने वाला विश्लेषण अनलॉक करता है: पूरी टैक्स प्लानिंग और रिजीम तुलना, PDF एक्सपोर्ट के साथ कस्टम रिपोर्ट, कैश फ़्लो पूर्वानुमान और सब्सक्रिप्शन ऑडिट, 50/30/20 रिपोर्ट और इमरजेंसी फंड ट्रैकर, और असीमित रसीद स्कैनिंग। Pro के बिना हर महीने पाँच रसीद स्कैन मिलते हैं, और आपने जो कुछ बनाया है वह आपका ही रहता है।
+
+Vittora Pro मासिक, वार्षिक (7 दिन मुफ़्त ट्रायल के साथ), या एक बार की Lifetime खरीद के रूप में उपलब्ध है।
 
 macOS 26 चाहिए। iPhone, iPad और Apple Watch के लिए भी उपलब्ध।
 ```

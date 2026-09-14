@@ -47,7 +47,7 @@ struct TransactionListView: View {
             }
         }
         .navigationTitle(String(localized: "Transactions"))
-        .confirmationDialog(
+        .alert(
             {
                 // Multi-select can hold exactly one row, and "Delete 1
                 // transactions?" is not a sentence.
@@ -59,8 +59,7 @@ struct TransactionListView: View {
             isPresented: Binding(
                 get: { pendingDelete != nil },
                 set: { if !$0 { pendingDelete = nil } }
-            ),
-            titleVisibility: .visible
+            )
         ) {
             Button(String(localized: "Delete"), role: .destructive) {
                 guard let pending = pendingDelete, let vm else { return }
@@ -547,6 +546,9 @@ private struct TransactionRowModifier: ViewModifier {
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }
+                    // role: .destructive alone is not enough — the NavigationStack tint in
+                    // AppTabView.contentStack repaints swipe actions, so the red is explicit.
+                    .tint(.red)
 
                 NavigationLink(value: NavigationDestination.editTransaction(id: transaction.id)) {
                     Label("Edit", systemImage: "pencil")

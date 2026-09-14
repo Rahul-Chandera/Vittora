@@ -38,6 +38,12 @@ final class DependencyContainer {
     let scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase
     let scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase
     var conversionEventTracker: any ConversionEventTracking = UserDefaultsConversionEventTracker()
+    let entitlementStore = EntitlementStore()
+    // Second tracker instance is fine: both read AppUserDefaults.conversion, so OCR counts agree.
+    // Tests that substitute conversionEventTracker must substitute featureGate too.
+    var featureGate: FeatureGate
+    let purchaseService: PurchaseService
+    let paywallPresenter: PaywallPresenter
     let conversionEventRecorder: ConversionEventRecorder
     let securityAuditLogService: SecurityAuditLogService
     let dataSeeder: any DataSeederProtocol
@@ -109,6 +115,13 @@ final class DependencyContainer {
         self.categorizationRuleStore = categorizationRuleStore
         self.transactionEditHistoryStore = transactionEditHistoryStore
         self.savedTransactionFilterStore = savedTransactionFilterStore
+        let gate = FeatureGate(store: entitlementStore, tracker: UserDefaultsConversionEventTracker())
+        self.featureGate = gate
+        self.purchaseService = PurchaseService(entitlements: entitlementStore)
+        self.paywallPresenter = PaywallPresenter(
+            tracker: UserDefaultsConversionEventTracker(),
+            isProUnlocked: { gate.isProUnlocked }
+        )
     }
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
@@ -187,9 +200,7 @@ final class DependencyContainer {
         let conversionEventTracker = UserDefaultsConversionEventTracker()
         let conversionEventRecorder = ConversionEventRecorder(
             tracker: conversionEventTracker,
-            transactionRepository: transactionRepository,
-            accountRepository: accountRepository,
-            budgetRepository: budgetRepository
+            transactionRepository: transactionRepository
         )
 
         return DependencyContainer(

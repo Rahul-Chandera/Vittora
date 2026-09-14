@@ -39,6 +39,23 @@ public enum TransferDirection: String, Sendable, Hashable, CaseIterable, Codable
     case credit
 }
 
+/// What the smart categorizer proposed when a transaction was first created
+/// (Schema V8, M3.2 instrumentation). Recorded so 1.8.0 can train an on-device
+/// classifier on accept-vs-override without inventing a separate event log.
+///
+/// Deliberately three-state via `Optional`:
+/// - `nil`               — not instrumented: the row predates V8, so nothing is known.
+/// - `.noSuggestion`     — the categorizer ran and proposed nothing.
+/// - `.suggested(id)`    — the categorizer proposed `id`.
+///
+/// "Accepted" is then `.suggested(id)` where `id == categoryID`; "overridden" is the
+/// pair of ids. No new entity and no duplicated columns — payee, note, merchant text,
+/// amount and the chosen category already live on the transaction.
+public enum CategorySuggestion: Sendable, Hashable {
+    case noSuggestion
+    case suggested(UUID)
+}
+
 public struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
     public nonisolated let id: UUID
     public nonisolated var amount: Decimal
@@ -59,6 +76,9 @@ public struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
     /// For `.transfer` legs, whether this leg debits or credits its `accountID`
     /// (DATAINTEGRITY-1, A3). Nil for non-transfer rows and legacy transfer legs.
     public nonisolated var transferDirection: TransferDirection?
+    /// What the categorizer proposed at creation time (Schema V8). Nil on rows
+    /// created before V8. Never rewritten by an edit — see `TransactionMapper`.
+    public nonisolated var categorySuggestion: CategorySuggestion?
     public nonisolated var documentIDs: [UUID]
     public nonisolated var createdAt: Date
     public nonisolated var updatedAt: Date
@@ -79,6 +99,7 @@ public struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
         recurringRuleID: UUID? = nil,
         transferPairID: UUID? = nil,
         transferDirection: TransferDirection? = nil,
+        categorySuggestion: CategorySuggestion? = nil,
         documentIDs: [UUID] = [],
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -98,6 +119,7 @@ public struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
         self.recurringRuleID = recurringRuleID
         self.transferPairID = transferPairID
         self.transferDirection = transferDirection
+        self.categorySuggestion = categorySuggestion
         self.documentIDs = documentIDs
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -110,7 +132,9 @@ public struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
     // this entity never re-renders — it keeps the old figures until the app is
     // relaunched. That shipped as a budget bug; see BudgetEntity for the full
     // account. `createdAt`/`updatedAt` are audit metadata, not displayed
-    // content, so they stay out of the comparison. Dedup by identity should
+    // content, so they stay out of the comparison. `categorySuggestion` is the
+    // same: instrumentation metadata never rendered, so including it would make
+    // SwiftUI diff rows on a field it never shows. Dedup by identity should
     // key on `id` explicitly rather than lean on `==`.
     public nonisolated static func == (lhs: TransactionEntity, rhs: TransactionEntity) -> Bool {
         lhs.id == rhs.id
@@ -159,6 +183,31 @@ extension TransactionEntity {
             case .credit: return amount
             case nil: return 0
             }
+        }
+    }
+}
+
+extension CategorySuggestion {
+    /// Sentinel-encoded so a single optional column carries all three states.
+    /// A UUID string is never empty, so `""` is unambiguous.
+    var rawValue: String {
+        switch self {
+        case .noSuggestion: ""
+        case .suggested(let id): id.uuidString
+        }
+    }
+
+    /// Decodes defensively: a non-empty value that is not a UUID is treated as
+    /// unknown (`nil`) rather than as `.noSuggestion`, so a value written by a
+    /// future version cannot silently mislabel training data.
+    init?(rawValue: String?) {
+        guard let rawValue else { return nil }
+        if rawValue.isEmpty {
+            self = .noSuggestion
+        } else if let id = UUID(uuidString: rawValue) {
+            self = .suggested(id)
+        } else {
+            return nil
         }
     }
 }

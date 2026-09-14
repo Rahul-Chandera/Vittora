@@ -115,14 +115,19 @@ struct TransactionFormView: View {
                         Button {
                             Task {
                                 do {
+                                    await vm.captureCategorySuggestionIfNeeded()
                                     try await vm.save()
+                                    let paywallEvent: ConversionEventResult?
                                     if !vm.isEditing {
-                                        await dependencies.conversionEventRecorder.afterTransactionCreated()
+                                        paywallEvent = await dependencies.conversionEventRecorder.afterTransactionCreated()
+                                    } else {
+                                        paywallEvent = nil
                                     }
                                     await dependencies.refreshBudgetThresholdAlerts()
                                     appState.notifyChanged([.transactions, .accounts, .budgets])
                                     dependencies.hapticService.success()
                                     dismiss()
+                                    dependencies.paywallPresenter.present(paywallEvent)
                                 } catch {
                                     vm.error = error.userFacingMessage(
                                         fallback: String(localized: "We couldn't save this transaction.")
@@ -144,8 +149,8 @@ struct TransactionFormView: View {
                         .vDialogConfirmButton()
                     }
                 }
-                .if(vm.isLoading) { view in
-                    view.overlay {
+                .overlay {
+                    if vm.isLoading {
                         ProgressView()
                             .tint(VColors.primary)
                     }
@@ -349,10 +354,13 @@ struct TransactionFormView: View {
             TextField(String(localized: "Notes"), text: Bindable(vm).note, axis: .vertical)
                 .lineLimit(3...5)
                 .accessibilityIdentifier("transaction-note-field")
-                .onChange(of: vm.note) { _, _ in
-                    Task {
-                        await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
-                    }
+                .task(id: vm.note) {
+                    // Debounce: .task(id:) cancels the previous run on every
+                    // keystroke, so this only reaches suggestCategory once the
+                    // user pauses.
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard !Task.isCancelled else { return }
+                    await vm.suggestCategory(payeeName: payeeName(for: vm.selectedPayeeID))
                 }
         } header: {
             formSectionHeader(String(localized: "Notes"))

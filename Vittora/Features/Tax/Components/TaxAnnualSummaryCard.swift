@@ -86,7 +86,7 @@ struct TaxAnnualSummaryCard: View {
                                 .foregroundStyle(VColors.textPrimary)
                             Text(
                                 String(
-                                    localized: "\(item.transactionCount.formatted()) transaction(s)"
+                                    localized: "\(item.transactionCount) transactions"
                                 )
                             )
                             .font(VTypography.caption2)

@@ -6,8 +6,6 @@ enum ConversionMilestone: String, CaseIterable, Sendable, Codable {
     case firstOCRScan
     case firstReport
     case firstSplit
-    case accountLimitReached
-    case budgetLimitReached
     case ocrMonthlyLimitReached
 }
 

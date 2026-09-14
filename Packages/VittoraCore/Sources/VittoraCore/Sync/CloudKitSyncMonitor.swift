@@ -104,7 +104,9 @@ public final class CloudKitSyncMonitor {
             return
         }
 
-        syncStatusService.markError(friendlySyncMessage(for: error))
+        let diagnosticCode = syncDiagnosticCode(for: error)
+        VittoraCoreLog.sync.error("CloudKit sync failed: \(diagnosticCode, privacy: .public)")
+        syncStatusService.markError(friendlySyncMessage(for: error), diagnosticCode: diagnosticCode)
     }
 
     /// Raw CloudKit descriptions ("CKErrorDomain error 2") read as crashes to
@@ -121,6 +123,19 @@ public final class CloudKitSyncMonitor {
         default:
             return String(localized: "iCloud sync is temporarily unavailable. Your data is safe on this device.")
         }
+    }
+
+    /// Non-identifying failure fingerprint for os_log and the Contact Support
+    /// diagnostics payload. Domain and numeric code only - never the error's
+    /// description, which can name the iCloud account or container.
+    /// The user-facing message stays plain language; this is the part support
+    /// needs to tell a quota problem from a container problem.
+    public func syncDiagnosticCode(for error: Error) -> String {
+        if let ckError = extractCKError(from: error) {
+            return "CKError.\(ckError.code.rawValue)"
+        }
+        let nsError = error as NSError
+        return "\(nsError.domain).\(nsError.code)"
     }
 
     /// Returns true when the error chain contains a CKError indicating a record conflict.

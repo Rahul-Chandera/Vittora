@@ -25,7 +25,7 @@ struct FetchBudgetsUseCase: Sendable {
 
     /// Calculate the amount spent in a budget's current period.
     private func calculateSpent(for budget: BudgetEntity) async throws -> Decimal {
-        let dateRange = budget.period.dateRange(startingFrom: budget.startDate)
+        let dateRange = budget.currentDateRange()
         let filter = TransactionFilter(
             dateRange: dateRange,
             types: Set([.expense]),

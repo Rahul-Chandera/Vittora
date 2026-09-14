@@ -83,7 +83,10 @@ final class TransactionDeleteConfirmationUITests: XCTestCase {
         row.swipeLeft()
         UITestSupport.tapWhenReady(app.buttons["Delete"].firstMatch, timeout: 10)
 
-        let dialog = app.sheets["Delete this transaction?"]
+        // The confirmation is an .alert, not a confirmationDialog: iOS 26 anchored
+        // the dialog to the presenting view rather than the swiped row, and dropped
+        // its Cancel button. The guard being asserted here is unchanged.
+        let dialog = app.alerts["Delete this transaction?"]
         XCTAssertTrue(
             dialog.waitForExistence(timeout: 10),
             "Swiping to delete must ask rather than erasing the transaction outright."

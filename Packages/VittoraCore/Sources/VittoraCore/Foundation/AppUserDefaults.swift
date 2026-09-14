@@ -24,7 +24,6 @@ public enum AppUserDefaults {
         public nonisolated static let notificationQuietHoursEnd = "vittora.notificationQuietHoursEnd"
         public nonisolated static let billReminderLeadDays = "vittora.billReminderLeadDays"
         public nonisolated static let exportSchedule = "vittora.exportSchedule"
-        public nonisolated static let cloudSyncEnabled = "vittora.cloudSyncEnabled"
         public nonisolated static let appLockTimeout = "vittora.appLockTimeout"
         /// Legacy UserDefaults location for app-lock intent before keychain migration (B1).
         /// Intentionally matches `KeychainKey.appLockEnabled` so reads can migrate UD → keychain.
@@ -79,6 +78,16 @@ public enum AppUserDefaults {
             return suite
         }
         return .standard
+    }
+
+    /// Resolves a named suite, falling back to `.standard` when the name is nil
+    /// or the suite cannot be opened.
+    ///
+    /// `UserDefaults` is not `Sendable`, so `Sendable` types hold the suite
+    /// *name* and resolve it here at each use rather than storing the instance.
+    public nonisolated static func suite(named name: String?) -> UserDefaults {
+        guard let name, let suite = UserDefaults(suiteName: name) else { return .standard }
+        return suite
     }
 
     /// Mirrors the app currency into the App Group suite without moving `.standard` storage.

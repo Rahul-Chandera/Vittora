@@ -90,13 +90,17 @@ done | sort -u
 
 ## 8) Branch flow, and the step everyone forgets
 
-Releases go **`develop` → `staging` → `main`**. Staging is where QA happens, so a
-release that skips it ships bits nobody QA'd. 1.4.0 and 1.5.0 were both cut as
-`release/x.y.z` → `main` and skipped staging; staging then sat on a 1.3-era
-snapshot from 18 July until it was reconciled.
+Releases go **`develop` → `main`**. There is no QA branch.
 
-- [ ] Promote `develop` → `staging` and let QA run there.
-- [ ] Open the release PR from **`staging`** → `main`. Hold it for owner approval.
+`staging` was dropped on 2026-09-15 by owner decision, to cut a step out of the
+merge cycle, and the branch was deleted. It had been a persistent source of
+friction rather than of QA: 1.4.0 and 1.5.0 were both cut `release/x.y.z` →
+`main` and skipped it anyway, after which staging sat on a 1.3-era snapshot from
+18 July until someone reconciled it. QA now happens on `develop` before the
+release PR is opened.
+
+- [ ] QA `develop` — this is the last gate before `main`.
+- [ ] Open the release PR from **`develop`** → `main`. Hold it for owner approval.
 - [ ] **After the release merges, back-merge `main` into `develop`.**
 
 That last step is the one that bites. `main` accumulates release-line commits —
@@ -106,6 +110,7 @@ never return to `develop`. Skip it and the *next* release PR conflicts in
 happened to 1.5.0. Resolving it on the release branch does not help the release
 after that; only the back-merge does.
 
-Also note `staging` accumulates merge commits that `develop` lacks, so under
-"require branches to be up to date" a promotion PR reads BEHIND and cannot merge
-until `staging` is merged back into `develop`. Reconcile both in one PR.
+The BEHIND trap still applies, now between `develop` and `main`: under "require
+branches to be up to date" a release PR reads BEHIND until `main`'s release-line
+commits are back in `develop`, which is the same back-merge named above. Doing
+it right after each release is what keeps the next PR mergeable.

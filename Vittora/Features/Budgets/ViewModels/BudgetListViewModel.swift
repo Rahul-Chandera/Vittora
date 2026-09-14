@@ -13,6 +13,11 @@ final class BudgetListViewModel {
     /// full-screen "No Budgets Yet" only on genuine first run, versus an
     /// in-place "none for this period" message that keeps the period selector.
     var hasAnyBudgets = false
+    /// Set when more than one active budget covers the same category. Two budgets
+    /// on one category both count the same transaction, so the totals above
+    /// double-count. We surface it and let the user delete one - we never merge
+    /// or delete a budget on their behalf.
+    var duplicateCategoryWarning: String?
     var selectedPeriod: BudgetPeriod = .monthly
     var isLoading = false
     var error: String?
@@ -44,6 +49,22 @@ final class BudgetListViewModel {
             var allBudgets = try await fetchUseCase.execute()
             hasAnyBudgets = !allBudgets.isEmpty
 
+            let duplicateGroups = Dictionary(grouping: allBudgets, by: \.categoryID)
+                .filter { $0.value.count > 1 }
+            if duplicateGroups.isEmpty {
+                duplicateCategoryWarning = nil
+            } else {
+                let names = duplicateGroups.keys.compactMap { categoryID -> String? in
+                    if let categoryID {
+                        return categoriesByID[categoryID]?.name
+                    }
+                    return String(localized: "Overall")
+                }
+                .sorted()
+                .formatted(.list(type: .and))
+                duplicateCategoryWarning = String(localized: "More than one budget covers \(names). Your totals count that spending twice — delete the extra budgets to fix them.")
+            }
+
             // Filter by selected period
             allBudgets = allBudgets.filter { $0.period == selectedPeriod }
             self.budgets = allBudgets.sorted { $0.startDate > $1.startDate }
@@ -59,6 +80,7 @@ final class BudgetListViewModel {
             overallSpent = budgets.reduce(0) { $0 + $1.spent }
         } catch {
             self.error = error.localizedDescription
+            duplicateCategoryWarning = nil
         }
         isLoading = false
     }
