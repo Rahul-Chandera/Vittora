@@ -114,12 +114,15 @@ struct PaywallView: View {
             LegalDocumentView(document: .privacyPolicy)
         }
         // The tint paints every filled control this view draws: StoreKit's purchase CTA and
-        // the lifetime Button below. #17604A is the app's house primary fill — the same value
-        // VDialogButtons.confirmFill pins — and SwiftUI derives a white label on it at 7.48:1.
-        // Brand green (#3FCFA4) was tried for 1.7.0 and reverted: StoreKit derives a BLACK
-        // label on it because black wins the contrast comparison there, and a white one would
-        // be 1.97:1. See DEC-018, which reverses DEC-017.
-        .tint(VColors.primaryOnSurface)
+        // the lifetime Button below. Brand green #3FCFA4 is the app-wide prominent-button
+        // colour — every .borderedProminent button in the app uses VColors.primary; this
+        // view and ProLockView were the only two outliers. White on #3FCFA4 is 1.97:1 —
+        // the pairing DEC-012 accepts for CTAs by owner decision. VERIFIED on the iPhone 16
+        // simulator: StoreKit derives a BLACK label on this fill, measured at 10.56:1. It
+        // exposes no API to override the purchase-button label colour, so that is accepted
+        // and left alone rather than reimplementing Apple's control. DEC-023 supersedes
+        // DEC-018.
+        .tint(VColors.primary)
         // `.tint` would otherwise repaint the Terms of Service and Privacy Policy links in
         // #3FCFA4 — pale green foreground text on a near-white page, which DEC-012 does NOT
         // cover (it covers white-on-green FILLS) and which is a real legibility regression.
@@ -254,10 +257,13 @@ struct PaywallView: View {
                     Image(systemName: "checkmark.circle.fill")
                         // Monochrome: the foreground colour is the disc and the check is
                         // knocked out of it in the page colour, so this is white on #17604A
-                        // at 7.48:1. It is also the same green as the tint above, so the
-                        // screen carries one green, not two. Palette rendering onto #3FCFA4
-                        // was the 1.7.0 experiment DEC-018 reverses — that put the check at
-                        // 1.97:1.
+                        // at 7.48:1. These glyphs deliberately stay #17604A and do NOT
+                        // follow the tint to brand green — they are decorative marketing
+                        // glyphs, not a CTA. DEC-012 covers CTAs; putting these on #3FCFA4
+                        // would drop the check to 1.97:1 and would need an exemption these
+                        // do not warrant. The screen now carries two greens — #3FCFA4 on
+                        // the CTAs and #17604A on these glyphs and the policy links — that
+                        // is accepted as the cost of keeping non-CTA content readable.
                         .foregroundStyle(VColors.primaryOnSurface)
                         .accessibilityHidden(true)
                     Text(feature)
@@ -283,10 +289,22 @@ struct PaywallView: View {
                         Text(String(localized: "Or buy Vittora Pro Lifetime for \(product.displayPrice), once"))
                             .font(.subheadline.weight(.semibold))
                             // iOS 26 draws this bare Button as a prominent capsule filled
-                            // with the ambient tint, which the .tint above returns to
-                            // #17604A. White on that is 7.48:1 — the same pairing
-                            // VDialogButtons' primary action uses, and no DEC-012 exemption
-                            // is needed.
+                            // with the ambient tint, which is now #3FCFA4. White on
+                            // #3FCFA4 is 1.97:1 — the DEC-012 pairing, accepted for CTAs
+                            // by owner decision. Note the asymmetry, because it is real
+                            // and deliberate: StoreKit derives a BLACK label for its own
+                            // purchase button on this identical fill, so the two CTAs on
+                            // this screen carry different label colours. We control this
+                            // one and keep it white per DEC-012 and to match ProLockView;
+                            // we cannot control StoreKit's. KNOWN GAP: testPaywallAccessibilityAudit
+                            // does NOT currently flag this control, because in the state
+                            // that test samples the button is off-screen or behind the
+                            // navigation bar, where the audit's viewport rules excuse it.
+                            // So it carries no DEC-012 exemption entry today. If the audit
+                            // ever reaches it unoccluded it will fail on this pairing, and
+                            // the fix is to add paywall-lifetime-button to the exemptions
+                            // in AccessibilityAuditUITests deliberately, not to change the
+                            // colour.
                             .foregroundStyle(Color.white)
                     }
                     .accessibilityIdentifier("paywall-lifetime-button")
