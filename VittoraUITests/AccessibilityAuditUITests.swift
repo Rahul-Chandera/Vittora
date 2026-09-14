@@ -1029,6 +1029,42 @@ final class AccessibilityAuditUITests: XCTestCase {
                    policyLinkIDs.contains(identifier) {
                     return true
                 }
+                // DEC-027, second half: StoreKit's own subscribe button.
+                //
+                // On CI (iPhone 17 Pro Max / iOS 26.2 / Xcode 26.3) the audit flags the
+                // green capsule itself. Its element screenshot is the whole "Try It Free"
+                // button, 1080x150px — exactly the 360x50pt frame of
+                // "Subscription Store View Standard Button" at 3x — plus a 534x47px
+                // sliver of its bottom edge meeting the page. Both arrive as bare
+                // SwiftUI.AccessibilityNodes carrying no label and no identifier, which
+                // is why an identifier-only check does not see them.
+                //
+                // The label inside that capsule is BLACK on brand green at 10.56:1 and
+                // passes; what the sampler measures is the green FILL against the page,
+                // which is the DEC-012 pairing. Apple draws this control and exposes no
+                // API to restyle it — the same reason DEC-019 exists for its caption.
+                //
+                // Anchored to Apple's two identifiers for that control plus their frames,
+                // and screen-scoped to the paywall. The identifiers were read from the
+                // live accessibility tree, not guessed: an earlier attempt invented
+                // "…Standard Picker Style Subscribe Button" and matched nothing.
+                let subscribeIDs = [
+                    "Subscription Store View Standard Button",
+                    "Subscription Store View Button"
+                ]
+                if self.app.navigationBars["Vittora Pro"].exists {
+                    for subscribeID in subscribeIDs {
+                        if issue.element?.identifier == subscribeID {
+                            return true
+                        }
+                        let control = self.app.descendants(matching: .any)[subscribeID]
+                        if let elementFrame = issue.element?.frame,
+                           control.exists,
+                           control.frame.intersects(elementFrame) {
+                            return true
+                        }
+                    }
+                }
                 // On CI's iOS 26.2 the audit flags an inner node of the floating
                 // add button that carries neither the label nor the identifier,
                 // so both checks above miss it and the DEC-012 exemption never
