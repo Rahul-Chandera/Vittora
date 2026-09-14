@@ -8,7 +8,6 @@ Price tier stays Free but the app offers in-app purchases from 1.7.0
 (DEC-013/014/015); Vittora Pro may now be described. The "no ads, no
 trackers, no accounts, no data selling" claims remain true and must be kept.
 INR examples and regime language per DEC-010 D5.
-TODO (1.7.0 submission): the "every feature" line in the description below is no longer accurate once Vittora Pro ships. Owner sign-off needed on replacement copy before submission.
 
 **Verified against `develop`:** the compliance tip engine
 (`IndiaComplianceTipEngine.swift`) really does cover Section 269ST, Section
@@ -120,7 +119,7 @@ PRIVATE BY DESIGN
 • Contact support from inside the app — you see the whole diagnostic summary before anything is sent, and it never includes your amounts, notes or payees
 • Delete all your data at any time, on your terms
 
-Vittora is free. Every feature, every device.
+Vittora is free to use — no ads, no trackers, no account. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis; your records, splits, iCloud sync and CSV export stay free.
 
 Requires iOS 26, iPadOS 26 or macOS 26.
 ```

@@ -9,7 +9,6 @@ from `metadata-en-US.md` — that file still describes v1.0.0 and predates the
 Watch app, widgets, Siri, Handoff and Year in Review. See the note at the end.
 
 **Binding constraints:** price tier stays Free but the app offers in-app purchases from 1.7.0 (DEC-013/014/015); Vittora Pro may now be described. The "no ads, no trackers, no accounts, no data selling" claims remain true and must be kept.
-TODO (1.7.0 submission): the "todas las funciones" line in the description below is no longer accurate once Vittora Pro ships. Owner sign-off needed on replacement copy before submission.
 
 Terminology follows the in-app catalogue so the listing and the app agree:
 *saldo*, *presupuesto*, *meta de ahorro*, *patrimonio neto*, *deuda*,
@@ -104,7 +103,11 @@ ACCESIBILIDAD
 • Navegación completa con teclado en iPad y Mac
 • Tema negro OLED y colores de acento
 
-Vittora es gratis. Todas las funciones, en todos tus dispositivos.
+Vittora es gratis, en todos tus dispositivos. Sin anuncios, sin rastreadores, sin cuentas y sin vender tus datos a nadie.
+
+Tus registros, tus gastos compartidos, la sincronización con iCloud y la exportación a CSV siguen siendo gratis, siempre. Vittora Pro es una mejora opcional que desbloquea el análisis de futuro: planificación fiscal completa y comparación de regímenes, informes personalizados con exportación a PDF, previsión de flujo de caja y auditoría de suscripciones, el informe 50/30/20 y el seguimiento del fondo de emergencia, y escaneo de recibos ilimitado. Sin Pro tienes cinco escaneos de recibos al mes, y todo lo que ya creaste sigue siendo tuyo.
+
+Vittora Pro está disponible por mes, por año con 7 días de prueba gratis, o como compra única Lifetime.
 
 Requiere iOS 26, iPadOS 26 o macOS 26.
 ```

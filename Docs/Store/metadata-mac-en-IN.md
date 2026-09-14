@@ -10,7 +10,6 @@ India uses **en-GB** as its base English variant, so spelling here is en-GB
 Price tier stays Free but the app offers in-app purchases from 1.7.0
 (DEC-013/014/015); Vittora Pro may now be described. The "no ads, no
 trackers, no accounts, no data selling" claims remain true and must be kept.
-TODO (1.7.0 submission): the "every feature" line in the description below is no longer accurate once Vittora Pro ships. Owner sign-off needed on replacement copy before submission.
 
 **What the Mac build must NOT claim** (same target audit as
 `metadata-mac-en-US.md`, re-verified against `project.pbxproj`): the Apple Watch
@@ -119,7 +118,7 @@ PRIVATE BY DESIGN
 • Contact support from inside the app — you see the whole diagnostic summary before anything is sent, and it never includes your amounts, notes or payees
 • Delete all your data at any time, on your terms
 
-Vittora is free. Every feature, every device.
+Vittora is free to use — no ads, no trackers, no account. Your records, your splits, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis, including unlimited receipt scanning; without it you get five scans a month. Monthly, yearly with a 7-day free trial, or one-time Lifetime.
 
 Requires macOS 26. Also available for iPhone, iPad and Apple Watch.
 ```

@@ -28,7 +28,6 @@ Review, and full keyboard navigation.
 Price tier stays Free but the app offers in-app purchases from 1.7.0
 (DEC-013/014/015); Vittora Pro may now be described. The "no ads, no
 trackers, no accounts, no data selling" claims remain true and must be kept.
-TODO (1.7.0 submission): the "every feature" line in the description below is no longer accurate once Vittora Pro ships. Owner sign-off needed on replacement copy before submission.
 
 ---
 
@@ -120,7 +119,11 @@ PRIVATE BY DESIGN
 • Contact support from inside the app — you see the whole diagnostic summary before anything is sent, and it never includes your amounts, notes or payees
 • Delete all your data at any time, on your terms
 
-Vittora is free. Every feature, every device.
+Vittora is free to use, on every device. No ads, no trackers, no account, and nothing about you sold to anyone.
+
+Your records, your splits, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis: full tax planning and regime comparison, custom reports with PDF export, cash-flow forecast, subscription audit, the 50/30/20 report, the emergency fund tracker, and unlimited receipt scanning. Without Pro you get five receipt scans a month, and everything you have already created stays yours.
+
+Vittora Pro is available monthly, yearly with a 7-day free trial, or as a one-time Lifetime purchase.
 
 Requires macOS 26. Also available for iPhone, iPad and Apple Watch.
 ```
