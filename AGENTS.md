@@ -68,7 +68,7 @@ Use `Makefile` targets for consistency:
 
 ## CI (Epic L1)
 
-GitHub Actions workflow **CI / build-and-test** runs on push/PR to `develop`, `staging`, and `main` (flow: develop → staging for QA → main for release):
+GitHub Actions workflow **CI / build-and-test** runs on push/PR to `develop` and `main` (flow: develop → main for release):
 
 - job `build`: `make build-ios`, `make build-macos`, watch-strings and localization checks
 - job `build-for-testing`: `make build-for-testing` once, uploading the simulator test
