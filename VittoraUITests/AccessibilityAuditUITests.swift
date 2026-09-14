@@ -461,16 +461,11 @@ final class AccessibilityAuditUITests: XCTestCase {
         launchSeeded(initialTab: "reports", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(app.navigationBars["Reports"].waitForExistence(timeout: 15))
         let emergency = app.descendants(matching: .any)["report-card-emergencyFund"].firstMatch
-        for _ in 0..<10 {
-            if emergency.exists {
-                let frame = emergency.frame
-                if frame.height > 1, frame.maxY <= app.frame.maxY - 120 {
-                    break
-                }
-            }
-            app.swipeUp()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
-        }
+        // The card's maxY bottoms out at 753 on this window, so a break at
+        // app.frame.maxY - 120 (= 732) could never be taken: the loop that used
+        // to sit here always burned all ten swipes and left the list
+        // over-scrolled for scrollToElement to undo. scrollToElement already
+        // does this job against the real nav-bar and tab-bar frames.
         UITestSupport.scrollToElement(emergency, in: app)
         XCTAssertTrue(emergency.waitForExistence(timeout: 15), "Emergency Fund report card should exist.")
         emergency.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
@@ -718,16 +713,11 @@ final class AccessibilityAuditUITests: XCTestCase {
 
         launchSeeded(initialTab: "reports", extraArguments: accessibility3)
         let emergency = app.descendants(matching: .any)["report-card-emergencyFund"].firstMatch
-        for _ in 0..<10 {
-            if emergency.exists {
-                let frame = emergency.frame
-                if frame.height > 1, frame.maxY <= app.frame.maxY - 120 {
-                    break
-                }
-            }
-            app.swipeUp()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
-        }
+        // The card's maxY bottoms out at 753 on this window, so a break at
+        // app.frame.maxY - 120 (= 732) could never be taken: the loop that used
+        // to sit here always burned all ten swipes and left the list
+        // over-scrolled for scrollToElement to undo. scrollToElement already
+        // does this job against the real nav-bar and tab-bar frames.
         UITestSupport.scrollToElement(emergency, in: app)
         emergency.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         _ = app.navigationBars["Emergency Fund"].waitForExistence(timeout: 15)
@@ -1078,6 +1068,40 @@ final class AccessibilityAuditUITests: XCTestCase {
                     // iOS's floating compact tab bar deliberately fades scroll
                     // content beneath its system-owned material. Ignore only
                     // contrast samples whose element frame intersects that bar.
+                    return true
+                }
+                if let element = issue.element,
+                   element.frame.maxY <= self.app.frame.minY {
+                    // The mirror of the tab-bar rule above, for the other end of
+                    // the viewport. A ScrollView inside a plain VStack keeps every
+                    // row in the accessibility tree at its true frame, so a row
+                    // scrolled off the top reports a NEGATIVE origin: on the
+                    // Emergency Fund report, "months covered" measures y -69.8 to
+                    // -52.5 against a window that starts at 0. XCTest still samples
+                    // pixels at that frame and measures whatever is there, which is
+                    // not the element. Nothing is on screen to read, so there is
+                    // nothing to fail. Kept separate from the nav-bar check below
+                    // because these are different facts: this element is off the
+                    // window entirely, not occluded by chrome.
+                    return true
+                }
+                let topBar = self.app.navigationBars.firstMatch
+                if let element = issue.element,
+                   topBar.exists,
+                   topBar.frame.maxY > 1,
+                   element.frame.minY < topBar.frame.maxY {
+                    // iOS's navigation bar occludes scroll content beneath its own
+                    // material exactly as the tab bar does at the bottom. Ignore
+                    // only contrast samples whose element frame reaches up into the
+                    // bar or the status-bar strip above it: on the Emergency Fund
+                    // report "6-month target" measures y 63.3-87.6 behind a bar at
+                    // {{0,59},{393,54}}, and "3-month target" y 33.0-57.3 in the
+                    // strip above it. Both sample chrome, not text.
+                    //
+                    // Anchored to the bar's own measured maxY rather than a
+                    // constant, so it follows the bar on every device and
+                    // orientation. An element whose minY clears the bar is fully on
+                    // screen and is still audited.
                     return true
                 }
                 if issue.element == nil,
