@@ -88,6 +88,28 @@ done | sort -u
 - [ ] Local notification permission + reminder toggles verified on a device.
 - [ ] No obvious placeholder/debug UI left in production paths.
 
+## 7b) Build number — bump it every release, on every target
+
+`CURRENT_PROJECT_VERSION` must be **higher than the last build uploaded for
+that platform**, and iOS and Mac keep **separate** upload histories under the
+same version string. That asymmetry is what catches people: 1.7.0 was accepted
+on iOS at build 1 and rejected on Mac, because the last Mac upload was build 9.
+
+- [ ] Bump `CURRENT_PROJECT_VERSION` at release time, ahead of the highest build
+      already uploaded on **either** platform. Do not restart at 1 for a new
+      version string — the Mac history does not reset with it.
+- [ ] Bump it on **all 12 build configurations**, not just the app. Verify with:
+
+```
+grep -o "CURRENT_PROJECT_VERSION = [0-9]*;" Vittora.xcodeproj/project.pbxproj | sort | uniq -c
+```
+
+  One line, count 12. Xcode's target editor changes only the target in front of
+  you, which is how 1.7.0 ended up with the app at 10 and the Watch app, Watch
+  widgets and iOS widgets still at 1. An upload validates every embedded target,
+  so a mismatch fails there — the same late-failing class as the Watch
+  `MARKETING_VERSION` drift that only a real upload caught in 1.4.0.
+
 ## 8) Branch flow, and the step everyone forgets
 
 Releases go **`develop` → `main`**. There is no QA branch.
