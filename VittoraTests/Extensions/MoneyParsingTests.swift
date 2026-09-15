@@ -4,6 +4,7 @@ import VittoraCore
 @testable import Vittora
 
 @Suite("Money Parsing Tests")
+@MainActor
 struct MoneyParsingTests {
 
     @Test("en_US parses grouping and decimal separators")

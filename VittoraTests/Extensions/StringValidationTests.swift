@@ -3,6 +3,7 @@ import VittoraCore
 @testable import Vittora
 
 @Suite("String Validation Tests")
+@MainActor
 struct StringValidationTests {
     @Test("HTTP and HTTPS URLs are accepted")
     func acceptsWebURLs() {
