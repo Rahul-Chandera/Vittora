@@ -16,6 +16,11 @@ struct EmergencyFundUseCase: Sendable {
     private let todayProvider: @Sendable () -> Date
     private let calendar: Calendar
 
+    /// Non-secret preference store. Tests inject a private suite name so parallel
+    /// suites do not clobber each other's `.standard` keys — the same injection
+    /// 3c129f0f added elsewhere for exactly this race.
+    private let defaultsSuiteName: String?
+
     nonisolated init(
         recurringRuleRepository: any RecurringRuleRepository,
         categoryRepository: any CategoryRepository,
@@ -23,8 +28,10 @@ struct EmergencyFundUseCase: Sendable {
         accountRepository: any AccountRepository,
         savingsGoalRepository: any SavingsGoalRepository,
         todayProvider: @escaping @Sendable () -> Date = { Date.now },
-        calendar: Calendar = .current
+        calendar: Calendar = .current,
+        defaultsSuiteName: String? = nil
     ) {
+        self.defaultsSuiteName = defaultsSuiteName
         self.recurringRuleRepository = recurringRuleRepository
         self.categoryRepository = categoryRepository
         self.transactionRepository = transactionRepository
@@ -34,10 +41,25 @@ struct EmergencyFundUseCase: Sendable {
         self.calendar = calendar
     }
 
+    /// The currency the fund is measured in.
+    ///
+    /// Resolved from the injected store rather than read as a default argument at the
+    /// call site. `CurrencyDefaults.code` reads `UserDefaults.standard`, and swift-testing
+    /// runs sibling suites in parallel in one process: an account created at one moment and
+    /// a report generated at another could resolve two different currencies, after which
+    /// the `currencyCode` filter below silently drops the account and the fund under-reports.
+    private var resolvedCurrencyCode: String {
+        CurrencyDefaults.code(
+            userDefaults: AppUserDefaults.suite(named: defaultsSuiteName),
+            groupDefaults: AppUserDefaults.appGroup
+        )
+    }
+
     func execute(
         selectedAccountIDs: Set<UUID>,
-        currencyCode: String = CurrencyDefaults.code
+        currencyCode: String? = nil
     ) async throws -> EmergencyFundReport {
+        let currencyCode = currencyCode ?? resolvedCurrencyCode
         let today = todayProvider()
         let categories = try await categoryRepository.fetchAll()
         let needsCategoryIDs = Set(
