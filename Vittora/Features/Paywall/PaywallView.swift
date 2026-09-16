@@ -13,6 +13,13 @@ struct PaywallView: View {
     @State private var restoreMessage: String?
     @State private var isCompletingPurchase = false
 
+    #if os(macOS)
+    /// Horizontal inset that lines the lifetime button up with StoreKit's purchase button.
+    /// Measured against the 520pt dialog, where StoreKit insets its CTA to 360pt wide and
+    /// our marketing column is 440pt after `screenPadding`.
+    private let macLifetimeButtonInset: CGFloat = 40
+    #endif
+
     private let proFeatures: [String] = [
         String(localized: "Full tax planning and regime comparison"),
         String(localized: "Custom reports with PDF export"),
@@ -101,9 +108,14 @@ struct PaywallView: View {
         // Scoped to THIS branch deliberately. Putting it on the NavigationStack sized every
         // branch, and alreadySubscribedContent is four lines of text — it rendered with
         // ~500pt of empty space below it. Only the store needs the height.
-        .frame(minWidth: 520, idealWidth: 560, minHeight: 660, idealHeight: 720)
+        .frame(minWidth: 520, idealWidth: 560, minHeight: 620, idealHeight: 660)
+        // 720 made the dialog taller than a default 1200x800 window: AppKit clipped the
+        // sheet's own Close bar against the window edge. 660 + title bar + Close bar fits.
         #endif
         .subscriptionStoreControlStyle(.prominentPicker)
+        // PROPOSAL: .automatic renders as "Accept Offer" under the Xcode 27 SDK. This is
+        // the only API that influences that label.
+        .subscriptionStoreButtonLabel(.action)
         // The default soft scroll edge effect fades the marketing content and StoreKit's own
         // auto-renew description into a half-legible ghost behind the purchase buttons — an
         // App Store Review 3.1.2 legibility problem and two accessibility-audit contrast
@@ -112,6 +124,15 @@ struct PaywallView: View {
         // content past the control area: scrolling to the bottom shows the full disclosure
         // paragraph, the policy links and the plan picker clear of the buttons.
         .scrollEdgeEffectStyle(.hard, for: .bottom)
+        // KNOWN, UNFIXED (macOS): `.scrollEdgeEffectStyle` is a no-op here, so StoreKit's
+        // pinned purchase controls float over the plan cards with nothing behind them and
+        // the Yearly card reads straight through the CTA. Three fixes were built and
+        // captured against a 1200x800 window and none reached StoreKit's macOS control
+        // area: .subscriptionStoreControlBackground with an opaque Color, the same with
+        // .gradientMaterial, and .contentMargins(.bottom:for: .scrollContent) — all three
+        // rendered pixel-identical to no modifier at all. Backing that footer needs the
+        // picker and the controls moved out of SubscriptionStoreView, which is a paywall
+        // restructure, not a modifier. Same root cause as the iPad note below.
         // KNOWN, UNFIXED (iPad only): the last feature row, the lifetime button and the
         // disclosure come to rest UNDER the price caption, purchase button and Restore,
         // faded by the scroll edge effect. The claim above that SubscriptionStoreView
@@ -184,6 +205,9 @@ struct PaywallView: View {
             }
             .padding(.horizontal, VSpacing.screenPadding)
             .padding(.top, VSpacing.xl)
+            // Without this the description sits hard against the dialog's Close bar on
+            // macOS, where the sheet is a fixed-size box rather than a scrolling sheet.
+            .padding(.bottom, VSpacing.xl)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -278,11 +302,11 @@ struct PaywallView: View {
                 .font(.title2.bold())
                 .foregroundStyle(VColors.textPrimary)
 
-            Text(String(localized: "Vittora Pro unlocks the forward-looking analysis. Your records, your splits, iCloud sync and CSV export stay free, always."))
+            Text(String(localized: "Your records, splits, iCloud sync and CSV export stay free, always."))
                 .font(.subheadline)
                 .foregroundStyle(VColors.textSecondary)
 
-            ForEach(proFeatures, id: \.self) { feature in
+            ForEach(highlightedFeatures, id: \.self) { feature in
                 HStack(alignment: .firstTextBaseline, spacing: VSpacing.sm) {
                     Image(systemName: "checkmark.circle.fill")
                         // Monochrome: the foreground colour is the disc and the check is
@@ -297,6 +321,10 @@ struct PaywallView: View {
                     Text(feature)
                         .foregroundStyle(VColors.textPrimary)
                 }
+                // One step down from body. Set on the row, not the label, so the checkmark
+                // glyph scales with the text instead of sitting oversized beside it.
+                // Dynamic Type still drives the absolute size — this is relative.
+                .font(.subheadline)
             }
 
             if let product = dependencies.purchaseService.product(for: .lifetime) {
@@ -314,8 +342,9 @@ struct PaywallView: View {
                             }
                         }
                     } label: {
-                        Text(String(localized: "Or buy Vittora Pro Lifetime for \(product.displayPrice), once"))
+                        Text(String(localized: "Vittora Pro Lifetime · \(product.displayPrice) once"))
                             .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
                             // iOS 26 draws this bare Button as a prominent capsule filled
                             // with the ambient tint, which is now #3FCFA4. White on
                             // #3FCFA4 is 1.97:1 — the DEC-012 pairing, accepted for CTAs
@@ -333,8 +362,28 @@ struct PaywallView: View {
                             // the fix is to add paywall-lifetime-button to the exemptions
                             // in AccessibilityAuditUITests deliberately, not to change the
                             // colour.
-                            .foregroundStyle(Color.white)
+                            .foregroundStyle(VColors.primaryOnSurface)
+                            .padding(.vertical, VSpacing.md)
+                            // One capsule, drawn once. `.bordered` + `.buttonBorderShape`
+                            // draws its OWN edge, so stacking an overlay stroke on top of
+                            // it rendered as a double border — obvious on macOS, where the
+                            // bordered style's edge is opaque. Painting the fill and the
+                            // stroke here, under `.buttonStyle(.plain)`, gives one edge on
+                            // every platform.
+                            .background(VColors.primary.opacity(0.12), in: .capsule)
+                            .overlay {
+                                Capsule().strokeBorder(VColors.primaryOnSurface, lineWidth: 1.5)
+                            }
                     }
+                    // PROPOSAL: secondary, not a second primary. It was the same brand
+                    // green, size and weight as StoreKit's purchase button, so the screen
+                    // had two competing primary actions and no signal which was the main
+                    // path. The outlined capsule reads as the alternative it is.
+                    //
+                    // `.plain` is load-bearing: a bare Button inside SubscriptionStoreView
+                    // is drawn by iOS as a prominent filled capsule, which is exactly the
+                    // second primary this avoids.
+                    .buttonStyle(.plain)
                     .accessibilityIdentifier("paywall-lifetime-button")
                     .disabled(isPurchasingLifetime)
 
@@ -342,6 +391,13 @@ struct PaywallView: View {
                         ProgressView()
                     }
                 }
+                #if os(macOS)
+                // StoreKit insets its own purchase button well inside the dialog, while our
+                // marketing column runs the full content width — so this button rendered
+                // noticeably wider than the CTA directly below it. Match the CTA instead of
+                // the text column. iOS is left alone: there the two already line up.
+                .padding(.horizontal, macLifetimeButtonInset)
+                #endif
             }
 
             Text(disclosure)
@@ -350,8 +406,18 @@ struct PaywallView: View {
                 .accessibilityIdentifier("paywall-auto-renew-disclosure")
         }
         .padding(.horizontal, VSpacing.screenPadding)
-        .padding(.top, VSpacing.xl)
+        .padding(.top, VSpacing.xxs)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// PROPOSAL: four, not six.
+    ///
+    /// Every row here pushes StoreKit's plan cards further down, and they were already
+    /// below the fold. The two dropped rows are the least concrete: the 50/30/20 and
+    /// emergency-fund line duplicates "reports", and "every future Pro feature" is a
+    /// promise rather than a feature. Both still appear on the website's pricing page.
+    private var highlightedFeatures: [String] {
+        Array(proFeatures.prefix(3)) + proFeatures.filter { $0.contains("receipt") }
     }
 
     private var headline: String {
@@ -372,6 +438,10 @@ struct PaywallView: View {
     }
 
     private var disclosure: String {
+        // Deliberately left at full length. Shortening this was proposed alongside the
+        // rest of the trim and rejected by the owner: it is the guideline 3.1.2 surface,
+        // and this exact wording is what passed review with 1.7.0. The paywall gets its
+        // space back from the blurb, the feature list and the lifetime button instead.
         if let annual = dependencies.purchaseService.product(for: .annual)?.displayPrice,
            let monthly = dependencies.purchaseService.product(for: .monthly)?.displayPrice {
             return String(localized: "Annual includes a 7-day free trial; your Apple Account is charged \(annual) when it ends. Monthly is \(monthly). Both renew automatically unless you turn off auto-renew at least 24 hours before the period ends, and renewals are charged within 24 hours of the period ending. Manage or cancel in your Apple Account settings. Subscribing before a trial ends forfeits the unused part of the trial. Vittora Pro Lifetime is a one-time purchase and does not renew.")
