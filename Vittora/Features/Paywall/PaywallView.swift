@@ -331,7 +331,7 @@ struct PaywallView: View {
                     .foregroundStyle(VColors.textPrimary)
                     .accessibilityIdentifier("paywall-already-subscribed")
 
-                Text(String(localized: "Every Pro feature is unlocked on this device. You can change or cancel your plan any time in your Apple Account settings."))
+                Text(alreadySubscribedDetail)
                     .font(.subheadline)
                     .foregroundStyle(VColors.textSecondary)
             }
@@ -578,6 +578,21 @@ struct PaywallView: View {
     /// promise rather than a feature. Both still appear on the website's pricing page.
     private var highlightedFeatures: [String] {
         Array(proFeatures.prefix(3)) + proFeatures.filter { $0.contains("receipt") }
+    }
+
+    /// One of three, because the old single sentence was wrong for two of them: it told a
+    /// family member to cancel a plan they do not own, and a Lifetime owner to manage a
+    /// renewal that does not exist. Both sent the reader looking for a control that is not
+    /// in their Apple Account settings.
+    private var alreadySubscribedDetail: String {
+        switch dependencies.purchaseService.proEntitlementKind {
+        case .familyShared:
+            String(localized: "Every Pro feature is unlocked on this device through Family Sharing. The family member who bought it manages the plan in their Apple Account settings.")
+        case .lifetime:
+            String(localized: "Every Pro feature is unlocked on this device. Vittora Pro Lifetime is a one-time purchase, so there is nothing to renew or cancel.")
+        case .subscription, .none:
+            String(localized: "Every Pro feature is unlocked on this device. You can change or cancel your plan any time in your Apple Account settings.")
+        }
     }
 
     private var headline: String {

@@ -10576,6 +10576,38 @@
         }
       }
     },
+    "Every Pro feature is unlocked on this device through Family Sharing. The family member who bought it manages the plan in their Apple Account settings." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las funciones Pro están desbloqueadas en este dispositivo mediante Compartir en familia. El familiar que la compró gestiona el plan en los ajustes de su cuenta de Apple."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर सभी Pro सुविधाएँ फ़ैमिली शेयरिंग के ज़रिए अनलॉक हैं। जिस परिवार सदस्य ने इसे ख़रीदा है, वे अपनी Apple खाता सेटिंग्स में प्लान प्रबंधित करते हैं।"
+          }
+        }
+      }
+    },
+    "Every Pro feature is unlocked on this device. Vittora Pro Lifetime is a one-time purchase, so there is nothing to renew or cancel." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las funciones Pro están desbloqueadas en este dispositivo. Vittora Pro Lifetime es una compra única, así que no hay nada que renovar ni cancelar."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर सभी Pro सुविधाएँ अनलॉक हैं। Vittora Pro Lifetime एक बार की ख़रीद है, इसलिए नवीनीकरण या रद्द करने के लिए कुछ नहीं है।"
+          }
+        }
+      }
+    },
     "Every Pro feature is unlocked on this device. You can change or cancel your plan any time in your Apple Account settings." : {
       "localizations" : {
         "es" : {

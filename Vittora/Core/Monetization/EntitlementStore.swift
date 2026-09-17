@@ -58,6 +58,13 @@ actor EntitlementStore {
         EntitlementPolicy.resolve(cache.load(), now: now())
     }
 
+    /// The snapshot behind `cachedLevel()`, for callers that need HOW Pro was obtained and
+    /// not only whether it is active. Same source, so the two never disagree, and it stays
+    /// correct offline.
+    nonisolated func cachedSnapshot() -> EntitlementSnapshot? {
+        cache.load()
+    }
+
     /// Reads `Transaction.currentEntitlements`, updates the cache, returns the new level.
     @discardableResult
     func refresh() async -> EntitlementLevel {
@@ -77,7 +84,8 @@ actor EntitlementStore {
                 productID: transaction.productID,
                 expirationDate: transaction.expirationDate,
                 isInBillingRetry: false,
-                recordedAt: recordedAt
+                recordedAt: recordedAt,
+                isFamilyShared: transaction.ownershipType == .familyShared
             )
 
             guard let candidateExpiry = candidate.expirationDate else {
