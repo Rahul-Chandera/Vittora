@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""Block the three things Xcode rewrites under us on almost every build.
+
+None of these are hypothetical. Each one was committed at least once, and the
+Info.plist one was caught twice in review and once only because a release build
+was inspected by hand:
+
+  1. Xcode deletes the four required keys from Vittora/Info.plist and moves them
+     into INFOPLIST_KEY_* build settings. Shipping without them is an immediate
+     App Store rejection, and nothing in the build or the test suite notices.
+  2. The same edit adds those INFOPLIST_KEY_* entries to project.pbxproj, which
+     then duplicates what Info.plist already declares.
+  3. Xcode regenerates VittoraWatch/Localizable.xcstrings instead of
+     Scripts/ci/sync-watch-strings.py, which breaks CI's sync check.
+
+Every check here is cheap and exact — no build required — so this stays a hook
+rather than another CI leg that only tells you an hour later.
+
+`git commit --no-verify` skips all of it, which is the right answer when a change
+is deliberate: adding a genuine usage description, or normalising catalogue key
+order on purpose.
+
+Install: git config core.hooksPath Scripts/hooks
+"""
+import json
+import subprocess
+import sys
+
+REQUIRED_PLIST_KEYS = [
+    "NSCameraUsageDescription",
+    "NSContactsUsageDescription",
+    "NSFaceIDUsageDescription",
+    "ITSAppUsesNonExemptEncryption",
+]
+
+problems = []
+
+
+def staged_files():
+    out = subprocess.run(
+        ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+        capture_output=True, text=True, check=True,
+    )
+    return [line for line in out.stdout.splitlines() if line]
+
+
+def staged_blob(path):
+    out = subprocess.run(["git", "show", f":{path}"], capture_output=True, text=True)
+    return out.stdout if out.returncode == 0 else None
+
+
+def head_blob(path):
+    out = subprocess.run(["git", "show", f"HEAD:{path}"], capture_output=True, text=True)
+    return out.stdout if out.returncode == 0 else None
+
+
+def check_info_plist(path):
+    content = staged_blob(path)
+    if content is None:
+        return
+    missing = [key for key in REQUIRED_PLIST_KEYS if f"<key>{key}</key>" not in content]
+    if missing:
+        problems.append(
+            f"{path} is missing {', '.join(missing)}.\n"
+            "    Xcode deletes these and moves them into INFOPLIST_KEY_* build settings.\n"
+            "    Shipping without them is an App Store rejection and no test catches it.\n"
+            "    Fix: git checkout -- " + path
+        )
+
+
+def check_pbxproj(path):
+    content = staged_blob(path)
+    head = head_blob(path) or ""
+    if content is None:
+        return
+    added = [
+        line.strip()
+        for line in content.splitlines()
+        if "INFOPLIST_KEY_NS" in line or "INFOPLIST_KEY_ITS" in line
+    ]
+    already = [
+        line.strip()
+        for line in head.splitlines()
+        if "INFOPLIST_KEY_NS" in line or "INFOPLIST_KEY_ITS" in line
+    ]
+    new = sorted(set(added) - set(already))
+    if new:
+        problems.append(
+            f"{path} adds INFOPLIST_KEY_* entries that Info.plist already declares:\n"
+            + "".join(f"      {line}\n" for line in new[:4])
+            + "    Fix: git checkout -- " + path
+        )
+
+
+def check_catalogue_reformat(path):
+    """A catalogue whose parsed content matches HEAD is a pure reordering."""
+    content = staged_blob(path)
+    head = head_blob(path)
+    if content is None or head is None:
+        return
+    try:
+        if json.loads(content) == json.loads(head):
+            problems.append(
+                f"{path} has no content change — only key order or whitespace moved.\n"
+                "    That is Xcode rewriting the catalogue during a build.\n"
+                "    Fix: git checkout -- " + path + "\n"
+                "    Intentional reordering: commit with --no-verify."
+            )
+    except json.JSONDecodeError as error:
+        problems.append(f"{path} is not valid JSON: {error}")
+
+
+def check_watch_catalogue(path):
+    """The watch catalogue is generated. It must never be Xcode's version."""
+    content = staged_blob(path)
+    head = head_blob(path)
+    if content is None or head is None:
+        return
+    try:
+        staged_keys = set(json.loads(content).get("strings", {}))
+        head_keys = set(json.loads(head).get("strings", {}))
+    except json.JSONDecodeError:
+        return  # already reported by check_catalogue_reformat
+    if staged_keys != head_keys:
+        problems.append(
+            f"{path} changed its key set.\n"
+            "    This file is generated. Regenerate it rather than letting Xcode write it:\n"
+            "      DERIVED=<your build dir> Scripts/ci/sync-watch-strings.py\n"
+            "    CI runs the same script with --check and fails on a mismatch."
+        )
+
+
+for path in staged_files():
+    if path == "Vittora/Info.plist":
+        check_info_plist(path)
+    elif path.endswith(".pbxproj"):
+        check_pbxproj(path)
+    elif path.endswith(".xcstrings"):
+        check_catalogue_reformat(path)
+        if path.startswith("VittoraWatch/"):
+            check_watch_catalogue(path)
+
+if problems:
+    print("pre-commit: Xcode churn detected\n", file=sys.stderr)
+    for problem in problems:
+        print(f"  - {problem}\n", file=sys.stderr)
+    print("  Skip these checks with: git commit --no-verify", file=sys.stderr)
+    sys.exit(1)
