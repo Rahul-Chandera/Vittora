@@ -630,6 +630,23 @@
         }
       }
     },
+    "%@ once" : {
+      "comment" : "Lifetime plan price on the paywall card; a one-time purchase, not a period.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ una sola vez"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ एक बार"
+          }
+        }
+      }
+    },
     "%@ owed to you" : {
       "localizations" : {
         "es" : {
@@ -1227,6 +1244,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@। टैक्स: %2$@। प्रभावी दर %3$@%%"
+          }
+        }
+      }
+    },
+    "%@/month" : {
+      "comment" : "Monthly plan price on the paywall card.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/mes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/माह"
+          }
+        }
+      }
+    },
+    "%@/year" : {
+      "comment" : "Yearly plan price on the paywall card.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/año"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/वर्ष"
           }
         }
       }
@@ -2652,6 +2703,23 @@
         }
       }
     },
+    "7 days free, then %@" : {
+      "comment" : "Paywall plan caption when this account is eligible for the free trial.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 días gratis, luego %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 दिन मुफ़्त, फिर %@"
+          }
+        }
+      }
+    },
     "31-60 days" : {
       "localizations" : {
         "es" : {
@@ -3270,74 +3338,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सक्रिय सब्सक्रिप्शन"
-          }
-        }
-      }
-    },
-    "%@ once" : {
-      "comment" : "Lifetime plan price on the paywall card; a one-time purchase, not a period.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ una sola vez"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ एक बार"
-          }
-        }
-      }
-    },
-    "%@/month" : {
-      "comment" : "Monthly plan price on the paywall card.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@/mes"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@/माह"
-          }
-        }
-      }
-    },
-    "%@/year" : {
-      "comment" : "Yearly plan price on the paywall card.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@/año"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@/वर्ष"
-          }
-        }
-      }
-    },
-    "7 days free, then %@" : {
-      "comment" : "Paywall plan caption when this account is eligible for the free trial.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "7 días gratis, luego %@"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "7 दिन मुफ़्त, फिर %@"
           }
         }
       }
@@ -4590,6 +4590,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "एक समग्र बजट पहले से चल रहा है। दूसरा जोड़ने से पहले उसे संपादित करें या हटाएँ।"
+          }
+        }
+      }
+    },
+    "and" : {
+      "comment" : "Joins the Terms of Service and Privacy Policy links on the paywall.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "y"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "और"
           }
         }
       }
@@ -9548,23 +9565,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "डुप्लिकेट छोड़ दिए गए"
-          }
-        }
-      }
-    },
-    "and" : {
-      "comment" : "Joins the Terms of Service and Privacy Policy links on the paywall.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "y"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "और"
           }
         }
       }
@@ -19356,6 +19356,22 @@
         }
       }
     },
+    "Restore Purchases" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar compras"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "खरीदारी बहाल करें"
+          }
+        }
+      }
+    },
     "Restore Subscription" : {
       "comment" : "Paywall footer button that restores a previous purchase.",
       "localizations" : {
@@ -19369,22 +19385,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सदस्यता बहाल करें"
-          }
-        }
-      }
-    },
-    "Restore Purchases" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restaurar compras"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "खरीदारी बहाल करें"
           }
         }
       }
@@ -24571,23 +24571,6 @@
         }
       }
     },
-    "Try It Free" : {
-      "comment" : "Paywall purchase button when the selected plan offers a free trial.",
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Probar gratis"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "मुफ़्त आज़माएँ"
-          }
-        }
-      }
-    },
     "Try Again" : {
       "comment" : "A button that reloads the debt ledger when pressed.",
       "isCommentAutoGenerated" : true,
@@ -24602,6 +24585,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "फिर से कोशिश करें"
+          }
+        }
+      }
+    },
+    "Try It Free" : {
+      "comment" : "Paywall purchase button when the selected plan offers a free trial.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Probar gratis"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मुफ़्त आज़माएँ"
           }
         }
       }
@@ -25831,6 +25831,7 @@
     },
     "Vittora Pro Lifetime · %@ once" : {
       "comment" : "A button that purchases the lifetime paywall.",
+      "extractionState" : "stale",
       "isCommentAutoGenerated" : true,
       "localizations" : {
         "es" : {

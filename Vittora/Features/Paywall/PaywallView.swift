@@ -1,6 +1,35 @@
 import SwiftUI
 import StoreKit
+#if os(iOS)
+import UIKit
+#endif
 import VittoraCore
+
+/// An iPad sheet is a fixed-size form sheet regardless of how much screen there is, and in
+/// landscape it is short enough to cut the third plan card off entirely — Lifetime was not
+/// merely below the fold, it was not on screen at all.
+///
+/// `.page` sizes the sheet against the screen instead. `.form.fitted(vertical: true)` was
+/// tried first and is wrong here: it measured the safeAreaInset footer as the whole content
+/// and collapsed the sheet to a title, a caption and the CTA, with everything else gone.
+/// The cost of `.page` is some empty sheet under the disclosure in portrait, which is the
+/// better trade against Lifetime being entirely off screen in landscape.
+///
+/// Idiom-scoped rather than applied everywhere: on iPhone the sheet is already full width
+/// and this would be a silent no-op that the next reader has to re-derive.
+private struct PaywallSheetSizing: ViewModifier {
+    func body(content: Content) -> some View {
+        #if os(iOS)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            content.presentationSizing(.page)
+        } else {
+            content
+        }
+        #else
+        content
+        #endif
+    }
+}
 
 struct PaywallView: View {
     var milestone: ConversionMilestone?
@@ -52,6 +81,7 @@ struct PaywallView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .task { await dependencies.purchaseService.loadProducts() }
+            .modifier(PaywallSheetSizing())
             .alert(
                 String(localized: "Purchase Failed"),
                 isPresented: Binding(
