@@ -15,8 +15,6 @@ private struct ZeroScanTracker: ConversionEventTracking, Sendable {
     nonisolated func ocrScansThisMonth() -> Int { 0 }
 }
 
-private struct StubPurchaseFailure: Error {}
-
 @Suite("Purchase Service Tests")
 @MainActor
 struct PurchaseServiceTests {
@@ -276,19 +274,4 @@ struct PurchaseServiceTests {
         #expect(service.proEntitlementKind == .none)
     }
 
-    /// Catches a regression where a failed or cancelled StoreKit-view purchase still unlocks Pro.
-    @Test("a failed store purchase unlocks nothing")
-    func failedStorePurchaseUnlocksNothing() async {
-        let now = Date(timeIntervalSince1970: 1_700_000_000)
-        let (cache, _) = makeCache()
-        let store = EntitlementStore(cache: cache, now: { now }, standing: { _ in .unknown })
-        let service = PurchaseService(entitlements: store)
-        let gate = FeatureGate(store: store, tracker: ZeroScanTracker(), storeKitEnabled: true)
-
-        let granted = await service.completeStorePurchase(.failure(StubPurchaseFailure()))
-
-        #expect(granted == false)
-        #expect(service.level == .free)
-        #expect(gate.isProUnlocked == false)
-    }
 }

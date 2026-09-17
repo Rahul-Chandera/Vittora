@@ -16,13 +16,6 @@ struct PaywallView: View {
     @State private var restoreMessage: String?
     @State private var isCompletingPurchase = false
 
-    #if os(macOS)
-    /// Horizontal inset that lines the lifetime button up with StoreKit's purchase button.
-    /// Measured against the 520pt dialog, where StoreKit insets its CTA to 360pt wide and
-    /// our marketing column is 440pt after `screenPadding`.
-    private let macLifetimeButtonInset: CGFloat = 40
-    #endif
-
     private let proFeatures: [String] = [
         String(localized: "Full tax planning and regime comparison"),
         String(localized: "Custom reports with PDF export"),
@@ -523,13 +516,6 @@ struct PaywallView: View {
                     ProgressView()
                 }
             }
-            #if os(macOS)
-            // StoreKit insets its own purchase button well inside the dialog, while our
-            // marketing column runs the full content width — so this button rendered
-            // noticeably wider than the CTA directly below it. Match the CTA instead of
-            // the text column. iOS is left alone: there the two already line up.
-            .padding(.horizontal, macLifetimeButtonInset)
-            #endif
         }
     }
 
