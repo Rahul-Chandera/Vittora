@@ -150,13 +150,15 @@ struct PaywallView: View {
         // the single Close control for every branch of this sheet.
         .storeButton(.hidden, for: .cancellation)
         .storeButton(.visible, for: .restorePurchases)
-        .storeButton(.visible, for: .policies)
-        .subscriptionStorePolicyDestination(for: .termsOfService) {
-            LegalDocumentView(document: .termsOfService)
-        }
-        .subscriptionStorePolicyDestination(for: .privacyPolicy) {
-            LegalDocumentView(document: .privacyPolicy)
-        }
+        // StoreKit draws its policy links as 14pt text: the accessibility audit measured
+        // them at 95.3x14.3 and 78.7x14.3 and failed them as hit regions, and there is no
+        // API to size them. They were always that small — reducing the top padding above
+        // the hero simply lifted them into the audited viewport for the first time. So
+        // draw our own instead, in the same place and with the same wording, at the 44pt
+        // minimum. `.subscriptionStorePolicyDestination` and
+        // `.subscriptionStorePolicyForegroundStyle` went with them: both only drive
+        // StoreKit's own buttons and are dead once those are hidden.
+        .storeButton(.hidden, for: .policies)
         // The tint paints every filled control this view draws: StoreKit's purchase CTA and
         // the lifetime Button below. Brand green #3FCFA4 is the app-wide prominent-button
         // colour — every .borderedProminent button in the app uses VColors.primary; this
@@ -167,11 +169,6 @@ struct PaywallView: View {
         // and left alone rather than reimplementing Apple's control. DEC-023 supersedes
         // DEC-018.
         .tint(VColors.primary)
-        // `.tint` would otherwise repaint the Terms of Service and Privacy Policy links in
-        // #3FCFA4 — pale green foreground text on a near-white page, which DEC-012 does NOT
-        // cover (it covers white-on-green FILLS) and which is a real legibility regression.
-        // Keep the links at the AA-safe #17604A.
-        .subscriptionStorePolicyForegroundStyle(VColors.primaryOnSurface)
         .onInAppPurchaseCompletion { _, result in
             isCompletingPurchase = true
             defer { isCompletingPurchase = false }
@@ -404,10 +401,49 @@ struct PaywallView: View {
                 .font(.footnote)
                 .foregroundStyle(VColors.textSecondary)
                 .accessibilityIdentifier("paywall-auto-renew-disclosure")
+
+            policyLinks
         }
         .padding(.horizontal, VSpacing.screenPadding)
         .padding(.top, VSpacing.xxs)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Replaces StoreKit's own policy links, which it draws at 14pt and the audit fails
+    /// as hit regions. Same wording and the same position in the column; `minHeight: 44`
+    /// is what the audit measures, and `.plain` keeps a bare Button inside
+    /// SubscriptionStoreView from being drawn by iOS as a prominent filled capsule.
+    ///
+    /// Kept at #17604A rather than the ambient tint: `.tint` would paint these #3FCFA4,
+    /// pale green text on a near-white page, which DEC-012 does NOT cover — it covers
+    /// white-on-green FILLS — and which is a real legibility regression.
+    private var policyLinks: some View {
+        HStack(spacing: VSpacing.xs) {
+            policyLink(.termsOfService)
+            Text(String(localized: "and"))
+                .font(.footnote)
+                .foregroundStyle(VColors.textSecondary)
+            policyLink(.privacyPolicy)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func policyLink(_ document: LegalDocument) -> some View {
+        NavigationLink {
+            LegalDocumentView(document: document)
+        } label: {
+            Text(document.title)
+                .font(.footnote)
+                .foregroundStyle(VColors.primaryOnSurface)
+                .padding(.horizontal, VSpacing.xxs)
+                .frame(minHeight: 44)
+                // `.frame` alone grew the tap target but NOT the accessibility element:
+                // the audit still measured the text's own bounds at 15.7pt. `.accessibility`
+                // is what makes the reported frame match the 44pt one.
+                .contentShape([.interaction, .accessibility], Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("paywall-policy-\(document.rawValue)")
     }
 
     /// PROPOSAL: four, not six.

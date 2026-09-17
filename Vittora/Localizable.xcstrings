@@ -9484,6 +9484,23 @@
         }
       }
     },
+    "and" : {
+      "comment" : "Joins the Terms of Service and Privacy Policy links on the paywall.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "y"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "और"
+          }
+        }
+      }
+    },
     "e.g. 1200000" : {
       "extractionState" : "stale",
       "localizations" : {
