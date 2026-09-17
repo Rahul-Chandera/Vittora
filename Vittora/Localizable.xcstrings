@@ -3274,6 +3274,23 @@
         }
       }
     },
+    "%@ once" : {
+      "comment" : "Lifetime plan price on the paywall card; a one-time purchase, not a period.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ una sola vez"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ एक बार"
+          }
+        }
+      }
+    },
     "%@/month" : {
       "comment" : "Monthly plan price on the paywall card.",
       "localizations" : {
@@ -18257,6 +18274,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "यह अनुमान आपकी आवर्ती मदों और हाल के खर्च पर आधारित है — इसकी गारंटी नहीं है."
+          }
+        }
+      }
+    },
+    "Purchase" : {
+      "comment" : "Paywall button when the selected plan is the one-time Lifetime purchase.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ख़रीदें"
           }
         }
       }

@@ -6,7 +6,6 @@ struct PaywallView: View {
     var milestone: ConversionMilestone?
     @Environment(\.dependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
-    @State private var isPurchasingLifetime = false
     @State private var isPurchasingPlan = false
     /// Annual is preselected: it carries the trial, and StoreKit's picker defaulted to it.
     @State private var selectedPlan: ProProduct = .annual
@@ -99,11 +98,15 @@ struct PaywallView: View {
     /// and the footer is what makes all three ordinary layout again.
     private var customStore: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: VSpacing.lg) {
+            // md, not lg. A third card needs roughly 55pt that the column does not have on a
+            // phone sheet, and this plus the tighter card padding below is where it comes
+            // from — rather than from dropping a bullet or moving the policy links, which
+            // would change the agreed content order.
+            VStack(alignment: .leading, spacing: VSpacing.md) {
                 marketingContent
                 planCard(.annual)
                 planCard(.monthly)
-                lifetimeButton
+                planCard(.lifetime)
                 Text(disclosure)
                     .font(.footnote)
                     .foregroundStyle(VColors.textSecondary)
@@ -152,7 +155,7 @@ struct PaywallView: View {
                         // trait below, so it conveys nothing on its own.
                         .accessibilityHidden(true)
                 }
-                .padding(VSpacing.cardPadding)
+                .padding(VSpacing.md)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(VColors.secondaryGroupedBackground, in: .rect(cornerRadius: VSpacing.cornerRadiusLG))
                 .overlay {
@@ -187,7 +190,9 @@ struct PaywallView: View {
         switch plan {
         case .annual: String(localized: "\(product.displayPrice)/year")
         case .monthly: String(localized: "\(product.displayPrice)/month")
-        case .lifetime: product.displayPrice
+        // Not a period at all — "once" is the whole point, and a bare price next to two
+        // per-period ones would read as a third recurring plan.
+        case .lifetime: String(localized: "\(product.displayPrice) once")
         }
     }
 
@@ -207,6 +212,11 @@ struct PaywallView: View {
     private var purchaseButtonLabel: String {
         if let product = selectedProduct, offersTrial(selectedPlan, product: product) {
             return String(localized: "Try It Free")
+        }
+        // Lifetime is a non-consumable. "Subscribe" on a one-time purchase is not a wording
+        // preference, it misdescribes the transaction.
+        if selectedPlan == .lifetime {
+            return String(localized: "Purchase")
         }
         return String(localized: "Subscribe")
     }
@@ -403,9 +413,9 @@ struct PaywallView: View {
 
     @ViewBuilder
     private var marketingContent: some View {
-        VStack(alignment: .leading, spacing: VSpacing.lg) {
+        VStack(alignment: .leading, spacing: VSpacing.md) {
             Image(systemName: "sparkles")
-                .font(.largeTitle)
+                .font(.title)
                 // Brand green by owner decision (DEC-024). Decorative and
                 // accessibilityHidden, so no contrast rule applies to it.
                 .foregroundStyle(VColors.primary)
@@ -446,77 +456,6 @@ struct PaywallView: View {
         .padding(.horizontal, VSpacing.screenPadding)
         .padding(.top, VSpacing.xxs)
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    /// Sits after the two plan cards, where the owner's content order puts it: the two
-    /// subscriptions are the main path and this is the alternative, so it reads as one.
-    @ViewBuilder
-    private var lifetimeButton: some View {
-        if let product = dependencies.purchaseService.product(for: .lifetime) {
-            HStack(spacing: VSpacing.sm) {
-                Button {
-                    Task {
-                        isPurchasingLifetime = true
-                        defer { isPurchasingLifetime = false }
-                        do {
-                            if try await dependencies.purchaseService.purchase(product) == .purchased {
-                                dismiss()
-                            }
-                        } catch {
-                            errorMessage = error.localizedDescription
-                        }
-                    }
-                } label: {
-                    Text(String(localized: "Vittora Pro Lifetime · \(product.displayPrice) once"))
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                        // iOS 26 draws this bare Button as a prominent capsule filled
-                        // with the ambient tint, which is now #3FCFA4. White on
-                        // #3FCFA4 is 1.97:1 — the DEC-012 pairing, accepted for CTAs
-                        // by owner decision. Note the asymmetry, because it is real
-                        // and deliberate: StoreKit derives a BLACK label for its own
-                        // purchase button on this identical fill, so the two CTAs on
-                        // this screen carry different label colours. We control this
-                        // one and keep it white per DEC-012 and to match ProLockView;
-                        // we cannot control StoreKit's. KNOWN GAP: testPaywallAccessibilityAudit
-                        // does NOT currently flag this control, because in the state
-                        // that test samples the button is off-screen or behind the
-                        // navigation bar, where the audit's viewport rules excuse it.
-                        // So it carries no DEC-012 exemption entry today. If the audit
-                        // ever reaches it unoccluded it will fail on this pairing, and
-                        // the fix is to add paywall-lifetime-button to the exemptions
-                        // in AccessibilityAuditUITests deliberately, not to change the
-                        // colour.
-                        .foregroundStyle(VColors.primaryOnSurface)
-                        .padding(.vertical, VSpacing.md)
-                        // One capsule, drawn once. `.bordered` + `.buttonBorderShape`
-                        // draws its OWN edge, so stacking an overlay stroke on top of
-                        // it rendered as a double border — obvious on macOS, where the
-                        // bordered style's edge is opaque. Painting the fill and the
-                        // stroke here, under `.buttonStyle(.plain)`, gives one edge on
-                        // every platform.
-                        .background(VColors.primary.opacity(0.12), in: .capsule)
-                        .overlay {
-                            Capsule().strokeBorder(VColors.primaryOnSurface, lineWidth: 1.5)
-                        }
-                }
-                // PROPOSAL: secondary, not a second primary. It was the same brand
-                // green, size and weight as StoreKit's purchase button, so the screen
-                // had two competing primary actions and no signal which was the main
-                // path. The outlined capsule reads as the alternative it is.
-                //
-                // `.plain` is load-bearing: a bare Button inside SubscriptionStoreView
-                // is drawn by iOS as a prominent filled capsule, which is exactly the
-                // second primary this avoids.
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("paywall-lifetime-button")
-                .disabled(isPurchasingLifetime)
-
-                if isPurchasingLifetime {
-                    ProgressView()
-                }
-            }
-        }
     }
 
     /// Replaces StoreKit's own policy links, which it draws at 14pt and the audit fails
