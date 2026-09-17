@@ -104,6 +104,10 @@ final class PurchaseService {
         products.first { $0.id == proProduct.rawValue }
     }
 
+    /// NOTE for whoever configures an offer in App Store Connect: SubscriptionStoreView used
+    /// to apply offer codes, promotional offers and win-back offers on its own, and owning
+    /// the paywall means nothing does now. None are configured today, so nothing is broken —
+    /// but a new one will silently do nothing until it is passed here as a PurchaseOption.
     @discardableResult
     func purchase(_ product: Product) async throws -> PurchaseOutcome {
         let result = try await product.purchase()
@@ -133,18 +137,6 @@ final class PurchaseService {
     func restore() async throws {
         try await AppStore.sync()
         await refreshEntitlement()
-    }
-
-    /// SubscriptionStoreView runs its own purchase, so the transaction never reaches
-    /// purchase(_:), and StoreKit does not redeliver an app-initiated purchase through
-    /// Transaction.updates. The paywall hands the result here so verification, finishing
-    /// and the entitlement refresh stay in exactly one place.
-    @discardableResult
-    func completeStorePurchase(_ result: Result<Product.PurchaseResult, any Error>) async -> Bool {
-        guard case .success(let purchaseResult) = result,
-              case .success(let verification) = purchaseResult else { return false }
-        await handle(verification)
-        return level == .pro
     }
 
     private func handle(_ update: VerificationResult<Transaction>) async {
