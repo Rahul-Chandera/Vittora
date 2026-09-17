@@ -158,6 +158,34 @@ struct PurchaseServiceTests {
         #expect(gate.isProUnlocked == false)
     }
 
+    /// Guideline 3.1.2: the paywall may only advertise the 7-day trial to an account that can
+    /// actually get it. Catches a regression where the flag starts true, which would promise a
+    /// trial on every cold launch in the window before StoreKit answers — including to a
+    /// returning subscriber, and including to App Review, who commonly test with exactly that
+    /// account.
+    @Test("the trial is not advertised until StoreKit answers")
+    func introOfferIsNotAdvertisedBeforeProductsLoad() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
+        #expect(service.isEligibleForIntroOffer == false)
+    }
+
+    /// The other half of the same rule: every failure path must land on "no trial". A load that
+    /// serves nothing cannot tell us the account is eligible, and guessing yes there is the
+    /// expensive direction to be wrong in — an advertised price the account cannot get, versus
+    /// a missed conversion.
+    @Test("a load that serves no products leaves the trial unadvertised")
+    func introOfferIsNotAdvertisedWhenProductsFailToLoad() async {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
+        await service.loadProducts()
+        if service.products.isEmpty {
+            #expect(service.isEligibleForIntroOffer == false)
+        }
+    }
+
     /// Catches a regression where a failed or cancelled StoreKit-view purchase still unlocks Pro.
     @Test("a failed store purchase unlocks nothing")
     func failedStorePurchaseUnlocksNothing() async {

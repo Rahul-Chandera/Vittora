@@ -24,6 +24,16 @@ final class PurchaseService {
     private(set) var level: EntitlementLevel
     private(set) var didFailToLoadProducts = false
 
+    /// Whether the paywall may advertise the 7-day free trial to THIS Apple Account.
+    ///
+    /// Defaults to false and returns to false on every failure path, deliberately. The two
+    /// mistakes are not symmetric: not showing a trial to an eligible user costs a
+    /// conversion, while showing one to an ineligible user is a Guideline 3.1.2 violation
+    /// — an advertised price the account cannot actually get. App Review commonly tests
+    /// with an account that has already subscribed, so that is the likely path, not the
+    /// rare one.
+    private(set) var isEligibleForIntroOffer = false
+
     init(entitlements: EntitlementStore = EntitlementStore()) {
         self.entitlements = entitlements
         self.level = entitlements.cachedLevel()
@@ -65,10 +75,29 @@ final class PurchaseService {
                 return lhsIndex < rhsIndex
             }
             didFailToLoadProducts = products.isEmpty
+            isEligibleForIntroOffer = await Self.resolveIntroOfferEligibility(in: products)
         } catch {
             products = []
             didFailToLoadProducts = true
+            isEligibleForIntroOffer = false
         }
+    }
+
+    /// Eligibility belongs to the subscription GROUP, not to one product, so annual and
+    /// monthly always answer alike — StoreKit's own `isEligibleForIntroOffer` just forwards
+    /// to `isEligibleForIntroOffer(for: subscriptionGroupID)`. Ask the annual plan, which is
+    /// the one carrying the trial.
+    ///
+    /// The `introductoryOffer != nil` guard is the half that is easy to forget: an account
+    /// can be eligible for an offer that the product does not have, and answering true there
+    /// would advertise a trial that does not exist.
+    private static func resolveIntroOfferEligibility(in products: [Product]) async -> Bool {
+        guard let subscription = products
+            .first(where: { $0.id == ProProduct.annual.rawValue })?
+            .subscription,
+            subscription.introductoryOffer != nil
+        else { return false }
+        return await subscription.isEligibleForIntroOffer
     }
 
     func product(for proProduct: ProProduct) -> Product? {
