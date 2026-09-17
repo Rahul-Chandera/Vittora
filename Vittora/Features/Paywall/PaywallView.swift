@@ -5,23 +5,41 @@ import UIKit
 #endif
 import VittoraCore
 
-/// An iPad sheet is a fixed-size form sheet regardless of how much screen there is, and in
-/// landscape it is short enough to cut the third plan card off entirely — Lifetime was not
-/// merely below the fold, it was not on screen at all.
+/// An iPad sheet is a fixed-size form sheet — 620pt tall — no matter how much screen there
+/// is, and this screen needs about 780pt. In landscape that left the third plan card not
+/// merely below the fold but off screen entirely, along with the disclosure and any hint
+/// that the content continued.
 ///
-/// `.page` sizes the sheet against the screen instead. `.form.fitted(vertical: true)` was
-/// tried first and is wrong here: it measured the safeAreaInset footer as the whole content
-/// and collapsed the sheet to a title, a caption and the CTA, with everything else gone.
-/// The cost of `.page` is some empty sheet under the disclosure in portrait, which is the
-/// better trade against Lifetime being entirely off screen in landscape.
+/// So: the form sheet, kept at its form width and shape, with a taller height. `.page` was
+/// tried first and is the wrong instrument — it sizes against the screen and turns the
+/// dialog into something close to full screen, which is not what this needed.
+/// `.form.fitted(vertical: true)` is wrong too: it measured the safeAreaInset footer as the
+/// whole content and collapsed the sheet to a title, a caption and the CTA. Both were built
+/// and captured, so neither needs trying again.
 ///
+/// UIKit clamps a proposal taller than the screen, so no explicit cap is needed here —
+/// which is just as well, because PresentationSizingContext exposes no container size.
+private struct TallerFormSizing: PresentationSizing {
+    /// Enough for the hero, the four bullets, the policy links, three plan cards and the
+    /// disclosure, measured against the rendered screen rather than guessed.
+    private let height: CGFloat = 800
+
+    func proposedSize(
+        for root: PresentationSizingRoot,
+        context: PresentationSizingContext
+    ) -> ProposedViewSize {
+        let form = FormPresentationSizing.form.proposedSize(for: root, context: context)
+        return ProposedViewSize(width: form.width, height: height)
+    }
+}
+
 /// Idiom-scoped rather than applied everywhere: on iPhone the sheet is already full width
-/// and this would be a silent no-op that the next reader has to re-derive.
+/// and this would be a silent no-op the next reader has to re-derive.
 private struct PaywallSheetSizing: ViewModifier {
     func body(content: Content) -> some View {
         #if os(iOS)
         if UIDevice.current.userInterfaceIdiom == .pad {
-            content.presentationSizing(.page)
+            content.presentationSizing(TallerFormSizing())
         } else {
             content
         }
