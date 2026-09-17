@@ -159,4 +159,14 @@ final class PurchaseService {
     func refreshEntitlement() async {
         level = await entitlements.refresh()
     }
+
+    /// Family Sharing is checked before the product, deliberately: annual and lifetime are
+    /// both Family Shareable (DEC-013), so an inherited lifetime is still someone else's
+    /// purchase and must not be described as this user's own.
+    var proEntitlementKind: ProEntitlementKind {
+        guard level == .pro, let snapshot = entitlements.cachedSnapshot() else { return .none }
+        if snapshot.isFamilyShared == true { return .familyShared }
+        if snapshot.productID == ProProduct.lifetime.rawValue { return .lifetime }
+        return .subscription
+    }
 }
