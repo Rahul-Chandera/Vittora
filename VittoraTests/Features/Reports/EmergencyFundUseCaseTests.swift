@@ -23,7 +23,12 @@ struct EmergencyFundUseCaseTests {
             type: .expense,
             categoryID: fixture.needs.id
         ))
-        let selected = AccountEntity(name: "Savings", type: .bank, balance: 4_200)
+        let selected = AccountEntity(
+            name: "Savings",
+            type: .bank,
+            balance: 4_200,
+            currencyCode: fixture.currencyCode
+        )
         try await fixture.accounts.create(selected)
         await fixture.goals.seed(SavingsGoalEntity(
             name: "Emergency",
@@ -72,7 +77,20 @@ struct EmergencyFundUseCaseTests {
         #expect(report.snapshot == nil)
     }
 
+    /// Every fixture gets its own defaults suite and an explicit currency.
+    ///
+    /// Without this the suite reads `UserDefaults.standard` twice — once when an
+    /// `AccountEntity` takes its default `currencyCode`, once when the use case resolves
+    /// the fund currency — and a sibling suite running in parallel can change the answer
+    /// between them. The account is then filtered out by the currency check and the fund
+    /// under-reports. Same race as 3c129f0f, same fix.
     private func makeFixture() async throws -> Fixture {
+        let suiteName = "test.emergencyfund.\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            fatalError("Failed to create test defaults suite")
+        }
+        defaults.set(fixtureCurrencyCode, forKey: AppUserDefaults.StandardKey.currencyCode)
+
         let recurring = MockRecurringRuleRepository()
         let categories = MockCategoryRepository()
         let transactions = MockTransactionRepository()
@@ -106,19 +124,44 @@ struct EmergencyFundUseCaseTests {
                 accountRepository: accounts,
                 savingsGoalRepository: goals,
                 todayProvider: { today },
-                calendar: emergencyFundUseCaseCalendar
-            )
+                calendar: emergencyFundUseCaseCalendar,
+                defaultsSuiteName: suiteName
+            ),
+            currencyCode: fixtureCurrencyCode
         )
     }
 }
 
+/// Pinned so the fixture never depends on the device locale or on whatever a parallel
+/// suite last wrote to `.standard`.
+private let fixtureCurrencyCode = "USD"
+
 private struct Fixture {
+    let currencyCode: String
     let recurring: MockRecurringRuleRepository
     let transactions: MockTransactionRepository
     let accounts: MockAccountRepository
     let goals: MockSavingsGoalRepository
     let needs: CategoryEntity
     let useCase: EmergencyFundUseCase
+
+    init(
+        recurring: MockRecurringRuleRepository,
+        transactions: MockTransactionRepository,
+        accounts: MockAccountRepository,
+        goals: MockSavingsGoalRepository,
+        needs: CategoryEntity,
+        useCase: EmergencyFundUseCase,
+        currencyCode: String
+    ) {
+        self.recurring = recurring
+        self.transactions = transactions
+        self.accounts = accounts
+        self.goals = goals
+        self.needs = needs
+        self.useCase = useCase
+        self.currencyCode = currencyCode
+    }
 }
 
 private var emergencyFundUseCaseCalendar: Calendar {
