@@ -1,4 +1,4 @@
-.PHONY: help build-ios build-macos build-for-testing test test-unit test-ios-ui test-ios-ui-core test-ios-ui-onboarding test-tax test-sync test-data test-recurring ci-clean
+.PHONY: help build-ios build-macos build-for-testing test test-unit test-ios-ui test-ios-ui-core test-ios-ui-audit test-ios-ui-onboarding test-tax test-sync test-data test-recurring ci-clean
 
 SCHEME := Vittora
 CONFIG := Debug
@@ -107,8 +107,14 @@ test-unit:
 		$(IOS_CI_SERIAL_FLAGS) \
 		$(XC_TEST_ACTION)
 
-test-ios-ui: test-ios-ui-core test-ios-ui-onboarding
+test-ios-ui: test-ios-ui-core test-ios-ui-audit test-ios-ui-onboarding
 
+# The 18 accessibility audits are split out of this leg, not merely tidied into
+# their own name. performAccessibilityAudit samples every element on screen and
+# is by far the most expensive thing in the suite; sharing a runner with 58 other
+# UI tests is what produced "Audit failed to complete in time" — XCTest's own
+# audit timeout, which reports nothing about the screen under test. Two legs also
+# run in parallel where one ran serially, so wall-clock drops rather than doubles.
 test-ios-ui-core:
 	@mkdir -p $(TEST_DERIVED)
 	@rm -rf '$(TEST_DERIVED)/Test-iOS-UI.xcresult'
@@ -118,6 +124,18 @@ test-ios-ui-core:
 		-resultBundlePath '$(TEST_DERIVED)/Test-iOS-UI.xcresult' \
 		-only-testing:VittoraUITests \
 		-skip-testing:VittoraUITests/OnboardingFlowUITests \
+		-skip-testing:VittoraUITests/AccessibilityAuditUITests \
+		$(IOS_CI_SERIAL_FLAGS) \
+		$(XC_TEST_ACTION)
+
+test-ios-ui-audit:
+	@mkdir -p $(TEST_DERIVED)
+	@rm -rf '$(TEST_DERIVED)/Test-iOS-UI-Audit.xcresult'
+	xcodebuild \
+		$(XC_TEST_INPUT) \
+		-destination '$(IOS_SIM_DEST)' \
+		-resultBundlePath '$(TEST_DERIVED)/Test-iOS-UI-Audit.xcresult' \
+		-only-testing:VittoraUITests/AccessibilityAuditUITests \
 		$(IOS_CI_SERIAL_FLAGS) \
 		$(XC_TEST_ACTION)
 
