@@ -182,8 +182,34 @@ jobs:
           tar -xzf test-products.tar.gz -C .build-ci/DerivedData/Build
           ls -l .build-ci/DerivedData/Build/Products/*.xctestrun
 
+      # Deliberately reports the exit code rather than swallowing it.
+      #
+      # Both audit-leg failures on 2026-09-18 (#238, #239) printed
+      # "Executed 18 tests, with 2 tests skipped and 0 failures" AND
+      # "** TEST EXECUTE SUCCEEDED **", yet this step was marked failed. So the
+      # suite is exiting non-zero with every test passing, and a rerun is a coin
+      # flip on the same non-determinism — which is most of what this project has
+      # been calling "audit flakiness".
+      #
+      # The code itself is the missing evidence: 65 is a test failure, 70/71 are
+      # infrastructure, and a signal death is something else again. Nothing here
+      # masks a failure; a non-zero status still fails the job.
       - name: make ${{ matrix.suite }}
-        run: make ${{ matrix.suite }}
+        run: |
+          # `set +e` is load-bearing: GitHub runs this with `bash -e`, so without it
+          # a failing make exits the shell before the status is ever read or echoed,
+          # which is exactly the information this step exists to capture.
+          set -o pipefail
+          set +e
+          make ${{ matrix.suite }}
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            echo "::notice::make ${{ matrix.suite }} exited 0"
+          else
+            echo "::error::make ${{ matrix.suite }} exited $status (65 = test failure, 70/71 = infrastructure)"
+          fi
+          exit $status
         env:
           IOS_SIM_DEST: ${{ env.IOS_SIM_DEST }}
           PREBUILT_TESTS: "1"
