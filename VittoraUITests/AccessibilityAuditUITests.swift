@@ -924,9 +924,42 @@ final class AccessibilityAuditUITests: XCTestCase {
         _ = app.keyboards.element.waitForNonExistence(timeout: 3)
     }
 
+    /// Waits for rendering to stop moving before the audit samples anything.
+    ///
+    /// `performAccessibilityAudit` reads element frames from the accessibility tree and
+    /// samples PIXELS at those frames. While a scroll is still settling the two disagree:
+    /// the tree already reports the destination while the framebuffer still holds the
+    /// previous content, so a label's frame lands on empty page and the sampler computes a
+    /// contrast ratio between two shades of the background.
+    ///
+    /// This is measured, not theorised. `testNewReportsAccessibilityAudit` failed on CI
+    /// flagging `Cash` (71x20.3pt) and `$222.65` (64x20.3pt) — both real labels with correct
+    /// frames — and their exported element screenshots contained only #F2F2F7 and #F1F1F6,
+    /// four shades within 2/255 of each other and not one text pixel. That is ~1.01:1, which
+    /// fails any contrast threshold while nothing is actually illegible.
+    ///
+    /// It is intermittent because it is a race, and `testNewReportsAccessibilityAudit` hits
+    /// it most because it scrolls twice immediately before auditing.
+    ///
+    /// Two consecutive equal frames, not a fixed sleep: the wait ends as soon as the UI is
+    /// still, and costs ~300ms in the common case rather than a flat tax on all 18 audits.
+    @MainActor
+    private func waitForRenderingToSettle(timeout: TimeInterval = 3) {
+        let probe = app.descendants(matching: .staticText).firstMatch
+        var previous: CGRect = .null
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            let current = probe.exists ? probe.frame : .null
+            if current != .null, current == previous { return }
+            previous = current
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+        }
+    }
+
     @MainActor
     private func performCoreFlowAudit() throws {
         dismissKeyboardIfPresent()
+        waitForRenderingToSettle()
         // Keep the one documented P1 exception narrow: Apple's contrast sampler
         // treats decorative chart paint as text. Every other issue, including
         // hit regions, is actionable.
