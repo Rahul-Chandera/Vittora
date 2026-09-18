@@ -4,6 +4,7 @@ import VittoraCore
 @testable import Vittora
 
 @Suite("Decimal Currency Formatting Tests")
+@MainActor
 struct DecimalCurrencyTests {
 
     // Helper to call our custom extension without ambiguity

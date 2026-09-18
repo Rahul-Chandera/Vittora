@@ -11,7 +11,7 @@ TEST_DERIVED := .build-ci
 TEST_DD := $(TEST_DERIVED)/DerivedData
 
 # Override in CI after Scripts/ci/resolve-ios-simulator-destination.sh
-IOS_SIM_DEST ?= platform=iOS Simulator,name=iPhone 16
+IOS_SIM_DEST ?= platform=iOS Simulator,name=iPhone 17
 
 # Ad-hoc signing for Simulator installs (no Apple ID secret on CI). The Simulator has
 # no device Secure Enclave; real SE encryption paths remain manual/device-gated (L5).
