@@ -22,6 +22,29 @@ nonisolated struct EntitlementSnapshot: Codable, Sendable, Equatable {
     /// StoreKit reported the subscription as in billing retry / grace period.
     let isInBillingRetry: Bool
     let recordedAt: Date
+    /// `.familyShared` ownership: someone else in the family bought it, so this device
+    /// cannot manage or cancel it. Optional, not a defaulted Bool — synthesized Codable
+    /// throws on a missing key even when the property has a default, and a snapshot cached
+    /// by an older build has no such key. Failing to decode here would drop a paying user
+    /// to free on upgrade. nil means "written before we recorded this", read as not shared.
+    ///
+    /// `var` only so the memberwise initializer defaults it to nil; the fifteen existing
+    /// call sites are snapshots that predate the concept and none of them should have to
+    /// name it.
+    var isFamilyShared: Bool?
+}
+
+/// How an active Pro entitlement was obtained.
+///
+/// Exists because "You already have Vittora Pro" cannot say the same thing to all three:
+/// a family member cannot cancel a plan they did not buy, and Lifetime has nothing to
+/// cancel at all. Telling either of them to "change or cancel your plan in your Apple
+/// Account settings" sends them looking for a control that is not there.
+nonisolated enum ProEntitlementKind: Sendable {
+    case none
+    case subscription
+    case lifetime
+    case familyShared
 }
 
 /// Pure resolution of a cached snapshot into today's access level.

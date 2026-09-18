@@ -227,6 +227,20 @@ enum UITestSupport {
         in app: XCUIApplication,
         maxSwipes: Int = 24
     ) {
+        // Let the element appear before swiping blind. Without this, a caller that
+        // scrolls toward a row on a screen that is still presenting falls straight
+        // through to `app.swipeUp()` and swipes the PREVIOUS screen's list to its
+        // bottom, up to `maxSwipes` times — and the row it wanted is then somewhere
+        // else entirely. That is the shape of testBlockedAccountDeleteShowsAlert…'s
+        // intermittent "The seeded account should be visible" failure on CI.
+        //
+        // Short, and deliberately not an assertion: some rows genuinely do not exist
+        // until the list is scrolled, so a miss here still falls through to the loop
+        // below and behaves exactly as before.
+        if !element.exists {
+            _ = element.waitForExistence(timeout: 2)
+        }
+
         var swipes = 0
         while swipes < maxSwipes {
             let navBar = app.navigationBars.firstMatch

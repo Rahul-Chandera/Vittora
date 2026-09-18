@@ -104,6 +104,10 @@ final class PurchaseService {
         products.first { $0.id == proProduct.rawValue }
     }
 
+    /// NOTE for whoever configures an offer in App Store Connect: SubscriptionStoreView used
+    /// to apply offer codes, promotional offers and win-back offers on its own, and owning
+    /// the paywall means nothing does now. None are configured today, so nothing is broken —
+    /// but a new one will silently do nothing until it is passed here as a PurchaseOption.
     @discardableResult
     func purchase(_ product: Product) async throws -> PurchaseOutcome {
         let result = try await product.purchase()
@@ -135,18 +139,6 @@ final class PurchaseService {
         await refreshEntitlement()
     }
 
-    /// SubscriptionStoreView runs its own purchase, so the transaction never reaches
-    /// purchase(_:), and StoreKit does not redeliver an app-initiated purchase through
-    /// Transaction.updates. The paywall hands the result here so verification, finishing
-    /// and the entitlement refresh stay in exactly one place.
-    @discardableResult
-    func completeStorePurchase(_ result: Result<Product.PurchaseResult, any Error>) async -> Bool {
-        guard case .success(let purchaseResult) = result,
-              case .success(let verification) = purchaseResult else { return false }
-        await handle(verification)
-        return level == .pro
-    }
-
     private func handle(_ update: VerificationResult<Transaction>) async {
         guard case .verified(let transaction) = update else {
             if case .unverified(let transaction, _) = update { await transaction.finish() }
@@ -158,5 +150,15 @@ final class PurchaseService {
 
     func refreshEntitlement() async {
         level = await entitlements.refresh()
+    }
+
+    /// Family Sharing is checked before the product, deliberately: annual and lifetime are
+    /// both Family Shareable (DEC-013), so an inherited lifetime is still someone else's
+    /// purchase and must not be described as this user's own.
+    var proEntitlementKind: ProEntitlementKind {
+        guard level == .pro, let snapshot = entitlements.cachedSnapshot() else { return .none }
+        if snapshot.isFamilyShared == true { return .familyShared }
+        if snapshot.productID == ProProduct.lifetime.rawValue { return .lifetime }
+        return .subscription
     }
 }
