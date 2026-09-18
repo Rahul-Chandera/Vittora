@@ -56,6 +56,40 @@ Use this map to pick the fastest meaningful tests after changes.
 - Broader regression:
   - `make test`
 
+## In-app purchase
+
+**Purchase and restore are device-only. This is a limitation of the harness, not an
+oversight, and it has now been re-tested twice.**
+
+`xcodebuild` does not honour a scheme's `StoreKitConfigurationFileReference` — that is an
+IDE-only setting. So under `make test` the process has no StoreKit configuration at all:
+`Product.products(for:)` returns nothing, which is exactly what
+`emptyProductLoadIsReportedAsFailure` in `PurchaseServiceTests` observes and asserts on.
+An `SKTestSession` built in-test cannot rescue this; the app process still reads an empty
+StoreKit environment, so `Transaction.currentEntitlements` stays empty after a purchase.
+
+Re-probed on iOS 27 (2026-09-18) because the release notes fixed a related bug:
+
+> "Fixed: Purchases of non-subscription In-App Purchases made using the
+> `SKTestSession.buyProduct()` method might fail with an invalid product error." (181842500)
+
+That fix is real and visible: `buyProduct()` no longer throws `.notEntitled`, which is what
+it did in every configuration tried before. But the purchase still does not become an
+entitlement the app can see, for the configuration reason above. The probe was deleted
+rather than committed as a disabled test.
+
+What this means in practice:
+
+- `PurchaseService` logic is unit-tested around the boundary: entitlement resolution,
+  offline grace, family-shared vs owned, intro-offer eligibility defaults.
+- **Buying, restoring and Family Sharing inheritance must be exercised on a device before
+  each release**, and the intro-offer *eligible* path needs a sandbox account that has not
+  consumed the trial. Nothing in CI covers it.
+- Running from Xcode (⌘R) does apply `Vittora.storekit`, so manual verification there is
+  the supported path. The scheme's path to that file was broken until #237 — it pointed at
+  `../../../Vittora.storekit`, which Xcode resolves against the project directory, so the
+  configuration silently never loaded and the real sandbox answered instead.
+
 ## Notes
 
 - Prefer targeted suites first for quick feedback, then broaden if touching shared infrastructure.
