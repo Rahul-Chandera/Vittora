@@ -18295,6 +18295,22 @@
         }
       }
     },
+    "Purchases are turned off on this device" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las compras están desactivadas en este dispositivo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर ख़रीदारी बंद है"
+          }
+        }
+      }
+    },
     "Purchase Failed" : {
       "localizations" : {
         "es" : {
@@ -24386,6 +24402,22 @@
         }
       }
     },
+    "This device cannot make purchases, usually because of Screen Time restrictions or a device management profile. Vittora stays fully usable without Pro. If Vittora Pro was already bought on this Apple Account, Restore Subscription brings it back." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este dispositivo no puede realizar compras, normalmente por restricciones de Tiempo de uso o por un perfil de gestión de dispositivos. Vittora sigue siendo totalmente utilizable sin Pro. Si ya compraste Vittora Pro con esta cuenta de Apple, Restaurar suscripción lo recupera."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह डिवाइस ख़रीदारी नहीं कर सकता, आमतौर पर स्क्रीन टाइम प्रतिबंधों या डिवाइस प्रबंधन प्रोफ़ाइल के कारण। Pro के बिना भी Vittora पूरी तरह उपयोग योग्य रहता है। यदि इस Apple खाते से Vittora Pro पहले ही ख़रीदा गया है, तो सदस्यता बहाल करें उसे वापस ले आता है।"
+          }
+        }
+      }
+    },
     "Transfer" : {
       "localizations" : {
         "es" : {
@@ -27327,6 +27359,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "वर्ष %@, %lld ट्रांज़ैक्शन"
+          }
+        }
+      }
+    },
+    "Yearly and Lifetime can be shared with up to five family members through Family Sharing." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yearly y Lifetime se pueden compartir con hasta cinco familiares mediante Compartir en familia."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yearly और Lifetime को फ़ैमिली शेयरिंग के ज़रिए अधिकतम पाँच परिवार सदस्यों के साथ साझा किया जा सकता है।"
           }
         }
       }

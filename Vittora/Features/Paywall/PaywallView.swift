@@ -76,6 +76,11 @@ struct PaywallView: View {
             Group {
                 if dependencies.purchaseService.level == .pro {
                     alreadySubscribedContent
+                } else if !AppStore.canMakePayments {
+                    // Before the network branch below, deliberately: this device cannot buy
+                    // anything regardless of whether the App Store is reachable, so offering
+                    // a Try Again button would be a dead end.
+                    paymentsUnavailableContent
                 } else if dependencies.purchaseService.didFailToLoadProducts {
                     productsUnavailableContent
                 } else {
@@ -155,6 +160,18 @@ struct PaywallView: View {
                 planCard(.annual)
                 planCard(.monthly)
                 planCard(.lifetime)
+                // The HIG asks for Family Sharing to be mentioned "in places where people
+                // learn about the content you offer". Annual and Lifetime are Family
+                // Shareable (DEC-013), Monthly is not, and until now the only place that
+                // said so was the Terms document.
+                Label(
+                    String(localized: "Yearly and Lifetime can be shared with up to five family members through Family Sharing."),
+                    systemImage: "person.2"
+                )
+                .font(.footnote)
+                .foregroundStyle(VColors.textSecondary)
+                .accessibilityIdentifier("paywall-family-sharing")
+
                 Text(disclosure)
                     .font(.footnote)
                     .foregroundStyle(VColors.textSecondary)
@@ -390,6 +407,61 @@ struct PaywallView: View {
             .padding(.top, VSpacing.xl)
             // Without this the description sits hard against the dialog's Close bar on
             // macOS, where the sheet is a fixed-size box rather than a scrolling sheet.
+            .padding(.bottom, VSpacing.xl)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    /// Shown when `AppStore.canMakePayments` is false — parental restrictions, a managed
+    /// device, or a restricted Apple Account.
+    ///
+    /// The In-App Purchase HIG (revised 17 September 2026) is explicit: "Display your store
+    /// only when people can make payments. If someone can't make payments — for example,
+    /// because of parental restrictions — consider hiding your store or displaying UI that
+    /// explains why the store isn't available."
+    ///
+    /// Restore stays available. Purchases can be restored on a device that cannot make new
+    /// ones — a family member's shared entitlement is exactly that case.
+    @ViewBuilder
+    private var paymentsUnavailableContent: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: VSpacing.lg) {
+                VStack(alignment: .leading, spacing: VSpacing.lg) {
+                    Image(systemName: "lock.circle")
+                        .font(.largeTitle)
+                        .foregroundStyle(VColors.primaryOnSurface)
+                        .frame(maxWidth: .infinity)
+                        .accessibilityHidden(true)
+
+                    Text(String(localized: "Purchases are turned off on this device"))
+                        .font(.title3.bold())
+                        .foregroundStyle(VColors.textPrimary)
+
+                    Text(String(localized: "This device cannot make purchases, usually because of Screen Time restrictions or a device management profile. Vittora stays fully usable without Pro. If Vittora Pro was already bought on this Apple Account, Restore Subscription brings it back."))
+                        .font(.subheadline)
+                        .foregroundStyle(VColors.textSecondary)
+                        .accessibilityIdentifier("paywall-payments-unavailable")
+                }
+                .padding(.horizontal, VSpacing.screenPadding)
+
+                HStack(spacing: VSpacing.sm) {
+                    Button {
+                        restorePurchases()
+                    } label: {
+                        Text(String(localized: "Restore Subscription"))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(VColors.primaryOnSurface)
+                    }
+                    .accessibilityIdentifier("paywall-restore-button")
+                    .disabled(isRestoring)
+
+                    if isRestoring {
+                        ProgressView()
+                    }
+                }
+                .padding(.horizontal, VSpacing.screenPadding)
+            }
+            .padding(.top, VSpacing.xl)
             .padding(.bottom, VSpacing.xl)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
