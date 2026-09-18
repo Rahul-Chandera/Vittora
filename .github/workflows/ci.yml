@@ -182,18 +182,31 @@ jobs:
           tar -xzf test-products.tar.gz -C .build-ci/DerivedData/Build
           ls -l .build-ci/DerivedData/Build/Products/*.xctestrun
 
-      # Deliberately reports the exit code rather than swallowing it.
+      # Reports the exit code rather than swallowing it, so a failure can be
+      # classified from the log instead of re-run blind.
       #
-      # Both audit-leg failures on 2026-09-18 (#238, #239) printed
-      # "Executed 18 tests, with 2 tests skipped and 0 failures" AND
-      # "** TEST EXECUTE SUCCEEDED **", yet this step was marked failed. So the
-      # suite is exiting non-zero with every test passing, and a rerun is a coin
-      # flip on the same non-determinism — which is most of what this project has
-      # been calling "audit flakiness".
+      # CORRECTION, and the reason this comment is long: the justification first
+      # written here claimed the audit leg was failing with every test passing.
+      # That was wrong, and wrong because of how the evidence was gathered.
+      # `gh run view --job <id> --log-failed` returns the log of the LATEST
+      # attempt, so on a job that had already been re-run it returns the passing
+      # rerun — which is what "0 failures / TEST EXECUTE SUCCEEDED" came from.
       #
-      # The code itself is the missing evidence: 65 is a test failure, 70/71 are
-      # infrastructure, and a signal death is something else again. Nothing here
-      # masks a failure; a non-zero status still fails the job.
+      # The failed attempt says the opposite, and this step is what showed it:
+      #
+      #   make test-ios-ui-audit exited 2
+      #   Executed 18 tests, with 2 tests skipped and 2 failures
+      #   ** TEST EXECUTE FAILED **
+      #   testNewReportsAccessibilityAudit : Contrast failed
+      #
+      # So the audit leg fails because audits genuinely fail, intermittently, and
+      # testNewReportsAccessibilityAudit on the Reports screen is the usual one.
+      # To read a specific attempt, use the API, not --log-failed:
+      #   gh api repos/<owner>/<repo>/actions/runs/<run>/attempts/<n>/jobs
+      #
+      # The step still earns its place — "exited 2" versus "exited 0" is what
+      # distinguished the two attempts. Nothing is masked; a non-zero status
+      # still fails the job.
       - name: make ${{ matrix.suite }}
         run: |
           # `set +e` is load-bearing: GitHub runs this with `bash -e`, so without it
