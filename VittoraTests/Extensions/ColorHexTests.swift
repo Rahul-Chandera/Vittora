@@ -4,6 +4,7 @@ import VittoraCore
 @testable import Vittora
 
 @Suite("Color Hex Conversion Tests")
+@MainActor
 struct ColorHexTests {
     @Test("Parse hex color with hash")
     func testParseHexWithHash() {

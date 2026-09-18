@@ -16,7 +16,12 @@ struct ContactPayeeCandidate: Sendable, Equatable {
     let email: String?
 }
 
-protocol ContactsImportServiceProtocol: Sendable {
+// nonisolated explicitly: the app target sets SWIFT_DEFAULT_ACTOR_ISOLATION =
+// MainActor, so this protocol was inheriting MainActor isolation it never wanted. Its
+// only production conformer is `actor SystemContactsImportService`, and every
+// requirement is async. Xcode 27 enforces what 26 let pass, and an actor cannot conform
+// to a global-actor-isolated protocol.
+nonisolated protocol ContactsImportServiceProtocol: Sendable {
     func authorizationStatus() async -> ContactsAccessStatus
     func requestAccess() async throws -> Bool
     func fetchCandidates() async throws -> [ContactPayeeCandidate]

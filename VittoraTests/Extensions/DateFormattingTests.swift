@@ -4,6 +4,7 @@ import VittoraCore
 @testable import Vittora
 
 @Suite("Date Formatting Tests")
+@MainActor
 struct DateFormattingTests {
     private let calendar = Calendar.current
 
