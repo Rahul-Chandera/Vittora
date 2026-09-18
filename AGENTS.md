@@ -66,16 +66,35 @@ Use `Makefile` targets for consistency:
 - `make test-data`
 - `make test-recurring`
 
+## Xcode Churn Guard
+
+Xcode rewrites three tracked files on almost every build: it strips the four
+required keys out of `Vittora/Info.plist` and duplicates them into
+`INFOPLIST_KEY_*` build settings in `project.pbxproj`, and it regenerates
+`VittoraWatch/Localizable.xcstrings` instead of `Scripts/ci/sync-watch-strings.py`.
+The Info.plist one is an App Store rejection that no build or test catches.
+
+A pre-commit hook blocks all three. Install it once per clone:
+
+```
+git config core.hooksPath Scripts/hooks
+```
+
+`git commit --no-verify` skips it, which is the right answer for a deliberate
+change — a genuine new usage description, or normalising catalogue key order.
+
 ## CI (Epic L1)
 
 GitHub Actions workflow **CI / build-and-test** runs on push/PR to `develop` and `main` (flow: develop → main for release):
 
 - job `build`: `make build-ios`, `make build-macos`, watch-strings and localization checks
 - job `build-for-testing`: `make build-for-testing` once, uploading the simulator test
-  products so the three test legs do not each recompile the same graph
-- jobs `test (test-unit)`, `test (test-ios-ui-core)`, `test (test-ios-ui-onboarding)`: the
-  three suites of `make test`, run **concurrently** on separate runners against those
-  prebuilt products (`PREBUILT_TESTS=1` switches the Makefile to `test-without-building`)
+  products so the four test legs do not each recompile the same graph
+- jobs `test (test-unit)`, `test (test-ios-ui-core)`, `test (test-ios-ui-audit)`,
+  `test (test-ios-ui-onboarding)`: the four suites of `make test`, run **concurrently** on
+  separate runners against those prebuilt products (`PREBUILT_TESTS=1` switches the Makefile
+  to `test-without-building`). The audits are their own leg because they are the most
+  expensive thing in the suite and starve on a shared runner
 - `build-and-test` does no work of its own; it fails unless all of the above pass, which is
   why it stays the single required check (see `.github/BRANCH_PROTECTION.md`)
 - Uploads `.build-ci/*.xcresult` artifacts; US locale pinned on the runner

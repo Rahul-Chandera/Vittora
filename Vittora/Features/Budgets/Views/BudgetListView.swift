@@ -255,7 +255,7 @@ struct BudgetListView: View {
                 navigateDestination = .budgetDetail(id: id)
                 return
             }
-            guard let found = try? await dependencies.budgetRepository.fetchByID(id), found != nil else {
+            guard (try? await dependencies.budgetRepository.fetchByID(id)) != nil else {
                 return
             }
             navigateDestination = .budgetDetail(id: id)

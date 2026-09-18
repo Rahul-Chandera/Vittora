@@ -131,7 +131,15 @@ struct VCategoryBadge: View {
             Text(verbatim: "Various Colors")
                 .font(VTypography.title3)
                 .foregroundColor(VColors.textPrimary)
-            Wrap(spacing: VSpacing.md, lineSpacing: VSpacing.md) {
+            // LazyVGrid, not the hand-rolled flow layout this used to carry. That
+            // helper mutated captured `width`/`height` vars from inside
+            // alignmentGuide closures, which is seven Swift 6 concurrency warnings
+            // for scaffolding that only ever ran in this preview.
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 140), spacing: VSpacing.md)],
+                alignment: .leading,
+                spacing: VSpacing.md
+            ) {
                 VCategoryBadge(
                     icon: VIcons.CategoryIcons.salary,
                     name: "Salary",
@@ -163,41 +171,4 @@ struct VCategoryBadge: View {
     }
     .padding(VSpacing.screenPadding)
     .background(VColors.background)
-}
-
-// Simple wrapping layout for preview
-fileprivate struct Wrap<Content: View>: View {
-    let spacing: CGFloat
-    let lineSpacing: CGFloat
-    let content: Content
-
-    init(spacing: CGFloat = 8, lineSpacing: CGFloat = 8, @ViewBuilder content: () -> Content) {
-        self.spacing = spacing
-        self.lineSpacing = lineSpacing
-        self.content = content()
-    }
-
-    var body: some View {
-        var width = CGFloat.zero
-        var height = CGFloat.zero
-
-        return ZStack(alignment: .topLeading) {
-            ForEach(0..<10, id: \.self) { _ in
-                content
-                    .alignmentGuide(.leading) { d in
-                        if abs(width - d.width) > 200 {
-                            width = 0
-                            height -= (d.height + lineSpacing)
-                        }
-                        let result = width
-                        width -= d.width
-                        return result
-                    }
-                    .alignmentGuide(.top) { _ in
-                        let result = height
-                        return result
-                    }
-            }
-        }
-    }
 }

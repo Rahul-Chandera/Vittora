@@ -381,12 +381,6 @@ struct TransactionFormView: View {
         VFormSectionHeader(title)
     }
 
-    /// Label + control: horizontal at standard sizes, vertical at accessibility
-    /// Dynamic Type so the control value is not clipped beside the label.
-    /// Explicit `.body` text style is required: without it, XCTest's Dynamic Type
-    /// audit treats the AnyLayout H→V flip as "font sizes are unsupported".
-    @ViewBuilder
-
     private func loadTransactionData(_ vm: TransactionFormViewModel?, transactionID: UUID) async {
         guard let vm = vm else {
             return
