@@ -96,7 +96,7 @@
          </TestableReference>
       </Testables>
       <StoreKitConfigurationFileReference
-         identifier = "../../../Vittora.storekit">
+         identifier = "Vittora.storekit">
       </StoreKitConfigurationFileReference>
    </TestAction>
    <LaunchAction
@@ -121,7 +121,7 @@
          </BuildableReference>
       </BuildableProductRunnable>
       <StoreKitConfigurationFileReference
-         identifier = "../../../Vittora.storekit">
+         identifier = "Vittora.storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction

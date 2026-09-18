@@ -12,7 +12,7 @@ private enum VittoraSchemaModels {
     /// live class — aliasing the live class made V3–V6 produce identical
     /// schema checksums, and CoreData aborts staged migration with
     /// "Duplicate version checksums detected" (crash on any store upgrade).
-    nonisolated(unsafe) static let sharedBaseline: [any PersistentModel.Type] = [
+    static let sharedBaseline: [any PersistentModel.Type] = [
         SDBudget.self,
         SDPayee.self,
         SDRecurringRule.self,
@@ -23,7 +23,7 @@ private enum VittoraSchemaModels {
     ]
 
     /// Frozen shapes shared by V1–V6. Both models change in V7.
-    nonisolated(unsafe) static let preV7CategoryAndGoal: [any PersistentModel.Type] = [
+    static let preV7CategoryAndGoal: [any PersistentModel.Type] = [
         VittoraSchemaV6.SDCategory.self,
         VittoraSchemaV6.SDSavingsGoal.self,
     ]
