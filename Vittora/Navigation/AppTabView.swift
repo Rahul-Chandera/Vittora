@@ -10,8 +10,6 @@ struct AppTabView: View {
     /// Tabs kept on the compact iPhone bar. Everything else lives in the "More"
     /// hub so we never overflow into the system "More" tab, which nests a second
     /// navigation controller and produces a duplicate back button.
-    private static let primaryCompactTabs: Set<AppState.AppTab> =
-        [.dashboard, .transactions, .budgets, .reports]
 
     var body: some View {
         Group {
@@ -227,11 +225,7 @@ struct AppTabView: View {
     /// screen; add per-destination routing only if that shortcut matters.
     private var compactSelection: Binding<AppState.AppTab> {
         Binding(
-            get: {
-                Self.primaryCompactTabs.contains(appState.selectedTab)
-                    ? appState.selectedTab
-                    : .settings
-            },
+            get: { AppState.AppTab.compactTabBarSelection(for: appState.selectedTab) },
             set: { appState.selectedTab = $0 }
         )
     }
