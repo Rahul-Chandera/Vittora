@@ -24,7 +24,11 @@ struct BatchScanOutcome: Sendable {
 }
 
 struct BatchScanUseCase: Sendable {
-    private nonisolated(unsafe) static let logger = Logger(subsystem: "com.vittora.app", category: "batch_scan")
+    // `nonisolated`, not `nonisolated(unsafe)`: Logger is Sendable, so the unsafe
+    // opt-out was unnecessary — but the target defaults to MainActor isolation, so
+    // dropping the annotation entirely makes this unreachable from the async work
+    // below.
+    private nonisolated static let logger = Logger(subsystem: "com.vittora.app", category: "batch_scan")
 
     let ocrService: any OCRServiceProtocol
 

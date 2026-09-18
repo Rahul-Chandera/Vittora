@@ -117,7 +117,7 @@ struct TransactionListView: View {
             appState.clearPendingTransactionDetailID()
             // Deleted / missing IDs fall back to the list — do not push detail.
             let fetch = FetchTransactionsUseCase(transactionRepository: dependencies.transactionRepository)
-            guard let found = try? await fetch.execute(id: id), found != nil else { return }
+            guard (try? await fetch.execute(id: id)) != nil else { return }
             navigateDestination = .transactionDetail(id: id)
             selectedTransactionID = id
         }

@@ -196,7 +196,7 @@ public final class EncryptionService: EncryptionServiceProtocol, Sendable {
               let ref = item,
               CFGetTypeID(ref) == SecKeyGetTypeID() else { return nil }
         // SecKey is a CoreFoundation type; after checking CFTypeID, this bridge is safe.
-        return unsafeBitCast(ref, to: SecKey.self)
+        return unsafeDowncast(ref, to: SecKey.self)
     }
 
     private func createSEPrivateKey() throws -> SecKey {

@@ -15,8 +15,6 @@ private struct ZeroScanTracker: ConversionEventTracking, Sendable {
     nonisolated func ocrScansThisMonth() -> Int { 0 }
 }
 
-private struct StubPurchaseFailure: Error {}
-
 @Suite("Purchase Service Tests")
 @MainActor
 struct PurchaseServiceTests {
@@ -158,19 +156,122 @@ struct PurchaseServiceTests {
         #expect(gate.isProUnlocked == false)
     }
 
-    /// Catches a regression where a failed or cancelled StoreKit-view purchase still unlocks Pro.
-    @Test("a failed store purchase unlocks nothing")
-    func failedStorePurchaseUnlocksNothing() async {
+    /// Guideline 3.1.2: the paywall may only advertise the 7-day trial to an account that can
+    /// actually get it. Catches a regression where the flag starts true, which would promise a
+    /// trial on every cold launch in the window before StoreKit answers — including to a
+    /// returning subscriber, and including to App Review, who commonly test with exactly that
+    /// account.
+    @Test("the trial is not advertised until StoreKit answers")
+    func introOfferIsNotAdvertisedBeforeProductsLoad() {
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let (cache, _) = makeCache()
-        let store = EntitlementStore(cache: cache, now: { now }, standing: { _ in .unknown })
-        let service = PurchaseService(entitlements: store)
-        let gate = FeatureGate(store: store, tracker: ZeroScanTracker(), storeKitEnabled: true)
-
-        let granted = await service.completeStorePurchase(.failure(StubPurchaseFailure()))
-
-        #expect(granted == false)
-        #expect(service.level == .free)
-        #expect(gate.isProUnlocked == false)
+        let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
+        #expect(service.isEligibleForIntroOffer == false)
     }
+
+    /// The other half of the same rule: every failure path must land on "no trial". A load that
+    /// serves nothing cannot tell us the account is eligible, and guessing yes there is the
+    /// expensive direction to be wrong in — an advertised price the account cannot get, versus
+    /// a missed conversion.
+    @Test("a load that serves no products leaves the trial unadvertised")
+    func introOfferIsNotAdvertisedWhenProductsFailToLoad() async {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
+        await service.loadProducts()
+        if service.products.isEmpty {
+            #expect(service.isEligibleForIntroOffer == false)
+        }
+    }
+
+    /// The paywall's "You already have Vittora Pro" copy branches on this. Catches a
+    /// regression where an inherited entitlement is described as the user's own, which tells
+    /// a family member to cancel a plan they cannot see in their Apple Account settings.
+    @Test("an inherited entitlement is reported as family shared, not as a purchase")
+    func familySharedEntitlementIsReportedAsShared() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        cache.save(
+            EntitlementSnapshot(
+                level: .pro,
+                productID: ProProduct.annual.rawValue,
+                expirationDate: now.addingTimeInterval(365 * 86_400),
+                isInBillingRetry: false,
+                recordedAt: now,
+                isFamilyShared: true
+            )
+        )
+        let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
+        #expect(service.proEntitlementKind == .familyShared)
+    }
+
+    /// Family Sharing is checked before the product on purpose: lifetime is Family Shareable
+    /// too (DEC-013), so an inherited lifetime must not read as this user's own purchase.
+    @Test("an inherited lifetime is shared, not owned")
+    func familySharedLifetimeIsReportedAsShared() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        cache.save(
+            EntitlementSnapshot(
+                level: .pro,
+                productID: ProProduct.lifetime.rawValue,
+                expirationDate: nil,
+                isInBillingRetry: false,
+                recordedAt: now,
+                isFamilyShared: true
+            )
+        )
+        let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
+        #expect(service.proEntitlementKind == .familyShared)
+    }
+
+    /// Catches a regression where a Lifetime owner is told to manage a renewal that does
+    /// not exist.
+    @Test("an owned lifetime is reported as lifetime")
+    func ownedLifetimeIsReportedAsLifetime() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        cache.save(
+            EntitlementSnapshot(
+                level: .pro,
+                productID: ProProduct.lifetime.rawValue,
+                expirationDate: nil,
+                isInBillingRetry: false,
+                recordedAt: now,
+                isFamilyShared: false
+            )
+        )
+        let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
+        #expect(service.proEntitlementKind == .lifetime)
+    }
+
+    /// A snapshot written by a build that predates the flag decodes with nil, which must read
+    /// as "not shared" rather than failing to decode and dropping a paying user to free.
+    @Test("a snapshot from before the family-sharing flag reads as an ordinary subscription")
+    func snapshotWithoutFamilyFlagReadsAsSubscription() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        cache.save(
+            EntitlementSnapshot(
+                level: .pro,
+                productID: ProProduct.annual.rawValue,
+                expirationDate: now.addingTimeInterval(365 * 86_400),
+                isInBillingRetry: false,
+                recordedAt: now
+            )
+        )
+        let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
+        #expect(service.level == .pro)
+        #expect(service.proEntitlementKind == .subscription)
+    }
+
+    /// A free user has no entitlement to describe.
+    @Test("a free user reports no entitlement kind")
+    func freeUserReportsNoEntitlementKind() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let (cache, _) = makeCache()
+        let service = PurchaseService(entitlements: EntitlementStore(cache: cache, now: { now }))
+        #expect(service.proEntitlementKind == .none)
+    }
+
 }

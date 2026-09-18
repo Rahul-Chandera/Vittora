@@ -72,8 +72,8 @@ jobs:
   #
   # Deliberately a separate job from `build`: the iOS-device and macOS compiles
   # plus the localization checks are 6.4 min that the test legs do not need, and
-  # folding them in would push that onto the critical path in front of the 42
-  # min UI-core suite.
+  # folding them in would push that onto the critical path in front of the
+  # longest test leg.
   build-for-testing:
     runs-on: macos-15
     timeout-minutes: 45
@@ -112,9 +112,15 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  # `make test` ran the three suites serially at 53-80 min; UI-core is 49 min
-  # of that and sets the floor; the three suites each rebuilt the same 983
-  # compile tasks into separate derived-data trees.
+  # `make test` ran the suites serially at 53-80 min; the suites each rebuilt the
+  # same 983 compile tasks into separate derived-data trees.
+  #
+  # UI-core used to set the floor at 49 min because it carried the 18 accessibility
+  # audits alongside 58 other UI tests. Those audits sample every element on screen,
+  # and sharing a runner with the rest is what produced "Audit failed to complete in
+  # time" — XCTest's own audit timeout, which says nothing about the screen under
+  # test. They are `test-ios-ui-audit` now, which both removes that contention and
+  # runs the two halves in parallel.
   #
   # 90, not 75: runner speed varies ~1.5x on identical content (measured), so
   # UI-core's 49 min can land near 70. A tight cap here would reintroduce the
@@ -132,6 +138,8 @@ jobs:
             result: Test-Unit.xcresult
           - suite: test-ios-ui-core
             result: Test-iOS-UI.xcresult
+          - suite: test-ios-ui-audit
+            result: Test-iOS-UI-Audit.xcresult
           - suite: test-ios-ui-onboarding
             result: Test-iOS-UI-Onboarding.xcresult
 
