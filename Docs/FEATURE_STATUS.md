@@ -141,10 +141,10 @@ Explicitly out of scope and unchanged: bank aggregation / open banking, brokerag
 
 These are not missing features — they are things the test suite cannot prove, and they matter before any submission.
 
-1. **The intro-offer *eligible* path has never been exercised anywhere.** Every automated check covers the "no trial" direction. Confirming an eligible account actually sees "7 days free" needs a device and a sandbox Apple Account that has not consumed the trial. This carries Guideline 3.1.2 exposure.
-2. **Purchase, restore and Family Sharing inheritance are device-only.** `xcodebuild` does not honour the scheme's `StoreKitConfigurationFileReference`, so under `make test` the process has no StoreKit configuration at all. Recorded in `Docs/Testing/TEST_MATRIX.md`.
-3. **The accessibility audit leg has been intermittent.** Root cause found and fixed in 1.7.1 (the audit sampled pixels before scrolling settled). One green-first-time run since; needs two or three more before calling it closed.
-4. **1.7.1 has no version bump or tag.** `MARKETING_VERSION` is still `1.7.0`.
+1. **The intro-offer *consumed* path is not covered.** The *eligible* direction now is: `IntroOfferEligibilityTests` builds an `SKTestSession` from `Vittora.storekit` and asserts `PurchaseService` resolves `isEligibleForIntroOffer == true`. The opposite direction — an account that has already used the trial — cannot be asserted in-suite, because a process that has already queried StoreKit never sees the purchase. Production defaults to `false` on every failure path, so this is the direction the code already leans towards. Details in `Docs/Testing/TEST_MATRIX.md`.
+2. **Purchase, restore and Family Sharing inheritance are device-only.** `SKTestSession` serves products, but a purchase made through it never reaches `Transaction.currentEntitlements` in the same process. Recorded in `Docs/Testing/TEST_MATRIX.md`.
+3. **The accessibility audit leg has been intermittent.** Root cause found and fixed in 1.7.1 (the audit sampled pixels before scrolling settled). Three consecutive green-first-time runs since (#243, #244, #245).
+4. **1.7.1 is versioned but not tagged.** `MARKETING_VERSION` is `1.7.1`, `CURRENT_PROJECT_VERSION` is `11`; no `v1.7.1` tag exists yet.
 
 ---
 
