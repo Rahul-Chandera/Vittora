@@ -4,53 +4,71 @@ import VittoraCore
 #if os(macOS)
 struct SidebarNavigation: View {
     @Environment(AppState.self) private var appState
+    @Environment(SettingsViewModel.self) private var settingsVM
     @State private var presentedQuickAdd: PresentedQuickAdd?
 
-    var body: some View {
-        @Bindable var appState = appState
+    private func sidebarRow(_ tab: AppState.AppTab) -> some View {
+        let isSelected = appState.selectedTab == tab
+        let accent = VColors.accent(settingsVM.accentColor)
+        let onAccent = VColors.onAccent(for: settingsVM.accentColor)
+        return Button {
+            appState.selectedTab = tab
+        } label: {
+            // Split label: the icon keeps the accent when the row is not selected,
+            // which is how AppKit drew it, and both flip to onAccent when it is.
+            Label {
+                Text(tab.title)
+                    .foregroundStyle(isSelected ? onAccent : VColors.textPrimary)
+            } icon: {
+                Image(systemName: tab.systemImage)
+                    .foregroundStyle(isSelected ? onAccent : accent)
+            }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, VSpacing.xs)
+                .padding(.horizontal, VSpacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(isSelected ? accent : Color.clear)
+                )
+                .contentShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        }
+        // .plain, or AppKit gives every row a bordered button of its own.
+        .buttonStyle(.plain)
+        .listRowInsets(EdgeInsets(top: 1, leading: 0, bottom: 1, trailing: 0))
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+    }
 
+    var body: some View {
         NavigationSplitView {
-            List(selection: $appState.selectedTab) {
+            // Rows are buttons, not List selection. AppKit paints the source-list
+            // highlight with NSColor.controlAccentColor — the System Settings accent,
+            // which is why this sidebar stayed blue while the rest of the app followed
+            // the in-app accent. SwiftUI's .tint does not reach it, on the List or
+            // above it. Drawing the highlight ourselves is the only way it follows the
+            // user's choice, and it is what the iOS tab bar already does.
+            List {
                 Section(String(localized: "Overview")) {
-                    Label(AppState.AppTab.dashboard.title,
-                          systemImage: AppState.AppTab.dashboard.systemImage)
-                        .tag(AppState.AppTab.dashboard)
+                    sidebarRow(.dashboard)
                 }
 
                 Section(String(localized: "Money")) {
-                    Label(AppState.AppTab.transactions.title,
-                          systemImage: AppState.AppTab.transactions.systemImage)
-                        .tag(AppState.AppTab.transactions)
-                    Label(AppState.AppTab.budgets.title,
-                          systemImage: AppState.AppTab.budgets.systemImage)
-                        .tag(AppState.AppTab.budgets)
-                    Label(AppState.AppTab.savings.title,
-                          systemImage: AppState.AppTab.savings.systemImage)
-                        .tag(AppState.AppTab.savings)
+                    sidebarRow(.transactions)
+                    sidebarRow(.budgets)
+                    sidebarRow(.savings)
                 }
 
                 Section(String(localized: "Insights")) {
-                    Label(AppState.AppTab.reports.title,
-                          systemImage: AppState.AppTab.reports.systemImage)
-                        .tag(AppState.AppTab.reports)
-                    Label(AppState.AppTab.tax.title,
-                          systemImage: AppState.AppTab.tax.systemImage)
-                        .tag(AppState.AppTab.tax)
+                    sidebarRow(.reports)
+                    sidebarRow(.tax)
                 }
 
                 Section(String(localized: "Social")) {
-                    Label(AppState.AppTab.debt.title,
-                          systemImage: AppState.AppTab.debt.systemImage)
-                        .tag(AppState.AppTab.debt)
-                    Label(AppState.AppTab.splits.title,
-                          systemImage: AppState.AppTab.splits.systemImage)
-                        .tag(AppState.AppTab.splits)
+                    sidebarRow(.debt)
+                    sidebarRow(.splits)
                 }
 
                 Section {
-                    Label(AppState.AppTab.settings.title,
-                          systemImage: AppState.AppTab.settings.systemImage)
-                        .tag(AppState.AppTab.settings)
+                    sidebarRow(.settings)
                 }
             }
             .navigationTitle("Vittora")
