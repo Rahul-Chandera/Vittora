@@ -964,10 +964,16 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// - Comparing screenshots is stricter still and measured ~1s per capture on CI: 1578s,
     ///   with the OLED audit timing out again and a navigation assertion failing behind it.
     ///
-    /// 0.8s costs about 90s across the leg, which the budget has, and needs no query at all.
-    /// If the contrast race returns, raise this before reaching for anything adaptive.
+    /// 0.8s was not enough. Two runners ran this tree simultaneously and one of them failed
+    /// `testNewReportsAccessibilityAudit` on contrast again, so the number is raised rather
+    /// than the approach changed — which is what the previous version of this comment said
+    /// to do. 1.5s costs about 165s across a leg that runs in 1233-1463s.
+    ///
+    /// A fixed wait is a bet against runner speed and it can lose again. If it does, the
+    /// next move is still a larger number, not a cleverer wait: the adaptive versions above
+    /// were correct and unaffordable, and each one cost a CI cycle to disprove.
     @MainActor
-    private func waitForRenderingToSettle(_ duration: TimeInterval = 0.8) {
+    private func waitForRenderingToSettle(_ duration: TimeInterval = 1.5) {
         RunLoop.current.run(until: Date().addingTimeInterval(duration))
     }
 
