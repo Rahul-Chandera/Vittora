@@ -143,7 +143,7 @@ These are not missing features — they are things the test suite cannot prove, 
 
 1. **The intro-offer *consumed* path is not covered.** The *eligible* direction now is: `IntroOfferEligibilityTests` builds an `SKTestSession` from `Vittora.storekit` and asserts `PurchaseService` resolves `isEligibleForIntroOffer == true`. The opposite direction — an account that has already used the trial — cannot be asserted in-suite, because a process that has already queried StoreKit never sees the purchase. Production defaults to `false` on every failure path, so this is the direction the code already leans towards. Details in `Docs/Testing/TEST_MATRIX.md`.
 2. **Purchase, restore and Family Sharing inheritance are device-only.** `SKTestSession` serves products, but a purchase made through it never reaches `Transaction.currentEntitlements` in the same process. Recorded in `Docs/Testing/TEST_MATRIX.md`.
-3. **The accessibility audit leg has been intermittent.** Root cause found and fixed in 1.7.1 (the audit sampled pixels before scrolling settled). Three consecutive green-first-time runs since (#243, #244, #245).
+3. **The accessibility audit leg is still intermittent.** A real cause was found and fixed in 1.7.1 — the audit sampled pixels before scrolling settled — and it bought three consecutive green-first-time runs (#243, #244, #245). It did not close the problem: #246 failed first time on `testNewReportsAccessibilityAudit` with "Contrast failed", the same test and the same symptom. The settle wait narrowed the window rather than eliminating it.
 4. **1.7.1 is versioned but not tagged.** `MARKETING_VERSION` is `1.7.1`, `CURRENT_PROJECT_VERSION` is `11`; no `v1.7.1` tag exists yet.
 
 ---
