@@ -924,9 +924,63 @@ final class AccessibilityAuditUITests: XCTestCase {
         _ = app.keyboards.element.waitForNonExistence(timeout: 3)
     }
 
+    /// Waits for rendering to stop moving before the audit samples anything.
+    ///
+    /// `performAccessibilityAudit` reads element frames from the accessibility tree and
+    /// samples PIXELS at those frames. While a scroll is still settling the two disagree:
+    /// the tree already reports the destination while the framebuffer still holds the
+    /// previous content, so a label's frame lands on empty page and the sampler computes a
+    /// contrast ratio between two shades of the background.
+    ///
+    /// This is measured, not theorised. `testNewReportsAccessibilityAudit` failed on CI
+    /// flagging `Cash` (71x20.3pt) and `$222.65` (64x20.3pt) — both real labels with correct
+    /// frames — and their exported element screenshots contained only #F2F2F7 and #F1F1F6,
+    /// four shades within 2/255 of each other and not one text pixel. That is ~1.01:1, which
+    /// fails any contrast threshold while nothing is actually illegible.
+    ///
+    /// It is intermittent because it is a race, and `testNewReportsAccessibilityAudit` hits
+    /// it most because it scrolls twice immediately before auditing.
+    ///
+    /// Two consecutive equal frame sets, not a fixed sleep: the wait ends as soon as the UI
+    /// is still, and costs ~300ms in the common case rather than a flat tax on all 18 audits.
+    ///
+    /// A flat wait, after two cleverer versions failed in opposite directions.
+    ///
+    /// The contrast audit samples pixels at frames it read from the accessibility tree. Mid
+    /// scroll the two disagree: `Cash` and `$222.65` were flagged at correct frames whose
+    /// exported screenshots held only #F2F2F7 and #F1F1F6 — about 1.01:1, and not one text
+    /// pixel. So something has to wait for the scroll to stop.
+    ///
+    /// Adaptive waits turned out to cost more than they save, because this runs before every
+    /// audited screen — of the order of a hundred times per leg, not eighteen:
+    ///
+    /// - Watching `descendants(matching: .staticText).firstMatch` was free and useless: it
+    ///   resolves to the navigation title, which does not move when the content scrolls, so
+    ///   it reported "settled" on the first comparison. It bought three green runs by adding
+    ///   150ms, then failed both runners on #247.
+    /// - Watching every static text frame fixed the contrast race — that test passed on CI —
+    ///   but a full accessibility-tree query per iteration ran 20s+ on CI and pushed the leg
+    ///   from 1325s to 1835s, timing out the OLED audit.
+    /// - Comparing screenshots is stricter still and measured ~1s per capture on CI: 1578s,
+    ///   with the OLED audit timing out again and a navigation assertion failing behind it.
+    ///
+    /// 0.8s was not enough. Two runners ran this tree simultaneously and one of them failed
+    /// `testNewReportsAccessibilityAudit` on contrast again, so the number is raised rather
+    /// than the approach changed — which is what the previous version of this comment said
+    /// to do. 1.5s costs about 165s across a leg that runs in 1233-1463s.
+    ///
+    /// A fixed wait is a bet against runner speed and it can lose again. If it does, the
+    /// next move is still a larger number, not a cleverer wait: the adaptive versions above
+    /// were correct and unaffordable, and each one cost a CI cycle to disprove.
+    @MainActor
+    private func waitForRenderingToSettle(_ duration: TimeInterval = 1.5) {
+        RunLoop.current.run(until: Date().addingTimeInterval(duration))
+    }
+
     @MainActor
     private func performCoreFlowAudit() throws {
         dismissKeyboardIfPresent()
+        waitForRenderingToSettle()
         // Keep the one documented P1 exception narrow: Apple's contrast sampler
         // treats decorative chart paint as text. Every other issue, including
         // hit regions, is actionable.
@@ -985,86 +1039,6 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if issue.element?.identifier == "brand-green-filled-card" {
                     return true
                 }
-                // The paywall's lifetime CTA is white on #3FCFA4 — 1.97:1, a real
-                // miss, not a sampler artifact. DEC-023 predicted this exactly and
-                // prescribed this entry: "If the audit ever reaches it unoccluded it
-                // will fail on this pairing, and the fix is to add
-                // paywall-lifetime-button to the exemptions deliberately, not to
-                // change the colour." That is what this is (DEC-025).
-                //
-                // Why it surfaced only now: before 636169ea the button was #17604A at
-                // 7.48:1 and passed. Brand green made it 1.97:1, and the audit catches
-                // it only on the runs where the button lands clear of the navigation
-                // bar — which is why the leg went intermittently red rather than
-                // failing outright.
-                //
-                // The label is the user-visible price string, so this is anchored to
-                // the identifier: a price change must not silently widen or void it.
-                if issue.element?.identifier == "paywall-lifetime-button" {
-                    return true
-                }
-                // DEC-027: the paywall's policy links, which the sampler measures
-                // against the subscribe button rather than the page they are drawn on.
-                //
-                // On iPhone 17 Pro Max — CI's device, and the reason DEC-025 did not
-                // make the leg green — the audit reports "Terms of Service", " and "
-                // and "Privacy Policy" at frames of y=836.7, h=17.3. Cropping CI's own
-                // App Screenshot at exactly that rect shows the "Try It Free" capsule
-                // and no link text whatsoever: 40,469 of the pixels there are #3ECDA2.
-                // The links are scrolled elsewhere; only their reported frames land on
-                // the CTA. So the sampler compares #17604A against brand green and
-                // returns 1.58, 1.60 and 1.58 — measured, not inferred.
-                //
-                // Where these links are genuinely painted they are #17604A on the
-                // near-white sheet at 7.48:1, which is why
-                // .subscriptionStorePolicyForegroundStyle pins that colour in the
-                // first place. Nothing here is a real legibility miss.
-                //
-                // Anchored to Apple's three identifiers and screen-scoped to the
-                // paywall. Not anchored to "any green-backed sample", which would
-                // excuse real misses elsewhere on the same screen.
-                let policyLinkIDs: Set<String> = ["Terms of Service", "Privacy Policy", "and"]
-                if self.app.navigationBars["Vittora Pro"].exists,
-                   let identifier = issue.element?.identifier,
-                   policyLinkIDs.contains(identifier) {
-                    return true
-                }
-                // DEC-027, second half: StoreKit's own subscribe button.
-                //
-                // On CI (iPhone 17 Pro Max / iOS 26.2 / Xcode 26.3) the audit flags the
-                // green capsule itself. Its element screenshot is the whole "Try It Free"
-                // button, 1080x150px — exactly the 360x50pt frame of
-                // "Subscription Store View Standard Button" at 3x — plus a 534x47px
-                // sliver of its bottom edge meeting the page. Both arrive as bare
-                // SwiftUI.AccessibilityNodes carrying no label and no identifier, which
-                // is why an identifier-only check does not see them.
-                //
-                // The label inside that capsule is BLACK on brand green at 10.56:1 and
-                // passes; what the sampler measures is the green FILL against the page,
-                // which is the DEC-012 pairing. Apple draws this control and exposes no
-                // API to restyle it — the same reason DEC-019 exists for its caption.
-                //
-                // Anchored to Apple's two identifiers for that control plus their frames,
-                // and screen-scoped to the paywall. The identifiers were read from the
-                // live accessibility tree, not guessed: an earlier attempt invented
-                // "…Standard Picker Style Subscribe Button" and matched nothing.
-                let subscribeIDs = [
-                    "Subscription Store View Standard Button",
-                    "Subscription Store View Button"
-                ]
-                if self.app.navigationBars["Vittora Pro"].exists {
-                    for subscribeID in subscribeIDs {
-                        if issue.element?.identifier == subscribeID {
-                            return true
-                        }
-                        let control = self.app.descendants(matching: .any)[subscribeID]
-                        if let elementFrame = issue.element?.frame,
-                           control.exists,
-                           control.frame.intersects(elementFrame) {
-                            return true
-                        }
-                    }
-                }
                 // On CI's iOS 26.2 the audit flags an inner node of the floating
                 // add button that carries neither the label nor the identifier,
                 // so both checks above miss it and the DEC-012 exemption never
@@ -1097,46 +1071,6 @@ final class AccessibilityAuditUITests: XCTestCase {
                    onboardingCTA.exists,
                    onboardingCTA.frame.intersects(elementFrame) {
                     return true
-                }
-
-                // DEC-019: StoreKit's own subscribe-button offer caption on the
-                // Vittora Pro paywall — "7 days free, then $39.99/year" at
-                // #828289 on #F1F1F6, 3.39:1.
-                //
-                // This is the FIRST exemption for text Apple renders. Every
-                // DEC-012 case above excuses paint WE chose. This one does not:
-                // no public SubscriptionStoreView API restyles this caption.
-                // `StoreButtonKind` has no case for it, `.productDescription(.hidden)`
-                // targets the plan-card descriptions instead, and the caption is
-                // alpha-composited over the scroll content, so a lighter
-                // background makes it worse rather than better.
-                //
-                // Accepted because nothing is lost: the selected plan card
-                // repeats the identical sentence in black as its
-                // "Product View Secondary Text", so a user who cannot read the
-                // grey line still gets the offer terms — as does VoiceOver,
-                // which reads the caption as part of the subscribe button's own
-                // label ("7 days free, then $39.99 per year, Try It Free").
-                //
-                // Anchored to Apple's identifier for that one caption node, plus
-                // its frame. The frame arm is not redundant: the audit reports
-                // this as a bare SwiftUI.AccessibilityNode carrying no label,
-                // exactly as it does for the FAB and `debt-entry-delete` above,
-                // so an identifier-only check can silently stop matching. The
-                // measured failing element was 500x52px at 3x — the caption's
-                // 166.7x17.3pt box exactly. Screen-scoped to the paywall, so no
-                // other Apple chrome anywhere in the app inherits this.
-                let offerCaptionID = "Subscription Store View Standard Picker Style Subscribe Button Caption"
-                if self.app.navigationBars["Vittora Pro"].exists {
-                    if issue.element?.identifier == offerCaptionID {
-                        return true
-                    }
-                    let offerCaption = self.app.descendants(matching: .any)[offerCaptionID]
-                    if let elementFrame = issue.element?.frame,
-                       offerCaption.exists,
-                       offerCaption.frame.intersects(elementFrame) {
-                        return true
-                    }
                 }
 
                 let systemTabLabels = ["Dashboard", "Transactions", "Budgets", "Reports", "More"]

@@ -329,6 +329,25 @@ final class AppState {
         case savings
         case settings
 
+        /// The tabs the compact tab bar actually declares as selectable.
+        ///
+        /// Load-bearing since the iOS 27 SDK: "a TabView enforces that its selection is set
+        /// to a visible tab. TabView might crash when its selection is set to a hidden or
+        /// otherwise unavailable tab." The compact bar declares five values while AppTab has
+        /// nine, so a deep link, Handoff payload, Spotlight result or app command naming one
+        /// of the overflow tabs would hand TabView a selection it does not own.
+        nonisolated static let compactTabBarTabs: Set<AppTab> =
+            [.dashboard, .transactions, .budgets, .reports, .settings]
+
+        /// Clamps an arbitrary tab to one the compact tab bar can actually select.
+        ///
+        /// Overflow destinations live behind the More hub, which is the `.settings` tab, so
+        /// that is where they land. Callers on regular width do not need this: that TabView
+        /// declares all nine values.
+        nonisolated static func compactTabBarSelection(for tab: AppTab) -> AppTab {
+            compactTabBarTabs.contains(tab) ? tab : .settings
+        }
+
         nonisolated var id: String { rawValue }
 
         nonisolated var title: String {

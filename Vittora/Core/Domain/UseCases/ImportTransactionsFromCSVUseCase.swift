@@ -81,7 +81,7 @@ struct ImportTransactionsFromCSVUseCase: Sendable {
     ) async throws -> CSVImportResult {
         let preview = try preview(csvData: csvData, profile: profile, locale: locale)
         var payeesByName = try await loadPayeeLookup()
-        var categoriesByName = try await loadCategoryLookup()
+        let categoriesByName = try await loadCategoryLookup()
 
         var createdPayeeCount = 0
         var resolvedPayees: [Int: UUID?] = [:]

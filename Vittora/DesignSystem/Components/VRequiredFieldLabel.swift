@@ -19,11 +19,10 @@ struct VRequiredFieldLabel: View {
     }
 
     var body: some View {
-        // One Text node via concatenation — see VFormSectionHeader for why an
-        // HStack here breaks the audit's identifier-based exemption.
-        (isRequired
-            ? Text(title) + Text(verbatim: " *").foregroundColor(VColors.expense)
-            : Text(title))
+        // One Text node — see VFormSectionHeader for why an HStack here breaks
+        // the audit's identifier-based exemption, and why the marker is a
+        // styled run rather than a concatenated Text.
+        Text(VFormSectionHeader.attributedTitle(title, isRequired: isRequired))
         .accessibilityLabel(
             isRequired
                 ? String(localized: "\(title), required")

@@ -56,6 +56,45 @@ Use this map to pick the fastest meaningful tests after changes.
 - Broader regression:
   - `make test`
 
+## In-app purchase
+
+**Products and intro-offer eligibility are covered in-test. Purchase and restore are still
+device-only.** The dividing line is the app-facing entitlement cache, not the configuration.
+
+`xcodebuild` does not honour a scheme's `StoreKitConfigurationFileReference` — that is an
+IDE-only setting, so under `make test` the scheme contributes no StoreKit configuration.
+`SKTestSession(contentsOf:)` does not depend on the scheme: it builds its own environment
+from `Vittora.storekit`, resolved from `#filePath`. `IntroOfferEligibilityTests` uses this
+and does serve products, which is what closed the intro-offer gap — `PurchaseService`
+resolving `isEligibleForIntroOffer == true` for a fresh account is now asserted, where
+previously only the "no trial" direction was covered anywhere.
+
+What is still not reachable is a purchase the app can *see*. `SKTestSession.buyProduct()`
+works on iOS 27 (the release-note fix below is real — it no longer throws `.notEntitled`)
+and the session records the transaction in `allTransactions()`. But a test process that has
+already queried StoreKit keeps serving the entitlement cache it warmed:
+`Transaction.currentEntitlements` stays empty and eligibility stays true. The same test
+passes when it is the only one in the process, and `AppStore.sync()` hangs rather than
+reconciling. So the consumed-trial direction was left uncovered rather than committed as a
+flaky test — see the note in `IntroOfferEligibilityTests`.
+
+> "Fixed: Purchases of non-subscription In-App Purchases made using the
+> `SKTestSession.buyProduct()` method might fail with an invalid product error." (181842500)
+
+Purchase, restore and Family Sharing inheritance therefore remain device-only.
+
+What this means in practice:
+
+- `PurchaseService` logic is unit-tested around the boundary: entitlement resolution,
+  offline grace, family-shared vs owned, intro-offer eligibility defaults.
+- **Buying, restoring and Family Sharing inheritance must be exercised on a device before
+  each release**, and the intro-offer *eligible* path needs a sandbox account that has not
+  consumed the trial. Nothing in CI covers it.
+- Running from Xcode (⌘R) does apply `Vittora.storekit`, so manual verification there is
+  the supported path. The scheme's path to that file was broken until #237 — it pointed at
+  `../../../Vittora.storekit`, which Xcode resolves against the project directory, so the
+  configuration silently never loaded and the real sandbox answered instead.
+
 ## Notes
 
 - Prefer targeted suites first for quick feedback, then broaden if touching shared infrastructure.

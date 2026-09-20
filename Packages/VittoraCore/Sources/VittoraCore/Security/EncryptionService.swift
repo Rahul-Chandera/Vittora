@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 import CryptoKit
 import Security
 
@@ -181,22 +182,30 @@ public final class EncryptionService: EncryptionServiceProtocol, Sendable {
     }
 
     private func loadSEPrivateKey() -> SecKey? {
-        let query: [String: Any] = [
+        var query: [String: Any] = [
             kSecClass as String: kSecClassKey,
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
             kSecAttrTokenID as String: kSecAttrTokenIDSecureEnclave,
             kSecAttrApplicationTag as String: seKeyTag,
             kSecReturnRef as String: true,
-            kSecUseOperationPrompt as String: String(
-                localized: "Authenticate to access your encrypted Vittora data."
-            ),
         ]
+        // kSecUseOperationPrompt is deprecated; a fresh LAContext per read keeps the
+        // same semantics (prompt every time, no reuse window). watchOS has neither
+        // localizedReason nor a biometric prompt to put it in, so it goes without —
+        // the string was never displayed there.
+        #if !os(watchOS)
+        let context = LAContext()
+        context.localizedReason = String(
+            localized: "Authenticate to access your encrypted Vittora data."
+        )
+        query[kSecUseAuthenticationContext as String] = context
+        #endif
         var item: CFTypeRef?
         guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
               let ref = item,
               CFGetTypeID(ref) == SecKeyGetTypeID() else { return nil }
         // SecKey is a CoreFoundation type; after checking CFTypeID, this bridge is safe.
-        return unsafeBitCast(ref, to: SecKey.self)
+        return unsafeDowncast(ref, to: SecKey.self)
     }
 
     private func createSEPrivateKey() throws -> SecKey {

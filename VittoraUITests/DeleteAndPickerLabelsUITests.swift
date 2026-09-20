@@ -28,8 +28,10 @@ final class DeleteAndPickerLabelsUITests: XCTestCase {
         openSettingsDestination("settings-manage-accounts")
 
         let accountRow = app.descendants(matching: .any)["account-row-UI Test Checking"]
-        UITestSupport.scrollToElement(accountRow, in: app)
+        // Exist first, then scroll to it. The other order let the scroll helper swipe
+        // the Settings list while Accounts was still presenting.
         XCTAssertTrue(accountRow.waitForExistence(timeout: 20), "The seeded account should be visible.")
+        UITestSupport.scrollToElement(accountRow, in: app)
 
         accountRow.swipeLeft()
         UITestSupport.tapWhenReady(app.buttons["Delete"].firstMatch)

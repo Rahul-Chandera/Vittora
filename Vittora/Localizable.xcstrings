@@ -630,6 +630,23 @@
         }
       }
     },
+    "%@ once" : {
+      "comment" : "Lifetime plan price on the paywall card; a one-time purchase, not a period.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ una sola vez"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ एक बार"
+          }
+        }
+      }
+    },
     "%@ owed to you" : {
       "localizations" : {
         "es" : {
@@ -1227,6 +1244,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@। टैक्स: %2$@। प्रभावी दर %3$@%%"
+          }
+        }
+      }
+    },
+    "%@/month" : {
+      "comment" : "Monthly plan price on the paywall card.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/mes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/माह"
+          }
+        }
+      }
+    },
+    "%@/year" : {
+      "comment" : "Yearly plan price on the paywall card.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/año"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/वर्ष"
           }
         }
       }
@@ -2648,6 +2699,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "6-महीने का लक्ष्य"
+          }
+        }
+      }
+    },
+    "7 days free, then %@" : {
+      "comment" : "Paywall plan caption when this account is eligible for the free trial.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 días gratis, luego %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 दिन मुफ़्त, फिर %@"
           }
         }
       }
@@ -4522,6 +4590,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "एक समग्र बजट पहले से चल रहा है। दूसरा जोड़ने से पहले उसे संपादित करें या हटाएँ।"
+          }
+        }
+      }
+    },
+    "and" : {
+      "comment" : "Joins the Terms of Service and Privacy Policy links on the paywall.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "y"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "और"
           }
         }
       }
@@ -10504,6 +10589,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "इम्पोर्ट की गई हर राशि शून्य से अधिक होनी चाहिए।"
+          }
+        }
+      }
+    },
+    "Every Pro feature is unlocked on this device through Family Sharing. The family member who bought it manages the plan in their Apple Account settings." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las funciones Pro están desbloqueadas en este dispositivo mediante Compartir en familia. El familiar que la compró gestiona el plan en los ajustes de su cuenta de Apple."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर सभी Pro सुविधाएँ फ़ैमिली शेयरिंग के ज़रिए अनलॉक हैं। जिस परिवार सदस्य ने इसे ख़रीदा है, वे अपनी Apple खाता सेटिंग्स में प्लान प्रबंधित करते हैं।"
+          }
+        }
+      }
+    },
+    "Every Pro feature is unlocked on this device. Vittora Pro Lifetime is a one-time purchase, so there is nothing to renew or cancel." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las funciones Pro están desbloqueadas en este dispositivo. Vittora Pro Lifetime es una compra única, así que no hay nada que renovar ni cancelar."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर सभी Pro सुविधाएँ अनलॉक हैं। Vittora Pro Lifetime एक बार की ख़रीद है, इसलिए नवीनीकरण या रद्द करने के लिए कुछ नहीं है।"
           }
         }
       }
@@ -16546,6 +16663,7 @@
       }
     },
     "Or buy Vittora Pro Lifetime for %@, once" : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -18160,6 +18278,39 @@
         }
       }
     },
+    "Purchase" : {
+      "comment" : "Paywall button when the selected plan is the one-time Lifetime purchase.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ख़रीदें"
+          }
+        }
+      }
+    },
+    "Purchases are turned off on this device" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las compras están desactivadas en este dispositivo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस डिवाइस पर ख़रीदारी बंद है"
+          }
+        }
+      }
+    },
     "Purchase Failed" : {
       "localizations" : {
         "es" : {
@@ -19233,6 +19384,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "खरीदारी बहाल करें"
+          }
+        }
+      }
+    },
+    "Restore Subscription" : {
+      "comment" : "Paywall footer button that restores a previous purchase.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar suscripción"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सदस्यता बहाल करें"
           }
         }
       }
@@ -22286,6 +22454,23 @@
         }
       }
     },
+    "Subscribe" : {
+      "comment" : "Paywall purchase button when no free trial applies.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suscribirse"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सदस्यता लें"
+          }
+        }
+      }
+    },
     "Subscription Audit" : {
       "localizations" : {
         "es" : {
@@ -24217,6 +24402,22 @@
         }
       }
     },
+    "This device cannot make purchases, usually because of Screen Time restrictions or a device management profile. Vittora stays fully usable without Pro. If Vittora Pro was already bought on this Apple Account, Restore Subscription brings it back." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este dispositivo no puede realizar compras, normalmente por restricciones de Tiempo de uso o por un perfil de gestión de dispositivos. Vittora sigue siendo totalmente utilizable sin Pro. Si ya compraste Vittora Pro con esta cuenta de Apple, Restaurar suscripción lo recupera."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह डिवाइस ख़रीदारी नहीं कर सकता, आमतौर पर स्क्रीन टाइम प्रतिबंधों या डिवाइस प्रबंधन प्रोफ़ाइल के कारण। Pro के बिना भी Vittora पूरी तरह उपयोग योग्य रहता है। यदि इस Apple खाते से Vittora Pro पहले ही ख़रीदा गया है, तो सदस्यता बहाल करें उसे वापस ले आता है।"
+          }
+        }
+      }
+    },
     "Transfer" : {
       "localizations" : {
         "es" : {
@@ -24416,6 +24617,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "फिर से कोशिश करें"
+          }
+        }
+      }
+    },
+    "Try It Free" : {
+      "comment" : "Paywall purchase button when the selected plan offers a free trial.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Probar gratis"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मुफ़्त आज़माएँ"
           }
         }
       }
@@ -25643,6 +25861,25 @@
         }
       }
     },
+    "Vittora Pro Lifetime · %@ once" : {
+      "comment" : "A button that purchases the lifetime paywall.",
+      "extractionState" : "stale",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro Lifetime · %@ una sola vez"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro Lifetime · एक बार %@"
+          }
+        }
+      }
+    },
     "Vittora Pro pricing is unavailable right now" : {
       "localizations" : {
         "es" : {
@@ -25660,6 +25897,7 @@
       }
     },
     "Vittora Pro unlocks the forward-looking analysis. Your records, your splits, iCloud sync and CSV export stay free, always." : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -27125,6 +27363,22 @@
         }
       }
     },
+    "Yearly and Lifetime can be shared with up to five family members through Family Sharing." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yearly y Lifetime se pueden compartir con hasta cinco familiares mediante Compartir en familia."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yearly और Lifetime को फ़ैमिली शेयरिंग के ज़रिए अधिकतम पाँच परिवार सदस्यों के साथ साझा किया जा सकता है।"
+          }
+        }
+      }
+    },
     "Year in Review" : {
       "localizations" : {
         "es" : {
@@ -27571,6 +27825,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "आपका पर्सनल फ़ाइनेंस साथी"
+          }
+        }
+      }
+    },
+    "Your records, splits, iCloud sync and CSV export stay free, always." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus registros, tus gastos compartidos, la sincronización con iCloud y la exportación a CSV siguen siendo gratis, siempre."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट हमेशा मुफ़्त रहेंगे।"
           }
         }
       }
