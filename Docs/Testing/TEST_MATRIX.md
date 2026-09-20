@@ -58,25 +58,30 @@ Use this map to pick the fastest meaningful tests after changes.
 
 ## In-app purchase
 
-**Purchase and restore are device-only. This is a limitation of the harness, not an
-oversight, and it has now been re-tested twice.**
+**Products and intro-offer eligibility are covered in-test. Purchase and restore are still
+device-only.** The dividing line is the app-facing entitlement cache, not the configuration.
 
 `xcodebuild` does not honour a scheme's `StoreKitConfigurationFileReference` — that is an
-IDE-only setting. So under `make test` the process has no StoreKit configuration at all:
-`Product.products(for:)` returns nothing, which is exactly what
-`emptyProductLoadIsReportedAsFailure` in `PurchaseServiceTests` observes and asserts on.
-An `SKTestSession` built in-test cannot rescue this; the app process still reads an empty
-StoreKit environment, so `Transaction.currentEntitlements` stays empty after a purchase.
+IDE-only setting, so under `make test` the scheme contributes no StoreKit configuration.
+`SKTestSession(contentsOf:)` does not depend on the scheme: it builds its own environment
+from `Vittora.storekit`, resolved from `#filePath`. `IntroOfferEligibilityTests` uses this
+and does serve products, which is what closed the intro-offer gap — `PurchaseService`
+resolving `isEligibleForIntroOffer == true` for a fresh account is now asserted, where
+previously only the "no trial" direction was covered anywhere.
 
-Re-probed on iOS 27 (2026-09-18) because the release notes fixed a related bug:
+What is still not reachable is a purchase the app can *see*. `SKTestSession.buyProduct()`
+works on iOS 27 (the release-note fix below is real — it no longer throws `.notEntitled`)
+and the session records the transaction in `allTransactions()`. But a test process that has
+already queried StoreKit keeps serving the entitlement cache it warmed:
+`Transaction.currentEntitlements` stays empty and eligibility stays true. The same test
+passes when it is the only one in the process, and `AppStore.sync()` hangs rather than
+reconciling. So the consumed-trial direction was left uncovered rather than committed as a
+flaky test — see the note in `IntroOfferEligibilityTests`.
 
 > "Fixed: Purchases of non-subscription In-App Purchases made using the
 > `SKTestSession.buyProduct()` method might fail with an invalid product error." (181842500)
 
-That fix is real and visible: `buyProduct()` no longer throws `.notEntitled`, which is what
-it did in every configuration tried before. But the purchase still does not become an
-entitlement the app can see, for the configuration reason above. The probe was deleted
-rather than committed as a disabled test.
+Purchase, restore and Family Sharing inheritance therefore remain device-only.
 
 What this means in practice:
 
