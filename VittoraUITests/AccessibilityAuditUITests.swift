@@ -944,29 +944,31 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// Two consecutive equal frame sets, not a fixed sleep: the wait ends as soon as the UI
     /// is still, and costs ~300ms in the common case rather than a flat tax on all 18 audits.
     ///
-    /// Compare pixels, because pixels are what the audit samples.
+    /// A flat wait, after two cleverer versions failed in opposite directions.
     ///
-    /// Two earlier versions got this wrong in opposite directions. The first watched
-    /// `descendants(matching: .staticText).firstMatch`, which resolves to the navigation
-    /// title — an element that does not move when the scroll view scrolls — so it reported
-    /// "settled" on the first comparison while the content behind it was still gliding. The
-    /// second compared every static text's frame, which is correct but costs a full
-    /// accessibility-tree query per iteration; on CI those ran 20s+ each and pushed
-    /// `testOLEDBlackAccessibilityAuditForCoreFlows` into "Audit failed to complete in time".
+    /// The contrast audit samples pixels at frames it read from the accessibility tree. Mid
+    /// scroll the two disagree: `Cash` and `$222.65` were flagged at correct frames whose
+    /// exported screenshots held only #F2F2F7 and #F1F1F6 — about 1.01:1, and not one text
+    /// pixel. So something has to wait for the scroll to stop.
     ///
-    /// A screenshot is cheaper than the tree query and is a stricter test than any frame:
-    /// it settles only when nothing on screen is moving, which is the precondition the
-    /// contrast sampler actually needs.
+    /// Adaptive waits turned out to cost more than they save, because this runs before every
+    /// audited screen — of the order of a hundred times per leg, not eighteen:
+    ///
+    /// - Watching `descendants(matching: .staticText).firstMatch` was free and useless: it
+    ///   resolves to the navigation title, which does not move when the content scrolls, so
+    ///   it reported "settled" on the first comparison. It bought three green runs by adding
+    ///   150ms, then failed both runners on #247.
+    /// - Watching every static text frame fixed the contrast race — that test passed on CI —
+    ///   but a full accessibility-tree query per iteration ran 20s+ on CI and pushed the leg
+    ///   from 1325s to 1835s, timing out the OLED audit.
+    /// - Comparing screenshots is stricter still and measured ~1s per capture on CI: 1578s,
+    ///   with the OLED audit timing out again and a navigation assertion failing behind it.
+    ///
+    /// 0.8s costs about 90s across the leg, which the budget has, and needs no query at all.
+    /// If the contrast race returns, raise this before reaching for anything adaptive.
     @MainActor
-    private func waitForRenderingToSettle(timeout: TimeInterval = 5) {
-        var previous: Data?
-        let deadline = Date().addingTimeInterval(timeout)
-        while Date() < deadline {
-            let current = XCUIScreen.main.screenshot().pngRepresentation
-            if current == previous { return }
-            previous = current
-            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
-        }
+    private func waitForRenderingToSettle(_ duration: TimeInterval = 0.8) {
+        RunLoop.current.run(until: Date().addingTimeInterval(duration))
     }
 
     @MainActor
