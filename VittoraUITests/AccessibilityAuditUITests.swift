@@ -944,20 +944,26 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// Two consecutive equal frame sets, not a fixed sleep: the wait ends as soon as the UI
     /// is still, and costs ~300ms in the common case rather than a flat tax on all 18 audits.
     ///
-    /// Every frame, not one probe. The first version watched
-    /// `descendants(matching: .staticText).firstMatch`, which on these screens resolves to
-    /// the navigation title — an element that does not move when the scroll view scrolls. It
-    /// therefore reported "settled" on the first comparison while the content behind it was
-    /// still gliding, which is exactly the state this wait exists to avoid. It bought three
-    /// green runs by adding ~150ms and nothing more; the race then came back on #246 and
-    /// failed both runners on #247.
+    /// Compare pixels, because pixels are what the audit samples.
+    ///
+    /// Two earlier versions got this wrong in opposite directions. The first watched
+    /// `descendants(matching: .staticText).firstMatch`, which resolves to the navigation
+    /// title — an element that does not move when the scroll view scrolls — so it reported
+    /// "settled" on the first comparison while the content behind it was still gliding. The
+    /// second compared every static text's frame, which is correct but costs a full
+    /// accessibility-tree query per iteration; on CI those ran 20s+ each and pushed
+    /// `testOLEDBlackAccessibilityAuditForCoreFlows` into "Audit failed to complete in time".
+    ///
+    /// A screenshot is cheaper than the tree query and is a stricter test than any frame:
+    /// it settles only when nothing on screen is moving, which is the precondition the
+    /// contrast sampler actually needs.
     @MainActor
     private func waitForRenderingToSettle(timeout: TimeInterval = 5) {
-        var previous: [CGRect] = []
+        var previous: Data?
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
-            let current = app.staticTexts.allElementsBoundByAccessibilityElement.map(\.frame)
-            if !current.isEmpty, current == previous { return }
+            let current = XCUIScreen.main.screenshot().pngRepresentation
+            if current == previous { return }
             previous = current
             RunLoop.current.run(until: Date().addingTimeInterval(0.15))
         }
