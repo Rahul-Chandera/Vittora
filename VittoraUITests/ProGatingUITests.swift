@@ -34,6 +34,16 @@ final class ProGatingUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Reports"].waitForExistence(timeout: 20))
     }
 
+    /// No demo seed: the seeder saves a tax profile, and the regression only shows on a
+    /// device that has none.
+    @MainActor
+    private func launchUnseeded(initialTab: String) {
+        app.launchArguments = ["--uitesting", "--ui-test-reset-app-lock"]
+        app.launchEnvironment["UITEST_INITIAL_TAB"] = initialTab
+        app.launch()
+        XCTAssertTrue(UITestSupport.waitForAppForeground(in: app))
+    }
+
     @MainActor
     private func openEmergencyFundCard() {
         let card = app.descendants(matching: .any)["report-card-emergencyFund"].firstMatch
@@ -83,6 +93,32 @@ final class ProGatingUITests: XCTestCase {
         XCTAssertFalse(
             app.buttons["pro-lock-upgrade-button"].exists,
             "A Pro user must never see the lock screen."
+        )
+        #endif
+    }
+
+    /// The Tax Estimator gated only its populated state, so a free user with no profile
+    /// was invited to "Set Up Profile", filled the form, and only then met the lock.
+    @MainActor
+    func testFreeUserWithNoTaxProfileGetsTheLockNotTheSetUpPrompt() throws {
+        #if os(macOS)
+        throw XCTSkip("iOS only")
+        #else
+        launchUnseeded(initialTab: "settings")
+        XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
+
+        let tax = app.buttons["Tax"].firstMatch
+        UITestSupport.scrollToElement(tax, in: app)
+        UITestSupport.tapWhenReady(tax, timeout: 15)
+        XCTAssertTrue(app.navigationBars["Tax Estimator"].waitForExistence(timeout: 20))
+
+        XCTAssertTrue(
+            app.buttons["pro-lock-upgrade-button"].firstMatch.waitForExistence(timeout: 20),
+            "A free user opening the Tax Estimator should meet the lock straight away."
+        )
+        XCTAssertFalse(
+            app.buttons["Set Up Profile"].exists,
+            "The profile prompt must not be shown ahead of the lock — it leads nowhere for a free user."
         )
         #endif
     }

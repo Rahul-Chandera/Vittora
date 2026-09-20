@@ -16,15 +16,25 @@ struct VFormSectionHeader: View {
         self.isRequired = isRequired
     }
 
+    /// The marker is a styled run rather than a second Text: Text's `+` is
+    /// deprecated, and string interpolation would invent a catalogue key.
+    static func attributedTitle(_ title: String, isRequired: Bool) -> AttributedString {
+        var result = AttributedString(title)
+        guard isRequired else { return result }
+        var marker = AttributedString(" *")
+        marker.foregroundColor = VColors.expense
+        result.append(marker)
+        return result
+    }
+
     var body: some View {
-        // Text + Text concatenation, NOT an HStack. This must stay a single
-        // Text node: the audit exemption keys on the identifier below, and
-        // wrapping it in a stack made the sampler flag the inner Text instead,
-        // which carries no identifier — testSavingsSurfaces and testTaxSurfaces
-        // both failed on "Goal" and "Country" that way.
-        (isRequired
-            ? Text(title) + Text(verbatim: " *").foregroundColor(VColors.expense)
-            : Text(title))
+        // One AttributedString, NOT an HStack and no longer Text + Text (the
+        // operator is deprecated in iOS 26). This must stay a single Text node:
+        // the audit exemption keys on the identifier below, and wrapping it in
+        // a stack made the sampler flag the inner Text instead, which carries
+        // no identifier — testSavingsSurfaces and testTaxSurfaces both failed
+        // on "Goal" and "Country" that way.
+        Text(Self.attributedTitle(title, isRequired: isRequired))
             .font(.headline)
             .foregroundStyle(VColors.textPrimary)
             .textCase(nil)

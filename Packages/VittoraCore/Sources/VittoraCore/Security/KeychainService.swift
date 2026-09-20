@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 import Security
 
 @MainActor
@@ -48,11 +49,19 @@ public final class KeychainService: KeychainServiceProtocol, Sendable {
             kSecReturnData as String: true
         ]
 
+        // kSecUseOperationPrompt is deprecated; a fresh LAContext per read keeps the
+        // same semantics (prompt every time, no reuse window). watchOS has neither
+        // localizedReason nor a biometric prompt to put it in, so it goes without —
+        // the string was never displayed there.
+        #if !os(watchOS)
         if access == .biometricBound {
-            query[kSecUseOperationPrompt as String] = String(
+            let context = LAContext()
+            context.localizedReason = String(
                 localized: "Authenticate to access your encrypted Vittora data."
             )
+            query[kSecUseAuthenticationContext as String] = context
         }
+        #endif
 
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
