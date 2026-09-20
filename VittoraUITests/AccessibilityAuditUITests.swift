@@ -941,19 +941,34 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// It is intermittent because it is a race, and `testNewReportsAccessibilityAudit` hits
     /// it most because it scrolls twice immediately before auditing.
     ///
-    /// Two consecutive equal frames, not a fixed sleep: the wait ends as soon as the UI is
-    /// still, and costs ~300ms in the common case rather than a flat tax on all 18 audits.
+    /// Two consecutive equal frame sets, not a fixed sleep: the wait ends as soon as the UI
+    /// is still, and costs ~300ms in the common case rather than a flat tax on all 18 audits.
+    ///
+    /// A flat wait, after two cleverer versions failed in opposite directions.
+    ///
+    /// The contrast audit samples pixels at frames it read from the accessibility tree. Mid
+    /// scroll the two disagree: `Cash` and `$222.65` were flagged at correct frames whose
+    /// exported screenshots held only #F2F2F7 and #F1F1F6 — about 1.01:1, and not one text
+    /// pixel. So something has to wait for the scroll to stop.
+    ///
+    /// Adaptive waits turned out to cost more than they save, because this runs before every
+    /// audited screen — of the order of a hundred times per leg, not eighteen:
+    ///
+    /// - Watching `descendants(matching: .staticText).firstMatch` was free and useless: it
+    ///   resolves to the navigation title, which does not move when the content scrolls, so
+    ///   it reported "settled" on the first comparison. It bought three green runs by adding
+    ///   150ms, then failed both runners on #247.
+    /// - Watching every static text frame fixed the contrast race — that test passed on CI —
+    ///   but a full accessibility-tree query per iteration ran 20s+ on CI and pushed the leg
+    ///   from 1325s to 1835s, timing out the OLED audit.
+    /// - Comparing screenshots is stricter still and measured ~1s per capture on CI: 1578s,
+    ///   with the OLED audit timing out again and a navigation assertion failing behind it.
+    ///
+    /// 0.8s costs about 90s across the leg, which the budget has, and needs no query at all.
+    /// If the contrast race returns, raise this before reaching for anything adaptive.
     @MainActor
-    private func waitForRenderingToSettle(timeout: TimeInterval = 3) {
-        let probe = app.descendants(matching: .staticText).firstMatch
-        var previous: CGRect = .null
-        let deadline = Date().addingTimeInterval(timeout)
-        while Date() < deadline {
-            let current = probe.exists ? probe.frame : .null
-            if current != .null, current == previous { return }
-            previous = current
-            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
-        }
+    private func waitForRenderingToSettle(_ duration: TimeInterval = 0.8) {
+        RunLoop.current.run(until: Date().addingTimeInterval(duration))
     }
 
     @MainActor
