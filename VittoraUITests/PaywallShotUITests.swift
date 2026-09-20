@@ -81,10 +81,23 @@ final class PaywallShotUITests: XCTestCase {
         // Let the price text settle before sampling pixels.
         RunLoop.current.run(until: Date().addingTimeInterval(1.5))
 
-        let shot = XCUIScreen.main.screenshot()
-        let destination = outDir.appendingPathComponent("paywall.png")
-        try shot.pngRepresentation.write(to: destination)
-        print("PAYWALL SHOT WRITTEN: \(destination.path)")
+        func capture(_ name: String) throws {
+            let destination = outDir.appendingPathComponent(name)
+            try XCUIScreen.main.screenshot().pngRepresentation.write(to: destination)
+            print("PAYWALL SHOT WRITTEN: \(destination.path)")
+        }
+
+        try capture("paywall-hero.png")
+
+        // The submission image is the scrolled-to-bottom one. The auto-renew disclosure
+        // sits below the fold on a phone — nothing is truncated, the scroll view simply
+        // starts at the top — and App Review reads that paragraph, so the shot that goes to
+        // App Store Connect is the one showing all three plans AND the whole disclosure.
+        app.swipeUp()
+        RunLoop.current.run(until: Date().addingTimeInterval(1))
+        app.swipeUp()
+        RunLoop.current.run(until: Date().addingTimeInterval(1.5))
+        try capture("paywall.png")
         #endif
     }
 }

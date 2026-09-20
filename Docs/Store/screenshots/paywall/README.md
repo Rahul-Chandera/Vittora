@@ -3,7 +3,20 @@
 For **App Store Connect → Subscriptions → (each product) → Review Information →
 Screenshot**, and the equivalent field on the Lifetime non-consumable.
 
-`paywall.png` — 1320x2868, iPhone 17 Pro Max, en-US storefront.
+`paywall.png` — **the one to upload.** 1320x2868, iPhone 17 Pro Max, en-US storefront,
+scrolled so that all three plans, their prices and the complete auto-renew disclosure are
+in frame together.
+
+`paywall-hero.png` — the same screen at the top of the scroll view. Kept for reference and
+for marketing use; not the submission image.
+
+### Why the submission image is the scrolled one
+
+Nothing is truncated. The disclosure simply sits below the fold on a phone, because the
+scroll view opens at the top. But App Review reads that paragraph when assessing
+Guideline 3.1.2, and a shot that stops mid-sentence at "...24 hours before the period"
+invites a question that costs a review cycle. The scrolled frame carries the plans, the
+prices, the Family Sharing line, the whole disclosure, the CTA and Restore in one image.
 
 ## One image covers all three products
 
