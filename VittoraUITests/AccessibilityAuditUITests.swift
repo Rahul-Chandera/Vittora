@@ -941,16 +941,23 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// It is intermittent because it is a race, and `testNewReportsAccessibilityAudit` hits
     /// it most because it scrolls twice immediately before auditing.
     ///
-    /// Two consecutive equal frames, not a fixed sleep: the wait ends as soon as the UI is
-    /// still, and costs ~300ms in the common case rather than a flat tax on all 18 audits.
+    /// Two consecutive equal frame sets, not a fixed sleep: the wait ends as soon as the UI
+    /// is still, and costs ~300ms in the common case rather than a flat tax on all 18 audits.
+    ///
+    /// Every frame, not one probe. The first version watched
+    /// `descendants(matching: .staticText).firstMatch`, which on these screens resolves to
+    /// the navigation title — an element that does not move when the scroll view scrolls. It
+    /// therefore reported "settled" on the first comparison while the content behind it was
+    /// still gliding, which is exactly the state this wait exists to avoid. It bought three
+    /// green runs by adding ~150ms and nothing more; the race then came back on #246 and
+    /// failed both runners on #247.
     @MainActor
-    private func waitForRenderingToSettle(timeout: TimeInterval = 3) {
-        let probe = app.descendants(matching: .staticText).firstMatch
-        var previous: CGRect = .null
+    private func waitForRenderingToSettle(timeout: TimeInterval = 5) {
+        var previous: [CGRect] = []
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
-            let current = probe.exists ? probe.frame : .null
-            if current != .null, current == previous { return }
+            let current = app.staticTexts.allElementsBoundByAccessibilityElement.map(\.frame)
+            if !current.isEmpty, current == previous { return }
             previous = current
             RunLoop.current.run(until: Date().addingTimeInterval(0.15))
         }
