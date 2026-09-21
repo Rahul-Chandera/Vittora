@@ -293,6 +293,7 @@ struct VittoraApp: App {
                         #endif
                         registerSpotlightSyncHook()
                         await performStartupTasksIfNeeded()
+                        await drainQuickLogQueue()
                         #if os(iOS)
                         // Seed (and other startup writes) finish after activate; push once more
                         // so the watch gets a post-seed snapshot without waiting for a later edit.
@@ -355,6 +356,11 @@ struct VittoraApp: App {
         }
         #endif
         .onChange(of: scenePhase) { _, newPhase in
+            // Widget taps queue while the app is away, so the ledger catches up the moment
+            // it comes forward rather than waiting for a cold launch.
+            if newPhase == .active {
+                Task { await drainQuickLogQueue() }
+            }
             let shouldShowPrivacyShield = newPhase == .inactive || newPhase == .background
             appState.isPrivacyShieldVisible = !isRunningAutomatedTests && shouldShowPrivacyShield
 
@@ -515,6 +521,18 @@ struct VittoraApp: App {
     }
 
     /// W5: AddExpenseIntent → same `openFromURL` path as widget / `vittora://add` links.
+    /// Commits anything the Quick Log widget captured while the app was closed (M2.7.5).
+    ///
+    /// Failure is swallowed on purpose: entries stay queued when this cannot run, so the
+    /// next foreground tries again. Clearing them on error would lose the expense.
+    @MainActor
+    private func drainQuickLogQueue() async {
+        let committed = (try? await dependencies.drainQuickLogQueueUseCase.execute()) ?? 0
+        if committed > 0 {
+            appState.notifyChanged(.transactions)
+        }
+    }
+
     private func registerQuickAddIntentHandler() {
         QuickAddDeepLink.registerOpenHandler { [appState] destination in
             appState.openFromURL(QuickAddDeepLink.url(for: destination))

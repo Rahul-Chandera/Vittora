@@ -39,6 +39,7 @@ final class DependencyContainer {
     let scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase
     let scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase
     let scheduleInvestmentMaturityRemindersUseCase: ScheduleInvestmentMaturityRemindersUseCase
+    let drainQuickLogQueueUseCase: DrainQuickLogQueueUseCase
     var conversionEventTracker: any ConversionEventTracking = UserDefaultsConversionEventTracker()
     let entitlementStore = EntitlementStore()
     // Second tracker instance is fine: both read AppUserDefaults.conversion, so OCR counts agree.
@@ -81,6 +82,7 @@ final class DependencyContainer {
         scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase,
         scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase,
         scheduleInvestmentMaturityRemindersUseCase: ScheduleInvestmentMaturityRemindersUseCase,
+        drainQuickLogQueueUseCase: DrainQuickLogQueueUseCase,
         conversionEventRecorder: ConversionEventRecorder,
         securityAuditLogService: SecurityAuditLogService,
         dataSeeder: any DataSeederProtocol,
@@ -115,6 +117,7 @@ final class DependencyContainer {
         self.scheduleRecurringPreNotificationsUseCase = scheduleRecurringPreNotificationsUseCase
         self.scheduleSelfDebtDueRemindersUseCase = scheduleSelfDebtDueRemindersUseCase
         self.scheduleInvestmentMaturityRemindersUseCase = scheduleInvestmentMaturityRemindersUseCase
+        self.drainQuickLogQueueUseCase = drainQuickLogQueueUseCase
         self.conversionEventRecorder = conversionEventRecorder
         self.securityAuditLogService = securityAuditLogService
         self.dataSeeder = dataSeeder
@@ -200,6 +203,12 @@ final class DependencyContainer {
             investmentRepository: investmentRepository,
             notificationService: notificationService
         )
+        let drainQuickLogQueueUseCase = DrainQuickLogQueueUseCase(
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
+            queue: QuickLogQueue() ?? QuickLogQueue(defaults: .standard)
+        )
         let contactsImportService = SystemContactsImportService()
         let exportService = DataExportService(
             transactionRepository: transactionRepository,
@@ -242,6 +251,7 @@ final class DependencyContainer {
             scheduleRecurringPreNotificationsUseCase: scheduleRecurringPreNotificationsUseCase,
             scheduleSelfDebtDueRemindersUseCase: scheduleSelfDebtDueRemindersUseCase,
             scheduleInvestmentMaturityRemindersUseCase: scheduleInvestmentMaturityRemindersUseCase,
+            drainQuickLogQueueUseCase: drainQuickLogQueueUseCase,
             conversionEventRecorder: conversionEventRecorder,
             securityAuditLogService: auditLogService,
             dataSeeder: dataSeeder,
