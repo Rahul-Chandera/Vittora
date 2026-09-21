@@ -113,57 +113,81 @@ struct CategoryListView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    /// One row, used for both roots and children so the swipe, context menu and
+    /// accessibility identifier cannot drift between them — they were already duplicated
+    /// once per type before sub-categories added a third case.
+    @ViewBuilder
+    private func categoryRow(_ category: CategoryEntity, isChild: Bool) -> some View {
+        NavigationLink {
+            CategoryDetailView(categoryID: category.id)
+        } label: {
+            HStack {
+                if isChild {
+                    // Indent rather than a disclosure group: the hierarchy is one level
+                    // deep by construction, so there is nothing to collapse, and a child
+                    // must stay swipeable like any other row.
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(width: VSpacing.lg, height: 1)
+                        .accessibilityHidden(true)
+                }
+                CategoryRowView(category: category)
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(VColors.textPrimary)
+                    .accessibilityHidden(true)
+            }
+        }
+        .navigationLinkIndicatorVisibility(.hidden)
+        .accessibilityIdentifier("category-row-\(category.name.lowercased())")
+        .accessibilityHint(isChild ? String(localized: "Sub-category") : "")
+        .contextMenu {
+            NavigationLink {
+                CategoryDetailView(categoryID: category.id)
+            } label: {
+                Label(String(localized: "Edit"), systemImage: "pencil")
+            }
+            if !category.isDefault {
+                Button(role: .destructive) {
+                    categoryToDelete = category.id
+                    showingDeleteAlert = true
+                } label: {
+                    Label(String(localized: "Delete"), systemImage: "trash")
+                }
+            }
+        }
+        .swipeActions(edge: .trailing) {
+            if !category.isDefault {
+                Button(role: .destructive) {
+                    categoryToDelete = category.id
+                    showingDeleteAlert = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+                // role: .destructive alone is not enough — the NavigationStack tint in
+                // AppTabView.contentStack repaints swipe actions, so the red is explicit.
+                .tint(.red)
+            }
+            NavigationLink {
+                CategoryDetailView(categoryID: category.id)
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            .tint(.blue)
+        }
+    }
+
     @ViewBuilder
     private func categoryList(vm: CategoryListViewModel) -> some View {
         List {
             if !vm.filteredExpenseCategories.isEmpty {
                 Section {
-                    ForEach(vm.filteredExpenseCategories) { category in
-                        NavigationLink {
-                            CategoryDetailView(categoryID: category.id)
-                        } label: {
-                            HStack {
-                                CategoryRowView(category: category)
-                                Image(systemName: "chevron.right")
-                                    .foregroundStyle(VColors.textPrimary)
-                                    .accessibilityHidden(true)
-                            }
-                        }
-                        .navigationLinkIndicatorVisibility(.hidden)
-                        .accessibilityIdentifier("category-row-\(category.name.lowercased())")
-                        .contextMenu {
-                            NavigationLink {
-                                CategoryDetailView(categoryID: category.id)
-                            } label: {
-                                Label(String(localized: "Edit"), systemImage: "pencil")
-                            }
-                            if !category.isDefault {
-                                Button(role: .destructive) {
-                                    categoryToDelete = category.id
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label(String(localized: "Delete"), systemImage: "trash")
-                                }
-                            }
-                        }
-                        .swipeActions(edge: .trailing) {
-                            if !category.isDefault {
-                                Button(role: .destructive) {
-                                    categoryToDelete = category.id
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                                    // role: .destructive alone is not enough — the NavigationStack tint in
-                                    // AppTabView.contentStack repaints swipe actions, so the red is explicit.
-                                    .tint(.red)
-                            }
-                            NavigationLink {
-                                CategoryDetailView(categoryID: category.id)
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            .tint(.blue)
+                    ForEach(
+                        CategoryHierarchy.grouped(vm.filteredExpenseCategories),
+                        id: \.parent.id
+                    ) { group in
+                        categoryRow(group.parent, isChild: false)
+                        ForEach(group.children) { child in
+                            categoryRow(child, isChild: true)
                         }
                     }
                 } header: {
@@ -174,46 +198,13 @@ struct CategoryListView: View {
 
             if !vm.filteredIncomeCategories.isEmpty {
                 Section {
-                    ForEach(vm.filteredIncomeCategories) { category in
-                        NavigationLink {
-                            CategoryDetailView(categoryID: category.id)
-                        } label: {
-                            HStack {
-                                CategoryRowView(category: category)
-                                Image(systemName: "chevron.right")
-                                    .foregroundStyle(VColors.textPrimary)
-                                    .accessibilityHidden(true)
-                            }
-                        }
-                        .navigationLinkIndicatorVisibility(.hidden)
-                        .accessibilityIdentifier("category-row-\(category.name.lowercased())")
-                        .contextMenu {
-                            NavigationLink {
-                                CategoryDetailView(categoryID: category.id)
-                            } label: {
-                                Label(String(localized: "Edit"), systemImage: "pencil")
-                            }
-                            if !category.isDefault {
-                                Button(role: .destructive) {
-                                    categoryToDelete = category.id
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label(String(localized: "Delete"), systemImage: "trash")
-                                }
-                            }
-                        }
-                        .swipeActions(edge: .trailing) {
-                            if !category.isDefault {
-                                Button(role: .destructive) {
-                                    categoryToDelete = category.id
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                                    // role: .destructive alone is not enough — the NavigationStack tint in
-                                    // AppTabView.contentStack repaints swipe actions, so the red is explicit.
-                                    .tint(.red)
-                            }
+                    ForEach(
+                        CategoryHierarchy.grouped(vm.filteredIncomeCategories),
+                        id: \.parent.id
+                    ) { group in
+                        categoryRow(group.parent, isChild: false)
+                        ForEach(group.children) { child in
+                            categoryRow(child, isChild: true)
                         }
                     }
                 } header: {

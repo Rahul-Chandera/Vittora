@@ -16,6 +16,7 @@ struct CategoryFormView: View {
     @State private var saveError: String?
     @State private var showIconPicker = false
     @State private var showColorPicker = false
+    @State private var allCategories: [CategoryEntity] = []
 
     var body: some View {
         Group {
@@ -46,11 +47,72 @@ struct CategoryFormView: View {
         }
         .task {
             setupViewModel()
+            await loadCategories()
         }
         .onChange(of: saveError) { _, newValue in
             if let msg = newValue {
                 AccessibilityNotification.Announcement(AttributedString(msg)).post()
             }
+        }
+    }
+
+    /// The parent picker needs the whole list to apply the hierarchy rules — which
+    /// candidates are roots, which already have children — so it cannot be derived from the
+    /// category being edited alone.
+    private func loadCategories() async {
+        allCategories = (try? await dependencies.categoryRepository.fetchAll()) ?? []
+    }
+
+    private var eligibleParents: [CategoryEntity] {
+        CategoryHierarchy.eligibleParents(
+            for: editingCategory,
+            in: allCategories,
+            type: viewModel?.selectedType ?? .expense
+        )
+    }
+
+    private var blockedByOwnChildren: Bool {
+        guard let editingCategory else { return false }
+        return CategoryHierarchy.hasChildren(editingCategory, in: allCategories)
+    }
+
+    /// One level of nesting only, so the rules in `CategoryHierarchy` decide what may
+    /// appear here rather than the picker offering everything and failing on save.
+    @ViewBuilder
+    private func parentPicker(vm: CategoryFormViewModel) -> some View {
+        if blockedByOwnChildren {
+            // Explaining beats hiding: a parent with children simply cannot become a child,
+            // and a picker that silently vanished would read as a bug.
+            Text(String(localized: "This category has sub-categories, so it cannot be moved under another one."))
+                .font(VTypography.caption1)
+                .foregroundStyle(VColors.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityIdentifier("category-parent-blocked-note")
+        } else if eligibleParents.isEmpty {
+            EmptyView()
+        } else {
+            Picker(String(localized: "Parent Category"), selection: Bindable(vm).selectedParentID) {
+                Text(String(localized: "None")).tag(UUID?.none)
+                ForEach(eligibleParents) { parent in
+                    Text(parent.displayName).tag(UUID?.some(parent.id))
+                }
+            }
+            .pickerStyle(.menu)
+            .accessibilityIdentifier("category-parent-picker")
+            // Switching Expense to Income strands a parent of the old type: it is no
+            // longer in the list, so the Picker renders blank while still holding the id,
+            // and saving would write a cross-type parent.
+            .onChange(of: vm.selectedType) { _, _ in
+                if let parentID = vm.selectedParentID,
+                   !eligibleParents.contains(where: { $0.id == parentID }) {
+                    vm.selectedParentID = nil
+                }
+            }
+
+            Text(String(localized: "Sub-categories group under their parent in lists and reports. Nesting is one level deep."))
+                .font(VTypography.caption1)
+                .foregroundStyle(VColors.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -126,6 +188,7 @@ struct CategoryFormView: View {
                     .font(VTypography.caption1)
                     .foregroundStyle(VColors.textSecondary)
                 }
+                parentPicker(vm: vm)
             } header: {
                 VFormSectionHeader(String(localized: "Details"))
             }

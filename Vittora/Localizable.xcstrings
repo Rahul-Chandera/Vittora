@@ -29268,6 +29268,70 @@
           }
         }
       }
+    },
+    "Parent Category" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categoría principal"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मूल श्रेणी"
+          }
+        }
+      }
+    },
+    "Sub-categories group under their parent in lists and reports. Nesting is one level deep." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las subcategorías se agrupan bajo su categoría principal en listas e informes. El anidamiento es de un solo nivel."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उप-श्रेणियाँ सूचियों और रिपोर्ट में अपनी मूल श्रेणी के नीचे समूहित होती हैं। नेस्टिंग केवल एक स्तर गहरी है।"
+          }
+        }
+      }
+    },
+    "Sub-category" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subcategoría"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उप-श्रेणी"
+          }
+        }
+      }
+    },
+    "This category has sub-categories, so it cannot be moved under another one." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta categoría tiene subcategorías, así que no se puede mover bajo otra."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस श्रेणी की उप-श्रेणियाँ हैं, इसलिए इसे किसी अन्य के नीचे नहीं ले जाया जा सकता।"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
