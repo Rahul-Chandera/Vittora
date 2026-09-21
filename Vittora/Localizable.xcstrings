@@ -28948,6 +28948,326 @@
           }
         }
       }
+    },
+    "%@ matures in %lld days." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ vence en %lld días."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %lld दिनों में परिपक्व हो रहा है।"
+          }
+        }
+      }
+    },
+    "Add Investment" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir inversión"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "निवेश जोड़ें"
+          }
+        }
+      }
+    },
+    "Add an investment to see when its lock-in ends and get a reminder before it matures." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade una inversión para ver cuándo termina su periodo de bloqueo y recibir un aviso antes del vencimiento."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "निवेश जोड़ें ताकि देख सकें उसका लॉक-इन कब खत्म होता है, और परिपक्वता से पहले याद दिलाया जा सके।"
+          }
+        }
+      }
+    },
+    "Add investment" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir inversión"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "निवेश जोड़ें"
+          }
+        }
+      }
+    },
+    "Edit Investment" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar inversión"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "निवेश संपादित करें"
+          }
+        }
+      }
+    },
+    "Has a maturity date" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiene fecha de vencimiento"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "परिपक्वता तिथि है"
+          }
+        }
+      }
+    },
+    "Instrument" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instrumento"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "साधन"
+          }
+        }
+      }
+    },
+    "Investment Maturing Soon" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inversión próxima a vencer"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "निवेश जल्द परिपक्व हो रहा है"
+          }
+        }
+      }
+    },
+    "Investment Maturity" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vencimiento de inversiones"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "निवेश परिपक्वता"
+          }
+        }
+      }
+    },
+    "Matured %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Venció el %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ को परिपक्व हुआ"
+          }
+        }
+      }
+    },
+    "Matures %@ · %lld days away" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vence el %@ · faltan %lld días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ को परिपक्व · %lld दिन बाकी"
+          }
+        }
+      }
+    },
+    "Matures on" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vence el"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "परिपक्वता तिथि"
+          }
+        }
+      }
+    },
+    "Matures today · %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vence hoy · %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आज परिपक्व · %@"
+          }
+        }
+      }
+    },
+    "Matures when you turn 60" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vence cuando cumplas 60"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "60 वर्ष के होने पर परिपक्व"
+          }
+        }
+      }
+    },
+    "Maturity" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vencimiento"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "परिपक्वता"
+          }
+        }
+      }
+    },
+    "Maturity Timeline" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendario de vencimientos"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "परिपक्वता समयरेखा"
+          }
+        }
+      }
+    },
+    "Nothing tracked yet" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay seguimiento"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी कुछ ट्रैक नहीं किया गया"
+          }
+        }
+      }
+    },
+    "Remind me before it matures" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avísame antes del vencimiento"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "परिपक्वता से पहले याद दिलाएँ"
+          }
+        }
+      }
+    },
+    "Some lock-ins are tied to your age rather than a date — NPS Tier-I runs to 60. Those appear on the timeline without a countdown." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algunos periodos de bloqueo dependen de tu edad y no de una fecha: el NPS Nivel I llega hasta los 60. Esos aparecen en el calendario sin cuenta regresiva."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कुछ लॉक-इन तिथि के बजाय आपकी आयु से जुड़े होते हैं — NPS टियर-I 60 वर्ष तक चलता है। वे समयरेखा पर बिना काउंटडाउन के दिखते हैं।"
+          }
+        }
+      }
+    },
+    "You'll get a reminder %lld days before the date." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibirás un aviso %lld días antes de la fecha."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपको तिथि से %lld दिन पहले याद दिलाया जाएगा।"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

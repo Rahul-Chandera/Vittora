@@ -9,6 +9,7 @@ struct TaxDashboardView: View {
     @State private var breakdownPresentation: TaxBreakdownPresentation?
     @State private var showExportSheet = false
     @State private var show80CComparison = false
+    @State private var showMaturityTimeline = false
 
     var body: some View {
         // Nested stack — see DebtLedgerView. Same defect, no reported symptom
@@ -77,6 +78,9 @@ struct TaxDashboardView: View {
             TaxProfileFormView(existingProfile: vm?.profile) {
                 Task { await vm?.load() }
             }
+        }
+        .sheet(isPresented: $showMaturityTimeline) {
+            InvestmentTimelineView()
         }
         .sheet(isPresented: $show80CComparison) {
             Tax80CComparisonView(profile: vm?.profile ?? TaxProfile())
@@ -149,6 +153,13 @@ struct TaxDashboardView: View {
                     ) {
                         show80CComparison = true
                     }
+                }
+
+                actionButton(
+                    title: String(localized: "Maturity Timeline"),
+                    icon: "calendar.badge.clock"
+                ) {
+                    showMaturityTimeline = true
                 }
 
                 actionButton(

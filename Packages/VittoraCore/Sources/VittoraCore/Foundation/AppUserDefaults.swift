@@ -18,6 +18,7 @@ public enum AppUserDefaults {
         public nonisolated static let notifyBudgetAlerts = "vittora.notifyBudgetAlerts"
         public nonisolated static let notifyGoalMilestones = "vittora.notifyGoalMilestones"
         public nonisolated static let notifyRecurring = "vittora.notifyRecurring"
+        public nonisolated static let notifyInvestmentMaturity = "vittora.notifyInvestmentMaturity"
         public nonisolated static let notificationDeliveryTime = "vittora.notificationDeliveryTime"
         public nonisolated static let notificationQuietHoursEnabled = "vittora.notificationQuietHoursEnabled"
         public nonisolated static let notificationQuietHoursStart = "vittora.notificationQuietHoursStart"
