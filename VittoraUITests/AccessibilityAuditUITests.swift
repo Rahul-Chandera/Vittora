@@ -30,6 +30,22 @@ final class AccessibilityAuditUITests: XCTestCase {
         app = nil
     }
 
+    /// How long the transaction list may take to appear after a tab switch, in the tests
+    /// that lay it out at AccessibilityXL. Those rows are several times the height of a
+    /// standard run, and on CI the list has repeatedly needed more than 15s — passing on
+    /// rerun every time, with nothing changed.
+    ///
+    /// This is a harness budget, not an assertion about the app: the audit that follows
+    /// each wait still decides whether the screen is correct.
+    ///
+    /// It is a shared constant because it was not one. #252 raised a single call site and
+    /// left an identical sibling at 15s, which then failed on #254 the same way. Note that
+    /// testOLEDBlackAccessibilityAuditForCoreFlows needs the longer budget even though it
+    /// does not itself pass AccessibilityXL — the a11y3 test runs first alphabetically and
+    /// its content size can carry into the launches that follow, as tearDownWithError
+    /// above describes.
+    private static let accessibilityXLListTimeout: TimeInterval = 20
+
     // MARK: - performAccessibilityAudit
 
     @MainActor
@@ -508,14 +524,9 @@ final class AccessibilityAuditUITests: XCTestCase {
         captureFlowScreenshot(named: "oled-dashboard-purple")
 
         XCTAssertTrue(UITestSupport.navigateToTab(named: "Transactions", in: app))
-        // 20s, not 15. This is the only navigation wait in the file that runs at
-        // AccessibilityXL, where the list lays out several times the content of a standard
-        // run, and it is the one that kept timing out on CI — three separate runs, passing
-        // on rerun every time with nothing changed. A harness budget, not an assertion
-        // about the app: the audit that follows still decides whether the screen is
-        // correct, and 20s is what the slower waits elsewhere in this file already use.
         XCTAssertTrue(
-            app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 20)
+            app.descendants(matching: .any)["transaction-list-root"]
+                .waitForExistence(timeout: Self.accessibilityXLListTimeout)
         )
         try performCoreFlowAudit()
 
@@ -590,7 +601,8 @@ final class AccessibilityAuditUITests: XCTestCase {
 
         XCTAssertTrue(UITestSupport.navigateToTab(named: "Transactions", in: app))
         XCTAssertTrue(
-            app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 15)
+            app.descendants(matching: .any)["transaction-list-root"]
+                .waitForExistence(timeout: Self.accessibilityXLListTimeout)
         )
         try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-transaction-list")
