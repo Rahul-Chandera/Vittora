@@ -7,5 +7,6 @@ struct VittoraWidgetsBundle: WidgetBundle {
         TodaySpendingWidget()
         BudgetRemainingWidget()
         LockScreenAccessoryWidget()
+        QuickLogWidget()
     }
 }
