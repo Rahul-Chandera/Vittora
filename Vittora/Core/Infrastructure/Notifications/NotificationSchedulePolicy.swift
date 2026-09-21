@@ -97,7 +97,9 @@ struct NotificationSchedulePreferences: Equatable, Sendable {
 private extension VittoraNotificationCategory {
     nonisolated var usesPreferredDeliveryTime: Bool {
         switch self {
-        case .billDue, .recurring, .debt:
+        // A maturity date is a day, not a moment, so it belongs at the user's preferred
+        // delivery time like the other date-driven reminders.
+        case .billDue, .recurring, .debt, .investmentMaturity:
             true
         case .budgetAlert, .goal:
             false

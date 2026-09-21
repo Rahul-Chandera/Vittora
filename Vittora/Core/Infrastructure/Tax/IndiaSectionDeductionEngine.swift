@@ -171,6 +171,29 @@ enum IndiaSectionDeductionEngine {
         )
     }
 
+    /// Headroom left in a section this year.
+    ///
+    /// `resolve` only emits a `Utilization` for a section something was claimed against, so
+    /// a missing entry means "nothing claimed" — the full cap is available. Reading the
+    /// absent entry as zero remaining inverts the answer and tells a user with an empty 80C
+    /// that they have no room left, which is how this was first shipped and caught.
+    nonisolated static func remaining(
+        sectionKey: String,
+        cap: Decimal,
+        in result: Result
+    ) -> Decimal {
+        let allowed = result.utilizations.first { $0.sectionKey == sectionKey }?.allowed ?? 0
+        return max(0, cap - allowed)
+    }
+
+    nonisolated static func remaining80C(in result: Result) -> Decimal {
+        remaining(sectionKey: "80C", cap: cap80C, in: result)
+    }
+
+    nonisolated static func remaining80CCD1B(in result: Result) -> Decimal {
+        remaining(sectionKey: "80CCD(1B)", cap: cap80CCD1B, in: result)
+    }
+
     nonisolated static func bucket(for section: String?) -> SectionBucket {
         guard let raw = section?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
             return .other

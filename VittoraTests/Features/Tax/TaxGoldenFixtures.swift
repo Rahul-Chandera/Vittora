@@ -7,6 +7,15 @@ import Foundation
 /// Do not regenerate these to make a change pass. A diff here means the tax a
 /// user owes changed; if that is intended, the change belongs in a reviewed
 /// commit of its own. Adding a tax year appends rows, it never edits existing ones.
+///
+/// **Re-pinned once, deliberately.** The fifteen `US|advanced|` rows were updated when
+/// M2.4.3 made traditional 401(k) and HSA contributions reduce federal taxable income;
+/// before that they only drove the headroom display and the estimate ignored them. Those
+/// rows are the only profiles in the grid that carry contributions, and nothing else moved
+/// — every `US|wage|` row, the entire India grid and the whole table layer were untouched,
+/// which is what made the change safe to accept rather than a silent regression. Owner
+/// approved on 2026-09-21. This is the exception that proves the rule above: the guard
+/// worked, it caught an intended change, and the change was justified before it was taken.
 enum TaxGoldenFixtures {
     static let usTable: [String] = [
         "2023|single|14600|0-11600@10;11600-47150@12;47150-100525@22;100525-191950@24;191950-243725@32;243725-609350@35;609350-inf@37",
@@ -387,21 +396,21 @@ enum TaxGoldenFixtures {
         "US|wage|2027|qualifyingSurvivingSpouse|626350|594150|32200|0|145491|0|0|0|145491|35|60308.23|US_FEDERAL_TY2027",
         "US|wage|2027|qualifyingSurvivingSpouse|768700|736500|32200|0|195313.5|0|0|0|195313.5|35|63653.45|US_FEDERAL_TY2027",
         "US|wage|2027|qualifyingSurvivingSpouse|1000000|967800|32200|0|280250.5|0|0|0|280250.5|37|69089|US_FEDERAL_TY2027",
-        "US|advanced|2024|single|234400|20600|0|52694.5|0|0|0|79926.5|32|47308.2|US_FEDERAL_TY2024",
-        "US|advanced|2024|marriedFilingJointly|219800|35200|0|38837|0|0|0|65689|24|46948.2|US_FEDERAL_TY2024",
-        "US|advanced|2024|marriedFilingSeparately|234400|20600|0|52694.5|0|0|0|84054|32|47983.2|US_FEDERAL_TY2024",
-        "US|advanced|2024|headOfHousehold|227100|27900|0|48665|0|0|0|75897|32|47308.2|US_FEDERAL_TY2024",
-        "US|advanced|2024|qualifyingSurvivingSpouse|219800|35200|0|38837|0|0|0|65689|24|46948.2|US_FEDERAL_TY2024",
-        "US|advanced|2025|single|233250|21750|0|51703|0|0|0|78935|32|47308.2|US_FEDERAL_TY2025",
-        "US|advanced|2025|marriedFilingJointly|217500|37500|0|37894|0|0|0|64746|24|46948.2|US_FEDERAL_TY2025",
-        "US|advanced|2025|marriedFilingSeparately|233250|21750|0|51703|0|0|0|82597.5|32|47983.2|US_FEDERAL_TY2025",
-        "US|advanced|2025|headOfHousehold|225375|29625|0|47444|0|0|0|74676|32|47308.2|US_FEDERAL_TY2025",
-        "US|advanced|2025|qualifyingSurvivingSpouse|217500|37500|0|37894|0|0|0|64746|24|46948.2|US_FEDERAL_TY2025",
-        "US|advanced|2026|single|232900|22100|0|50984|0|0|0|78216|32|50029|US_FEDERAL_TY2026",
-        "US|advanced|2026|marriedFilingJointly|216800|38200|0|37228|0|0|0|64080|24|49669|US_FEDERAL_TY2026",
-        "US|advanced|2026|marriedFilingSeparately|232900|22100|0|50984|0|0|0|81561|32|50704|US_FEDERAL_TY2026",
-        "US|advanced|2026|headOfHousehold|224850|30150|0|46599|0|0|0|73831|32|50029|US_FEDERAL_TY2026",
-        "US|advanced|2026|qualifyingSurvivingSpouse|216800|38200|0|37228|0|0|0|64080|24|49669|US_FEDERAL_TY2026",
+        "US|advanced|2024|single|222400|20600|0|48854.5|0|0|0|76086.5|32|47308.2|US_FEDERAL_TY2024",
+        "US|advanced|2024|marriedFilingJointly|207800|35200|0|35957|0|0|0|62353|24|46948.2|US_FEDERAL_TY2024",
+        "US|advanced|2024|marriedFilingSeparately|222400|20600|0|48854.5|0|0|0|79614|32|47983.2|US_FEDERAL_TY2024",
+        "US|advanced|2024|headOfHousehold|215100|27900|0|44825|0|0|0|72057|32|47308.2|US_FEDERAL_TY2024",
+        "US|advanced|2024|qualifyingSurvivingSpouse|207800|35200|0|35957|0|0|0|62353|24|46948.2|US_FEDERAL_TY2024",
+        "US|advanced|2025|single|221250|21750|0|47863|0|0|0|75095|32|47308.2|US_FEDERAL_TY2025",
+        "US|advanced|2025|marriedFilingJointly|205500|37500|0|35038|0|0|0|61434|22|46948.2|US_FEDERAL_TY2025",
+        "US|advanced|2025|marriedFilingSeparately|221250|21750|0|47863|0|0|0|78157.5|32|47983.2|US_FEDERAL_TY2025",
+        "US|advanced|2025|headOfHousehold|213375|29625|0|43604|0|0|0|70836|32|47308.2|US_FEDERAL_TY2025",
+        "US|advanced|2025|qualifyingSurvivingSpouse|205500|37500|0|35038|0|0|0|61434|22|46948.2|US_FEDERAL_TY2025",
+        "US|advanced|2026|single|220900|22100|0|47144|0|0|0|74376|32|50029|US_FEDERAL_TY2026",
+        "US|advanced|2026|marriedFilingJointly|204800|38200|0|34480|0|0|0|60876|22|49669|US_FEDERAL_TY2026",
+        "US|advanced|2026|marriedFilingSeparately|220900|22100|0|47144|0|0|0|77121|32|50704|US_FEDERAL_TY2026",
+        "US|advanced|2026|headOfHousehold|212850|30150|0|42759|0|0|0|69991|32|50029|US_FEDERAL_TY2026",
+        "US|advanced|2026|qualifyingSurvivingSpouse|204800|38200|0|34480|0|0|0|60876|22|49669|US_FEDERAL_TY2026",
         "US|mode|2026|bestAvailable|140000|0|40000|26198|0|0|0|26198|24|50170|US_FEDERAL_TY2026",
         "US|mode|2026|standardOnly|163900|16100|0|31934|0|0|0|31934|24|50170|US_FEDERAL_TY2026",
         "US|mode|2026|itemizedOnly|140000|0|40000|26198|0|0|0|26198|24|50170|US_FEDERAL_TY2026",
