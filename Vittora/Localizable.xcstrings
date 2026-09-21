@@ -29270,6 +29270,182 @@
         }
       }
     },
+    "You've spent %@ this month. Your usual is about %@, based on the last %lld months." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Has gastado %@ este mes. Lo habitual es unos %@, según los últimos %lld meses."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने इस महीने %@ खर्च किया। पिछले %lld महीनों के आधार पर आपकी सामान्य राशि लगभग %@ है।"
+          }
+        }
+      }
+    },
+    "Worth a look" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale la pena revisar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ध्यान देने योग्य"
+          }
+        }
+      }
+    },
+    "This %@ budget has had no spending for %lld months." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este presupuesto de %@ no ha tenido gastos en %lld meses."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस %@ के बजट में %lld महीनों से कोई खर्च नहीं हुआ।"
+          }
+        }
+      }
+    },
+    "The budget is %@ and you typically spend %@. That's %lld months running." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El presupuesto es de %@ y sueles gastar %@. Van %lld meses seguidos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बजट %@ है और आप आम तौर पर %@ खर्च करते हैं। यह लगातार %lld महीनों से है।"
+          }
+        }
+      }
+    },
+    "The budget is %@ and you typically spend %@, for %lld months now." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El presupuesto es de %@ y sueles gastar %@, desde hace %lld meses."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बजट %@ है और आप आम तौर पर %@ खर्च करते हैं, पिछले %lld महीनों से।"
+          }
+        }
+      }
+    },
+    "Nothing spent against %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nada gastado en %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ में कुछ भी खर्च नहीं हुआ"
+          }
+        }
+      }
+    },
+    "Dismiss insight" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descartar observación"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सुझाव हटाएँ"
+          }
+        }
+      }
+    },
+    "Based on your own records for the last few months, not a recommendation." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basado en tus propios registros de los últimos meses; no es una recomendación."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह पिछले कुछ महीनों के आपके अपने रिकॉर्ड पर आधारित है, कोई सिफ़ारिश नहीं।"
+          }
+        }
+      }
+    },
+    "%@ is well above your usual" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ está muy por encima de lo habitual"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ आपकी सामान्य राशि से काफ़ी ऊपर है"
+          }
+        }
+      }
+    },
+    "%@ has room to spare" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A %@ le sobra margen"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ में गुंजाइश बची है"
+          }
+        }
+      }
+    },
+    "%@ goes over every month" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ se pasa todos los meses"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ हर महीने सीमा से ऊपर जाता है"
+          }
+        }
+      }
+    },
     "Over Time" : {
       "localizations" : {
         "es" : {

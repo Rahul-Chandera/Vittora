@@ -44,6 +44,12 @@ struct ReportsHomeView: View {
                         } else if vm.error == nil {
                             summaryCard(vm)
                         }
+
+                        // Above the report list: an insight is about what already
+                        // happened, so it should be read before choosing a report.
+                        SpendingInsightsSection(insights: vm.insights) { insight in
+                            vm.dismiss(insight)
+                        }
                     }
 
                     VStack(spacing: VSpacing.md) {
@@ -94,7 +100,15 @@ struct ReportsHomeView: View {
         // back showed stale figures — and on a fresh launch it showed zeroes.
         .task(id: appState.transactionsRefreshVersion) {
             if vm == nil {
-                vm = ReportsHomeViewModel(transactionRepository: dependencies.transactionRepository)
+                vm = ReportsHomeViewModel(
+                    transactionRepository: dependencies.transactionRepository,
+                    insightsUseCase: EvaluateSpendingInsightsUseCase(
+                        transactionRepository: dependencies.transactionRepository,
+                        categoryRepository: dependencies.categoryRepository,
+                        budgetRepository: dependencies.budgetRepository,
+                        dismissalStore: UserDefaultsSpendingInsightDismissalStore()
+                    )
+                )
             }
             await vm?.load()
         }
