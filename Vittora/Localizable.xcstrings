@@ -29270,6 +29270,70 @@
         }
       }
     },
+    "Over Time" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con el tiempo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "समय के साथ"
+          }
+        }
+      }
+    },
+    "Not charted: %@. An older transfer on these accounts has no direction recorded, so their past balance can't be worked out." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se grafica: %@. Una transferencia antigua en estas cuentas no tiene dirección registrada, así que no se puede calcular su saldo anterior."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ग्राफ़ में नहीं: %@। इन खातों के एक पुराने ट्रांसफ़र की दिशा दर्ज नहीं है, इसलिए उनका पिछला बैलेंस निकाला नहीं जा सकता।"
+          }
+        }
+      }
+    },
+    "No change over this period" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin cambios en este periodo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस अवधि में कोई बदलाव नहीं"
+          }
+        }
+      }
+    },
+    "%@ over this period" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ en este periodo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस अवधि में %@"
+          }
+        }
+      }
+    },
     "%@" : {
       "localizations" : {
         "es" : {

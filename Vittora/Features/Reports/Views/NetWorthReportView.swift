@@ -6,6 +6,7 @@ import VittoraCore
 @MainActor
 private final class NetWorthViewModel {
     var accounts: [AccountEntity] = []
+    var history: NetWorthHistory?
     var isLoading = false
     var error: String?
 
@@ -19,9 +20,31 @@ private final class NetWorthViewModel {
     }
 
     private let repository: any AccountRepository
+    private let historyUseCase: CalculateNetWorthHistoryUseCase
 
-    init(repository: any AccountRepository) {
+    init(repository: any AccountRepository, historyUseCase: CalculateNetWorthHistoryUseCase) {
         self.repository = repository
+        self.historyUseCase = historyUseCase
+    }
+
+    /// A currency's series, oldest first.
+    func trendPoints(for currencyCode: String) -> [TrendDataPoint] {
+        (history?.points ?? []).compactMap { point in
+            point.netWorth(inCurrency: currencyCode).map {
+                TrendDataPoint(date: point.date, amount: $0)
+            }
+        }
+    }
+
+    /// Green when the period ended higher than it started, red when lower. Stated from the
+    /// data rather than assumed: net worth going down is a normal month for anyone paying
+    /// off a loan, and colouring it red regardless would editorialise.
+    func trendColor(for currencyCode: String) -> Color {
+        let points = trendPoints(for: currencyCode)
+        guard let first = points.first?.amount, let last = points.last?.amount else {
+            return VColors.primary
+        }
+        return last >= first ? VColors.income : VColors.expense
     }
 
     func load() async {
@@ -29,6 +52,9 @@ private final class NetWorthViewModel {
         error = nil
         do {
             accounts = try await repository.fetchAll()
+            // Failure here must not take the whole report down: the point-in-time figure
+            // and the account lists below are still useful without a chart.
+            history = try? await historyUseCase.execute()
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load net worth right now.")
@@ -54,6 +80,7 @@ struct NetWorthReportView: View {
                         emptyState
                     } else {
                         netWorthSummary(vm)
+                        historySection(vm)
                         if !vm.assets.isEmpty {
                             accountSection(
                                 title: String(localized: "Assets"),
@@ -80,7 +107,13 @@ struct NetWorthReportView: View {
         #endif
         .task {
             guard vm == nil else { return }
-            vm = NetWorthViewModel(repository: dependencies.accountRepository)
+            vm = NetWorthViewModel(
+                repository: dependencies.accountRepository,
+                historyUseCase: CalculateNetWorthHistoryUseCase(
+                    accountRepository: dependencies.accountRepository,
+                    transactionRepository: dependencies.transactionRepository
+                )
+            )
             await vm?.load()
         }
         .refreshable {
@@ -184,6 +217,71 @@ struct NetWorthReportView: View {
     }
 
     // MARK: - Account Section
+
+    /// One chart per currency (M1.7.7).
+    ///
+    /// Never one combined line: balances are not summed across currencies anywhere in this
+    /// feature, because doing so relabels rather than converts — see NetWorthSummary. A
+    /// single "net worth over time" line would reintroduce exactly the bug that decision
+    /// was made to fix.
+    @ViewBuilder
+    private func historySection(_ vm: NetWorthViewModel) -> some View {
+        if let history = vm.history, !history.isEmpty {
+            VCard {
+                VStack(alignment: .leading, spacing: VSpacing.md) {
+                    Text(String(localized: "Over Time"))
+                        .font(VTypography.bodyBold)
+                        .foregroundStyle(VColors.textPrimary)
+
+                    ForEach(history.currencyCodes, id: \.self) { code in
+                        let points = vm.trendPoints(for: code)
+                        if points.count > 1 {
+                            VStack(alignment: .leading, spacing: VSpacing.xs) {
+                                if history.currencyCodes.count > 1 {
+                                    Text(code)
+                                        .font(VTypography.caption1)
+                                        .foregroundStyle(VColors.textSecondary)
+                                }
+                                TrendAreaChart(
+                                    dataPoints: points,
+                                    color: vm.trendColor(for: code),
+                                    currencyCode: code
+                                )
+                                .frame(height: 180)
+                                changeLabel(points: points, currencyCode: code)
+                            }
+                        }
+                    }
+
+                    if !history.nonDerivableAccountNames.isEmpty {
+                        // Naming them beats a silently shorter chart: these accounts have a
+                        // transfer with no recorded direction, so their past balance cannot
+                        // be reconstructed and a line for them would be a guess.
+                        Text(String(localized: "Not charted: \(history.nonDerivableAccountNames.formatted(.list(type: .and))). An older transfer on these accounts has no direction recorded, so their past balance can't be worked out."))
+                            .font(VTypography.caption2)
+                            .foregroundStyle(VColors.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+            .accessibilityIdentifier("net-worth-history-card")
+        }
+    }
+
+    @ViewBuilder
+    private func changeLabel(points: [TrendDataPoint], currencyCode: String) -> some View {
+        if let first = points.first?.amount, let last = points.last?.amount {
+            let change = last - first
+            Text(
+                change == 0
+                    ? String(localized: "No change over this period")
+                    : String(localized: "\(change.formatted(.currency(code: currencyCode))) over this period")
+            )
+            .font(VTypography.caption1)
+            .foregroundStyle(change >= 0 ? VColors.income : VColors.expense)
+            .accessibilityIdentifier("net-worth-history-change-\(currencyCode)")
+        }
+    }
 
     private func accountSection(
         title: String,
