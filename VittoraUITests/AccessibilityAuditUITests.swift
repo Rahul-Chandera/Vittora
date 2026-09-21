@@ -508,8 +508,14 @@ final class AccessibilityAuditUITests: XCTestCase {
         captureFlowScreenshot(named: "oled-dashboard-purple")
 
         XCTAssertTrue(UITestSupport.navigateToTab(named: "Transactions", in: app))
+        // 20s, not 15. This is the only navigation wait in the file that runs at
+        // AccessibilityXL, where the list lays out several times the content of a standard
+        // run, and it is the one that kept timing out on CI — three separate runs, passing
+        // on rerun every time with nothing changed. A harness budget, not an assertion
+        // about the app: the audit that follows still decides whether the screen is
+        // correct, and 20s is what the slower waits elsewhere in this file already use.
         XCTAssertTrue(
-            app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 15)
+            app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 20)
         )
         try performCoreFlowAudit()
 
