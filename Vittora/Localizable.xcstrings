@@ -27924,6 +27924,1030 @@
           }
         }
       }
+    },
+    "%@ of what you entered was deductible, worth %@%% of it back." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ de lo que ingresaste era deducible, lo que te devuelve el %@%% de esa cantidad."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने जो डाला उसमें से %@ कटौती योग्य था, यानी उसका %@%% वापस।"
+          }
+        }
+      }
+    },
+    "15 years" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15 años"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15 वर्ष"
+          }
+        }
+      }
+    },
+    "3 years" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3 años"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3 वर्ष"
+          }
+        }
+      }
+    },
+    "401(k) is Roth (after tax)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El 401(k) es Roth (después de impuestos)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "401(k) Roth है (टैक्स के बाद)"
+          }
+        }
+      }
+    },
+    "80C" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80C"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80C"
+          }
+        }
+      }
+    },
+    "80C and 80CCD(1B) deductions do not apply under the new regime, so these contributions would not reduce this year's tax. The old regime allows them — the regime comparison on the previous screen shows which leaves you better off." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las deducciones 80C y 80CCD(1B) no aplican en el régimen nuevo, así que estos aportes no reducirían el impuesto de este año. El régimen antiguo sí las permite: la comparación de regímenes en la pantalla anterior muestra cuál te conviene más."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नई व्यवस्था में 80C और 80CCD(1B) कटौतियाँ लागू नहीं होतीं, इसलिए ये योगदान इस साल का टैक्स कम नहीं करेंगे। पुरानी व्यवस्था इन्हें देती है — पिछली स्क्रीन पर व्यवस्था की तुलना बताती है कि आपके लिए कौन-सी बेहतर है।"
+          }
+        }
+      }
+    },
+    "80C limit remaining" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Límite 80C restante"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80C की बची हुई सीमा"
+          }
+        }
+      }
+    },
+    "80CCD(1B)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80CCD(1B)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80CCD(1B)"
+          }
+        }
+      }
+    },
+    "80CCD(1B) limit remaining" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Límite 80CCD(1B) restante"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80CCD(1B) की बची हुई सीमा"
+          }
+        }
+      }
+    },
+    "80D" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80D"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80D"
+          }
+        }
+      }
+    },
+    "A scenario for this year only, using your current income and deductions. Not a recommendation to invest." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un escenario solo para este año, con tus ingresos y deducciones actuales. No es una recomendación de inversión."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह केवल इस साल का परिदृश्य है, आपकी मौजूदा आय और कटौतियों के आधार पर। यह निवेश की सलाह नहीं है।"
+          }
+        }
+      }
+    },
+    "Allocated across the options below" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repartido entre las opciones de abajo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नीचे दिए विकल्पों में बाँटा गया"
+          }
+        }
+      }
+    },
+    "Amount to model" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cantidad a simular"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जिस राशि का अनुमान लगाना है"
+          }
+        }
+      }
+    },
+    "Amount to put here" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cantidad a poner aquí"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यहाँ डालने की राशि"
+          }
+        }
+      }
+    },
+    "Annual percentage you want to model" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porcentaje anual que quieres simular"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वार्षिक प्रतिशत जिसका अनुमान लगाना है"
+          }
+        }
+      }
+    },
+    "At %@%% for %lld years, %@ would grow to %@ — your assumption, not a forecast by Vittora." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al %@%% durante %lld años, %@ crecería a %@: tu supuesto, no una previsión de Vittora."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@%% पर %lld वर्षों में %@ बढ़कर %@ हो जाएगा — यह आपकी धारणा है, Vittora का पूर्वानुमान नहीं।"
+          }
+        }
+      }
+    },
+    "Backing" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respaldo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "किसका समर्थन"
+          }
+        }
+      }
+    },
+    "Compare 80C Options" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparar opciones 80C"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80C विकल्पों की तुलना करें"
+          }
+        }
+      }
+    },
+    "Contributions you already record — EPF, insurance premiums, tuition fees — count towards 80C, so this may be smaller than the full limit." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los aportes que ya registras (EPF, primas de seguro, matrículas) cuentan para el 80C, así que esto puede ser menor que el límite completo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आप जो योगदान पहले से दर्ज करते हैं — EPF, बीमा प्रीमियम, ट्यूशन फीस — वे 80C में गिने जाते हैं, इसलिए यह पूरी सीमा से कम हो सकता है।"
+          }
+        }
+      }
+    },
+    "Counts against" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta para"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "किसमें गिना जाएगा"
+          }
+        }
+      }
+    },
+    "Deduction section" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sección de deducción"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कटौती की धारा"
+          }
+        }
+      }
+    },
+    "Depends on equity markets. Not guaranteed, and can fall." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depende de los mercados de renta variable. No está garantizado y puede caer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह शेयर बाज़ार पर निर्भर है। कोई गारंटी नहीं, और घट भी सकता है।"
+          }
+        }
+      }
+    },
+    "Depends on the funds you choose. Not guaranteed." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depende de los fondos que elijas. No está garantizado."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह आपके चुने हुए फंड पर निर्भर है। कोई गारंटी नहीं।"
+          }
+        }
+      }
+    },
+    "ELSS" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ELSS"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ELSS"
+          }
+        }
+      }
+    },
+    "Gains taxed as equity long-term capital gains above the annual exemption." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las ganancias tributan como plusvalías de renta variable a largo plazo por encima de la exención anual."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वार्षिक छूट से ऊपर का लाभ इक्विटी दीर्घकालिक पूंजीगत लाभ के रूप में कर योग्य है।"
+          }
+        }
+      }
+    },
+    "Government-backed" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respaldado por el gobierno"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सरकार समर्थित"
+          }
+        }
+      }
+    },
+    "HSA" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HSA"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HSA"
+          }
+        }
+      }
+    },
+    "Interest and maturity proceeds are exempt." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los intereses y el importe al vencimiento están exentos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ब्याज और परिपक्वता पर मिलने वाली राशि कर-मुक्त है।"
+          }
+        }
+      }
+    },
+    "Itemised" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detallada"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मदवार"
+          }
+        }
+      }
+    },
+    "Lock-in" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Periodo de bloqueo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "लॉक-इन"
+          }
+        }
+      }
+    },
+    "Market-linked" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ligado al mercado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बाज़ार से जुड़ा"
+          }
+        }
+      }
+    },
+    "NPS Tier-I" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NPS Nivel I"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NPS टियर-I"
+          }
+        }
+      }
+    },
+    "No change to your tax" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin cambios en tu impuesto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके टैक्स में कोई बदलाव नहीं"
+          }
+        }
+      }
+    },
+    "Number of years to project" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número de años a proyectar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कितने वर्षों का अनुमान"
+          }
+        }
+      }
+    },
+    "Off this year's tax" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menos en el impuesto de este año"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस साल के टैक्स में कमी"
+          }
+        }
+      }
+    },
+    "Only part of this amount reduced your taxable income — the rest is above the statutory limit." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo una parte de esta cantidad redujo tu base imponible; el resto supera el límite legal."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस राशि का केवल एक हिस्सा आपकी कर योग्य आय घटाता है — बाकी वैधानिक सीमा से ऊपर है।"
+          }
+        }
+      }
+    },
+    "Only part of this fits under this year's statutory limit." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo una parte cabe dentro del límite legal de este año."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इसका केवल एक हिस्सा इस साल की वैधानिक सीमा में आता है।"
+          }
+        }
+      }
+    },
+    "Only the amount above your standard deduction reduces your tax — itemising replaces the standard deduction rather than adding to it." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo la cantidad por encima de tu deducción estándar reduce el impuesto: detallar sustituye la deducción estándar en lugar de sumarse a ella."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "केवल आपकी मानक कटौती से ऊपर की राशि टैक्स घटाती है — मदवार कटौती मानक कटौती में जुड़ती नहीं, उसकी जगह लेती है।"
+          }
+        }
+      }
+    },
+    "PPF" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PPF"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PPF"
+          }
+        }
+      }
+    },
+    "Part of the corpus is exempt at exit; the annuity you buy is taxed as income." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parte del capital está exenta a la salida; la anualidad que compres tributa como ingreso."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "निकासी पर कोष का एक हिस्सा कर-मुक्त है; आप जो एन्युटी खरीदते हैं वह आय के रूप में कर योग्य है।"
+          }
+        }
+      }
+    },
+    "Pre-tax 401(k) and HSA contributions are deducted from income tax but not from Social Security and Medicare." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los aportes antes de impuestos a 401(k) y HSA se deducen del impuesto sobre la renta, pero no de Seguro Social ni Medicare."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स-पूर्व 401(k) और HSA योगदान आयकर से घटाए जाते हैं, लेकिन सोशल सिक्योरिटी और मेडिकेयर से नहीं।"
+          }
+        }
+      }
+    },
+    "Rate notified by the government each quarter, so it changes over the term." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El gobierno fija la tasa cada trimestre, así que cambia a lo largo del plazo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सरकार हर तिमाही दर अधिसूचित करती है, इसलिए यह अवधि के दौरान बदलती रहती है।"
+          }
+        }
+      }
+    },
+    "Reduces federal income tax only — Social Security and Medicare still apply." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo reduce el impuesto federal sobre la renta; Seguro Social y Medicare siguen aplicando."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह केवल संघीय आयकर घटाता है — सोशल सिक्योरिटी और मेडिकेयर फिर भी लगते हैं।"
+          }
+        }
+      }
+    },
+    "Roth 401(k) contributions are made after tax, so they do not reduce this estimate." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los aportes a un 401(k) Roth se hacen después de impuestos, así que no reducen esta estimación."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roth 401(k) योगदान टैक्स के बाद किए जाते हैं, इसलिए वे इस अनुमान को कम नहीं करते।"
+          }
+        }
+      }
+    },
+    "Scenario" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escenario"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "परिदृश्य"
+          }
+        }
+      }
+    },
+    "Tax saved this year" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impuesto ahorrado este año"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस साल बचा टैक्स"
+          }
+        }
+      }
+    },
+    "The new regime does not allow this deduction. The old regime does — compare both before deciding." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El régimen nuevo no permite esta deducción. El antiguo sí: compara ambos antes de decidir."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नई व्यवस्था यह कटौती नहीं देती। पुरानी व्यवस्था देती है — तय करने से पहले दोनों की तुलना करें।"
+          }
+        }
+      }
+    },
+    "These options share one 80C limit, so the saving is worked out on the total, not per option." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estas opciones comparten un mismo límite 80C, así que el ahorro se calcula sobre el total, no por opción."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ये विकल्प एक ही 80C सीमा साझा करते हैं, इसलिए बचत कुल राशि पर निकाली जाती है, हर विकल्प पर अलग नहीं।"
+          }
+        }
+      }
+    },
+    "This section is already at its statutory limit for the year, so more would not reduce your tax." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta sección ya alcanzó su límite legal del año, así que aportar más no reduciría tu impuesto."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह धारा इस साल की वैधानिक सीमा तक पहुँच चुकी है, इसलिए और डालने से टैक्स कम नहीं होगा।"
+          }
+        }
+      }
+    },
+    "Traditional 401(k) and HSA contributions reduce your federal income tax estimate, but not Social Security or Medicare. IRA contributions are tracked for headroom only — their deductibility depends on workplace plan coverage, which Vittora does not know." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los aportes tradicionales a 401(k) y HSA reducen tu estimación de impuesto federal, pero no Seguro Social ni Medicare. Los aportes a IRA solo se registran para ver el margen disponible: su deducibilidad depende de si tienes plan de jubilación en el trabajo, algo que Vittora no sabe."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पारंपरिक 401(k) और HSA योगदान आपके संघीय आयकर अनुमान को घटाते हैं, पर सोशल सिक्योरिटी या मेडिकेयर को नहीं। IRA योगदान केवल बची हुई सीमा दिखाने के लिए दर्ज होते हैं — उनकी कटौती कार्यस्थल की योजना पर निर्भर है, जो Vittora को ज्ञात नहीं।"
+          }
+        }
+      }
+    },
+    "Traditional IRA deductions are not applied: deductibility phases out with income when a workplace retirement plan covers you, which Vittora does not know." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se aplican deducciones de IRA tradicional: la deducibilidad se reduce con los ingresos cuando tienes un plan de jubilación en el trabajo, algo que Vittora no sabe."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पारंपरिक IRA कटौती लागू नहीं की जाती: यदि कार्यस्थल की सेवानिवृत्ति योजना आपको कवर करती है तो आय बढ़ने पर कटौती घटती जाती है, और Vittora को यह ज्ञात नहीं।"
+          }
+        }
+      }
+    },
+    "Try an amount to see what it would take off this year's tax." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prueba una cantidad para ver cuánto restaría del impuesto de este año."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कोई राशि आज़माकर देखें कि इस साल के टैक्स में कितनी कमी आएगी।"
+          }
+        }
+      }
+    },
+    "Until 60" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hasta los 60"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "60 वर्ष तक"
+          }
+        }
+      }
+    },
+    "Until age 60" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hasta los 60 años"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "60 वर्ष की आयु तक"
+          }
+        }
+      }
+    },
+    "What would it save?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cuánto ahorrarías?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कितनी बचत होगी?"
+          }
+        }
+      }
+    },
+    "What's left this year" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo que queda este año"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस साल कितना बचा है"
+          }
+        }
+      }
+    },
+    "Years" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Años"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वर्ष"
+          }
+        }
+      }
+    },
+    "You're on the new regime" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estás en el régimen nuevo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आप नई व्यवस्था में हैं"
+          }
+        }
+      }
+    },
+    "You've allocated more than the limits allow. Anything above them does not reduce your tax." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Has repartido más de lo que permiten los límites. Lo que los supere no reduce tu impuesto."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने सीमाओं से ज़्यादा राशि बाँट दी है। सीमा से ऊपर की राशि टैक्स कम नहीं करती।"
+          }
+        }
+      }
+    },
+    "You've already reached this year's statutory limit, so more would not reduce your tax." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya alcanzaste el límite legal de este año, así que aportar más no reduciría tu impuesto."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आप इस साल की वैधानिक सीमा तक पहुँच चुके हैं, इसलिए और डालने से टैक्स कम नहीं होगा।"
+          }
+        }
+      }
+    },
+    "Your 401(k) is marked Roth, so contributions are made after tax and do not reduce this year's bill." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu 401(k) está marcado como Roth, así que los aportes se hacen después de impuestos y no reducen la factura de este año."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपका 401(k) Roth के रूप में चिह्नित है, इसलिए योगदान टैक्स के बाद होते हैं और इस साल का बिल कम नहीं करते।"
+          }
+        }
+      }
+    },
+    "Your assumed return (% a year)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu rendimiento supuesto (% al año)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपकी मानी गई वापसी (% प्रति वर्ष)"
+          }
+        }
+      }
+    },
+    "Your split" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu reparto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपका बँटवारा"
+          }
+        }
+      }
+    },
+    "Your standard deduction is still larger than your itemised total, so this would not reduce your tax." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu deducción estándar sigue siendo mayor que el total detallado, así que esto no reduciría tu impuesto."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपकी मानक कटौती अब भी आपकी मदवार कुल राशि से बड़ी है, इसलिए इससे टैक्स कम नहीं होगा।"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
