@@ -8,6 +8,7 @@ struct TaxDashboardView: View {
     @State private var showProfileForm = false
     @State private var breakdownPresentation: TaxBreakdownPresentation?
     @State private var showExportSheet = false
+    @State private var show80CComparison = false
 
     var body: some View {
         // Nested stack — see DebtLedgerView. Same defect, no reported symptom
@@ -77,6 +78,9 @@ struct TaxDashboardView: View {
                 Task { await vm?.load() }
             }
         }
+        .sheet(isPresented: $show80CComparison) {
+            Tax80CComparisonView(profile: vm?.profile ?? TaxProfile())
+        }
         .sheet(item: $breakdownPresentation) { presentation in
             TaxBreakdownView(estimate: presentation.estimate)
         }
@@ -126,8 +130,25 @@ struct TaxDashboardView: View {
                     TaxAnnualSummaryCard(summary: summary, country: vm.profile.country)
                 }
 
+                // Sits after the comparison so the user has seen which regime they are in
+                // before being shown what a deduction would be worth under it.
+                TaxSavingScenarioCard(
+                    profile: vm.profile,
+                    currencyCode: estimate.country.currencyCode
+                )
+
                 IndiaComplianceTipsSection(tips: vm.complianceTips) { tip in
                     vm.dismissComplianceTip(tip)
+                }
+
+                // India only: 80C is the section this compares, and it has no US analogue.
+                if vm.profile.country == .india {
+                    actionButton(
+                        title: String(localized: "Compare 80C Options"),
+                        icon: "square.grid.2x2"
+                    ) {
+                        show80CComparison = true
+                    }
                 }
 
                 actionButton(
