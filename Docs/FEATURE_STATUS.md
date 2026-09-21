@@ -2,8 +2,8 @@
 
 Completed and pending features, measured against `Docs/Vittora_Final_Plan.md`.
 
-**As of 2026-09-19.** Last shipped release: **1.7.0** (live on the App Store).
-**1.7.1 is not versioned yet** — `MARKETING_VERSION` is still `1.7.0` and no `v1.7.1` tag exists. Its work is merged on `develop` and needs a version bump before submission.
+**As of 2026-09-21.** Last shipped release: **1.7.1** (live on the App Store).
+`MARKETING_VERSION` is `1.7.1`, `CURRENT_PROJECT_VERSION` is `11`, tag `v1.7.1` exists. Site version bump follows Rahul’s deploy.
 
 ## How this was compiled
 
@@ -19,12 +19,12 @@ Each line was checked against the source tree, not recalled. Where a feature is 
 | Version | Status |
 |---|---|
 | 1.4.0 – 1.6.0 | Shipped |
-| **1.7.0** | **Shipped — current App Store release** |
-| 1.7.1 | Merged on `develop`, **not yet versioned or tagged** |
+| 1.7.0 | Shipped |
+| **1.7.1** | **Shipped — current App Store release** |
 
-### What 1.7.1 contains
+### What 1.7.1 shipped
 
-A bug-fix and hardening release. No new user-facing features beyond two paywall additions.
+A bug-fix and hardening release (now live). No new user-facing features beyond two paywall additions.
 
 - **Paywall rebuilt** as a custom StoreKit 2 screen (option C), replacing `SubscriptionStoreView`. Fixes plan cards being below the fold on iPhone/iPad/Mac, the "Accept Offer" CTA label, the macOS footer drawing over the plan cards, and the iPad overlap recorded as DEC-026. Lifetime is now a third selectable plan rather than a competing button.
 - **Family Sharing is stated on the paywall** (HIG requirement; Annual and Lifetime are Family Shareable per DEC-013).
@@ -139,12 +139,12 @@ Explicitly out of scope and unchanged: bank aggregation / open banking, brokerag
 
 ## Known verification gaps
 
-These are not missing features — they are things the test suite cannot prove, and they matter before any submission.
+These are not missing features — they are things the test suite cannot prove, and they still matter for the next submission.
 
 1. **The intro-offer *consumed* path is not covered.** The *eligible* direction now is: `IntroOfferEligibilityTests` builds an `SKTestSession` from `Vittora.storekit` and asserts `PurchaseService` resolves `isEligibleForIntroOffer == true`. The opposite direction — an account that has already used the trial — cannot be asserted in-suite, because a process that has already queried StoreKit never sees the purchase. Production defaults to `false` on every failure path, so this is the direction the code already leans towards. Details in `Docs/Testing/TEST_MATRIX.md`.
 2. **Purchase, restore and Family Sharing inheritance are device-only.** `SKTestSession` serves products, but a purchase made through it never reaches `Transaction.currentEntitlements` in the same process. Recorded in `Docs/Testing/TEST_MATRIX.md`.
-3. **The accessibility audit leg is still intermittent.** A real cause was found and fixed in 1.7.1 — the audit sampled pixels before scrolling settled — and it bought three consecutive green-first-time runs (#243, #244, #245). It did not close the problem: #246 failed first time on `testNewReportsAccessibilityAudit` with "Contrast failed", the same test and the same symptom. The settle wait narrowed the window rather than eliminating it.
-4. **1.7.1 is versioned but not tagged.** `MARKETING_VERSION` is `1.7.1`, `CURRENT_PROJECT_VERSION` is `11`; no `v1.7.1` tag exists yet.
+3. **The accessibility audit leg was intermittent; the cause is now understood.** The settle wait added in #243 never actually waited — it watched `descendants(matching: .staticText).firstMatch`, which resolves to the navigation title and does not move when the content scrolls, so it returned on the first comparison. It bought three green runs (#243, #244, #245) by adding ~150ms, then failed both runners on #247. Two adaptive replacements were correct and unaffordable (a tree query per iteration took the leg to 1835s; screenshot comparison to 1578s, both timing out the OLED audit). #248/#249 settled on a flat wait, raised to 1.5s after 0.8s lost on a slower runner. A fixed wait is a bet against runner speed: if the contrast failure returns, raise the number rather than reaching for a cleverer wait.
+4. ~~**1.7.1 unversioned/untagged.**~~ Closed — `MARKETING_VERSION` `1.7.1`, build `11`, tag `v1.7.1`, live on the App Store as of 2026-09-21.
 
 ---
 
