@@ -232,6 +232,25 @@ struct TaxProfileFormView: View {
                         text: Bindable(vm).us401kContributedString,
                         currencyCode: vm.country.currencyCode
                     )
+                    // Asked, not assumed: Roth deferrals are made after tax, so treating
+                    // them as pre-tax would understate a Roth saver's bill.
+                    HStack {
+                        Text(String(localized: "401(k) is Roth (after tax)"))
+                            .font(.body)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer()
+                        Toggle("", isOn: Binding(
+                            get: { vm.advancedInputs.us401kIsRoth },
+                            set: {
+                                vm.advancedInputs.us401kIsRoth = $0
+                                vm.recalculateLive()
+                            }
+                        ))
+                        .labelsHidden()
+                        .accessibilityIdentifier("tax-401k-is-roth-toggle")
+                    }
+                    .accessibilityElement(children: .combine)
+
                     contributionAmountField(
                         vm: vm,
                         title: String(localized: "IRA contributed YTD"),
@@ -262,7 +281,7 @@ struct TaxProfileFormView: View {
                 } header: {
                     VFormSectionHeader(String(localized: "Retirement & HSA Contributions"))
                 } footer: {
-                    Text(String(localized: "Track year-to-date contributions to see remaining statutory headroom in your estimate."))
+                    Text(String(localized: "Traditional 401(k) and HSA contributions reduce your federal income tax estimate, but not Social Security or Medicare. IRA contributions are tracked for headroom only — their deductibility depends on workplace plan coverage, which Vittora does not know."))
                         .foregroundStyle(VColors.textSecondary)
                 }
 

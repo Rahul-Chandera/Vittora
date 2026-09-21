@@ -30,7 +30,13 @@ struct TaxSavingScenarioCard: View {
                 ("80D", String(localized: "80D")),
             ]
         case .unitedStates:
-            return [("itemized", String(localized: "Itemised deduction"))]
+            // IRA is absent deliberately: the calculator does not grant its deduction, so
+            // offering it here would promise a saving the estimate never delivers.
+            return [
+                ("401k", EstimateTaxSavingUseCase.USContribution.traditional401k.title),
+                ("hsa", EstimateTaxSavingUseCase.USContribution.hsa.title),
+                ("itemized", String(localized: "Itemised")),
+            ]
         }
     }
 
@@ -44,11 +50,16 @@ struct TaxSavingScenarioCard: View {
 
     private var scenario: TaxSavingScenario? {
         guard let amount, amount > 0, !activeSection.isEmpty else { return nil }
-        return useCase.execute(
-            profile: profile,
-            section: activeSection,
-            additionalAmount: amount
-        )
+        // Contributions move advancedInputs; sections go through customDeductions. Two
+        // different mechanisms in the calculator, so two different entry points here.
+        switch activeSection {
+        case "401k":
+            return useCase.execute(profile: profile, contribution: .traditional401k, additionalAmount: amount)
+        case "hsa":
+            return useCase.execute(profile: profile, contribution: .hsa, additionalAmount: amount)
+        default:
+            return useCase.execute(profile: profile, section: activeSection, additionalAmount: amount)
+        }
     }
 
     var body: some View {

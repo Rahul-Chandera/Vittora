@@ -31,7 +31,20 @@ struct USTaxCalculator: TaxCalculatorProtocol {
             deductionMode: deductionMode
         )
 
-        let ordinaryGross = gross + adv.usShortTermCapitalGains
+        // Pre-tax contributions come off ordinary income BEFORE the standard-versus-itemised
+        // choice, because they are exclusions and above-the-line deductions rather than
+        // itemised ones — a saver taking the standard deduction still gets them.
+        //
+        // Capped at the statutory limit: a user who typed a number larger than they can
+        // legally defer must not be shown tax they would not actually save.
+        //
+        // IRA is deliberately absent. Traditional IRA deductibility phases out with MAGI
+        // when a workplace retirement plan covers you, and Vittora does not know about
+        // coverage, so any figure here would be wrong for a large share of users in the
+        // direction that flatters them. Its headroom is still shown; only the saving is
+        // withheld, and the exclusion below says so.
+        let preTaxContributions = preTaxContributions(profile: profile, taxYear: taxYear)
+        let ordinaryGross = max(0, gross + adv.usShortTermCapitalGains - preTaxContributions)
         let taxableOrdinary = max(0, ordinaryGross - deductionSelection.appliedDeduction)
 
         let slabs = Self.brackets(for: status, taxYear: taxYear)
@@ -56,6 +69,8 @@ struct USTaxCalculator: TaxCalculatorProtocol {
             taxYear: taxYear
         )
 
+        // Gross, not the reduced figure: a 401(k) elective deferral is exempt from federal
+        // income tax but still subject to Social Security and Medicare.
         let wagesForPayroll = max(0, gross)
         let payroll = Self.payrollTaxes(wages: wagesForPayroll, status: status, taxYear: taxYear)
 
@@ -73,6 +88,12 @@ struct USTaxCalculator: TaxCalculatorProtocol {
         var assumptions: [String] = [
             String(localized: "Annual income treated as wages for Social Security and Medicare estimates unless you adjust advanced inputs.")
         ]
+        if preTaxContributions > 0 {
+            assumptions.append(String(localized: "Pre-tax 401(k) and HSA contributions are deducted from income tax but not from Social Security and Medicare."))
+        }
+        if adv.us401kIsRoth, adv.us401kYTDContributed > 0 {
+            assumptions.append(String(localized: "Roth 401(k) contributions are made after tax, so they do not reduce this estimate."))
+        }
         if preferentialIncome > 0 {
             assumptions.append(String(localized: "Long-term gains and qualified dividends are modeled with status/year 0/15/20% bracket stacking against ordinary taxable income."))
         }
@@ -85,11 +106,14 @@ struct USTaxCalculator: TaxCalculatorProtocol {
             warnings.append(String(localized: "OBBBA additional standard deduction for age 65+ is modeled without income phase-outs."))
         }
 
-        let exclusions = [
+        var exclusions = [
             String(localized: "Alternative Minimum Tax (AMT) is not calculated."),
             TaxDisclaimer.usFederalEstimateLabel,
             String(localized: "Payroll taxes are shown separately and are not included in the federal income tax total.")
         ]
+        if adv.usIRAYTDContributed > 0 {
+            exclusions.append(String(localized: "Traditional IRA deductions are not applied: deductibility phases out with income when a workplace retirement plan covers you, which Vittora does not know."))
+        }
 
         return TaxEstimate(
             grossIncome: gross,
@@ -119,6 +143,28 @@ struct USTaxCalculator: TaxCalculatorProtocol {
     nonisolated private static let rulesLastUpdated: Date = {
         Calendar.current.date(from: DateComponents(year: 2026, month: 4, day: 18)) ?? .now
     }()
+
+    /// Contributions that reduce federal taxable income, each capped at its statutory limit.
+    ///
+    /// 401(k) only when the deferrals are traditional. HSA always — there is no income
+    /// phase-out on an HSA deduction. IRA never, for the reason given at the call site.
+    nonisolated func preTaxContributions(profile: TaxProfile, taxYear: Int) -> Decimal {
+        let adv = profile.advancedInputs
+        let age50Plus = ageAtEndOfTaxYear(dateOfBirth: profile.dateOfBirth, taxYear: taxYear)
+            .map { $0 >= 50 } ?? false
+
+        var total: Decimal = 0
+        if !adv.us401kIsRoth {
+            let limit = USContributionHeadroomEngine.statutory401kLimit(taxYear: taxYear, age50Plus: age50Plus)
+            total += min(max(0, adv.us401kYTDContributed), limit)
+        }
+        let hsaLimit = USContributionHeadroomEngine.statutoryHSALimit(
+            taxYear: taxYear,
+            familyCoverage: adv.usHSAFamilyCoverage
+        )
+        total += min(max(0, adv.usHSAYTDContributed), hsaLimit)
+        return total
+    }
 
     nonisolated private func ageAtEndOfTaxYear(dateOfBirth: Date?, taxYear: Int) -> Int? {
         guard let dob = dateOfBirth else { return nil }

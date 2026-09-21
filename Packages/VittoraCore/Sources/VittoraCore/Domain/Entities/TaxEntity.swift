@@ -187,6 +187,11 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
     public nonisolated var usHSAYTDContributed: Decimal = 0
     /// US: when true, HSA statutory limit uses the family tier.
     public nonisolated var usHSAFamilyCoverage: Bool = false
+    /// US: Roth 401(k) deferrals are made after tax, so they must NOT reduce taxable
+    /// income. Defaults to false because traditional is still the more common default on
+    /// US plans — but a Roth saver who left this alone would have their tax understated,
+    /// which is why it is asked rather than assumed.
+    public nonisolated var us401kIsRoth: Bool = false
 
     public nonisolated init(
         usQualifiedDividends: Decimal = 0,
@@ -203,7 +208,8 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         us401kYTDContributed: Decimal = 0,
         usIRAYTDContributed: Decimal = 0,
         usHSAYTDContributed: Decimal = 0,
-        usHSAFamilyCoverage: Bool = false
+        usHSAFamilyCoverage: Bool = false,
+        us401kIsRoth: Bool = false
     ) {
         self.usQualifiedDividends = usQualifiedDividends
         self.usLongTermCapitalGains = usLongTermCapitalGains
@@ -220,6 +226,7 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         self.usIRAYTDContributed = usIRAYTDContributed
         self.usHSAYTDContributed = usHSAYTDContributed
         self.usHSAFamilyCoverage = usHSAFamilyCoverage
+        self.us401kIsRoth = us401kIsRoth
     }
 }
 
@@ -240,6 +247,7 @@ extension TaxAdvancedInputs: Codable {
         case usIRAYTDContributed
         case usHSAYTDContributed
         case usHSAFamilyCoverage
+        case us401kIsRoth
     }
 
     public nonisolated init(from decoder: Decoder) throws {
@@ -259,6 +267,10 @@ extension TaxAdvancedInputs: Codable {
         usIRAYTDContributed = try container.decodeIfPresent(Decimal.self, forKey: .usIRAYTDContributed) ?? 0
         usHSAYTDContributed = try container.decodeIfPresent(Decimal.self, forKey: .usHSAYTDContributed) ?? 0
         usHSAFamilyCoverage = try container.decodeIfPresent(Bool.self, forKey: .usHSAFamilyCoverage) ?? false
+        // decodeIfPresent, like every key here: a profile saved before this field existed
+        // must keep decoding, and a synthesised Codable would throw on the missing key even
+        // with a default on the property.
+        us401kIsRoth = try container.decodeIfPresent(Bool.self, forKey: .us401kIsRoth) ?? false
     }
 
     public nonisolated func encode(to encoder: Encoder) throws {
@@ -278,6 +290,7 @@ extension TaxAdvancedInputs: Codable {
         try container.encode(usIRAYTDContributed, forKey: .usIRAYTDContributed)
         try container.encode(usHSAYTDContributed, forKey: .usHSAYTDContributed)
         try container.encode(usHSAFamilyCoverage, forKey: .usHSAFamilyCoverage)
+        try container.encode(us401kIsRoth, forKey: .us401kIsRoth)
     }
 }
 
