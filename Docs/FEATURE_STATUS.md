@@ -2,7 +2,7 @@
 
 Completed and pending features, measured against `Docs/Vittora_Final_Plan.md`.
 
-**As of 2026-09-21.** Last shipped release: **1.7.1** (live on the App Store).
+**As of 2026-09-21** (re-verified against the source tree when M2.4 landed). Last shipped release: **1.7.1** (live on the App Store).
 `MARKETING_VERSION` is `1.7.1`, `CURRENT_PROJECT_VERSION` is `11`, tag `v1.7.1` exists. Site version bump follows Rahul’s deploy.
 
 ## How this was compiled
@@ -42,8 +42,8 @@ A bug-fix and hardening release (now live). No new user-facing features beyond t
 | Module | Status | Notes |
 |---|---|---|
 | 1.1 Accounts & Ledger | ✅ | Multi-account, transfers, per-account balances, credit-card due reminders |
-| 1.2 Transaction Management | ⚠️ **2 gaps** | See below |
-| 1.3 Categories | ⚠️ **1 gap** | Presets, custom, category budgets present; **sub-categories (M1.3.4) not implemented** |
+| 1.2 Transaction Management | ⚠️ **1 gap** | Saved views/filters now shipped — see below |
+| 1.3 Categories | ⚠️ **1 gap** | Presets, custom, category budgets present; **sub-categories (M1.3.4) are plumbed but unreachable** — see below |
 | 1.4 Recurring Transactions | ✅ | Frequencies, auto-generation, pre-notification, rule management, subscription tracking |
 | 1.5 Payees / Parties | ✅ | Directory, linking, Contacts import, per-payee analytics, autofill |
 | 1.6 Documents & OCR | ⚠️ **1 gap** | VisionKit scanning, extraction, correction, batch scan, preview all present; **multi-page scanning (M1.6.6) not implemented** |
@@ -56,8 +56,8 @@ A bug-fix and hardening release (now live). No new user-facing features beyond t
 
 | ID | Feature | Status |
 |---|---|---|
-| M1.2.10 | Saved views / filters | ❌ Not implemented |
-| M1.3.4 | Sub-categories (one level of nesting) | ❌ Not implemented |
+| M1.2.10 | Saved views / filters | ✅ **Shipped** — `SavedTransactionFilterPreset` + `SavedTransactionFilterStore`, CRUD covered by tests. This entry was stale |
+| M1.3.4 | Sub-categories (one level of nesting) | ⚠️ **Plumbed, not reachable** — `SDCategory.parentID` exists and is indexed, and `CategoryFormViewModel` reads and writes `selectedParentID`, but no view binds it, so a user cannot set a parent. The remaining work is a picker and grouped display, not a schema change |
 | M1.6.6 | Multi-page scanning | ❌ Not implemented |
 | M1.7.7 | Net worth **over time** | ⚠️ Partial — current net worth exists, no history |
 | M1.10.6 | Budget templates (copy from previous month) | ❌ Not implemented |
@@ -66,12 +66,14 @@ A bug-fix and hardening release (now live). No new user-facing features beyond t
 
 ## Phase 2 — V1: Subscription-Worthy — **largely complete**
 
+**Module 2.4 shipped after 1.7.1.** It is educational and scenario-based per the plan's scope note: Vittora states what is statutory (lock-in, section, backing, maturity taxation, contribution limits) and the user supplies every return assumption. No return figure is shipped, and a test enforces that.
+
 | Module | Status | Notes |
 |---|---|---|
 | 2.1 Expense Splitting | ✅ | Groups, split methods, simplify-debts, running balances, settlement, share links, group reports |
 | 2.2 Debt & Credit Ledger | ✅ | Lending/borrowing, per-party balances, settlement history, aging, due dates, reminders |
 | 2.3 Tax Planning (India + US) | ✅ | India: regime comparison, 80C/80D/80CCD(1B), HRA, standard deduction, liability, progress. US: federal brackets, standard vs itemized, 401(k)/IRA, HSA, state-tax note |
-| 2.4 Smart Investment Planning | ❌ **Not implemented** | Entire module pending |
+| 2.4 Smart Investment Planning | ✅ | Tax-saved scenarios, 80C instrument comparison and allocation, US 401(k)/HSA contributions, maturity timeline with reminders |
 | 2.5 Savings Goals | ⚠️ **1 gap** | Goals, account linking, progress, auto-allocation present; **sinking funds (M2.5.5) not implemented** |
 | 2.6 Apple Watch App | ⚠️ **2 gaps** | Quick entry, complications, Smart Stack, recents present; **voice entry (M2.6.2) and haptic budget alerts (M2.6.6) not implemented** |
 | 2.7 Widgets & System Integration | ⚠️ **1 gap** | Home/Lock Screen widgets, StandBy, Siri Shortcuts, Spotlight, Handoff present; **interactive widgets (M2.7.5) not implemented** |
@@ -81,7 +83,6 @@ A bug-fix and hardening release (now live). No new user-facing features beyond t
 
 | ID | Feature | Status |
 |---|---|---|
-| M2.4.1–M2.4.5 | Smart Investment Planning (80C recommendations, optimal allocation, retirement optimisation, "tax saved" calculator, maturity timeline) | ❌ Whole module pending |
 | M2.5.5 | Sinking funds | ❌ Not implemented |
 | M2.6.2 | Watch voice entry ("Add 500 for groceries") | ❌ Not implemented |
 | M2.6.6 | Watch haptic budget alerts | ❌ Not implemented |
@@ -150,10 +151,29 @@ These are not missing features — they are things the test suite cannot prove, 
 
 ## Suggested next scope
 
-Ordered by user value against effort, not by plan order.
+Ordered by user value against effort, not by plan order. Each was checked against the source
+when M2.4 landed, so the effort estimates reflect what is actually already there.
 
-1. **M2.4 Smart Investment Planning** — the only whole module missing from Phase 2, and it sits directly on the tax engine that already exists. The largest single gap in the paid proposition.
-2. **M1.3.4 sub-categories** and **M1.2.10 saved views** — small Phase 1 gaps that users of a mature ledger notice.
-3. **M2.7.5 interactive widgets** — App Intents infrastructure already exists (`AddExpenseIntent`), so this is mostly surface.
-4. **M3.6.4/M3.6.5 anomaly alerts and budget optimisation** — rules-based versions need no ML and complete Module 3.6.
-5. **M1.7.7 net worth over time** — the data is already recorded; this is history plus a chart.
+1. **M1.3.4 sub-categories — finish what is already plumbed.** `SDCategory.parentID` exists
+   and is indexed, and `CategoryFormViewModel` already reads and writes `selectedParentID`.
+   No view binds it, so the feature is unreachable. A parent picker plus grouped display in
+   the category list and pickers finishes it. No schema change, no migration. The smallest
+   remaining gap in Phase 1 by a wide margin, and a mature ledger with dozens of flat
+   categories is exactly where users feel it.
+2. **M2.7.5 interactive widgets.** `AddExpenseIntent` already exists in `Vittora/App/Intents`,
+   and `VittoraWidgets` has three widgets but no `AppIntent` in any of them. Adding a button
+   that logs an expense without opening the app is mostly surface over infrastructure that
+   already ships.
+3. **M1.7.7 net worth over time.** The balances are already recorded; this is a history
+   series plus a chart. Needs a decision on whether to snapshot periodically or derive from
+   transaction history — deriving avoids a new model and a migration.
+4. **M1.10.6 budget templates.** Copy last month's budgets forward. Small, and it removes a
+   monthly chore that currently has no shortcut.
+5. **M3.6.4 / M3.6.5 anomaly alerts and budget optimisation.** Rules-based versions need no
+   ML and would complete Module 3.6, which is otherwise half done.
+
+Deliberately not near the top: **M1.6.6 multi-page scanning** (VisionKit work with device-only
+verification), **M2.6.2 Watch voice entry** and **M2.6.6 Watch haptics** (the Watch target is
+the one that has broken submissions before, per `release-bundle-gotchas`), and **M2.5.5
+sinking funds**, which overlaps conceptually with savings goals and deserves a design
+decision before code.
