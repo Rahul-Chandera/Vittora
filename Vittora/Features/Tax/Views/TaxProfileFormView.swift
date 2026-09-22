@@ -207,6 +207,8 @@ struct TaxProfileFormView: View {
                         Text(String(localized: "HRA exemption uses the minimum of actual HRA, rent minus 10% of salary, and 50%/40% of salary."))
                     }
                 }
+            } else if vm.country == .unitedKingdom {
+                ukSections(vm)
             } else {
                 Section {
                     Picker(String(localized: "Status"), selection: Bindable(vm).filingStatus) {
@@ -318,7 +320,9 @@ struct TaxProfileFormView: View {
             }
 
             // Deductions (old regime India or itemized US)
-            let showDeductions = vm.country == .unitedStates || vm.indiaRegime == .oldRegime
+            let showDeductions = vm.country == .unitedStates
+                || vm.country == .unitedKingdom
+                || vm.indiaRegime == .oldRegime
             if showDeductions {
                 Section {
                     ForEach($bindableVM.customDeductions) { $deduction in
@@ -450,6 +454,56 @@ struct TaxProfileFormView: View {
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
             }
+        }
+    }
+
+    /// UK inputs. Region first, because it changes the bands rather than adding to
+    /// them, and a user who misses it gets the wrong answer rather than a partial one.
+    @ViewBuilder
+    private func ukSections(_ vm: TaxProfileFormViewModel) -> some View {
+        Section {
+            Toggle(isOn: Bindable(vm).advancedInputs.ukIsScottishTaxpayer) {
+                Text(String(localized: "Scottish taxpayer"))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .onChange(of: vm.advancedInputs.ukIsScottishTaxpayer) { _, _ in vm.recalculateLive() }
+            .accessibilityIdentifier("uk-scottish-taxpayer-toggle")
+
+            Picker(String(localized: "Income Type"), selection: Bindable(vm).incomeSourceType) {
+                ForEach(IncomeSourceType.allCases, id: \.self) { type in
+                    Text(type.displayName).tag(type)
+                }
+            }
+            .onChange(of: vm.incomeSourceType) { _, _ in vm.recalculateLive() }
+        } header: {
+            VFormSectionHeader(String(localized: "Where You Pay"))
+        } footer: {
+            Text(String(localized: "Scottish rates apply to earnings only. Savings and dividends are taxed at UK-wide rates wherever you live. Employment pays National Insurance Class 1; self-employment pays Class 4."))
+        }
+
+        Section {
+            contributionAmountField(
+                vm: vm,
+                title: String(localized: "Dividend income"),
+                text: Bindable(vm).ukDividendIncomeString,
+                currencyCode: vm.country.currencyCode
+            )
+            contributionAmountField(
+                vm: vm,
+                title: String(localized: "Savings interest"),
+                text: Bindable(vm).ukSavingsIncomeString,
+                currencyCode: vm.country.currencyCode
+            )
+            contributionAmountField(
+                vm: vm,
+                title: String(localized: "Capital gains"),
+                text: Bindable(vm).ukCapitalGainsString,
+                currencyCode: vm.country.currencyCode
+            )
+        } header: {
+            VFormSectionHeader(String(localized: "Other Income"))
+        } footer: {
+            Text(String(localized: "Each has its own allowance and rates. Enter gains after any reliefs and before the annual exempt amount."))
         }
     }
 

@@ -5,13 +5,16 @@ import VittoraCore
 struct CompareTaxRegimesUseCase: Sendable {
     private let estimateUseCase: EstimateTaxUseCase
     private let usTaxCalculator: USTaxCalculator
+    private let ukTaxCalculator: UKTaxCalculator
 
     nonisolated init(
         estimateUseCase: EstimateTaxUseCase = EstimateTaxUseCase(),
-        usTaxCalculator: USTaxCalculator = USTaxCalculator()
+        usTaxCalculator: USTaxCalculator = USTaxCalculator(),
+        ukTaxCalculator: UKTaxCalculator = UKTaxCalculator()
     ) {
         self.estimateUseCase = estimateUseCase
         self.usTaxCalculator = usTaxCalculator
+        self.ukTaxCalculator = ukTaxCalculator
     }
 
     func execute(profile: TaxProfile) -> TaxComparison {
@@ -34,6 +37,22 @@ struct CompareTaxRegimesUseCase: Sendable {
                 kind: .usDeductionModes,
                 firstEstimate: usTaxCalculator.calculate(profile: profile, deductionMode: .standardOnly),
                 secondEstimate: usTaxCalculator.calculate(profile: profile, deductionMode: .itemizedOnly)
+            )
+
+        case .unitedKingdom:
+            // Scotland versus the rest of the UK. This is the single largest variable
+            // in a UK bill, but it is decided by residence rather than chosen, so the
+            // view presents it as a difference and not as advice.
+            var restOfUK = profile
+            restOfUK.advancedInputs.ukIsScottishTaxpayer = false
+
+            var scotland = profile
+            scotland.advancedInputs.ukIsScottishTaxpayer = true
+
+            return buildComparison(
+                kind: .ukRegions,
+                firstEstimate: ukTaxCalculator.calculate(profile: restOfUK),
+                secondEstimate: ukTaxCalculator.calculate(profile: scotland)
             )
         }
     }

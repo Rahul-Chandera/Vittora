@@ -349,6 +349,8 @@ public final class DataExportService: DataExportServiceProtocol, Sendable {
             String(localized: "India Regime Comparison")
         case .usDeductionModes:
             String(localized: "US Deduction Comparison")
+        case .ukRegions:
+            String(localized: "UK Regional Comparison")
         }
     }
 
