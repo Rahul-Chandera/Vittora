@@ -40,6 +40,8 @@ public enum AppUserDefaults {
         public nonisolated static let emergencyFundAccountIDs = "vittora.emergencyFundAccountIDs"
         /// Dismissed India compliance tips keyed by `ruleID|financialYear` (C1).
         public nonisolated static let indiaComplianceTipDismissals = "vittora.indiaComplianceTipDismissals"
+        /// Dismissed spending insights keyed by `insightID|period` (M3.6).
+        public nonisolated static let spendingInsightDismissals = "vittora.spendingInsightDismissals"
         /// When false, transactions are removed from Spotlight (default ON / unset).
         public nonisolated static let spotlightIndexingEnabled = "vittora.spotlightIndexingEnabled"
     }
