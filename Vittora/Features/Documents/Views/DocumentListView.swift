@@ -8,6 +8,7 @@ struct DocumentListView: View {
     @State private var vm: DocumentListViewModel?
     @State private var showScanner = false
     @State private var showBatchScan = false
+    @State private var showMultiPageScan = false
     @State private var showImport = false
     @State private var showOCRPaywall = false
     @State private var previewItem: DocumentPreviewItem?
@@ -61,6 +62,13 @@ struct DocumentListView: View {
                 Task { await vm?.attach(imageData: data, mimeType: "image/jpeg") }
             })
         }
+        .sheet(isPresented: $showMultiPageScan, onDismiss: { dependencies.paywallPresenter.presentPending() }) {
+            MultiPageScannerView(onPagesCaptured: { pdfData, _ in
+                // Attached as one PDF, not one document per page: a four-page
+                // receipt is one receipt. DocumentPreviewView pages through it.
+                Task { await vm?.attach(imageData: pdfData, mimeType: "application/pdf") }
+            })
+        }
         .sheet(isPresented: $showBatchScan, onDismiss: { dependencies.paywallPresenter.presentPending() }) {
             BatchReceiptScanView(transactionID: transactionID) {
                 Task { await vm?.load() }
@@ -111,6 +119,12 @@ struct DocumentListView: View {
                     startScanIfAllowed { showScanner = true }
                 } label: {
                     Label(String(localized: "Scan Receipt"), systemImage: "camera.viewfinder")
+                }
+
+                Button {
+                    startScanIfAllowed { showMultiPageScan = true }
+                } label: {
+                    Label(String(localized: "Scan Multi-Page"), systemImage: "doc.on.doc.fill")
                 }
 
                 Button {
