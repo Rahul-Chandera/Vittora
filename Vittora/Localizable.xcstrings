@@ -1714,6 +1714,22 @@
         }
       }
     },
+    "%lld items" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld artículos"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld आइटम"
+          }
+        }
+      }
+    },
     "%lld members" : {
       "localizations" : {
         "es" : {
@@ -4037,6 +4053,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "निवेश जोड़ें"
+          }
+        }
+      }
+    },
+    "Add Item" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir artículo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आइटम जोड़ें"
           }
         }
       }
@@ -11121,6 +11153,22 @@
         }
       }
     },
+    "End Session" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finalizar sesión"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सत्र समाप्त करें"
+          }
+        }
+      }
+    },
     "Ends: %@" : {
       "localizations" : {
         "es" : {
@@ -14281,6 +14329,22 @@
         }
       }
     },
+    "Items" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Artículos"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आइटम"
+          }
+        }
+      }
+    },
     "Keep tracking — once you have about 20 transactions across a couple of months, your Wrapped will be ready to celebrate." : {
       "localizations" : {
         "es" : {
@@ -14606,6 +14670,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सीमा"
+          }
+        }
+      }
+    },
+    "Live Activities are switched off for Vittora. Turn them on in Settings to see your running total on the Lock Screen." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las Actividades en Vivo están desactivadas para Vittora. Actívalas en Ajustes para ver tu total acumulado en la pantalla bloqueada."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora के लिए लाइव एक्टिविटी बंद है। लॉक स्क्रीन पर अपना चालू कुल देखने के लिए इसे सेटिंग्स में चालू करें।"
           }
         }
       }
@@ -18996,6 +19076,22 @@
         }
       }
     },
+    "Paid" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भुगतान किया गया"
+          }
+        }
+      }
+    },
     "paid" : {
       "localizations" : {
         "es" : {
@@ -22052,6 +22148,22 @@
         }
       }
     },
+    "Running total" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total acumulado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "चालू कुल"
+          }
+        }
+      }
+    },
     "Safe" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -24030,6 +24142,22 @@
         }
       }
     },
+    "Shop name (optional)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre de la tienda (opcional)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "दुकान का नाम (वैकल्पिक)"
+          }
+        }
+      }
+    },
     "Shares" : {
       "localizations" : {
         "es" : {
@@ -24058,6 +24186,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "खरीदारी"
+          }
+        }
+      }
+    },
+    "Shopping Mode" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo compra"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "शॉपिंग मोड"
           }
         }
       }
@@ -24924,6 +25068,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "शुरू होने की तारीख"
+          }
+        }
+      }
+    },
+    "Start Session" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sesión de compra"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सत्र शुरू करें"
           }
         }
       }
@@ -29950,6 +30110,22 @@
         }
       }
     },
+    "We couldn't start the Live Activity. Check that Live Activities are on for Vittora." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos iniciar la Actividad en Vivo. Comprueba que las Actividades en Vivo estén activadas para Vittora."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "लाइव एक्टिविटी शुरू नहीं की जा सकी। जाँचें कि Vittora के लिए लाइव एक्टिविटी चालू है।"
+          }
+        }
+      }
+    },
     "We couldn't start the receipt scanner right now." : {
       "comment" : "Error message displayed when the receipt scanner fails to start.",
       "isCommentAutoGenerated" : true,
@@ -31122,6 +31298,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "आपकी रिपोर्ट की PDF सफलतापूर्वक सेव हो गई."
+          }
+        }
+      }
+    },
+    "Your running total appears on the Lock Screen and in the Dynamic Island. Nothing is added to your transactions — record the purchase when you are done." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu total acumulado aparece en la pantalla bloqueada y en la Dynamic Island. No se añade nada a tus transacciones: registra la compra cuando termines."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपका चालू कुल लॉक स्क्रीन और डायनामिक आइलैंड पर दिखता है। आपके ट्रांज़ैक्शन में कुछ नहीं जुड़ता — काम पूरा होने पर खरीद दर्ज करें।"
           }
         }
       }
