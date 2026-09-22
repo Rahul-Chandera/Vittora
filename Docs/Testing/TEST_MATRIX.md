@@ -90,6 +90,10 @@ What this means in practice:
 - **Buying, restoring and Family Sharing inheritance must be exercised on a device before
   each release**, and the intro-offer *eligible* path needs a sandbox account that has not
   consumed the trial. Nothing in CI covers it.
+- **Last device verification: 2026-09-22 (Rahul).** Purchase, restore, Family Sharing
+  inheritance and the intro-offer *consumed* direction were all confirmed on a real device.
+  That closes them as open questions; it does not close the automation gap, so this line
+  needs renewing each release rather than being read as permanent coverage.
 - Running from Xcode (⌘R) does apply `Vittora.storekit`, so manual verification there is
   the supported path. The scheme's path to that file was broken until #237 — it pointed at
   `../../../Vittora.storekit`, which Xcode resolves against the project directory, so the
