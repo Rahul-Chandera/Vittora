@@ -151,14 +151,34 @@ These are not missing features — they are things the test suite cannot prove, 
    The next occurrence should be diagnosed from the run artifact, not re-run. The CI *log* only ever says "Contrast failed" without naming the element, which is what makes re-running tempting — but CI uploads `.build-ci/*.xcresult`, and each issue exports a "Complete Issue Description.txt" plus an **Element Screenshot** of the exact failing view:
 
    ```bash
-   gh run download <run-id> -D /tmp/art          # ~500MB, several minutes
+   # Name the artifact: downloading the whole run pulls every leg, ~450MB.
+   gh run download <run-id> -n xcresult-test-ios-ui-audit-<run-id> -D /tmp/art
+
+   # The artifact IS the bundle's contents (Data/ + Info.plist), not a wrapped
+   # .xcresult directory, so xcresulttool rejects the download path until it
+   # carries the extension. This rename is required, not optional.
+   mv /tmp/art /tmp/audit.xcresult
+
    xcrun xcresulttool export attachments \
      --test-id "AccessibilityAuditUITests/testNewReportsAccessibilityAudit()" \
-     --path /tmp/art/xcresult-<run-id>/Test-iOS-UI.xcresult \
+     --path /tmp/audit.xcresult \
      --output-path /tmp/shots
    ```
 
-   This has already turned unreproducible contrast failures into five-minute reads twice (it identified a grey `Section` header behind A2.1's failures, and Swift Charts axis labels behind W1's). It was not used on #254 — that run was diagnosed by re-running, which cost two CI cycles and proved nothing.
+   This has already turned unreproducible contrast failures into five-minute reads (it identified a grey `Section` header behind A2.1's failures, and Swift Charts axis labels behind W1's). It was not used on #254 — that run was diagnosed by re-running, which cost two CI cycles and proved nothing.
+
+   **Read the Element Screenshot first; it decides whether to re-run or to fix.**
+   A real contrast defect shows text against a background. A **blank** element —
+   a flat rectangle with no text — means the audit sampled a node whose content
+   had not rendered, which is the AX-tree-versus-pixels race mid-scroll, and a
+   re-run is then justified rather than hopeful.
+
+   Confirmed on #261 (2026-09-22): the attachments showed the *Emergency Fund*
+   report caught mid-scroll with its last line clipped at the viewport edge, a
+   completely blank Element Screenshot, and an issue description reading only
+   "Contrast failed for SwiftUI.AccessibilityNode" — on a branch that touched
+   only Tax surfaces. That is the first time the mechanism was evidenced rather
+   than inferred.
 4. ~~**1.7.1 unversioned/untagged.**~~ Closed — `MARKETING_VERSION` `1.7.1`, build `11`, tag `v1.7.1`, live on the App Store as of 2026-09-21.
 
 ---
