@@ -26,7 +26,8 @@ struct ReportsHomeView: View {
             (.netWorth, String(localized: "Net Worth"), String(localized: "See how your total balance changes over time"), "chart.line.uptrend.xyaxis.circle.fill", VColors.savings),
             (.subscriptionAudit, String(localized: "Subscription Audit"), String(localized: "What recurring expenses cost each month"), "arrow.triangle.2.circlepath", VColors.transfer),
             (.fiftyThirtyTwenty, String(localized: "50/30/20"), String(localized: "Compare needs, wants, and savings with the guideline"), "chart.bar.xaxis", VColors.savings),
-            (.emergencyFund, String(localized: "Emergency Fund"), String(localized: "See how many months of essentials you could cover"), "shield.lefthalf.filled", VColors.savings)
+            (.emergencyFund, String(localized: "Emergency Fund"), String(localized: "See how many months of essentials you could cover"), "shield.lefthalf.filled", VColors.savings),
+            (.healthScore, String(localized: "Financial Health"), String(localized: "A monthly score from your budgets, savings and debt"), "heart.text.square.fill", VColors.primaryOnSurface)
         ]
     }
 
@@ -194,6 +195,8 @@ struct ReportsHomeView: View {
     @ViewBuilder
     private func reportDestination(for type: ReportType) -> some View {
         switch type {
+        case .healthScore:
+            FinancialHealthScoreReportView()
         case .fiftyThirtyTwenty:
             FiftyThirtyTwentyReportView()
         case .monthly:
