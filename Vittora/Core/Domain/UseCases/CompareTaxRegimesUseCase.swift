@@ -6,15 +6,18 @@ struct CompareTaxRegimesUseCase: Sendable {
     private let estimateUseCase: EstimateTaxUseCase
     private let usTaxCalculator: USTaxCalculator
     private let ukTaxCalculator: UKTaxCalculator
+    private let auTaxCalculator: AUTaxCalculator
 
     nonisolated init(
         estimateUseCase: EstimateTaxUseCase = EstimateTaxUseCase(),
         usTaxCalculator: USTaxCalculator = USTaxCalculator(),
-        ukTaxCalculator: UKTaxCalculator = UKTaxCalculator()
+        ukTaxCalculator: UKTaxCalculator = UKTaxCalculator(),
+        auTaxCalculator: AUTaxCalculator = AUTaxCalculator()
     ) {
         self.estimateUseCase = estimateUseCase
         self.usTaxCalculator = usTaxCalculator
         self.ukTaxCalculator = ukTaxCalculator
+        self.auTaxCalculator = auTaxCalculator
     }
 
     func execute(profile: TaxProfile) -> TaxComparison {
@@ -53,6 +56,22 @@ struct CompareTaxRegimesUseCase: Sendable {
                 kind: .ukRegions,
                 firstEstimate: ukTaxCalculator.calculate(profile: restOfUK),
                 secondEstimate: ukTaxCalculator.calculate(profile: scotland)
+            )
+
+        case .australia:
+            // The surcharge is avoidable by holding cover, so this is a real
+            // decision — but the premium is outside what Vittora knows, and the
+            // view says so rather than implying cover is free.
+            var withCover = profile
+            withCover.advancedInputs.auHasPrivateHospitalCover = true
+
+            var withoutCover = profile
+            withoutCover.advancedInputs.auHasPrivateHospitalCover = false
+
+            return buildComparison(
+                kind: .auPrivateCover,
+                firstEstimate: auTaxCalculator.calculate(profile: withCover),
+                secondEstimate: auTaxCalculator.calculate(profile: withoutCover)
             )
         }
     }
