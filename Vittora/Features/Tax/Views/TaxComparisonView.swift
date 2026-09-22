@@ -164,6 +164,8 @@ struct TaxComparisonView: View {
             String(localized: "Regime Comparison")
         case .usDeductionModes:
             String(localized: "Deduction Comparison")
+        case .ukRegions:
+            String(localized: "Where You Live")
         }
     }
 
@@ -173,6 +175,8 @@ struct TaxComparisonView: View {
             String(localized: "See which Indian tax regime produces the lower estimate using the same income details.")
         case .usDeductionModes:
             String(localized: "Compare the standard deduction with your current itemized deductions for the same filing status.")
+        case .ukRegions:
+            String(localized: "Scottish income tax rates differ from the rest of the UK. This follows where you live — it is not something you choose.")
         }
     }
 
@@ -182,6 +186,8 @@ struct TaxComparisonView: View {
             String(localized: "Old Regime")
         case .usDeductionModes:
             String(localized: "Standard Deduction")
+        case .ukRegions:
+            String(localized: "England, Wales & NI")
         }
     }
 
@@ -191,12 +197,27 @@ struct TaxComparisonView: View {
             String(localized: "New Regime")
         case .usDeductionModes:
             String(localized: "Itemized Deductions")
+        case .ukRegions:
+            String(localized: "Scotland")
         }
     }
 
     private var recommendationText: String {
         let code = comparison.firstEstimate.country.currencyCode
         let formattedSavings = comparison.savingsAmount.formatted(.currency(code: code))
+
+        // Residence is not a choice, so the UK comparison states the difference
+        // rather than recommending the cheaper side.
+        if comparison.kind == .ukRegions {
+            switch comparison.winner {
+            case .first:
+                return String(localized: "On this income, Scotland would be about \(formattedSavings) more.")
+            case .second:
+                return String(localized: "On this income, Scotland would be about \(formattedSavings) less.")
+            case .tie:
+                return String(localized: "On this income, both produce the same estimate.")
+            }
+        }
 
         switch comparison.winner {
         case .first:

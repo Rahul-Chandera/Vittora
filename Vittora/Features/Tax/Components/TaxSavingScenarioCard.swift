@@ -37,6 +37,14 @@ struct TaxSavingScenarioCard: View {
                 ("hsa", EstimateTaxSavingUseCase.USContribution.hsa.title),
                 ("itemized", String(localized: "Itemised")),
             ]
+        case .unitedKingdom:
+            // Both route through customDeductions, which is what relief at source and
+            // Gift Aid do to taxable income. Nothing here claims the pension annual
+            // allowance taper, which the calculator does not model — see its exclusions.
+            return [
+                ("pension", String(localized: "Pension contribution")),
+                ("giftaid", String(localized: "Gift Aid")),
+            ]
         }
     }
 

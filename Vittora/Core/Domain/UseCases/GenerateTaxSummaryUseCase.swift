@@ -84,6 +84,8 @@ struct GenerateTaxSummaryUseCase: Sendable {
             indiaFinancialYearRange(financialYear: profile.financialYear)
         case .unitedStates:
             usTaxYearRange(financialYear: profile.financialYear)
+        case .unitedKingdom:
+            ukTaxYearRange(financialYear: profile.financialYear)
         }
     }
 
@@ -98,6 +100,15 @@ struct GenerateTaxSummaryUseCase: Sendable {
         let year = parsedLeadingYear(from: financialYear) ?? calendar.component(.year, from: .now)
         let start = calendar.date(from: DateComponents(year: year, month: 1, day: 1)) ?? .now
         let nextStart = calendar.date(from: DateComponents(year: year + 1, month: 1, day: 1)) ?? start
+        return start...nextStart.addingTimeInterval(-1)
+    }
+
+    /// 6 April to 5 April, not 1 April. A range starting on the 1st would pull five
+    /// days of the previous tax year into the summary.
+    private func ukTaxYearRange(financialYear: String) -> ClosedRange<Date> {
+        let startYear = parsedLeadingYear(from: financialYear) ?? calendar.component(.year, from: .now)
+        let start = calendar.date(from: DateComponents(year: startYear, month: 4, day: 6)) ?? .now
+        let nextStart = calendar.date(from: DateComponents(year: startYear + 1, month: 4, day: 6)) ?? start
         return start...nextStart.addingTimeInterval(-1)
     }
 

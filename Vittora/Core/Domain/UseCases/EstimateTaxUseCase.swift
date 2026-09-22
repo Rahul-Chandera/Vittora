@@ -5,7 +5,7 @@ import VittoraCore
 struct EstimateTaxUseCase: Sendable {
     private let calculators: [TaxCountry: any TaxCalculatorProtocol]
 
-    nonisolated init(calculators: [any TaxCalculatorProtocol] = [IndiaTaxCalculator(), USTaxCalculator()]) {
+    nonisolated init(calculators: [any TaxCalculatorProtocol] = [IndiaTaxCalculator(), USTaxCalculator(), UKTaxCalculator()]) {
         self.calculators = Dictionary(calculators.map { ($0.country, $0) }, uniquingKeysWith: { first, _ in first })
     }
 

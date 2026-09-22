@@ -5,11 +5,13 @@ import Foundation
 public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
     case india = "IN"
     case unitedStates = "US"
+    case unitedKingdom = "GB"
 
     public nonisolated var displayName: String {
         switch self {
         case .india:         return String(localized: "India")
         case .unitedStates:  return String(localized: "United States")
+        case .unitedKingdom: return String(localized: "United Kingdom")
         }
     }
 
@@ -17,6 +19,7 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
         switch self {
         case .india:        return "INR"
         case .unitedStates: return "USD"
+        case .unitedKingdom: return "GBP"
         }
     }
 
@@ -24,6 +27,7 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
         switch self {
         case .india:        return "₹"
         case .unitedStates: return "$"
+        case .unitedKingdom: return "£"
         }
     }
 
@@ -40,6 +44,16 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
 
         case .unitedStates:
             return "\(currentYear)"
+
+        case .unitedKingdom:
+            // The UK tax year runs 6 April to 5 April, so the boundary is a day
+            // inside April rather than the start of a month. Comparing only the
+            // month would put 1-5 April in the wrong year.
+            let month = calendar.component(.month, from: .now)
+            let day = calendar.component(.day, from: .now)
+            let startYear = (month > 4 || (month == 4 && day >= 6)) ? currentYear : currentYear - 1
+            let endYearSuffix = (startYear + 1) % 100
+            return "\(startYear)-\(String(format: "%02d", endYearSuffix))"
         }
     }
 }
@@ -192,6 +206,18 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
     /// US plans — but a Roth saver who left this alone would have their tax understated,
     /// which is why it is asked rather than assumed.
     public nonisolated var us401kIsRoth: Bool = false
+    /// UK: Scottish taxpayers pay Scottish rates on non-savings, non-dividend income —
+    /// six bands rather than three, topping out at 48% instead of 45%. Savings and
+    /// dividend income keep UK-wide rates wherever you live, which is why this flag
+    /// only steers one of the three income streams in the calculator.
+    public nonisolated var ukIsScottishTaxpayer: Bool = false
+    /// UK: dividend income. Has its own allowance and its own three rates.
+    public nonisolated var ukDividendIncome: Decimal = 0
+    /// UK: savings interest. Gets the starting rate for savings and the Personal
+    /// Savings Allowance, both of which depend on the other income.
+    public nonisolated var ukSavingsIncome: Decimal = 0
+    /// UK: chargeable capital gains after any reliefs, before the annual exempt amount.
+    public nonisolated var ukCapitalGains: Decimal = 0
 
     public nonisolated init(
         usQualifiedDividends: Decimal = 0,
@@ -209,7 +235,11 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         usIRAYTDContributed: Decimal = 0,
         usHSAYTDContributed: Decimal = 0,
         usHSAFamilyCoverage: Bool = false,
-        us401kIsRoth: Bool = false
+        us401kIsRoth: Bool = false,
+        ukIsScottishTaxpayer: Bool = false,
+        ukDividendIncome: Decimal = 0,
+        ukSavingsIncome: Decimal = 0,
+        ukCapitalGains: Decimal = 0
     ) {
         self.usQualifiedDividends = usQualifiedDividends
         self.usLongTermCapitalGains = usLongTermCapitalGains
@@ -227,6 +257,10 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         self.usHSAYTDContributed = usHSAYTDContributed
         self.usHSAFamilyCoverage = usHSAFamilyCoverage
         self.us401kIsRoth = us401kIsRoth
+        self.ukIsScottishTaxpayer = ukIsScottishTaxpayer
+        self.ukDividendIncome = ukDividendIncome
+        self.ukSavingsIncome = ukSavingsIncome
+        self.ukCapitalGains = ukCapitalGains
     }
 }
 
@@ -248,6 +282,10 @@ extension TaxAdvancedInputs: Codable {
         case usHSAYTDContributed
         case usHSAFamilyCoverage
         case us401kIsRoth
+        case ukIsScottishTaxpayer
+        case ukDividendIncome
+        case ukSavingsIncome
+        case ukCapitalGains
     }
 
     public nonisolated init(from decoder: Decoder) throws {
@@ -271,6 +309,10 @@ extension TaxAdvancedInputs: Codable {
         // must keep decoding, and a synthesised Codable would throw on the missing key even
         // with a default on the property.
         us401kIsRoth = try container.decodeIfPresent(Bool.self, forKey: .us401kIsRoth) ?? false
+        ukIsScottishTaxpayer = try container.decodeIfPresent(Bool.self, forKey: .ukIsScottishTaxpayer) ?? false
+        ukDividendIncome = try container.decodeIfPresent(Decimal.self, forKey: .ukDividendIncome) ?? 0
+        ukSavingsIncome = try container.decodeIfPresent(Decimal.self, forKey: .ukSavingsIncome) ?? 0
+        ukCapitalGains = try container.decodeIfPresent(Decimal.self, forKey: .ukCapitalGains) ?? 0
     }
 
     public nonisolated func encode(to encoder: Encoder) throws {
@@ -291,6 +333,10 @@ extension TaxAdvancedInputs: Codable {
         try container.encode(usHSAYTDContributed, forKey: .usHSAYTDContributed)
         try container.encode(usHSAFamilyCoverage, forKey: .usHSAFamilyCoverage)
         try container.encode(us401kIsRoth, forKey: .us401kIsRoth)
+        try container.encode(ukIsScottishTaxpayer, forKey: .ukIsScottishTaxpayer)
+        try container.encode(ukDividendIncome, forKey: .ukDividendIncome)
+        try container.encode(ukSavingsIncome, forKey: .ukSavingsIncome)
+        try container.encode(ukCapitalGains, forKey: .ukCapitalGains)
     }
 }
 
@@ -418,6 +464,10 @@ public struct TaxEstimate: Sendable {
 public enum TaxComparisonKind: Sendable, Hashable {
     case indiaRegimes
     case usDeductionModes
+    /// Scotland versus the rest of the UK. Unlike the other two this is NOT a choice
+    /// the taxpayer makes — it follows where they live — so it is presented as a
+    /// difference, never as a recommendation.
+    case ukRegions
 }
 
 public enum TaxComparisonWinner: Sendable, Hashable {
