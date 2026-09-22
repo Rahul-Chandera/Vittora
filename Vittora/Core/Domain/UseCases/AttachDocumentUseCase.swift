@@ -1,5 +1,8 @@
 import Foundation
 import OSLog
+#if canImport(PDFKit)
+import PDFKit
+#endif
 #if canImport(UIKit)
 import UIKit
 #elseif canImport(AppKit)
@@ -47,6 +50,12 @@ struct AttachDocumentUseCase: Sendable {
     // MARK: - Thumbnail generation
 
     private func generateThumbnail(from data: Data, mimeType: String) -> Data? {
+        // PDFs reach here from multi-page scans and from file import. Both used to
+        // get no thumbnail at all and fell back to a generic file icon, so a list of
+        // PDF receipts was unidentifiable. Render page 1 instead.
+        if mimeType == "application/pdf" {
+            return pdfFirstPageThumbnail(from: data)
+        }
         guard mimeType.hasPrefix("image/") else { return nil }
         #if canImport(UIKit)
         return UIImage(data: data)
@@ -59,6 +68,29 @@ struct AttachDocumentUseCase: Sendable {
         image.draw(in: CGRect(origin: .zero, size: CGSize(width: 120, height: 120)))
         thumb.unlockFocus()
         return thumb.tiffRepresentation
+        #else
+        return nil
+        #endif
+    }
+
+    /// Page 1 rendered at thumbnail size. `thumbnailData` is stored on the entity
+    /// and synced, so this stays small rather than rendering at page resolution.
+    private func pdfFirstPageThumbnail(from data: Data) -> Data? {
+        #if canImport(PDFKit)
+        guard let page = PDFDocument(data: data)?.page(at: 0) else { return nil }
+        let size = CGSize(width: 120, height: 120)
+        #if canImport(UIKit)
+        return UIGraphicsImageRenderer(size: size).jpegData(withCompressionQuality: 0.7) { context in
+            UIColor.white.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            // thumbnail(of:for:) aspect-fits the page into the box for us.
+            page.thumbnail(of: size, for: .mediaBox).draw(in: CGRect(origin: .zero, size: size))
+        }
+        #elseif canImport(AppKit)
+        return page.thumbnail(of: size, for: .mediaBox).tiffRepresentation
+        #else
+        return nil
+        #endif
         #else
         return nil
         #endif
