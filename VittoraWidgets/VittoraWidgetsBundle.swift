@@ -8,5 +8,9 @@ struct VittoraWidgetsBundle: WidgetBundle {
         BudgetRemainingWidget()
         LockScreenAccessoryWidget()
         QuickLogWidget()
+        #if os(iOS)
+        ShoppingSessionLiveActivity()
+        BillCountdownLiveActivity()
+        #endif
     }
 }

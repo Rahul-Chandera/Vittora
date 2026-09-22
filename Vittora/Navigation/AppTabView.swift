@@ -251,8 +251,30 @@ private struct MoreHubView: View {
         }
     }
 
+    @State private var showShoppingMode = false
+
     var body: some View {
         List {
+            // Its own section rather than an AppTab case: shopping mode is a
+            // transient session, not a destination, and adding a tab would ripple
+            // through deep links, the sidebar and compact-bar routing for nothing.
+            #if os(iOS)
+            Section {
+                Button {
+                    showShoppingMode = true
+                } label: {
+                    Label {
+                        Text(String(localized: "Shopping Mode"))
+                            .foregroundStyle(VColors.textPrimary)
+                    } icon: {
+                        Image(systemName: "cart.fill")
+                            .foregroundStyle(VColors.iconTint(.green))
+                    }
+                }
+                .accessibilityIdentifier("more-shopping-mode-row")
+            }
+            #endif
+
             ForEach(Self.destinations) { tab in
                 NavigationLink {
                     destinationView(for: tab)
@@ -267,6 +289,11 @@ private struct MoreHubView: View {
             }
         }
         .navigationTitle(String(localized: "More"))
+        #if os(iOS)
+        .sheet(isPresented: $showShoppingMode) {
+            ShoppingModeView()
+        }
+        #endif
     }
 
     @ViewBuilder
