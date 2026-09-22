@@ -148,7 +148,17 @@ These are not missing features — they are things the test suite cannot prove, 
 
    **It returned.** #253 raised the settle to 2.5s. #254 then failed twice more, each with a different signature — first a 15s timeout on `transaction-list-root`, then `testNewReportsAccessibilityAudit` "Contrast failed" again — and passed on a plain re-run with no code change. Two things were learned. First, #252 had raised a timeout at the wrong call site: its comment claimed the site was "the only navigation wait in the file that runs at AccessibilityXL", but that test sets an OLED appearance and never sets AccessibilityXL, while the genuine AccessibilityXL site was left at 15s and later failed. Both now read one `accessibilityXLListTimeout` constant. Second, `Scripts/ci/resolve-ios-simulator-destination.sh` is deterministic *per machine*, not across machines: CI resolves to `iPhone 17 Pro Max`, while a Mac whose newest runtime is iOS 27.0 resolves to `iPhone 17`, because that runtime ships no Pro Max. Reproducing a CI audit failure locally therefore means pinning the model **and** a 26.x runtime by UDID, not running the resolver. The contrast failure could not be reproduced locally on either device.
 
-   The remaining obstacle is diagnostic, not behavioural: `performAccessibilityAudit` reports "Contrast failed" without naming the offending element, so every occurrence is a coin flip with nothing to act on. Installing an issue handler that logs the element's identifier, label, frame and computed colors is the prerequisite for any real fix.
+   The next occurrence should be diagnosed from the run artifact, not re-run. The CI *log* only ever says "Contrast failed" without naming the element, which is what makes re-running tempting — but CI uploads `.build-ci/*.xcresult`, and each issue exports a "Complete Issue Description.txt" plus an **Element Screenshot** of the exact failing view:
+
+   ```bash
+   gh run download <run-id> -D /tmp/art          # ~500MB, several minutes
+   xcrun xcresulttool export attachments \
+     --test-id "AccessibilityAuditUITests/testNewReportsAccessibilityAudit()" \
+     --path /tmp/art/xcresult-<run-id>/Test-iOS-UI.xcresult \
+     --output-path /tmp/shots
+   ```
+
+   This has already turned unreproducible contrast failures into five-minute reads twice (it identified a grey `Section` header behind A2.1's failures, and Swift Charts axis labels behind W1's). It was not used on #254 — that run was diagnosed by re-running, which cost two CI cycles and proved nothing.
 4. ~~**1.7.1 unversioned/untagged.**~~ Closed — `MARKETING_VERSION` `1.7.1`, build `11`, tag `v1.7.1`, live on the App Store as of 2026-09-21.
 
 ---
