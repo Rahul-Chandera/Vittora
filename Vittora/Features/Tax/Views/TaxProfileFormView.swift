@@ -211,6 +211,8 @@ struct TaxProfileFormView: View {
                 ukSections(vm)
             } else if vm.country == .australia {
                 auSections(vm)
+            } else if vm.country == .canada {
+                caSections(vm)
             } else {
                 Section {
                     Picker(String(localized: "Status"), selection: Bindable(vm).filingStatus) {
@@ -325,6 +327,7 @@ struct TaxProfileFormView: View {
             let showDeductions = vm.country == .unitedStates
                 || vm.country == .unitedKingdom
                 || vm.country == .australia
+                || vm.country == .canada
                 || vm.indiaRegime == .oldRegime
             if showDeductions {
                 Section {
@@ -457,6 +460,52 @@ struct TaxProfileFormView: View {
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
             }
+        }
+    }
+
+    /// Canadian inputs. Province comes first and is the most consequential field on
+    /// the screen: provincial tax is a second full bracket table, not a surcharge, so
+    /// the wrong province is wrong by thousands rather than by a rounding amount.
+    @ViewBuilder
+    private func caSections(_ vm: TaxProfileFormViewModel) -> some View {
+        Section {
+            Picker(String(localized: "Province or territory"), selection: Bindable(vm).advancedInputs.caProvince) {
+                ForEach(CAProvince.allCases, id: \.self) { province in
+                    Text(province.displayName).tag(province)
+                }
+            }
+            .onChange(of: vm.advancedInputs.caProvince) { _, _ in vm.recalculateLive() }
+            .accessibilityIdentifier("ca-province-picker")
+
+            Picker(String(localized: "Income Type"), selection: Bindable(vm).incomeSourceType) {
+                ForEach(IncomeSourceType.allCases, id: \.self) { type in
+                    Text(type.displayName).tag(type)
+                }
+            }
+            .onChange(of: vm.incomeSourceType) { _, _ in vm.recalculateLive() }
+        } header: {
+            VFormSectionHeader(String(localized: "Where You Live"))
+        } footer: {
+            Text(String(localized: "Your province of residence on 31 December decides your provincial tax. Quebec is handled separately, including its federal abatement and QPP."))
+        }
+
+        Section {
+            contributionAmountField(
+                vm: vm,
+                title: String(localized: "RRSP contributions"),
+                text: Bindable(vm).caRRSPContributionsString,
+                currencyCode: vm.country.currencyCode
+            )
+            contributionAmountField(
+                vm: vm,
+                title: String(localized: "Capital gains"),
+                text: Bindable(vm).caCapitalGainsString,
+                currencyCode: vm.country.currencyCode
+            )
+        } header: {
+            VFormSectionHeader(String(localized: "RRSP & Gains"))
+        } footer: {
+            Text(String(localized: "RRSP contributions are deducted from income — this defers tax rather than removing it. Half of a capital gain is included in income."))
         }
     }
 

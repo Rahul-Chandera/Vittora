@@ -7,17 +7,20 @@ struct CompareTaxRegimesUseCase: Sendable {
     private let usTaxCalculator: USTaxCalculator
     private let ukTaxCalculator: UKTaxCalculator
     private let auTaxCalculator: AUTaxCalculator
+    private let caTaxCalculator: CATaxCalculator
 
     nonisolated init(
         estimateUseCase: EstimateTaxUseCase = EstimateTaxUseCase(),
         usTaxCalculator: USTaxCalculator = USTaxCalculator(),
         ukTaxCalculator: UKTaxCalculator = UKTaxCalculator(),
-        auTaxCalculator: AUTaxCalculator = AUTaxCalculator()
+        auTaxCalculator: AUTaxCalculator = AUTaxCalculator(),
+        caTaxCalculator: CATaxCalculator = CATaxCalculator()
     ) {
         self.estimateUseCase = estimateUseCase
         self.usTaxCalculator = usTaxCalculator
         self.ukTaxCalculator = ukTaxCalculator
         self.auTaxCalculator = auTaxCalculator
+        self.caTaxCalculator = caTaxCalculator
     }
 
     func execute(profile: TaxProfile) -> TaxComparison {
@@ -72,6 +75,19 @@ struct CompareTaxRegimesUseCase: Sendable {
                 kind: .auPrivateCover,
                 firstEstimate: auTaxCalculator.calculate(profile: withCover),
                 secondEstimate: auTaxCalculator.calculate(profile: withoutCover)
+            )
+
+        case .canada:
+            // What the RRSP contribution actually did. Degenerate when none was
+            // entered — both sides match and the view reports a tie, which is
+            // honest rather than inventing a hypothetical contribution.
+            var withoutRRSP = profile
+            withoutRRSP.advancedInputs.caRRSPContributions = 0
+
+            return buildComparison(
+                kind: .caRRSPImpact,
+                firstEstimate: caTaxCalculator.calculate(profile: withoutRRSP),
+                secondEstimate: caTaxCalculator.calculate(profile: profile)
             )
         }
     }

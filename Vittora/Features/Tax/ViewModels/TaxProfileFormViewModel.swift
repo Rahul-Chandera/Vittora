@@ -31,6 +31,8 @@ final class TaxProfileFormViewModel {
     var ukCapitalGainsString = ""
     var auConcessionalSuperString = ""
     var auCapitalGainsString = ""
+    var caCapitalGainsString = ""
+    var caRRSPContributionsString = ""
 
     // Live preview
     var liveEstimate: TaxEstimate?
@@ -77,6 +79,7 @@ final class TaxProfileFormViewModel {
         syncIndiaInputStringsFromAdvancedInputs()
         syncUKInputStringsFromAdvancedInputs()
         syncAUInputStringsFromAdvancedInputs()
+        syncCAInputStringsFromAdvancedInputs()
         syncUSInputStringsFromAdvancedInputs()
         recalculateLive()
     }
@@ -188,6 +191,8 @@ final class TaxProfileFormViewModel {
         syncDecimalField(ukCapitalGainsString, into: \.ukCapitalGains)
         syncDecimalField(auConcessionalSuperString, into: \.auConcessionalSuper)
         syncDecimalField(auCapitalGainsString, into: \.auCapitalGains)
+        syncDecimalField(caCapitalGainsString, into: \.caCapitalGains)
+        syncDecimalField(caRRSPContributionsString, into: \.caRRSPContributions)
     }
 
     private func syncDecimalField(_ string: String, into keyPath: WritableKeyPath<TaxAdvancedInputs, Decimal>) {
@@ -207,6 +212,11 @@ final class TaxProfileFormViewModel {
     private func syncAUInputStringsFromAdvancedInputs() {
         auConcessionalSuperString = advancedInputs.auConcessionalSuper > 0 ? "\(advancedInputs.auConcessionalSuper)" : ""
         auCapitalGainsString = advancedInputs.auCapitalGains > 0 ? "\(advancedInputs.auCapitalGains)" : ""
+    }
+
+    private func syncCAInputStringsFromAdvancedInputs() {
+        caCapitalGainsString = advancedInputs.caCapitalGains > 0 ? "\(advancedInputs.caCapitalGains)" : ""
+        caRRSPContributionsString = advancedInputs.caRRSPContributions > 0 ? "\(advancedInputs.caRRSPContributions)" : ""
     }
 
     private func syncIndiaInputStringsFromAdvancedInputs() {

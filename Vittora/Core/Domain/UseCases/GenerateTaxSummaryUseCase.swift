@@ -88,6 +88,9 @@ struct GenerateTaxSummaryUseCase: Sendable {
             ukTaxYearRange(financialYear: profile.financialYear)
         case .australia:
             auTaxYearRange(financialYear: profile.financialYear)
+        case .canada:
+            // Calendar year, same shape as the US.
+            usTaxYearRange(financialYear: profile.financialYear)
         }
     }
 

@@ -839,6 +839,22 @@
         }
       }
     },
+    "%@ tax" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impuesto de %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ कर"
+          }
+        }
+      }
+    },
     "%@ will be removed from this group and everyone's share recalculated. This cannot be undone." : {
       "comment" : "Body of the group expense delete confirmation. %@ is the expense title.",
       "localizations" : {
@@ -4504,6 +4520,22 @@
         }
       }
     },
+    "Alberta" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alberta"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अल्बर्टा"
+          }
+        }
+      }
+    },
     "Align receipt within the frame" : {
       "localizations" : {
         "es" : {
@@ -5967,6 +5999,22 @@
         }
       }
     },
+    "Basic personal amounts are applied as non-refundable credits, not deductions." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los importes personales básicos se aplican como créditos no reembolsables, no como deducciones."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बेसिक पर्सनल अमाउंट गैर-वापसी योग्य क्रेडिट के रूप में लागू होते हैं, कटौती के रूप में नहीं।"
+          }
+        }
+      }
+    },
     "Basic Tax" : {
       "localizations" : {
         "es" : {
@@ -6295,6 +6343,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "विवरण"
+          }
+        }
+      }
+    },
+    "British Columbia" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Columbia Británica"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ब्रिटिश कोलंबिया"
           }
         }
       }
@@ -6695,6 +6759,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "बिज़नेस"
+          }
+        }
+      }
+    },
+    "Canada" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Canadá"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कनाडा"
+          }
+        }
+      }
+    },
+    "Canada Employment Amount and other non-refundable credits are not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluyen el importe por empleo de Canadá ni otros créditos no reembolsables."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कनाडा एम्प्लॉयमेंट अमाउंट और अन्य गैर-वापसी योग्य क्रेडिट शामिल नहीं हैं।"
+          }
+        }
+      }
+    },
+    "Canadian RRSP Impact Comparison" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparación del impacto del RRSP en Canadá"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कनाडाई RRSP प्रभाव तुलना"
           }
         }
       }
@@ -8218,6 +8330,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "किसमें गिना जाएगा"
+          }
+        }
+      }
+    },
+    "CPP contribution" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aportación al CPP"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPP योगदान"
           }
         }
       }
@@ -9957,6 +10085,22 @@
         }
       }
     },
+    "Dividend gross-up and dividend tax credits are not modelled." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se modelan el incremento de dividendos ni los créditos fiscales por dividendos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डिविडेंड ग्रॉस-अप और डिविडेंड टैक्स क्रेडिट मॉडल नहीं किए गए।"
+          }
+        }
+      }
+    },
     "Dividend income" : {
       "localizations" : {
         "es" : {
@@ -10691,6 +10835,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "प्रभावी दर"
+          }
+        }
+      }
+    },
+    "EI premium" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima del EI"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EI प्रीमियम"
           }
         }
       }
@@ -11936,6 +12096,22 @@
         }
       }
     },
+    "Federal basic personal amount reduced to %@ because of income level." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El importe personal básico federal se reduce a %@ por el nivel de ingresos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आय स्तर के कारण संघीय बेसिक पर्सनल अमाउंट घटाकर %@ कर दिया गया।"
+          }
+        }
+      }
+    },
     "Federal estimate — state taxes not included" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -11949,6 +12125,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "संघीय अनुमान — राज्य कर शामिल नहीं हैं"
+          }
+        }
+      }
+    },
+    "Federal tax" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impuesto federal"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संघीय कर"
+          }
+        }
+      }
+    },
+    "FHSA contribution" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aportación al FHSA"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FHSA योगदान"
           }
         }
       }
@@ -12840,6 +13048,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "GST पंजीकरण सीमा"
+          }
+        }
+      }
+    },
+    "GST/HST credit, Canada Child Benefit and other refundable credits are not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluyen el crédito GST/HST, la prestación por hijos de Canadá ni otros créditos reembolsables."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GST/HST क्रेडिट, कनाडा चाइल्ड बेनिफिट और अन्य वापसी योग्य क्रेडिट शामिल नहीं हैं।"
+          }
+        }
+      }
+    },
+    "Half of your capital gains is included in income." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La mitad de tus plusvalías se incluye en la renta."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके कैपिटल गेन्स का आधा हिस्सा आय में शामिल है।"
           }
         }
       }
@@ -14782,6 +15022,22 @@
         }
       }
     },
+    "Manitoba" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manitoba"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मैनिटोबा"
+          }
+        }
+      }
+    },
     "Marginal Rate" : {
       "localizations" : {
         "es" : {
@@ -15981,6 +16237,22 @@
         }
       }
     },
+    "New Brunswick" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo Brunswick"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "न्यू ब्रंसविक"
+          }
+        }
+      }
+    },
     "New Budget" : {
       "localizations" : {
         "es" : {
@@ -16125,6 +16397,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "नया ट्रांज़ैक्शन"
+          }
+        }
+      }
+    },
+    "Newfoundland and Labrador" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terranova y Labrador"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "न्यूफ़ाउंडलैंड और लैब्राडोर"
           }
         }
       }
@@ -16773,6 +17061,22 @@
         }
       }
     },
+    "No RRSP" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin RRSP"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RRSP नहीं"
+          }
+        }
+      }
+    },
     "No Rules Yet" : {
       "comment" : "A label displayed when the user has not yet created any categorization rules.",
       "isCommentAutoGenerated" : true,
@@ -16965,6 +17269,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "कोई नहीं"
+          }
+        }
+      }
+    },
+    "Northwest Territories" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Territorios del Noroeste"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नॉर्थवेस्ट टेरिटरीज़"
           }
         }
       }
@@ -17268,6 +17588,22 @@
         }
       }
     },
+    "Nova Scotia" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva Escocia"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नोवा स्कोशिया"
+          }
+        }
+      }
+    },
     "NPS Tier-I" : {
       "localizations" : {
         "es" : {
@@ -17296,6 +17632,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "कितने वर्षों का अनुमान"
+          }
+        }
+      }
+    },
+    "Nunavut" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nunavut"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नुनावुत"
           }
         }
       }
@@ -17694,6 +18046,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "केवल इस सीमा के भीतर के ट्रांज़ैक्शन एक्सपोर्ट किए जाएंगे।"
+          }
+        }
+      }
+    },
+    "Ontario" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontario"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ओंटारियो"
           }
         }
       }
@@ -19748,6 +20116,22 @@
         }
       }
     },
+    "Prince Edward Island" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Isla del Príncipe Eduardo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रिंस एडवर्ड आइलैंड"
+          }
+        }
+      }
+    },
     "Privacy Policy" : {
       "localizations" : {
         "es" : {
@@ -19974,6 +20358,70 @@
         }
       }
     },
+    "Province or territory" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Provincia o territorio"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रांत या क्षेत्र"
+          }
+        }
+      }
+    },
+    "Provincial and territorial figures are being verified. Treat provincial amounts as indicative until confirmed." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las cifras provinciales y territoriales están en verificación. Trata los importes provinciales como orientativos hasta que se confirmen."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रांतीय और क्षेत्रीय आंकड़ों की पुष्टि की जा रही है। पुष्टि होने तक प्रांतीय राशियों को सांकेतिक मानें।"
+          }
+        }
+      }
+    },
+    "Provincial health premiums and levies are not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluyen las primas y gravámenes sanitarios provinciales."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रांतीय स्वास्थ्य प्रीमियम और शुल्क शामिल नहीं हैं।"
+          }
+        }
+      }
+    },
+    "Provincial surtax" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recargo provincial"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रांतीय सरचार्ज"
+          }
+        }
+      }
+    },
     "Purchase" : {
       "comment" : "Paywall button when the selected plan is the one-time Lifetime purchase.",
       "localizations" : {
@@ -20039,6 +20487,22 @@
         }
       }
     },
+    "QPP contribution" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aportación al QPP"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QPP योगदान"
+          }
+        }
+      }
+    },
     "Qualifying Surviving Spouse" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -20068,6 +20532,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "तिमाही"
+          }
+        }
+      }
+    },
+    "Quebec" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quebec"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "क्यूबेक"
+          }
+        }
+      }
+    },
+    "Quebec federal abatement" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reducción federal de Quebec"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "क्यूबेक संघीय छूट"
+          }
+        }
+      }
+    },
+    "Quebec Parental Insurance Plan premiums are not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluyen las primas del Plan de Seguro Parental de Quebec."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "क्यूबेक पैरेंटल इंश्योरेंस प्लान प्रीमियम शामिल नहीं हैं।"
+          }
+        }
+      }
+    },
+    "Quebec's 16.5% federal abatement applied." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se aplicó la reducción federal del 16,5% de Quebec."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "क्यूबेक की 16.5% संघीय छूट लागू की गई।"
           }
         }
       }
@@ -21132,6 +21660,22 @@
         }
       }
     },
+    "Resident of %@ on 31 December." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Residente de %@ a 31 de diciembre."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "31 दिसंबर को %@ के निवासी।"
+          }
+        }
+      }
+    },
     "Resident tax rates applied." : {
       "localizations" : {
         "es" : {
@@ -21410,6 +21954,86 @@
         }
       }
     },
+    "RRSP & Gains" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RRSP y plusvalías"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RRSP और गेन्स"
+          }
+        }
+      }
+    },
+    "RRSP contribution" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aportación al RRSP"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RRSP योगदान"
+          }
+        }
+      }
+    },
+    "RRSP contributions" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aportaciones al RRSP"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RRSP योगदान राशि"
+          }
+        }
+      }
+    },
+    "RRSP contributions are deducted from income — this defers tax rather than removing it. Half of a capital gain is included in income." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las aportaciones al RRSP se deducen de la renta: esto aplaza el impuesto en lugar de eliminarlo. La mitad de una plusvalía se incluye en la renta."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RRSP योगदान आय से घटाए जाते हैं — इससे कर हटता नहीं, टलता है। कैपिटल गेन का आधा हिस्सा आय में शामिल होता है।"
+          }
+        }
+      }
+    },
+    "RRSP Impact" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impacto del RRSP"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RRSP प्रभाव"
+          }
+        }
+      }
+    },
     "Rules match keywords in payee names, notes, and receipt merchant text. Longer keywords take priority." : {
       "comment" : "A description of how categorization rules work.",
       "isCommentAutoGenerated" : true,
@@ -21506,6 +22130,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "उसी दिन"
+          }
+        }
+      }
+    },
+    "Saskatchewan" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saskatchewan"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सस्केचेवान"
           }
         }
       }
@@ -25190,6 +25830,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "इस साल बचा टैक्स"
+          }
+        }
+      }
+    },
+    "Tax year is the calendar year." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El año fiscal es el año natural."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कर वर्ष कैलेंडर वर्ष होता है।"
           }
         }
       }
@@ -29528,6 +30184,22 @@
         }
       }
     },
+    "What your RRSP contribution does to this year's tax. RRSP defers tax rather than removing it — withdrawals are taxed as income later." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo que tu aportación al RRSP hace con el impuesto de este año. El RRSP aplaza el impuesto en lugar de eliminarlo: los reintegros tributan como renta más adelante."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपका RRSP योगदान इस वर्ष के कर पर क्या असर डालता है। RRSP कर हटाता नहीं, टालता है — निकासी पर बाद में आय के रूप में कर लगता है।"
+          }
+        }
+      }
+    },
     "What's left this year" : {
       "localizations" : {
         "es" : {
@@ -29654,6 +30326,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "कवर के साथ"
+          }
+        }
+      }
+    },
+    "With your RRSP" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con tu RRSP"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके RRSP के साथ"
           }
         }
       }
@@ -30390,6 +31078,22 @@
         }
       }
     },
+    "Your province of residence on 31 December decides your provincial tax. Quebec is handled separately, including its federal abatement and QPP." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu provincia de residencia a 31 de diciembre determina tu impuesto provincial. Quebec se trata aparte, incluida su reducción federal y el QPP."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "31 दिसंबर को आपका निवास प्रांत आपका प्रांतीय कर तय करता है। क्यूबेक को अलग से संभाला जाता है, जिसमें इसकी संघीय छूट और QPP शामिल हैं।"
+          }
+        }
+      }
+    },
     "Your records, splits, iCloud sync and CSV export stay free, always." : {
       "localizations" : {
         "es" : {
@@ -30498,6 +31202,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "आपकी साल की समीक्षा लगभग तैयार है"
+          }
+        }
+      }
+    },
+    "Yukon" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yukón"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "युकोन"
           }
         }
       }

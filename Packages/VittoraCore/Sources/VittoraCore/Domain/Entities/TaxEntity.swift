@@ -7,6 +7,7 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
     case unitedStates = "US"
     case unitedKingdom = "GB"
     case australia = "AU"
+    case canada = "CA"
 
     public nonisolated var displayName: String {
         switch self {
@@ -14,6 +15,7 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
         case .unitedStates:  return String(localized: "United States")
         case .unitedKingdom: return String(localized: "United Kingdom")
         case .australia:     return String(localized: "Australia")
+        case .canada:        return String(localized: "Canada")
         }
     }
 
@@ -23,6 +25,7 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
         case .unitedStates: return "USD"
         case .unitedKingdom: return "GBP"
         case .australia:     return "AUD"
+        case .canada:        return "CAD"
         }
     }
 
@@ -32,6 +35,7 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
         case .unitedStates: return "$"
         case .unitedKingdom: return "£"
         case .australia:     return "$"
+        case .canada:        return "$"
         }
     }
 
@@ -65,6 +69,47 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
             let startYear = month >= 7 ? currentYear : currentYear - 1
             let endYearSuffix = (startYear + 1) % 100
             return "\(startYear)-\(String(format: "%02d", endYearSuffix))"
+
+        case .canada:
+            // Calendar year, like the US.
+            return "\(currentYear)"
+        }
+    }
+}
+
+/// Canadian provinces and territories. Provincial tax is a second full bracket
+/// table, not a surcharge on the federal one, so the province a user lives in
+/// changes their bill by thousands rather than by a rounding amount.
+public enum CAProvince: String, Sendable, Hashable, CaseIterable, Codable {
+    case alberta = "AB"
+    case britishColumbia = "BC"
+    case manitoba = "MB"
+    case newBrunswick = "NB"
+    case newfoundlandAndLabrador = "NL"
+    case northwestTerritories = "NT"
+    case novaScotia = "NS"
+    case nunavut = "NU"
+    case ontario = "ON"
+    case princeEdwardIsland = "PE"
+    case quebec = "QC"
+    case saskatchewan = "SK"
+    case yukon = "YT"
+
+    public nonisolated var displayName: String {
+        switch self {
+        case .alberta:                 String(localized: "Alberta")
+        case .britishColumbia:         String(localized: "British Columbia")
+        case .manitoba:                String(localized: "Manitoba")
+        case .newBrunswick:            String(localized: "New Brunswick")
+        case .newfoundlandAndLabrador: String(localized: "Newfoundland and Labrador")
+        case .northwestTerritories:    String(localized: "Northwest Territories")
+        case .novaScotia:              String(localized: "Nova Scotia")
+        case .nunavut:                 String(localized: "Nunavut")
+        case .ontario:                 String(localized: "Ontario")
+        case .princeEdwardIsland:      String(localized: "Prince Edward Island")
+        case .quebec:                  String(localized: "Quebec")
+        case .saskatchewan:            String(localized: "Saskatchewan")
+        case .yukon:                   String(localized: "Yukon")
         }
     }
 }
@@ -240,6 +285,14 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
     public nonisolated var auCapitalGains: Decimal = 0
     /// AU: whether the asset was held more than 12 months, which halves the gain.
     public nonisolated var auCapitalGainsEligibleForDiscount: Bool = true
+    /// CA: province or territory of residence on 31 December, which is what
+    /// determines provincial tax. Defaults to Ontario as the most populous;
+    /// the form asks rather than leaving it implicit.
+    public nonisolated var caProvince: CAProvince = .ontario
+    /// CA: gross capital gains; half is included in income.
+    public nonisolated var caCapitalGains: Decimal = 0
+    /// CA: RRSP contributions for the year, which are deductible.
+    public nonisolated var caRRSPContributions: Decimal = 0
 
     public nonisolated init(
         usQualifiedDividends: Decimal = 0,
@@ -265,7 +318,10 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         auHasPrivateHospitalCover: Bool = false,
         auConcessionalSuper: Decimal = 0,
         auCapitalGains: Decimal = 0,
-        auCapitalGainsEligibleForDiscount: Bool = true
+        auCapitalGainsEligibleForDiscount: Bool = true,
+        caProvince: CAProvince = .ontario,
+        caCapitalGains: Decimal = 0,
+        caRRSPContributions: Decimal = 0
     ) {
         self.usQualifiedDividends = usQualifiedDividends
         self.usLongTermCapitalGains = usLongTermCapitalGains
@@ -291,6 +347,9 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         self.auConcessionalSuper = auConcessionalSuper
         self.auCapitalGains = auCapitalGains
         self.auCapitalGainsEligibleForDiscount = auCapitalGainsEligibleForDiscount
+        self.caProvince = caProvince
+        self.caCapitalGains = caCapitalGains
+        self.caRRSPContributions = caRRSPContributions
     }
 }
 
@@ -320,6 +379,9 @@ extension TaxAdvancedInputs: Codable {
         case auConcessionalSuper
         case auCapitalGains
         case auCapitalGainsEligibleForDiscount
+        case caProvince
+        case caCapitalGains
+        case caRRSPContributions
     }
 
     public nonisolated init(from decoder: Decoder) throws {
@@ -353,6 +415,9 @@ extension TaxAdvancedInputs: Codable {
         // Defaults true: the discount applies to most gains, and a profile saved
         // before this field existed should keep the common case.
         auCapitalGainsEligibleForDiscount = try container.decodeIfPresent(Bool.self, forKey: .auCapitalGainsEligibleForDiscount) ?? true
+        caProvince = try container.decodeIfPresent(CAProvince.self, forKey: .caProvince) ?? .ontario
+        caCapitalGains = try container.decodeIfPresent(Decimal.self, forKey: .caCapitalGains) ?? 0
+        caRRSPContributions = try container.decodeIfPresent(Decimal.self, forKey: .caRRSPContributions) ?? 0
     }
 
     public nonisolated func encode(to encoder: Encoder) throws {
@@ -381,6 +446,9 @@ extension TaxAdvancedInputs: Codable {
         try container.encode(auConcessionalSuper, forKey: .auConcessionalSuper)
         try container.encode(auCapitalGains, forKey: .auCapitalGains)
         try container.encode(auCapitalGainsEligibleForDiscount, forKey: .auCapitalGainsEligibleForDiscount)
+        try container.encode(caProvince, forKey: .caProvince)
+        try container.encode(caCapitalGains, forKey: .caCapitalGains)
+        try container.encode(caRRSPContributions, forKey: .caRRSPContributions)
     }
 }
 
@@ -517,6 +585,10 @@ public enum TaxComparisonKind: Sendable, Hashable {
     /// though the surcharge saved is not the whole picture, since cover costs a
     /// premium the estimate cannot know.
     case auPrivateCover
+    /// Canada: the effect of the RRSP contribution entered, against none. A real
+    /// choice and the largest lever most Canadians have, so a recommendation is
+    /// fair — but it is a deferral rather than a saving, and the view says so.
+    case caRRSPImpact
 }
 
 public enum TaxComparisonWinner: Sendable, Hashable {
