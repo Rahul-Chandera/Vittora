@@ -5937,6 +5937,22 @@
         }
       }
     },
+    "Between £%@ and £%@ the tapered Personal Allowance makes the effective rate on this slice about 60%%." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entre £%@ y £%@, la reducción progresiva de la Asignación Personal eleva el tipo efectivo de este tramo a cerca del 60%%."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "£%@ और £%@ के बीच, घटती पर्सनल अलाउंस इस हिस्से पर प्रभावी दर को लगभग 60%% कर देती है।"
+          }
+        }
+      }
+    },
     "Bi-weekly" : {
       "localizations" : {
         "es" : {
@@ -6723,6 +6739,54 @@
         }
       }
     },
+    "Capital gains" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plusvalías"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कैपिटल गेन्स"
+          }
+        }
+      }
+    },
+    "Capital gains annual exempt amount of £%@ applied." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se aplicó el importe anual exento de plusvalías de £%@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "£%@ की वार्षिक छूट राशि कैपिटल गेन्स पर लागू की गई।"
+          }
+        }
+      }
+    },
+    "Capital Gains Tax" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impuesto sobre plusvalías"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कैपिटल गेन्स टैक्स"
+          }
+        }
+      }
+    },
     "Cash" : {
       "localizations" : {
         "es" : {
@@ -6998,6 +7062,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "दान"
+          }
+        }
+      }
+    },
+    "Child Benefit High Income Charge is not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluye el recargo por ingresos altos de la prestación por hijos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "चाइल्ड बेनिफिट हाई इनकम चार्ज शामिल नहीं है।"
           }
         }
       }
@@ -9733,6 +9813,86 @@
         }
       }
     },
+    "Dividend Allowance of £%@ applied." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se aplicó la Asignación por Dividendos de £%@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "£%@ की डिविडेंड अलाउंस लागू की गई।"
+          }
+        }
+      }
+    },
+    "Dividend income" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresos por dividendos"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डिविडेंड आय"
+          }
+        }
+      }
+    },
+    "Dividends (additional rate)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dividendos (tipo adicional)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डिविडेंड (अतिरिक्त दर)"
+          }
+        }
+      }
+    },
+    "Dividends (basic rate)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dividendos (tipo básico)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डिविडेंड (मूल दर)"
+          }
+        }
+      }
+    },
+    "Dividends (higher rate)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dividendos (tipo superior)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डिविडेंड (उच्च दर)"
+          }
+        }
+      }
+    },
     "Document file not found." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -10064,6 +10224,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "जैसे गोवा यात्रा"
+          }
+        }
+      }
+    },
+    "Each has its own allowance and rates. Enter gains after any reliefs and before the annual exempt amount." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada uno tiene su propia asignación y tipos. Introduce las plusvalías después de cualquier desgravación y antes del importe anual exento."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रत्येक की अपनी अलाउंस और दरें हैं। किसी भी छूट के बाद और वार्षिक छूट राशि से पहले के गेन्स दर्ज करें।"
           }
         }
       }
@@ -10653,6 +10829,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "समाप्ति: %@"
+          }
+        }
+      }
+    },
+    "England, Wales & NI" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inglaterra, Gales e IN"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इंग्लैंड, वेल्स और NI"
+          }
+        }
+      }
+    },
+    "England, Wales and Northern Ireland rates applied." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se aplicaron los tipos de Inglaterra, Gales e Irlanda del Norte."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इंग्लैंड, वेल्स और नॉर्दर्न आयरलैंड की दरें लागू की गईं।"
           }
         }
       }
@@ -11601,6 +11809,22 @@
         }
       }
     },
+    "Figures for the year you selected are not held. The nearest year Vittora has was used instead." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se dispone de las cifras del año que seleccionaste. Se usó el año más cercano que tiene Vittora."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने जो वर्ष चुना उसके आंकड़े उपलब्ध नहीं हैं। Vittora के पास मौजूद निकटतम वर्ष का उपयोग किया गया।"
+          }
+        }
+      }
+    },
     "File ready to share" : {
       "comment" : "A label displayed above the share button.",
       "isCommentAutoGenerated" : true,
@@ -12127,6 +12351,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "शुरू करें"
+          }
+        }
+      }
+    },
+    "Gift Aid" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gift Aid"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "गिफ्ट एड"
           }
         }
       }
@@ -14366,6 +14606,22 @@
         }
       }
     },
+    "Marriage Allowance and Blind Person's Allowance are not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluyen la Asignación por Matrimonio ni la Asignación para Personas Ciegas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मैरिज अलाउंस और ब्लाइंड पर्सन्स अलाउंस शामिल नहीं हैं।"
+          }
+        }
+      }
+    },
     "Married Filing Jointly" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -15116,6 +15372,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "नाम"
+          }
+        }
+      }
+    },
+    "National Insurance (Class 1)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguridad Social (Clase 1)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नेशनल इंश्योरेंस (क्लास 1)"
+          }
+        }
+      }
+    },
+    "National Insurance (Class 4)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguridad Social (Clase 4)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नेशनल इंश्योरेंस (क्लास 4)"
           }
         }
       }
@@ -16946,6 +17234,54 @@
         }
       }
     },
+    "On this income, both produce the same estimate." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con estos ingresos, ambos dan la misma estimación."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस आय पर, दोनों एक ही अनुमान देते हैं।"
+          }
+        }
+      }
+    },
+    "On this income, Scotland would be about %@ less." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con estos ingresos, en Escocia serían unos %@ menos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस आय पर, स्कॉटलैंड में लगभग %@ कम होता।"
+          }
+        }
+      }
+    },
+    "On this income, Scotland would be about %@ more." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con estos ingresos, en Escocia serían unos %@ más."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस आय पर, स्कॉटलैंड में लगभग %@ अधिक होता।"
+          }
+        }
+      }
+    },
     "On track" : {
       "localizations" : {
         "es" : {
@@ -18379,6 +18715,38 @@
         }
       }
     },
+    "Pension annual allowance taper is not modelled — relief is applied as entered." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se modela la reducción de la asignación anual de pensiones; la desgravación se aplica tal como se introduce."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पेंशन वार्षिक अलाउंस टेपर मॉडल नहीं किया गया — छूट दर्ज किए अनुसार लागू होती है।"
+          }
+        }
+      }
+    },
+    "Pension contribution" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aportación a la pensión"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पेंशन योगदान"
+          }
+        }
+      }
+    },
     "per month" : {
       "localizations" : {
         "es" : {
@@ -18595,6 +18963,22 @@
         }
       }
     },
+    "Personal Allowance reduced to £%@ because income is over £%@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La Asignación Personal se reduce a £%@ porque los ingresos superan £%@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आय £%@ से अधिक होने के कारण पर्सनल अलाउंस £%@ कर दी गई।"
+          }
+        }
+      }
+    },
     "Personal Care" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -18608,6 +18992,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "व्यक्तिगत देखभाल"
+          }
+        }
+      }
+    },
+    "Personal Savings Allowance of £%@ applied." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se aplicó la Asignación Personal de Ahorro de £%@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "£%@ की पर्सनल सेविंग्स अलाउंस लागू की गई।"
           }
         }
       }
@@ -20364,6 +20764,22 @@
         }
       }
     },
+    "Residential property gains may be reported and paid separately; rates here match other assets." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las plusvalías de vivienda pueden declararse y pagarse por separado; aquí los tipos coinciden con los de otros activos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आवासीय संपत्ति के गेन्स अलग से रिपोर्ट और भुगतान किए जा सकते हैं; यहाँ दरें अन्य संपत्तियों जैसी हैं।"
+          }
+        }
+      }
+    },
     "Restore Purchases" : {
       "localizations" : {
         "es" : {
@@ -20975,6 +21391,22 @@
         }
       }
     },
+    "Savings interest" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intereses de ahorro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बचत ब्याज"
+          }
+        }
+      }
+    },
     "Savings Plan" : {
       "comment" : "A section that displays the user's savings plan.",
       "isCommentAutoGenerated" : true,
@@ -21185,6 +21617,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "निर्धारित आवर्ती आय और खर्च अपनी वास्तविक तारीखों पर जोड़े जाते हैं; गैर-ज़रूरी खर्च हर दिन जोड़ा जाता है."
+          }
+        }
+      }
+    },
+    "Scotland" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escocia"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "स्कॉटलैंड"
+          }
+        }
+      }
+    },
+    "Scottish income tax rates differ from the rest of the UK. This follows where you live — it is not something you choose." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los tipos del impuesto sobre la renta en Escocia difieren del resto del Reino Unido. Depende de dónde vivas, no es algo que elijas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "स्कॉटलैंड की आयकर दरें बाकी यूके से अलग हैं। यह इस पर निर्भर करता है कि आप कहाँ रहते हैं — यह आपकी पसंद नहीं है।"
+          }
+        }
+      }
+    },
+    "Scottish rates applied to earnings. Savings and dividends use UK-wide rates, which is correct wherever you live." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipos escoceses aplicados a los ingresos del trabajo. Los ahorros y dividendos usan los tipos de todo el Reino Unido, lo cual es correcto vivas donde vivas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कमाई पर स्कॉटिश दरें लागू। बचत और डिविडेंड पर यूके-व्यापी दरें लगती हैं, जो आप कहीं भी रहें, सही है।"
+          }
+        }
+      }
+    },
+    "Scottish rates apply to earnings only. Savings and dividends are taxed at UK-wide rates wherever you live. Employment pays National Insurance Class 1; self-employment pays Class 4." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los tipos escoceses se aplican solo a los ingresos del trabajo. Los ahorros y dividendos tributan a los tipos de todo el Reino Unido vivas donde vivas. El empleo paga Seguridad Social de Clase 1; el trabajo por cuenta propia paga Clase 4."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "स्कॉटिश दरें केवल कमाई पर लागू होती हैं। आप कहीं भी रहें, बचत और डिविडेंड पर यूके-व्यापी दरें लगती हैं। नौकरी पर नेशनल इंश्योरेंस क्लास 1 और स्वरोजगार पर क्लास 4 देय है।"
+          }
+        }
+      }
+    },
+    "Scottish taxpayer" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contribuyente escocés"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "स्कॉटिश करदाता"
           }
         }
       }
@@ -23510,6 +24022,22 @@
         }
       }
     },
+    "Student loan repayments are not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluyen los reembolsos del préstamo estudiantil."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "स्टूडेंट लोन की किश्तें शामिल नहीं हैं।"
+          }
+        }
+      }
+    },
     "Subscribe" : {
       "comment" : "Paywall purchase button when no free trial applies.",
       "localizations" : {
@@ -24154,6 +24682,38 @@
         }
       }
     },
+    "Tax on dividends" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impuesto sobre dividendos"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "डिविडेंड पर कर"
+          }
+        }
+      }
+    },
+    "Tax on savings interest" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impuesto sobre intereses de ahorro"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बचत ब्याज पर कर"
+          }
+        }
+      }
+    },
     "Tax Profile" : {
       "localizations" : {
         "es" : {
@@ -24198,6 +24758,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "इस साल बचा टैक्स"
+          }
+        }
+      }
+    },
+    "Tax year runs 6 April to 5 April." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El año fiscal va del 6 de abril al 5 de abril."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कर वर्ष 6 अप्रैल से 5 अप्रैल तक चलता है।"
           }
         }
       }
@@ -26052,6 +26628,22 @@
         }
       }
     },
+    "UK Regional Comparison" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparación regional del Reino Unido"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यूके क्षेत्रीय तुलना"
+          }
+        }
+      }
+    },
     "Unable to access encrypted data. Please authenticate and try again." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -26215,6 +26807,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "नीचे"
+          }
+        }
+      }
+    },
+    "United Kingdom" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reino Unido"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यूनाइटेड किंगडम"
           }
         }
       }
@@ -28538,6 +29146,38 @@
         }
       }
     },
+    "Where You Live" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dónde vives"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आप कहाँ रहते हैं"
+          }
+        }
+      }
+    },
+    "Where You Pay" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dónde pagas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आप कहाँ कर देते हैं"
+          }
+        }
+      }
+    },
     "Who paid?" : {
       "localizations" : {
         "es" : {
@@ -29362,6 +30002,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "शून्य"
+          }
+        }
+      }
+    },
+    "£%@ of savings interest taxed at 0%% under the starting rate for savings." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "£%@ de intereses de ahorro tributan al 0%% con el tipo inicial para ahorros."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बचत के प्रारंभिक दर के तहत £%@ बचत ब्याज पर 0%% कर लगा।"
           }
         }
       }

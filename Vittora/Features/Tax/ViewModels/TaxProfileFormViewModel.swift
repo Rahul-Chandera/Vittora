@@ -26,6 +26,9 @@ final class TaxProfileFormViewModel {
     var us401kContributedString = ""
     var usIRAContributedString = ""
     var usHSAContributedString = ""
+    var ukDividendIncomeString = ""
+    var ukSavingsIncomeString = ""
+    var ukCapitalGainsString = ""
 
     // Live preview
     var liveEstimate: TaxEstimate?
@@ -70,6 +73,7 @@ final class TaxProfileFormViewModel {
         customDeductions = profile.customDeductions
         advancedInputs = profile.advancedInputs
         syncIndiaInputStringsFromAdvancedInputs()
+        syncUKInputStringsFromAdvancedInputs()
         syncUSInputStringsFromAdvancedInputs()
         recalculateLive()
     }
@@ -176,6 +180,9 @@ final class TaxProfileFormViewModel {
         syncDecimalField(us401kContributedString, into: \.us401kYTDContributed)
         syncDecimalField(usIRAContributedString, into: \.usIRAYTDContributed)
         syncDecimalField(usHSAContributedString, into: \.usHSAYTDContributed)
+        syncDecimalField(ukDividendIncomeString, into: \.ukDividendIncome)
+        syncDecimalField(ukSavingsIncomeString, into: \.ukSavingsIncome)
+        syncDecimalField(ukCapitalGainsString, into: \.ukCapitalGains)
     }
 
     private func syncDecimalField(_ string: String, into keyPath: WritableKeyPath<TaxAdvancedInputs, Decimal>) {
@@ -184,6 +191,12 @@ final class TaxProfileFormViewModel {
         } else if string.isEmpty {
             advancedInputs[keyPath: keyPath] = 0
         }
+    }
+
+    private func syncUKInputStringsFromAdvancedInputs() {
+        ukDividendIncomeString = advancedInputs.ukDividendIncome > 0 ? "\(advancedInputs.ukDividendIncome)" : ""
+        ukSavingsIncomeString = advancedInputs.ukSavingsIncome > 0 ? "\(advancedInputs.ukSavingsIncome)" : ""
+        ukCapitalGainsString = advancedInputs.ukCapitalGains > 0 ? "\(advancedInputs.ukCapitalGains)" : ""
     }
 
     private func syncIndiaInputStringsFromAdvancedInputs() {
