@@ -98,7 +98,7 @@ A bug-fix and hardening release (now live). No new user-facing features beyond t
 | 3.2 Advanced ML & Intelligence | ⚠️ **mostly pending** | Rule-based categorisation exists (`CategorizationRule`); no Core ML classifier, predictions, anomaly detection, health score, what-if, Apple Intelligence or predictive entry |
 | 3.3 Live Activities & Dynamic Island | ❌ | No ActivityKit usage |
 | 3.4 Family / Household Sharing | ⚠️ **partial** | `CKShare` used for split-group sharing; **shared household budgets, permission levels not implemented.** StoreKit Family Sharing (M3.4.4) ✅ done |
-| 3.5 Tax Expansion (UK/CA/AU) | ❌ | India and US only |
+| 3.5 Tax Expansion (UK/CA/AU) | ✅ | All three built. UK #261, Australia #263, Canada this PR — five countries in total with India and US. **Provincial/territorial figures for Canada are unverified; see below** |
 | 3.6 Financial Guidelines | ✅ | 50/30/20, emergency fund, India compliance tips, spending anomaly alerts (M3.6.4), budget optimisation (M3.6.5) |
 | 3.7 Additional Enhancements | ⚠️ **partial** | See below |
 
@@ -180,9 +180,26 @@ M1.10.6 is a decided won't-do rather than a pending item. What follows is what i
    upload rather than a green build.
 4. **M3.3 Live Activities / Dynamic Island.** No ActivityKit usage anywhere yet — a whole
    module, and the largest remaining Phase 3 gap after 3.4.
-5. **M3.5 tax expansion (UK/CA/AU).** The tax engine is country-pluggable, but each country
-   is a research and fixture effort, not a port. Largest item on this list by a wide margin.
+5. ~~**M3.5 tax expansion (UK/CA/AU).**~~ Built 2026-09-22, all three. It was indeed a
+   research and fixture effort rather than a port — Canada in particular needed the first
+   two-level calculator in the codebase, because provincial tax is a second bracket table
+   rather than a surcharge on the federal one.
 
 **Not on this list, deliberately:** M1.10.6 budget templates (a decided won't-do — see Phase 1), and the
 accessibility audit flakiness, which is test infrastructure rather than a feature and is
 tracked under Known Gaps.
+
+### Outstanding after M3.5: tax figures awaiting verification
+
+The three new countries shipped with their figures **derived rather than sourced**, and
+they are not uniformly reliable. This is verification debt, not a defect, and it is listed
+here so it is not mistaken for finished work.
+
+| Country | Confident | Needs checking against the revenue authority |
+|---|---|---|
+| **UK** | Everything. Brackets, allowance taper, Scottish bands, NI, dividends, savings, CGT | — (pinned to 2025-26; **2026-27 not held**, and an unsupported year warns rather than extrapolating) |
+| **Australia** | Brackets, LITO, CGT discount, super guarantee, concessional cap | Medicare levy low-income thresholds and the surcharge tiers — both indexed annually |
+| **Canada** | Federal brackets and BPA taper, CPP/CPP2, EI, Quebec abatement | **All 13 provincial and territorial tables.** Each is marked `// VERIFY` in `CATaxRuleTable`, and the running app warns the user that provincial amounts are indicative |
+
+Correcting any of these is a pure data edit — every table is year-keyed, and for Canada
+also province-keyed.
