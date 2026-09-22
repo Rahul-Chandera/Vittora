@@ -50,7 +50,7 @@ A bug-fix and hardening release (now live). No new user-facing features beyond t
 | 1.7 Dashboards & Reports | ✅ | Dashboard, monthly overview, category breakdown, trends, balance summary, custom ranges, net worth history + chart |
 | 1.8 Data Sync & Backup | ✅ | CloudKit sync, offline-first, conflict resolution, sync status, CSV export, encryption |
 | 1.9 Security & Privacy | ✅ | App lock, AES-GCM attachment encryption, Keychain, no third-party analytics |
-| 1.10 Budgets | ✅ | Per-category and overall budgets, progress, alerts, rollover. M1.10.6 is moot here — see below |
+| 1.10 Budgets | ✅ | Per-category and overall budgets, progress, alerts, rollover. M1.10.6 is a decided **won't do** — see below |
 
 **Phase 1 gaps**
 
@@ -60,7 +60,7 @@ A bug-fix and hardening release (now live). No new user-facing features beyond t
 | M1.3.4 | Sub-categories (one level of nesting) | ✅ **Shipped** (#254) — `CategoryHierarchy` holds the nesting rules, the form offers only eligible parents, and the list groups children under parents. The schema half was already in place; this added the surface |
 | M1.6.6 | Multi-page scanning | ❌ Not implemented |
 | M1.7.7 | Net worth **over time** | ✅ **Shipped** (#256) — `CalculateNetWorthHistoryUseCase` derives the series from transaction history, so no new model and no migration. Totals stay per-currency; accounts whose past balance cannot be derived are excluded and named in the view |
-| M1.10.6 | Budget templates (copy from previous month) | **Moot, not pending.** Budgets here never expire: `BudgetEntity` advances its window from `startDate` in whole periods, and `SwiftDataBudgetRepository.fetchActive` notes "Budgets roll forward, so the startDate predicate alone decides active". There is no month boundary to copy a budget across, so the feature the plan describes has nothing to do. Removing it from the backlog rather than building it |
+| M1.10.6 | Budget templates (copy from previous month) | 🚫 **Won't do — decided 2026-09-22 (Rahul).** Not deferred, not deprioritised: the feature has no work to do in this architecture. Budgets here never expire. `BudgetEntity.currentDateRange` advances the window from the original `startDate` in whole periods ("Budgets roll forward forever instead of expiring one period after they were created"), and `SwiftDataBudgetRepository.fetchActive` filters on `startDate <= now` with no end-date check at all. A ₹5,000 Groceries budget created in January is still the active budget in September, with its spend recomputed against the current window — so there is no month boundary at which a budget lapses and needs copying forward. Kept visible here rather than deleted, so the plan's M1.10.6 does not read as an untracked gap. **If this is ever revisited, the useful adjacent feature is a different one:** setting next period's budget *amounts* from last period's actual spend. That is budgeting-from-actuals, not template-copying, and is not covered by M1.10.6 |
 
 ---
 
@@ -167,7 +167,7 @@ These are not missing features — they are things the test suite cannot prove, 
 
 Ordered by user value against effort, not by plan order. Every item on the previous
 list has since been built and merged (M2.4, M1.3.4, M2.7.5, M1.7.7, M3.6.4/M3.6.5), and
-M1.10.6 was struck as moot rather than built. What follows is what is actually left.
+M1.10.6 is a decided won't-do rather than a pending item. What follows is what is actually left.
 
 1. **M2.5.5 sinking funds.** Savings Goals is otherwise complete, and sinking funds are the
    one pattern the current goal model cannot express. It overlaps conceptually with savings
@@ -183,6 +183,6 @@ M1.10.6 was struck as moot rather than built. What follows is what is actually l
 5. **M3.5 tax expansion (UK/CA/AU).** The tax engine is country-pluggable, but each country
    is a research and fixture effort, not a port. Largest item on this list by a wide margin.
 
-**Not on this list, deliberately:** M1.10.6 budget templates (moot — see Phase 1), and the
+**Not on this list, deliberately:** M1.10.6 budget templates (a decided won't-do — see Phase 1), and the
 accessibility audit flakiness, which is test infrastructure rather than a feature and is
 tracked under Known Gaps.
