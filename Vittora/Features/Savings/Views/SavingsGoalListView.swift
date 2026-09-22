@@ -123,6 +123,11 @@ struct SavingsGoalListView: View {
                     .cornerRadius(VSpacing.cornerRadiusMD)
                 }
 
+                // Sinking funds (M2.5.5). Above the goals deliberately: an
+                // over-allocated account invalidates the progress shown below
+                // it, so the warning has to be seen first.
+                SinkingFundsSection(allocations: vm.allocations)
+
                 // Active goals
                 if !vm.activeGoals.isEmpty {
                     goalSection(title: String(localized: "Active"), goals: vm.activeGoals, vm: vm)

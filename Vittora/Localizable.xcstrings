@@ -630,6 +630,22 @@
         }
       }
     },
+    "%@ more is promised to goals than this account holds." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se ha prometido %@ más a los objetivos de lo que contiene esta cuenta."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस खाते में जितना है, उससे %@ अधिक लक्ष्यों को वादा किया गया है।"
+          }
+        }
+      }
+    },
     "%@ net cash flow" : {
       "localizations" : {
         "es" : {
@@ -1063,6 +1079,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@, डिफ़ॉल्ट"
+          }
+        }
+      }
+    },
+    "%@, holding %@, has %@ unallocated across %lld goals." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, con %@, tiene %@ sin asignar entre %lld objetivos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ में %@ है; %@ बिना आवंटित, कुल %lld लक्ष्य।"
+          }
+        }
+      }
+    },
+    "%@, holding %@, is over-allocated by %@ across %lld goals." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, con %@, tiene un exceso de asignación de %@ entre %lld objetivos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ में %@ है; %@ से अधिक आवंटित, कुल %lld लक्ष्य।"
           }
         }
       }
@@ -12550,6 +12598,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "पूरी टैक्स प्लानिंग और रिजीम तुलना"
+          }
+        }
+      }
+    },
+    "Funded From" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Financiado desde"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "किससे वित्तपोषित"
           }
         }
       }
@@ -28011,6 +28075,22 @@
         }
       }
     },
+    "Unallocated" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin asignar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बिना आवंटित"
+          }
+        }
+      }
+    },
     "Unavailable" : {
       "localizations" : {
         "es" : {
@@ -31457,7 +31537,7 @@
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "आपने इस महीने %@ खर्च किया। पिछले %lld महीनों के आधार पर आपकी सामान्य राशि लगभग %@ है।"
+            "value" : "आपने इस महीने %@ खर्च किया। आपकी सामान्य राशि लगभग %@ है, पिछले %lld महीनों के आधार पर।"
           }
         }
       }
