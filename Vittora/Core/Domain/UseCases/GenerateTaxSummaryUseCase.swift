@@ -86,6 +86,8 @@ struct GenerateTaxSummaryUseCase: Sendable {
             usTaxYearRange(financialYear: profile.financialYear)
         case .unitedKingdom:
             ukTaxYearRange(financialYear: profile.financialYear)
+        case .australia:
+            auTaxYearRange(financialYear: profile.financialYear)
         }
     }
 
@@ -109,6 +111,14 @@ struct GenerateTaxSummaryUseCase: Sendable {
         let startYear = parsedLeadingYear(from: financialYear) ?? calendar.component(.year, from: .now)
         let start = calendar.date(from: DateComponents(year: startYear, month: 4, day: 6)) ?? .now
         let nextStart = calendar.date(from: DateComponents(year: startYear + 1, month: 4, day: 6)) ?? start
+        return start...nextStart.addingTimeInterval(-1)
+    }
+
+    /// 1 July to 30 June.
+    private func auTaxYearRange(financialYear: String) -> ClosedRange<Date> {
+        let startYear = parsedLeadingYear(from: financialYear) ?? calendar.component(.year, from: .now)
+        let start = calendar.date(from: DateComponents(year: startYear, month: 7, day: 1)) ?? .now
+        let nextStart = calendar.date(from: DateComponents(year: startYear + 1, month: 7, day: 1)) ?? start
         return start...nextStart.addingTimeInterval(-1)
     }
 

@@ -166,6 +166,8 @@ struct TaxComparisonView: View {
             String(localized: "Deduction Comparison")
         case .ukRegions:
             String(localized: "Where You Live")
+        case .auPrivateCover:
+            String(localized: "Private Hospital Cover")
         }
     }
 
@@ -177,6 +179,8 @@ struct TaxComparisonView: View {
             String(localized: "Compare the standard deduction with your current itemized deductions for the same filing status.")
         case .ukRegions:
             String(localized: "Scottish income tax rates differ from the rest of the UK. This follows where you live — it is not something you choose.")
+        case .auPrivateCover:
+            String(localized: "Holding private hospital cover removes the Medicare levy surcharge. The premium itself is not included here, so compare it against the surcharge shown.")
         }
     }
 
@@ -188,6 +192,8 @@ struct TaxComparisonView: View {
             String(localized: "Standard Deduction")
         case .ukRegions:
             String(localized: "England, Wales & NI")
+        case .auPrivateCover:
+            String(localized: "With cover")
         }
     }
 
@@ -199,6 +205,8 @@ struct TaxComparisonView: View {
             String(localized: "Itemized Deductions")
         case .ukRegions:
             String(localized: "Scotland")
+        case .auPrivateCover:
+            String(localized: "Without cover")
         }
     }
 

@@ -3091,6 +3091,22 @@
         }
       }
     },
+    "50% CGT discount applied — assumes the asset was held more than 12 months." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se aplicó el descuento del 50% en plusvalías; se asume que el activo se mantuvo más de 12 meses."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50% CGT छूट लागू — यह माना गया है कि संपत्ति 12 महीने से अधिक रखी गई थी।"
+          }
+        }
+      }
+    },
     "A budget for this category is already running. Edit or delete it before adding another." : {
       "comment" : "Validation error when creating a second budget for a category that already has an active one.",
       "localizations" : {
@@ -5391,6 +5407,22 @@
         }
       }
     },
+    "Asset held more than 12 months" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activo mantenido más de 12 meses"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संपत्ति 12 महीने से अधिक रखी गई"
+          }
+        }
+      }
+    },
     "Assets" : {
       "localizations" : {
         "es" : {
@@ -5435,6 +5467,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "अटैचमेंट"
+          }
+        }
+      }
+    },
+    "Australia" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Australia"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ऑस्ट्रेलिया"
+          }
+        }
+      }
+    },
+    "Australian Private Cover Comparison" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparación de seguro privado en Australia"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ऑस्ट्रेलियाई प्राइवेट कवर तुलना"
           }
         }
       }
@@ -7706,6 +7770,70 @@
         }
       }
     },
+    "Concessional contributions reduce assessable income up to the yearly cap. A gain on an asset held more than 12 months is halved before it is taxed." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las aportaciones concesionales reducen la renta imponible hasta el límite anual. La plusvalía de un activo mantenido más de 12 meses se reduce a la mitad antes de tributar."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "रियायती योगदान वार्षिक सीमा तक कर-योग्य आय घटाते हैं। 12 महीने से अधिक रखी संपत्ति का लाभ कर लगने से पहले आधा कर दिया जाता है।"
+          }
+        }
+      }
+    },
+    "Concessional super of %@ reduces assessable income." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La jubilación concesional de %@ reduce la renta imponible."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ का रियायती सुपर कर-योग्य आय घटाता है।"
+          }
+        }
+      }
+    },
+    "Concessional super this year" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jubilación concesional este año"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस वर्ष रियायती सुपर"
+          }
+        }
+      }
+    },
+    "Concessional super was capped at %@. Contributions above the cap are taxed at your marginal rate." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La jubilación concesional se limitó a %@. Las aportaciones por encima del límite tributan a tu tipo marginal."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "रियायती सुपर को %@ पर सीमित किया गया। सीमा से ऊपर के योगदान पर आपकी सीमांत दर से कर लगता है।"
+          }
+        }
+      }
+    },
     "Confirm" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9889,6 +10017,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "डिविडेंड (उच्च दर)"
+          }
+        }
+      }
+    },
+    "Division 293 tax on high-income super contributions is not modelled." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se modela el impuesto de la División 293 sobre aportaciones de jubilación de rentas altas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उच्च आय वाले सुपर योगदान पर डिवीजन 293 कर मॉडल नहीं किया गया।"
           }
         }
       }
@@ -12765,6 +12909,22 @@
         }
       }
     },
+    "HELP, HECS and other study loan repayments are not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluyen los reembolsos de HELP, HECS ni otros préstamos de estudio."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HELP, HECS और अन्य अध्ययन ऋण की किश्तें शामिल नहीं हैं।"
+          }
+        }
+      }
+    },
     "Hi %@, friendly reminder about the outstanding amount of %@. Thanks!" : {
       "comment" : "User-initiated reminder copy for debts others owe you. The first argument is the name of the payee. The second argument is the amount of the debt.",
       "isCommentAutoGenerated" : true,
@@ -12841,6 +13001,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "इतिहास"
+          }
+        }
+      }
+    },
+    "Holding private hospital cover removes the Medicare levy surcharge. The premium itself is not included here, so compare it against the surcharge shown." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tener seguro hospitalario privado elimina el recargo de Medicare. La prima no se incluye aquí, así que compárala con el recargo mostrado."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्राइवेट अस्पताल कवर होने पर मेडिकेयर लेवी सरचार्ज नहीं लगता। प्रीमियम यहाँ शामिल नहीं है, इसलिए इसकी तुलना दिखाए गए सरचार्ज से करें।"
           }
         }
       }
@@ -13072,6 +13248,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "HSA पारिवारिक कवरेज"
+          }
+        }
+      }
+    },
+    "I have private hospital cover" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tengo seguro hospitalario privado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मेरे पास प्राइवेट अस्पताल कवर है"
           }
         }
       }
@@ -14444,6 +14636,22 @@
         }
       }
     },
+    "Low Income Tax Offset" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deducción por rentas bajas"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कम आय कर छूट"
+          }
+        }
+      }
+    },
     "macOS" : {
       "comment" : "A label for macOS.",
       "isCommentAutoGenerated" : true,
@@ -14834,6 +15042,22 @@
         }
       }
     },
+    "Medicare" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medicare"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मेडिकेयर"
+          }
+        }
+      }
+    },
     "Medicare (employee)" : {
       "comment" : "Label for the employee's Medicare tax.",
       "isCommentAutoGenerated" : true,
@@ -14848,6 +15072,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Medicare (कर्मचारी)"
+          }
+        }
+      }
+    },
+    "Medicare levy" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasa de Medicare"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मेडिकेयर लेवी"
+          }
+        }
+      }
+    },
+    "Medicare levy surcharge" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recargo de la tasa de Medicare"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मेडिकेयर लेवी सरचार्ज"
+          }
+        }
+      }
+    },
+    "Medicare levy surcharge applied because no private hospital cover is recorded. Turn it on in your profile if you hold cover." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se aplicó el recargo de Medicare porque no consta seguro hospitalario privado. Actívalo en tu perfil si tienes cobertura."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मेडिकेयर लेवी सरचार्ज लगाया गया क्योंकि कोई प्राइवेट अस्पताल कवर दर्ज नहीं है। यदि आपके पास कवर है तो इसे अपनी प्रोफ़ाइल में चालू करें।"
           }
         }
       }
@@ -15487,6 +15759,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "नेट"
+          }
+        }
+      }
+    },
+    "Net capital gain included" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plusvalía neta incluida"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "शुद्ध कैपिटल गेन शामिल"
           }
         }
       }
@@ -16303,6 +16591,22 @@
         }
       }
     },
+    "No Medicare levy surcharge, because private hospital cover is held." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin recargo de Medicare, porque se tiene seguro hospitalario privado."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कोई मेडिकेयर लेवी सरचार्ज नहीं, क्योंकि प्राइवेट अस्पताल कवर है।"
+          }
+        }
+      }
+    },
     "No monthly data yet" : {
       "comment" : "A title for a view that shows when a user has no monthly data.",
       "isCommentAutoGenerated" : true,
@@ -16629,6 +16933,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "कोई आगामी आवर्ती ट्रांज़ैक्शन नहीं है"
+          }
+        }
+      }
+    },
+    "Non-resident and working holiday maker rates are not applied." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se aplican los tipos de no residentes ni de titulares de visado de vacaciones y trabajo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "गैर-निवासी और वर्किंग हॉलिडे मेकर दरें लागू नहीं की गईं।"
           }
         }
       }
@@ -19480,6 +19800,38 @@
         }
       }
     },
+    "Private health insurance rebate is not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluye la bonificación del seguro médico privado."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्राइवेट स्वास्थ्य बीमा छूट शामिल नहीं है।"
+          }
+        }
+      }
+    },
+    "Private Hospital Cover" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguro hospitalario privado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्राइवेट अस्पताल कवर"
+          }
+        }
+      }
+    },
     "Profile" : {
       "localizations" : {
         "es" : {
@@ -20764,6 +21116,38 @@
         }
       }
     },
+    "Resident" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Residente"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "निवासी"
+          }
+        }
+      }
+    },
+    "Resident tax rates applied." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se aplicaron los tipos de residente."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "निवासी कर दरें लागू की गईं।"
+          }
+        }
+      }
+    },
     "Residential property gains may be reported and paid separately; rates here match other assets." : {
       "localizations" : {
         "es" : {
@@ -21090,6 +21474,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "वेतन"
+          }
+        }
+      }
+    },
+    "Salary sacrifice to super" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aportación de salario a la jubilación"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वेतन से सुपर में योगदान"
           }
         }
       }
@@ -22393,6 +22793,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "पुरानी कर व्यवस्था में वरिष्ठ नागरिकों (60+) और अति वरिष्ठ नागरिकों (80+) के लिए मूल छूट की सीमा अधिक है।"
+          }
+        }
+      }
+    },
+    "Seniors and Pensioners Tax Offset is not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluye la deducción para mayores y pensionistas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वरिष्ठ नागरिक और पेंशनभोगी कर छूट शामिल नहीं है।"
           }
         }
       }
@@ -24155,6 +24571,22 @@
         }
       }
     },
+    "Super & Gains" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jubilación y plusvalías"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सुपर और गेन्स"
+          }
+        }
+      }
+    },
     "Supported: JPEG, PNG, PDF" : {
       "localizations" : {
         "es" : {
@@ -24758,6 +25190,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "इस साल बचा टैक्स"
+          }
+        }
+      }
+    },
+    "Tax year runs 1 July to 30 June." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El año fiscal va del 1 de julio al 30 de junio."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कर वर्ष 1 जुलाई से 30 जून तक चलता है।"
           }
         }
       }
@@ -29190,6 +29638,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "भुगतान किसने किया?"
+          }
+        }
+      }
+    },
+    "With cover" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con cobertura"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कवर के साथ"
+          }
+        }
+      }
+    },
+    "Without cover" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin cobertura"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कवर के बिना"
+          }
+        }
+      }
+    },
+    "Without private hospital cover, the Medicare levy surcharge applies above the income threshold. The 2% Medicare levy applies either way." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin seguro hospitalario privado, el recargo de Medicare se aplica por encima del umbral de renta. La tasa de Medicare del 2% se aplica en cualquier caso."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्राइवेट अस्पताल कवर के बिना, आय सीमा से ऊपर मेडिकेयर लेवी सरचार्ज लगता है। 2% मेडिकेयर लेवी दोनों ही स्थितियों में लगती है।"
+          }
+        }
+      }
+    },
+    "Work-related deduction" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deducción laboral"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कार्य-संबंधी कटौती"
           }
         }
       }

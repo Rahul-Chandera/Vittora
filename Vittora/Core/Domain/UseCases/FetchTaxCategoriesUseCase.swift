@@ -72,6 +72,15 @@ struct FetchTaxCategoriesUseCase: Sendable {
                 ],
                 iconKeywords: sharedIcons + ["banknote"]
             )
+
+        case .australia:
+            return (
+                keywords: sharedKeywords + [
+                    "hecs", "help", "medicare", "negative gearing",
+                    "private health", "salary sacrifice", "super",
+                ],
+                iconKeywords: sharedIcons + ["banknote"]
+            )
         }
     }
 }

@@ -6,12 +6,14 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
     case india = "IN"
     case unitedStates = "US"
     case unitedKingdom = "GB"
+    case australia = "AU"
 
     public nonisolated var displayName: String {
         switch self {
         case .india:         return String(localized: "India")
         case .unitedStates:  return String(localized: "United States")
         case .unitedKingdom: return String(localized: "United Kingdom")
+        case .australia:     return String(localized: "Australia")
         }
     }
 
@@ -20,6 +22,7 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
         case .india:        return "INR"
         case .unitedStates: return "USD"
         case .unitedKingdom: return "GBP"
+        case .australia:     return "AUD"
         }
     }
 
@@ -28,6 +31,7 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
         case .india:        return "₹"
         case .unitedStates: return "$"
         case .unitedKingdom: return "£"
+        case .australia:     return "$"
         }
     }
 
@@ -52,6 +56,13 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
             let month = calendar.component(.month, from: .now)
             let day = calendar.component(.day, from: .now)
             let startYear = (month > 4 || (month == 4 && day >= 6)) ? currentYear : currentYear - 1
+            let endYearSuffix = (startYear + 1) % 100
+            return "\(startYear)-\(String(format: "%02d", endYearSuffix))"
+
+        case .australia:
+            // The Australian tax year runs 1 July to 30 June.
+            let month = calendar.component(.month, from: .now)
+            let startYear = month >= 7 ? currentYear : currentYear - 1
             let endYearSuffix = (startYear + 1) % 100
             return "\(startYear)-\(String(format: "%02d", endYearSuffix))"
         }
@@ -218,6 +229,17 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
     public nonisolated var ukSavingsIncome: Decimal = 0
     /// UK: chargeable capital gains after any reliefs, before the annual exempt amount.
     public nonisolated var ukCapitalGains: Decimal = 0
+    /// AU: private hospital cover exempts the taxpayer from the Medicare levy
+    /// surcharge. Defaults to false so the surcharge IS charged above the
+    /// threshold — the direction that does not flatter the estimate. It is asked
+    /// rather than assumed, for the same reason as the US Roth flag.
+    public nonisolated var auHasPrivateHospitalCover: Bool = false
+    /// AU: concessional (pre-tax) superannuation contributions for the year.
+    public nonisolated var auConcessionalSuper: Decimal = 0
+    /// AU: gross capital gain before any discount.
+    public nonisolated var auCapitalGains: Decimal = 0
+    /// AU: whether the asset was held more than 12 months, which halves the gain.
+    public nonisolated var auCapitalGainsEligibleForDiscount: Bool = true
 
     public nonisolated init(
         usQualifiedDividends: Decimal = 0,
@@ -239,7 +261,11 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         ukIsScottishTaxpayer: Bool = false,
         ukDividendIncome: Decimal = 0,
         ukSavingsIncome: Decimal = 0,
-        ukCapitalGains: Decimal = 0
+        ukCapitalGains: Decimal = 0,
+        auHasPrivateHospitalCover: Bool = false,
+        auConcessionalSuper: Decimal = 0,
+        auCapitalGains: Decimal = 0,
+        auCapitalGainsEligibleForDiscount: Bool = true
     ) {
         self.usQualifiedDividends = usQualifiedDividends
         self.usLongTermCapitalGains = usLongTermCapitalGains
@@ -261,6 +287,10 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         self.ukDividendIncome = ukDividendIncome
         self.ukSavingsIncome = ukSavingsIncome
         self.ukCapitalGains = ukCapitalGains
+        self.auHasPrivateHospitalCover = auHasPrivateHospitalCover
+        self.auConcessionalSuper = auConcessionalSuper
+        self.auCapitalGains = auCapitalGains
+        self.auCapitalGainsEligibleForDiscount = auCapitalGainsEligibleForDiscount
     }
 }
 
@@ -286,6 +316,10 @@ extension TaxAdvancedInputs: Codable {
         case ukDividendIncome
         case ukSavingsIncome
         case ukCapitalGains
+        case auHasPrivateHospitalCover
+        case auConcessionalSuper
+        case auCapitalGains
+        case auCapitalGainsEligibleForDiscount
     }
 
     public nonisolated init(from decoder: Decoder) throws {
@@ -313,6 +347,12 @@ extension TaxAdvancedInputs: Codable {
         ukDividendIncome = try container.decodeIfPresent(Decimal.self, forKey: .ukDividendIncome) ?? 0
         ukSavingsIncome = try container.decodeIfPresent(Decimal.self, forKey: .ukSavingsIncome) ?? 0
         ukCapitalGains = try container.decodeIfPresent(Decimal.self, forKey: .ukCapitalGains) ?? 0
+        auHasPrivateHospitalCover = try container.decodeIfPresent(Bool.self, forKey: .auHasPrivateHospitalCover) ?? false
+        auConcessionalSuper = try container.decodeIfPresent(Decimal.self, forKey: .auConcessionalSuper) ?? 0
+        auCapitalGains = try container.decodeIfPresent(Decimal.self, forKey: .auCapitalGains) ?? 0
+        // Defaults true: the discount applies to most gains, and a profile saved
+        // before this field existed should keep the common case.
+        auCapitalGainsEligibleForDiscount = try container.decodeIfPresent(Bool.self, forKey: .auCapitalGainsEligibleForDiscount) ?? true
     }
 
     public nonisolated func encode(to encoder: Encoder) throws {
@@ -337,6 +377,10 @@ extension TaxAdvancedInputs: Codable {
         try container.encode(ukDividendIncome, forKey: .ukDividendIncome)
         try container.encode(ukSavingsIncome, forKey: .ukSavingsIncome)
         try container.encode(ukCapitalGains, forKey: .ukCapitalGains)
+        try container.encode(auHasPrivateHospitalCover, forKey: .auHasPrivateHospitalCover)
+        try container.encode(auConcessionalSuper, forKey: .auConcessionalSuper)
+        try container.encode(auCapitalGains, forKey: .auCapitalGains)
+        try container.encode(auCapitalGainsEligibleForDiscount, forKey: .auCapitalGainsEligibleForDiscount)
     }
 }
 
@@ -468,6 +512,11 @@ public enum TaxComparisonKind: Sendable, Hashable {
     /// the taxpayer makes — it follows where they live — so it is presented as a
     /// difference, never as a recommendation.
     case ukRegions
+    /// Australia: holding private hospital cover versus paying the Medicare levy
+    /// surcharge. Unlike ukRegions this IS a choice, so a recommendation is fair —
+    /// though the surcharge saved is not the whole picture, since cover costs a
+    /// premium the estimate cannot know.
+    case auPrivateCover
 }
 
 public enum TaxComparisonWinner: Sendable, Hashable {

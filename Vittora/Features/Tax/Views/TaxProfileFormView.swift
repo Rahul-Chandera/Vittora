@@ -209,6 +209,8 @@ struct TaxProfileFormView: View {
                 }
             } else if vm.country == .unitedKingdom {
                 ukSections(vm)
+            } else if vm.country == .australia {
+                auSections(vm)
             } else {
                 Section {
                     Picker(String(localized: "Status"), selection: Bindable(vm).filingStatus) {
@@ -322,6 +324,7 @@ struct TaxProfileFormView: View {
             // Deductions (old regime India or itemized US)
             let showDeductions = vm.country == .unitedStates
                 || vm.country == .unitedKingdom
+                || vm.country == .australia
                 || vm.indiaRegime == .oldRegime
             if showDeductions {
                 Section {
@@ -454,6 +457,50 @@ struct TaxProfileFormView: View {
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
             }
+        }
+    }
+
+    /// Australian inputs. Private hospital cover comes first because it is the one
+    /// that silently costs money when left alone: the surcharge is charged by
+    /// default, so a user who holds cover must say so to stop paying for it here.
+    @ViewBuilder
+    private func auSections(_ vm: TaxProfileFormViewModel) -> some View {
+        Section {
+            Toggle(isOn: Bindable(vm).advancedInputs.auHasPrivateHospitalCover) {
+                Text(String(localized: "I have private hospital cover"))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .onChange(of: vm.advancedInputs.auHasPrivateHospitalCover) { _, _ in vm.recalculateLive() }
+            .accessibilityIdentifier("au-private-cover-toggle")
+        } header: {
+            VFormSectionHeader(String(localized: "Medicare"))
+        } footer: {
+            Text(String(localized: "Without private hospital cover, the Medicare levy surcharge applies above the income threshold. The 2% Medicare levy applies either way."))
+        }
+
+        Section {
+            contributionAmountField(
+                vm: vm,
+                title: String(localized: "Concessional super this year"),
+                text: Bindable(vm).auConcessionalSuperString,
+                currencyCode: vm.country.currencyCode
+            )
+            contributionAmountField(
+                vm: vm,
+                title: String(localized: "Capital gains"),
+                text: Bindable(vm).auCapitalGainsString,
+                currencyCode: vm.country.currencyCode
+            )
+            Toggle(isOn: Bindable(vm).advancedInputs.auCapitalGainsEligibleForDiscount) {
+                Text(String(localized: "Asset held more than 12 months"))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .onChange(of: vm.advancedInputs.auCapitalGainsEligibleForDiscount) { _, _ in vm.recalculateLive() }
+            .accessibilityIdentifier("au-cgt-discount-toggle")
+        } header: {
+            VFormSectionHeader(String(localized: "Super & Gains"))
+        } footer: {
+            Text(String(localized: "Concessional contributions reduce assessable income up to the yearly cap. A gain on an asset held more than 12 months is halved before it is taxed."))
         }
     }
 

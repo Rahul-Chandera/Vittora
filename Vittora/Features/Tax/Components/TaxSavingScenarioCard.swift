@@ -45,6 +45,14 @@ struct TaxSavingScenarioCard: View {
                 ("pension", String(localized: "Pension contribution")),
                 ("giftaid", String(localized: "Gift Aid")),
             ]
+        case .australia:
+            // Work deductions route through customDeductions. Salary-sacrificed
+            // super is the distinctly Australian lever and does the same thing to
+            // assessable income, capped by the calculator at the concessional limit.
+            return [
+                ("super", String(localized: "Salary sacrifice to super")),
+                ("deduction", String(localized: "Work-related deduction")),
+            ]
         }
     }
 
