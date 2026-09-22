@@ -81,6 +81,15 @@ struct FetchTaxCategoriesUseCase: Sendable {
                 ],
                 iconKeywords: sharedIcons + ["banknote"]
             )
+
+        case .canada:
+            return (
+                keywords: sharedKeywords + [
+                    "cpp", "ei", "fhsa", "provincial tax", "resp",
+                    "rrsp", "tfsa", "union dues",
+                ],
+                iconKeywords: sharedIcons + ["banknote"]
+            )
         }
     }
 }

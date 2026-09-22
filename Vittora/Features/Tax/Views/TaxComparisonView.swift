@@ -168,6 +168,8 @@ struct TaxComparisonView: View {
             String(localized: "Where You Live")
         case .auPrivateCover:
             String(localized: "Private Hospital Cover")
+        case .caRRSPImpact:
+            String(localized: "RRSP Impact")
         }
     }
 
@@ -181,6 +183,8 @@ struct TaxComparisonView: View {
             String(localized: "Scottish income tax rates differ from the rest of the UK. This follows where you live — it is not something you choose.")
         case .auPrivateCover:
             String(localized: "Holding private hospital cover removes the Medicare levy surcharge. The premium itself is not included here, so compare it against the surcharge shown.")
+        case .caRRSPImpact:
+            String(localized: "What your RRSP contribution does to this year's tax. RRSP defers tax rather than removing it — withdrawals are taxed as income later.")
         }
     }
 
@@ -194,6 +198,8 @@ struct TaxComparisonView: View {
             String(localized: "England, Wales & NI")
         case .auPrivateCover:
             String(localized: "With cover")
+        case .caRRSPImpact:
+            String(localized: "No RRSP")
         }
     }
 
@@ -207,6 +213,8 @@ struct TaxComparisonView: View {
             String(localized: "Scotland")
         case .auPrivateCover:
             String(localized: "Without cover")
+        case .caRRSPImpact:
+            String(localized: "With your RRSP")
         }
     }
 

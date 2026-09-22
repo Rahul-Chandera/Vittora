@@ -53,6 +53,13 @@ struct TaxSavingScenarioCard: View {
                 ("super", String(localized: "Salary sacrifice to super")),
                 ("deduction", String(localized: "Work-related deduction")),
             ]
+        case .canada:
+            // Both are deductions from income. FHSA is listed separately from RRSP
+            // because its contribution room is its own, not shared with RRSP.
+            return [
+                ("rrsp", String(localized: "RRSP contribution")),
+                ("fhsa", String(localized: "FHSA contribution")),
+            ]
         }
     }
 
