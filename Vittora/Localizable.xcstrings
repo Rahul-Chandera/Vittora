@@ -7219,18 +7219,18 @@
         }
       }
     },
-    "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free." : {
+    "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker, financial health and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free." : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La previsión de flujo de caja, la auditoría de suscripciones, el 50/30/20, el seguimiento del fondo de emergencia y los informes personalizados forman parte de Vittora Pro. Tus registros, tus divisiones, la sincronización con iCloud y la exportación CSV siguen siendo gratis."
+            "value" : "La previsión de flujo de caja, la auditoría de suscripciones, el 50/30/20, el seguimiento del fondo de emergencia, la salud financiera y los informes personalizados forman parte de Vittora Pro. Tus registros, tus divisiones, la sincronización con iCloud y la exportación CSV siguen siendo gratis."
           }
         },
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "कैश फ़्लो पूर्वानुमान, सब्सक्रिप्शन ऑडिट, 50/30/20, इमरजेंसी फंड ट्रैकर और कस्टम रिपोर्ट Vittora Pro का हिस्सा हैं। आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट मुफ़्त रहते हैं।"
+            "value" : "कैश फ़्लो फ़ोरकास्ट, सब्सक्रिप्शन ऑडिट, 50/30/20, इमरजेंसी फंड ट्रैकर, वित्तीय स्वास्थ्य और कस्टम रिपोर्ट Vittora Pro का हिस्सा हैं। आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट मुफ़्त रहेंगे।"
           }
         }
       }
