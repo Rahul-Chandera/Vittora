@@ -1,4 +1,5 @@
 import Foundation
+import NaturalLanguage
 import VittoraCore
 
 struct SmartCategorizeRequest: Sendable {
@@ -25,11 +26,59 @@ struct SmartCategorizeUseCase: Sendable {
         self.categoryRepository = categoryRepository
     }
 
+    /// Rules, then payee history, then the on-device classifier (M3.2.1).
+    ///
+    /// The classifier is LAST deliberately. A rule is the user stating what they
+    /// want, and payee history is what they have actually done before — both are
+    /// stronger evidence than a similarity score, and neither should be
+    /// overridden by one. The classifier earns its place on the cases the other
+    /// two cannot answer: a manual entry or a scanned receipt with no payee.
     func execute(_ request: SmartCategorizeRequest) async throws -> UUID? {
         if let categoryID = try await matchRule(for: request) {
             return categoryID
         }
-        return try await categoryFromPayeeHistory(payeeID: request.payeeID)
+        if let categoryID = try await categoryFromPayeeHistory(payeeID: request.payeeID) {
+            return categoryID
+        }
+        return try await categoryFromClassifier(for: request)
+    }
+
+    /// Nil on every failure path — no embedding for the language, too little
+    /// history, or a match too weak to offer. A wrong suggestion costs the user
+    /// more than no suggestion, because they have to notice it and undo it.
+    private func categoryFromClassifier(for request: SmartCategorizeRequest) async throws -> UUID? {
+        let text = Self.haystack(
+            payeeName: request.payeeName,
+            note: request.note,
+            merchantText: request.merchantText,
+            rawOCRText: request.rawOCRText
+        )
+        guard !text.isEmpty,
+              let embedding = SmartCategoryClassifier.embedding()
+        else { return nil }
+
+        let transactions = try await transactionRepository.fetchAll(filter: nil)
+        let examples: [SmartCategoryClassifier.Example] = transactions.compactMap { transaction in
+            guard let categoryID = transaction.categoryID else { return nil }
+            let descriptor = Self.haystack(
+                payeeName: transaction.note,
+                note: nil,
+                merchantText: nil,
+                rawOCRText: nil
+            )
+            guard !descriptor.isEmpty else { return nil }
+            return SmartCategoryClassifier.Example(text: descriptor, categoryID: categoryID)
+        }
+        guard !examples.isEmpty else { return nil }
+
+        let classifier = SmartCategoryClassifier()
+        let model = classifier.fit(examples: examples, embedding: embedding)
+        guard let prediction = classifier.predict(text: text, model: model, embedding: embedding)
+        else { return nil }
+
+        // A category deleted since it was learned must not be suggested.
+        guard try await categoryRepository.fetchByID(prediction.categoryID) != nil else { return nil }
+        return prediction.categoryID
     }
 
     func execute(payeeID: UUID?, amount: Decimal) async throws -> UUID? {
