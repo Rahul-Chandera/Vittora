@@ -67,6 +67,7 @@ struct PaywallView: View {
         String(localized: "Custom reports with PDF export"),
         String(localized: "Cash flow forecast and subscription audit"),
         String(localized: "50/30/20 report and emergency fund tracker"),
+        String(localized: "Financial health score and spending outlook"),
         String(localized: "Unlimited receipt scanning"),
         String(localized: "Every future Pro feature, included"),
     ]
