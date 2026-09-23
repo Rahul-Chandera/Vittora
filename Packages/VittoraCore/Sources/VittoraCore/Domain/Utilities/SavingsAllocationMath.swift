@@ -14,6 +14,13 @@ public struct SavingsAllocationSnapshot: Sendable, Equatable {
         self.projectedCompletionDate = projectedCompletionDate
         self.remainingMonths = remainingMonths
     }
+
+    /// Whether there is anything to show. Both displayed figures are optional —
+    /// a goal with no target date and no contribution history has neither — and
+    /// a card drawn from an empty snapshot is a blank tile.
+    public nonisolated var hasPlan: Bool {
+        monthlyRequired != nil || projectedCompletionDate != nil
+    }
 }
 
 public enum SavingsAllocationMath {
