@@ -94,9 +94,17 @@ struct SavingsGoalDetailView: View {
                     deadlineCard(days: days, goal: vm.goal)
                 }
 
-                // Savings plan
-                if vm.goal.status == .active, vm.goal.remainingAmount > 0 {
-                    allocationPlanCard(vm.goal.allocationSnapshot)
+                // Savings plan.
+                //
+                // Both lines inside the card are optional, so without the
+                // `hasPlan` check a goal with no deadline and no contribution
+                // history rendered the card empty — an icon on a blank tile,
+                // seen on the seeded "Hawaii Trip". Being active with an amount
+                // still outstanding is not the same as having something to say
+                // about it.
+                let plan = vm.goal.allocationSnapshot
+                if vm.goal.status == .active, vm.goal.remainingAmount > 0, plan.hasPlan {
+                    allocationPlanCard(plan)
                 }
 
                 // Contribution input (active goals only)

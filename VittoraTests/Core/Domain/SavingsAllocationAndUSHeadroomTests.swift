@@ -52,6 +52,31 @@ struct SavingsAllocationMathTests {
         #expect(snapshot.remainingMonths == 6)
         #expect(snapshot.projectedCompletionDate == date(2026, 7, 1))
     }
+
+    /// Both figures in the savings-plan card are optional. Without this the view
+    /// drew the card whenever a goal was active and short of target, so a goal
+    /// with no deadline and no contribution history rendered an icon on an
+    /// otherwise blank tile — seen on the seeded "Hawaii Trip".
+    @Test("a snapshot with neither figure has no plan to show")
+    func emptySnapshotHasNoPlan() {
+        let empty = SavingsAllocationSnapshot(
+            monthlyRequired: nil, projectedCompletionDate: nil, remainingMonths: nil
+        )
+        #expect(empty.hasPlan == false)
+    }
+
+    @Test("either figure alone is enough to be worth a card")
+    func eitherFigureCountsAsAPlan() {
+        let monthlyOnly = SavingsAllocationSnapshot(
+            monthlyRequired: 250, projectedCompletionDate: nil, remainingMonths: 4
+        )
+        let projectedOnly = SavingsAllocationSnapshot(
+            monthlyRequired: nil, projectedCompletionDate: date(2026, 4, 10), remainingMonths: nil
+        )
+        #expect(monthlyOnly.hasPlan)
+        #expect(projectedOnly.hasPlan)
+    }
+
 }
 
 @Suite("US Contribution Headroom Tests")
