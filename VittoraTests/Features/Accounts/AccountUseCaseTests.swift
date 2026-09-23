@@ -52,7 +52,8 @@ struct AccountUseCaseTests {
             let repo = MockAccountRepository()
             await repo.seed(AccountEntity(name: "Checking", type: .bank, balance: Decimal(5000)))
             await repo.seed(AccountEntity(name: "Savings", type: .bank, balance: Decimal(10000)))
-            await repo.seed(AccountEntity(name: "Visa", type: .creditCard, balance: Decimal(2000)))
+            // Negative, as the app stores it — see NetWorthPerCurrencyTests.
+            await repo.seed(AccountEntity(name: "Visa", type: .creditCard, balance: Decimal(-2000)))
 
             let useCase = CalculateNetWorthUseCase(accountRepository: repo)
             let summary = try await useCase.execute()
