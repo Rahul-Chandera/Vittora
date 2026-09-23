@@ -507,7 +507,15 @@ public struct TaxEstimate: Sendable {
     /// India: 4% health & education cess; US: 0
     public nonisolated let cess: Decimal
     public nonisolated let finalTax: Decimal
+    /// A FRACTION of income, not a percentage: 0.2958 means 29.58%.
+    ///
+    /// Every display site multiplies by 100. UK, Australia and Canada each
+    /// shipped this as a percentage instead, so their effective rate read 100x
+    /// high on every surface — 2,958.0% for a UK salary of 85,000. Nothing
+    /// caught it because the only assertions were the zero-income cases, which
+    /// hold under either convention.
     public nonisolated let effectiveRate: Decimal
+    /// A percentage, unlike `effectiveRate`: 40 means 40%.
     public nonisolated let marginalRate: Decimal
     public nonisolated let country: TaxCountry
     /// e.g. "New Regime", "Old Regime", "Single"

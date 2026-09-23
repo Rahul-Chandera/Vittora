@@ -66,6 +66,16 @@ jobs:
       - name: Localization coverage
         run: DERIVED=.build-ios:.build-macos Scripts/ci/check-localization-coverage.sh --list
 
+      # Coverage says a key is present and translated. It cannot say the
+      # translation is format-compatible with the key, which is what crashed
+      # Hindi in #257: the same placeholders in a different order. Reads the
+      # catalogue directly, so it needs no build and could run anywhere — it
+      # sits here to keep every localization gate in one place.
+      - name: Placeholder order
+        run: |
+          Scripts/ci/check-placeholder-order.py --self-test
+          Scripts/ci/check-placeholder-order.py --list
+
   # The three test legs each compiled the same 983-file graph on their own
   # runner — 8.7, 11.8 and 12.1 min in run 34498303869, ~33 runner-min per run.
   # Compile once here and pass the products on.
