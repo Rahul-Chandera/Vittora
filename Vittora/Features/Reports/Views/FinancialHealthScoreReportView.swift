@@ -9,6 +9,7 @@ import VittoraCore
 /// disclaimer says plainly that it is a description of their own records.
 struct FinancialHealthScoreReportView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: FinancialHealthScoreViewModel?
 
     var body: some View {
@@ -33,6 +34,17 @@ struct FinancialHealthScoreReportView: View {
                 }
             }
             .padding(VSpacing.screenPadding)
+        }
+        .safeAreaInset(edge: .bottom) {
+            // Clearance for the floating tab bar. Without it the last card runs
+            // under the bar — caught on iPhone 17 Pro Max / iOS 26.5, where the
+            // What If card's final caveat line was clipped by it.
+            //
+            // Taller at accessibility sizes for the same reason the other report
+            // screens are: the bar grows with the type size.
+            VColors.groupedBackground
+                .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
+                .allowsHitTesting(false)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.groupedBackground)
