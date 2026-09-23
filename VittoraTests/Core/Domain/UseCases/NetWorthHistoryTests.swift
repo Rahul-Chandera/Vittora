@@ -156,7 +156,8 @@ struct NetWorthHistoryTests {
     @Test("a credit card reduces net worth rather than adding to it")
     func liabilitiesSubtract() async throws {
         let cash = account(name: "Cash", balance: 1_000)
-        let card = account(name: "Card", balance: 400, type: .creditCard)
+        // Negative, as the app stores it — see NetWorthPerCurrencyTests.
+        let card = account(name: "Card", balance: -400, type: .creditCard)
         let useCase = try await makeUseCase(accounts: [cash, card], transactions: [])
 
         let history = try await useCase.execute(months: 1, now: date(2026, 6, 15))
