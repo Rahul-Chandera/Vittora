@@ -37,17 +37,17 @@ struct SpendingOutlookReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .safeAreaInset(edge: .bottom) {
-            // Clearance for the floating tab bar. Without it the last card runs
-            // under the bar — caught on iPhone 17 Pro Max / iOS 26.5, where the
-            // What If card's final caveat line was clipped by it.
-            //
-            // Taller at accessibility sizes for the same reason the other report
-            // screens are: the bar grows with the type size.
-            VColors.groupedBackground
-                .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar, which would otherwise cover the
+        // last card.
+        //
+        // safeAreaPadding, not safeAreaInset — the same choice DashboardView
+        // documents: an inset places a view in the reserved strip, so an opaque
+        // one sits over the content rather than beside it. Padding just reserves
+        // the space.
+        //
+        // Taller at accessibility sizes because the tab bar grows with the type
+        // size.
+        .safeAreaPadding(.bottom, dynamicTypeSize.isAccessibilitySize ? 140 : 72)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Spending Outlook"))
