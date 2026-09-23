@@ -67,13 +67,14 @@ struct NavigationDestinationView: View {
             .proGated(
                 type.requiresPro,
                 title: String(localized: "A Vittora Pro report"),
-                message: String(localized: "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free.")
+                message: String(localized: "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker, financial health and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free.")
             )
     }
 
     @ViewBuilder
     private func reportDestination(for type: ReportType) -> some View {
         switch type {
+        case .healthScore: FinancialHealthScoreReportView()
         case .fiftyThirtyTwenty: FiftyThirtyTwentyReportView()
         case .monthly:   MonthlyOverviewView()
         case .category:  CategoryBreakdownView()

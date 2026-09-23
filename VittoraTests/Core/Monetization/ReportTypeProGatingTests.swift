@@ -7,10 +7,15 @@ import Testing
 @Suite("Report Type Pro Gating Tests")
 struct ReportTypeProGatingTests {
     /// Catches a regression where a report is added to or dropped from the paid set.
-    @Test("exactly the five F3 reports require Pro")
-    func exactlyFiveReportsRequirePro() {
+    ///
+    /// Updated 2026-09-23 for M3.2.4: `.healthScore` joins the paid set, making six.
+    /// This assertion exists to force that decision to be stated rather than
+    /// defaulted, so changing it IS the intended response to adding a report —
+    /// the alternative would be letting a test decide the pricing.
+    @Test("exactly the six paid reports require Pro")
+    func exactlySixReportsRequirePro() {
         let pro = Set(ReportType.allCases.filter(\.requiresPro))
-        #expect(pro == [.cashFlowForecast, .subscriptionAudit, .fiftyThirtyTwenty, .emergencyFund, .custom])
+        #expect(pro == [.cashFlowForecast, .subscriptionAudit, .fiftyThirtyTwenty, .emergencyFund, .custom, .healthScore])
     }
 
     /// Catches a regression where a never-gated report starts demanding Pro.
@@ -25,6 +30,6 @@ struct ReportTypeProGatingTests {
     /// nobody classified it.
     @Test("every report type is classified")
     func everyReportTypeIsClassified() {
-        #expect(ReportType.allCases.count == 12)
+        #expect(ReportType.allCases.count == 13)
     }
 }
