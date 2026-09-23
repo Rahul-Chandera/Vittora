@@ -156,7 +156,7 @@ nonisolated struct CATaxCalculator: TaxCalculatorProtocol {
             surcharge: provincialTax,
             cess: cpp + ei,
             finalTax: finalTax,
-            effectiveRate: grossIncome > 0 ? (finalTax / grossIncome * 100).rounded(scale: 2) : 0,
+            effectiveRate: grossIncome > 0 ? (finalTax / grossIncome).rounded(scale: 4) : 0,
             marginalRate: Self.marginalRate(taxableIncome: taxableIncome, jurisdiction: jurisdiction, rules: rules),
             country: .canada,
             regimeLabel: province.displayName,
