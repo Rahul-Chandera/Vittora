@@ -201,7 +201,8 @@ extension DependencyContainer {
     func makeSavingsGoalListViewModel() -> SavingsGoalListViewModel {
         SavingsGoalListViewModel(
             fetchUseCase: FetchSavingsGoalsUseCase(savingsGoalRepository: savingsGoalRepository),
-            saveUseCase: SaveSavingsGoalUseCase(savingsGoalRepository: savingsGoalRepository)
+            saveUseCase: SaveSavingsGoalUseCase(savingsGoalRepository: savingsGoalRepository),
+            accountRepository: accountRepository
         )
     }
 
