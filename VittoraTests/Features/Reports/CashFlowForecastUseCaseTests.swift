@@ -249,6 +249,11 @@ struct CashFlowForecastUseCaseTests {
 
         // Post-seed net worth (assets − liabilities) after demo showcase txs:
         // bank 13102.30 + cash 222.65 − card 1266.97 = 12057.98
+        //
+        // The card balance is NEGATIVE, as the app stores it: a balance is
+        // `opening + Σ transaction effects` and spending decrements it. This
+        // fixture used +1266.97 — a state the app cannot reach — which let the
+        // starting balance add the debt instead of subtracting it.
         try await accounts.create(AccountEntity(
             name: "Chase Checking", type: .bank,
             balance: Decimal(string: "13102.30")!, currencyCode: "USD"
@@ -259,7 +264,7 @@ struct CashFlowForecastUseCaseTests {
         ))
         try await accounts.create(AccountEntity(
             name: "Amex Credit Card", type: .creditCard,
-            balance: Decimal(string: "1266.97")!, currencyCode: "USD"
+            balance: Decimal(string: "-1266.97")!, currencyCode: "USD"
         ))
 
         let salary = CategoryEntity(name: "Salary", icon: "banknote", type: .income)
@@ -396,7 +401,7 @@ struct CashFlowForecastUseCaseTests {
             AccountEntity(name: "ICICI", type: .bank, balance: 100_000, currencyCode: "INR")
         )
         try await accounts.create(
-            AccountEntity(name: "INR Card", type: .creditCard, balance: 30_000, currencyCode: "INR")
+            AccountEntity(name: "INR Card", type: .creditCard, balance: -30_000, currencyCode: "INR")
         )
         try await accounts.create(
             AccountEntity(name: "Chase", type: .bank, balance: 5_000, currencyCode: "USD")
