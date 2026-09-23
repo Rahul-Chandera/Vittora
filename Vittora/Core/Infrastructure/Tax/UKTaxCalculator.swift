@@ -183,7 +183,7 @@ nonisolated struct UKTaxCalculator: TaxCalculatorProtocol {
             surcharge: 0,
             cess: 0,
             finalTax: finalTax,
-            effectiveRate: totalIncome > 0 ? (finalTax / totalIncome * 100).rounded(scale: 2) : 0,
+            effectiveRate: totalIncome > 0 ? (finalTax / totalIncome).rounded(scale: 4) : 0,
             marginalRate: Self.marginalRate(
                 taxableEarnings: taxableEarnings,
                 totalIncome: totalIncome,

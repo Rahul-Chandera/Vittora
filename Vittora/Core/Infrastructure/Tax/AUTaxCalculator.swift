@@ -133,7 +133,7 @@ nonisolated struct AUTaxCalculator: TaxCalculatorProtocol {
             cess: medicare,
             finalTax: finalTax,
             effectiveRate: (income + discountedGains) > 0
-                ? (finalTax / (income + discountedGains) * 100).rounded(scale: 2)
+                ? (finalTax / (income + discountedGains)).rounded(scale: 4)
                 : 0,
             marginalRate: Self.marginalRate(taxableIncome: taxableIncome, rules: rules),
             country: .australia,
