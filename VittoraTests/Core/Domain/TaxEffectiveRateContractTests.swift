@@ -93,4 +93,38 @@ struct TaxEffectiveRateContractTests {
             )
         }
     }
+
+    /// `rebate`, `surcharge` and `cess` are generic slots each country fills
+    /// differently, and the display sites used to hardcode India's names for
+    /// all of them: Canada showed its basic personal amount credits as "87A
+    /// Rebate" — a section of the Indian Income Tax Act — and its CPP + EI as
+    /// "Cess (4%)"; Australia's 2% Medicare levy was "Cess (4%)" too.
+    @Test("no country borrows India's vocabulary for the generic slots")
+    func labelsDoNotLeakIndianTerms() {
+        let indianOnly = ["87A", "Cess"]
+        for (name, estimate) in estimates() where estimate.country != .india {
+            for (slot, label) in [
+                ("rebate", estimate.rebateLabel),
+                ("surcharge", estimate.surchargeLabel),
+                ("cess", estimate.cessLabel),
+            ] {
+                for term in indianOnly {
+                    #expect(
+                        !label.contains(term),
+                        "\(name): \(slot) label \"\(label)\" uses the Indian term \"\(term)\""
+                    )
+                }
+            }
+        }
+    }
+
+    /// A populated slot with no name renders as a blank tile.
+    @Test("every slot the country actually uses has a label")
+    func populatedSlotsAreNamed() {
+        for (name, estimate) in estimates() {
+            if estimate.rebate != 0 { #expect(!estimate.rebateLabel.isEmpty, "\(name): rebate unnamed") }
+            if estimate.surcharge != 0 { #expect(!estimate.surchargeLabel.isEmpty, "\(name): surcharge unnamed") }
+            if estimate.cess != 0 { #expect(!estimate.cessLabel.isEmpty, "\(name): cess unnamed") }
+        }
+    }
 }
