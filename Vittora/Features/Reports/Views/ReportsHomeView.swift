@@ -27,7 +27,8 @@ struct ReportsHomeView: View {
             (.subscriptionAudit, String(localized: "Subscription Audit"), String(localized: "What recurring expenses cost each month"), "arrow.triangle.2.circlepath", VColors.transfer),
             (.fiftyThirtyTwenty, String(localized: "50/30/20"), String(localized: "Compare needs, wants, and savings with the guideline"), "chart.bar.xaxis", VColors.savings),
             (.emergencyFund, String(localized: "Emergency Fund"), String(localized: "See how many months of essentials you could cover"), "shield.lefthalf.filled", VColors.savings),
-            (.healthScore, String(localized: "Financial Health"), String(localized: "A monthly score from your budgets, savings and debt"), "heart.text.square.fill", VColors.primaryOnSurface)
+            (.healthScore, String(localized: "Financial Health"), String(localized: "A monthly score from your budgets, savings and debt"), "heart.text.square.fill", VColors.primaryOnSurface),
+            (.spendingOutlook, String(localized: "Spending Outlook"), String(localized: "Where this month is heading, and what a cutback would be worth"), "chart.line.flattrend.xyaxis", VColors.warning)
         ]
     }
 
@@ -188,7 +189,7 @@ struct ReportsHomeView: View {
             .proGated(
                 type.requiresPro,
                 title: String(localized: "A Vittora Pro report"),
-                message: String(localized: "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker, financial health and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free.")
+                message: String(localized: "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker, financial health, spending outlook and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free.")
             )
     }
 
@@ -197,6 +198,8 @@ struct ReportsHomeView: View {
         switch type {
         case .healthScore:
             FinancialHealthScoreReportView()
+        case .spendingOutlook:
+            SpendingOutlookReportView()
         case .fiftyThirtyTwenty:
             FiftyThirtyTwentyReportView()
         case .monthly:

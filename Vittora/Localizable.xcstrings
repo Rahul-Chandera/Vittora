@@ -855,6 +855,22 @@
         }
       }
     },
+    "%@ spent over %lld of %lld days." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ gastado en %lld de %lld días."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%3$lld में से %2$lld दिनों में %1$@ खर्च हुआ।"
+          }
+        }
+      }
+    },
     "%@ tax" : {
       "localizations" : {
         "es" : {
@@ -3236,6 +3252,22 @@
         }
       }
     },
+    "A category needs a couple of months of history before it can be modelled." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una categoría necesita un par de meses de historial antes de poder modelarse."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "किसी श्रेणी को मॉडल करने से पहले कुछ महीनों का इतिहास चाहिए।"
+          }
+        }
+      }
+    },
     "A group requires at least 2 members." : {
       "localizations" : {
         "es" : {
@@ -3314,6 +3346,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "आपकी मुख्य बातों वाली स्टोरी-साइज़ इमेज। जब तक आप खुद शामिल न करें, राशियाँ निजी रहती हैं।"
+          }
+        }
+      }
+    },
+    "A straight-line estimate from what you have spent so far this month." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una estimación lineal a partir de lo que llevas gastado este mes."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस महीने अब तक के खर्च से बनाया गया सीधा-रेखीय अनुमान।"
           }
         }
       }
@@ -5615,6 +5663,22 @@
         }
       }
     },
+    "Assumes the rest of your spending stays the same." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supone que el resto de tus gastos se mantiene igual."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह मानता है कि आपका बाकी खर्च वैसा ही रहेगा।"
+          }
+        }
+      }
+    },
     "At %@%% for %lld years, %@ would grow to %@ — your assumption, not a forecast by Vittora." : {
       "localizations" : {
         "es" : {
@@ -6143,6 +6207,22 @@
         }
       }
     },
+    "Based on what this category has typically cost you, not on a plan." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basado en lo que esta categoría te ha costado normalmente, no en un plan."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस श्रेणी की सामान्य लागत पर आधारित, किसी योजना पर नहीं।"
+          }
+        }
+      }
+    },
     "Baseline" : {
       "localizations" : {
         "es" : {
@@ -6405,6 +6485,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "बिलिंग साइकल"
+          }
+        }
+      }
+    },
+    "Bills that fall later in the month are not counted separately, so the estimate can move when they land." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las facturas que caen más adelante en el mes no se cuentan aparte, así que la estimación puede cambiar cuando lleguen."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "महीने में बाद में आने वाले बिल अलग से नहीं गिने जाते, इसलिए उनके आने पर अनुमान बदल सकता है।"
           }
         }
       }
@@ -7231,6 +7327,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "कैश फ़्लो फ़ोरकास्ट, सब्सक्रिप्शन ऑडिट, 50/30/20, इमरजेंसी फंड ट्रैकर, वित्तीय स्वास्थ्य और कस्टम रिपोर्ट Vittora Pro का हिस्सा हैं। आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट मुफ़्त रहेंगे।"
+          }
+        }
+      }
+    },
+    "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker, financial health, spending outlook and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La previsión de flujo de caja, la auditoría de suscripciones, el 50/30/20, el seguimiento del fondo de emergencia, la salud financiera, la perspectiva de gastos y los informes personalizados forman parte de Vittora Pro. Tus registros, tus divisiones, la sincronización con iCloud y la exportación CSV siguen siendo gratis."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कैश फ़्लो फ़ोरकास्ट, सब्सक्रिप्शन ऑडिट, 50/30/20, इमरजेंसी फंड ट्रैकर, वित्तीय स्वास्थ्य, खर्च आउटलुक और कस्टम रिपोर्ट Vittora Pro का हिस्सा हैं। आपके रिकॉर्ड, आपके स्प्लिट, iCloud सिंक और CSV एक्सपोर्ट मुफ़्त रहेंगे।"
           }
         }
       }
@@ -10724,6 +10836,22 @@
         }
       }
     },
+    "Each month" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada mes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हर महीने"
+          }
+        }
+      }
+    },
     "Earned" : {
       "localizations" : {
         "es" : {
@@ -12531,6 +12659,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "वित्तीय स्वास्थ्य"
+          }
+        }
+      }
+    },
+    "Financial health score and spending outlook" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puntuación de salud financiera y perspectiva de gastos"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वित्तीय स्वास्थ्य स्कोर और खर्च आउटलुक"
           }
         }
       }
@@ -18338,6 +18482,22 @@
         }
       }
     },
+    "On track for" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En camino de"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस ओर बढ़ रहे हैं"
+          }
+        }
+      }
+    },
     "On Track" : {
       "localizations" : {
         "es" : {
@@ -19164,6 +19324,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ऊपर"
+          }
+        }
+      }
+    },
+    "Over a year" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En un año"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "एक साल में"
           }
         }
       }
@@ -21666,6 +21842,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "आवर्ती ट्रांज़ैक्शन"
+          }
+        }
+      }
+    },
+    "Reduce by" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reducir en"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इतना घटाएँ"
           }
         }
       }
@@ -25052,6 +25244,22 @@
         }
       }
     },
+    "Spending Outlook" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perspectiva de gastos"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "खर्च आउटलुक"
+          }
+        }
+      }
+    },
     "Spending Summary" : {
       "localizations" : {
         "es" : {
@@ -26470,6 +26678,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "सेवा की शर्तें"
+          }
+        }
+      }
+    },
+    "That is %@ above your usual." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eso es %@ por encima de lo habitual."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह आपके सामान्य से %@ अधिक है।"
+          }
+        }
+      }
+    },
+    "That is %@ below your usual." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eso es %@ por debajo de lo habitual."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह आपके सामान्य से %@ कम है।"
           }
         }
       }
@@ -28078,6 +28318,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "पुष्टि करने के लिए %@ टाइप करें।"
+          }
+        }
+      }
+    },
+    "Typical month" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mes habitual"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सामान्य महीना"
           }
         }
       }
@@ -30661,6 +30917,22 @@
         }
       }
     },
+    "What If" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué pasaría si"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "क्या हो अगर"
+          }
+        }
+      }
+    },
     "What recurring expenses cost each month" : {
       "localizations" : {
         "es" : {
@@ -30822,6 +31094,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "चालू होने पर, हाल के ट्रांज़ैक्शन Spotlight और सिस्टम Search में दिखाई देते हैं. Vittora को अनलॉक किए बिना भी राशियाँ दिखाई दे सकती हैं. इसे बंद करने पर वे तुरंत Search से हट जाते हैं."
+          }
+        }
+      }
+    },
+    "Where this month is heading, and what a cutback would be worth" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacia dónde va este mes y cuánto valdría un recorte"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह महीना किस ओर जा रहा है, और कटौती का क्या मूल्य होगा"
           }
         }
       }
@@ -31990,6 +32278,22 @@
         }
       }
     },
+    "%@ has typically cost %@ a month over %lld months." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ha costado normalmente %@ al mes durante %lld meses."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ की लागत %3$lld महीनों में आमतौर पर %2$@ प्रति माह रही है।"
+          }
+        }
+      }
+    },
     "%@ goes over every month" : {
       "localizations" : {
         "es" : {
@@ -32034,6 +32338,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ग्राफ़ में नहीं: %@। इन खातों के एक पुराने ट्रांसफ़र की दिशा दर्ज नहीं है, इसलिए उनका पिछला बैलेंस निकाला नहीं जा सकता।"
+          }
+        }
+      }
+    },
+    "Not enough of the month has passed to estimate a total yet." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no ha pasado suficiente mes para estimar un total."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कुल अनुमान लगाने के लिए महीना अभी पर्याप्त नहीं बीता है।"
           }
         }
       }
