@@ -10,7 +10,8 @@ struct SubscriptionSummaryViewModelTests {
     private func makeViewModel(recurringRepo: MockRecurringRuleRepository = MockRecurringRuleRepository()) -> SubscriptionSummaryViewModel {
         SubscriptionSummaryViewModel(
             fetchUseCase: FetchRecurringRulesUseCase(repository: recurringRepo),
-            calculateCostUseCase: CalculateSubscriptionCostUseCase()
+            calculateCostUseCase: CalculateSubscriptionCostUseCase(),
+            categoryRepository: MockCategoryRepository()
         )
     }
 
