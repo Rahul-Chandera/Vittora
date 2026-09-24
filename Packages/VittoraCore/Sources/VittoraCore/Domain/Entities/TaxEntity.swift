@@ -517,6 +517,19 @@ public struct TaxEstimate: Sendable {
     public nonisolated let effectiveRate: Decimal
     /// A percentage, unlike `effectiveRate`: 40 means 40%.
     public nonisolated let marginalRate: Decimal
+
+    /// `rebate`, `surcharge` and `cess` are generic slots, and each country
+    /// fills them with something different. These name what THIS estimate put
+    /// in them, so a screen can label the figure it is showing.
+    ///
+    /// Without them every country borrowed India's vocabulary: a Canadian
+    /// estimate showed its basic personal amount credits as "87A Rebate" — a
+    /// section of the *Indian* Income Tax Act — its provincial tax as
+    /// "Surcharge", and its CPP + EI as "Cess (4%)". An Australian saw the 2%
+    /// Medicare levy labelled "Cess (4%)" too.
+    ///
+    /// Exhaustive with no `default`, so a new country has to decide rather than
+    /// silently inheriting India's wording again.
     public nonisolated let country: TaxCountry
     /// e.g. "New Regime", "Old Regime", "Single"
     public nonisolated let regimeLabel: String
@@ -578,6 +591,7 @@ public struct TaxEstimate: Sendable {
         self.rulesLastUpdated = rulesLastUpdated
     }
 }
+
 
 // MARK: - Tax Comparison
 
