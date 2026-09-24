@@ -226,21 +226,21 @@ struct TaxDashboardView: View {
             )
             if estimate.rebate > 0 {
                 StatTile(
-                    title: String(localized: "87A Rebate"),
+                    title: estimate.rebateLabel,
                     value: "-" + estimate.rebate.formatted(.currency(code: code)),
                     icon: "minus.circle.fill"
                 )
             }
             if estimate.surcharge > 0 {
                 StatTile(
-                    title: String(localized: "Surcharge"),
+                    title: estimate.surchargeLabel,
                     value: estimate.surcharge.formatted(.currency(code: code)),
                     icon: "arrow.up.circle.fill"
                 )
             }
             if estimate.cess > 0 {
                 StatTile(
-                    title: String(localized: "Cess (4%)"),
+                    title: estimate.cessLabel,
                     value: estimate.cess.formatted(.currency(code: code)),
                     icon: "cross.circle.fill"
                 )

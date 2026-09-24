@@ -8622,6 +8622,22 @@
         }
       }
     },
+    "CPP & EI contributions" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aportes a CPP y EI"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPP और EI योगदान"
+          }
+        }
+      }
+    },
     "CPP contribution" : {
       "localizations" : {
         "es" : {
@@ -15812,6 +15828,22 @@
         }
       }
     },
+    "Medicare levy (2%)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasa de Medicare (2%)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मेडिकेयर लेवी (2%)"
+          }
+        }
+      }
+    },
     "Medicare levy surcharge" : {
       "localizations" : {
         "es" : {
@@ -20291,6 +20323,22 @@
         }
       }
     },
+    "Personal amount credits" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créditos por importe personal"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "व्यक्तिगत राशि क्रेडिट"
+          }
+        }
+      }
+    },
     "Personal Care" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -21042,6 +21090,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "प्रांतीय सरचार्ज"
+          }
+        }
+      }
+    },
+    "Provincial tax" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impuesto provincial"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रांतीय कर"
           }
         }
       }
