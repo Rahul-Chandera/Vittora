@@ -37,7 +37,8 @@ struct CashFlowReportView: View {
             vm = CashFlowReportViewModel(
                 useCase: CashFlowProjectionUseCase(
                     transactionRepository: dependencies.transactionRepository,
-                    recurringRuleRepository: dependencies.recurringRuleRepository
+                    recurringRuleRepository: dependencies.recurringRuleRepository,
+                    categoryRepository: dependencies.categoryRepository
                 )
             )
             await vm?.load()
