@@ -36,17 +36,22 @@ struct CashFlowProjectionResult: Sendable {
 struct CashFlowProjectionUseCase: Sendable {
     let transactionRepository: any TransactionRepository
     let recurringRuleRepository: any RecurringRuleRepository
+    /// Needed to tell an income rule from an expense one: a rule carries no
+    /// transaction type, only a category.
+    let categoryRepository: any CategoryRepository
     let calendar: Calendar
     let nowProvider: @Sendable () -> Date
 
     nonisolated init(
         transactionRepository: any TransactionRepository,
         recurringRuleRepository: any RecurringRuleRepository,
+        categoryRepository: any CategoryRepository,
         calendar: Calendar = Calendar(identifier: .gregorian),
         nowProvider: @escaping @Sendable () -> Date = { .now }
     ) {
         self.transactionRepository = transactionRepository
         self.recurringRuleRepository = recurringRuleRepository
+        self.categoryRepository = categoryRepository
         self.calendar = calendar
         self.nowProvider = nowProvider
     }
@@ -66,6 +71,8 @@ struct CashFlowProjectionUseCase: Sendable {
         let filter = TransactionFilter(dateRange: historyStart...now)
         let transactions = try await transactionRepository.fetchAll(filter: filter)
         let activeRules = try await recurringRuleRepository.fetchActive()
+        let categories = try await categoryRepository.fetchAll()
+        let incomeCategoryIDs = Set(categories.filter { $0.type == .income }.map(\.id))
 
         var historicalDiscretionary: [Decimal] = []
         var historicalIncome: [Decimal] = []
@@ -115,10 +122,14 @@ struct CashFlowProjectionUseCase: Sendable {
                 continue
             }
 
-            // Active recurring rules are expense-only; see RecurrenceDateMath.totalAmount.
+            // Expense rules only. The comment that used to sit here claimed
+            // active rules are expense-only, which is false — the seeded
+            // salary is one, and counting it as a cost is what produced the
+            // -$27,369 six-month projection.
             let recurringExpense = RecurrenceDateMath.totalAmount(
                 for: activeRules,
                 in: monthStart..<monthEnd,
+                incomeCategoryIDs: incomeCategoryIDs,
                 calendar: calendar
             )
             let projectedExpense = recurringExpense + averageDiscretionary

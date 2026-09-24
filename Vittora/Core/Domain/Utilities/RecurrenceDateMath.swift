@@ -63,13 +63,33 @@ enum RecurrenceDateMath {
     /// Recurring rules are expense-only today — `GenerateRecurringTransactionsUseCase`
     /// always posts `.expense`. If recurring income is added, filter by transaction
     /// type (or a new template field) before summing here and in projection totals.
+    /// Total the EXPENSE rules falling in `interval`.
+    ///
+    /// `incomeCategoryIDs` is required, not defaulted. This used to sum every
+    /// active rule regardless of direction, on the stated assumption that
+    /// "active recurring rules are expense-only" — which is false. The seeded
+    /// $6,400 salary is an active rule, so the Cash Flow report projected
+    /// 6,400 - (8,265.49 + 2,696.01) = -$4,561.50 a month and told the user
+    /// they were heading for -$27,369 over six months, while the Cash Flow
+    /// Forecast screen projected +$1,650 a month from the same data.
+    ///
+    /// A rule carries no transaction type of its own; direction lives on its
+    /// category, so the caller has to resolve it. Same root cause as the
+    /// "Monthly Spend" figure on the recurring list.
+    ///
+    /// A rule with no category counts as an expense: it cannot be shown to be
+    /// income, and every caller of this wants a cost.
     nonisolated static func totalAmount(
         for rules: [RecurringRuleEntity],
         in interval: Range<Date>,
+        incomeCategoryIDs: Set<UUID>,
         calendar: Calendar = Calendar(identifier: .gregorian)
     ) -> Decimal {
         rules.reduce(into: Decimal(0)) { total, rule in
             guard rule.isActive, rule.templateAccountID != nil else { return }
+            if let categoryID = rule.templateCategoryID, incomeCategoryIDs.contains(categoryID) {
+                return
+            }
             let dates = occurrences(
                 startingAt: rule.nextDate,
                 frequency: rule.frequency,
