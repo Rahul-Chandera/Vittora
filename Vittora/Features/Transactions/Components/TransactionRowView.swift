@@ -121,7 +121,11 @@ struct TransactionRowView: View {
         .vittoraPointerHighlight()
     }
 
-    private static func color(for type: TransactionType) -> Color {
+    /// Shared with RecentTransactionsList on the Dashboard, which had its own
+    /// binary `type == .income ? income : expense` and so painted transfers and
+    /// adjustments in the expense red. One switch, so the same transaction
+    /// cannot be two colours on two screens.
+    static func color(for type: TransactionType) -> Color {
         switch type {
         case .expense:
             return VColors.expense

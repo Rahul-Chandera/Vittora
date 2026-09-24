@@ -135,7 +135,12 @@ private struct RecentTransactionRow: View {
                 // below as secondary metadata.
                 Text(CurrencyFormatter.formatSigned(transaction.amount, type: transaction.type, currencyCode: currencyCode))
                     .font(VTypography.amountSmall)
-                    .foregroundColor(transaction.type == .income ? VColors.income : VColors.expense)
+                    // Not `type == .income ? income : expense`: that binary put
+                    // transfers and adjustments in the expense red, so a
+                    // transfer between the user's own accounts read as money
+                    // leaving them — and showed blue on the Transactions list
+                    // and red here for the same row.
+                    .foregroundColor(TransactionRowView.color(for: transaction.type))
                     // 0.85, not the default 0.5. Measured from a screenshot,
                     // the amount was rendering at 60% of the title's glyph
                     // height despite both asking for title3 — in this narrow
