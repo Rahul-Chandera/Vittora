@@ -22,11 +22,15 @@ struct ShoppingModeView: View {
     @State private var error: String?
 
     private let controller = LiveActivityController.shared
-    private let currencyCode: String
 
-    init(currencyCode: String = Locale.current.currency?.identifier ?? "USD") {
-        self.currencyCode = currencyCode
-    }
+    // The app's display currency, like every other screen — NOT the device
+    // locale. The init this replaces defaulted to
+    // `Locale.current.currency?.identifier`, and AppTabView constructs this
+    // view with no argument, so a US ledger on a device set to India showed a
+    // running total of "₹0.00" while the rest of the app showed dollars. The
+    // Live Activity inherited it, so the Lock Screen and Dynamic Island were
+    // wrong too.
+    @Environment(\.currencyCode) private var currencyCode
 
     var body: some View {
         NavigationStack {
