@@ -136,6 +136,16 @@ struct AnnualReportView: View {
                     .font(VTypography.subheadline)
                     .foregroundStyle(VColors.textSecondary)
 
+                // `position(by:)`, not `offset(x:)`. Swift Charts STACKS marks
+                // that share an x value, and an offset only slides the stack
+                // sideways afterwards — so the expense bar was drawn starting
+                // at the income value instead of at zero. September read as a
+                // bar from 6,400 to 9,350 rather than 0 to 2,950, which makes
+                // expenses look several times larger than they are.
+                //
+                // This is the pattern IncomeExpenseBarChart already uses, which
+                // is why the Monthly Overview chart was right and this one was
+                // not.
                 Chart {
                     ForEach(vm.monthlyData) { data in
                         BarMark(
@@ -144,7 +154,7 @@ struct AnnualReportView: View {
                             width: .ratio(0.4)
                         )
                         .foregroundStyle(VColors.income)
-                        .offset(x: -6)
+                        .position(by: .value(String(localized: "Type"), String(localized: "Income")))
 
                         BarMark(
                             x: .value("Month", data.month, unit: .month),
@@ -152,7 +162,7 @@ struct AnnualReportView: View {
                             width: .ratio(0.4)
                         )
                         .foregroundStyle(VColors.expense)
-                        .offset(x: 6)
+                        .position(by: .value(String(localized: "Type"), String(localized: "Expense")))
                     }
                 }
                 .chartXAxis {
