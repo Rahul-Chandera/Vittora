@@ -11,11 +11,23 @@ final class DebtLedgerViewModel {
     var isLoading = false
     var error: String?
 
+    // Split on the NET position, not the gross totals.
+    //
+    // Filtering on `totalLent > 0` and `totalBorrowed > 0` put anyone with debt
+    // in both directions into BOTH sections, while DebtRowView shows
+    // `abs(netBalance)` — so one payee owing you 150 and owed 300 appeared
+    // twice, each row reading 150, and the "Owed to You" copy rendered in the
+    // you-owe colour because the net is negative. Three contradictions from one
+    // mismatch: the row was net, the sections were gross.
+    //
+    // Someone square with you (150 each way) now appears in neither section
+    // rather than both, which is what "settled" should look like. The gross
+    // totals are still on the summary card above, beside the net.
     var owedToMeEntries: [DebtLedgerEntry] {
-        ledgerEntries.filter { $0.totalLent > 0 }
+        ledgerEntries.filter { $0.netBalance > 0 }
     }
     var iOweEntries: [DebtLedgerEntry] {
-        ledgerEntries.filter { $0.totalBorrowed > 0 }
+        ledgerEntries.filter { $0.netBalance < 0 }
     }
 
     private let fetchLedgerUseCase: FetchDebtLedgerUseCase
