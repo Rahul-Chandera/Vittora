@@ -454,3 +454,18 @@ All on `C7B59D69-56FC-4FD6-A5D6-18DB5DCBC852` (iPhone 16 / iOS 26.5), counts fro
 - The cost is not small. Our floor is iOS 26, so adoption means an `if #available(iOS 27, *)` branch duplicating the swipe-action content at **ten call sites**, each with a working iOS 26 path that must stay correct. That is a large, permanent surface added to a bug-fix release for no user-visible defect.
 - Revisit if: the deployment target moves to iOS 27, at which point the branch disappears and it becomes a straight simplification; or a real anchoring defect reappears that the callback would fix.
 - Recorded rather than silently skipped, because the 1.7.1 plan listed this as Phase D and the next reader deserves to know it was examined and declined, not forgotten.
+
+## DEC-029: Household sharing lives in its own CloudKit zone, synced by CKSyncEngine — not in SwiftData
+
+- Status: Accepted (2026-09-28). M3.4.1–3.
+- The constraint: the plan says "use `CKShare` for shared databases". SwiftData cannot take part. `ModelConfiguration.CloudKitDatabase` offers `.automatic`, `.none` and `.private(_:)` only — checked in the iOS 27 SDK's swiftinterface, not recalled — so a SwiftData model can never live in the shared database.
+- Decision: the household is one custom record zone, `Household-<uuid>`, in the owner's private database, shared zone-wide with `CKShare(recordZoneID:)`. Members reach the same zone through their shared database. One `CKSyncEngine` per device syncs it: private database for the owner, shared for members. `nextFetchChangesOptions` scopes it to that zone, so it never downloads the SwiftData mirror's zone in the same private database.
+- What is shared: household budgets and the expenses logged against them. That's all. Personal accounts and transactions stay in the private SwiftData store and never enter the zone. Money travels as a POSIX decimal string, never a CloudKit double.
+- Why CKSyncEngine rather than direct `modifyRecords` calls: it queues writes made offline and sends them later. Direct calls would have made the household the one online-only surface in an offline-first app.
+- Local state is a JSON cache (`Application Support/Household/household.json`, `completeUnlessOpen`), not SwiftData. A SwiftData model would be mirrored into the private database by the main store.
+- Permissions (M3.4.3) come from the share itself. The owner chooses "Can make changes" or "View only" per person in the system share sheet (`CKAllowedSharingOptions(.any, .specifiedRecipientsOnly)`, invite-only). The app reads `currentUserParticipant.permission` only to hide controls. CloudKit enforces the rule on the server, and a refused write is dropped locally.
+- Invitations arrive through a platform delegate (`VittoraAppDelegate` / `VittoraSceneDelegate`), with `CKSharingSupported` in Info.plist. SwiftUI has no modifier for share acceptance.
+- One household at a time. Another of the user's devices finds the household at launch by listing zones in both databases.
+- **Release impact:** `HouseholdBudget` and `HouseholdExpense` are new record types. Development creates them on the first save. Production needs **Deploy Schema Changes** before a release carrying this feature (see RELEASE_CHECKLIST), and that is the owner's action.
+- Not verified by automation: sharing between two iCloud accounts. The simulator build has CloudKit disabled (`CloudKitRuntimeSupport`), so the end-to-end flow needs two real Apple IDs on devices. Unit tests cover mapping, merging, totals, permissions and the cache. `--ui-test-seed-household` renders the screens without CloudKit.
+- Revisit if: SwiftData gains shared-database support, at which point the zone and engine can be replaced by models.
