@@ -2,7 +2,7 @@
 
 Completed and pending features, measured against `Docs/Vittora_Final_Plan.md`.
 
-**As of 2026-09-28** (re-verified against the source tree on `develop`; every line below was read from the code, not recalled). Last shipped release: **1.7.1** (live on the App Store). **`develop` is well ahead of it and unreleased** — M1.6.6, M2.4, M2.5.5, all of M3.2, M3.3.1, M3.5 and M3.6.4/M3.6.5 below are on `develop` only.
+**As of 2026-09-28** (re-verified against the source tree on `develop`; every line below was read from the code, not recalled). Last shipped release: **1.7.1** (live on the App Store). **`develop` is well ahead of it and unreleased** — M1.6.6, M2.4, M2.5.5, all of M3.2, M3.3, M3.5 and M3.6.4/M3.6.5 below are on `develop` only.
 `MARKETING_VERSION` is `1.7.1`, `CURRENT_PROJECT_VERSION` is `11`, tag `v1.7.1` exists. Site version bump follows Rahul’s deploy.
 
 ## How this was compiled
@@ -97,7 +97,7 @@ A bug-fix and hardening release (now live). No new user-facing features beyond t
 |---|---|---|
 | 3.1 Vision Pro App | ❌ | No visionOS target |
 | 3.2 Advanced ML & Intelligence | ✅ | On-device classifier over `NLEmbedding` (M3.2.1, #269), spending outlook (M3.2.2) and what-if (M3.2.5, #268), anomaly detection (M3.2.3, via #257), health score (M3.2.4, #267), summarisation with a hallucination guard (M3.2.6) and predictive entry (M3.2.7, #269). All calculations stay rules-based per the scope note. **The V2 exit criterion — categorisation accuracy >90% at 100+ transactions — is not measured by anything yet** |
-| 3.3 Live Activities & Dynamic Island | ⚠️ **partial** | Shopping mode (M3.3.1, #265) works. Bill countdown (M3.3.3) has its Live Activity and widget but **nothing in the app starts one** — `startBillCountdown` has no caller. Budget tracker (M3.3.2) not built |
+| 3.3 Live Activities & Dynamic Island | ✅ | Shopping mode (M3.3.1, #265). Budget tracker (M3.3.2): shopping mode can count against an active budget, and the Lock Screen / Dynamic Island show what is left, red once over. Bill countdown (M3.3.3): started from an expense rule's Recurring Details, offered only in the 12 hours before the due day starts — ActivityKit keeps an activity at most 8 h active + 4 h on the Lock Screen, so an earlier countdown would vanish before zero. "Mark as Paid" ends it, and survives a relaunch |
 | 3.4 Family / Household Sharing | ⚠️ **partial** | StoreKit Family Sharing (M3.4.4) ✅ — `Entitlement` handles `.familyShared`. **`CKShare` is not used anywhere**: an earlier version of this row said split groups used it, but they share via `ShareLink` text plus a deep link (`SplitGroupDeepLink`). Household sharing (M3.4.1–3) not implemented |
 | 3.5 Tax Expansion (UK/CA/AU) | ✅ | All three built. UK #261, Australia #263, Canada this PR — five countries in total with India and US. **Provincial/territorial figures for Canada are unverified; see below** |
 | 3.6 Financial Guidelines | ✅ | 50/30/20, emergency fund, India compliance tips, spending anomaly alerts (M3.6.4), budget optimisation (M3.6.5) |
@@ -196,19 +196,17 @@ These are not missing features — they are things the test suite cannot prove, 
 ## Suggested next scope
 
 Ordered by user value against effort. Everything on the previous version of this list
-(M2.5.5, M1.6.6, M3.3, M3.5) has been built, apart from the two M3.3 gaps below.
+(M2.5.5, M1.6.6, M3.3, M3.5) has been built.
 
-1. **M3.3.2 and M3.3.3 — finish Live Activities.** In progress. Bill countdown is built but
-   unreachable; budget tracker is the only unbuilt M3.3 feature.
-2. **M3.4.1–3 household sharing.** Next after M3.3. `CKShare`-based shared database, shared
+1. **M3.4.1–3 household sharing.** In progress (M3.3 finished). `CKShare`-based shared database, shared
    budgets and per-member permissions. It adds CloudKit schema, so it needs a Production
    deploy before release. DEC-011 gates a paid *household tier* on usage data; the sharing
    feature itself is in the plan.
-3. **M3.7.1 FinanceKit.** Request Apple's FinanceKit entitlement before building — it is
+2. **M3.7.1 FinanceKit.** Request Apple's FinanceKit entitlement before building — it is
    restricted, needs Apple's approval, and covers US Apple Card / Apple Cash only.
-4. **M2.6.2 Watch voice entry.** The only open Phase 2 item. The Watch target has broken
+3. **M2.6.2 Watch voice entry.** The only open Phase 2 item. The Watch target has broken
    submissions before (`release-bundle-gotchas`), so budget for a real upload.
-5. **M3.1 Vision Pro.** Largest effort, smallest audience for a finance app. Last.
+4. **M3.1 Vision Pro.** Largest effort, smallest audience for a finance app. Last.
 
 **Not on this list, deliberately:** M1.10.6 budget templates (a decided won't-do — see
 Phase 1), and audit-suite flakiness, which is test infrastructure tracked under Known Gaps.

@@ -13,6 +13,9 @@ struct RecurringDetailView: View {
     @State private var isLoading = true
     @State private var showEditSheet = false
     @State private var errorMessage: String?
+    @State private var isCountdownActive = false
+
+    private let liveActivities = LiveActivityController.shared
 
     var body: some View {
         ZStack {
@@ -135,6 +138,8 @@ struct RecurringDetailView: View {
                             .accessibilityIdentifier("recurring-edit-button")
                         }
 
+                        billCountdownControl(for: rule)
+
                         // Details Section
                         VStack(alignment: .leading, spacing: VSpacing.md) {
                             Text(String(localized: "Details"))
@@ -235,7 +240,60 @@ struct RecurringDetailView: View {
         }
     }
 
+    /// M3.3.3: count down to the bill on the Lock Screen. Bills only — an
+    /// income rule has nothing to pay — and only when the platform has Live
+    /// Activities switched on.
+    @ViewBuilder
+    private func billCountdownControl(for rule: RecurringRuleEntity) -> some View {
+        if liveActivities.areActivitiesEnabled, rule.isActive, category?.type != .income {
+            if isCountdownActive {
+                Button {
+                    Task {
+                        await liveActivities.markBillPaid()
+                        isCountdownActive = false
+                    }
+                } label: {
+                    Label(String(localized: "Mark as Paid"), systemImage: "checkmark.circle.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(VColors.primary)
+                .accessibilityIdentifier("recurring-mark-paid-button")
+            } else if let due = LiveActivityController.billCountdownDueMoment(nextDate: rule.nextDate) {
+                Button {
+                    Task { await startCountdown(for: rule, dueDate: due) }
+                } label: {
+                    Label(String(localized: "Show Countdown on Lock Screen"), systemImage: "timer")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier("recurring-countdown-button")
+            } else {
+                Text(String(localized: "A countdown to this bill can go on your Lock Screen in the 12 hours before it's due."))
+                    .font(VTypography.caption1)
+                    .foregroundStyle(VColors.textSecondary)
+            }
+        }
+    }
+
+    private func startCountdown(for rule: RecurringRuleEntity, dueDate: Date) async {
+        let name = payee?.name ?? category?.displayName ?? String(localized: "Bill")
+        let started = await liveActivities.startBillCountdown(
+            billName: name,
+            amount: rule.templateAmount,
+            currencyCode: currencyCode,
+            dueDate: dueDate,
+            ruleID: rule.id
+        )
+        if started {
+            isCountdownActive = true
+        } else {
+            errorMessage = String(localized: "We couldn't start the Live Activity. Check that Live Activities are on for Vittora.")
+        }
+    }
+
     private func loadData() async {
+        isCountdownActive = liveActivities.activeBillRuleID == ruleID
         isLoading = true
 
         do {
