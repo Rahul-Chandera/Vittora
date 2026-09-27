@@ -53,6 +53,10 @@ final class RecurringListViewModel {
         }
     }
 
+    nonisolated static func incomeCategoryIDs(from categories: [CategoryEntity]) -> Set<UUID> {
+        Set(categories.filter { $0.type == .income }.map(\.id))
+    }
+
     func loadRules() async {
         isLoading = true
         error = nil
@@ -60,9 +64,14 @@ final class RecurringListViewModel {
         do {
             let fetchedRules = try await fetchUseCase.execute()
             self.rules = fetchedRules
-            self.costSummary = calculateCostUseCase.execute(rules: fetchedRules)
+            // Categories first: the cost summary needs them to tell an income
+            // rule from a spend one, and this used to run the other way round.
             let categories = try await categoryRepository.fetchAll()
             self.categoriesByID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+            self.costSummary = calculateCostUseCase.execute(
+                rules: fetchedRules,
+                incomeCategoryIDs: Self.incomeCategoryIDs(from: categories)
+            )
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load recurring transactions right now.")

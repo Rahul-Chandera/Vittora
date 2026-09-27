@@ -19,12 +19,32 @@ struct CalculateSubscriptionCostUseCase: Sendable {
         self.nowProvider = nowProvider
     }
 
-    func execute(rules: [RecurringRuleEntity]) -> SubscriptionCostSummary {
+    /// `incomeCategoryIDs` is required, not defaulted. This figure is labelled
+    /// "Monthly Spend", and the loop used to total every active rule regardless
+    /// of direction — so a salary rule of 6,400 against rent 1,850 and
+    /// subscriptions 15.49 reported 8,265.49 a month and 99,185.88 a year, on
+    /// both the recurring list and the subscription tracker.
+    ///
+    /// A rule carries no transaction type of its own; direction lives on its
+    /// category, so the caller has to resolve it. A default of `[]` would have
+    /// let a call site keep the bug silently, which is how it reached two
+    /// screens.
+    ///
+    /// A rule with no category counts as spend: it cannot be shown to be
+    /// income, and this is a spending figure.
+    func execute(
+        rules: [RecurringRuleEntity],
+        incomeCategoryIDs: Set<UUID>
+    ) -> SubscriptionCostSummary {
         var totalMonthlyCost: Decimal = 0
 
-        for rule in rules {
-            guard rule.isActive else { continue }
+        let spendRules = rules.filter { rule in
+            guard rule.isActive else { return false }
+            guard let categoryID = rule.templateCategoryID else { return true }
+            return !incomeCategoryIDs.contains(categoryID)
+        }
 
+        for rule in spendRules {
             let monthlyEquivalent = monthlyEquivalent(
                 amount: rule.templateAmount,
                 frequency: rule.frequency
@@ -33,7 +53,7 @@ struct CalculateSubscriptionCostUseCase: Sendable {
         }
 
         let annualCost = totalMonthlyCost * 12
-        let ruleCount = rules.filter { $0.isActive }.count
+        let ruleCount = spendRules.count
 
         return SubscriptionCostSummary(
             monthlyCost: totalMonthlyCost,
