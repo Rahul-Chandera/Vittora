@@ -26,6 +26,18 @@ Use this checklist before TestFlight/App Store submission.
 ## 3) Data/sync gates
 
 - [ ] CloudKit entitlement values align with bundle identity and target environment.
+- [ ] **CloudKit schema deployed to Production** if this release bumps the SwiftData schema
+      (`VittoraSchemaV*`). Xcode builds sync against *Development*; TestFlight and App Store
+      builds use *Production*, so a new field works locally and is rejected for every real
+      install. CloudKit Console → Deploy Schema Changes. Read the preview first: it deploys
+      *every* Development difference at once, and nothing can be removed or retyped in
+      Production afterwards — so Development must not contain fields from unreleased work.
+      If it does, reset Development and rebuild from the release commit before deploying.
+      Found 2026-09-27: Production had been deployed once, early, and never again. It lacked
+      `CD_SDDebt`, `CD_SDPayee` and `CD_SDRecurringRule` entirely (all present since 0.1) and six
+      `CD_SDTransaction` fields including V8's `CD_categorySuggestionRawValue`. Exports carrying
+      any of them failed with `CKError.2` on every App Store install; it passed unnoticed because a
+      partial failure lets the rest of the batch through.
 - [ ] Sync conflict UI only flags actionable events for review.
 - [ ] Integrity validator behavior reviewed for large datasets.
 - [ ] Migration scaffolding (`VittoraMigrationPlan`) remains valid after schema changes.
