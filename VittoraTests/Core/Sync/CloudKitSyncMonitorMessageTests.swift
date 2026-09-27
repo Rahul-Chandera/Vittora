@@ -75,6 +75,51 @@ struct CloudKitSyncMonitorMessageTests {
         }
     }
 
+    /// A real 1.7.1 support payload read only `SyncError(CKError.2)`:
+    /// `partialFailure` is a wrapper, and the per-record reasons inside it —
+    /// the part that tells a Production schema rejection from anything else —
+    /// were discarded. Distinct inner codes are now appended, sorted.
+    @Test("a partial failure reports the distinct per-record codes inside it")
+    func diagnosticCodeUnwrapsPartialFailure() throws {
+        let monitor = try makeMonitor()
+        let recordA = CKRecord.ID(recordName: "a")
+        let recordB = CKRecord.ID(recordName: "b")
+        let recordC = CKRecord.ID(recordName: "c")
+        let partial = CKError(
+            .partialFailure,
+            userInfo: [CKPartialErrorsByItemIDKey: [
+                recordA: CKError(.serverRejectedRequest),
+                recordB: CKError(.invalidArguments),
+                recordC: CKError(.serverRejectedRequest),
+            ]]
+        )
+
+        #expect(monitor.syncDiagnosticCode(for: partial) == "CKError.2(12,15)")
+    }
+
+    /// Descriptions can name the container or account; only codes may leave.
+    /// A schema rejection's description names the record type and field, so
+    /// it is the one most likely to be tempting to include.
+    @Test("unwrapping never leaks a per-record description")
+    func unwrappedCodeLeaksNoDescription() throws {
+        let monitor = try makeMonitor()
+        let rejected = NSError(
+            domain: CKError.errorDomain,
+            code: CKError.Code.serverRejectedRequest.rawValue,
+            userInfo: [NSLocalizedDescriptionKey:
+                "Cannot create or modify field 'CD_categorySuggestionRawValue' in record 'CD_SDTransaction' in production schema"]
+        )
+        let partial = CKError(
+            .partialFailure,
+            userInfo: [CKPartialErrorsByItemIDKey: [CKRecord.ID(recordName: "a"): rejected]]
+        )
+
+        let code = monitor.syncDiagnosticCode(for: partial)
+        #expect(code == "CKError.2(15)")
+        #expect(!code.contains("CD_"))
+        #expect(!code.contains("schema"))
+    }
+
     @Test("syncDiagnosticCode unwraps CKError nested under NSUnderlyingErrorKey")
     func diagnosticCodeForWrappedCKError() throws {
         let monitor = try makeMonitor()
