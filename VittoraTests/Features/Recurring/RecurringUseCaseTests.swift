@@ -385,7 +385,7 @@ struct RecurringUseCaseTests {
             templateAmount: 70
         )
 
-        let summary = useCase.execute(rules: [rule])
+        let summary = useCase.execute(rules: [rule], incomeCategoryIDs: [])
 
         #expect(summary.monthlyCost == 300)
         #expect(summary.annualCost == 3_600)
@@ -403,7 +403,7 @@ struct RecurringUseCaseTests {
             templateAmount: 50
         )
 
-        let summary = useCase.execute(rules: [rule])
+        let summary = useCase.execute(rules: [rule], incomeCategoryIDs: [])
 
         #expect(summary.monthlyCost == 100)
         #expect(summary.annualCost == 1_200)
