@@ -120,7 +120,8 @@ struct SubscriptionTrackerView: View {
 
         viewModel = SubscriptionSummaryViewModel(
             fetchUseCase: fetchUseCase,
-            calculateCostUseCase: calculateCostUseCase
+            calculateCostUseCase: calculateCostUseCase,
+            categoryRepository: dependencies.categoryRepository
         )
     }
 }
