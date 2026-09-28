@@ -446,7 +446,8 @@ public actor LedgerWriteStore: LedgerWriting {
             recurringRuleID: entity.recurringRuleID,
             transferPairID: entity.transferPairID,
             transferDirection: entity.transferDirection,
-            categorySuggestion: entity.categorySuggestion
+            categorySuggestion: entity.categorySuggestion,
+            externalID: entity.externalID ?? UUID().uuidString
         )
     }
 

@@ -328,10 +328,18 @@ public actor SwiftDataTransactionRepository: TransactionRepository {
             destinationAccountID: entity.destinationAccountID,
             recurringRuleID: entity.recurringRuleID,
             transferPairID: entity.transferPairID,
-            transferDirection: entity.transferDirection
+            transferDirection: entity.transferDirection,
+            externalID: entity.externalID ?? UUID().uuidString
         )
         modelContext.insert(model)
         try modelContext.save()
+    }
+
+    public func fetchExternalIDs(withPrefix prefix: String) async throws -> Set<String> {
+        let descriptor = FetchDescriptor<SDTransaction>(
+            predicate: #Predicate { $0.externalID.starts(with: prefix) }
+        )
+        return Set(try modelContext.fetch(descriptor).map(\.externalID))
     }
 
     public func update(_ entity: TransactionEntity) async throws {

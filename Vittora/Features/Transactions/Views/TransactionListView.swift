@@ -9,6 +9,7 @@ struct TransactionListView: View {
     @State private var vm: TransactionListViewModel?
     @State private var showFilterSheet = false
     @State private var showCSVImport = false
+    @State private var showWalletImport = false
     @State private var filterVM: TransactionFilterViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var selectedTransactionID: UUID?
@@ -314,6 +315,16 @@ struct TransactionListView: View {
                     } label: {
                         Label(String(localized: "Import CSV"), systemImage: "square.and.arrow.down")
                     }
+                    #if os(iOS)
+                    if AppleWalletService.isEntryVisible {
+                        Button {
+                            showWalletImport = true
+                        } label: {
+                            Label(String(localized: "Import from Apple Wallet"), systemImage: "wallet.bifold")
+                        }
+                        .accessibilityIdentifier("transaction-apple-wallet-import")
+                    }
+                    #endif
                 } label: {
                     Image(systemName: "ellipsis.circle")
                         .font(.title2)
@@ -327,6 +338,13 @@ struct TransactionListView: View {
                 Task { await vm.loadTransactions() }
             }
         }
+        #if os(iOS)
+        .sheet(isPresented: $showWalletImport) {
+            AppleWalletImportView {
+                Task { await vm.loadTransactions() }
+            }
+        }
+        #endif
         .sheet(isPresented: $showFilterSheet) {
             TransactionFilterSheet(
                 viewModel: filterVM ?? TransactionFilterViewModel(),

@@ -21,6 +21,9 @@ public enum TransactionMapper {
             transferDirection: model.transferDirection,
             categorySuggestion: model.categorySuggestion,
             documentIDs: [],
+            // Rows created before import existed hold a random UUID here;
+            // harmless, since import IDs are prefixed and never collide.
+            externalID: model.externalID.isEmpty ? nil : model.externalID,
             createdAt: model.createdAt,
             updatedAt: model.updatedAt
         )
