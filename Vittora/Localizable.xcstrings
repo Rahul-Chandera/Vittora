@@ -17,6 +17,54 @@
         }
       }
     },
+    "%lld already imported." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ya importadas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld पहले से इंपोर्ट हैं।"
+          }
+        }
+      }
+    },
+    "%lld still pending — they can be imported once posted." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld siguen pendientes; podrás importarlas cuando se contabilicen."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld अभी लंबित हैं — पोस्ट होने के बाद इन्हें इंपोर्ट किया जा सकता है।"
+          }
+        }
+      }
+    },
+    "%lld transfers to your other accounts were left out; add them as transfers if you track those accounts." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se omitieron %lld transferencias a tus otras cuentas; añádelas como transferencias si llevas esas cuentas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके दूसरे खातों में %lld ट्रांसफ़र छोड़ दिए गए; अगर आप उन खातों को ट्रैक करते हैं तो इन्हें ट्रांसफ़र के रूप में जोड़ें।"
+          }
+        }
+      }
+    },
     "-%@" : {
       "localizations" : {
         "es" : {
@@ -29,6 +77,390 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "-%@"
+          }
+        }
+      }
+    },
+    "Access is off" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El acceso está desactivado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पहुँच बंद है"
+          }
+        }
+      }
+    },
+    "Added accounts: %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuentas añadidas: %@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जोड़े गए खाते: %@।"
+          }
+        }
+      }
+    },
+    "Allow Access" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir acceso"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पहुँच की अनुमति दें"
+          }
+        }
+      }
+    },
+    "and %lld more" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "y %lld más"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "और %lld अन्य"
+          }
+        }
+      }
+    },
+    "Apple Card & Cash" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Card y Apple Cash"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Card और Apple Cash"
+          }
+        }
+      }
+    },
+    "Apple Card, Apple Cash and Savings transactions can only be read on iPhone. Imported transactions then appear on all your devices." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las transacciones de Apple Card, Apple Cash y Savings solo se pueden leer en el iPhone. Las transacciones importadas aparecen después en todos tus dispositivos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Card, Apple Cash और Savings के लेन-देन केवल iPhone पर पढ़े जा सकते हैं। इंपोर्ट किए गए लेन-देन फिर आपके सभी डिवाइस पर दिखते हैं।"
+          }
+        }
+      }
+    },
+    "Bring Apple Card, Apple Cash and Savings transactions into your Vittora ledger. They're read on this iPhone with your permission — no bank login, and nothing is sent to anyone." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lleva las transacciones de Apple Card, Apple Cash y Savings a tu registro de Vittora. Se leen en este iPhone con tu permiso: sin iniciar sesión en el banco y sin enviar nada a nadie."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Card, Apple Cash और Savings के लेन-देन अपने Vittora लेजर में लाएँ। ये आपकी अनुमति से इसी iPhone पर पढ़े जाते हैं — कोई बैंक लॉगिन नहीं, और कुछ भी किसी को नहीं भेजा जाता।"
+          }
+        }
+      }
+    },
+    "Choose Transactions…" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir transacciones…"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "लेन-देन चुनें…"
+          }
+        }
+      }
+    },
+    "Import %lld Transactions" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar %lld transacciones"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld लेन-देन इंपोर्ट करें"
+          }
+        }
+      }
+    },
+    "Import from Apple Wallet" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar desde Apple Wallet"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Wallet से इंपोर्ट करें"
+          }
+        }
+      }
+    },
+    "Import from Apple Wallet works with Apple Card, Apple Cash and Savings on an iPhone in the US. You can still import transactions from a CSV file." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar desde Apple Wallet funciona con Apple Card, Apple Cash y Savings en un iPhone de EE. UU. Puedes seguir importando transacciones desde un archivo CSV."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Wallet से इंपोर्ट अमेरिका में iPhone पर Apple Card, Apple Cash और Savings के साथ काम करता है। आप अब भी CSV फ़ाइल से लेन-देन इंपोर्ट कर सकते हैं।"
+          }
+        }
+      }
+    },
+    "Import new transactions automatically" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar transacciones nuevas automáticamente"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नए लेन-देन अपने आप इंपोर्ट करें"
+          }
+        }
+      }
+    },
+    "Imported %lld transactions." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se importaron %lld transacciones."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld लेन-देन इंपोर्ट किए गए।"
+          }
+        }
+      }
+    },
+    "Imported transactions stay in your ledger. Vittora's access to Apple Wallet is managed in the Settings app." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las transacciones importadas se quedan en tu registro. El acceso de Vittora a Apple Wallet se gestiona en la app Ajustes."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इंपोर्ट किए गए लेन-देन आपके लेजर में बने रहते हैं। Apple Wallet तक Vittora की पहुँच सेटिंग्स ऐप में प्रबंधित होती है।"
+          }
+        }
+      }
+    },
+    "Only transactions made after you turn this on, each time you open Vittora. Your edits to imported transactions are never overwritten." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo las transacciones realizadas después de activarlo, cada vez que abres Vittora. Tus cambios en las transacciones importadas nunca se sobrescriben."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इसे चालू करने के बाद हुए लेन-देन ही, हर बार जब आप Vittora खोलते हैं। इंपोर्ट किए गए लेन-देन में आपके बदलाव कभी नहीं बदले जाते।"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Ajustes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सेटिंग्स खोलें"
+          }
+        }
+      }
+    },
+    "Review Last 30 Days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisar los últimos 30 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पिछले 30 दिनों की समीक्षा करें"
+          }
+        }
+      }
+    },
+    "Stop Apple Wallet Import" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detener la importación de Apple Wallet"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Wallet इंपोर्ट रोकें"
+          }
+        }
+      }
+    },
+    "US Apple Wallet only" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo Apple Wallet de EE. UU."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "केवल अमेरिका का Apple Wallet"
+          }
+        }
+      }
+    },
+    "Use iPhone to import from Apple Wallet" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa el iPhone para importar desde Apple Wallet"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Wallet से इंपोर्ट करने के लिए iPhone का उपयोग करें"
+          }
+        }
+      }
+    },
+    "Vittora can't read Apple Wallet transactions. You can allow it in the Settings app under Privacy & Security." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora no puede leer las transacciones de Apple Wallet. Puedes permitirlo en la app Ajustes, en Privacidad y seguridad."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Apple Wallet के लेन-देन नहीं पढ़ सकता। आप सेटिंग्स ऐप में गोपनीयता और सुरक्षा के तहत इसकी अनुमति दे सकते हैं।"
+          }
+        }
+      }
+    },
+    "We couldn't import these transactions." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos importar estas transacciones."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हम ये लेन-देन इंपोर्ट नहीं कर सके।"
+          }
+        }
+      }
+    },
+    "We couldn't read Apple Wallet. Try again in a moment." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos leer Apple Wallet. Inténtalo de nuevo en un momento."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हम Apple Wallet नहीं पढ़ सके। थोड़ी देर में फिर कोशिश करें।"
+          }
+        }
+      }
+    },
+    "You see everything before it's added. Transactions already imported are skipped." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verás todo antes de que se añada. Las transacciones ya importadas se omiten."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जोड़ने से पहले आप सब कुछ देखते हैं। पहले से इंपोर्ट किए गए लेन-देन छोड़ दिए जाते हैं।"
           }
         }
       }

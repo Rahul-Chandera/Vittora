@@ -361,6 +361,20 @@ struct VittoraApp: App {
             if newPhase == .active {
                 Task { await drainQuickLogQueue() }
             }
+            #if os(iOS)
+            // M3.7.1: only when the user switched automatic Wallet import on;
+            // otherwise this returns before touching FinanceKit.
+            if newPhase == .active, !isRunningAutomatedTests {
+                Task {
+                    let result = await AppleWalletService.shared.runAutomaticImport(
+                        using: dependencies.makeImportAppleWalletUseCase()
+                    )
+                    if let result, result.importedCount > 0 {
+                        appState.notifyChanged([.transactions, .accounts, .budgets])
+                    }
+                }
+            }
+            #endif
             let shouldShowPrivacyShield = newPhase == .inactive || newPhase == .background
             appState.isPrivacyShieldVisible = !isRunningAutomatedTests && shouldShowPrivacyShield
 

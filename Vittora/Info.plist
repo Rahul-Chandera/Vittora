@@ -8,6 +8,14 @@
 	<string>Vittora uses the camera to scan receipts and attach them to your transactions.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Vittora uses contacts to help you link people and businesses to payees and debt records.</string>
+	<!-- M3.7.1: true ONLY together with com.apple.developer.financekit in
+	     Vittora.entitlements. FinanceKit traps without the entitlement, and
+	     iOS cannot check it at runtime. AppleWalletEntitlementTests enforces
+	     that the two match. -->
+	<key>VittoraFinanceKitEnabled</key>
+	<false/>
+	<key>NSFinancialDataUsageDescription</key>
+	<string>Vittora reads the Apple Card, Apple Cash and Savings transactions you choose to import into your ledger on this iPhone. Nothing is sold or shared, and no bank login is involved.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Face ID is used to unlock your private financial data on this device.</string>
 	<key>NSSupportsLiveActivities</key>

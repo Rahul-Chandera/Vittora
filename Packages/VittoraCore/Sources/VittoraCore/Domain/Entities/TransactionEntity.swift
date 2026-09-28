@@ -76,6 +76,11 @@ public struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
     /// For `.transfer` legs, whether this leg debits or credits its `accountID`
     /// (DATAINTEGRITY-1, A3). Nil for non-transfer rows and legacy transfer legs.
     public nonisolated var transferDirection: TransferDirection?
+    /// Where an imported row came from, e.g. `financekit:<uuid>` (M3.7.1), so
+    /// a re-import can skip it. Nil for anything entered in the app. Stored in
+    /// `SDTransaction.externalID`, which has existed since schema V1 — no
+    /// migration and no CloudKit schema change. Metadata: not part of `==`.
+    public nonisolated var externalID: String?
     /// What the categorizer proposed at creation time (Schema V8). Nil on rows
     /// created before V8. Never rewritten by an edit — see `TransactionMapper`.
     public nonisolated var categorySuggestion: CategorySuggestion?
@@ -101,6 +106,7 @@ public struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
         transferDirection: TransferDirection? = nil,
         categorySuggestion: CategorySuggestion? = nil,
         documentIDs: [UUID] = [],
+        externalID: String? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -121,6 +127,7 @@ public struct TransactionEntity: Identifiable, Hashable, Equatable, Sendable {
         self.transferDirection = transferDirection
         self.categorySuggestion = categorySuggestion
         self.documentIDs = documentIDs
+        self.externalID = externalID
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

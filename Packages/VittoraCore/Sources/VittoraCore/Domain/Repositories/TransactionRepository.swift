@@ -19,4 +19,16 @@ public protocol TransactionRepository: Sendable {
     func delete(_ id: UUID) async throws
     func bulkDelete(_ ids: [UUID]) async throws
     func search(query: String) async throws -> [TransactionEntity]
+    /// External IDs already in the ledger that start with `prefix` — how an
+    /// import (M3.7.1) skips rows it brought in before, whichever account
+    /// they have since been moved to.
+    func fetchExternalIDs(withPrefix prefix: String) async throws -> Set<String>
+}
+
+public extension TransactionRepository {
+    /// Unindexed fallback for test doubles; the SwiftData repository filters
+    /// in the store.
+    func fetchExternalIDs(withPrefix prefix: String) async throws -> Set<String> {
+        Set(try await fetchAllForReconciliation().compactMap(\.externalID).filter { $0.hasPrefix(prefix) })
+    }
 }
