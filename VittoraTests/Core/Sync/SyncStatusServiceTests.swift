@@ -40,6 +40,24 @@ struct SyncStatusServiceTests {
         #expect(service.lastSyncDate! >= before)
     }
 
+    /// A sync that just happened must never read as future. `.numeric`
+    /// relative formatting renders any interval rounding to zero as "in 0s" —
+    /// including a fraction of a second AGO — and a time recorded against
+    /// another clock can land seconds ahead. Seen on the Watch as
+    /// "Updated in 0 sec".
+    @Test("a just-now or clock-skewed sync time never reads as future")
+    func lastSyncNeverReadsAsFuture() throws {
+        for offset in [0.0, -0.3, 0.3, 5.0] {
+            let suiteName = "com.vittora.test.\(UUID().uuidString)"
+            let ud = try #require(UserDefaults(suiteName: suiteName))
+            ud.set(Date.now.addingTimeInterval(offset), forKey: "vittora.lastSyncDate")
+            let service = SyncStatusService(isMonitoringEnabled: false, userDefaults: ud)
+
+            let text = service.lastSyncFormatted.lowercased()
+            #expect(!text.hasPrefix("in "), "offset \(offset)s rendered as future: \(text)")
+        }
+    }
+
     @Test("markSynced persists date to injected UserDefaults")
     func markSyncedPersistsToUserDefaults() throws {
         let (service, ud) = try makeService()

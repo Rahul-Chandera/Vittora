@@ -176,6 +176,11 @@ public final class SyncStatusService: Sendable {
         }
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: date, relativeTo: .now)
+        // `.named` so a just-now sync reads "now" — `.numeric` renders any
+        // interval rounding to zero as future ("in 0s"), even a fraction of a
+        // second ago. Clamped as well, because a time recorded against another
+        // clock can land seconds ahead. A past event never reads as future.
+        formatter.dateTimeStyle = .named
+        return formatter.localizedString(for: min(date, .now), relativeTo: .now)
     }
 }

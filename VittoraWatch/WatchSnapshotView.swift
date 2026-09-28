@@ -91,7 +91,17 @@ struct WatchSnapshotView: View {
     private func lastUpdatedText(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
-        let relative = formatter.localizedString(for: date, relativeTo: .now)
+        // `.named` AND a clamp — each fixes half of "Updated in 0 sec", seen on
+        // a paired Watch Series 11 / watchOS 26.5.
+        //
+        // `.numeric` renders any interval that rounds to zero as FUTURE: exactly
+        // now reads "in 0s", and so does 0.3s ago. `.named` reads "now".
+        //
+        // The clamp covers the rest: the snapshot is stamped by the PHONE and
+        // read against the WATCH's clock, so it can land seconds ahead and read
+        // "in 5s". An update cannot happen in the future.
+        formatter.dateTimeStyle = .named
+        let relative = formatter.localizedString(for: min(date, .now), relativeTo: .now)
         return String(localized: "Updated \(relative)")
     }
 
