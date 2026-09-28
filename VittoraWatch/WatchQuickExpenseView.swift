@@ -99,7 +99,7 @@ struct WatchQuickExpenseView: View {
     }
 }
 
-private struct WatchCategoryGridView: View {
+struct WatchCategoryGridView: View {
     @Bindable var store: WatchSnapshotStore
     let amount: Decimal
     let onQueued: () -> Void

@@ -113,6 +113,22 @@
         }
       }
     },
+    "Add an expense by saying it, like “500 for groceries”." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade un gasto diciéndolo, por ejemplo «500 para supermercado»."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बोलकर खर्च जोड़ें, जैसे “किराने के लिए 500”।"
+          }
+        }
+      }
+    },
     "Add household budget" : {
       "localizations" : {
         "es" : {
@@ -369,6 +385,22 @@
         }
       }
     },
+    "I didn't catch an amount. Try “500 for groceries”." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entendí el importe. Prueba con «500 para supermercado»."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "राशि समझ नहीं आई। “किराने के लिए 500” कहकर देखें।"
+          }
+        }
+      }
+    },
     "Invite or Manage Members" : {
       "localizations" : {
         "es" : {
@@ -445,6 +477,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "यह घर छोड़ें?"
+          }
+        }
+      }
+    },
+    "Log an expense by saying what you spent, like “500 for groceries”." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra un gasto diciendo lo que gastaste, por ejemplo «500 para supermercado»."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जो खर्च किया वह बोलकर खर्च दर्ज करें, जैसे “किराने के लिए 500”।"
+          }
+        }
+      }
+    },
+    "Logged %@ for %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrado: %1$@ en %2$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ के लिए %1$@ दर्ज किया।"
+          }
+        }
+      }
+    },
+    "Logged %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrado: %@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ दर्ज किया।"
           }
         }
       }
@@ -593,6 +673,38 @@
         }
       }
     },
+    "Say It" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dilo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बोलें"
+          }
+        }
+      }
+    },
+    "Say “500 for groceries”" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di «500 para supermercado»"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“किराने के लिए 500” बोलें"
+          }
+        }
+      }
+    },
     "Share budgets with your household" : {
       "localizations" : {
         "es" : {
@@ -721,6 +833,22 @@
         }
       }
     },
+    "Vittora couldn't reach your iPhone. Try again from the app." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora no pudo conectar con tu iPhone. Inténtalo de nuevo desde la app."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora आपके iPhone तक नहीं पहुँच सका। ऐप से दोबारा कोशिश करें।"
+          }
+        }
+      }
+    },
     "We couldn't create the household. Check that you're signed in to iCloud and online, then try again." : {
       "localizations" : {
         "es" : {
@@ -781,6 +909,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "हम घर नहीं छोड़ सके। जाँचें कि आप ऑनलाइन हैं, फिर दोबारा कोशिश करें।"
+          }
+        }
+      }
+    },
+    "What did you spend?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué gastaste?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने क्या खर्च किया?"
           }
         }
       }

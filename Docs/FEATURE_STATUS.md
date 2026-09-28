@@ -85,7 +85,7 @@ A bug-fix and hardening release (now live). No new user-facing features beyond t
 | ID | Feature | Status |
 |---|---|---|
 | M2.5.5 | Sinking funds | ✅ **Shipped** (#266) |
-| M2.6.2 | Watch voice entry ("Add 500 for groceries") | ❌ Not implemented |
+| M2.6.2 | Watch voice entry ("Add 500 for groceries") | ✅ **Built** (M2.6.2) — "Say It" on the watch dashboard (system dictation) and a watch Siri shortcut, "Log an expense in Vittora" → "What did you spend?". Two turns because App Shortcut phrases cannot carry a free-form number. A category the watch doesn't carry (it has only the 8 most-used) is sent as words and matched on the iPhone against every category; no match stays uncategorised rather than guessing |
 | M2.6.6 | Watch haptic budget alerts | ✅ **Already implemented; this entry was stale.** `VittoraWatch/WatchSnapshotStore.swift` plays a haptic on threshold crossing, covered by `VittoraTests/Core/Watch/WatchBudgetHapticWiringTests.swift`. Nothing was built for it on 2026-09-22 — it was found by reading the source |
 | M2.7.5 | Interactive widgets (add transaction from widget) | ✅ **Shipped** (#255) — preset buttons run an App Intent in the widget extension, which queues one UserDefaults key per entry; the host app drains it on next launch |
 
@@ -200,8 +200,8 @@ Ordered by user value against effort. Everything on the previous version of this
 
 1. **M3.7.1 FinanceKit.** Request Apple's FinanceKit entitlement before building — it is
    restricted, needs Apple's approval, and covers US Apple Card / Apple Cash only.
-2. **M2.6.2 Watch voice entry.** The only open Phase 2 item. The Watch target has broken
-   submissions before (`release-bundle-gotchas`), so budget for a real upload.
+2. **M2.6.2 Watch voice entry.** Built (#292) — needs a real upload, since the Watch target has
+   broken submissions before (`release-bundle-gotchas`), and a Siri test on a paired watch.
 3. **M3.1 Vision Pro.** Largest effort, smallest audience for a finance app. Last.
 
 **Not on this list, deliberately:** M1.10.6 budget templates (a decided won't-do — see
