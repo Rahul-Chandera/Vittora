@@ -31,6 +31,13 @@ struct VittoraApp: App {
     @State private var spotlightCoordinator: TransactionSpotlightCoordinator?
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
+    // Household invitations (M3.4.1) only reach the app through a platform
+    // delegate; see HouseholdShareAcceptance.
+    #if os(iOS)
+    @UIApplicationDelegateAdaptor(VittoraAppDelegate.self) private var appDelegate
+    #elseif os(macOS)
+    @NSApplicationDelegateAdaptor(VittoraAppDelegate.self) private var appDelegate
+    #endif
 
     private let modelContainer: ModelContainer?
     private let isUITesting: Bool
@@ -285,8 +292,10 @@ struct VittoraApp: App {
                     #if os(macOS)
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
+                    .householdInvitationSheet()
                     .task {
                         dependencies.purchaseService.start()
+                        HouseholdStore.shared.start()
                         registerQuickAddIntentHandler()
                         #if os(iOS)
                         activateWatchBridgeIfNeeded()
