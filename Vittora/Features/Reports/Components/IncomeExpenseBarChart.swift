@@ -76,11 +76,7 @@ struct IncomeExpenseBarChart: View {
     }
 
     private func compactAmount(_ amount: Double) -> String {
-        let symbol = currencySymbol
-        if amount >= 1000 {
-            return String(format: "\(symbol)%.0fk", amount / 1000)
-        }
-        return String(format: "\(symbol)%.0f", amount)
+        ChartAxisAmount.compact(amount, symbol: currencySymbol)
     }
 
     private var currencySymbol: String {
