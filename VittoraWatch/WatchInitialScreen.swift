@@ -13,6 +13,15 @@ enum WatchInitialScreen: String {
     case dashboard
     case quickExpense = "quick-expense"
     case recent
+    case voice
+
+    /// Text to pre-fill the voice screen with, standing in for dictation the
+    /// simulator can't do: `--ui-test-watch-voice=500 for groceries`.
+    static var voiceTextFromLaunchArguments: String {
+        let prefix = "--ui-test-watch-voice="
+        return ProcessInfo.processInfo.arguments.first { $0.hasPrefix(prefix) }
+            .map { String($0.dropFirst(prefix.count)) } ?? ""
+    }
 
     static var fromLaunchArguments: WatchInitialScreen {
         let prefix = "--ui-test-watch-screen="

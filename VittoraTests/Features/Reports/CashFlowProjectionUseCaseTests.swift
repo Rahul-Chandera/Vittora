@@ -42,6 +42,7 @@ struct CashFlowProjectionUseCaseTests {
         let useCase = CashFlowProjectionUseCase(
             transactionRepository: transactionRepository,
             recurringRuleRepository: recurringRepository,
+            categoryRepository: MockCategoryRepository(),
             calendar: calendar,
             nowProvider: { anchor }
         )
@@ -69,6 +70,7 @@ struct CashFlowProjectionUseCaseTests {
         let total = RecurrenceDateMath.totalAmount(
             for: [rule],
             in: monthStart..<monthEnd,
+            incomeCategoryIDs: [],
             calendar: calendar
         )
 
@@ -108,6 +110,7 @@ struct CashFlowProjectionUseCaseTests {
         let useCase = CashFlowProjectionUseCase(
             transactionRepository: transactionRepository,
             recurringRuleRepository: recurringRepository,
+            categoryRepository: MockCategoryRepository(),
             calendar: calendar,
             nowProvider: { anchor }
         )

@@ -176,6 +176,19 @@ extension DependencyContainer {
         )
     }
 
+    func makeImportAppleWalletUseCase() -> ImportAppleWalletTransactionsUseCase {
+        ImportAppleWalletTransactionsUseCase(
+            addTransactionUseCase: AddTransactionUseCase(
+                accountRepository: accountRepository,
+                categoryRepository: categoryRepository,
+                ledgerWriting: ledgerWriteStore
+            ),
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            payeeRepository: payeeRepository
+        )
+    }
+
     func makeDebtLedgerViewModel() -> DebtLedgerViewModel {
         DebtLedgerViewModel(
             fetchLedgerUseCase: FetchDebtLedgerUseCase(

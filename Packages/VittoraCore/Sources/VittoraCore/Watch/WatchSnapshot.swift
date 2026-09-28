@@ -229,6 +229,7 @@ public enum WatchConnectivityPayloadKey {
     public static let amount = "amount"
     public static let categoryID = "categoryID"
     public static let createdAt = "createdAt"
+    public static let categoryHint = "categoryHint"
 }
 
 /// Watch → phone queued expense delivered via `WCSession.transferUserInfo`.
@@ -237,11 +238,17 @@ public struct QueuedWatchExpense: Codable, Sendable, Equatable {
     public var amount: Decimal
     public var categoryID: UUID?
     public var createdAt: Date
+    /// Voice entry (M2.6.2): the category the user named when the watch had no
+    /// category by that name. The phone matches it against every category.
+    /// Ignored when `categoryID` is set. Optional, so payloads from an older
+    /// watch build still decode.
+    public var categoryHint: String?
 
-    public init(amount: Decimal, categoryID: UUID? = nil, createdAt: Date = .now) {
+    public init(amount: Decimal, categoryID: UUID? = nil, createdAt: Date = .now, categoryHint: String? = nil) {
         self.amount = amount
         self.categoryID = categoryID
         self.createdAt = createdAt
+        self.categoryHint = categoryHint
     }
 
     public func encodeForTransport() throws -> Data {
@@ -262,6 +269,9 @@ public struct QueuedWatchExpense: Codable, Sendable, Equatable {
         ]
         if let categoryID {
             info[WatchConnectivityPayloadKey.categoryID] = categoryID.uuidString
+        }
+        if let categoryHint, !categoryHint.isEmpty {
+            info[WatchConnectivityPayloadKey.categoryHint] = categoryHint
         }
         return info
     }
@@ -301,6 +311,11 @@ public struct QueuedWatchExpense: Codable, Sendable, Equatable {
             createdAt = .now
         }
 
-        return QueuedWatchExpense(amount: amount, categoryID: categoryID, createdAt: createdAt)
+        return QueuedWatchExpense(
+            amount: amount,
+            categoryID: categoryID,
+            createdAt: createdAt,
+            categoryHint: userInfo[WatchConnectivityPayloadKey.categoryHint] as? String
+        )
     }
 }

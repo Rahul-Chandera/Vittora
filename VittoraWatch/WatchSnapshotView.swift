@@ -5,6 +5,7 @@ import VittoraCore
 struct WatchSnapshotView: View {
     @Bindable var store: WatchSnapshotStore
     @State private var isEnteringExpense = false
+    @State private var isSpeakingExpense = false
 
     var body: some View {
         ScrollView {
@@ -41,6 +42,13 @@ struct WatchSnapshotView: View {
                             isEnteringExpense = true
                         }
                         .accessibilityHint(String(localized: "Enter an expense using the Digital Crown."))
+                        Button {
+                            isSpeakingExpense = true
+                        } label: {
+                            Label(String(localized: "Say It"), systemImage: "mic.fill")
+                        }
+                        .accessibilityHint(String(localized: "Add an expense by saying it, like “500 for groceries”."))
+                        .accessibilityIdentifier("watch-say-it-button")
                     }
                 } else {
                     Text(String(localized: "Waiting for iPhone…"))
@@ -56,6 +64,9 @@ struct WatchSnapshotView: View {
         .accessibilityIdentifier("watch-snapshot-root")
         .sheet(isPresented: $isEnteringExpense) {
             WatchQuickExpenseView(store: store)
+        }
+        .sheet(isPresented: $isSpeakingExpense) {
+            WatchVoiceExpenseView(store: store)
         }
 
     }
