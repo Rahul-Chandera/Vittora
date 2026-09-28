@@ -17,6 +17,70 @@
         }
       }
     },
+    "%@ (You)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (tú)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (आप)"
+          }
+        }
+      }
+    },
+    "%@ of %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ de %2$@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ में से %1$@"
+          }
+        }
+      }
+    },
+    "%@ over" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ por encima"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ अधिक"
+          }
+        }
+      }
+    },
+    "%@ · %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
     "-%@" : {
       "localizations" : {
         "es" : {
@@ -29,6 +93,774 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "-%@"
+          }
+        }
+      }
+    },
+    "A countdown to this bill can go on your Lock Screen in the 12 hours before it's due." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes mostrar una cuenta atrás de esta factura en la pantalla de bloqueo durante las 12 horas previas a su vencimiento."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "देय होने से पहले के 12 घंटों में इस बिल की उलटी गिनती आपकी लॉक स्क्रीन पर दिखाई जा सकती है।"
+          }
+        }
+      }
+    },
+    "Add household budget" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir presupuesto del hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "घरेलू बजट जोड़ें"
+          }
+        }
+      }
+    },
+    "Add household expense" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir gasto del hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "घरेलू खर्च जोड़ें"
+          }
+        }
+      }
+    },
+    "Bill" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Factura"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बिल"
+          }
+        }
+      }
+    },
+    "By Member This Month" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por miembro este mes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस महीने सदस्य के अनुसार"
+          }
+        }
+      }
+    },
+    "Can edit" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puede editar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संपादित कर सकते हैं"
+          }
+        }
+      }
+    },
+    "Choose whether each person can make changes or only view when you invite them. You can change it later from Invite or Manage Members." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al invitar a cada persona, elige si puede hacer cambios o solo ver. Puedes cambiarlo después en Invitar o gestionar miembros."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आमंत्रित करते समय चुनें कि हर व्यक्ति बदलाव कर सकता है या केवल देख सकता है। आप इसे बाद में सदस्यों को आमंत्रित या प्रबंधित करें से बदल सकते हैं।"
+          }
+        }
+      }
+    },
+    "Count against budget" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contar en el presupuesto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बजट में गिनें"
+          }
+        }
+      }
+    },
+    "Create Household" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "घर बनाएँ"
+          }
+        }
+      }
+    },
+    "Delete Household" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "घर हटाएँ"
+          }
+        }
+      }
+    },
+    "Delete this household?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar este hogar?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह घर हटाएँ?"
+          }
+        }
+      }
+    },
+    "Every member loses access, and the household's budgets and expenses are deleted for everyone. This can't be undone." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los miembros perderán el acceso y los presupuestos y gastos del hogar se eliminarán para todos. No se puede deshacer."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सभी सदस्यों की पहुँच समाप्त हो जाएगी, और घर के बजट और खर्च सभी के लिए हटा दिए जाएँगे। इसे पूर्ववत नहीं किया जा सकता।"
+          }
+        }
+      }
+    },
+    "Expenses This Month" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gastos de este mes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस महीने के खर्च"
+          }
+        }
+      }
+    },
+    "Household" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "घर"
+          }
+        }
+      }
+    },
+    "Household member" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miembro del hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "घर का सदस्य"
+          }
+        }
+      }
+    },
+    "Household name" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre del hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "घर का नाम"
+          }
+        }
+      }
+    },
+    "Household sharing needs iCloud" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir el hogar requiere iCloud"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "घरेलू साझाकरण के लिए iCloud आवश्यक है"
+          }
+        }
+      }
+    },
+    "Invite or Manage Members" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invitar o gestionar miembros"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सदस्यों को आमंत्रित या प्रबंधित करें"
+          }
+        }
+      }
+    },
+    "Invite the people you live with to track shared budgets together and see who spent what. Only household budgets are shared — your accounts and transactions stay private." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invita a las personas con las que vives para seguir juntos los presupuestos compartidos y ver quién gastó qué. Solo se comparten los presupuestos del hogar: tus cuentas y transacciones siguen siendo privadas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जिनके साथ आप रहते हैं उन्हें आमंत्रित करें, ताकि साझा बजट साथ में ट्रैक करें और देखें किसने क्या खर्च किया। केवल घरेलू बजट साझा होते हैं — आपके खाते और लेन-देन निजी रहते हैं।"
+          }
+        }
+      }
+    },
+    "Invited" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invitado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आमंत्रित"
+          }
+        }
+      }
+    },
+    "Leave Household" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salir del hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "घर छोड़ें"
+          }
+        }
+      }
+    },
+    "Leave this household?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Salir de este hogar?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह घर छोड़ें?"
+          }
+        }
+      }
+    },
+    "Mark as Paid" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar como pagada"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भुगतान किया गया चिह्नित करें"
+          }
+        }
+      }
+    },
+    "Monthly amount" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe mensual"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मासिक राशि"
+          }
+        }
+      }
+    },
+    "Name (e.g. Groceries)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre (p. ej., Supermercado)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नाम (जैसे किराना)"
+          }
+        }
+      }
+    },
+    "New Shared Budget" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo presupuesto compartido"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नया साझा बजट"
+          }
+        }
+      }
+    },
+    "No shared budgets yet." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay presupuestos compartidos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी कोई साझा बजट नहीं है।"
+          }
+        }
+      }
+    },
+    "No shared budgets yet. Add one with the + button." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay presupuestos compartidos. Añade uno con el botón +."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी कोई साझा बजट नहीं है। + बटन से एक जोड़ें।"
+          }
+        }
+      }
+    },
+    "Nothing spent this month yet." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todavía no hay gastos este mes."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस महीने अभी तक कुछ खर्च नहीं हुआ।"
+          }
+        }
+      }
+    },
+    "Opens shared household budgets" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre los presupuestos compartidos del hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "साझा घरेलू बजट खोलता है"
+          }
+        }
+      }
+    },
+    "Owner" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propietario"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मालिक"
+          }
+        }
+      }
+    },
+    "Share budgets with your household" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparte presupuestos con tu hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अपने घर के साथ बजट साझा करें"
+          }
+        }
+      }
+    },
+    "Shared Budgets" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Presupuestos compartidos"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "साझा बजट"
+          }
+        }
+      }
+    },
+    "Show Countdown on Lock Screen" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar cuenta atrás en la pantalla de bloqueo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "लॉक स्क्रीन पर उलटी गिनती दिखाएँ"
+          }
+        }
+      }
+    },
+    "Sign in to iCloud on this device to share budgets with the people you live with." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inicia sesión en iCloud en este dispositivo para compartir presupuestos con las personas con las que vives."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जिनके साथ आप रहते हैं उनसे बजट साझा करने के लिए इस डिवाइस पर iCloud में साइन इन करें।"
+          }
+        }
+      }
+    },
+    "The owner shared this household with you as view only. Ask them for edit access to add expenses." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El propietario compartió este hogar contigo solo para ver. Pídele acceso de edición para añadir gastos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मालिक ने यह घर आपके साथ केवल देखने के लिए साझा किया है। खर्च जोड़ने के लिए उनसे संपादन की अनुमति माँगें।"
+          }
+        }
+      }
+    },
+    "This household is no longer shared with you." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este hogar ya no se comparte contigo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह घर अब आपके साथ साझा नहीं है।"
+          }
+        }
+      }
+    },
+    "This household no longer exists." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este hogar ya no existe."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह घर अब मौजूद नहीं है।"
+          }
+        }
+      }
+    },
+    "View only" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo ver"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "केवल देखें"
+          }
+        }
+      }
+    },
+    "We couldn't create the household. Check that you're signed in to iCloud and online, then try again." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos crear el hogar. Comprueba que has iniciado sesión en iCloud y tienes conexión, y vuelve a intentarlo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हम घर नहीं बना सके। जाँचें कि आप iCloud में साइन इन हैं और ऑनलाइन हैं, फिर दोबारा कोशिश करें।"
+          }
+        }
+      }
+    },
+    "We couldn't delete the household. Check that you're online, then try again." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos eliminar el hogar. Comprueba tu conexión y vuelve a intentarlo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हम घर नहीं हटा सके। जाँचें कि आप ऑनलाइन हैं, फिर दोबारा कोशिश करें।"
+          }
+        }
+      }
+    },
+    "We couldn't join the household. Ask for a new invitation and try again." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos unirte al hogar. Pide una nueva invitación y vuelve a intentarlo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हम आपको घर में नहीं जोड़ सके। नया आमंत्रण माँगें और दोबारा कोशिश करें।"
+          }
+        }
+      }
+    },
+    "We couldn't leave the household. Check that you're online, then try again." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos salir del hogar. Comprueba tu conexión y vuelve a intentarlo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "हम घर नहीं छोड़ सके। जाँचें कि आप ऑनलाइन हैं, फिर दोबारा कोशिश करें।"
+          }
+        }
+      }
+    },
+    "You can make changes" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes hacer cambios"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आप बदलाव कर सकते हैं"
+          }
+        }
+      }
+    },
+    "You can view this household but not change it. Ask its owner for edit access." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes ver este hogar, pero no modificarlo. Pide acceso de edición al propietario."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आप यह घर देख सकते हैं, पर बदल नहीं सकते। संपादन की अनुमति के लिए इसके मालिक से कहें।"
+          }
+        }
+      }
+    },
+    "You own this household" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eres el propietario de este hogar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आप इस घर के मालिक हैं"
+          }
+        }
+      }
+    },
+    "You'll stop seeing the household's budgets. The owner can invite you again." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dejarás de ver los presupuestos del hogar. El propietario puede volver a invitarte."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपको घर के बजट दिखना बंद हो जाएँगे। मालिक आपको फिर से आमंत्रित कर सकते हैं।"
+          }
+        }
+      }
+    },
+    "You're already in a household. Leave it before joining another." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya formas parte de un hogar. Sal de él antes de unirte a otro."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आप पहले से एक घर में हैं। दूसरे में शामिल होने से पहले उसे छोड़ें।"
           }
         }
       }
@@ -6787,7 +7619,6 @@
       }
     },
     "Budget left" : {
-      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {

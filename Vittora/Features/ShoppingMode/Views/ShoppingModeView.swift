@@ -13,6 +13,7 @@ import VittoraCore
 /// with fragments of one shop. The user records the actual purchase afterwards.
 struct ShoppingModeView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dependencies) private var dependencies
 
     @State private var sessionName = ""
     @State private var amountText = ""
@@ -20,6 +21,11 @@ struct ShoppingModeView: View {
     @State private var itemCount = 0
     @State private var isRunning = false
     @State private var error: String?
+    @State private var budgetOptions: [ShoppingBudgetOption] = []
+    @State private var selectedBudgetID: UUID?
+    /// What was left in the chosen budget when the session started. The screen
+    /// subtracts the running total from this, exactly as the Live Activity does.
+    @State private var startingBudget: ShoppingBudgetOption?
 
     private let controller = LiveActivityController.shared
 
@@ -68,6 +74,7 @@ struct ShoppingModeView: View {
                 }
             }
             .errorAlert(message: $error)
+            .task { await loadBudgets() }
         }
     }
 
@@ -75,6 +82,18 @@ struct ShoppingModeView: View {
         Section {
             TextField(String(localized: "Shop name (optional)"), text: $sessionName)
                 .accessibilityIdentifier("shopping-mode-name-field")
+
+            // Only offered when there is a budget to pick — an empty picker is
+            // a control that does nothing.
+            if !budgetOptions.isEmpty {
+                Picker(String(localized: "Count against budget"), selection: $selectedBudgetID) {
+                    Text(String(localized: "None")).tag(UUID?.none)
+                    ForEach(budgetOptions) { option in
+                        Text(option.name).tag(Optional(option.id))
+                    }
+                }
+                .accessibilityIdentifier("shopping-mode-budget-picker")
+            }
 
             Button {
                 start()
@@ -108,12 +127,27 @@ struct ShoppingModeView: View {
                     .foregroundStyle(VColors.textSecondary)
                     .monospacedDigit()
             }
+            if let startingBudget {
+                let left = startingBudget.remaining - runningTotal
+                HStack {
+                    Text(String(localized: "Budget left"))
+                    Spacer()
+                    Text(left.formatted(.currency(code: currencyCode)))
+                        .font(VTypography.bodyBold)
+                        .monospacedDigit()
+                        .foregroundStyle(left < 0 ? VColors.expense : VColors.textPrimary)
+                        .accessibilityIdentifier("shopping-mode-budget-left")
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityValue(left < 0 ? String(localized: "Over budget") : "")
+            }
             Button(role: .destructive) {
                 Task {
                     await controller.endShoppingSession()
                     isRunning = false
                     runningTotal = 0
                     itemCount = 0
+                    startingBudget = nil
                 }
             } label: {
                 Label(String(localized: "End Session"), systemImage: "stop.circle")
@@ -143,9 +177,12 @@ struct ShoppingModeView: View {
     }
 
     private func start() {
+        let budget = budgetOptions.first { $0.id == selectedBudgetID }
         let started = controller.startShoppingSession(
             name: sessionName,
-            currencyCode: currencyCode
+            currencyCode: currencyCode,
+            budgetName: budget?.name,
+            budgetRemaining: budget?.remaining
         )
         guard started else {
             error = String(localized: "We couldn't start the Live Activity. Check that Live Activities are on for Vittora.")
@@ -154,6 +191,21 @@ struct ShoppingModeView: View {
         isRunning = true
         runningTotal = 0
         itemCount = 0
+        startingBudget = budget
+    }
+
+    private func loadBudgets() async {
+        do {
+            let budgets = try await FetchBudgetsUseCase(
+                budgetRepository: dependencies.budgetRepository,
+                transactionRepository: dependencies.transactionRepository
+            ).execute()
+            let categories = try await dependencies.categoryRepository.fetchAll()
+            budgetOptions = ShoppingBudgetOption.options(budgets: budgets, categories: categories)
+        } catch {
+            // Budgets are optional here; the session works without one.
+            budgetOptions = []
+        }
     }
 
     private func addItem() {
@@ -164,6 +216,31 @@ struct ShoppingModeView: View {
         itemCount += 1
         amountText = ""
         Task { await controller.updateShoppingSession(addingAmount: amount) }
+    }
+}
+
+/// A budget the shopping session can count against, with what is left in it now.
+struct ShoppingBudgetOption: Identifiable, Equatable {
+    let id: UUID
+    let name: String
+    let remaining: Decimal
+
+    /// Named the way the Budgets screen names them: the category, or "Overall"
+    /// for the budget with none. A budget whose category was deleted is left
+    /// out — there is no name to show that the user would recognise.
+    static func options(budgets: [BudgetEntity], categories: [CategoryEntity]) -> [ShoppingBudgetOption] {
+        let names = Dictionary(categories.map { ($0.id, $0.displayName) }, uniquingKeysWith: { first, _ in first })
+        return budgets.compactMap { budget -> ShoppingBudgetOption? in
+            let name: String
+            if let categoryID = budget.categoryID {
+                guard let categoryName = names[categoryID] else { return nil }
+                name = categoryName
+            } else {
+                name = String(localized: "Overall")
+            }
+            return ShoppingBudgetOption(id: budget.id, name: name, remaining: budget.remaining)
+        }
+        .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 }
 

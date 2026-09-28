@@ -122,7 +122,6 @@
       }
     },
     "Budget left": {
-      "extractionState": "stale",
       "localizations": {
         "es": {
           "stringUnit": {
