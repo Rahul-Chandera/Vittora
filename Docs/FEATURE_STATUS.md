@@ -198,8 +198,10 @@ These are not missing features — they are things the test suite cannot prove, 
 Ordered by user value against effort. Everything on the previous version of this list
 (M2.5.5, M1.6.6, M3.3, M3.4, M3.5) has been built.
 
-1. **M3.7.1 FinanceKit.** Request Apple's FinanceKit entitlement before building — it is
-   restricted, needs Apple's approval, and covers US Apple Card / Apple Cash only.
+1. **M3.7.1 FinanceKit.** Built (#293) and dark: `VittoraFinanceKitEnabled` is false until
+   Apple grants the entitlement (requested 2026-09-28). FinanceKit traps without it, so the
+   flag and `Vittora.entitlements` flip together. Stays ❌ until device-tested with real
+   Apple Card / Cash data, per the M3.7.1 handoff.
 2. **M2.6.2 Watch voice entry.** Built (#292) — needs a real upload, since the Watch target has
    broken submissions before (`release-bundle-gotchas`), and a Siri test on a paired watch.
 3. **M3.1 Vision Pro.** Largest effort, smallest audience for a finance app. Last.
