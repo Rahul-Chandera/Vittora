@@ -107,6 +107,7 @@ let generateUseCase = GenerateRecurringTransactionsUseCase(
     ruleRepository: recurringRepo,
     transactionRepository: transactionRepo,
     accountRepository: accountRepo,
+    categoryRepository: categoryRepo,
     ledgerWriting: ledgerWriteStore
 )
 let coordinator = RecurringGenerationCoordinator(useCase: generateUseCase)

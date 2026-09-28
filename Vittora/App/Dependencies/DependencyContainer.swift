@@ -152,6 +152,7 @@ final class DependencyContainer {
             ruleRepository: recurringRuleRepository,
             transactionRepository: transactionRepository,
             accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
             ledgerWriting: ledgerWriteStore
         )
         let recurringGenerationCoordinator = RecurringGenerationCoordinator(useCase: generateUseCase)
