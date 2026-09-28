@@ -98,12 +98,17 @@ public struct BillCountdownAttributes: ActivityAttributes, Sendable {
     public var amount: Decimal
     public var currencyCode: String
     public var dueDate: Date
+    /// The recurring rule this countdown is for, so the rule's screen can find
+    /// its own activity again after a relaunch and offer "Mark as Paid".
+    /// Optional so activities started before it existed still decode.
+    public var ruleID: UUID?
 
-    public init(billName: String, amount: Decimal, currencyCode: String, dueDate: Date) {
+    public init(billName: String, amount: Decimal, currencyCode: String, dueDate: Date, ruleID: UUID? = nil) {
         self.billName = billName
         self.amount = amount
         self.currencyCode = currencyCode
         self.dueDate = dueDate
+        self.ruleID = ruleID
     }
 }
 
