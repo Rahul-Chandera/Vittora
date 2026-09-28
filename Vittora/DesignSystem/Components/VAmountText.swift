@@ -74,7 +74,16 @@ struct VAmountText: View {
     }
 
     private var formattedAmount: String {
-        abs(amount).formatted(.currency(code: currencyCode).precision(.fractionLength(0...2)))
+        // `.fractionLength(0...2)` here dropped trailing zeros, so money lost
+        // its cents: a 150.00 budget with 101.50 spent read "$101.5" and
+        // "$48.5", and 32.00 read "$32", next to correctly formatted values
+        // like "$189.99" in the same card. Only amounts whose cents happen to
+        // end in zero were affected, which is why it survived.
+        //
+        // The currency style's own default is right per currency — two places
+        // for USD, none for JPY — so it is not overridden at all. This matches
+        // `Decimal.formatted(currencyCode:)`, which the rest of the app uses.
+        abs(amount).formatted(.currency(code: currencyCode))
     }
 
     private var amountColor: Color {
