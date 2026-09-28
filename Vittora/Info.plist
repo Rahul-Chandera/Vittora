@@ -10,6 +10,9 @@
 	<string>Vittora uses contacts to help you link people and businesses to payees and debt records.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Face ID is used to unlock your private financial data on this device.</string>
+	<!-- Lets the system hand a household invitation (CKShare link) to Vittora. -->
+	<key>CKSharingSupported</key>
+	<true/>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>

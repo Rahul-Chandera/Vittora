@@ -70,7 +70,7 @@ final class LiveActivityController {
             runningTotal: 0,
             itemCount: 0,
             budgetRemaining: budgetRemaining,
-            isOverBudget: false
+            isOverBudget: (budgetRemaining ?? 0) < 0
         )
 
         do {
@@ -111,17 +111,70 @@ final class LiveActivityController {
 
     // MARK: - Bill countdown (M3.3.3)
 
+    /// How long ActivityKit keeps a Live Activity: 8 hours active, then up to 4
+    /// more on the Lock Screen before the system removes it.
+    nonisolated static let liveActivityLifetime: TimeInterval = 12 * 60 * 60
+
+    /// The moment a bill countdown counts down to, or nil when one can't be
+    /// offered for this date right now.
+    ///
+    /// The target is the START of the due day: that is when the bill becomes
+    /// due, and it is the day Vittora records the payment, so a countdown to
+    /// anything later would still be running after the transaction appeared.
+    ///
+    /// Only offered once the due moment is within the Live Activity lifetime.
+    /// A countdown started days out would be removed by the system long before
+    /// it reached zero, which reads as the feature breaking.
+    nonisolated static func billCountdownDueMoment(
+        nextDate: Date,
+        now: Date = .now,
+        calendar: Calendar = .current
+    ) -> Date? {
+        let due = calendar.startOfDay(for: nextDate)
+        let remaining = due.timeIntervalSince(now)
+        guard remaining > 0, remaining <= liveActivityLifetime else { return nil }
+        return due
+    }
+
+    /// The recurring rule whose countdown is on the Lock Screen, if any.
+    var activeBillRuleID: UUID? {
+        #if os(iOS)
+        currentBillActivity?.attributes.ruleID
+        #else
+        nil
+        #endif
+    }
+
+    #if os(iOS)
+    /// The running countdown, adopting one left over from a previous launch —
+    /// otherwise a relaunch would lose track of it and "Mark as Paid" would
+    /// have nothing to end.
+    private var currentBillActivity: Activity<BillCountdownAttributes>? {
+        if let billActivity, billActivity.activityState == .active { return billActivity }
+        billActivity = Activity<BillCountdownAttributes>.activities.first { $0.activityState == .active }
+        return billActivity
+    }
+    #endif
+
+    /// Starts a countdown, replacing any other bill's. One at a time: two
+    /// countdowns would compete for the single Dynamic Island slot.
     @discardableResult
     func startBillCountdown(
         billName: String,
         amount: Decimal,
         currencyCode: String,
-        dueDate: Date
-    ) -> Bool {
+        dueDate: Date,
+        ruleID: UUID? = nil
+    ) async -> Bool {
         #if os(iOS)
-        guard areActivitiesEnabled, billActivity == nil else { return false }
+        guard areActivitiesEnabled else { return false }
         // A bill already due needs paying, not counting down to.
         guard dueDate > .now else { return false }
+
+        if currentBillActivity != nil {
+            await billActivity?.end(nil, dismissalPolicy: .immediate)
+            billActivity = nil
+        }
 
         do {
             billActivity = try Activity.request(
@@ -129,7 +182,8 @@ final class LiveActivityController {
                     billName: billName,
                     amount: amount,
                     currencyCode: currencyCode,
-                    dueDate: dueDate
+                    dueDate: dueDate,
+                    ruleID: ruleID
                 ),
                 content: ActivityContent(
                     state: BillCountdownAttributes.ContentState(isPaid: false),
@@ -150,7 +204,7 @@ final class LiveActivityController {
 
     func markBillPaid() async {
         #if os(iOS)
-        guard billActivity != nil else { return }
+        guard currentBillActivity != nil else { return }
         // Show "paid" briefly rather than vanishing mid-glance, then dismiss.
         await billActivity?.update(
             ActivityContent(state: BillCountdownAttributes.ContentState(isPaid: true), staleDate: nil)

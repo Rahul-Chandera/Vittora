@@ -215,6 +215,17 @@ struct BudgetListView: View {
         }
         .navigationTitle(String(localized: "Budgets"))
         .toolbar {
+            // M3.4: shared budgets live beside personal ones.
+            ToolbarItem(placement: .primaryAction) {
+                NavigationLink {
+                    HouseholdView()
+                } label: {
+                    Image(systemName: "person.2")
+                }
+                .accessibilityIdentifier("budget-household-button")
+                .accessibilityLabel(String(localized: "Household"))
+                .accessibilityHint(String(localized: "Opens shared household budgets"))
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showAddBudget = true }) {
                     Image(systemName: "plus")

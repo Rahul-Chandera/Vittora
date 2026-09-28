@@ -128,5 +128,94 @@ struct LiveActivityControllerTests {
         let decoded = try JSONDecoder().decode(BillCountdownAttributes.ContentState.self, from: data)
         #expect(decoded.isPaid)
     }
+
+    // MARK: - Bill countdown window (M3.3.3)
+
+    private var utc: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+        return calendar
+    }
+
+    private func date(_ iso: String) -> Date {
+        (try? Date(iso, strategy: .iso8601)) ?? .distantPast
+    }
+
+    /// The target is midnight at the start of the due day — the rule's time of
+    /// day is whenever it was created, and means nothing to the user.
+    @Test("the countdown targets the start of the due day")
+    func countdownTargetsStartOfDueDay() {
+        let due = LiveActivityController.billCountdownDueMoment(
+            nextDate: date("2026-10-05T15:47:00Z"),
+            now: date("2026-10-04T20:00:00Z"),
+            calendar: utc
+        )
+        #expect(due == date("2026-10-05T00:00:00Z"))
+    }
+
+    /// ActivityKit removes an activity after 12 hours at most, so a countdown
+    /// started earlier would vanish before it reached zero.
+    @Test("not offered until the due moment is within the Live Activity lifetime")
+    func countdownNotOfferedTooEarly() {
+        let next = date("2026-10-05T09:00:00Z")
+        #expect(LiveActivityController.billCountdownDueMoment(
+            nextDate: next, now: date("2026-10-04T11:59:00Z"), calendar: utc
+        ) == nil)
+        #expect(LiveActivityController.billCountdownDueMoment(
+            nextDate: next, now: date("2026-10-04T12:00:00Z"), calendar: utc
+        ) != nil)
+    }
+
+    @Test("not offered once the bill is due")
+    func countdownNotOfferedWhenDue() {
+        #expect(LiveActivityController.billCountdownDueMoment(
+            nextDate: date("2026-10-05T09:00:00Z"),
+            now: date("2026-10-05T00:00:00Z"),
+            calendar: utc
+        ) == nil)
+    }
+
+    /// Attributes cross into the widget extension, and a countdown started by
+    /// the previous build has no `ruleID`. It must still decode, or the running
+    /// activity silently disappears on update.
+    @Test("bill attributes without a rule id still decode")
+    func billAttributesDecodeWithoutRuleID() throws {
+        let original = BillCountdownAttributes(
+            billName: "Rent", amount: 1_200, currencyCode: "USD",
+            dueDate: date("2026-10-05T00:00:00Z")
+        )
+        let decoded = try JSONDecoder().decode(
+            BillCountdownAttributes.self, from: JSONEncoder().encode(original)
+        )
+        #expect(decoded.ruleID == nil)
+        #expect(decoded.billName == "Rent")
+
+        let ruleID = UUID()
+        var withRule = original
+        withRule.ruleID = ruleID
+        let decodedWithRule = try JSONDecoder().decode(
+            BillCountdownAttributes.self, from: JSONEncoder().encode(withRule)
+        )
+        #expect(decodedWithRule.ruleID == ruleID)
+    }
+
+    // MARK: - Shopping budget options (M3.3.2)
+
+    @Test("budgets are named by category, or Overall, and deleted categories are dropped")
+    func shoppingBudgetOptions() {
+        let groceries = CategoryEntity(name: "Groceries", icon: "cart", type: .expense)
+        let overall = BudgetEntity(amount: 2_000, spent: 500)
+        let food = BudgetEntity(amount: 400, spent: 150, categoryID: groceries.id)
+        let orphan = BudgetEntity(amount: 100, categoryID: UUID())
+
+        let options = ShoppingBudgetOption.options(
+            budgets: [overall, food, orphan],
+            categories: [groceries]
+        )
+
+        #expect(options.map(\.id) == [food.id, overall.id])
+        #expect(options.first?.remaining == 250)
+        #expect(options.last?.name == String(localized: "Overall"))
+    }
 }
 #endif
