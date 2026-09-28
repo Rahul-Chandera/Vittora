@@ -35,17 +35,12 @@ struct FinancialHealthScoreReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .safeAreaInset(edge: .bottom) {
-            // Clearance for the floating tab bar. Without it the last card runs
-            // under the bar — caught on iPhone 17 Pro Max / iOS 26.5, where the
-            // What If card's final caveat line was clipped by it.
-            //
-            // Taller at accessibility sizes for the same reason the other report
-            // screens are: the bar grows with the type size.
-            VColors.groupedBackground
-                .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar as PADDING, not a painted strip. An
+        // opaque safeAreaInset band sat over the last ~72pt of scrolling content,
+        // slicing rows mid-glyph and hiding them from view — and the accessibility
+        // audit sampled the band under their frames and failed contrast at 1.01:1
+        // (#197's defect, still live here until the audit flake was traced to it).
+        .safeAreaPadding(.bottom, dynamicTypeSize.isAccessibilitySize ? 140 : 72)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Financial Health"))
