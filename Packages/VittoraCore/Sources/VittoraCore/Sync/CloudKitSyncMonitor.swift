@@ -130,9 +130,25 @@ public final class CloudKitSyncMonitor {
     /// description, which can name the iCloud account or container.
     /// The user-facing message stays plain language; this is the part support
     /// needs to tell a quota problem from a container problem.
+    ///
+    /// A `partialFailure` (2) or `batchRequestFailed` (22) is only a wrapper:
+    /// the reason is in the per-record errors inside it. Reporting the outer
+    /// code alone left a real 1.7.1 support payload reading just
+    /// `SyncError(CKError.2)` — consistent with a Production schema missing a
+    /// field, but unable to confirm it. The distinct inner codes are appended,
+    /// e.g. `CKError.2(12,15)`, still codes only and still non-identifying.
     public func syncDiagnosticCode(for error: Error) -> String {
         if let ckError = extractCKError(from: error) {
-            return "CKError.\(ckError.code.rawValue)"
+            let outer = "CKError.\(ckError.code.rawValue)"
+            guard ckError.code == .partialFailure || ckError.code == .batchRequestFailed,
+                  let perItem = ckError.userInfo[CKPartialErrorsByItemIDKey] as? [AnyHashable: Error],
+                  !perItem.isEmpty
+            else { return outer }
+            let inner = Set(perItem.values.compactMap { extractCKError(from: $0)?.code.rawValue })
+                .sorted()
+                .map(String.init)
+                .joined(separator: ",")
+            return inner.isEmpty ? outer : "\(outer)(\(inner))"
         }
         let nsError = error as NSError
         return "\(nsError.domain).\(nsError.code)"

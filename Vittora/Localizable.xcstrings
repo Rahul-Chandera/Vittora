@@ -97,6 +97,22 @@
         }
       }
     },
+    "A countdown to this bill can go on your Lock Screen in the 12 hours before it's due." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes mostrar una cuenta atrás de esta factura en la pantalla de bloqueo durante las 12 horas previas a su vencimiento."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "देय होने से पहले के 12 घंटों में इस बिल की उलटी गिनती आपकी लॉक स्क्रीन पर दिखाई जा सकती है।"
+          }
+        }
+      }
+    },
     "Add household budget" : {
       "localizations" : {
         "es" : {
@@ -125,6 +141,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "घरेलू खर्च जोड़ें"
+          }
+        }
+      }
+    },
+    "Bill" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Factura"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बिल"
           }
         }
       }
@@ -173,6 +205,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "आमंत्रित करते समय चुनें कि हर व्यक्ति बदलाव कर सकता है या केवल देख सकता है। आप इसे बाद में सदस्यों को आमंत्रित या प्रबंधित करें से बदल सकते हैं।"
+          }
+        }
+      }
+    },
+    "Count against budget" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contar en el presupuesto"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बजट में गिनें"
           }
         }
       }
@@ -401,6 +449,22 @@
         }
       }
     },
+    "Mark as Paid" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar como pagada"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भुगतान किया गया चिह्नित करें"
+          }
+        }
+      }
+    },
     "Monthly amount" : {
       "localizations" : {
         "es" : {
@@ -557,6 +621,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "साझा बजट"
+          }
+        }
+      }
+    },
+    "Show Countdown on Lock Screen" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar cuenta atrás en la pantalla de bloqueo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "लॉक स्क्रीन पर उलटी गिनती दिखाएँ"
           }
         }
       }
@@ -7539,7 +7619,6 @@
       }
     },
     "Budget left" : {
-      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
