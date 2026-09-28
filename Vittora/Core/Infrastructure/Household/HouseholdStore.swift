@@ -41,6 +41,9 @@ final class HouseholdStore {
     private var engine: CKSyncEngine?
     private var didStart = false
     private let isDemo: Bool
+    /// UI-test/screenshot seed only: a demo household has no real CKShare, so
+    /// its members are supplied directly.
+    private var demoMembers: [HouseholdMember] = []
 
     private init() {
         let args = ProcessInfo.processInfo.arguments
@@ -61,6 +64,11 @@ final class HouseholdStore {
         )
         role = .owner
         memberID = "demo-me"
+        demoMembers = [
+            HouseholdMember(id: "demo-me", name: "Alex", isOwner: true, isCurrentUser: true, canEdit: true, hasAccepted: true),
+            HouseholdMember(id: "demo-sam", name: "Sam", isOwner: false, isCurrentUser: false, canEdit: true, hasAccepted: true),
+            HouseholdMember(id: "demo-jordan", name: "Jordan", isOwner: false, isCurrentUser: false, canEdit: false, hasAccepted: true),
+        ]
         ledger = HouseholdLedger(budgets: [groceries], expenses: [
             HouseholdExpense(id: "demo-1", budgetID: groceries.id, amount: Decimal(string: "84.20") ?? 0,
                              note: "Weekly shop", date: .now, memberID: "demo-me", memberName: "Alex"),
@@ -82,6 +90,7 @@ final class HouseholdStore {
 
     /// Everyone on the share, owner first, then by name.
     var members: [HouseholdMember] {
+        if isDemo { return demoMembers }
         guard let share else { return [] }
         return share.participants.map { participant in
             HouseholdMember(

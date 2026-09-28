@@ -3,6 +3,7 @@ import VittoraCore
 
 struct TaxDashboardView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(AppState.self) private var appState
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var vm: TaxEstimateViewModel?
     @State private var showProfileForm = false
@@ -52,7 +53,10 @@ struct TaxDashboardView: View {
                 .accessibilityIdentifier("tax-profile-button")
             }
         }
-        .task {
+        // Keyed on transactions so the estimate reloads when data arrives
+        // after the screen opened — a synced or seeded tax profile and new
+        // income otherwise stayed "No Tax Profile" until the tab was reopened.
+        .task(id: appState.refreshVersion(for: .transactions)) {
             if vm == nil {
                 let summaryUseCase = GenerateTaxSummaryUseCase(
                     transactionRepository: dependencies.transactionRepository,
@@ -71,8 +75,8 @@ struct TaxDashboardView: View {
                     ),
                     exportService: dependencies.exportService
                 )
-                await vm?.load()
             }
+            await vm?.load()
         }
         .sheet(isPresented: $showProfileForm) {
             TaxProfileFormView(existingProfile: vm?.profile) {
