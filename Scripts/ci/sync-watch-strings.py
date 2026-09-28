@@ -57,7 +57,13 @@ def watch_keys():
             data = json.load(open(path))
         except (json.JSONDecodeError, OSError):
             continue
-        for entries in data.get("tables", {}).values():
+        for table, entries in data.get("tables", {}).items():
+            # Localizable only, like check-localization-coverage.sh. Siri
+            # phrases land in the AppShortcuts table; they are localized
+            # through AppShortcuts.xcstrings, and copying them into this
+            # catalogue would only add keys nothing reads.
+            if table != "Localizable":
+                continue
             for entry in entries:
                 key = entry.get("key")
                 if key:

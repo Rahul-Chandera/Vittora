@@ -52,6 +52,16 @@ final class WatchSnapshotStore: NSObject {
         pendingExpense = Self.loadPending(from: pendingURL)
     }
 
+    /// For Siri: the intent can run before the app's scene has activated the
+    /// session, and a transfer on an inactive session is dropped. Waits up to
+    /// three seconds for activation.
+    func activateAndWait() async {
+        if session.activationState != .activated { activate() }
+        for _ in 0..<30 where session.activationState != .activated {
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+    }
+
     func activate() {
         guard WCSession.isSupported() else { return }
         session.delegate = self
@@ -61,7 +71,7 @@ final class WatchSnapshotStore: NSObject {
     }
 
     @discardableResult
-    func enqueueExpense(amount: Decimal, categoryID: UUID?) -> Bool {
+    func enqueueExpense(amount: Decimal, categoryID: UUID?, categoryHint: String? = nil) -> Bool {
         guard amount > 0 else {
             lastErrorMessage = String(localized: "Amount must be greater than zero")
             return false
@@ -70,7 +80,7 @@ final class WatchSnapshotStore: NSObject {
             lastErrorMessage = String(localized: "Watch connectivity is unavailable.")
             return false
         }
-        let payload = QueuedWatchExpense(amount: amount, categoryID: categoryID)
+        let payload = QueuedWatchExpense(amount: amount, categoryID: categoryID, categoryHint: categoryHint)
         pendingExpense = payload
         try? payload.encodeForTransport().write(to: pendingURL, options: [.atomic])
         _ = session.transferUserInfo(payload.userInfoDictionary())
@@ -165,7 +175,9 @@ final class WatchSnapshotStore: NSObject {
         let matchingTransaction = snapshot.recentTransactions.contains { transaction in
             transaction.type == .expense
                 && transaction.amount == pendingExpense.amount
-                && transaction.categoryID == pendingExpense.categoryID
+                // A hinted category is resolved on the phone, so the watch
+                // cannot know which ID to expect.
+                && (pendingExpense.categoryHint != nil || transaction.categoryID == pendingExpense.categoryID)
                 && transaction.date >= pendingExpense.createdAt.addingTimeInterval(-1)
         }
         guard matchingTransaction else { return }

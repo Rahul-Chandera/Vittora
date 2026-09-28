@@ -18,6 +18,9 @@
 	<string>Vittora reads the Apple Card, Apple Cash and Savings transactions you choose to import into your ledger on this iPhone. Nothing is sold or shared, and no bank login is involved.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Face ID is used to unlock your private financial data on this device.</string>
+	<!-- Lets the system hand a household invitation (CKShare link) to Vittora. -->
+	<key>CKSharingSupported</key>
+	<true/>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>

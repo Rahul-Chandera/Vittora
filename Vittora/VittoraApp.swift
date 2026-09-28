@@ -31,6 +31,13 @@ struct VittoraApp: App {
     @State private var spotlightCoordinator: TransactionSpotlightCoordinator?
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
+    // Household invitations (M3.4.1) only reach the app through a platform
+    // delegate; see HouseholdShareAcceptance.
+    #if os(iOS)
+    @UIApplicationDelegateAdaptor(VittoraAppDelegate.self) private var appDelegate
+    #elseif os(macOS)
+    @NSApplicationDelegateAdaptor(VittoraAppDelegate.self) private var appDelegate
+    #endif
 
     private let modelContainer: ModelContainer?
     private let isUITesting: Bool
@@ -285,8 +292,10 @@ struct VittoraApp: App {
                     #if os(macOS)
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
+                    .householdInvitationSheet()
                     .task {
                         dependencies.purchaseService.start()
+                        HouseholdStore.shared.start()
                         registerQuickAddIntentHandler()
                         #if os(iOS)
                         activateWatchBridgeIfNeeded()
@@ -583,11 +592,19 @@ struct VittoraApp: App {
                         String(localized: "No account available for Watch expenses.")
                     )
                 }
+                // Voice entry names a category the watch didn't have; match
+                // it against every expense category here. No match leaves it
+                // uncategorised rather than guessing.
+                var categoryID = expense.categoryID
+                if categoryID == nil, let hint = expense.categoryHint {
+                    let categories = try await categoryRepository.fetchByType(.expense)
+                    categoryID = WatchVoiceExpense.matchCategory(hint, in: categories, name: \.displayName)?.id
+                }
                 _ = try await addUseCase.execute(
                     amount: expense.amount,
                     type: .expense,
                     date: expense.createdAt,
-                    categoryID: expense.categoryID,
+                    categoryID: categoryID,
                     accountID: account.id,
                     payeeID: nil,
                     note: String(localized: "Apple Watch"),
