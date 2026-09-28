@@ -52,6 +52,16 @@ struct AmountInputView: View {
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         .textContentType(nil)
+                        // A decimal pad has no Return key, so without this the
+                        // only way to put it away was tapping somewhere inert —
+                        // and it stayed up over the form's other rows.
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button(String(localized: "Done")) { isAmountFocused = false }
+                                    .accessibilityIdentifier("amount-keyboard-done")
+                            }
+                        }
                         #elseif os(macOS)
                         .textFieldStyle(.plain)
                         #endif

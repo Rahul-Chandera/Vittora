@@ -931,15 +931,24 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// form's own colours. Nothing is excused here: the rows are audited, just
     /// once they are actually visible.
     ///
-    /// A decimal pad has no Return key, so focus is resigned by tapping the
-    /// navigation bar, which is inert on these screens.
+    /// Dismissed with the amount field's keyboard Done button, the way a user
+    /// would. The old way — tapping the navigation bar — silently failed at
+    /// accessibility sizes: the keyboard stayed up and the audit sampled the
+    /// system number pad ("4 GHI") as a contrast failure on CI. A keyboard
+    /// that is still up afterwards is a test failure, not something to audit.
     @MainActor
     private func dismissKeyboardIfPresent() {
         guard app.keyboards.element.exists else { return }
-        let bar = app.navigationBars.firstMatch
-        guard bar.exists else { return }
-        bar.tap()
-        _ = app.keyboards.element.waitForNonExistence(timeout: 3)
+        let done = app.buttons["amount-keyboard-done"]
+        if done.exists {
+            done.tap()
+        } else if app.navigationBars.firstMatch.exists {
+            app.navigationBars.firstMatch.tap()
+        }
+        XCTAssertTrue(
+            app.keyboards.element.waitForNonExistence(timeout: 5),
+            "The keyboard must be dismissed before auditing; otherwise the audit samples it."
+        )
     }
 
     /// Waits for rendering to stop moving before the audit samples anything.
