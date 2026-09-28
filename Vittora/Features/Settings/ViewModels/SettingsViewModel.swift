@@ -368,9 +368,22 @@ final class SettingsViewModel {
     var userName: String {
         get {
             access(keyPath: \.userName)
-            return _userName
+            return Self.uiTestUserNameOverride ?? _userName
         }
     }
+
+    /// Screenshots only (`--uitesting --ui-test-user-name=Alex`): a display name
+    /// that is never written anywhere. The real name lives in the keychain, and
+    /// on the Mac that is the owner's own keychain — a demo name must not
+    /// overwrite it, and the real one must not appear in marketing shots.
+    @ObservationIgnored private static let uiTestUserNameOverride: String? = {
+        let arguments = ProcessInfo.processInfo.arguments
+        let prefix = "--ui-test-user-name="
+        guard arguments.contains("--uitesting"),
+              let raw = arguments.first(where: { $0.hasPrefix(prefix) })
+        else { return nil }
+        return String(raw.dropFirst(prefix.count))
+    }()
 
     func updateUserName(_ newValue: String) async {
         let previous = _userName

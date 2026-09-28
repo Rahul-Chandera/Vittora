@@ -205,7 +205,9 @@ struct AnnualReportView: View {
                 .font(VTypography.subheadline)
                 .foregroundStyle(VColors.textSecondary)
 
-            ForEach(vm.monthlyData.reversed()) { data in
+            // Months that haven't started yet have nothing to break down; for the
+            // current year they listed as a column of $0.00 rows above today.
+            ForEach(vm.monthlyData.filter { $0.month <= .now }.reversed()) { data in
                 HStack {
                     Text(data.month.formatted(.dateTime.month(.wide)))
                         .font(VTypography.body)
