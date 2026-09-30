@@ -63,7 +63,7 @@ struct EvaluateSpendingInsightsUseCase: Sendable {
             filter: TransactionFilter(dateRange: windowStart...now, types: Set([.expense]))
         )
         let categories = try await categoryRepository.fetchAll()
-        let categoriesByID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+        let categoriesByID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
         // Bucket by category and month. The current month is the one being judged; the
         // completed months before it are the norm.

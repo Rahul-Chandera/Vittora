@@ -10,8 +10,7 @@ public actor SwiftDataCategoryRepository: CategoryRepository {
                 SortDescriptor(\.name, order: .forward)
             ]
         )
-        let models = try modelContext.fetch(descriptor)
-        return models.map(CategoryMapper.toEntity)
+        return Self.uniqueEntities(try modelContext.fetch(descriptor))
     }
 
     public func fetchByID(_ id: UUID) async throws -> CategoryEntity? {
@@ -47,10 +46,13 @@ public actor SwiftDataCategoryRepository: CategoryRepository {
         let descriptor = FetchDescriptor<SDCategory>(
             predicate: #Predicate { $0.id == id }
         )
-        guard let model = try modelContext.fetch(descriptor).first else {
+        let models = try modelContext.fetch(descriptor)
+        guard !models.isEmpty else {
             throw VittoraError.notFound(String(localized: "Category not found"))
         }
-        CategoryMapper.updateModel(model, from: entity)
+        for model in models {
+            CategoryMapper.updateModel(model, from: entity)
+        }
         try modelContext.save()
     }
 
@@ -58,10 +60,13 @@ public actor SwiftDataCategoryRepository: CategoryRepository {
         let descriptor = FetchDescriptor<SDCategory>(
             predicate: #Predicate { $0.id == id }
         )
-        guard let model = try modelContext.fetch(descriptor).first else {
+        let models = try modelContext.fetch(descriptor)
+        guard !models.isEmpty else {
             throw VittoraError.notFound(String(localized: "Category not found"))
         }
-        modelContext.delete(model)
+        for model in models {
+            modelContext.delete(model)
+        }
         try modelContext.save()
     }
 
@@ -73,8 +78,7 @@ public actor SwiftDataCategoryRepository: CategoryRepository {
                 SortDescriptor(\.name, order: .forward)
             ]
         )
-        let models = try modelContext.fetch(descriptor)
-        return models.map(CategoryMapper.toEntity)
+        return Self.uniqueEntities(try modelContext.fetch(descriptor))
     }
 
     public func fetchByType(_ type: CategoryType) async throws -> [CategoryEntity] {
@@ -86,7 +90,18 @@ public actor SwiftDataCategoryRepository: CategoryRepository {
                 SortDescriptor(\.name, order: .forward)
             ]
         )
-        let models = try modelContext.fetch(descriptor)
-        return models.map(CategoryMapper.toEntity)
+        return Self.uniqueEntities(try modelContext.fetch(descriptor))
+    }
+
+    /// CloudKit mirroring has no unique constraints, so one category can exist as
+    /// several rows with the same `id`: every device seeds the defaults with the
+    /// same deterministic IDs, and a store that switches CloudKit environment
+    /// (an Xcode build over the App Store one) re-imports what it already has.
+    /// The launch-time seeder merges the defaults, but an import can land after
+    /// it. Readers see one entity per id; update and delete act on every copy,
+    /// so a deleted category cannot come back from its twin.
+    private static func uniqueEntities(_ models: [SDCategory]) -> [CategoryEntity] {
+        var seen = Set<UUID>()
+        return models.filter { seen.insert($0.id).inserted }.map(CategoryMapper.toEntity)
     }
 }

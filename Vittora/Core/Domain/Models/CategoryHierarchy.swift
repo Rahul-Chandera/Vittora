@@ -58,7 +58,7 @@ enum CategoryHierarchy {
     /// than dropped. Data can arrive from CloudKit in any order, and a category that
     /// vanishes from the list because its parent has not synced yet reads as data loss.
     nonisolated static func grouped(_ categories: [CategoryEntity]) -> [(parent: CategoryEntity, children: [CategoryEntity])] {
-        let byID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+        let byID = Dictionary(categories.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         let roots = categories.filter { category in
             guard let parentID = category.parentID else { return true }
             guard let parent = byID[parentID] else { return true }
