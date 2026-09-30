@@ -128,8 +128,20 @@ enum UITestSupport {
 
         let tabBarButton = app.tabBars.buttons[title]
         if tabBarButton.waitForExistence(timeout: timeout) {
-            tapWhenReady(tabBarButton, timeout: timeout)
-            return true
+            // Confirm the tab actually became selected, and tap again if not.
+            // At accessibility text sizes a tab-bar press that runs long opens
+            // the Large Content Viewer instead of selecting the tab — on a slow
+            // CI host a synthesized tap can. CI's recording showed exactly that:
+            // the Liquid Glass press lens moved to Transactions, then snapped
+            // back to Dashboard, and the list wait timed out on a tab that was
+            // never opened (testAccessibility3ScreenshotsForCoreFlows, #280/#294).
+            for _ in 0..<3 {
+                tapWhenReady(tabBarButton, timeout: timeout)
+                let selected = NSPredicate(format: "isSelected == true")
+                let wait = XCTNSPredicateExpectation(predicate: selected, object: tabBarButton)
+                if XCTWaiter.wait(for: [wait], timeout: 3) == .completed { return true }
+            }
+            return tabBarButton.isSelected
         }
 
         let navButton = app.buttons[title].firstMatch
