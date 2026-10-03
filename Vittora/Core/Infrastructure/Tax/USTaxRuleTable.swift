@@ -34,7 +34,13 @@ enum USTaxRuleTable {
 
     struct YearRules: Sendable {
         let byStatus: ByStatus
-        let age65AdditionalStandardDeduction: Decimal
+        /// Existing aged/blind standard-deduction increment, per condition.
+        /// Unmarried (single, head of household) vs married or surviving spouse.
+        let agedAdditionalStandardDeductionUnmarried: Decimal
+        let agedAdditionalStandardDeductionMarried: Decimal
+        /// OBBBA enhanced senior deduction (2025–2028), per eligible person,
+        /// taken with standard OR itemized deductions. 0 where not in force.
+        let enhancedSeniorDeduction: Decimal
         let socialSecurityWageBase: Decimal
         let socialSecurityRate: Decimal
         let medicareRate: Decimal
@@ -44,10 +50,24 @@ enum USTaxRuleTable {
         let preferentialTwentyRate: Decimal
         let contribution401kBase: Decimal
         let contribution401kCatchUp: Decimal
+        /// SECURE 2.0 higher catch-up for ages 60–63 (from 2025).
+        let contribution401kCatchUpAge60To63: Decimal
         let contributionIRABase: Decimal
         let contributionIRACatchUp: Decimal
         let contributionHSAFamily: Decimal
         let contributionHSAIndividual: Decimal
+        /// HSA catch-up from age 55 (fixed by statute).
+        let contributionHSACatchUp: Decimal
+    }
+
+    /// The enhanced senior deduction falls by 6% of MAGI over these.
+    nonisolated static let enhancedSeniorPhaseOutRate = Decimal(string: "0.06") ?? 0
+    nonisolated static func enhancedSeniorPhaseOutStart(for status: USFilingStatus) -> Decimal {
+        status == .marriedFilingJointly ? 150_000 : 75_000
+    }
+
+    nonisolated static func isHeld(_ taxYear: Int) -> Bool {
+        entries.contains { $0.year == taxYear }
     }
 
     private struct Entry: Sendable {
@@ -61,6 +81,8 @@ enum USTaxRuleTable {
         Entry(year: 2025, rules: year2025),
         Entry(year: 2026, rules: year2026),
     ]
+
+    nonisolated static var heldYears: [Int] { entries.map(\.year) }
 
     nonisolated static var latestTaxYear: Int {
         entries.map(\.year).max() ?? entries[0].year
@@ -159,20 +181,24 @@ enum USTaxRuleTable {
                 qualifyingSurvivingSpouse: marriedJoint
             )
         }(),
-        age65AdditionalStandardDeduction: 6_000,
-        socialSecurityWageBase: 176_100,
+        agedAdditionalStandardDeductionUnmarried: 1_950,
+        agedAdditionalStandardDeductionMarried: 1_550,
+        enhancedSeniorDeduction: 0,
+        socialSecurityWageBase: 168_600,
         socialSecurityRate: Decimal(string: "0.062") ?? 0,
         medicareRate: Decimal(string: "0.0145") ?? 0,
         additionalMedicareRate: Decimal(string: "0.009") ?? 0,
         niitRate: Decimal(string: "0.038") ?? 0,
         preferentialFifteenRate: Decimal(string: "0.15") ?? 0,
         preferentialTwentyRate: Decimal(string: "0.20") ?? 0,
-        contribution401kBase: 23_500,
+        contribution401kBase: 23_000,
         contribution401kCatchUp: 7_500,
+        contribution401kCatchUpAge60To63: 7_500,
         contributionIRABase: 7_000,
         contributionIRACatchUp: 1_000,
-        contributionHSAFamily: 8_550,
-        contributionHSAIndividual: 4_300
+        contributionHSAFamily: 8_300,
+        contributionHSAIndividual: 4_150,
+        contributionHSACatchUp: 1_000
     )
 
     // MARK: - 2025
@@ -251,7 +277,9 @@ enum USTaxRuleTable {
                 qualifyingSurvivingSpouse: marriedJoint
             )
         }(),
-        age65AdditionalStandardDeduction: 6_000,
+        agedAdditionalStandardDeductionUnmarried: 2_000,
+        agedAdditionalStandardDeductionMarried: 1_600,
+        enhancedSeniorDeduction: 6_000,
         socialSecurityWageBase: 176_100,
         socialSecurityRate: Decimal(string: "0.062") ?? 0,
         medicareRate: Decimal(string: "0.0145") ?? 0,
@@ -261,10 +289,12 @@ enum USTaxRuleTable {
         preferentialTwentyRate: Decimal(string: "0.20") ?? 0,
         contribution401kBase: 23_500,
         contribution401kCatchUp: 7_500,
+        contribution401kCatchUpAge60To63: 11_250,
         contributionIRABase: 7_000,
         contributionIRACatchUp: 1_000,
         contributionHSAFamily: 8_550,
-        contributionHSAIndividual: 4_300
+        contributionHSAIndividual: 4_300,
+        contributionHSACatchUp: 1_000
     )
 
     // MARK: - 2026
@@ -282,8 +312,8 @@ enum USTaxRuleTable {
                     TaxSlab(lower: 256_225, upper: 640_600, ratePercent: 35, label: "$256,225 – $640,600"),
                     TaxSlab(lower: 640_600, upper: nil,     ratePercent: 37, label: "Over $640,600"),
                 ],
-                preferentialZeroRateUpperBound: 50_000,
-                preferentialFifteenRateUpperBound: 545_000,
+                preferentialZeroRateUpperBound: 49_450,
+                preferentialFifteenRateUpperBound: 545_500,
                 niitThreshold: 200_000,
                 additionalMedicareThreshold: 200_000
             )
@@ -298,8 +328,8 @@ enum USTaxRuleTable {
                     TaxSlab(lower: 512_450, upper: 768_700, ratePercent: 35, label: "$512,450 – $768,700"),
                     TaxSlab(lower: 768_700, upper: nil,     ratePercent: 37, label: "Over $768,700"),
                 ],
-                preferentialZeroRateUpperBound: 100_000,
-                preferentialFifteenRateUpperBound: 612_000,
+                preferentialZeroRateUpperBound: 98_900,
+                preferentialFifteenRateUpperBound: 613_700,
                 niitThreshold: 250_000,
                 additionalMedicareThreshold: 250_000
             )
@@ -314,8 +344,8 @@ enum USTaxRuleTable {
                     TaxSlab(lower: 256_225, upper: 384_350, ratePercent: 35, label: "$256,225 – $384,350"),
                     TaxSlab(lower: 384_350, upper: nil,     ratePercent: 37, label: "Over $384,350"),
                 ],
-                preferentialZeroRateUpperBound: 50_000,
-                preferentialFifteenRateUpperBound: 306_000,
+                preferentialZeroRateUpperBound: 49_450,
+                preferentialFifteenRateUpperBound: 306_850,
                 niitThreshold: 125_000,
                 additionalMedicareThreshold: 125_000
             )
@@ -330,8 +360,8 @@ enum USTaxRuleTable {
                     TaxSlab(lower: 256_200, upper: 640_600, ratePercent: 35, label: "$256,200 – $640,600"),
                     TaxSlab(lower: 640_600, upper: nil,     ratePercent: 37, label: "Over $640,600"),
                 ],
-                preferentialZeroRateUpperBound: 67_000,
-                preferentialFifteenRateUpperBound: 578_000,
+                preferentialZeroRateUpperBound: 66_200,
+                preferentialFifteenRateUpperBound: 579_600,
                 niitThreshold: 200_000,
                 additionalMedicareThreshold: 200_000
             )
@@ -343,7 +373,9 @@ enum USTaxRuleTable {
                 qualifyingSurvivingSpouse: marriedJoint
             )
         }(),
-        age65AdditionalStandardDeduction: 6_000,
+        agedAdditionalStandardDeductionUnmarried: 2_050,
+        agedAdditionalStandardDeductionMarried: 1_650,
+        enhancedSeniorDeduction: 6_000,
         socialSecurityWageBase: 184_500,
         socialSecurityRate: Decimal(string: "0.062") ?? 0,
         medicareRate: Decimal(string: "0.0145") ?? 0,
@@ -353,9 +385,11 @@ enum USTaxRuleTable {
         preferentialTwentyRate: Decimal(string: "0.20") ?? 0,
         contribution401kBase: 24_500,
         contribution401kCatchUp: 8_000,
+        contribution401kCatchUpAge60To63: 11_250,
         contributionIRABase: 7_500,
-        contributionIRACatchUp: 1_000,
+        contributionIRACatchUp: 1_100,
         contributionHSAFamily: 8_750,
-        contributionHSAIndividual: 4_400
+        contributionHSAIndividual: 4_400,
+        contributionHSACatchUp: 1_000
     )
 }
