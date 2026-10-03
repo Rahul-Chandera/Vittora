@@ -34326,6 +34326,534 @@
           }
         }
       }
+    },
+    "Age 65+: the additional standard deduction and the up-to-$6,000 senior deduction are applied for you only. A spouse aged 65+ would add their own; married filing separately is not eligible for the senior deduction." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "65 años o más: la deducción estándar adicional y la deducción para mayores de hasta $6,000 se aplican solo a ti. Un cónyuge de 65 años o más añadiría las suyas; quienes declaran como casados por separado no tienen derecho a la deducción para mayores."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "65+ आयु: अतिरिक्त स्टैंडर्ड डिडक्शन और $6,000 तक की वरिष्ठ नागरिक कटौती केवल आपके लिए लागू की गई है। 65+ आयु का जीवनसाथी अपनी कटौती अलग से जोड़ेगा; अलग-अलग रिटर्न भरने वाले विवाहित लोग वरिष्ठ कटौती के पात्र नहीं हैं।"
+          }
+        }
+      }
+    },
+    "Annual income treated as net self-employment income: both shares of CPP/QPP are paid and the employer share is deducted. EI is not charged — it is optional for the self-employed." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los ingresos anuales se tratan como ingresos netos de trabajo por cuenta propia: se pagan ambas partes del CPP/QPP y se deduce la parte del empleador. No se cobra EI, que es opcional para los trabajadores por cuenta propia."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वार्षिक आय को स्व-रोज़गार की शुद्ध आय माना गया है: CPP/QPP के दोनों हिस्से चुकाए जाते हैं और नियोक्ता वाला हिस्सा घटाया जाता है। EI नहीं लिया गया — स्व-रोज़गार वालों के लिए यह वैकल्पिक है।"
+          }
+        }
+      }
+    },
+    "Annual income treated as net self-employment profit: self-employment tax is charged on 92.35% of it, and half is deducted." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los ingresos anuales se tratan como ganancia neta por cuenta propia: el impuesto sobre el trabajo por cuenta propia se aplica al 92.35% y la mitad se deduce."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वार्षिक आय को स्व-रोज़गार का शुद्ध लाभ माना गया है: स्व-रोज़गार कर इसके 92.35% पर लगता है, और उसका आधा हिस्सा घटाया जाता है।"
+          }
+        }
+      }
+    },
+    "CPP/QPP and EI are charged on annual income as employment earnings. Pension income does not pay them." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El CPP/QPP y el EI se cobran sobre los ingresos anuales como salario. Los ingresos de pensión no los pagan."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPP/QPP और EI वार्षिक आय को रोज़गार की कमाई मानकर लगाए गए हैं। पेंशन आय पर ये नहीं लगते।"
+          }
+        }
+      }
+    },
+    "Capital losses and the conditions for the CGT discount are not checked." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se comprueban las pérdidas de capital ni las condiciones del descuento del CGT."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पूंजीगत हानि और CGT छूट की शर्तों की जाँच नहीं की गई है।"
+          }
+        }
+      }
+    },
+    "Class 1 National Insurance is charged on annual income as employment earnings. Pension income does not pay National Insurance." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El National Insurance de clase 1 se cobra sobre los ingresos anuales como salario. Los ingresos de pensión no pagan National Insurance."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "क्लास 1 नेशनल इंश्योरेंस वार्षिक आय को रोज़गार की कमाई मानकर लगाया गया है। पेंशन आय पर नेशनल इंश्योरेंस नहीं लगता।"
+          }
+        }
+      }
+    },
+    "Employer NPS (80CCD(2)) needs salaried income and basic salary + DA, so it was not applied." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El NPS del empleador (80CCD(2)) requiere ingresos salariales y el salario básico + DA, por lo que no se aplicó."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नियोक्ता NPS (80CCD(2)) के लिए वेतन आय और मूल वेतन + DA ज़रूरी है, इसलिए इसे लागू नहीं किया गया।"
+          }
+        }
+      }
+    },
+    "Employer NPS (80CCD(2)) was capped at its share of basic salary + DA." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El NPS del empleador (80CCD(2)) se limitó a su porcentaje del salario básico + DA."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नियोक्ता NPS (80CCD(2)) को मूल वेतन + DA के तय हिस्से तक सीमित किया गया।"
+          }
+        }
+      }
+    },
+    "Enhanced CPP/QPP contributions are deducted from income; base contributions and EI premiums are claimed as credits." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las cotizaciones mejoradas del CPP/QPP se deducen de los ingresos; las cotizaciones básicas y las primas de EI se aplican como créditos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बढ़ा हुआ CPP/QPP योगदान आय से घटाया जाता है; मूल योगदान और EI प्रीमियम क्रेडिट के रूप में लिए जाते हैं।"
+          }
+        }
+      }
+    },
+    "Enter salary sacrifice and personal deductible contributions, not your employer's Super Guarantee, with annual income before salary sacrifice. They reduce assessable income up to the yearly cap. A gain on an asset held more than 12 months is halved before it is taxed." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introduce las aportaciones por sacrificio salarial y las aportaciones personales deducibles, no la Super Guarantee de tu empleador, con los ingresos anuales antes del sacrificio salarial. Reducen los ingresos imponibles hasta el límite anual. La ganancia de un activo mantenido más de 12 meses se reduce a la mitad antes de tributar."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सैलरी सैक्रिफ़ाइस और व्यक्तिगत कटौती-योग्य योगदान दर्ज करें, अपने नियोक्ता की सुपर गारंटी नहीं; वार्षिक आय सैलरी सैक्रिफ़ाइस से पहले की दर्ज करें। ये सालाना सीमा तक कर-योग्य आय घटाते हैं। 12 महीने से ज़्यादा रखी गई संपत्ति पर लाभ, कर लगने से पहले आधा कर दिया जाता है।"
+          }
+        }
+      }
+    },
+    "FY 2024-25: equity sold before 23 July 2024 was taxed at 15% (STCG) and 10% (LTCG). This estimate applies the later 20% and 12.5% rates to all gains." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ejercicio 2024-25: las acciones vendidas antes del 23 de julio de 2024 tributaban al 15% (STCG) y al 10% (LTCG). Esta estimación aplica las tasas posteriores del 20% y 12.5% a todas las ganancias."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "वित्त वर्ष 2024-25: 23 जुलाई 2024 से पहले बेचे गए इक्विटी पर 15% (STCG) और 10% (LTCG) कर लगता था। यह अनुमान सभी लाभों पर बाद की 20% और 12.5% दरें लागू करता है।"
+          }
+        }
+      }
+    },
+    "Family and dependant thresholds for the Medicare levy and surcharge are not applied — this estimate is for a single person." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se aplican los umbrales familiares y por dependientes del Medicare levy ni del recargo: esta estimación es para una persona sola."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मेडिकेयर लेवी और सरचार्ज की परिवार और आश्रित सीमाएँ लागू नहीं की गई हैं — यह अनुमान एक अकेले व्यक्ति के लिए है।"
+          }
+        }
+      }
+    },
+    "Federal credits" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créditos federales"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संघीय क्रेडिट"
+          }
+        }
+      }
+    },
+    "From 2026, if your prior-year wages from this employer exceeded $150,000, 401(k) catch-up contributions must be Roth and do not reduce income tax." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A partir de 2026, si tu salario del año anterior con este empleador superó $150,000, las aportaciones de recuperación al 401(k) deben ser Roth y no reducen el impuesto sobre la renta."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2026 से, अगर इस नियोक्ता से पिछले साल आपका वेतन $150,000 से ज़्यादा था, तो 401(k) कैच-अप योगदान Roth होना ज़रूरी है और इससे आयकर कम नहीं होता।"
+          }
+        }
+      }
+    },
+    "HRA exemption applies to salary only, so it was not applied to business income." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La exención de HRA solo se aplica al salario, por lo que no se aplicó a los ingresos empresariales."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HRA छूट केवल वेतन पर लागू होती है, इसलिए इसे व्यावसायिक आय पर लागू नहीं किया गया।"
+          }
+        }
+      }
+    },
+    "National Insurance charged only on earnings before you reach State Pension age, spread evenly across the year." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El National Insurance se cobra solo sobre los ingresos anteriores a la edad de jubilación estatal, repartidos por igual a lo largo del año."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नेशनल इंश्योरेंस केवल स्टेट पेंशन आयु से पहले की कमाई पर लगाया गया है, जिसे पूरे साल में बराबर बाँटा गया है।"
+          }
+        }
+      }
+    },
+    "Net capital loss above the yearly limit carries forward and is not used this year." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La pérdida neta de capital por encima del límite anual se traslada a años futuros y no se usa este año."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सालाना सीमा से ज़्यादा शुद्ध पूंजीगत हानि आगे ले जाई जाती है और इस साल इस्तेमाल नहीं होती।"
+          }
+        }
+      }
+    },
+    "New regime: the Section 87A rebate offsets slab tax only, not tax on equity gains. Eligibility counts the gains in total income." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo régimen: el reembolso de la Sección 87A solo compensa el impuesto por tramos, no el impuesto sobre ganancias de acciones. Para la elegibilidad, las ganancias cuentan en el ingreso total."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "नई व्यवस्था: धारा 87A की छूट केवल स्लैब कर पर लागू होती है, इक्विटी लाभ पर लगे कर पर नहीं। पात्रता तय करने में लाभ कुल आय में गिने जाते हैं।"
+          }
+        }
+      }
+    },
+    "No National Insurance: you are over State Pension age for this tax year." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin National Insurance: superas la edad de jubilación estatal en este año fiscal."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कोई नेशनल इंश्योरेंस नहीं: इस कर वर्ष के लिए आप स्टेट पेंशन आयु से ऊपर हैं।"
+          }
+        }
+      }
+    },
+    "Non-resident rules are not applied." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se aplican las reglas para no residentes."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अनिवासी नियम लागू नहीं किए गए हैं।"
+          }
+        }
+      }
+    },
+    "Old regime: the Section 87A rebate can offset short-term equity gain tax, but not long-term gain tax (Section 112A)." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Régimen antiguo: el reembolso de la Sección 87A puede compensar el impuesto sobre ganancias de acciones a corto plazo, pero no el de largo plazo (Sección 112A)."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पुरानी व्यवस्था: धारा 87A की छूट अल्पकालिक इक्विटी लाभ के कर पर लागू हो सकती है, लेकिन दीर्घकालिक लाभ के कर पर नहीं (धारा 112A)।"
+          }
+        }
+      }
+    },
+    "Other investment income (interest, non-qualified dividends) is taxed as ordinary income in addition to your annual income." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los demás ingresos de inversión (intereses, dividendos no calificados) tributan como ingresos ordinarios, además de tus ingresos anuales."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अन्य निवेश आय (ब्याज, गैर-योग्य लाभांश) पर आपकी वार्षिक आय के अतिरिक्त, सामान्य आय की तरह कर लगाया गया है।"
+          }
+        }
+      }
+    },
+    "Provincial low-income tax reductions are not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluyen las reducciones provinciales de impuestos para ingresos bajos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "प्रांतीय कम-आय कर कटौतियाँ शामिल नहीं हैं।"
+          }
+        }
+      }
+    },
+    "RRSP contributions are deducted in full. Your deduction is limited by your RRSP room, which Vittora does not know." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las aportaciones al RRSP se deducen por completo. Tu deducción está limitada por tu margen de RRSP, que Vittora no conoce."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RRSP योगदान पूरा घटाया गया है। आपकी कटौती आपकी RRSP सीमा तक सीमित है, जिसकी जानकारी Vittora के पास नहीं है।"
+          }
+        }
+      }
+    },
+    "Resident individual: any unused basic exemption is set against equity gains before they are taxed." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Persona residente: cualquier exención básica no utilizada se aplica a las ganancias de acciones antes de que tributen."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "निवासी व्यक्ति: इक्विटी लाभ पर कर लगने से पहले, बची हुई मूल छूट उनसे घटाई जाती है।"
+          }
+        }
+      }
+    },
+    "Self-employment tax" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impuesto sobre el trabajo por cuenta propia"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "स्व-रोज़गार कर"
+          }
+        }
+      }
+    },
+    "Social Security is capped per worker. A joint estimate applies one cap to combined wages, which understates it when both spouses earn." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El Social Security tiene un límite por trabajador. Una estimación conjunta aplica un solo límite al salario combinado, lo que lo subestima cuando ambos cónyuges tienen ingresos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सोशल सिक्योरिटी की सीमा हर कर्मचारी पर अलग होती है। संयुक्त अनुमान कुल वेतन पर एक ही सीमा लगाता है, जिससे दोनों जीवनसाथी कमाते हों तो यह कम आँका जाता है।"
+          }
+        }
+      }
+    },
+    "Super contributions are taxed at 15% in the fund. The saving shown is personal income tax only." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las aportaciones a la jubilación tributan al 15% en el fondo. El ahorro mostrado es solo del impuesto personal sobre la renta."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सुपर योगदान पर फ़ंड में 15% कर लगता है। दिखाई गई बचत केवल व्यक्तिगत आयकर की है।"
+          }
+        }
+      }
+    },
+    "Tax credits, the QBI deduction and the tips, overtime and car-loan interest deductions are not calculated." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se calculan los créditos fiscales, la deducción QBI ni las deducciones por propinas, horas extra e intereses de préstamos de automóvil."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कर क्रेडिट, QBI कटौती और टिप्स, ओवरटाइम व कार-लोन ब्याज की कटौतियों की गणना नहीं की गई है।"
+          }
+        }
+      }
+    },
+    "Tax is shown to the paisa; the return rounds income and tax payable to the nearest ₹10." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El impuesto se muestra al paisa; la declaración redondea los ingresos y el impuesto a pagar a los ₹10 más cercanos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कर पैसे तक दिखाया गया है; रिटर्न में आय और देय कर को निकटतम ₹10 तक पूर्णांकित किया जाता है।"
+          }
+        }
+      }
+    },
+    "Traditional 401(k) and direct HSA contributions reduce income tax but not Social Security and Medicare. HSA contributions through a payroll cafeteria plan would reduce those too." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las aportaciones tradicionales al 401(k) y las aportaciones directas a la HSA reducen el impuesto sobre la renta, pero no el Social Security ni el Medicare. Las aportaciones a la HSA mediante un plan cafetería de nómina también los reducirían."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पारंपरिक 401(k) और सीधे किए गए HSA योगदान आयकर घटाते हैं, लेकिन सोशल सिक्योरिटी और मेडिकेयर नहीं। पेरोल कैफ़ेटेरिया प्लान के ज़रिए किए गए HSA योगदान इन्हें भी घटाते।"
+          }
+        }
+      }
+    },
+    "Unsupported or uncapped deduction sections were not applied. Use 80C, 80CCD(1B), 80CCD(2), 80D, or HRA." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se aplicaron las secciones de deducción no admitidas o sin límite. Usa 80C, 80CCD(1B), 80CCD(2), 80D o HRA."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "असमर्थित या बिना सीमा वाली कटौती धाराएँ लागू नहीं की गईं। 80C, 80CCD(1B), 80CCD(2), 80D या HRA का उपयोग करें।"
+          }
+        }
+      }
+    },
+    "Your employer's Super Guarantee (about %@) also counts toward the %@ cap. Contributions above it are taxed at your marginal rate unless you have unused cap carried forward." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La Super Guarantee de tu empleador (unos %@) también cuenta para el límite de %@. Las aportaciones por encima tributan a tu tasa marginal, salvo que tengas margen no utilizado de años anteriores."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके नियोक्ता की सुपर गारंटी (लगभग %@) भी %@ की सीमा में गिनी जाती है। इससे ऊपर के योगदान पर आपकी सीमांत दर से कर लगता है, जब तक आपके पास पिछले वर्षों की बची हुई सीमा न हो।"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

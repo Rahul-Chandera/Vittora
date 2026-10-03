@@ -559,7 +559,7 @@ struct TaxProfileFormView: View {
         } header: {
             VFormSectionHeader(String(localized: "Super & Gains"))
         } footer: {
-            Text(String(localized: "Concessional contributions reduce assessable income up to the yearly cap. A gain on an asset held more than 12 months is halved before it is taxed."))
+            Text(String(localized: "Enter salary sacrifice and personal deductible contributions, not your employer's Super Guarantee, with annual income before salary sacrifice. They reduce assessable income up to the yearly cap. A gain on an asset held more than 12 months is halved before it is taxed."))
         }
     }
 
@@ -733,7 +733,7 @@ private struct AddDeductionSheet: View {
     }
 
     private var indiaSections: [String] {
-        ["80C", "80CCD(1B)", "80D", "80D (Parents)", "HRA"]
+        ["80C", "80CCD(1B)", "80CCD(2)", "80D", "80D (Parents)", "HRA"]
     }
 
     var body: some View {
