@@ -156,10 +156,24 @@ test-tax:
 		-configuration $(CONFIG) \
 		-destination 'platform=macOS' \
 		-derivedDataPath .build \
-		-only-testing:VittoraTests/TaxUseCaseTests/USTaxCalculatorTests \
+		-only-testing:VittoraTests/TaxUseCaseTests \
 		-only-testing:VittoraTests/TaxCalculatorRegressionTests \
+		-only-testing:VittoraTests/TaxReviewRegressionTests \
+		-only-testing:VittoraTests/TaxRuleTableGoldenTests \
+		-only-testing:VittoraTests/TaxRuleTableLookupTests \
+		-only-testing:VittoraTests/UKTaxCalculatorTests \
+		-only-testing:VittoraTests/AUTaxCalculatorTests \
+		-only-testing:VittoraTests/CATaxCalculatorTests \
+		-only-testing:VittoraTests/USPreTaxContributionTests \
+		-only-testing:VittoraTests/USContributionScenarioTests \
+		-only-testing:VittoraTests/SavingsAllocationAndUSHeadroomTests \
+		-only-testing:VittoraTests/TaxEffectiveRateContractTests \
+		-only-testing:VittoraTests/EstimateTaxSavingUseCaseTests \
+		-only-testing:VittoraTests/India80CProjectionTests \
 		-only-testing:VittoraTests/IndiaSectionDeductionEngineTests \
 		-only-testing:VittoraTests/IndiaComplianceTipsTests \
+		-only-testing:VittoraTests/TaxProfileFormViewModelTests \
+		-only-testing:VittoraTests/TaxEstimateViewModelTests \
 		test
 
 test-sync:
