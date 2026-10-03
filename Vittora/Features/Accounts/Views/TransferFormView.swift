@@ -172,6 +172,7 @@ struct TransferFormView: View {
                 }
             }
         }
+        .vListRowBackground()
     }
 
     private func performTransfer() async {

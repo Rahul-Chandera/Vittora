@@ -165,6 +165,7 @@ struct AccountFormView: View {
                 }
             }
         }
+        .vListRowBackground()
         .tint(VColors.textCursor)
     }
 

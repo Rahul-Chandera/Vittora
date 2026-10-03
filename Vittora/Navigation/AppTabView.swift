@@ -288,6 +288,7 @@ private struct MoreHubView: View {
                 }
             }
         }
+        .vListRowBackground()
         .navigationTitle(String(localized: "More"))
         #if os(iOS)
         .sheet(isPresented: $showShoppingMode) {

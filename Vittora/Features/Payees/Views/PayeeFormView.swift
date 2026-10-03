@@ -131,6 +131,7 @@ struct PayeeFormView: View {
                 }
             }
         }
+        .vListRowBackground()
         .tint(VColors.textCursor)
     }
 

@@ -176,6 +176,7 @@ struct BudgetListView: View {
                         }
                     }
                 }
+                .vListRowBackground()
                 #if os(iOS)
                 .listStyle(.insetGrouped)
                 #else

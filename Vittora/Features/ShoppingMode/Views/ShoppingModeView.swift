@@ -56,6 +56,7 @@ struct ShoppingModeView: View {
                     startSection
                 }
             }
+            .vListRowBackground()
             .navigationTitle(String(localized: "Shopping Mode"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

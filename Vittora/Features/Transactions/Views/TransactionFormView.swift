@@ -87,6 +87,7 @@ struct TransactionFormView: View {
                         }
                     }
                 }
+                .vListRowBackground()
                 .headerProminence(.increased)
                 .tint(VColors.textCursor)
                 // Without an explicit title the pushed form inherits the

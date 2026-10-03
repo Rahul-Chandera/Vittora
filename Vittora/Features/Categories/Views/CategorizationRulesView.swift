@@ -93,6 +93,7 @@ struct CategorizationRulesView: View {
                     )
                 }
             }
+            .vListRowBackground()
             #if os(iOS)
             .listStyle(.insetGrouped)
             #else
@@ -227,6 +228,7 @@ struct CategorizationRuleFormView: View {
                         Toggle(String(localized: "Enabled"), isOn: Bindable(vm).isEnabled)
                     }
                 }
+                .vListRowBackground()
                 .navigationTitle(
                     existingRule == nil
                         ? String(localized: "New Rule")

@@ -105,6 +105,7 @@ struct TransactionFilterSheet: View {
                         #endif
                 }
             }
+            .vListRowBackground()
             .accessibilityIdentifier("transaction-filter-sheet")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

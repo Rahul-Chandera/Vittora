@@ -37,6 +37,7 @@ struct CategoryPicker: View {
                 }
             }
         }
+        .vListRowBackground()
         .navigationTitle(title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

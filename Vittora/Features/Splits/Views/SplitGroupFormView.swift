@@ -94,6 +94,7 @@ struct SplitGroupFormView: View {
                     }
                 }
             }
+            .vListRowBackground()
             .tint(VColors.textCursor)
             .navigationTitle(navigationTitle)
             #if os(iOS)

@@ -23,3 +23,25 @@ extension View {
             .background(VColors.groupedBackground)
     }
 }
+
+extension View {
+    /// Explicit row background for a `List` or `Form`.
+    ///
+    /// iPadOS 27 fills a tapped row with the list's tint while the next screen
+    /// slides in. Ours is `.primary` on the lists the accessibility sweep tinted
+    /// (black in light mode) and the AA-dark accent everywhere else, so the row
+    /// flashed black. With the background set explicitly the system keeps its
+    /// light grey tap highlight, as in Apple's own Settings. The colour is the
+    /// one iOS paints by default, so nothing else changes — OLED included.
+    ///
+    /// Apply it to the List or Form itself; on a NavigationStack it does not
+    /// reach the lists inside. A row's own `listRowBackground` still wins.
+    @ViewBuilder
+    func vListRowBackground() -> some View {
+        #if os(iOS)
+        listRowBackground(Color(uiColor: .secondarySystemGroupedBackground))
+        #else
+        self
+        #endif
+    }
+}

@@ -205,6 +205,7 @@ struct AccountListView: View {
                 }
             }
         }
+        .vListRowBackground()
         // Clearance for the floating tab bar. safeAreaPadding, not
         // safeAreaInset: an inset paints an opaque view OVER the list, and
         // rows passing behind it are sliced mid-glyph. The Appearance

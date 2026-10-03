@@ -198,6 +198,7 @@ struct RecurringListView: View {
                                 }
                             }
                         }
+                        .vListRowBackground()
                         #if os(iOS)
                         .listStyle(.insetGrouped)
                         #else

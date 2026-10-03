@@ -88,6 +88,7 @@ struct InvestmentFormView: View {
                         .accessibilityIdentifier("investment-note-field")
                 }
             }
+            .vListRowBackground()
             .formStyle(.grouped)
             .navigationTitle(
                 investment == nil

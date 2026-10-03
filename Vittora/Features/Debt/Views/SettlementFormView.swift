@@ -69,6 +69,7 @@ struct SettlementFormView: View {
                     }
                 }
             }
+            .vListRowBackground()
             .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Settle Debt"))
             #if os(iOS)

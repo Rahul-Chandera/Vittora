@@ -171,6 +171,7 @@ struct TransactionCSVImportView: View {
                 }
             }
         }
+        .vListRowBackground()
         .overlay {
             if vm.isLoading {
                 ProgressView()

@@ -85,6 +85,7 @@ struct InvestmentTimelineView: View {
                 Task { await delete(at: offsets) }
             }
         }
+        .vListRowBackground()
         #if os(iOS)
         .listStyle(.insetGrouped)
         #else

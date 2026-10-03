@@ -24,6 +24,7 @@ struct HouseholdView: View {
                 endSection
             }
         }
+        .vListRowBackground()
         .formStyle(.grouped)
         .navigationTitle(store.role == .none ? String(localized: "Household") : store.householdName)
         .toolbar {
@@ -294,6 +295,7 @@ private struct HouseholdBudgetDetailView: View {
                 }
             }
         }
+        .vListRowBackground()
         .formStyle(.grouped)
         .navigationTitle(store.ledger.budgets.first { $0.id == budgetID }?.name ?? String(localized: "Household"))
         .toolbar {
@@ -341,6 +343,7 @@ private struct HouseholdBudgetFormView: View {
                     .keyboardType(.decimalPad)
                     #endif
             }
+            .vListRowBackground()
             .formStyle(.grouped)
             .navigationTitle(String(localized: "New Shared Budget"))
             .toolbar {
@@ -386,6 +389,7 @@ private struct HouseholdExpenseFormView: View {
                     .onAppear { amountFocused = true }
                 TextField(String(localized: "Note (optional)"), text: $note)
             }
+            .vListRowBackground()
             .formStyle(.grouped)
             .navigationTitle(budget.name)
             .toolbar {

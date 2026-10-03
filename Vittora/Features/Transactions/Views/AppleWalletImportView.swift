@@ -59,6 +59,7 @@ struct AppleWalletImportView: View {
                     importSections
                 }
             }
+            .vListRowBackground()
             .formStyle(.grouped)
             .navigationTitle(String(localized: "Import from Apple Wallet"))
             .navigationBarTitleDisplayMode(.inline)

@@ -101,6 +101,7 @@ struct DebtFormView: View {
                     .headerProminence(.increased)
                 }
             }
+            .vListRowBackground()
             .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Add Debt"))
             #if os(iOS)

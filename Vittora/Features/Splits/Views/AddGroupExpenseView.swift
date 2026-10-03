@@ -110,6 +110,7 @@ struct AddGroupExpenseView: View {
                     }
                 }
             }
+            .vListRowBackground()
             .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Add Expense"))
             #if os(iOS)

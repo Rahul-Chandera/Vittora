@@ -207,6 +207,7 @@ struct ContactSupportView: View {
                     .foregroundStyle(VColors.textSecondary)
             }
         }
+        .vListRowBackground()
         .navigationTitle(String(localized: "Contact Support"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

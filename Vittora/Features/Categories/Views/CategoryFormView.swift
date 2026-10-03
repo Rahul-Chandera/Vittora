@@ -233,6 +233,7 @@ struct CategoryFormView: View {
                 }
             }
         }
+        .vListRowBackground()
         .tint(VColors.textCursor)
     }
 

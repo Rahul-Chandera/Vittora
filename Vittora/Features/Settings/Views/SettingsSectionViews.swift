@@ -20,6 +20,7 @@ struct ProfileSettingsView: View {
                     .foregroundStyle(VColors.textPrimary)
             }
         }
+        .vListRowBackground()
         .navigationTitle(String(localized: "Profile"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -78,6 +79,7 @@ struct CurrencySettingsView: View {
                     .foregroundStyle(VColors.textPrimary)
             }
         }
+        .vListRowBackground()
         .navigationTitle(String(localized: "Currency"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -206,6 +208,7 @@ struct AppearanceSettingsView: View {
             }
             .headerProminence(.increased)
         }
+        .vListRowBackground()
         // Clearance for the floating tab bar. safeAreaPadding, not
         // safeAreaInset: an inset paints an opaque view OVER the list, and
         // rows passing behind it are sliced mid-glyph. The Appearance
@@ -389,6 +392,7 @@ struct SecuritySettingsView: View {
                 }
             }
         }
+        .vListRowBackground()
         .navigationTitle(String(localized: "Security"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -431,6 +435,7 @@ struct PrivacySearchSettingsView: View {
                     .foregroundStyle(VColors.textSecondary)
             }
         }
+        .vListRowBackground()
         .navigationTitle(String(localized: "Search Privacy"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -580,6 +585,7 @@ struct NotificationsSettingsView: View {
                 }
             }
         }
+        .vListRowBackground()
         .navigationTitle(String(localized: "Notifications"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -719,6 +725,7 @@ struct AboutView: View {
                 .padding(.vertical, VSpacing.md)
             }
         }
+        .vListRowBackground()
         .navigationTitle(String(localized: "About Vittora"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

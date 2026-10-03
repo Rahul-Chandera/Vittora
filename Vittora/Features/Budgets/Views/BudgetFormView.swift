@@ -91,6 +91,7 @@ struct BudgetFormView: View {
                     }
                 }
             }
+            .vListRowBackground()
             .navigationTitle(editingBudget != nil ? String(localized: "Edit Budget") : String(localized: "New Budget"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

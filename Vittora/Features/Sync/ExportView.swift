@@ -191,6 +191,7 @@ struct ExportView: View {
                 }
             }
         }
+        .vListRowBackground()
         .sheet(isPresented: $showShareSheet, onDismiss: {
             Task { await vm.cleanupExport() }
         }) {

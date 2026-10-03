@@ -126,6 +126,7 @@ struct PayeePickerView: View {
                 .buttonStyle(.plain)
             }
         }
+        .vListRowBackground()
     }
 }
 

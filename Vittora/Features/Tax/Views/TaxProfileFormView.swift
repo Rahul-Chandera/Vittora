@@ -461,6 +461,7 @@ struct TaxProfileFormView: View {
                     .listRowBackground(Color.clear)
             }
         }
+        .vListRowBackground()
     }
 
     /// Canadian inputs. Province comes first and is the most consequential field on
@@ -753,6 +754,7 @@ private struct AddDeductionSheet: View {
                     }
                 }
             }
+            .vListRowBackground()
             .navigationTitle(String(localized: "Add Deduction"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

@@ -194,6 +194,7 @@ struct SavingsGoalFormView: View {
                     }
                 }
             }
+            .vListRowBackground()
             .tint(VColors.textCursor)
             .navigationTitle(isEditing ? String(localized: "Edit Goal") : String(localized: "New Goal"))
             #if os(iOS)
