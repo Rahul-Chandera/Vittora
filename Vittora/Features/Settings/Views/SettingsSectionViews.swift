@@ -92,9 +92,6 @@ struct AppearanceSettingsView: View {
     @Environment(\.colorScheme) private var systemColorScheme
     @State private var draftMode: SettingsViewModel.AppearanceMode?
     @State private var draftAccent: SettingsViewModel.AccentColor?
-    /// Applying used to be silent: the button just greyed out, which reads as
-    /// "nothing happened" rather than "done".
-    @State private var didApplyAppearance = false
 
     var body: some View {
         Form {
@@ -208,47 +205,6 @@ struct AppearanceSettingsView: View {
                 .accessibilityIdentifier("appearance-live-preview")
             }
             .headerProminence(.increased)
-
-            Section {
-                Button {
-                    guard selectedMode != vm.appearanceMode || selectedAccent != vm.accentColor else { return }
-                    vm.appearanceMode = selectedMode
-                    vm.accentColor = selectedAccent
-                    withAnimation { didApplyAppearance = true }
-                    #if os(iOS)
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
-                    #endif
-                    Task {
-                        try? await Task.sleep(for: .seconds(2))
-                        withAnimation { didApplyAppearance = false }
-                    }
-                } label: {
-                    HStack(spacing: VSpacing.xs) {
-                        if didApplyAppearance {
-                            Image(systemName: "checkmark.circle.fill")
-                                .accessibilityHidden(true)
-                            Text(String(localized: "Appearance Applied"))
-                        } else {
-                            Text(String(localized: "Apply Appearance"))
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-                // The same prominent style as every other action button in the
-                // app. With no buttonStyle at all, macOS rendered the label
-                // through its own treatment: pale green on the row's own fill,
-                // which read as a disabled label rather than this screen's
-                // primary action.
-                .buttonStyle(.borderedProminent)
-                .tint(VColors.primary)
-                // VoiceOver gets the same confirmation the sighted user sees.
-                .accessibilityValue(didApplyAppearance ? String(localized: "Applied") : "")
-                .frame(maxWidth: .infinity)
-                .accessibilityRespondsToUserInteraction(
-                    selectedMode != vm.appearanceMode || selectedAccent != vm.accentColor
-                )
-                .accessibilityIdentifier("appearance-apply-button")
-            }
         }
         // Clearance for the floating tab bar. safeAreaPadding, not
         // safeAreaInset: an inset paints an opaque view OVER the list, and
@@ -265,6 +221,17 @@ struct AppearanceSettingsView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        // Apply sits where iOS puts a screen's confirm action, and only while
+        // there is something to apply. At the bottom of the form it sat below
+        // the Live Preview, behind the tab bar, where nobody found it.
+        .toolbar {
+            if hasChanges {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(String(localized: "Apply"), action: applyAppearance)
+                        .accessibilityIdentifier("appearance-apply-button")
+                }
+            }
+        }
         .onAppear {
             draftMode = vm.appearanceMode
             draftAccent = vm.accentColor
@@ -273,6 +240,21 @@ struct AppearanceSettingsView: View {
 
     private var selectedMode: SettingsViewModel.AppearanceMode {
         draftMode ?? vm.appearanceMode
+    }
+
+    private var hasChanges: Bool {
+        selectedMode != vm.appearanceMode || selectedAccent != vm.accentColor
+    }
+
+    /// The button disappearing and the app re-theming are the confirmation;
+    /// VoiceOver, which sees neither, gets it spoken.
+    private func applyAppearance() {
+        vm.appearanceMode = selectedMode
+        vm.accentColor = selectedAccent
+        #if os(iOS)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        #endif
+        AccessibilityNotification.Announcement(String(localized: "Appearance Applied")).post()
     }
 
     private var selectedAccent: SettingsViewModel.AccentColor {
