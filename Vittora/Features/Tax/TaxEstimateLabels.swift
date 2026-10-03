@@ -26,7 +26,9 @@ extension TaxEstimate {
         switch country {
         case .india: String(localized: "Rebate (Sec 87A)")
         case .australia: String(localized: "Low Income Tax Offset")
-        case .canada: String(localized: "Personal amount credits")
+        // Federal non-refundable credits (BPA, CPP/QPP base, EI) plus the
+        // Quebec abatement — what turns federal basic tax into federal tax.
+        case .canada: String(localized: "Federal credits")
         case .unitedKingdom, .unitedStates: ""
         }
     }
