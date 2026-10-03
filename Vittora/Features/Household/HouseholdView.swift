@@ -361,6 +361,7 @@ private struct HouseholdBudgetFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -373,6 +374,7 @@ private struct HouseholdBudgetFormView: View {
                         dismiss()
                     }
                     .disabled(amount == nil || name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .vDialogConfirmButton()
                 }
             }
         }
@@ -412,6 +414,7 @@ private struct HouseholdExpenseFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -424,6 +427,7 @@ private struct HouseholdExpenseFormView: View {
                         dismiss()
                     }
                     .disabled(amount == nil)
+                    .vDialogConfirmButton()
                 }
             }
         }
@@ -472,6 +476,7 @@ private struct HouseholdInvitationSheet: ViewModifier {
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button(String(localized: "Done")) { store.presentsHousehold = false }
+                            .vDialogConfirmButton()
                         }
                     }
             }

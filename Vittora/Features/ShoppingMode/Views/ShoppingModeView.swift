@@ -75,6 +75,7 @@ struct ShoppingModeView: View {
                             dismiss()
                         }
                     }
+                    .vDialogConfirmButton()
                 }
             }
             .errorAlert(message: $error)

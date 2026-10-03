@@ -107,6 +107,7 @@ struct InvestmentFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) { dismiss() }
+                    .vDialogCancelButton()
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
@@ -117,6 +118,7 @@ struct InvestmentFormView: View {
                     }
                     .disabled(!canSave)
                     .accessibilityIdentifier("investment-save-button")
+                    .vDialogConfirmButton()
                 }
             }
             .onAppear(perform: populate)

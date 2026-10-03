@@ -242,6 +242,7 @@ struct AppearanceSettingsView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Apply"), action: applyAppearance)
                         .accessibilityIdentifier("appearance-apply-button")
+                        .vDialogConfirmButton()
                 }
             }
         }

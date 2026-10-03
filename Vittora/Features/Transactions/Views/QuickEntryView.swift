@@ -142,6 +142,7 @@ struct QuickEntryView: View {
                             dismiss()
                         }
                         .keyboardShortcut(.cancelAction)
+                        .vDialogCancelButton()
                     }
                 }
             }

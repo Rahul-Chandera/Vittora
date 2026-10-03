@@ -27,6 +27,7 @@ struct DocumentPreviewView: View {
                         Button(String(localized: "Done")) {
                             dismiss()
                         }
+                        .vDialogConfirmButton()
                     }
                 }
         }

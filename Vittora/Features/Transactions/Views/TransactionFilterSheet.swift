@@ -133,6 +133,7 @@ struct TransactionFilterSheet: View {
                         localVM.clearAll()
                     }
                     .accessibilityIdentifier("transaction-filter-clear-button")
+                    .vDialogCancelButton()
                 }
 
                 ToolbarItem(placement: .primaryAction) {
@@ -141,6 +142,7 @@ struct TransactionFilterSheet: View {
                         showSaveAlert = true
                     }
                     .accessibilityIdentifier("transaction-filter-save-button")
+                    .vDialogCancelButton()
                 }
 
                 ToolbarItem(placement: .confirmationAction) {

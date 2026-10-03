@@ -138,6 +138,7 @@ struct PaywallView: View {
         ToolbarItem(placement: .cancellationAction) {
             Button(String(localized: "Close")) { dismiss() }
                 .accessibilityIdentifier("paywall-close-button")
+                .vDialogCancelButton()
         }
     }
 

@@ -69,6 +69,7 @@ struct AppleWalletImportView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Done")) { dismiss() }
+                    .vDialogConfirmButton()
                 }
             }
             .task { await service.refreshAvailability() }

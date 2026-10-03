@@ -96,6 +96,7 @@ struct Tax80CComparisonView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Done")) { dismiss() }
                         .accessibilityIdentifier("compare-80c-done-button")
+                        .vDialogConfirmButton()
                 }
             }
         }

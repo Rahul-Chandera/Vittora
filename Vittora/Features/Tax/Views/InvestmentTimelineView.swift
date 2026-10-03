@@ -37,6 +37,7 @@ struct InvestmentTimelineView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Done")) { dismiss() }
                         .accessibilityIdentifier("investment-timeline-done-button")
+                        .vDialogConfirmButton()
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
