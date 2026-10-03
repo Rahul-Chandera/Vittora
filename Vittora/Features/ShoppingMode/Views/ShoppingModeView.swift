@@ -84,7 +84,8 @@ struct ShoppingModeView: View {
 
     private var startSection: some View {
         Section {
-            TextField(String(localized: "Shop name (optional)"), text: $sessionName)
+            TextField(String(localized: "Shop name (optional)"), text: $sessionName, prompt: Text(String(localized: "Shop name (optional)")).foregroundStyle(VColors.placeholderText))
+                .vFormField()
                 .accessibilityIdentifier("shopping-mode-name-field")
 
             // Only offered when there is a budget to pick — an empty picker is
@@ -163,7 +164,8 @@ struct ShoppingModeView: View {
     private var addItemSection: some View {
         Section {
             HStack {
-                TextField(String(localized: "Amount"), text: $amountText)
+                TextField(String(localized: "Amount"), text: $amountText, prompt: Text(String(localized: "Amount")).foregroundStyle(VColors.placeholderText))
+                    .vFormField()
                     #if os(iOS)
                     .keyboardType(.decimalPad)
                     #endif

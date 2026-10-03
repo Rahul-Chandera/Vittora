@@ -61,6 +61,7 @@ struct DebtFormView: View {
                                     prompt: Text(String(localized: "Amount"))
                                         .foregroundStyle(VColors.placeholderText)
                                 )
+                                    .vFormField()
                                     #if os(iOS)
                                     .keyboardType(.decimalPad)
                                     .textContentType(nil)
@@ -95,6 +96,7 @@ struct DebtFormView: View {
                                     .foregroundStyle(VColors.placeholderText),
                                 axis: .vertical
                             )
+                                .vFormField()
                                 .lineLimit(2...4)
                         } header: {
                             sectionHeader(String(localized: "Note"))

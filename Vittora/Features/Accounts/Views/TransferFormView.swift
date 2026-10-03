@@ -153,7 +153,8 @@ struct TransferFormView: View {
                 }
 
                 Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
-                    TextField(String(localized: "0.00"), text: Bindable(vm).amount)
+                    TextField(String(localized: "0.00"), text: Bindable(vm).amount, prompt: Text(String(localized: "0.00")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         .textContentType(nil)
@@ -163,7 +164,8 @@ struct TransferFormView: View {
 
                 Section(header: VFormSectionHeader(String(localized: "Details"))) {
                     DatePicker(String(localized: "Date"), selection: Bindable(vm).date, displayedComponents: .date)
-                    TextField(String(localized: "Note (optional)"), text: Bindable(vm).note)
+                    TextField(String(localized: "Note (optional)"), text: Bindable(vm).note, prompt: Text(String(localized: "Note (optional)")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
                         .accessibilityIdentifier("transfer-note-field")
                 }
 

@@ -355,7 +355,8 @@ struct TransactionFormView: View {
         }
 
         Section {
-            TextField(String(localized: "Notes"), text: Bindable(vm).note, axis: .vertical)
+            TextField(String(localized: "Notes"), text: Bindable(vm).note, prompt: Text(String(localized: "Notes")).foregroundStyle(VColors.placeholderText), axis: .vertical)
+                .vFormField()
                 .lineLimit(3...5)
                 .accessibilityIdentifier("transaction-note-field")
                 .task(id: vm.note) {

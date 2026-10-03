@@ -91,14 +91,16 @@ struct TransactionFilterSheet: View {
                     }
 
                     Section(header: VFormSectionHeader(String(localized: "Amount Range"))) {
-                        TextField(String(localized: "Min"), text: Bindable(localVM).amountMin)
+                        TextField(String(localized: "Min"), text: Bindable(localVM).amountMin, prompt: Text(String(localized: "Min")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             .accessibilityIdentifier("transaction-filter-min-field")
                             #if os(iOS)
                             .keyboardType(.decimalPad)
                             .textContentType(nil)
                             #endif
 
-                        TextField(String(localized: "Max"), text: Bindable(localVM).amountMax)
+                        TextField(String(localized: "Max"), text: Bindable(localVM).amountMax, prompt: Text(String(localized: "Max")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             .accessibilityIdentifier("transaction-filter-max-field")
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -151,7 +153,8 @@ struct TransactionFilterSheet: View {
                 }
             }
             .alert(String(localized: "Save Filter"), isPresented: $showSaveAlert) {
-                TextField(String(localized: "Name"), text: $presetName)
+                TextField(String(localized: "Name"), text: $presetName, prompt: Text(String(localized: "Name")).foregroundStyle(VColors.placeholderText))
+                    .vFormField()
                 Button(String(localized: "Cancel"), role: .cancel) {}
                 Button(String(localized: "Save")) {
                     saveCurrentFilter()

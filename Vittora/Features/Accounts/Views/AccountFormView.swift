@@ -80,7 +80,8 @@ struct AccountFormView: View {
         Form {
             Group {
                 Section {
-                    TextField(String(localized: "Account Name"), text: Bindable(vm).name)
+                    TextField(String(localized: "Account Name"), text: Bindable(vm).name, prompt: Text(String(localized: "Account Name")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
 
                     Picker(String(localized: "Type"), selection: Bindable(vm).selectedType) {
                         ForEach(AccountType.allCases, id: \.self) { type in
@@ -103,7 +104,8 @@ struct AccountFormView: View {
 
                 if !vm.isEditing {
                     Section {
-                        TextField(String(localized: "0.00"), text: Bindable(vm).initialBalance)
+                        TextField(String(localized: "0.00"), text: Bindable(vm).initialBalance, prompt: Text(String(localized: "0.00")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             #if os(iOS)
                             .keyboardType(.decimalPad)
                             .textContentType(nil)

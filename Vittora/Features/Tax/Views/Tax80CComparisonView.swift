@@ -296,6 +296,7 @@ struct Tax80CComparisonView: View {
         identifier: String
     ) -> some View {
         let field = TextField("", text: text, prompt: Text(prompt).foregroundStyle(VColors.placeholderText))
+            .vFormField()
             #if os(iOS)
             .keyboardType(.decimalPad)
             .textContentType(nil)

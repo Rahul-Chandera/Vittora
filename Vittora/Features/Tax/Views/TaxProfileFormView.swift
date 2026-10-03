@@ -101,7 +101,8 @@ struct TaxProfileFormView: View {
                 // Income
                 Section(header: VFormSectionHeader(String(localized: "Annual Income"))) {
                     HStack {
-                        TextField(String(localized: "0"), text: Bindable(vm).incomeString)
+                        TextField(String(localized: "0"), text: Bindable(vm).incomeString, prompt: Text(String(localized: "0")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             #if os(iOS)
                             .keyboardType(.numberPad)
                             .textContentType(nil)
@@ -171,7 +172,8 @@ struct TaxProfileFormView: View {
                             HStack {
                                 Text(vm.country.currencySymbol)
                                     .foregroundStyle(VColors.textSecondary)
-                                TextField(String(localized: "Annual basic salary + DA"), text: Bindable(vm).indiaBasicSalaryString)
+                                TextField(String(localized: "Annual basic salary + DA"), text: Bindable(vm).indiaBasicSalaryString, prompt: Text(String(localized: "Annual basic salary + DA")).foregroundStyle(VColors.placeholderText))
+                                    .vFormField()
                                     #if os(iOS)
                                     .keyboardType(.numberPad)
                                     #endif
@@ -180,7 +182,8 @@ struct TaxProfileFormView: View {
                             HStack {
                                 Text(vm.country.currencySymbol)
                                     .foregroundStyle(VColors.textSecondary)
-                                TextField(String(localized: "Annual HRA received"), text: Bindable(vm).indiaHRAPaidString)
+                                TextField(String(localized: "Annual HRA received"), text: Bindable(vm).indiaHRAPaidString, prompt: Text(String(localized: "Annual HRA received")).foregroundStyle(VColors.placeholderText))
+                                    .vFormField()
                                     #if os(iOS)
                                     .keyboardType(.numberPad)
                                     #endif
@@ -189,7 +192,8 @@ struct TaxProfileFormView: View {
                             HStack {
                                 Text(vm.country.currencySymbol)
                                     .foregroundStyle(VColors.textSecondary)
-                                TextField(String(localized: "Annual rent paid"), text: Bindable(vm).indiaRentPaidString)
+                                TextField(String(localized: "Annual rent paid"), text: Bindable(vm).indiaRentPaidString, prompt: Text(String(localized: "Annual rent paid")).foregroundStyle(VColors.placeholderText))
+                                    .vFormField()
                                     #if os(iOS)
                                     .keyboardType(.numberPad)
                                     #endif
@@ -655,6 +659,7 @@ struct TaxProfileFormView: View {
     ) -> some View {
         let amountField = HStack {
             TextField("", text: text, prompt: Text("0").foregroundStyle(VColors.placeholderText))
+                .vFormField()
                 #if os(iOS)
                 .keyboardType(.decimalPad)
                 .textContentType(nil)
@@ -734,7 +739,8 @@ private struct AddDeductionSheet: View {
             Form {
                 Group {
                     Section(header: VFormSectionHeader(String(localized: "Name"), isRequired: true)) {
-                        TextField(String(localized: "e.g. Life Insurance Premium"), text: $name)
+                        TextField(String(localized: "e.g. Life Insurance Premium"), text: $name, prompt: Text(String(localized: "e.g. Life Insurance Premium")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                     }
                     if country == .india {
                         Section(header: VFormSectionHeader(String(localized: "Section"))) {
@@ -748,6 +754,7 @@ private struct AddDeductionSheet: View {
                         HStack {
                             Text(country.currencySymbol).foregroundStyle(VColors.textSecondary)
                             TextField("", text: $amountString, prompt: Text("0").foregroundStyle(VColors.placeholderText))
+                                .vFormField()
                                 #if os(iOS)
                                 .keyboardType(.numberPad)
                                 .textContentType(nil)

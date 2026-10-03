@@ -371,7 +371,8 @@ struct SettingsView: View {
                         Text(String(localized: "Type \(deleteConfirmationPhrase) to confirm."))
                             .foregroundStyle(VColors.textSecondary)
 
-                        TextField(deleteConfirmationPhrase, text: $deleteConfirmationText)
+                        TextField(deleteConfirmationPhrase, text: $deleteConfirmationText, prompt: Text(deleteConfirmationPhrase).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             // On macOS the grouped form renders the title as a
                             // redundant leading label next to the caption above.
                             .labelsHidden()

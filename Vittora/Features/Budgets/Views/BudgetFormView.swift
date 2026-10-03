@@ -25,6 +25,7 @@ struct BudgetFormView: View {
                                 get: { viewModel?.amount ?? "" },
                                 set: { viewModel?.amount = $0 }
                             ), prompt: Text("0.00").foregroundStyle(VColors.placeholderText))
+                                .vFormField()
                                 .accessibilityLabel(String(localized: "Budget amount"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)

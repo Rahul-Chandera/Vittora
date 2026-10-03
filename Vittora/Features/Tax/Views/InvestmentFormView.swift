@@ -33,13 +33,15 @@ struct InvestmentFormView: View {
             Form {
                 Group {
                     Section {
-                        TextField(String(localized: "Name"), text: $name)
+                        TextField(String(localized: "Name"), text: $name, prompt: Text(String(localized: "Name")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             .accessibilityIdentifier("investment-name-field")
 
                         HStack {
                             Text(String(localized: "Amount"))
                             Spacer()
                             TextField("", text: $amountText, prompt: Text("0").foregroundStyle(VColors.placeholderText))
+                                .vFormField()
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
                                 #endif
@@ -85,7 +87,8 @@ struct InvestmentFormView: View {
                     }
 
                     Section {
-                        TextField(String(localized: "Note"), text: $note, axis: .vertical)
+                        TextField(String(localized: "Note"), text: $note, prompt: Text(String(localized: "Note")).foregroundStyle(VColors.placeholderText), axis: .vertical)
+                            .vFormField()
                             .accessibilityIdentifier("investment-note-field")
                     }
                 }

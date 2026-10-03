@@ -26,11 +26,13 @@ struct AddGroupExpenseView: View {
                 Group {
                     // Basic details
                     Section {
-                        TextField(String(localized: "Expense title"), text: Bindable(vm).title)
+                        TextField(String(localized: "Expense title"), text: Bindable(vm).title, prompt: Text(String(localized: "Expense title")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             .accessibilityLabel(String(localized: "Expense title"))
 
                         HStack {
-                            TextField(String(localized: "Amount"), text: Bindable(vm).amountString)
+                            TextField(String(localized: "Amount"), text: Bindable(vm).amountString, prompt: Text(String(localized: "Amount")).foregroundStyle(VColors.placeholderText))
+                                .vFormField()
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
                                 .textContentType(nil)
@@ -98,7 +100,8 @@ struct AddGroupExpenseView: View {
 
                     // Note
                     Section {
-                        TextField(String(localized: "Optional"), text: Bindable(vm).note, axis: .vertical)
+                        TextField(String(localized: "Optional"), text: Bindable(vm).note, prompt: Text(String(localized: "Optional")).foregroundStyle(VColors.placeholderText), axis: .vertical)
+                            .vFormField()
                             .lineLimit(2...4)
                     } header: {
                         sectionHeader(String(localized: "Note"))
@@ -190,6 +193,7 @@ private struct AllocationRow: View {
                 HStack(spacing: 4) {
                     if method == .percentage {
                         TextField("", text: $row.inputValue, prompt: Text("0").foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             .accessibilityLabel(String(localized: "Percentage share"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -202,6 +206,7 @@ private struct AllocationRow: View {
                     } else if method == .exact {
                         Text(currencySymbol).foregroundStyle(VColors.textSecondary)
                         TextField("", text: $row.inputValue, prompt: Text("0.00").foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             .accessibilityLabel(String(localized: "Exact amount"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -212,6 +217,7 @@ private struct AllocationRow: View {
                             .onChange(of: row.inputValue) { _, _ in onValueChanged() }
                     } else if method == .shares {
                         TextField("", text: $row.inputValue, prompt: Text("1").foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             .accessibilityLabel(String(localized: "Shares"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)

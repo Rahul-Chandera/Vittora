@@ -90,7 +90,8 @@ struct HouseholdView: View {
 
     private var createSection: some View {
         Section {
-            TextField(String(localized: "Household name"), text: $householdName)
+            TextField(String(localized: "Household name"), text: $householdName, prompt: Text(String(localized: "Household name")).foregroundStyle(VColors.placeholderText))
+                .vFormField()
                 .accessibilityIdentifier("household-name-field")
             Button {
                 let name = householdName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -342,10 +343,12 @@ private struct HouseholdBudgetFormView: View {
         NavigationStack {
             Form {
                 Group {
-                    TextField(String(localized: "Name (e.g. Groceries)"), text: $name)
+                    TextField(String(localized: "Name (e.g. Groceries)"), text: $name, prompt: Text(String(localized: "Name (e.g. Groceries)")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
                         .focused($nameFocused)
                         .onAppear { nameFocused = true }
-                    TextField(String(localized: "Monthly amount"), text: $amountText)
+                    TextField(String(localized: "Monthly amount"), text: $amountText, prompt: Text(String(localized: "Monthly amount")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         #endif
@@ -391,13 +394,15 @@ private struct HouseholdExpenseFormView: View {
         NavigationStack {
             Form {
                 Group {
-                    TextField(String(localized: "Amount"), text: $amountText)
+                    TextField(String(localized: "Amount"), text: $amountText, prompt: Text(String(localized: "Amount")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         #endif
                         .focused($amountFocused)
                         .onAppear { amountFocused = true }
-                    TextField(String(localized: "Note (optional)"), text: $note)
+                    TextField(String(localized: "Note (optional)"), text: $note, prompt: Text(String(localized: "Note (optional)")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
                 }
                 .vListContentTint()
             }

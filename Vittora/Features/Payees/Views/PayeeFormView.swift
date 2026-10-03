@@ -78,7 +78,8 @@ struct PayeeFormView: View {
                 .headerProminence(.increased)
 
                 Section {
-                    TextField(String(localized: "Name"), text: Bindable(vm).name)
+                    TextField(String(localized: "Name"), text: Bindable(vm).name, prompt: Text(String(localized: "Name")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
                         #if os(iOS)
                         .textContentType(.name)
                         #endif
@@ -93,7 +94,8 @@ struct PayeeFormView: View {
                             .foregroundColor(VColors.textPrimary)
                             .frame(width: 24)
                             .accessibilityHidden(true)
-                        TextField(String(localized: "Phone"), text: Bindable(vm).phone)
+                        TextField(String(localized: "Phone"), text: Bindable(vm).phone, prompt: Text(String(localized: "Phone")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             #if os(iOS)
                             .keyboardType(.phonePad)
                             .textContentType(.telephoneNumber)
@@ -105,7 +107,8 @@ struct PayeeFormView: View {
                             .foregroundColor(VColors.textPrimary)
                             .frame(width: 24)
                             .accessibilityHidden(true)
-                        TextField(String(localized: "Email"), text: Bindable(vm).email)
+                        TextField(String(localized: "Email"), text: Bindable(vm).email, prompt: Text(String(localized: "Email")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             #if os(iOS)
                             .keyboardType(.emailAddress)
                             .textContentType(.emailAddress)
@@ -119,7 +122,8 @@ struct PayeeFormView: View {
                 .headerProminence(.increased)
 
                 Section {
-                    TextField(String(localized: "Notes (optional)"), text: Bindable(vm).notes, axis: .vertical)
+                    TextField(String(localized: "Notes (optional)"), text: Bindable(vm).notes, prompt: Text(String(localized: "Notes (optional)")).foregroundStyle(VColors.placeholderText), axis: .vertical)
+                        .vFormField()
                         .lineLimit(3...6)
                 } header: {
                     VFormSectionHeader(String(localized: "Notes"))

@@ -56,7 +56,8 @@ struct SavingsGoalFormView: View {
                 Group {
                     // Basic info
                     Section {
-                        TextField(String(localized: "Goal name"), text: $name)
+                        TextField(String(localized: "Goal name"), text: $name, prompt: Text(String(localized: "Goal name")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             .accessibilityLabel(String(localized: "Goal name"))
 
                         Picker(String(localized: "Category"), selection: $category) {
@@ -182,7 +183,8 @@ struct SavingsGoalFormView: View {
 
                     // Note
                     Section {
-                        TextField(String(localized: "Optional"), text: $note, axis: .vertical)
+                        TextField(String(localized: "Optional"), text: $note, prompt: Text(String(localized: "Optional")).foregroundStyle(VColors.placeholderText), axis: .vertical)
+                            .vFormField()
                             .lineLimit(2...4)
                     } header: {
                         sectionHeader(String(localized: "Note"))
@@ -272,6 +274,7 @@ struct SavingsGoalFormView: View {
             text: text,
             prompt: Text("0").foregroundStyle(VColors.placeholderText)
         )
+            .vFormField()
             #if os(iOS)
             .keyboardType(.decimalPad)
             .textContentType(nil)

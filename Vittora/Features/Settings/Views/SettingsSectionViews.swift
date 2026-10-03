@@ -12,7 +12,8 @@ struct ProfileSettingsView: View {
         Form {
             Group {
                 Section {
-                    TextField(String(localized: "Your name"), text: $editingName)
+                    TextField(String(localized: "Your name"), text: $editingName, prompt: Text(String(localized: "Your name")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
                         #if os(iOS)
                         .textContentType(.name)
                         #endif

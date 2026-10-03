@@ -42,6 +42,7 @@ struct SplitGroupFormView: View {
                             prompt: Text(String(localized: "Group name"))
                                 .foregroundStyle(VColors.placeholderText)
                         )
+                            .vFormField()
                             .accessibilityLabel(String(localized: "Group name"))
                     } header: {
                         VFormSectionHeader(String(localized: "Group Name"))

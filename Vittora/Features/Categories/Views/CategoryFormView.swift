@@ -163,7 +163,8 @@ struct CategoryFormView: View {
                 .headerProminence(.increased)
 
                 Section {
-                    TextField(String(localized: "Category Name"), text: Bindable(vm).name, axis: .vertical)
+                    TextField(String(localized: "Category Name"), text: Bindable(vm).name, prompt: Text(String(localized: "Category Name")).foregroundStyle(VColors.placeholderText), axis: .vertical)
+                        .vFormField()
                         .lineLimit(1...2)
 
                     Picker(String(localized: "Type"), selection: Bindable(vm).selectedType) {

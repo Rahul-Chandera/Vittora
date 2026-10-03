@@ -53,3 +53,28 @@ extension View {
         #endif
     }
 }
+
+extension View {
+    /// A text field that types where its placeholder sits.
+    ///
+    /// A macOS grouped Form lays every TextField out as a labelled row and
+    /// right-aligns the value, even with an empty label — but draws the prompt
+    /// at the left. So "Goal name" sat on the left and the caret and typed text
+    /// on the right. With the label hidden the field fills its row and keeps one
+    /// alignment for prompt and text. Give such fields an explicit `prompt:`:
+    /// the hidden title is no longer shown as a placeholder.
+    ///
+    /// The prompt is drawn leading even in a field aligned trailing (the
+    /// amount fields, trailing on iOS), so macOS aligns every field leading.
+    /// Applied innermost, so it wins over a later `.multilineTextAlignment`.
+    /// No-op on iOS.
+    @ViewBuilder
+    func vFormField() -> some View {
+        #if os(macOS)
+        labelsHidden()
+            .multilineTextAlignment(.leading)
+        #else
+        self
+        #endif
+    }
+}

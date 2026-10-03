@@ -39,6 +39,7 @@ struct RecurringFormView: View {
                                         "",
                                         text: Bindable(viewModel).amount
                                     )
+                                        .vFormField()
                                         .font(VTypography.body)
                                         #if os(iOS)
                                         .keyboardType(.decimalPad)

@@ -201,7 +201,8 @@ struct CategorizationRuleFormView: View {
                 Form {
                     Group {
                         Section {
-                            TextField(String(localized: "Keyword"), text: Bindable(vm).keyword)
+                            TextField(String(localized: "Keyword"), text: Bindable(vm).keyword, prompt: Text(String(localized: "Keyword")).foregroundStyle(VColors.placeholderText))
+                                .vFormField()
                                 #if os(iOS)
                                 .textInputAutocapitalization(.never)
                                 #endif

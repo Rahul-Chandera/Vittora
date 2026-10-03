@@ -385,7 +385,8 @@ private struct ProfileStepView: View {
                 .font(VTypography.caption1.bold())
                 .foregroundStyle(VColors.textSecondary)
 
-            TextField(String(localized: "Your name"), text: $vm.userName)
+            TextField(String(localized: "Your name"), text: $vm.userName, prompt: Text(String(localized: "Your name")).foregroundStyle(VColors.placeholderText))
+                .vFormField()
                 .font(VTypography.title3)
                 .multilineTextAlignment(.center)
                 #if os(iOS)
@@ -480,7 +481,8 @@ private struct AccountSetupStepView: View {
                             .font(VTypography.caption1.bold())
                             .foregroundStyle(VColors.textSecondary)
 
-                        TextField(String(localized: "Main Account"), text: $vm.accountName)
+                        TextField(String(localized: "Main Account"), text: $vm.accountName, prompt: Text(String(localized: "Main Account")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             .padding(VSpacing.md)
                             .background(VColors.secondaryBackground)
                             .cornerRadius(VSpacing.cornerRadiusMD)
@@ -503,7 +505,8 @@ private struct AccountSetupStepView: View {
                                 .background(VColors.primary.opacity(0.12))
                                 .cornerRadius(VSpacing.cornerRadiusSM)
 
-                            TextField(String(localized: "0"), text: $vm.openingBalance)
+                            TextField(String(localized: "0"), text: $vm.openingBalance, prompt: Text(String(localized: "0")).foregroundStyle(VColors.placeholderText))
+                                .vFormField()
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
                                 .textContentType(nil)
@@ -606,7 +609,8 @@ private struct AccountSetupStepView: View {
                             .font(VTypography.caption1.bold())
                             .foregroundStyle(VColors.textSecondary)
 
-                        TextField(String(localized: "Main Account"), text: $vm.accountName)
+                        TextField(String(localized: "Main Account"), text: $vm.accountName, prompt: Text(String(localized: "Main Account")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
                             .padding(VSpacing.md)
                             .background(VColors.secondaryBackground)
                             .cornerRadius(VSpacing.cornerRadiusMD)
@@ -629,7 +633,8 @@ private struct AccountSetupStepView: View {
                                 .background(VColors.primary.opacity(0.12))
                                 .cornerRadius(VSpacing.cornerRadiusSM)
 
-                            TextField(String(localized: "0"), text: $vm.openingBalance)
+                            TextField(String(localized: "0"), text: $vm.openingBalance, prompt: Text(String(localized: "0")).foregroundStyle(VColors.placeholderText))
+                                .vFormField()
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
                                 .textContentType(nil)
