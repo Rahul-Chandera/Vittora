@@ -15,16 +15,17 @@ import VittoraCore
 ///    dividends. Applying Scottish rates to all three would overstate the bill.
 /// 2. **The personal allowance tapers.** Above £100,000 it falls by £1 for every £2
 ///    of income and is gone at £125,140, which creates the well-known 60% effective
-///    band. It is computed from total income, not from earnings alone.
+///    band. It is computed from ADJUSTED NET income — total income less the
+///    reliefs entered (net-pay pension, Gift Aid) — not from earnings alone.
 nonisolated struct UKTaxCalculator: TaxCalculatorProtocol {
     nonisolated let country: TaxCountry = .unitedKingdom
 
     /// The date the figures in `UKTaxRuleTable` were last checked against HMRC.
     nonisolated static let rulesLastUpdated: Date = {
         var components = DateComponents()
-        components.year = 2025
-        components.month = 4
-        components.day = 6
+        components.year = 2026
+        components.month = 10
+        components.day = 3
         return Calendar(identifier: .gregorian).date(from: components) ?? .distantPast
     }()
 
@@ -39,20 +40,31 @@ nonisolated struct UKTaxCalculator: TaxCalculatorProtocol {
         let dividendIncome = max(0, adv.ukDividendIncome)
         let totalIncome = earnedIncome + savingsIncome + dividendIncome
 
-        // Reliefs the user entered (pension contributions, Gift Aid, allowable
-        // expenses). Treated as reducing taxable income, which is what relief at
-        // source or net pay achieves for a basic-rate taxpayer.
-        let customDeductions = profile.customDeductions.reduce(Decimal(0)) { $0 + $1.amount }
+        // Reliefs the user entered (net-pay pension contributions, Gift Aid,
+        // allowable expenses), treated as a net-pay deduction: they reduce
+        // adjusted net income — and so restore tapered allowance — as well as
+        // taxable income. Negative entries are ignored rather than adding tax.
+        let customDeductions = profile.customDeductions.reduce(Decimal(0)) { $0 + max(0, $1.amount) }
+        let reliefApplied = min(customDeductions, totalIncome)
+        let incomeAfterRelief = totalIncome - reliefApplied
 
-        let personalAllowance = Self.personalAllowance(totalIncome: totalIncome, rules: rules)
+        // Taper on adjusted net income, not gross (review UK-03).
+        let personalAllowance = Self.personalAllowance(totalIncome: incomeAfterRelief, rules: rules)
+
+        // Relief comes off earnings, then savings, then dividends — so a
+        // taxpayer with no earnings still gets it.
+        let reliefOnEarnings = min(reliefApplied, earnedIncome)
+        let reliefOnSavings = min(reliefApplied - reliefOnEarnings, savingsIncome)
+        let reliefOnDividends = reliefApplied - reliefOnEarnings - reliefOnSavings
+        let netEarnings = earnedIncome - reliefOnEarnings
+        let netSavings = savingsIncome - reliefOnSavings
+        let netDividends = max(0, dividendIncome - reliefOnDividends)
 
         // The allowance is set against non-savings income first because that is the
         // allocation that leaves the taxpayer best off, and it is what HMRC applies
         // by default.
-        let reliefApplied = min(customDeductions, earnedIncome + savingsIncome + dividendIncome)
-        let incomeAfterRelief = max(0, totalIncome - reliefApplied)
-        let allowanceUsedAgainstEarnings = min(personalAllowance, max(0, earnedIncome - reliefApplied))
-        let taxableEarnings = max(0, earnedIncome - reliefApplied - allowanceUsedAgainstEarnings)
+        let allowanceUsedAgainstEarnings = min(personalAllowance, netEarnings)
+        let taxableEarnings = netEarnings - allowanceUsedAgainstEarnings
         let allowanceRemaining = max(0, personalAllowance - allowanceUsedAgainstEarnings)
 
         let region = rules.regionBands(isScottishTaxpayer: isScottish)
@@ -61,8 +73,8 @@ nonisolated struct UKTaxCalculator: TaxCalculatorProtocol {
 
         // MARK: Savings
 
-        let allowanceUsedAgainstSavings = min(allowanceRemaining, savingsIncome)
-        let taxableSavings = max(0, savingsIncome - allowanceUsedAgainstSavings)
+        let allowanceUsedAgainstSavings = min(allowanceRemaining, netSavings)
+        let taxableSavings = max(0, netSavings - allowanceUsedAgainstSavings)
         let savings = Self.savingsTax(
             taxableSavings: taxableSavings,
             taxableEarnings: taxableEarnings,
@@ -74,8 +86,8 @@ nonisolated struct UKTaxCalculator: TaxCalculatorProtocol {
 
         // MARK: Dividends
 
-        let allowanceUsedAgainstDividends = min(allowanceAfterSavings, dividendIncome)
-        let taxableDividends = max(0, dividendIncome - allowanceUsedAgainstDividends)
+        let allowanceUsedAgainstDividends = min(allowanceAfterSavings, netDividends)
+        let taxableDividends = max(0, netDividends - allowanceUsedAgainstDividends)
         let dividends = Self.dividendTax(
             taxableDividends: taxableDividends,
             otherTaxableIncome: taxableEarnings + taxableSavings,
@@ -87,9 +99,18 @@ nonisolated struct UKTaxCalculator: TaxCalculatorProtocol {
         // NI is charged on earnings, never on savings or dividends, and it ignores
         // the personal allowance — it has its own threshold that merely happens to
         // match it this year.
+        //
+        // Employees stop paying Class 1 at State Pension age; Class 4 stops from
+        // the tax year after it is reached. Earnings before that date still pay.
+        let isSelfEmployed = profile.incomeSourceType == .selfEmployed
+        let niShare = Self.niLiableShareOfYear(
+            dateOfBirth: profile.dateOfBirth,
+            taxYear: taxYear,
+            isSelfEmployed: isSelfEmployed
+        )
         let nationalInsurance = Self.nationalInsurance(
-            earnings: earnedIncome,
-            isSelfEmployed: profile.incomeSourceType == .selfEmployed,
+            earnings: (earnedIncome * niShare).rounded(scale: 2),
+            isSelfEmployed: isSelfEmployed,
             rules: rules
         )
 
@@ -156,8 +177,17 @@ nonisolated struct UKTaxCalculator: TaxCalculatorProtocol {
             assumptions.append(String(localized: "Capital gains annual exempt amount of £\(Self.plain(min(adv.ukCapitalGains, rules.capitalGains.annualExemptAmount))) applied."))
         }
 
+        if !isSelfEmployed {
+            assumptions.append(String(localized: "Class 1 National Insurance is charged on annual income as employment earnings. Pension income does not pay National Insurance."))
+        }
+        if niShare < 1 {
+            assumptions.append(niShare == 0
+                ? String(localized: "No National Insurance: you are over State Pension age for this tax year.")
+                : String(localized: "National Insurance charged only on earnings before you reach State Pension age, spread evenly across the year."))
+        }
+
         var warnings: [String] = []
-        if totalIncome > rules.personalAllowanceTaperThreshold, totalIncome < rules.restOfUK.topRateThreshold {
+        if incomeAfterRelief > rules.personalAllowanceTaperThreshold, incomeAfterRelief < rules.restOfUK.topRateThreshold {
             warnings.append(String(localized: "Between £\(Self.plain(rules.personalAllowanceTaperThreshold)) and £\(Self.plain(rules.restOfUK.topRateThreshold)) the tapered Personal Allowance makes the effective rate on this slice about 60%."))
         }
         if !UKTaxRuleTable.supportedYears.contains(Self.requestedTaxYear(for: profile)) {
@@ -183,10 +213,13 @@ nonisolated struct UKTaxCalculator: TaxCalculatorProtocol {
             surcharge: 0,
             cess: 0,
             finalTax: finalTax,
-            effectiveRate: totalIncome > 0 ? (finalTax / totalIncome).rounded(scale: 4) : 0,
+            // Denominator includes gains, because CGT is in the numerator.
+            effectiveRate: (totalIncome + max(0, adv.ukCapitalGains)) > 0
+                ? (finalTax / (totalIncome + max(0, adv.ukCapitalGains))).rounded(scale: 4)
+                : 0,
             marginalRate: Self.marginalRate(
                 taxableEarnings: taxableEarnings,
-                totalIncome: totalIncome,
+                totalIncome: incomeAfterRelief,
                 rules: rules,
                 region: region
             ),
@@ -341,9 +374,8 @@ extension UKTaxCalculator {
                 tax += sliceTax
                 remaining -= slice
                 position += slice
-            } else if room <= 0 {
-                position = limit
             }
+            // An exhausted band is skipped; the position never moves backwards.
         }
 
         return StreamResult(tax: tax, brackets: brackets, allowanceApplied: allowance)
@@ -435,6 +467,51 @@ extension UKTaxCalculator {
         // "2025-26" -> 2025. A bare "2025" is accepted too.
         let leading = profile.financialYear.split(separator: "-").first ?? ""
         return Int(leading) ?? Calendar.current.component(.year, from: .now)
+    }
+
+    /// Share of the tax year whose earnings are liable to NI, given State
+    /// Pension age. Class 1 stops on the SPA date (pro-rated across the year);
+    /// Class 4 is due for the whole year in which SPA is reached and none after.
+    nonisolated static func niLiableShareOfYear(dateOfBirth: Date?, taxYear: Int, isSelfEmployed: Bool) -> Decimal {
+        guard let spa = statePensionAgeDate(dateOfBirth: dateOfBirth) else { return 1 }
+        let calendar = Calendar(identifier: .gregorian)
+        guard let start = calendar.date(from: DateComponents(year: taxYear, month: 4, day: 6)),
+              let end = calendar.date(from: DateComponents(year: taxYear + 1, month: 4, day: 6))
+        else { return 1 }
+        if isSelfEmployed { return spa < start ? 0 : 1 }
+        if spa <= start { return 0 }
+        if spa >= end { return 1 }
+        let daysBefore = calendar.dateComponents([.day], from: start, to: spa).day ?? 0
+        let daysInYear = calendar.dateComponents([.day], from: start, to: end).day ?? 365
+        guard daysInYear > 0 else { return 1 }
+        return (Decimal(daysBefore) / Decimal(daysInYear)).rounded(scale: 6)
+    }
+
+    /// State Pension age under the Pensions Acts 2011/2014: 66 for those born
+    /// before 6 April 1960; 66 plus one month per month of birth for 6 April
+    /// 1960 – 5 March 1961; 67 from 6 March 1961. Not hardcoded to one age —
+    /// the transition is live in 2026-28.
+    nonisolated static func statePensionAgeDate(dateOfBirth: Date?) -> Date? {
+        guard let dateOfBirth else { return nil }
+        let calendar = Calendar(identifier: .gregorian)
+        let birth = Calendar.current.dateComponents([.year, .month, .day], from: dateOfBirth)
+        guard let year = birth.year, let month = birth.month, let day = birth.day,
+              let birthDate = calendar.date(from: DateComponents(year: year, month: month, day: day))
+        else { return nil }
+        let isBefore = { (y: Int, m: Int, d: Int) in (year, month, day) < (y, m, d) }
+        let months: Int
+        if isBefore(1960, 4, 6) {
+            months = 66 * 12
+        } else if isBefore(1961, 3, 6) {
+            // 6 Apr–5 May 1960 → +1 month … 6 Feb–5 Mar 1961 → +11 months.
+            let shifted = calendar.date(byAdding: .day, value: -5, to: birthDate) ?? birthDate
+            let parts = calendar.dateComponents([.year, .month], from: shifted)
+            let index = ((parts.year ?? 1960) - 1960) * 12 + (parts.month ?? 4) - 4
+            months = 66 * 12 + min(11, max(1, index + 1))
+        } else {
+            months = 67 * 12
+        }
+        return calendar.date(byAdding: .month, value: months, to: birthDate)
     }
 
     nonisolated static func supportedTaxYear(for profile: TaxProfile) -> Int {
