@@ -20,7 +20,11 @@ struct FinancialHealthScoreReportView: View {
                         ProgressView().frame(maxWidth: .infinity)
                     } else if let result = vm.result {
                         scoreCard(result)
-                        componentsCard(result)
+                        // Nothing measured yet means no components: the card
+                        // rendered as an empty white tile.
+                        if !result.components.isEmpty {
+                            componentsCard(result)
+                        }
                         if !result.unmeasured.isEmpty {
                             unmeasuredCard(result)
                         }
@@ -136,6 +140,8 @@ struct FinancialHealthScoreReportView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
+            // Full width like the cards above it, not the width of its longest line.
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
