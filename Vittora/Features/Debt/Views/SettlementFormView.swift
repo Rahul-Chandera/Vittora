@@ -84,7 +84,7 @@ struct SettlementFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                             .vDialogCancelButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Settle")) {
                         guard canSettle, !isLoading else { return }
@@ -93,7 +93,7 @@ struct SettlementFormView: View {
                     .accessibilityRespondsToUserInteraction(canSettle && !isLoading)
                     .vDialogConfirmButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
             }
         }
         .task {

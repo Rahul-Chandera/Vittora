@@ -109,7 +109,7 @@ struct SplitGroupFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
                         guard canSave, !isSaving else { return }
@@ -123,7 +123,7 @@ struct SplitGroupFormView: View {
                     .disabled(!canSave || isSaving)
                     .vDialogConfirmButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
             }
         }
         .task {

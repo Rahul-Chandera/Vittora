@@ -71,7 +71,7 @@ struct AppleWalletImportView: View {
                     Button(String(localized: "Done")) { dismiss() }
                     .vDialogConfirmButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
             }
             .task { await service.refreshAvailability() }
             .onChange(of: pickedTransactions) { _, picked in

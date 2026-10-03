@@ -77,7 +77,7 @@ struct ShoppingModeView: View {
                     }
                     .vDialogConfirmButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
             }
             .errorAlert(message: $error)
             .task { await loadBudgets() }

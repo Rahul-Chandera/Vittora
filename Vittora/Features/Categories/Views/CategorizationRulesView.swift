@@ -249,7 +249,7 @@ struct CategorizationRuleFormView: View {
                         Button(String(localized: "Cancel")) { dismiss() }
                         .vDialogCancelButton()
                     }
-                    .sharedBackgroundVisibility(.hidden)
+                    .vDialogToolbarItem()
                     ToolbarItem(placement: .confirmationAction) {
                         Button(String(localized: "Save")) {
                             Task {
@@ -262,7 +262,7 @@ struct CategorizationRuleFormView: View {
                         .disabled(!vm.canSave || vm.isSaving)
                         .vDialogConfirmButton()
                     }
-                    .sharedBackgroundVisibility(.hidden)
+                    .vDialogToolbarItem()
                 }
                 .errorAlert(message: formErrorBinding)
             } else {

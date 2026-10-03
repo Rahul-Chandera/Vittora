@@ -109,7 +109,7 @@ struct BudgetFormView: View {
                     .accessibilityIdentifier("budget-cancel-button")
                     .vDialogCancelButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
                         Task {
@@ -127,7 +127,7 @@ struct BudgetFormView: View {
                     .accessibilityIdentifier("budget-save-button")
                     .vDialogConfirmButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
             }
             .accessibilityIdentifier("budget-form-root")
         }

@@ -144,7 +144,7 @@ struct QuickEntryView: View {
                         .keyboardShortcut(.cancelAction)
                         .vDialogCancelButton()
                     }
-                    .sharedBackgroundVisibility(.hidden)
+                    .vDialogToolbarItem()
                 }
             }
         }

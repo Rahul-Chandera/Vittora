@@ -32,7 +32,7 @@ struct TransferFormView: View {
                         .accessibilityIdentifier("transfer-cancel-button")
                     .vDialogCancelButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
             }
             ToolbarItem(placement: .confirmationAction) {
                 if isTransferring {
@@ -46,7 +46,7 @@ struct TransferFormView: View {
                     .vDialogConfirmButton()
                 }
             }
-            .sharedBackgroundVisibility(.hidden)
+            .vDialogToolbarItem()
         }
         .task {
             await setupViewModel()

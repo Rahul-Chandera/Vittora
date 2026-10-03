@@ -244,7 +244,7 @@ struct AppearanceSettingsView: View {
                         .accessibilityIdentifier("appearance-apply-button")
                         .vDialogConfirmButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
             }
         }
         .onAppear {

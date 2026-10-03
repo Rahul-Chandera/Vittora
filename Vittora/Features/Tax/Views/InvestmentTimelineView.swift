@@ -39,7 +39,7 @@ struct InvestmentTimelineView: View {
                         .accessibilityIdentifier("investment-timeline-done-button")
                         .vDialogConfirmButton()
                 }
-                .sharedBackgroundVisibility(.hidden)
+                .vDialogToolbarItem()
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         isAdding = true
