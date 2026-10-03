@@ -294,6 +294,7 @@ struct RecurringFormView: View {
                     }
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button(action: save) {
@@ -306,6 +307,7 @@ struct RecurringFormView: View {
                     .vDialogConfirmButton()
                     .disabled(!(viewModel?.canSave ?? false) || isLoading)
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
         }
         .onAppear {

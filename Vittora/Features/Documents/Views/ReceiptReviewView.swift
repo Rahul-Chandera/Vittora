@@ -78,6 +78,7 @@ struct ReceiptReviewView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Create Transaction")) {
@@ -88,6 +89,7 @@ struct ReceiptReviewView: View {
                     .disabled(!vm.isValid)
                     .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
         }
     }

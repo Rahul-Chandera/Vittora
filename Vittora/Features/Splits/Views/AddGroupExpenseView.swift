@@ -127,6 +127,7 @@ struct AddGroupExpenseView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
                         guard vm.canSave, !vm.isSaving else { return }
@@ -147,6 +148,7 @@ struct AddGroupExpenseView: View {
                     .accessibilityRespondsToUserInteraction(vm.canSave && !vm.isSaving)
                     .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
         }
         .onChange(of: vm.error) { _, newValue in

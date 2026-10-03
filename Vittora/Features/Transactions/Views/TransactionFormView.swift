@@ -113,6 +113,7 @@ struct TransactionFormView: View {
                             .accessibilityIdentifier("transaction-form-cancel-button")
                             .vDialogCancelButton()
                         }
+                        .sharedBackgroundVisibility(.hidden)
                     }
 
                     ToolbarItem(placement: .confirmationAction) {
@@ -152,6 +153,7 @@ struct TransactionFormView: View {
                         .accessibilityIdentifier("transaction-form-save-button")
                         .vDialogConfirmButton()
                     }
+                    .sharedBackgroundVisibility(.hidden)
                 }
                 .overlay {
                     if vm.isLoading {

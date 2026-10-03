@@ -326,6 +326,7 @@ struct SettingsView: View {
                         }
                         .vDialogCancelButton()
                     }
+                    .sharedBackgroundVisibility(.hidden)
                 }
             }
         }
@@ -410,6 +411,7 @@ struct SettingsView: View {
                     .disabled(isDeletingAllData)
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Permanently Delete"), role: .destructive) {
                         Task { await confirmDeleteAllData() }
@@ -417,6 +419,7 @@ struct SettingsView: View {
                     .disabled(!canConfirmDeleteAllData || isDeletingAllData)
                     .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
         }
     }

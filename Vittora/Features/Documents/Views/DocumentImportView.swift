@@ -60,6 +60,7 @@ struct DocumentImportView: View {
                         .foregroundStyle(VColors.textPrimary)
                         .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
             .errorAlert(message: $importError)
         }

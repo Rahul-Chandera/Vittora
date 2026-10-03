@@ -36,6 +36,7 @@ struct CategoryFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(String(localized: "Save")) {
@@ -44,6 +45,7 @@ struct CategoryFormView: View {
                 .disabled(viewModel?.canSave != true || isSaving)
                 .vDialogConfirmButton()
             }
+            .sharedBackgroundVisibility(.hidden)
         }
         .task {
             setupViewModel()

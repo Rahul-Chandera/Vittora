@@ -36,6 +36,7 @@ struct TransactionCSVImportView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
                 if let vm, vm.canImport {
                     ToolbarItem(placement: .confirmationAction) {
                         Button(String(localized: "Import")) {
@@ -52,6 +53,7 @@ struct TransactionCSVImportView: View {
                         .disabled(vm.isLoading)
                         .vDialogConfirmButton()
                     }
+                    .sharedBackgroundVisibility(.hidden)
                 }
             }
             .task {

@@ -140,6 +140,7 @@ struct PaywallView: View {
                 .accessibilityIdentifier("paywall-close-button")
                 .vDialogCancelButton()
         }
+        .sharedBackgroundVisibility(.hidden)
     }
 
     /// Our own store, in place of SubscriptionStoreView (option C).

@@ -98,6 +98,7 @@ struct Tax80CComparisonView: View {
                         .accessibilityIdentifier("compare-80c-done-button")
                         .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
         }
     }

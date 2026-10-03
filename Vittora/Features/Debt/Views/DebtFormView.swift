@@ -117,6 +117,7 @@ struct DebtFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
                         Task {
@@ -139,6 +140,7 @@ struct DebtFormView: View {
                     .disabled(!(vm?.canSave ?? false))
                     .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
         }
         .sheet(isPresented: $showAddPayee) {

@@ -29,6 +29,7 @@ struct PayeeFormView: View {
                 Button(String(localized: "Cancel")) { dismiss() }
                 .vDialogCancelButton()
             }
+            .sharedBackgroundVisibility(.hidden)
             ToolbarItem(placement: .confirmationAction) {
                 Button(String(localized: "Save")) {
                     Task { await save() }
@@ -36,6 +37,7 @@ struct PayeeFormView: View {
                 .disabled(viewModel?.canSave != true || isSaving)
                 .vDialogConfirmButton()
             }
+            .sharedBackgroundVisibility(.hidden)
         }
         .task {
             setupViewModel()

@@ -127,6 +127,7 @@ struct TransactionFilterSheet: View {
                     .accessibilityIdentifier("transaction-filter-cancel-button")
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
 
                 ToolbarItem(placement: .destructiveAction) {
                     Button(String(localized: "Clear")) {
@@ -135,6 +136,7 @@ struct TransactionFilterSheet: View {
                     .accessibilityIdentifier("transaction-filter-clear-button")
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
 
                 ToolbarItem(placement: .primaryAction) {
                     Button(String(localized: "Save")) {
@@ -144,6 +146,7 @@ struct TransactionFilterSheet: View {
                     .accessibilityIdentifier("transaction-filter-save-button")
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Apply")) {
@@ -153,6 +156,7 @@ struct TransactionFilterSheet: View {
                     .accessibilityIdentifier("transaction-filter-apply-button")
                     .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
             .alert(String(localized: "Save Filter"), isPresented: $showSaveAlert) {
                 TextField(String(localized: "Name"), text: $presetName, prompt: Text(String(localized: "Name")).foregroundStyle(VColors.placeholderText))

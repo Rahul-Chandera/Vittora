@@ -109,6 +109,7 @@ struct InvestmentFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
                         Task {
@@ -120,6 +121,7 @@ struct InvestmentFormView: View {
                     .accessibilityIdentifier("investment-save-button")
                     .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
             .onAppear(perform: populate)
             .onChange(of: instrumentID) { _, _ in applyInstrumentDefaults() }

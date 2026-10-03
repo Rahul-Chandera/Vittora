@@ -210,6 +210,7 @@ struct SavingsGoalFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
                         guard canSave, !isSaving else { return }
@@ -220,6 +221,7 @@ struct SavingsGoalFormView: View {
                     .disabled(!canSave || isSaving)
                     .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
         }
         .onAppear {

@@ -78,6 +78,10 @@ struct VSecondaryActionButtonStyle: ButtonStyle {
     }
 }
 
+// In a toolbar, give the ToolbarItem `.sharedBackgroundVisibility(.hidden)`:
+// otherwise iOS and macOS 26 draw their own glass capsule behind the item and
+// these capsules sit inside it — a white ring hugging the fill, uneven at the
+// sides — instead of standing alone.
 extension View {
     func vDialogConfirmButton() -> some View {
         buttonStyle(VPrimaryActionButtonStyle())

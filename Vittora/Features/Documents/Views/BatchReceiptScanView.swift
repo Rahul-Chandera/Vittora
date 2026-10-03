@@ -81,6 +81,7 @@ struct BatchReceiptScanView: View {
                         .disabled(isProcessing)
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
                 #if os(iOS)
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Scan")) {
@@ -89,6 +90,7 @@ struct BatchReceiptScanView: View {
                     .disabled(selectedItems.isEmpty || isProcessing)
                     .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
                 #endif
             }
             .errorAlert(message: $error)

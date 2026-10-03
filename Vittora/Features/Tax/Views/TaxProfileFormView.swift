@@ -34,6 +34,7 @@ struct TaxProfileFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
                         Task {
@@ -54,6 +55,7 @@ struct TaxProfileFormView: View {
                     .disabled(!(vm?.canSave ?? false) || (vm?.isSaving ?? false))
                     .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
         }
         .task {
@@ -777,6 +779,7 @@ private struct AddDeductionSheet: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
                         if let parsedAmount {
@@ -786,6 +789,7 @@ private struct AddDeductionSheet: View {
                     .disabled(!canAdd)
                     .vDialogConfirmButton()
                 }
+                .sharedBackgroundVisibility(.hidden)
             }
         }
     }

@@ -29,6 +29,7 @@ struct DocumentPreviewView: View {
                         }
                         .vDialogConfirmButton()
                     }
+                    .sharedBackgroundVisibility(.hidden)
                 }
         }
     }
