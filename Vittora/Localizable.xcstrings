@@ -34253,18 +34253,76 @@
         }
       }
     },
-    "This payee has %lld linked transaction(s). Reassign them before deleting." : {
+    "This payee is used by %lld transactions. They'll stay, without a payee." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "This payee is used by %lld transaction. It'll stay, without a payee."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "This payee is used by %lld transactions. They'll stay, without a payee."
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Este beneficiario se usa en %lld transacción. Se conservará, sin beneficiario."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Este beneficiario se usa en %lld transacciones. Se conservarán, sin beneficiario."
+                }
+              }
+            }
+          }
+        },
+        "hi" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "यह प्राप्तकर्ता %lld लेन-देन में है। वह लेन-देन बना रहेगा, बिना प्राप्तकर्ता के।"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "यह प्राप्तकर्ता %lld लेन-देन में है। वे लेन-देन बने रहेंगे, बिना प्राप्तकर्ता के।"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "This payee has debt records. Delete them in Debt before deleting the payee." : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Este beneficiario tiene %lld transacción(es) vinculada(s). Reasígnalas antes de eliminarlo."
+            "value" : "Este beneficiario tiene registros de deudas. Elimínalos en Deuda antes de eliminar el beneficiario."
           }
         },
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "इस प्राप्तकर्ता से %lld लेन-देन जुड़े हैं। हटाने से पहले उन्हें किसी और प्राप्तकर्ता को सौंपें।"
+            "value" : "इस प्राप्तकर्ता के उधार के रिकॉर्ड हैं। प्राप्तकर्ता को हटाने से पहले उन्हें उधार में हटाएँ।"
           }
         }
       }

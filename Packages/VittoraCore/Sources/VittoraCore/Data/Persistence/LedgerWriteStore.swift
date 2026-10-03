@@ -399,6 +399,40 @@ public actor LedgerWriteStore: LedgerWriting {
         }
     }
 
+    public func performDeletePayee(payeeID: UUID) throws {
+        try commit { ctx in
+            let payees = try ctx.fetch(FetchDescriptor<SDPayee>(
+                predicate: #Predicate { $0.id == payeeID }
+            ))
+            guard !payees.isEmpty else {
+                throw VittoraError.notFound(String(localized: "Payee not found"))
+            }
+            var debts = FetchDescriptor<SDDebt>(predicate: #Predicate { $0.payeeID == payeeID })
+            debts.fetchLimit = 1
+            guard try ctx.fetch(debts).isEmpty else {
+                throw VittoraError.validationFailed(
+                    String(localized: "This payee has debt records. Delete them in Debt before deleting the payee.")
+                )
+            }
+
+            for tx in try ctx.fetch(FetchDescriptor<SDTransaction>(
+                predicate: #Predicate { $0.payeeID == payeeID }
+            )) {
+                tx.payeeID = nil
+                tx.updatedAt = .now
+            }
+            for rule in try ctx.fetch(FetchDescriptor<SDRecurringRule>(
+                predicate: #Predicate { $0.templatePayeeID == payeeID }
+            )) {
+                rule.templatePayeeID = nil
+                rule.updatedAt = .now
+            }
+            for payee in payees {
+                ctx.delete(payee)
+            }
+        }
+    }
+
     // MARK: - Helpers
 
     /// Apply a signed delta to an account's balance within the given context,

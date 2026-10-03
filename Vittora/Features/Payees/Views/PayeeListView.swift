@@ -8,6 +8,7 @@ struct PayeeListView: View {
     @State private var showAddPayee = false
     @State private var showingDeleteAlert = false
     @State private var payeeToDelete: UUID?
+    @State private var linkedCountToDelete = 0
 
     var body: some View {
         Group {
@@ -57,7 +58,11 @@ struct PayeeListView: View {
             }
             Button(String(localized: "Cancel"), role: .cancel) {}
         } message: {
-            Text(String(localized: "Are you sure you want to delete this payee?"))
+            if linkedCountToDelete > 0 {
+                Text(String(localized: "This payee is used by \(linkedCountToDelete) transactions. They'll stay, without a payee."))
+            } else {
+                Text(String(localized: "Are you sure you want to delete this payee?"))
+            }
         }
         .alert(
             String(localized: "Contacts Imported"),
@@ -82,6 +87,16 @@ struct PayeeListView: View {
         .task(id: appState.refreshVersion(for: .payees)) {
             guard viewModel != nil, appState.refreshVersion(for: .payees) > 0 else { return }
             await viewModel?.loadPayees()
+        }
+    }
+
+    /// The confirmation says how many transactions will lose the payee, so the
+    /// count is read before it is shown.
+    private func confirmDelete(_ id: UUID) {
+        Task {
+            linkedCountToDelete = await viewModel?.linkedTransactionCount(for: id) ?? 0
+            payeeToDelete = id
+            showingDeleteAlert = true
         }
     }
 
@@ -190,16 +205,14 @@ struct PayeeListView: View {
                     Label(String(localized: "Edit"), systemImage: "pencil")
                 }
                 Button(role: .destructive) {
-                    payeeToDelete = payee.id
-                    showingDeleteAlert = true
+                    confirmDelete(payee.id)
                 } label: {
                     Label(String(localized: "Delete"), systemImage: "trash")
                 }
             }
             .swipeActions(edge: .trailing) {
                 Button(role: .destructive) {
-                    payeeToDelete = payee.id
-                    showingDeleteAlert = true
+                    confirmDelete(payee.id)
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }

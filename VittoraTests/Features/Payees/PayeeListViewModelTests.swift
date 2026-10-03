@@ -34,7 +34,12 @@ struct PayeeListViewModelTests {
             fetchUseCase: FetchPayeesUseCase(repository: repository),
             deleteUseCase: DeletePayeeUseCase(
                 repository: repository,
-                transactionRepository: transactionRepository
+                transactionRepository: transactionRepository,
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepository,
+                    accountRepository: MockAccountRepository(),
+                    payeeRepository: repository
+                )
             ),
             importContactsUseCase: ImportContactsUseCase(
                 repository: repository,
@@ -61,7 +66,12 @@ struct PayeeListViewModelTests {
             fetchUseCase: FetchPayeesUseCase(repository: repository),
             deleteUseCase: DeletePayeeUseCase(
                 repository: repository,
-                transactionRepository: transactionRepository
+                transactionRepository: transactionRepository,
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepository,
+                    accountRepository: MockAccountRepository(),
+                    payeeRepository: repository
+                )
             ),
             importContactsUseCase: ImportContactsUseCase(
                 repository: repository,
@@ -77,28 +87,51 @@ struct PayeeListViewModelTests {
         #expect(viewModel.isImportingContacts == false)
     }
 
-    @Test("a refused delete keeps its reason and reports failure")
-    func refusedDeleteKeepsItsReason() async throws {
-        let repository = MockPayeeRepository()
-        let transactionRepository = MockTransactionRepository()
+    @Test("deleting a payee keeps its transactions, without the payee")
+    func deleteKeepsTransactionsWithoutPayee() async throws {
+        let (viewModel, repository, transactionRepository) = makeDeleteViewModel()
         let payee = PayeeEntity(name: "DoorDash", type: .business)
         await repository.seed(payee)
-        try await transactionRepository.create(TransactionEntity(
-            amount: 25, date: .now, type: .expense, payeeID: payee.id
-        ))
-        let viewModel = PayeeListViewModel(
-            fetchUseCase: FetchPayeesUseCase(repository: repository),
-            deleteUseCase: DeletePayeeUseCase(repository: repository, transactionRepository: transactionRepository)
-        )
+        let transaction = TransactionEntity(amount: 25, date: .now, type: .expense, payeeID: payee.id)
+        try await transactionRepository.create(transaction)
         await viewModel.loadPayees()
 
-        let deleted = await viewModel.deletePayee(id: payee.id)
+        #expect(await viewModel.linkedTransactionCount(for: payee.id) == 1)
+        #expect(await viewModel.deletePayee(id: payee.id))
+
+        #expect(viewModel.payees.isEmpty)
+        let kept = try await transactionRepository.fetchByID(transaction.id)
+        #expect(kept?.amount == 25)
+        #expect(kept?.payeeID == nil)
+    }
+
+    @Test("a failed delete keeps its reason and reports failure")
+    func failedDeleteKeepsItsReason() async {
+        let (viewModel, _, _) = makeDeleteViewModel()
+        await viewModel.loadPayees()
 
         // The view refreshes only on success; a refresh runs loadPayees, which
         // clears the error before the alert can show it.
-        #expect(deleted == false)
-        #expect(viewModel.error?.contains("1") == true)
-        #expect(viewModel.payees.map(\.id) == [payee.id])
+        #expect(await viewModel.deletePayee(id: UUID()) == false)
+        #expect(viewModel.error != nil)
+    }
+
+    private func makeDeleteViewModel() -> (PayeeListViewModel, MockPayeeRepository, MockTransactionRepository) {
+        let repository = MockPayeeRepository()
+        let transactionRepository = MockTransactionRepository()
+        let viewModel = PayeeListViewModel(
+            fetchUseCase: FetchPayeesUseCase(repository: repository),
+            deleteUseCase: DeletePayeeUseCase(
+                repository: repository,
+                transactionRepository: transactionRepository,
+                ledgerWriting: MockLedgerWriting(
+                    transactionRepository: transactionRepository,
+                    accountRepository: MockAccountRepository(),
+                    payeeRepository: repository
+                )
+            )
+        )
+        return (viewModel, repository, transactionRepository)
     }
 }
 

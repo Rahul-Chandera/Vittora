@@ -91,6 +91,54 @@ struct LedgerWriteStoreTests {
         return account.id
     }
 
+    // MARK: - Delete payee
+
+    @Test("deleting a payee keeps its transactions and rules, without the payee, in one save")
+    func deletePayeeUnlinksAndDeletesEveryCopy() async throws {
+        let container = try makeContainer()
+        let payeeID = UUID()
+        let context = ModelContext(container)
+        // Two rows with one id: CloudKit has no unique constraints.
+        context.insert(SDPayee(id: payeeID, name: "DoorDash"))
+        context.insert(SDPayee(id: payeeID, name: "DoorDash"))
+        let tx = SDTransaction(amount: 25, payeeID: payeeID)
+        let rule = SDRecurringRule(frequency: .monthly, nextDate: .now, templateAmount: 10, templatePayeeID: payeeID)
+        context.insert(tx)
+        context.insert(rule)
+        try context.save()
+        let store = LedgerWriteStore(modelContainer: container)
+
+        try await store.performDeletePayee(payeeID: payeeID)
+
+        #expect(await store.saveCount == 1)
+        let verify = ModelContext(container)
+        #expect(try verify.fetch(FetchDescriptor<SDPayee>()).isEmpty)
+        let transactions = try verify.fetch(FetchDescriptor<SDTransaction>())
+        #expect(transactions.map(\.amount) == [25])
+        #expect(transactions.first?.payeeID == nil)
+        #expect(try verify.fetch(FetchDescriptor<SDRecurringRule>()).first?.templatePayeeID == nil)
+    }
+
+    @Test("a payee with debt records is not deleted, and nothing is unlinked")
+    func deletePayeeRefusedWhileDebtsExist() async throws {
+        let container = try makeContainer()
+        let payeeID = UUID()
+        let context = ModelContext(container)
+        context.insert(SDPayee(id: payeeID, name: "Alex"))
+        context.insert(SDTransaction(amount: 25, payeeID: payeeID))
+        context.insert(SDDebt(payeeID: payeeID, amount: 40, direction: .lent))
+        try context.save()
+        let store = LedgerWriteStore(modelContainer: container)
+
+        await #expect(throws: VittoraError.self) {
+            try await store.performDeletePayee(payeeID: payeeID)
+        }
+
+        let verify = ModelContext(container)
+        #expect(try verify.fetch(FetchDescriptor<SDPayee>()).count == 1)
+        #expect(try verify.fetch(FetchDescriptor<SDTransaction>()).first?.payeeID == payeeID)
+    }
+
     private func seedDebt(_ container: ModelContainer, amount: Decimal, direction: DebtDirection) throws -> UUID {
         let context = ModelContext(container)
         let debt = SDDebt(payeeID: UUID(), amount: amount, direction: direction)

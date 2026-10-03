@@ -86,6 +86,12 @@ final class PayeeListViewModel {
         isLoading = false
     }
 
+    /// Transactions that will lose this payee, for the delete confirmation.
+    /// Zero when the count cannot be read: the confirmation is still shown.
+    func linkedTransactionCount(for id: UUID) async -> Int {
+        (try? await deleteUseCase.linkedTransactionCount(id: id)) ?? 0
+    }
+
     /// Returns whether the payee was deleted. A refused delete must not be
     /// followed by a refresh: `loadPayees` clears `error`, so the reason never
     /// reached the screen and the payee just stayed in the list.
