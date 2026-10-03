@@ -6,6 +6,7 @@ struct SidebarNavigation: View {
     @Environment(AppState.self) private var appState
     @Environment(SettingsViewModel.self) private var settingsVM
     @State private var presentedQuickAdd: PresentedQuickAdd?
+    @State private var columnVisibility = NavigationSplitViewVisibility.automatic
 
     private func sidebarRow(_ tab: AppState.AppTab) -> some View {
         let isSelected = appState.selectedTab == tab
@@ -39,7 +40,7 @@ struct SidebarNavigation: View {
     }
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             // Rows are buttons, not List selection. AppKit paints the source-list
             // highlight with NSColor.controlAccentColor — the System Settings accent,
             // which is why this sidebar stayed blue while the rest of the app followed
@@ -91,6 +92,14 @@ struct SidebarNavigation: View {
                 .withNavigationDestinations()
             }
         }
+        // A screen pushed in one section (Settings → Appearance) stayed on
+        // top when another section was picked. On macOS the split view owns
+        // what a List's NavigationLink pushes in the detail column: neither a
+        // new NavigationStack per section, .id on the stack, nor a reset
+        // NavigationPath popped it — Back revealed the new section beneath.
+        // Re-identifying the split view does. Column visibility lives in
+        // @State here, so a hidden sidebar stays hidden across the switch.
+        .id(appState.selectedTab)
         // No window-global "+" here: it stacks with each screen's own add
         // button (Categories, Budgets, …) so every pushed screen showed two.
         // Quick entry stays reachable via ⌘N and the dashboard floating +.
