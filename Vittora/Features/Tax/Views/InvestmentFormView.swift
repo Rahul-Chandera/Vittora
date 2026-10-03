@@ -41,7 +41,7 @@ struct InvestmentFormView: View {
                             Text(String(localized: "Amount"))
                             Spacer()
                             TextField("", text: $amountText, prompt: Text("0").foregroundStyle(VColors.placeholderText))
-                                .vFormField()
+                                .vFormField(inline: true)
                                 #if os(iOS)
                                 .keyboardType(.decimalPad)
                                 #endif

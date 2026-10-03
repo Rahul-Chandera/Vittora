@@ -193,7 +193,7 @@ private struct AllocationRow: View {
                 HStack(spacing: 4) {
                     if method == .percentage {
                         TextField("", text: $row.inputValue, prompt: Text("0").foregroundStyle(VColors.placeholderText))
-                            .vFormField()
+                            .vFormField(inline: true)
                             .accessibilityLabel(String(localized: "Percentage share"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -206,7 +206,7 @@ private struct AllocationRow: View {
                     } else if method == .exact {
                         Text(currencySymbol).foregroundStyle(VColors.textSecondary)
                         TextField("", text: $row.inputValue, prompt: Text("0.00").foregroundStyle(VColors.placeholderText))
-                            .vFormField()
+                            .vFormField(inline: true)
                             .accessibilityLabel(String(localized: "Exact amount"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -217,7 +217,7 @@ private struct AllocationRow: View {
                             .onChange(of: row.inputValue) { _, _ in onValueChanged() }
                     } else if method == .shares {
                         TextField("", text: $row.inputValue, prompt: Text("1").foregroundStyle(VColors.placeholderText))
-                            .vFormField()
+                            .vFormField(inline: true)
                             .accessibilityLabel(String(localized: "Shares"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)

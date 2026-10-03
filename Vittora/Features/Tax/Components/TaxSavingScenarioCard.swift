@@ -142,7 +142,7 @@ struct TaxSavingScenarioCard: View {
             text: $amountText,
             prompt: Text("0").foregroundStyle(VColors.placeholderText)
         )
-            .vFormField()
+            .vFormField(inline: true)
         #if os(iOS)
         .keyboardType(.decimalPad)
         .textContentType(nil)

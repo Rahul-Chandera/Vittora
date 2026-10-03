@@ -67,12 +67,20 @@ extension View {
     /// The prompt is drawn leading even in a field aligned trailing (the
     /// amount fields, trailing on iOS), so macOS aligns every field leading.
     /// Applied innermost, so it wins over a later `.multilineTextAlignment`.
-    /// No-op on iOS.
+    /// `inline` is for a value field beside its own label ("Target  0"),
+    /// trailing on iOS: on macOS it gets a bordered box, or its "0" prompt
+    /// floats mid-row with nothing to say it is a field. No-op on iOS.
     @ViewBuilder
-    func vFormField() -> some View {
+    func vFormField(inline: Bool = false) -> some View {
         #if os(macOS)
-        labelsHidden()
-            .multilineTextAlignment(.leading)
+        if inline {
+            labelsHidden()
+                .multilineTextAlignment(.leading)
+                .textFieldStyle(.roundedBorder)
+        } else {
+            labelsHidden()
+                .multilineTextAlignment(.leading)
+        }
         #else
         self
         #endif

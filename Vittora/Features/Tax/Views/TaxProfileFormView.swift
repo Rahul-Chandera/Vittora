@@ -659,7 +659,7 @@ struct TaxProfileFormView: View {
     ) -> some View {
         let amountField = HStack {
             TextField("", text: text, prompt: Text("0").foregroundStyle(VColors.placeholderText))
-                .vFormField()
+                .vFormField(inline: true)
                 #if os(iOS)
                 .keyboardType(.decimalPad)
                 .textContentType(nil)
