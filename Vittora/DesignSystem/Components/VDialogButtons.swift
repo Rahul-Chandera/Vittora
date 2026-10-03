@@ -39,6 +39,12 @@ private enum VDialogButtonMetrics {
     /// see VColors.controlDisabledOnFill.
     static let disabledFill = VColors.groupedBackground
     static let disabledLabel = VColors.controlDisabledOnFill
+
+    /// iOS glass toolbar buttons hug a short label ("Save") almost to a circle.
+    static let toolbarExtraHorizontalPadding: CGFloat = VSpacing.xs
+    /// macOS: the drawn capsule matches the height of the toolbar's other glass
+    /// items (Back, the sync status), not just the label.
+    static let macToolbarVerticalPadding: CGFloat = 10
 }
 
 /// Inline primary action: white on a green that clears AA without an exemption.
@@ -78,6 +84,8 @@ struct VToolbarConfirmButtonStyle: ButtonStyle {
             // The toolbar can offer less width than the label needs; the audit
             // reported "Text clipped" on Contact Support's Done.
             .fixedSize(horizontal: true, vertical: false)
+            // A little more room inside the system glass than its default.
+            .padding(.horizontal, VDialogButtonMetrics.toolbarExtraHorizontalPadding)
             .foregroundStyle(isEnabled ? VColors.primaryOnSurface : VDialogButtonMetrics.disabledLabel)
             .opacity(configuration.isPressed ? 0.6 : 1)
     }
@@ -91,6 +99,8 @@ struct VToolbarCancelButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .fixedSize(horizontal: true, vertical: false)
+            // A little more room inside the system glass than its default.
+            .padding(.horizontal, VDialogButtonMetrics.toolbarExtraHorizontalPadding)
             .foregroundStyle(isEnabled ? VColors.textPrimary : VDialogButtonMetrics.disabledLabel)
             .opacity(configuration.isPressed ? 0.6 : 1)
     }
@@ -116,7 +126,7 @@ struct VMacGlassDialogButtonStyle: ButtonStyle {
                     : (isConfirm ? VColors.primaryOnSurface : VColors.textPrimary)
             )
             .padding(.horizontal, VDialogButtonMetrics.horizontalPadding)
-            .padding(.vertical, VDialogButtonMetrics.verticalPadding)
+            .padding(.vertical, VDialogButtonMetrics.macToolbarVerticalPadding)
             .glassEffect(.regular.interactive(), in: Capsule())
             .opacity(configuration.isPressed ? 0.7 : 1)
     }
