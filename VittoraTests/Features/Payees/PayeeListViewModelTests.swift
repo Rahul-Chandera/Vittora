@@ -76,6 +76,30 @@ struct PayeeListViewModelTests {
         #expect(viewModel.error?.contains("Contacts access") == true)
         #expect(viewModel.isImportingContacts == false)
     }
+
+    @Test("a refused delete keeps its reason and reports failure")
+    func refusedDeleteKeepsItsReason() async throws {
+        let repository = MockPayeeRepository()
+        let transactionRepository = MockTransactionRepository()
+        let payee = PayeeEntity(name: "DoorDash", type: .business)
+        await repository.seed(payee)
+        try await transactionRepository.create(TransactionEntity(
+            amount: 25, date: .now, type: .expense, payeeID: payee.id
+        ))
+        let viewModel = PayeeListViewModel(
+            fetchUseCase: FetchPayeesUseCase(repository: repository),
+            deleteUseCase: DeletePayeeUseCase(repository: repository, transactionRepository: transactionRepository)
+        )
+        await viewModel.loadPayees()
+
+        let deleted = await viewModel.deletePayee(id: payee.id)
+
+        // The view refreshes only on success; a refresh runs loadPayees, which
+        // clears the error before the alert can show it.
+        #expect(deleted == false)
+        #expect(viewModel.error?.contains("1") == true)
+        #expect(viewModel.payees.map(\.id) == [payee.id])
+    }
 }
 
 private actor MockContactsImportService: ContactsImportServiceProtocol {

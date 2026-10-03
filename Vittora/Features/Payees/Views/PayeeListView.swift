@@ -49,8 +49,9 @@ struct PayeeListView: View {
             Button(String(localized: "Delete"), role: .destructive) {
                 if let id = payeeToDelete, let vm = viewModel {
                     Task {
-                        await vm.deletePayee(id: id)
-                        appState.notifyChanged(.payees)
+                        if await vm.deletePayee(id: id) {
+                            appState.notifyChanged(.payees)
+                        }
                     }
                 }
             }

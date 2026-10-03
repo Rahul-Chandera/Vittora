@@ -18,7 +18,7 @@ struct DeletePayeeUseCase: Sendable {
         let filter = TransactionFilter(payeeIDs: [id])
         let linked = try await transactionRepository.fetchAll(filter: filter)
         guard linked.isEmpty else {
-            throw VittoraError.validationFailed("This payee has \(linked.count) linked transaction(s). Reassign them before deleting.")
+            throw VittoraError.validationFailed(String(localized: "This payee has \(linked.count) linked transaction(s). Reassign them before deleting."))
         }
 
         try await repository.delete(id)

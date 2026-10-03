@@ -34252,6 +34252,22 @@
           }
         }
       }
+    },
+    "This payee has %lld linked transaction(s). Reassign them before deleting." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este beneficiario tiene %lld transacción(es) vinculada(s). Reasígnalas antes de eliminarlo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस प्राप्तकर्ता से %lld लेन-देन जुड़े हैं। हटाने से पहले उन्हें किसी और प्राप्तकर्ता को सौंपें।"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

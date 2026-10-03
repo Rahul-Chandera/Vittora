@@ -86,12 +86,18 @@ final class PayeeListViewModel {
         isLoading = false
     }
 
-    func deletePayee(id: UUID) async {
+    /// Returns whether the payee was deleted. A refused delete must not be
+    /// followed by a refresh: `loadPayees` clears `error`, so the reason never
+    /// reached the screen and the payee just stayed in the list.
+    @discardableResult
+    func deletePayee(id: UUID) async -> Bool {
         do {
             try await deleteUseCase.execute(id: id)
             await loadPayees()
+            return true
         } catch {
             self.error = error.localizedDescription
+            return false
         }
     }
 
