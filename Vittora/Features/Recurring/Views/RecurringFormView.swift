@@ -104,7 +104,8 @@ struct RecurringFormView: View {
                                     )
                                     .datePickerStyle(.compact)
                                     .labelsHidden()
-                                    .frame(maxWidth: .infinity)
+                                    // Leading, like Start Date above.
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(VSpacing.md)
                                     .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
