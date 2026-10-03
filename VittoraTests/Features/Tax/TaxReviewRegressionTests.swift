@@ -333,7 +333,7 @@ struct TaxReviewRegressionTests {
         /// IN-09. FY 2026-27 has its own rule-set identity.
         @Test func taxYear2026HasItsOwnRuleSet() {
             let estimate = IndiaTaxCalculator().calculate(profile: profile(income: 1_000_000, regime: .newRegime, source: .salaried, year: "2026-27"))
-            #expect(estimate.ruleSetID == "IN_TY2026_27")
+            #expect(estimate.ruleSetID == "IN_FY2026_27")
         }
     }
 

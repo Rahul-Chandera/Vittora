@@ -230,7 +230,7 @@ enum IndiaTaxRuleTable {
     /// rebate. A separate, fully restated entry so the estimate names the law
     /// and year it applied, rather than silently reusing FY 2025-26.
     nonisolated private static let year2026 = YearRules(
-        ruleSetID: "IN_TY2026_27",
+        ruleSetID: "IN_FY2026_27",
         newRegimeSlabs: [
             TaxSlab(lower: 0,         upper: 400_000,   ratePercent: 0,  label: "₹0 – ₹4L"),
             TaxSlab(lower: 400_000,   upper: 800_000,   ratePercent: 5,  label: "₹4L – ₹8L"),
