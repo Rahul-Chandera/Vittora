@@ -10,17 +10,20 @@ struct ProfileSettingsView: View {
 
     var body: some View {
         Form {
-            Section {
-                TextField(String(localized: "Your name"), text: $editingName)
-                    #if os(iOS)
-                    .textContentType(.name)
-                    #endif
-            } header: {
-                VFormSectionHeader(String(localized: "Display Name"))
-                    .foregroundStyle(VColors.textPrimary)
+            Group {
+                Section {
+                    TextField(String(localized: "Your name"), text: $editingName)
+                        #if os(iOS)
+                        .textContentType(.name)
+                        #endif
+                } header: {
+                    VFormSectionHeader(String(localized: "Display Name"))
+                        .foregroundStyle(VColors.textPrimary)
+                }
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         .navigationTitle(String(localized: "Profile"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -40,46 +43,49 @@ struct CurrencySettingsView: View {
 
     var body: some View {
         Form {
-            Section {
-                ForEach(vm.supportedCurrencies, id: \.code) { currency in
-                    Button {
-                        vm.selectedCurrencyCode = currency.code
-                    } label: {
-                        HStack {
-                            // Same flag treatment as onboarding — see
-                            // currencyFlagImage for why it is an Image and not
-                            // a Text. Dropped at accessibility sizes, where the
-                            // row needs its width for the name.
-                            if !dynamicTypeSize.isAccessibilitySize,
-                               let flag = currencyFlagImage(for: currency.code) {
-                                flag
-                                    .accessibilityHidden(true)
+            Group {
+                Section {
+                    ForEach(vm.supportedCurrencies, id: \.code) { currency in
+                        Button {
+                            vm.selectedCurrencyCode = currency.code
+                        } label: {
+                            HStack {
+                                // Same flag treatment as onboarding — see
+                                // currencyFlagImage for why it is an Image and not
+                                // a Text. Dropped at accessibility sizes, where the
+                                // row needs its width for the name.
+                                if !dynamicTypeSize.isAccessibilitySize,
+                                   let flag = currencyFlagImage(for: currency.code) {
+                                    flag
+                                        .accessibilityHidden(true)
+                                }
+                                Text(currency.name)
+                                    .foregroundStyle(VColors.textPrimary)
+                                Spacer()
+                                if vm.selectedCurrencyCode == currency.code {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(VColors.primaryOnSurface)
+                                        .accessibilityHidden(true)
+                                }
                             }
-                            Text(currency.name)
-                                .foregroundStyle(VColors.textPrimary)
-                            Spacer()
-                            if vm.selectedCurrencyCode == currency.code {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(VColors.primaryOnSurface)
-                                    .accessibilityHidden(true)
-                            }
+                            // Make the whole row tappable, not just the text.
+                            .contentShape(Rectangle())
                         }
-                        // Make the whole row tappable, not just the text.
-                        .contentShape(Rectangle())
+                        .buttonStyle(.plain)
+                        .accessibilityValue(
+                            vm.selectedCurrencyCode == currency.code
+                            ? String(localized: "Selected")
+                            : String(localized: "Not selected")
+                        )
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityValue(
-                        vm.selectedCurrencyCode == currency.code
-                        ? String(localized: "Selected")
-                        : String(localized: "Not selected")
-                    )
+                } header: {
+                    VFormSectionHeader(String(localized: "Select Currency"))
+                        .foregroundStyle(VColors.textPrimary)
                 }
-            } header: {
-                VFormSectionHeader(String(localized: "Select Currency"))
-                    .foregroundStyle(VColors.textPrimary)
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         .navigationTitle(String(localized: "Currency"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -97,118 +103,121 @@ struct AppearanceSettingsView: View {
 
     var body: some View {
         Form {
-            Section {
-                ForEach(SettingsViewModel.AppearanceMode.allCases, id: \.self) { mode in
-                    Button {
-                        draftMode = mode
-                    } label: {
-                        HStack {
-                            Text(mode.displayName)
-                                .foregroundStyle(VColors.textPrimary)
-                            Spacer()
-                            if selectedMode == mode {
-                                Image(systemName: "checkmark")
+            Group {
+                Section {
+                    ForEach(SettingsViewModel.AppearanceMode.allCases, id: \.self) { mode in
+                        Button {
+                            draftMode = mode
+                        } label: {
+                            HStack {
+                                Text(mode.displayName)
                                     .foregroundStyle(VColors.textPrimary)
-                                    .accessibilityHidden(true)
-                            }
-                        }
-                        // Make the whole row tappable, not just the text.
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityValue(
-                        selectedMode == mode
-                        ? String(localized: "Selected")
-                        : String(localized: "Not selected")
-                    )
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "Theme"))
-            }
-            .headerProminence(.increased)
-
-            Section {
-                ForEach(SettingsViewModel.AccentColor.allCases, id: \.self) { accent in
-                    Button {
-                        draftAccent = accent
-                    } label: {
-                        HStack {
-                            Circle()
-                                // The stroke below draws the boundary, so the fill
-                                // can be the real accent — a swatch that cannot show
-                                // its own colour is not a swatch.
-                                .fill(VColors.accent(accent))
-                                .frame(width: 20, height: 20)
-                                .overlay {
-                                    // Hairline so a light swatch still has an edge on
-                                    // white, without a heavy black ring dominating it.
-                                    Circle().strokeBorder(VColors.textPrimary.opacity(0.18), lineWidth: 1)
+                                Spacer()
+                                if selectedMode == mode {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(VColors.textPrimary)
+                                        .accessibilityHidden(true)
                                 }
-                                .accessibilityHidden(true)
-                            Text(accent.displayName)
-                                .foregroundStyle(VColors.textPrimary)
-                            Spacer()
-                            if selectedAccent == accent {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(VColors.textPrimary)
-                                    .accessibilityHidden(true)
                             }
+                            // Make the whole row tappable, not just the text.
+                            .contentShape(Rectangle())
                         }
-                        .contentShape(Rectangle())
+                        .buttonStyle(.plain)
+                        .accessibilityValue(
+                            selectedMode == mode
+                            ? String(localized: "Selected")
+                            : String(localized: "Not selected")
+                        )
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityValue(
-                        selectedAccent == accent
-                        ? String(localized: "Selected")
-                        : String(localized: "Not selected")
-                    )
+                } header: {
+                    VFormSectionHeader(String(localized: "Theme"))
                 }
-            } header: {
-                VFormSectionHeader(String(localized: "Accent Color"))
-            }
-            .headerProminence(.increased)
+                .headerProminence(.increased)
 
-            Section {
-                Text(String(localized: "Live Preview"))
-                    .font(.headline)
-                    .foregroundStyle(VColors.textPrimary)
+                Section {
+                    ForEach(SettingsViewModel.AccentColor.allCases, id: \.self) { accent in
+                        Button {
+                            draftAccent = accent
+                        } label: {
+                            HStack {
+                                Circle()
+                                    // The stroke below draws the boundary, so the fill
+                                    // can be the real accent — a swatch that cannot show
+                                    // its own colour is not a swatch.
+                                    .fill(VColors.accent(accent))
+                                    .frame(width: 20, height: 20)
+                                    .overlay {
+                                        // Hairline so a light swatch still has an edge on
+                                        // white, without a heavy black ring dominating it.
+                                        Circle().strokeBorder(VColors.textPrimary.opacity(0.18), lineWidth: 1)
+                                    }
+                                    .accessibilityHidden(true)
+                                Text(accent.displayName)
+                                    .foregroundStyle(VColors.textPrimary)
+                                Spacer()
+                                if selectedAccent == accent {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(VColors.textPrimary)
+                                        .accessibilityHidden(true)
+                                }
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityValue(
+                            selectedAccent == accent
+                            ? String(localized: "Selected")
+                            : String(localized: "Not selected")
+                        )
+                    }
+                } header: {
+                    VFormSectionHeader(String(localized: "Accent Color"))
+                }
+                .headerProminence(.increased)
 
-                VStack(alignment: .leading, spacing: VSpacing.md) {
-                    HStack {
-                        Image(systemName: "chart.line.uptrend.xyaxis")
-                            .foregroundStyle(previewAccent)
+                Section {
+                    Text(String(localized: "Live Preview"))
+                        .font(.headline)
+                        .foregroundStyle(VColors.textPrimary)
+
+                    VStack(alignment: .leading, spacing: VSpacing.md) {
+                        HStack {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                                .foregroundStyle(previewAccent)
+                                .accessibilityHidden(true)
+                            Text(String(localized: "Monthly overview"))
+                                .font(VTypography.bodyBold)
+                                .foregroundStyle(previewTextPrimary)
+                            Spacer()
+                            Text(verbatim: "72%")
+                                .foregroundStyle(previewTextPrimary)
+                        }
+
+                        // Decorative: this bar exists to show what the accent looks
+                        // like, and the row above already reads "Monthly overview,
+                        // 72%". Exposing it as its own element made a 4pt-tall
+                        // accessibility target, which the audit flags as too small
+                        // to interact with.
+                        ProgressView(value: 0.72)
+                            .tint(previewAccent)
                             .accessibilityHidden(true)
-                        Text(String(localized: "Monthly overview"))
-                            .font(VTypography.bodyBold)
-                            .foregroundStyle(previewTextPrimary)
-                        Spacer()
-                        Text(verbatim: "72%")
+
+                        Text(String(localized: "See how text, surfaces, and your accent work together."))
+                            .font(VTypography.body)
                             .foregroundStyle(previewTextPrimary)
                     }
-
-                    // Decorative: this bar exists to show what the accent looks
-                    // like, and the row above already reads "Monthly overview,
-                    // 72%". Exposing it as its own element made a 4pt-tall
-                    // accessibility target, which the audit flags as too small
-                    // to interact with.
-                    ProgressView(value: 0.72)
-                        .tint(previewAccent)
-                        .accessibilityHidden(true)
-
-                    Text(String(localized: "See how text, surfaces, and your accent work together."))
-                        .font(VTypography.body)
-                        .foregroundStyle(previewTextPrimary)
+                    .padding(VSpacing.md)
+                    .background(previewSurface)
+                    .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD, style: .continuous))
+                    .padding(.vertical, VSpacing.xs)
+                    .listRowBackground(previewBackground)
+                    .accessibilityIdentifier("appearance-live-preview")
                 }
-                .padding(VSpacing.md)
-                .background(previewSurface)
-                .clipShape(RoundedRectangle(cornerRadius: VSpacing.cornerRadiusMD, style: .continuous))
-                .padding(.vertical, VSpacing.xs)
-                .listRowBackground(previewBackground)
-                .accessibilityIdentifier("appearance-live-preview")
+                .headerProminence(.increased)
             }
-            .headerProminence(.increased)
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         // Clearance for the floating tab bar. safeAreaPadding, not
         // safeAreaInset: an inset paints an opaque view OVER the list, and
         // rows passing behind it are sliced mid-glyph. The Appearance
@@ -328,71 +337,74 @@ struct SecuritySettingsView: View {
 
     var body: some View {
         Form {
-            Section {
-                Toggle(String(localized: "App Lock"), isOn: appLockBinding)
-                    .disabled(isDisablingAppLock)
-            } footer: {
-                Text(String(localized: "Require biometrics or passcode when opening Vittora."))
-                    .foregroundStyle(VColors.textSecondary)
-            }
-
-            if vm.isAppLockEnabled {
+            Group {
                 Section {
-                    ForEach(AppLockTimeout.allCases, id: \.self) { timeout in
-                        Button {
-                            vm.appLockTimeout = timeout
-                        } label: {
-                            HStack {
-                                Text(timeout.displayName)
-                                    .foregroundStyle(VColors.textPrimary)
-                                Spacer()
-                                if vm.appLockTimeout == timeout {
-                                    Image(systemName: "checkmark")
-                                        .foregroundStyle(VColors.primaryOnSurface)
-                                        .accessibilityHidden(true)
+                    Toggle(String(localized: "App Lock"), isOn: appLockBinding)
+                        .disabled(isDisablingAppLock)
+                } footer: {
+                    Text(String(localized: "Require biometrics or passcode when opening Vittora."))
+                        .foregroundStyle(VColors.textSecondary)
+                }
+
+                if vm.isAppLockEnabled {
+                    Section {
+                        ForEach(AppLockTimeout.allCases, id: \.self) { timeout in
+                            Button {
+                                vm.appLockTimeout = timeout
+                            } label: {
+                                HStack {
+                                    Text(timeout.displayName)
+                                        .foregroundStyle(VColors.textPrimary)
+                                    Spacer()
+                                    if vm.appLockTimeout == timeout {
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(VColors.primaryOnSurface)
+                                            .accessibilityHidden(true)
+                                    }
                                 }
+                                // Make the whole row tappable, not just the text.
+                                .contentShape(Rectangle())
                             }
-                            // Make the whole row tappable, not just the text.
-                            .contentShape(Rectangle())
+                            .buttonStyle(.plain)
+                            .accessibilityValue(
+                                vm.appLockTimeout == timeout
+                                ? String(localized: "Selected")
+                                : String(localized: "Not selected")
+                            )
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityValue(
-                            vm.appLockTimeout == timeout
-                            ? String(localized: "Selected")
-                            : String(localized: "Not selected")
-                        )
+                    } header: {
+                        VFormSectionHeader(String(localized: "Lock After"))
+                    } footer: {
+                        Text(String(localized: "Require authentication again after the app has been in the background for this long."))
+                            .foregroundStyle(VColors.textSecondary)
                     }
-                } header: {
-                    VFormSectionHeader(String(localized: "Lock After"))
-                } footer: {
-                    Text(String(localized: "Require authentication again after the app has been in the background for this long."))
-                        .foregroundStyle(VColors.textSecondary)
+
+                    Section {
+                        Toggle(String(localized: "Passcode Fallback"), isOn: passcodeFallbackBinding)
+                    } footer: {
+                        Text(String(localized: "Allow your device passcode if biometric authentication fails."))
+                            .foregroundStyle(VColors.textSecondary)
+                    }
                 }
 
-                Section {
-                    Toggle(String(localized: "Passcode Fallback"), isOn: passcodeFallbackBinding)
-                } footer: {
-                    Text(String(localized: "Allow your device passcode if biometric authentication fails."))
-                        .foregroundStyle(VColors.textSecondary)
-                }
-            }
-
-            if DeviceSecurityAssessment.isLikelyCompromisedEnvironment {
-                Section {
-                    Label {
-                        Text(String(localized: "Modified device environment detected"))
-                            .font(VTypography.caption1)
-                    } icon: {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(VColors.warning)
+                if DeviceSecurityAssessment.isLikelyCompromisedEnvironment {
+                    Section {
+                        Label {
+                            Text(String(localized: "Modified device environment detected"))
+                                .font(VTypography.caption1)
+                        } icon: {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(VColors.warning)
+                        }
+                    } footer: {
+                        Text(String(localized: "For your security, avoid storing highly sensitive data on modified devices. This check is informational only."))
+                            .foregroundStyle(VColors.textSecondary)
                     }
-                } footer: {
-                    Text(String(localized: "For your security, avoid storing highly sensitive data on modified devices. This check is informational only."))
-                        .foregroundStyle(VColors.textSecondary)
                 }
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         .navigationTitle(String(localized: "Security"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -426,16 +438,19 @@ struct PrivacySearchSettingsView: View {
 
     var body: some View {
         Form {
-            Section {
-                Toggle(String(localized: "Show transactions in Search"), isOn: spotlightBinding)
-                    .disabled(isUpdatingIndex)
-                    .accessibilityIdentifier("settings-spotlight-indexing-toggle")
-            } footer: {
-                Text(String(localized: "When on, recent transactions appear in Spotlight and system Search. Amounts can be visible without unlocking Vittora. Turning this off removes them from Search immediately."))
-                    .foregroundStyle(VColors.textSecondary)
+            Group {
+                Section {
+                    Toggle(String(localized: "Show transactions in Search"), isOn: spotlightBinding)
+                        .disabled(isUpdatingIndex)
+                        .accessibilityIdentifier("settings-spotlight-indexing-toggle")
+                } footer: {
+                    Text(String(localized: "When on, recent transactions appear in Spotlight and system Search. Amounts can be visible without unlocking Vittora. Turning this off removes them from Search immediately."))
+                        .foregroundStyle(VColors.textSecondary)
+                }
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         .navigationTitle(String(localized: "Search Privacy"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -489,103 +504,106 @@ struct NotificationsSettingsView: View {
 
     var body: some View {
         Form {
-            Section {
-                Toggle(
-                    String(localized: "Enable Notifications"),
-                    isOn: Binding(
-                        get: { vm.isNotificationsEnabled },
-                        set: { newValue in
-                            Task { await handleMasterToggle(enabled: newValue) }
-                        }
-                    )
-                )
-                .disabled(isApplyingMasterToggle)
-            } footer: {
-                Text(String(localized: "Receive reminders for bill due dates, budget limits, and goal milestones."))
-                    .foregroundStyle(VColors.textSecondary)
-            }
-
-            if vm.isNotificationsEnabled {
-                Section {
-                    Toggle(String(localized: "Bill & Debt Due Dates"), isOn: $vm.notifyBillsDue)
-                        .onChange(of: vm.notifyBillsDue) { _, _ in
-                            Task { await applySubToggleChange() }
-                        }
-                    Toggle(String(localized: "Budget Limit Alerts"), isOn: $vm.notifyBudgetAlerts)
-                        .onChange(of: vm.notifyBudgetAlerts) { _, _ in
-                            Task { await applySubToggleChange() }
-                        }
-                    Toggle(String(localized: "Goal Milestones"), isOn: $vm.notifyGoalMilestones)
-                        .onChange(of: vm.notifyGoalMilestones) { _, _ in
-                            Task { await applySubToggleChange() }
-                        }
-                    Toggle(String(localized: "Recurring Transactions"), isOn: $vm.notifyRecurringTransactions)
-                        .onChange(of: vm.notifyRecurringTransactions) { _, _ in
-                            Task { await applySubToggleChange() }
-                        }
-                } header: {
-                    VFormSectionHeader(String(localized: "Reminders"))
-                }
-
-                Section {
-                    DatePicker(
-                        String(localized: "Preferred Delivery Time"),
-                        selection: $vm.notificationDeliveryTime,
-                        displayedComponents: .hourAndMinute
-                    )
-                    .onChange(of: vm.notificationDeliveryTime) { _, _ in
-                        Task { await applySchedulingChange() }
-                    }
-
-                    Picker(String(localized: "Bill Reminder"), selection: $vm.billReminderLeadDays) {
-                        ForEach(NotificationSchedulePreferences.supportedBillLeadDays, id: \.self) { days in
-                            Text(billLeadTimeLabel(days))
-                                .tag(days)
-                        }
-                    }
-                    .onChange(of: vm.billReminderLeadDays) { _, _ in
-                        Task { await applySchedulingChange() }
-                    }
-                } header: {
-                    VFormSectionHeader(String(localized: "Schedule"))
-                }
-
+            Group {
                 Section {
                     Toggle(
-                        String(localized: "Enable Quiet Hours"),
-                        isOn: $vm.notificationQuietHoursEnabled
+                        String(localized: "Enable Notifications"),
+                        isOn: Binding(
+                            get: { vm.isNotificationsEnabled },
+                            set: { newValue in
+                                Task { await handleMasterToggle(enabled: newValue) }
+                            }
+                        )
                     )
-                    .onChange(of: vm.notificationQuietHoursEnabled) { _, _ in
-                        Task { await applySchedulingChange() }
-                    }
-
-                    if vm.notificationQuietHoursEnabled {
-                        DatePicker(
-                            String(localized: "Start"),
-                            selection: $vm.notificationQuietHoursStart,
-                            displayedComponents: .hourAndMinute
-                        )
-                        .onChange(of: vm.notificationQuietHoursStart) { _, _ in
-                            Task { await applySchedulingChange() }
-                        }
-                        DatePicker(
-                            String(localized: "End"),
-                            selection: $vm.notificationQuietHoursEnd,
-                            displayedComponents: .hourAndMinute
-                        )
-                        .onChange(of: vm.notificationQuietHoursEnd) { _, _ in
-                            Task { await applySchedulingChange() }
-                        }
-                    }
-                } header: {
-                    VFormSectionHeader(String(localized: "Quiet Hours"))
+                    .disabled(isApplyingMasterToggle)
                 } footer: {
-                    Text(String(localized: "Notifications scheduled during quiet hours are delivered when quiet hours end."))
+                    Text(String(localized: "Receive reminders for bill due dates, budget limits, and goal milestones."))
                         .foregroundStyle(VColors.textSecondary)
                 }
+
+                if vm.isNotificationsEnabled {
+                    Section {
+                        Toggle(String(localized: "Bill & Debt Due Dates"), isOn: $vm.notifyBillsDue)
+                            .onChange(of: vm.notifyBillsDue) { _, _ in
+                                Task { await applySubToggleChange() }
+                            }
+                        Toggle(String(localized: "Budget Limit Alerts"), isOn: $vm.notifyBudgetAlerts)
+                            .onChange(of: vm.notifyBudgetAlerts) { _, _ in
+                                Task { await applySubToggleChange() }
+                            }
+                        Toggle(String(localized: "Goal Milestones"), isOn: $vm.notifyGoalMilestones)
+                            .onChange(of: vm.notifyGoalMilestones) { _, _ in
+                                Task { await applySubToggleChange() }
+                            }
+                        Toggle(String(localized: "Recurring Transactions"), isOn: $vm.notifyRecurringTransactions)
+                            .onChange(of: vm.notifyRecurringTransactions) { _, _ in
+                                Task { await applySubToggleChange() }
+                            }
+                    } header: {
+                        VFormSectionHeader(String(localized: "Reminders"))
+                    }
+
+                    Section {
+                        DatePicker(
+                            String(localized: "Preferred Delivery Time"),
+                            selection: $vm.notificationDeliveryTime,
+                            displayedComponents: .hourAndMinute
+                        )
+                        .onChange(of: vm.notificationDeliveryTime) { _, _ in
+                            Task { await applySchedulingChange() }
+                        }
+
+                        Picker(String(localized: "Bill Reminder"), selection: $vm.billReminderLeadDays) {
+                            ForEach(NotificationSchedulePreferences.supportedBillLeadDays, id: \.self) { days in
+                                Text(billLeadTimeLabel(days))
+                                    .tag(days)
+                            }
+                        }
+                        .onChange(of: vm.billReminderLeadDays) { _, _ in
+                            Task { await applySchedulingChange() }
+                        }
+                    } header: {
+                        VFormSectionHeader(String(localized: "Schedule"))
+                    }
+
+                    Section {
+                        Toggle(
+                            String(localized: "Enable Quiet Hours"),
+                            isOn: $vm.notificationQuietHoursEnabled
+                        )
+                        .onChange(of: vm.notificationQuietHoursEnabled) { _, _ in
+                            Task { await applySchedulingChange() }
+                        }
+
+                        if vm.notificationQuietHoursEnabled {
+                            DatePicker(
+                                String(localized: "Start"),
+                                selection: $vm.notificationQuietHoursStart,
+                                displayedComponents: .hourAndMinute
+                            )
+                            .onChange(of: vm.notificationQuietHoursStart) { _, _ in
+                                Task { await applySchedulingChange() }
+                            }
+                            DatePicker(
+                                String(localized: "End"),
+                                selection: $vm.notificationQuietHoursEnd,
+                                displayedComponents: .hourAndMinute
+                            )
+                            .onChange(of: vm.notificationQuietHoursEnd) { _, _ in
+                                Task { await applySchedulingChange() }
+                            }
+                        }
+                    } header: {
+                        VFormSectionHeader(String(localized: "Quiet Hours"))
+                    } footer: {
+                        Text(String(localized: "Notifications scheduled during quiet hours are delivered when quiet hours end."))
+                            .foregroundStyle(VColors.textSecondary)
+                    }
+                }
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         .navigationTitle(String(localized: "Notifications"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -672,60 +690,63 @@ struct AboutView: View {
 
     var body: some View {
         Form {
-            Section {
-                HStack {
-                    Text(String(localized: "Version"))
-                    Spacer()
-                    Text("v\(vm.appVersion) (\(vm.buildNumber))")
-                        .foregroundStyle(VColors.textPrimary)
+            Group {
+                Section {
+                    HStack {
+                        Text(String(localized: "Version"))
+                        Spacer()
+                        Text("v\(vm.appVersion) (\(vm.buildNumber))")
+                            .foregroundStyle(VColors.textPrimary)
+                    }
+                    HStack {
+                        Text(String(localized: "Platform"))
+                        Spacer()
+                        #if os(iOS)
+                        Text(String(localized: "iOS"))
+                            .foregroundStyle(VColors.textPrimary)
+                        #elseif os(macOS)
+                        Text(String(localized: "macOS"))
+                            .foregroundStyle(VColors.textSecondary)
+                        #endif
+                    }
                 }
-                HStack {
-                    Text(String(localized: "Platform"))
-                    Spacer()
-                    #if os(iOS)
-                    Text(String(localized: "iOS"))
-                        .foregroundStyle(VColors.textPrimary)
-                    #elseif os(macOS)
-                    Text(String(localized: "macOS"))
-                        .foregroundStyle(VColors.textSecondary)
-                    #endif
-                }
-            }
 
-            Section {
-                NavigationLink(String(localized: "Privacy Policy")) {
-                    LegalDocumentView(document: .privacyPolicy)
+                Section {
+                    NavigationLink(String(localized: "Privacy Policy")) {
+                        LegalDocumentView(document: .privacyPolicy)
+                    }
+                    NavigationLink(String(localized: "Terms of Service")) {
+                        LegalDocumentView(document: .termsOfService)
+                    }
+                } header: {
+                    VFormSectionHeader(String(localized: "Legal"))
                 }
-                NavigationLink(String(localized: "Terms of Service")) {
-                    LegalDocumentView(document: .termsOfService)
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "Legal"))
-            }
-            .headerProminence(.increased)
+                .headerProminence(.increased)
 
-            Section {
-                VStack(spacing: VSpacing.sm) {
-                    Image("OnboardingAppLogo")
-                        .resizable()
-                        .interpolation(.high)
-                        .scaledToFit()
-                        .frame(width: 64, height: 64)
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .accessibilityHidden(true)
-                    Text(String(localized: "Vittora"))
-                        .font(VTypography.title3.bold())
-                        .foregroundStyle(VColors.textPrimary)
-                    Text(String(localized: "Your personal finance companion"))
-                        .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textPrimary)
-                        .multilineTextAlignment(.center)
+                Section {
+                    VStack(spacing: VSpacing.sm) {
+                        Image("OnboardingAppLogo")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 64, height: 64)
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .accessibilityHidden(true)
+                        Text(String(localized: "Vittora"))
+                            .font(VTypography.title3.bold())
+                            .foregroundStyle(VColors.textPrimary)
+                        Text(String(localized: "Your personal finance companion"))
+                            .font(VTypography.caption1)
+                            .foregroundStyle(VColors.textPrimary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, VSpacing.md)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, VSpacing.md)
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         .navigationTitle(String(localized: "About Vittora"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

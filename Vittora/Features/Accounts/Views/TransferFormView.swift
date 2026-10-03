@@ -75,104 +75,107 @@ struct TransferFormView: View {
     @ViewBuilder
     private func formContent(vm: TransferViewModel) -> some View {
         Form {
-            Section(header: VFormSectionHeader(String(localized: "From"))) {
-                NavigationLink {
-                    AccountPickerView(
-                        selectedAccountID: Binding(
-                            get: { vm.sourceAccount?.id },
-                            set: { id in
-                                vm.sourceAccount = vm.accounts.first { $0.id == id }
+            Group {
+                Section(header: VFormSectionHeader(String(localized: "From"))) {
+                    NavigationLink {
+                        AccountPickerView(
+                            selectedAccountID: Binding(
+                                get: { vm.sourceAccount?.id },
+                                set: { id in
+                                    vm.sourceAccount = vm.accounts.first { $0.id == id }
+                                }
+                            ),
+                            accounts: vm.accounts,
+                            excludeID: vm.destinationAccount?.id,
+                            title: String(localized: "From Account"),
+                            accessibilityIdentifierPrefix: "transfer-source-account",
+                            dismissOnSelection: true,
+                            onAccountCreated: { Task { await vm.loadAccounts() } }
+                        )
+                    } label: {
+                        HStack {
+                            if let source = vm.sourceAccount {
+                                AccountTypeIcon(type: source.type, size: 32)
+                                VStack(alignment: .leading) {
+                                    Text(source.name)
+                                        .font(VTypography.body)
+                                        .foregroundColor(VColors.textPrimary)
+                                    Text(source.balance.formatted(.currency(code: source.currencyCode)))
+                                        .font(VTypography.caption1)
+                                        .foregroundColor(VColors.textSecondary)
+                                }
+                            } else {
+                                Text(String(localized: "Select Account"))
+                                    .foregroundColor(VColors.textTertiary)
                             }
-                        ),
-                        accounts: vm.accounts,
-                        excludeID: vm.destinationAccount?.id,
-                        title: String(localized: "From Account"),
-                        accessibilityIdentifierPrefix: "transfer-source-account",
-                        dismissOnSelection: true,
-                        onAccountCreated: { Task { await vm.loadAccounts() } }
-                    )
-                } label: {
-                    HStack {
-                        if let source = vm.sourceAccount {
-                            AccountTypeIcon(type: source.type, size: 32)
-                            VStack(alignment: .leading) {
-                                Text(source.name)
-                                    .font(VTypography.body)
-                                    .foregroundColor(VColors.textPrimary)
-                                Text(source.balance.formatted(.currency(code: source.currencyCode)))
-                                    .font(VTypography.caption1)
-                                    .foregroundColor(VColors.textSecondary)
-                            }
-                        } else {
-                            Text(String(localized: "Select Account"))
-                                .foregroundColor(VColors.textTertiary)
+                            Spacer()
                         }
-                        Spacer()
+                    }
+                    .accessibilityIdentifier("transfer-source-account-button")
+                }
+
+                Section(header: VFormSectionHeader(String(localized: "To"))) {
+                    NavigationLink {
+                        AccountPickerView(
+                            selectedAccountID: Binding(
+                                get: { vm.destinationAccount?.id },
+                                set: { id in
+                                    vm.destinationAccount = vm.accounts.first { $0.id == id }
+                                }
+                            ),
+                            accounts: vm.accounts,
+                            excludeID: vm.sourceAccount?.id,
+                            title: String(localized: "To Account"),
+                            accessibilityIdentifierPrefix: "transfer-destination-account",
+                            dismissOnSelection: true,
+                            onAccountCreated: { Task { await vm.loadAccounts() } }
+                        )
+                    } label: {
+                        HStack {
+                            if let dest = vm.destinationAccount {
+                                AccountTypeIcon(type: dest.type, size: 32)
+                                VStack(alignment: .leading) {
+                                    Text(dest.name)
+                                        .font(VTypography.body)
+                                        .foregroundColor(VColors.textPrimary)
+                                    Text(dest.balance.formatted(.currency(code: dest.currencyCode)))
+                                        .font(VTypography.caption1)
+                                        .foregroundColor(VColors.textSecondary)
+                                }
+                            } else {
+                                Text(String(localized: "Select Account"))
+                                    .foregroundColor(VColors.textTertiary)
+                            }
+                            Spacer()
+                        }
+                    }
+                    .accessibilityIdentifier("transfer-destination-account-button")
+                }
+
+                Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
+                    TextField(String(localized: "0.00"), text: Bindable(vm).amount)
+                        #if os(iOS)
+                        .keyboardType(.decimalPad)
+                        .textContentType(nil)
+                        #endif
+                        .accessibilityIdentifier("transfer-amount-field")
+                }
+
+                Section(header: VFormSectionHeader(String(localized: "Details"))) {
+                    DatePicker(String(localized: "Date"), selection: Bindable(vm).date, displayedComponents: .date)
+                    TextField(String(localized: "Note (optional)"), text: Bindable(vm).note)
+                        .accessibilityIdentifier("transfer-note-field")
+                }
+
+                if let error = vm.error {
+                    Section {
+                        VInlineErrorText(error)
                     }
                 }
-                .accessibilityIdentifier("transfer-source-account-button")
             }
-
-            Section(header: VFormSectionHeader(String(localized: "To"))) {
-                NavigationLink {
-                    AccountPickerView(
-                        selectedAccountID: Binding(
-                            get: { vm.destinationAccount?.id },
-                            set: { id in
-                                vm.destinationAccount = vm.accounts.first { $0.id == id }
-                            }
-                        ),
-                        accounts: vm.accounts,
-                        excludeID: vm.sourceAccount?.id,
-                        title: String(localized: "To Account"),
-                        accessibilityIdentifierPrefix: "transfer-destination-account",
-                        dismissOnSelection: true,
-                        onAccountCreated: { Task { await vm.loadAccounts() } }
-                    )
-                } label: {
-                    HStack {
-                        if let dest = vm.destinationAccount {
-                            AccountTypeIcon(type: dest.type, size: 32)
-                            VStack(alignment: .leading) {
-                                Text(dest.name)
-                                    .font(VTypography.body)
-                                    .foregroundColor(VColors.textPrimary)
-                                Text(dest.balance.formatted(.currency(code: dest.currencyCode)))
-                                    .font(VTypography.caption1)
-                                    .foregroundColor(VColors.textSecondary)
-                            }
-                        } else {
-                            Text(String(localized: "Select Account"))
-                                .foregroundColor(VColors.textTertiary)
-                        }
-                        Spacer()
-                    }
-                }
-                .accessibilityIdentifier("transfer-destination-account-button")
-            }
-
-            Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
-                TextField(String(localized: "0.00"), text: Bindable(vm).amount)
-                    #if os(iOS)
-                    .keyboardType(.decimalPad)
-                    .textContentType(nil)
-                    #endif
-                    .accessibilityIdentifier("transfer-amount-field")
-            }
-
-            Section(header: VFormSectionHeader(String(localized: "Details"))) {
-                DatePicker(String(localized: "Date"), selection: Bindable(vm).date, displayedComponents: .date)
-                TextField(String(localized: "Note (optional)"), text: Bindable(vm).note)
-                    .accessibilityIdentifier("transfer-note-field")
-            }
-
-            if let error = vm.error {
-                Section {
-                    VInlineErrorText(error)
-                }
-            }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
     }
 
     private func performTransfer() async {

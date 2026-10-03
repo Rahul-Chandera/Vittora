@@ -36,30 +36,33 @@ struct AppleWalletImportView: View {
     var body: some View {
         NavigationStack {
             Form {
-                switch service.availability {
-                case .checking:
-                    ProgressView()
-                case .needsiPhone:
-                    message(
-                        String(localized: "Use iPhone to import from Apple Wallet"),
-                        String(localized: "Apple Card, Apple Cash and Savings transactions can only be read on iPhone. Imported transactions then appear on all your devices."),
-                        icon: "iphone"
-                    )
-                case .unavailable:
-                    message(
-                        String(localized: "US Apple Wallet only"),
-                        String(localized: "Import from Apple Wallet works with Apple Card, Apple Cash and Savings on an iPhone in the US. You can still import transactions from a CSV file."),
-                        icon: "wallet.bifold"
-                    )
-                case .notDetermined:
-                    consentSection
-                case .denied:
-                    deniedSection
-                case .authorized:
-                    importSections
+                Group {
+                    switch service.availability {
+                    case .checking:
+                        ProgressView()
+                    case .needsiPhone:
+                        message(
+                            String(localized: "Use iPhone to import from Apple Wallet"),
+                            String(localized: "Apple Card, Apple Cash and Savings transactions can only be read on iPhone. Imported transactions then appear on all your devices."),
+                            icon: "iphone"
+                        )
+                    case .unavailable:
+                        message(
+                            String(localized: "US Apple Wallet only"),
+                            String(localized: "Import from Apple Wallet works with Apple Card, Apple Cash and Savings on an iPhone in the US. You can still import transactions from a CSV file."),
+                            icon: "wallet.bifold"
+                        )
+                    case .notDetermined:
+                        consentSection
+                    case .denied:
+                        deniedSection
+                    case .authorized:
+                        importSections
+                    }
                 }
+                .vListContentTint()
             }
-            .vListRowBackground()
+            .vListSelectionTint()
             .formStyle(.grouped)
             .navigationTitle(String(localized: "Import from Apple Wallet"))
             .navigationBarTitleDisplayMode(.inline)

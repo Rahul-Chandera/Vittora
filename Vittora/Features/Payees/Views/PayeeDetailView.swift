@@ -69,91 +69,94 @@ struct PayeeDetailView: View {
     @ViewBuilder
     private func payeeDetail(payee: PayeeEntity, vm: PayeeDetailViewModel) -> some View {
         List {
-            // Header
-            Section {
-                HStack(spacing: VSpacing.md) {
-                    ZStack {
-                        Circle()
-                            .fill(payee.type == .business ? VColors.primary.opacity(0.15) : VColors.income.opacity(0.15))
-                            .frame(width: 64, height: 64)
-                        Image(systemName: payee.type == .business ? "building.2.fill" : "person.fill")
-                            .font(.system(size: 28, weight: .semibold))
-                            .foregroundColor(payee.type == .business ? VColors.primaryOnSurface : VColors.income)
-                    }
-                    VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                        Text(payee.name)
-                            .font(VTypography.title3)
-                            .foregroundColor(VColors.textPrimary)
-                        Text(payee.type == .business ? String(localized: "Business") : String(localized: "Person"))
-                            .font(VTypography.caption1)
-                            .foregroundColor(VColors.textSecondary)
-                    }
-                }
-                .padding(.vertical, VSpacing.xs)
-            }
-
-            // Analytics
-            if let analytics = vm.analytics {
+            Group {
+                // Header
                 Section {
-                    PayeeAnalyticsCard(analytics: analytics)
-                        .listRowInsets(EdgeInsets(top: VSpacing.xs, leading: VSpacing.screenPadding, bottom: VSpacing.xs, trailing: VSpacing.screenPadding))
-                        .listRowBackground(Color.clear)
-                }
-            }
-
-            // Contact Info
-            Section(header: VFormSectionHeader(String(localized: "Contact"))) {
-                LabeledContent("Name", value: payee.name)
-                if let phone = payee.phone {
-                    LabeledContent("Phone", value: phone)
-                }
-                if let email = payee.email {
-                    LabeledContent("Email", value: email)
-                }
-                if let notes = payee.notes, !notes.isEmpty {
-                    VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                        Text(String(localized: "Notes"))
-                            .font(VTypography.caption1)
-                            .foregroundColor(VColors.textSecondary)
-                        Text(notes)
-                            .font(VTypography.body)
-                            .foregroundColor(VColors.textPrimary)
+                    HStack(spacing: VSpacing.md) {
+                        ZStack {
+                            Circle()
+                                .fill(payee.type == .business ? VColors.primary.opacity(0.15) : VColors.income.opacity(0.15))
+                                .frame(width: 64, height: 64)
+                            Image(systemName: payee.type == .business ? "building.2.fill" : "person.fill")
+                                .font(.system(size: 28, weight: .semibold))
+                                .foregroundColor(payee.type == .business ? VColors.primaryOnSurface : VColors.income)
+                        }
+                        VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                            Text(payee.name)
+                                .font(VTypography.title3)
+                                .foregroundColor(VColors.textPrimary)
+                            Text(payee.type == .business ? String(localized: "Business") : String(localized: "Person"))
+                                .font(VTypography.caption1)
+                                .foregroundColor(VColors.textSecondary)
+                        }
                     }
-                    .padding(.vertical, VSpacing.xxs)
+                    .padding(.vertical, VSpacing.xs)
                 }
-            }
 
-            // Recent Transactions
-            if !vm.recentTransactions.isEmpty {
-                Section(header: VFormSectionHeader(String(localized: "Recent Transactions"))) {
-                    ForEach(vm.recentTransactions) { tx in
-                        // See BudgetListView: a value-based link inside a
-                        // List does not activate on macOS.
-                        NavigationLink {
-                            NavigationDestinationView(destination: .transactionDetail(id: tx.id))
-                        } label: {
-                            HStack(spacing: VSpacing.sm) {
-                                VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                                    Text(tx.note ?? "Transaction")
-                                        .font(VTypography.body)
-                                        .foregroundColor(VColors.textPrimary)
-                                        .adaptiveLineLimit(1)
-                                    Text(tx.date.formatted(date: .abbreviated, time: .omitted))
-                                        .font(VTypography.caption1)
-                                        .foregroundColor(VColors.textSecondary)
+                // Analytics
+                if let analytics = vm.analytics {
+                    Section {
+                        PayeeAnalyticsCard(analytics: analytics)
+                            .listRowInsets(EdgeInsets(top: VSpacing.xs, leading: VSpacing.screenPadding, bottom: VSpacing.xs, trailing: VSpacing.screenPadding))
+                            .listRowBackground(Color.clear)
+                    }
+                }
+
+                // Contact Info
+                Section(header: VFormSectionHeader(String(localized: "Contact"))) {
+                    LabeledContent("Name", value: payee.name)
+                    if let phone = payee.phone {
+                        LabeledContent("Phone", value: phone)
+                    }
+                    if let email = payee.email {
+                        LabeledContent("Email", value: email)
+                    }
+                    if let notes = payee.notes, !notes.isEmpty {
+                        VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                            Text(String(localized: "Notes"))
+                                .font(VTypography.caption1)
+                                .foregroundColor(VColors.textSecondary)
+                            Text(notes)
+                                .font(VTypography.body)
+                                .foregroundColor(VColors.textPrimary)
+                        }
+                        .padding(.vertical, VSpacing.xxs)
+                    }
+                }
+
+                // Recent Transactions
+                if !vm.recentTransactions.isEmpty {
+                    Section(header: VFormSectionHeader(String(localized: "Recent Transactions"))) {
+                        ForEach(vm.recentTransactions) { tx in
+                            // See BudgetListView: a value-based link inside a
+                            // List does not activate on macOS.
+                            NavigationLink {
+                                NavigationDestinationView(destination: .transactionDetail(id: tx.id))
+                            } label: {
+                                HStack(spacing: VSpacing.sm) {
+                                    VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                                        Text(tx.note ?? "Transaction")
+                                            .font(VTypography.body)
+                                            .foregroundColor(VColors.textPrimary)
+                                            .adaptiveLineLimit(1)
+                                        Text(tx.date.formatted(date: .abbreviated, time: .omitted))
+                                            .font(VTypography.caption1)
+                                            .foregroundColor(VColors.textSecondary)
+                                    }
+                                    Spacer()
+                                    Text(tx.amount.formatted(.currency(code: currencyCode)))
+                                        .font(VTypography.bodyBold)
+                                        .foregroundColor(tx.type == .income ? VColors.income : VColors.expense)
                                 }
-                                Spacer()
-                                Text(tx.amount.formatted(.currency(code: currencyCode)))
-                                    .font(VTypography.bodyBold)
-                                    .foregroundColor(tx.type == .income ? VColors.income : VColors.expense)
+                                .padding(.vertical, VSpacing.xxs)
                             }
-                            .padding(.vertical, VSpacing.xxs)
                         }
                     }
                 }
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         #if os(iOS)
         .listStyle(.insetGrouped)
         #else

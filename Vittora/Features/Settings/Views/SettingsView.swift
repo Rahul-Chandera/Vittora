@@ -21,270 +21,273 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            // Profile
-            Section {
-                NavigationLink {
-                    ProfileSettingsView(vm: vm)
-                } label: {
-                    HStack(spacing: VSpacing.md) {
-                        Circle()
-                            // tertiaryBackground is white in light mode, so on a
-                            // white card the avatar had no visible circle at all.
-                            .fill(VColors.primary)
-                            .frame(width: 52, height: 52)
-                            .overlay {
-                                Text(initials(vm.userName))
-                                    .font(VTypography.title3.bold())
-                                    .foregroundStyle(VColors.onPrimary)
+            Group {
+                // Profile
+                Section {
+                    NavigationLink {
+                        ProfileSettingsView(vm: vm)
+                    } label: {
+                        HStack(spacing: VSpacing.md) {
+                            Circle()
+                                // tertiaryBackground is white in light mode, so on a
+                                // white card the avatar had no visible circle at all.
+                                .fill(VColors.primary)
+                                .frame(width: 52, height: 52)
+                                .overlay {
+                                    Text(initials(vm.userName))
+                                        .font(VTypography.title3.bold())
+                                        .foregroundStyle(VColors.onPrimary)
+                                }
+                                // Opts into the DEC-012 exemption by identifier, the
+                                // way brand-mark-fab does. Measured from the audit's
+                                // own element image: #FFFFFF on #3FCFA4 is 1.97:1 —
+                                // the accepted brand pairing, not a new miss.
+                                //
+                                // Decorative: the initials repeat the name shown
+                                // beside them, so nothing is lost if a reader cannot
+                                // resolve the glyph. This element had no identifier,
+                                // so it never claimed the exemption and tripped
+                                // testSettingsSections whenever the sampler picked it.
+                                .accessibilityIdentifier("brand-mark-profile-avatar")
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(vm.userName.isEmpty ? String(localized: "Your Name") : vm.userName)
+                                    .font(VTypography.bodyBold)
+                                    .foregroundStyle(VColors.textPrimary)
+                                Text(String(localized: "Edit profile"))
+                                    .font(VTypography.caption1)
+                                    .foregroundStyle(VColors.textPrimary)
                             }
-                            // Opts into the DEC-012 exemption by identifier, the
-                            // way brand-mark-fab does. Measured from the audit's
-                            // own element image: #FFFFFF on #3FCFA4 is 1.97:1 —
-                            // the accepted brand pairing, not a new miss.
-                            //
-                            // Decorative: the initials repeat the name shown
-                            // beside them, so nothing is lost if a reader cannot
-                            // resolve the glyph. This element had no identifier,
-                            // so it never claimed the exemption and tripped
-                            // testSettingsSections whenever the sampler picked it.
-                            .accessibilityIdentifier("brand-mark-profile-avatar")
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(vm.userName.isEmpty ? String(localized: "Your Name") : vm.userName)
-                                .font(VTypography.bodyBold)
+                            Spacer()
+                            Image(systemName: "chevron.right")
                                 .foregroundStyle(VColors.textPrimary)
-                            Text(String(localized: "Edit profile"))
-                                .font(VTypography.caption1)
-                                .foregroundStyle(VColors.textPrimary)
+                                .accessibilityHidden(true)
                         }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundStyle(VColors.textPrimary)
-                            .accessibilityHidden(true)
+                        .padding(.vertical, 4)
                     }
-                    .padding(.vertical, 4)
                 }
-            }
 
-            // Vittora Pro -- App Review 3.1.1 requires restore to be reachable without a
-            // value-event paywall trigger, so this is the manual entry point.
-            if MonetizationConfiguration.isStoreKitEnabled {
+                // Vittora Pro -- App Review 3.1.1 requires restore to be reachable without a
+                // value-event paywall trigger, so this is the manual entry point.
+                if MonetizationConfiguration.isStoreKitEnabled {
+                    Section {
+                        Button {
+                            showPaywall = true
+                        } label: {
+                            SettingsRow(
+                                icon: "sparkles",
+                                iconColor: .teal,
+                                title: String(localized: "Vittora Pro"),
+                                value: dependencies.purchaseService.level == .pro
+                                    ? String(localized: "Active")
+                                    : String(localized: "Upgrade")
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("settings-vittora-pro")
+
+                        Button {
+                            Task {
+                                isRestoring = true
+                                defer { isRestoring = false }
+                                do {
+                                    try await dependencies.purchaseService.restore()
+                                    restoreMessage = dependencies.purchaseService.level == .pro
+                                        ? String(localized: "Vittora Pro is restored on this device.")
+                                        : String(localized: "No previous Vittora Pro purchase was found for this Apple Account.")
+                                } catch {
+                                    restoreMessage = error.localizedDescription
+                                }
+                            }
+                        } label: {
+                            HStack {
+                                SettingsRow(
+                                    icon: "arrow.clockwise",
+                                    iconColor: .blue,
+                                    title: String(localized: "Restore Purchases"),
+                                    value: ""
+                                )
+                                if isRestoring { ProgressView() }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(isRestoring)
+                        .accessibilityIdentifier("settings-restore-purchases")
+                    } header: {
+                        VFormSectionHeader(String(localized: "Vittora Pro"))
+                    }
+                    .headerProminence(.increased)
+                }
+
+                // Preferences
                 Section {
                     Button {
-                        showPaywall = true
+                        showContactSupport = true
                     } label: {
-                        SettingsRow(
-                            icon: "sparkles",
-                            iconColor: .teal,
-                            title: String(localized: "Vittora Pro"),
-                            value: dependencies.purchaseService.level == .pro
-                                ? String(localized: "Active")
-                                : String(localized: "Upgrade")
-                        )
+                        SettingsRow(icon: "envelope.fill", iconColor: .green,
+                                    title: String(localized: "Contact Support"), value: "")
                     }
+                    // .plain: the label supplies its own appearance. Without it macOS
+                    // draws the standard AppKit button chrome behind it — a second,
+                    // lighter fill around the custom one (see QuickEntryButton).
                     .buttonStyle(.plain)
-                    .accessibilityIdentifier("settings-vittora-pro")
-
-                    Button {
-                        Task {
-                            isRestoring = true
-                            defer { isRestoring = false }
-                            do {
-                                try await dependencies.purchaseService.restore()
-                                restoreMessage = dependencies.purchaseService.level == .pro
-                                    ? String(localized: "Vittora Pro is restored on this device.")
-                                    : String(localized: "No previous Vittora Pro purchase was found for this Apple Account.")
-                            } catch {
-                                restoreMessage = error.localizedDescription
-                            }
-                        }
+                    .accessibilityIdentifier("settings-contact-support")
+                    NavigationLink {
+                        CurrencySettingsView(vm: vm)
                     } label: {
-                        HStack {
-                            SettingsRow(
-                                icon: "arrow.clockwise",
-                                iconColor: .blue,
-                                title: String(localized: "Restore Purchases"),
-                                value: ""
-                            )
-                            if isRestoring { ProgressView() }
-                        }
+                        SettingsRow(icon: "dollarsign.circle.fill", iconColor: .green,
+                                    title: String(localized: "Currency"),
+                                    value: vm.selectedCurrencyCode)
                     }
-                    .buttonStyle(.plain)
-                    .disabled(isRestoring)
-                    .accessibilityIdentifier("settings-restore-purchases")
+                    NavigationLink {
+                        AppearanceSettingsView(vm: vm)
+                    } label: {
+                        SettingsRow(icon: "paintpalette.fill", iconColor: .purple,
+                                    title: String(localized: "Appearance"),
+                                    value: vm.appearanceMode.displayName)
+                    }
                 } header: {
-                    VFormSectionHeader(String(localized: "Vittora Pro"))
+                    VFormSectionHeader(String(localized: "Preferences"))
+                }
+                .headerProminence(.increased)
+
+                // Manage — keep title StaticTexts queryable for UI tests. Icons in
+                // SettingsRow are already accessibilityHidden, so combining children
+                // only produced XCTest type-mismatch ghosts (Other vs StaticText),
+                // especially for the Recurring row on CI.
+                // Use destination-based NavigationLink (not value-based): Settings is
+                // itself pushed from MoreHubView, and value-based links mark Selected
+                // without pushing when the destination registrar sits on this view.
+                Section {
+                    NavigationLink {
+                        AccountListView()
+                    } label: {
+                        SettingsRow(icon: "building.columns.fill", iconColor: .blue,
+                                    title: String(localized: "Accounts"), value: "")
+                    }
+                    .accessibilityLabel(String(localized: "Accounts"))
+                    .accessibilityIdentifier("settings-manage-accounts")
+                    NavigationLink {
+                        CategoryListView()
+                    } label: {
+                        SettingsRow(icon: "tag.fill", iconColor: .pink,
+                                    title: String(localized: "Categories"), value: "")
+                    }
+                    .accessibilityLabel(String(localized: "Categories"))
+                    .accessibilityIdentifier("settings-manage-categories")
+                    NavigationLink {
+                        PayeeListView()
+                    } label: {
+                        SettingsRow(icon: "person.2.fill", iconColor: .teal,
+                                    title: String(localized: "Payees"), value: "")
+                    }
+                    .accessibilityLabel(String(localized: "Payees"))
+                    .accessibilityIdentifier("settings-manage-payees")
+                    NavigationLink {
+                        RecurringListView()
+                    } label: {
+                        SettingsRow(icon: "arrow.triangle.2.circlepath", iconColor: .indigo,
+                                    title: String(localized: "Recurring"), value: "")
+                    }
+                    .accessibilityLabel(String(localized: "Recurring"))
+                    .accessibilityIdentifier("settings-manage-recurring")
+                } header: {
+                    VFormSectionHeader(String(localized: "Manage"))
+                }
+                .headerProminence(.increased)
+
+                // Security
+                Section {
+                    NavigationLink {
+                        SecuritySettingsView(vm: vm)
+                    } label: {
+                        SettingsRow(icon: "lock.fill", iconColor: .orange,
+                                    title: String(localized: "App Lock"),
+                                    value: vm.isAppLockEnabled ? String(localized: "On") : String(localized: "Off"))
+                    }
+                    NavigationLink {
+                        PrivacySearchSettingsView(vm: vm)
+                    } label: {
+                        SettingsRow(icon: "magnifyingglass", iconColor: .teal,
+                                    title: String(localized: "Search Privacy"),
+                                    value: vm.isSpotlightIndexingEnabled ? String(localized: "On") : String(localized: "Off"))
+                    }
+                    NavigationLink {
+                        SecurityAuditLogView()
+                    } label: {
+                        SettingsRow(icon: "list.bullet.rectangle", iconColor: .blue,
+                                    title: String(localized: "Security audit log"), value: "")
+                    }
+                } header: {
+                    VFormSectionHeader(String(localized: "Security"))
+                }
+                .headerProminence(.increased)
+
+                // Data
+                Section {
+                    NavigationLink {
+                        SyncSettingsView(vm: vm)
+                    } label: {
+                        SettingsRow(icon: "icloud.fill", iconColor: .blue,
+                                    title: String(localized: "iCloud Sync"),
+                                    value: syncValue)
+                    }
+                    NavigationLink {
+                        DataSettingsView()
+                    } label: {
+                        SettingsRow(icon: "cylinder.split.1x2.fill", iconColor: .blue,
+                                    title: String(localized: "Manage Data"), value: "")
+                    }
+                } header: {
+                    VFormSectionHeader(String(localized: "Data & Sync"))
+                }
+                .headerProminence(.increased)
+
+                // Notifications
+                Section {
+                    NavigationLink {
+                        NotificationsSettingsView(vm: vm)
+                    } label: {
+                        SettingsRow(icon: "bell.fill", iconColor: .red,
+                                    title: String(localized: "Notifications"),
+                                    value: vm.isNotificationsEnabled ? String(localized: "On") : String(localized: "Off"))
+                    }
+                }
+
+                // Account deletion
+                Section {
+                    Button(role: .destructive) {
+                        deleteConfirmationText = ""
+                        showDeleteAccountConfirm = true
+                    } label: {
+                        SettingsRow(icon: "trash.fill", iconColor: .red,
+                                    title: String(localized: "Delete All Data"),
+                                    value: "")
+                    }
+                    // .plain: the label supplies its own appearance. Without it macOS
+                    // draws the standard AppKit button chrome behind it — a second,
+                    // lighter fill around the custom one (see QuickEntryButton).
+                    .buttonStyle(.plain)
+                    Text(String(localized: "Permanently deletes all financial data and resets the app."))
+                        .font(.body)
+                        .foregroundStyle(VColors.textPrimary)
+                }
+
+                // About
+                Section {
+                    NavigationLink {
+                        AboutView(vm: vm)
+                    } label: {
+                        SettingsRow(icon: "info.circle.fill", iconColor: .blue,
+                                    title: String(localized: "About Vittora"), value: "v\(vm.appVersion)")
+                    }
+                } header: {
+                    VFormSectionHeader(String(localized: "About"))
                 }
                 .headerProminence(.increased)
             }
-
-            // Preferences
-            Section {
-                Button {
-                    showContactSupport = true
-                } label: {
-                    SettingsRow(icon: "envelope.fill", iconColor: .green,
-                                title: String(localized: "Contact Support"), value: "")
-                }
-                // .plain: the label supplies its own appearance. Without it macOS
-                // draws the standard AppKit button chrome behind it — a second,
-                // lighter fill around the custom one (see QuickEntryButton).
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("settings-contact-support")
-                NavigationLink {
-                    CurrencySettingsView(vm: vm)
-                } label: {
-                    SettingsRow(icon: "dollarsign.circle.fill", iconColor: .green,
-                                title: String(localized: "Currency"),
-                                value: vm.selectedCurrencyCode)
-                }
-                NavigationLink {
-                    AppearanceSettingsView(vm: vm)
-                } label: {
-                    SettingsRow(icon: "paintpalette.fill", iconColor: .purple,
-                                title: String(localized: "Appearance"),
-                                value: vm.appearanceMode.displayName)
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "Preferences"))
-            }
-            .headerProminence(.increased)
-
-            // Manage — keep title StaticTexts queryable for UI tests. Icons in
-            // SettingsRow are already accessibilityHidden, so combining children
-            // only produced XCTest type-mismatch ghosts (Other vs StaticText),
-            // especially for the Recurring row on CI.
-            // Use destination-based NavigationLink (not value-based): Settings is
-            // itself pushed from MoreHubView, and value-based links mark Selected
-            // without pushing when the destination registrar sits on this view.
-            Section {
-                NavigationLink {
-                    AccountListView()
-                } label: {
-                    SettingsRow(icon: "building.columns.fill", iconColor: .blue,
-                                title: String(localized: "Accounts"), value: "")
-                }
-                .accessibilityLabel(String(localized: "Accounts"))
-                .accessibilityIdentifier("settings-manage-accounts")
-                NavigationLink {
-                    CategoryListView()
-                } label: {
-                    SettingsRow(icon: "tag.fill", iconColor: .pink,
-                                title: String(localized: "Categories"), value: "")
-                }
-                .accessibilityLabel(String(localized: "Categories"))
-                .accessibilityIdentifier("settings-manage-categories")
-                NavigationLink {
-                    PayeeListView()
-                } label: {
-                    SettingsRow(icon: "person.2.fill", iconColor: .teal,
-                                title: String(localized: "Payees"), value: "")
-                }
-                .accessibilityLabel(String(localized: "Payees"))
-                .accessibilityIdentifier("settings-manage-payees")
-                NavigationLink {
-                    RecurringListView()
-                } label: {
-                    SettingsRow(icon: "arrow.triangle.2.circlepath", iconColor: .indigo,
-                                title: String(localized: "Recurring"), value: "")
-                }
-                .accessibilityLabel(String(localized: "Recurring"))
-                .accessibilityIdentifier("settings-manage-recurring")
-            } header: {
-                VFormSectionHeader(String(localized: "Manage"))
-            }
-            .headerProminence(.increased)
-
-            // Security
-            Section {
-                NavigationLink {
-                    SecuritySettingsView(vm: vm)
-                } label: {
-                    SettingsRow(icon: "lock.fill", iconColor: .orange,
-                                title: String(localized: "App Lock"),
-                                value: vm.isAppLockEnabled ? String(localized: "On") : String(localized: "Off"))
-                }
-                NavigationLink {
-                    PrivacySearchSettingsView(vm: vm)
-                } label: {
-                    SettingsRow(icon: "magnifyingglass", iconColor: .teal,
-                                title: String(localized: "Search Privacy"),
-                                value: vm.isSpotlightIndexingEnabled ? String(localized: "On") : String(localized: "Off"))
-                }
-                NavigationLink {
-                    SecurityAuditLogView()
-                } label: {
-                    SettingsRow(icon: "list.bullet.rectangle", iconColor: .blue,
-                                title: String(localized: "Security audit log"), value: "")
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "Security"))
-            }
-            .headerProminence(.increased)
-
-            // Data
-            Section {
-                NavigationLink {
-                    SyncSettingsView(vm: vm)
-                } label: {
-                    SettingsRow(icon: "icloud.fill", iconColor: .blue,
-                                title: String(localized: "iCloud Sync"),
-                                value: syncValue)
-                }
-                NavigationLink {
-                    DataSettingsView()
-                } label: {
-                    SettingsRow(icon: "cylinder.split.1x2.fill", iconColor: .blue,
-                                title: String(localized: "Manage Data"), value: "")
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "Data & Sync"))
-            }
-            .headerProminence(.increased)
-
-            // Notifications
-            Section {
-                NavigationLink {
-                    NotificationsSettingsView(vm: vm)
-                } label: {
-                    SettingsRow(icon: "bell.fill", iconColor: .red,
-                                title: String(localized: "Notifications"),
-                                value: vm.isNotificationsEnabled ? String(localized: "On") : String(localized: "Off"))
-                }
-            }
-
-            // Account deletion
-            Section {
-                Button(role: .destructive) {
-                    deleteConfirmationText = ""
-                    showDeleteAccountConfirm = true
-                } label: {
-                    SettingsRow(icon: "trash.fill", iconColor: .red,
-                                title: String(localized: "Delete All Data"),
-                                value: "")
-                }
-                // .plain: the label supplies its own appearance. Without it macOS
-                // draws the standard AppKit button chrome behind it — a second,
-                // lighter fill around the custom one (see QuickEntryButton).
-                .buttonStyle(.plain)
-                Text(String(localized: "Permanently deletes all financial data and resets the app."))
-                    .font(.body)
-                    .foregroundStyle(VColors.textPrimary)
-            }
-
-            // About
-            Section {
-                NavigationLink {
-                    AboutView(vm: vm)
-                } label: {
-                    SettingsRow(icon: "info.circle.fill", iconColor: .blue,
-                                title: String(localized: "About Vittora"), value: "v\(vm.appVersion)")
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "About"))
-            }
-            .headerProminence(.increased)
+            .vListContentTint(.primary)
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         // Clearance for the floating tab bar. safeAreaPadding, not
         // safeAreaInset: an inset paints an opaque view OVER the list, and
         // rows passing behind it are sliced mid-glyph. The Appearance
@@ -358,39 +361,42 @@ struct SettingsView: View {
     private var deleteAllDataConfirmationSheet: some View {
         NavigationStack {
             Form {
-                Section {
-                    Text(String(localized: "This permanently erases all financial data, removes saved settings, and resets Vittora to its initial state. This cannot be undone."))
-                        .foregroundStyle(VColors.textPrimary)
-                }
-
-                Section(header: VFormSectionHeader(String(localized: "Confirmation"))) {
-                    Text(String(localized: "Type \(deleteConfirmationPhrase) to confirm."))
-                        .foregroundStyle(VColors.textSecondary)
-
-                    TextField(deleteConfirmationPhrase, text: $deleteConfirmationText)
-                        // On macOS the grouped form renders the title as a
-                        // redundant leading label next to the caption above.
-                        .labelsHidden()
-                        #if os(iOS)
-                        .textInputAutocapitalization(.characters)
-                        #endif
-                        .autocorrectionDisabled()
-
-                    if !deleteConfirmationText.isEmpty && !canConfirmDeleteAllData {
-                        VInlineErrorText(String(localized: "The confirmation text must match exactly."))
-                    }
-                }
-
-                // Errors must render inside the sheet: the errorAlert on the
-                // underlying SettingsView cannot present while this sheet is up,
-                // so routing failures there swallows them silently.
-                if let deleteAllDataError {
+                Group {
                     Section {
-                        VInlineErrorText(deleteAllDataError)
+                        Text(String(localized: "This permanently erases all financial data, removes saved settings, and resets Vittora to its initial state. This cannot be undone."))
+                            .foregroundStyle(VColors.textPrimary)
+                    }
+
+                    Section(header: VFormSectionHeader(String(localized: "Confirmation"))) {
+                        Text(String(localized: "Type \(deleteConfirmationPhrase) to confirm."))
+                            .foregroundStyle(VColors.textSecondary)
+
+                        TextField(deleteConfirmationPhrase, text: $deleteConfirmationText)
+                            // On macOS the grouped form renders the title as a
+                            // redundant leading label next to the caption above.
+                            .labelsHidden()
+                            #if os(iOS)
+                            .textInputAutocapitalization(.characters)
+                            #endif
+                            .autocorrectionDisabled()
+
+                        if !deleteConfirmationText.isEmpty && !canConfirmDeleteAllData {
+                            VInlineErrorText(String(localized: "The confirmation text must match exactly."))
+                        }
+                    }
+
+                    // Errors must render inside the sheet: the errorAlert on the
+                    // underlying SettingsView cannot present while this sheet is up,
+                    // so routing failures there swallows them silently.
+                    if let deleteAllDataError {
+                        Section {
+                            VInlineErrorText(deleteAllDataError)
+                        }
                     }
                 }
+                .vListContentTint()
             }
-            .vListRowBackground()
+            .vListSelectionTint()
             .navigationTitle(String(localized: "Delete All Data"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

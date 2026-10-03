@@ -72,20 +72,23 @@ struct InvestmentTimelineView: View {
 
     private var list: some View {
         List {
-            ForEach(investments) { record in
-                Button {
-                    editing = record
-                } label: {
-                    row(record)
+            Group {
+                ForEach(investments) { record in
+                    Button {
+                        editing = record
+                    } label: {
+                        row(record)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("investment-row-\(record.id.uuidString)")
                 }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("investment-row-\(record.id.uuidString)")
+                .onDelete { offsets in
+                    Task { await delete(at: offsets) }
+                }
             }
-            .onDelete { offsets in
-                Task { await delete(at: offsets) }
-            }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         #if os(iOS)
         .listStyle(.insetGrouped)
         #else

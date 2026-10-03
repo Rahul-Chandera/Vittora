@@ -72,65 +72,68 @@ struct AccountDetailView: View {
     @ViewBuilder
     private func accountDetail(account: AccountEntity, vm: AccountDetailViewModel) -> some View {
         List {
-            // Balance Card
-            Section {
-                VCard(padding: VSpacing.lg, shadow: .medium) {
-                    VStack(alignment: .leading, spacing: VSpacing.sm) {
-                        HStack {
-                            AccountTypeIcon(type: account.type, size: 48)
-                            Spacer()
-                            VStack(alignment: .trailing) {
-                                Text(account.type.displayName)
-                                    .font(VTypography.caption1)
-                                    .foregroundColor(VColors.textSecondary)
-                                Text(account.currencyCode)
-                                    .font(VTypography.caption2)
-                                    .foregroundColor(VColors.textTertiary)
+            Group {
+                // Balance Card
+                Section {
+                    VCard(padding: VSpacing.lg, shadow: .medium) {
+                        VStack(alignment: .leading, spacing: VSpacing.sm) {
+                            HStack {
+                                AccountTypeIcon(type: account.type, size: 48)
+                                Spacer()
+                                VStack(alignment: .trailing) {
+                                    Text(account.type.displayName)
+                                        .font(VTypography.caption1)
+                                        .foregroundColor(VColors.textSecondary)
+                                    Text(account.currencyCode)
+                                        .font(VTypography.caption2)
+                                        .foregroundColor(VColors.textTertiary)
+                                }
+                            }
+                            Text(String(localized: "Current Balance"))
+                                .font(VTypography.caption1)
+                                .foregroundColor(VColors.textSecondary)
+                            Text(account.balance.formatted(.currency(code: account.currencyCode)))
+                                .font(VTypography.amountLarge)
+                                .amountScaling()
+                                .foregroundColor(account.balance >= 0 ? VColors.textPrimary : VColors.expense)
+                        }
+                    }
+                    .listRowInsets(EdgeInsets(top: VSpacing.sm, leading: VSpacing.screenPadding, bottom: VSpacing.sm, trailing: VSpacing.screenPadding))
+                    .listRowBackground(Color.clear)
+                }
+
+                // Account Details
+                Section(header: VFormSectionHeader(String(localized: "Details"))) {
+                    LabeledContent("Name", value: account.name)
+                    LabeledContent("Type", value: account.type.displayName)
+                    LabeledContent("Currency", value: account.currencyCode)
+                    LabeledContent("Created", value: account.createdAt.formatted(date: .abbreviated, time: .omitted))
+                    if account.isArchived {
+                        LabeledContent("Status") {
+                            Text(String(localized: "Archived"))
+                                .foregroundColor(VColors.textTertiary)
+                        }
+                    }
+                }
+
+                // Recent Transactions
+                if !vm.recentTransactions.isEmpty {
+                    Section(header: VFormSectionHeader(String(localized: "Recent Transactions"))) {
+                        ForEach(vm.recentTransactions) { tx in
+                            // See BudgetListView: a value-based link inside a
+                            // List does not activate on macOS.
+                            NavigationLink {
+                                NavigationDestinationView(destination: .transactionDetail(id: tx.id))
+                            } label: {
+                                TransactionRowCell(transaction: tx)
                             }
                         }
-                        Text(String(localized: "Current Balance"))
-                            .font(VTypography.caption1)
-                            .foregroundColor(VColors.textSecondary)
-                        Text(account.balance.formatted(.currency(code: account.currencyCode)))
-                            .font(VTypography.amountLarge)
-                            .amountScaling()
-                            .foregroundColor(account.balance >= 0 ? VColors.textPrimary : VColors.expense)
-                    }
-                }
-                .listRowInsets(EdgeInsets(top: VSpacing.sm, leading: VSpacing.screenPadding, bottom: VSpacing.sm, trailing: VSpacing.screenPadding))
-                .listRowBackground(Color.clear)
-            }
-
-            // Account Details
-            Section(header: VFormSectionHeader(String(localized: "Details"))) {
-                LabeledContent("Name", value: account.name)
-                LabeledContent("Type", value: account.type.displayName)
-                LabeledContent("Currency", value: account.currencyCode)
-                LabeledContent("Created", value: account.createdAt.formatted(date: .abbreviated, time: .omitted))
-                if account.isArchived {
-                    LabeledContent("Status") {
-                        Text(String(localized: "Archived"))
-                            .foregroundColor(VColors.textTertiary)
                     }
                 }
             }
-
-            // Recent Transactions
-            if !vm.recentTransactions.isEmpty {
-                Section(header: VFormSectionHeader(String(localized: "Recent Transactions"))) {
-                    ForEach(vm.recentTransactions) { tx in
-                        // See BudgetListView: a value-based link inside a
-                        // List does not activate on macOS.
-                        NavigationLink {
-                            NavigationDestinationView(destination: .transactionDetail(id: tx.id))
-                        } label: {
-                            TransactionRowCell(transaction: tx)
-                        }
-                    }
-                }
-            }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         #if os(iOS)
         .listStyle(.insetGrouped)
         #else

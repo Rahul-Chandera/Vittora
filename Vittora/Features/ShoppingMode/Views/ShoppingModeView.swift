@@ -41,22 +41,25 @@ struct ShoppingModeView: View {
     var body: some View {
         NavigationStack {
             Form {
-                if !controller.areActivitiesEnabled {
-                    Section {
-                        Text(String(localized: "Live Activities are switched off for Vittora. Turn them on in Settings to see your running total on the Lock Screen."))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
+                Group {
+                    if !controller.areActivitiesEnabled {
+                        Section {
+                            Text(String(localized: "Live Activities are switched off for Vittora. Turn them on in Settings to see your running total on the Lock Screen."))
+                                .font(VTypography.caption1)
+                                .foregroundStyle(VColors.textSecondary)
+                        }
+                    }
+
+                    if isRunning {
+                        runningSection
+                        addItemSection
+                    } else {
+                        startSection
                     }
                 }
-
-                if isRunning {
-                    runningSection
-                    addItemSection
-                } else {
-                    startSection
-                }
+                .vListContentTint()
             }
-            .vListRowBackground()
+            .vListSelectionTint()
             .navigationTitle(String(localized: "Shopping Mode"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

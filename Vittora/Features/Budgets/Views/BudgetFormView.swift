@@ -16,82 +16,85 @@ struct BudgetFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
-                    HStack {
-                        Text(currencySymbol)
-                            .foregroundColor(VColors.textSecondary)
-                        TextField("", text: Binding(
-                            get: { viewModel?.amount ?? "" },
-                            set: { viewModel?.amount = $0 }
-                        ), prompt: Text("0.00").foregroundStyle(VColors.placeholderText))
-                            .accessibilityLabel(String(localized: "Budget amount"))
-                        #if os(iOS)
-                        .keyboardType(.decimalPad)
-                        .textContentType(nil)
-                        #endif
-                        .accessibilityIdentifier("budget-amount-field")
-                    }
-                }
-
-                Section(header: VFormSectionHeader(String(localized: "Period"))) {
-                    if let viewModel = viewModel {
-                        PeriodSelectorView(selectedPeriod: Bindable(viewModel).selectedPeriod)
-                    }
-                }
-
-                Section(header: VFormSectionHeader(String(localized: "Category"))) {
-                    NavigationLink(
-                        destination: {
-                            if let viewModel = viewModel {
-                                CategoryPicker(
-                                    selectedCategoryID: Bindable(viewModel).selectedCategoryID,
-                                    categories: categories,
-                                    filterType: .expense,
-                                    title: String(localized: "Select Expense Category")
-                                )
-                                .onChange(of: viewModel.selectedCategoryID) { _, newID in
-                                    selectedCategory = categories.first(where: { $0.id == newID })
-                                }
-                            }
-                        },
-                        label: {
-                            HStack {
-                                Text(String(localized: "Optional"))
-                                    .foregroundColor(VColors.textSecondary)
-                                Spacer()
-                                if let category = selectedCategory {
-                                    HStack(spacing: VSpacing.xs) {
-                                        Image(systemName: category.icon)
-                                            .foregroundColor(Color(hex: category.colorHex) ?? .blue)
-                                        Text(category.displayName)
-                                            .foregroundColor(VColors.textPrimary)
-                                    }
-                                } else {
-                                    Text(String(localized: "None"))
-                                        .foregroundColor(VColors.textSecondary)
-                                }
-                            }
+                Group {
+                    Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
+                        HStack {
+                            Text(currencySymbol)
+                                .foregroundColor(VColors.textSecondary)
+                            TextField("", text: Binding(
+                                get: { viewModel?.amount ?? "" },
+                                set: { viewModel?.amount = $0 }
+                            ), prompt: Text("0.00").foregroundStyle(VColors.placeholderText))
+                                .accessibilityLabel(String(localized: "Budget amount"))
+                            #if os(iOS)
+                            .keyboardType(.decimalPad)
+                            .textContentType(nil)
+                            #endif
+                            .accessibilityIdentifier("budget-amount-field")
                         }
-                    )
-                }
-
-                Section(header: VFormSectionHeader(String(localized: "Options"))) {
-                    if let viewModel = viewModel {
-                        Toggle("Rollover Unused Amount", isOn: Bindable(viewModel).rollover)
                     }
-                }
 
-                Section(header: VFormSectionHeader(String(localized: "Start Date"))) {
-                    if let viewModel = viewModel {
-                        DatePicker(
-                            "Date",
-                            selection: Bindable(viewModel).startDate,
-                            displayedComponents: .date
+                    Section(header: VFormSectionHeader(String(localized: "Period"))) {
+                        if let viewModel = viewModel {
+                            PeriodSelectorView(selectedPeriod: Bindable(viewModel).selectedPeriod)
+                        }
+                    }
+
+                    Section(header: VFormSectionHeader(String(localized: "Category"))) {
+                        NavigationLink(
+                            destination: {
+                                if let viewModel = viewModel {
+                                    CategoryPicker(
+                                        selectedCategoryID: Bindable(viewModel).selectedCategoryID,
+                                        categories: categories,
+                                        filterType: .expense,
+                                        title: String(localized: "Select Expense Category")
+                                    )
+                                    .onChange(of: viewModel.selectedCategoryID) { _, newID in
+                                        selectedCategory = categories.first(where: { $0.id == newID })
+                                    }
+                                }
+                            },
+                            label: {
+                                HStack {
+                                    Text(String(localized: "Optional"))
+                                        .foregroundColor(VColors.textSecondary)
+                                    Spacer()
+                                    if let category = selectedCategory {
+                                        HStack(spacing: VSpacing.xs) {
+                                            Image(systemName: category.icon)
+                                                .foregroundColor(Color(hex: category.colorHex) ?? .blue)
+                                            Text(category.displayName)
+                                                .foregroundColor(VColors.textPrimary)
+                                        }
+                                    } else {
+                                        Text(String(localized: "None"))
+                                            .foregroundColor(VColors.textSecondary)
+                                    }
+                                }
+                            }
                         )
                     }
+
+                    Section(header: VFormSectionHeader(String(localized: "Options"))) {
+                        if let viewModel = viewModel {
+                            Toggle("Rollover Unused Amount", isOn: Bindable(viewModel).rollover)
+                        }
+                    }
+
+                    Section(header: VFormSectionHeader(String(localized: "Start Date"))) {
+                        if let viewModel = viewModel {
+                            DatePicker(
+                                "Date",
+                                selection: Bindable(viewModel).startDate,
+                                displayedComponents: .date
+                            )
+                        }
+                    }
                 }
+                .vListContentTint()
             }
-            .vListRowBackground()
+            .vListSelectionTint()
             .navigationTitle(editingBudget != nil ? String(localized: "Edit Budget") : String(localized: "New Budget"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

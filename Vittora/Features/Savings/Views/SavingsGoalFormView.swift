@@ -53,148 +53,151 @@ struct SavingsGoalFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // Basic info
-                Section {
-                    TextField(String(localized: "Goal name"), text: $name)
-                        .accessibilityLabel(String(localized: "Goal name"))
-
-                    Picker(String(localized: "Category"), selection: $category) {
-                        ForEach(GoalCategory.allCases, id: \.self) { cat in
-                            Label(cat.displayName, systemImage: cat.systemImage).tag(cat)
-                        }
-                    }
-                } header: {
-                    sectionHeader(String(localized: "Goal"))
-                }
-                .headerProminence(.increased)
-
-                // Amounts
-                Section {
-                    amountRow(
-                        title: String(localized: "Target"),
-                        accessibilityLabel: String(localized: "Target amount"),
-                        text: $targetString
-                    )
-                    amountRow(
-                        title: String(localized: "Already saved"),
-                        accessibilityLabel: String(localized: "Amount already saved"),
-                        text: $currentString
-                    )
-                } header: {
-                    sectionHeader(String(localized: "Amounts"))
-                }
-                .headerProminence(.increased)
-
-                Section {
-                    Toggle(String(localized: "Count toward emergency fund"), isOn: $isEmergencyFund)
-                } footer: {
-                    Text(String(localized: "The saved amount in this goal will count toward your emergency-fund coverage."))
-                        .font(.body)
-                        .foregroundStyle(VColors.textPrimary)
-                }
-
-                // Deadline
-                Section {
-                    Toggle(String(localized: "Set Deadline"), isOn: $hasDeadline)
-                    if hasDeadline {
-                        DatePicker(
-                            String(localized: "Target Date"),
-                            selection: $targetDate,
-                            in: Date.now...,
-                            displayedComponents: [.date]
-                        )
-                    }
-                } header: {
-                    sectionHeader(String(localized: "Deadline"))
-                }
-                .headerProminence(.increased)
-
-                if let preview = allocationPreview {
+                Group {
+                    // Basic info
                     Section {
-                        if let monthly = preview.monthlyRequired {
-                            HStack {
-                                Text(String(localized: "Suggested monthly"))
-                                Spacer()
-                                Text(monthly.formatted(.currency(code: currencyCode)) + String(localized: "/month"))
-                                    .font(VTypography.bodyBold)
-                                .foregroundStyle(VColors.textPrimary)
+                        TextField(String(localized: "Goal name"), text: $name)
+                            .accessibilityLabel(String(localized: "Goal name"))
+
+                        Picker(String(localized: "Category"), selection: $category) {
+                            ForEach(GoalCategory.allCases, id: \.self) { cat in
+                                Label(cat.displayName, systemImage: cat.systemImage).tag(cat)
                             }
-                        }
-                        if let projected = preview.projectedCompletionDate {
-                            HStack {
-                                Text(String(localized: "Projected completion"))
-                                Spacer()
-                                Text(projected.formatted(date: .long, time: .omitted))
-                                    .font(VTypography.bodyBold)
-                            }
-                        }
-                        if let months = preview.remainingMonths, months > 0 {
-                            Text(String(localized: "Based on \(months) months until your deadline."))
-                                .font(VTypography.caption1)
-                                .foregroundStyle(VColors.textPrimary)
                         }
                     } header: {
-                        sectionHeader(String(localized: "Savings Plan"))
+                        sectionHeader(String(localized: "Goal"))
                     }
                     .headerProminence(.increased)
-                }
 
-                // Color
-                Section {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: VSpacing.sm) {
-                            ForEach(palette, id: \.self) { hex in
-                                Button {
-                                    selectedColor = hex
-                                } label: {
-                                    Circle()
-                                        .fill(Color(hex: hex) ?? .purple)
-                                        .frame(width: 32, height: 32)
-                                        .overlay {
-                                            if hex == selectedColor {
-                                                Image(systemName: "checkmark")
-                                                    .font(.body.bold())
-                                                    .foregroundStyle(.white)
-                                            }
-                                        }
-                                        .frame(minWidth: 44, minHeight: 44)
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel(
-                                    String(
-                                        localized: "Goal color \((palette.firstIndex(of: hex) ?? 0) + 1)"
-                                    )
-                                )
-                                .accessibilityValue(
-                                    hex == selectedColor
-                                    ? String(localized: "Selected")
-                                    : String(localized: "Not selected")
-                                )
-                            }
-                        }
-                        .padding(.vertical, 4)
-                    }
-                } header: {
-                    sectionHeader(String(localized: "Color"))
-                }
-                .headerProminence(.increased)
-
-                // Note
-                Section {
-                    TextField(String(localized: "Optional"), text: $note, axis: .vertical)
-                        .lineLimit(2...4)
-                } header: {
-                    sectionHeader(String(localized: "Note"))
-                }
-                .headerProminence(.increased)
-
-                if let error {
+                    // Amounts
                     Section {
-                        VInlineErrorText(error)
+                        amountRow(
+                            title: String(localized: "Target"),
+                            accessibilityLabel: String(localized: "Target amount"),
+                            text: $targetString
+                        )
+                        amountRow(
+                            title: String(localized: "Already saved"),
+                            accessibilityLabel: String(localized: "Amount already saved"),
+                            text: $currentString
+                        )
+                    } header: {
+                        sectionHeader(String(localized: "Amounts"))
+                    }
+                    .headerProminence(.increased)
+
+                    Section {
+                        Toggle(String(localized: "Count toward emergency fund"), isOn: $isEmergencyFund)
+                    } footer: {
+                        Text(String(localized: "The saved amount in this goal will count toward your emergency-fund coverage."))
+                            .font(.body)
+                            .foregroundStyle(VColors.textPrimary)
+                    }
+
+                    // Deadline
+                    Section {
+                        Toggle(String(localized: "Set Deadline"), isOn: $hasDeadline)
+                        if hasDeadline {
+                            DatePicker(
+                                String(localized: "Target Date"),
+                                selection: $targetDate,
+                                in: Date.now...,
+                                displayedComponents: [.date]
+                            )
+                        }
+                    } header: {
+                        sectionHeader(String(localized: "Deadline"))
+                    }
+                    .headerProminence(.increased)
+
+                    if let preview = allocationPreview {
+                        Section {
+                            if let monthly = preview.monthlyRequired {
+                                HStack {
+                                    Text(String(localized: "Suggested monthly"))
+                                    Spacer()
+                                    Text(monthly.formatted(.currency(code: currencyCode)) + String(localized: "/month"))
+                                        .font(VTypography.bodyBold)
+                                    .foregroundStyle(VColors.textPrimary)
+                                }
+                            }
+                            if let projected = preview.projectedCompletionDate {
+                                HStack {
+                                    Text(String(localized: "Projected completion"))
+                                    Spacer()
+                                    Text(projected.formatted(date: .long, time: .omitted))
+                                        .font(VTypography.bodyBold)
+                                }
+                            }
+                            if let months = preview.remainingMonths, months > 0 {
+                                Text(String(localized: "Based on \(months) months until your deadline."))
+                                    .font(VTypography.caption1)
+                                    .foregroundStyle(VColors.textPrimary)
+                            }
+                        } header: {
+                            sectionHeader(String(localized: "Savings Plan"))
+                        }
+                        .headerProminence(.increased)
+                    }
+
+                    // Color
+                    Section {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: VSpacing.sm) {
+                                ForEach(palette, id: \.self) { hex in
+                                    Button {
+                                        selectedColor = hex
+                                    } label: {
+                                        Circle()
+                                            .fill(Color(hex: hex) ?? .purple)
+                                            .frame(width: 32, height: 32)
+                                            .overlay {
+                                                if hex == selectedColor {
+                                                    Image(systemName: "checkmark")
+                                                        .font(.body.bold())
+                                                        .foregroundStyle(.white)
+                                                }
+                                            }
+                                            .frame(minWidth: 44, minHeight: 44)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityLabel(
+                                        String(
+                                            localized: "Goal color \((palette.firstIndex(of: hex) ?? 0) + 1)"
+                                        )
+                                    )
+                                    .accessibilityValue(
+                                        hex == selectedColor
+                                        ? String(localized: "Selected")
+                                        : String(localized: "Not selected")
+                                    )
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    } header: {
+                        sectionHeader(String(localized: "Color"))
+                    }
+                    .headerProminence(.increased)
+
+                    // Note
+                    Section {
+                        TextField(String(localized: "Optional"), text: $note, axis: .vertical)
+                            .lineLimit(2...4)
+                    } header: {
+                        sectionHeader(String(localized: "Note"))
+                    }
+                    .headerProminence(.increased)
+
+                    if let error {
+                        Section {
+                            VInlineErrorText(error)
+                        }
                     }
                 }
+                .vListContentTint()
             }
-            .vListRowBackground()
+            .vListSelectionTint()
             .tint(VColors.textCursor)
             .navigationTitle(isEditing ? String(localized: "Edit Goal") : String(localized: "New Goal"))
             #if os(iOS)

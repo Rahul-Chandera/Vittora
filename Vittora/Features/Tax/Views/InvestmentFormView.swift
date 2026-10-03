@@ -31,64 +31,67 @@ struct InvestmentFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    TextField(String(localized: "Name"), text: $name)
-                        .accessibilityIdentifier("investment-name-field")
+                Group {
+                    Section {
+                        TextField(String(localized: "Name"), text: $name)
+                            .accessibilityIdentifier("investment-name-field")
 
-                    HStack {
-                        Text(String(localized: "Amount"))
-                        Spacer()
-                        TextField("", text: $amountText, prompt: Text("0").foregroundStyle(VColors.placeholderText))
-                            #if os(iOS)
-                            .keyboardType(.decimalPad)
-                            #endif
-                            .multilineTextAlignment(.trailing)
-                            .accessibilityLabel(String(localized: "Amount"))
-                            .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
-                            .accessibilityIdentifier("investment-amount-field")
-                    }
-
-                    Picker(String(localized: "Instrument"), selection: $instrumentID) {
-                        Text(String(localized: "Other")).tag("")
-                        ForEach(India80CInstrumentTable.all) { instrument in
-                            Text(instrument.name).tag(instrument.id)
+                        HStack {
+                            Text(String(localized: "Amount"))
+                            Spacer()
+                            TextField("", text: $amountText, prompt: Text("0").foregroundStyle(VColors.placeholderText))
+                                #if os(iOS)
+                                .keyboardType(.decimalPad)
+                                #endif
+                                .multilineTextAlignment(.trailing)
+                                .accessibilityLabel(String(localized: "Amount"))
+                                .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
+                                .accessibilityIdentifier("investment-amount-field")
                         }
-                    }
-                    .accessibilityIdentifier("investment-instrument-picker")
-                } header: {
-                    VFormSectionHeader(String(localized: "Investment"))
-                }
 
-                Section {
-                    Toggle(String(localized: "Has a maturity date"), isOn: $hasMaturityDate)
-                        .accessibilityIdentifier("investment-has-maturity-toggle")
-                    if hasMaturityDate {
-                        DatePicker(
-                            String(localized: "Matures on"),
-                            selection: $maturityDate,
-                            displayedComponents: .date
+                        Picker(String(localized: "Instrument"), selection: $instrumentID) {
+                            Text(String(localized: "Other")).tag("")
+                            ForEach(India80CInstrumentTable.all) { instrument in
+                                Text(instrument.name).tag(instrument.id)
+                            }
+                        }
+                        .accessibilityIdentifier("investment-instrument-picker")
+                    } header: {
+                        VFormSectionHeader(String(localized: "Investment"))
+                    }
+
+                    Section {
+                        Toggle(String(localized: "Has a maturity date"), isOn: $hasMaturityDate)
+                            .accessibilityIdentifier("investment-has-maturity-toggle")
+                        if hasMaturityDate {
+                            DatePicker(
+                                String(localized: "Matures on"),
+                                selection: $maturityDate,
+                                displayedComponents: .date
+                            )
+                            .accessibilityIdentifier("investment-maturity-date-picker")
+                            Toggle(String(localized: "Remind me before it matures"), isOn: $remindsOnMaturity)
+                                .accessibilityIdentifier("investment-reminder-toggle")
+                        }
+                    } header: {
+                        VFormSectionHeader(String(localized: "Maturity"))
+                    } footer: {
+                        Text(
+                            hasMaturityDate
+                                ? String(localized: "You'll get a reminder \(ScheduleInvestmentMaturityRemindersUseCase.leadDays) days before the date.")
+                                : String(localized: "Some lock-ins are tied to your age rather than a date — NPS Tier-I runs to 60. Those appear on the timeline without a countdown.")
                         )
-                        .accessibilityIdentifier("investment-maturity-date-picker")
-                        Toggle(String(localized: "Remind me before it matures"), isOn: $remindsOnMaturity)
-                            .accessibilityIdentifier("investment-reminder-toggle")
+                        .foregroundStyle(VColors.textSecondary)
                     }
-                } header: {
-                    VFormSectionHeader(String(localized: "Maturity"))
-                } footer: {
-                    Text(
-                        hasMaturityDate
-                            ? String(localized: "You'll get a reminder \(ScheduleInvestmentMaturityRemindersUseCase.leadDays) days before the date.")
-                            : String(localized: "Some lock-ins are tied to your age rather than a date — NPS Tier-I runs to 60. Those appear on the timeline without a countdown.")
-                    )
-                    .foregroundStyle(VColors.textSecondary)
-                }
 
-                Section {
-                    TextField(String(localized: "Note"), text: $note, axis: .vertical)
-                        .accessibilityIdentifier("investment-note-field")
+                    Section {
+                        TextField(String(localized: "Note"), text: $note, axis: .vertical)
+                            .accessibilityIdentifier("investment-note-field")
+                    }
                 }
+                .vListContentTint()
             }
-            .vListRowBackground()
+            .vListSelectionTint()
             .formStyle(.grouped)
             .navigationTitle(
                 investment == nil

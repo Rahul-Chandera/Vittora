@@ -78,94 +78,97 @@ struct AccountFormView: View {
     @ViewBuilder
     private func formContent(vm: AccountFormViewModel) -> some View {
         Form {
-            Section {
-                TextField(String(localized: "Account Name"), text: Bindable(vm).name)
-
-                Picker(String(localized: "Type"), selection: Bindable(vm).selectedType) {
-                    ForEach(AccountType.allCases, id: \.self) { type in
-                        Text(typeName(type)).tag(type)
-                    }
-                }
-                .pickerStyle(.menu)
-                .fixedSize(horizontal: false, vertical: true)
-
-                Picker(String(localized: "Currency"), selection: Bindable(vm).selectedCurrency) {
-                    ForEach(commonCurrencies, id: \.self) { code in
-                        Text(code).tag(code)
-                    }
-                }
-                .pickerStyle(.menu)
-                .fixedSize(horizontal: false, vertical: true)
-            } header: {
-                VFormSectionHeader(String(localized: "Account Info"))
-            }
-
-            if !vm.isEditing {
+            Group {
                 Section {
-                    TextField(String(localized: "0.00"), text: Bindable(vm).initialBalance)
-                        #if os(iOS)
-                        .keyboardType(.decimalPad)
-                        .textContentType(nil)
-                        #endif
-                } header: {
-                    VFormSectionHeader(String(localized: "Starting Balance"))
-                }
-            }
+                    TextField(String(localized: "Account Name"), text: Bindable(vm).name)
 
-            if vm.selectedType == .creditCard {
-                Section {
-                    billingDayPicker(
-                        title: String(localized: "Statement Day"),
-                        selection: Bindable(vm).statementDayOfMonth
-                    )
-                    billingDayPicker(
-                        title: String(localized: "Payment Due Day"),
-                        selection: Bindable(vm).dueDayOfMonth
-                    )
-                } header: {
-                    VFormSectionHeader(String(localized: "Billing Cycle"))
-                }
-            }
-
-            Section {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: VSpacing.sm) {
-                    ForEach(availableIcons, id: \.self) { iconName in
-                        Button {
-                            vm.selectedIcon = iconName
-                        } label: {
-                            ZStack {
-                                Circle()
-                                    .fill(VColors.secondaryBackground)
-                                    .frame(width: 44, height: 44)
-                                    .overlay {
-                                        if vm.selectedIcon == iconName {
-                                            Circle().stroke(VColors.textPrimary, lineWidth: 2)
-                                        }
-                                    }
-                                Image(systemName: iconName)
-                                    .font(.body)
-                                    .foregroundColor(VColors.textPrimary)
-                            }
+                    Picker(String(localized: "Type"), selection: Bindable(vm).selectedType) {
+                        ForEach(AccountType.allCases, id: \.self) { type in
+                            Text(typeName(type)).tag(type)
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(String(localized: "Account icon"))
-                        .accessibilityValue(iconName)
-                        .accessibilityAddTraits(vm.selectedIcon == iconName ? .isSelected : [])
+                    }
+                    .pickerStyle(.menu)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                    Picker(String(localized: "Currency"), selection: Bindable(vm).selectedCurrency) {
+                        ForEach(commonCurrencies, id: \.self) { code in
+                            Text(code).tag(code)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .fixedSize(horizontal: false, vertical: true)
+                } header: {
+                    VFormSectionHeader(String(localized: "Account Info"))
+                }
+
+                if !vm.isEditing {
+                    Section {
+                        TextField(String(localized: "0.00"), text: Bindable(vm).initialBalance)
+                            #if os(iOS)
+                            .keyboardType(.decimalPad)
+                            .textContentType(nil)
+                            #endif
+                    } header: {
+                        VFormSectionHeader(String(localized: "Starting Balance"))
                     }
                 }
-                .padding(.vertical, VSpacing.xs)
-            } header: {
-                VFormSectionHeader(String(localized: "Icon"))
-            }
-            .headerProminence(.increased)
 
-            if let error = saveError {
+                if vm.selectedType == .creditCard {
+                    Section {
+                        billingDayPicker(
+                            title: String(localized: "Statement Day"),
+                            selection: Bindable(vm).statementDayOfMonth
+                        )
+                        billingDayPicker(
+                            title: String(localized: "Payment Due Day"),
+                            selection: Bindable(vm).dueDayOfMonth
+                        )
+                    } header: {
+                        VFormSectionHeader(String(localized: "Billing Cycle"))
+                    }
+                }
+
                 Section {
-                    VInlineErrorText(error)
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: VSpacing.sm) {
+                        ForEach(availableIcons, id: \.self) { iconName in
+                            Button {
+                                vm.selectedIcon = iconName
+                            } label: {
+                                ZStack {
+                                    Circle()
+                                        .fill(VColors.secondaryBackground)
+                                        .frame(width: 44, height: 44)
+                                        .overlay {
+                                            if vm.selectedIcon == iconName {
+                                                Circle().stroke(VColors.textPrimary, lineWidth: 2)
+                                            }
+                                        }
+                                    Image(systemName: iconName)
+                                        .font(.body)
+                                        .foregroundColor(VColors.textPrimary)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(String(localized: "Account icon"))
+                            .accessibilityValue(iconName)
+                            .accessibilityAddTraits(vm.selectedIcon == iconName ? .isSelected : [])
+                        }
+                    }
+                    .padding(.vertical, VSpacing.xs)
+                } header: {
+                    VFormSectionHeader(String(localized: "Icon"))
+                }
+                .headerProminence(.increased)
+
+                if let error = saveError {
+                    Section {
+                        VInlineErrorText(error)
+                    }
                 }
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         .tint(VColors.textCursor)
     }
 

@@ -160,25 +160,28 @@ struct PayeeListView: View {
     @ViewBuilder
     private func payeeList(vm: PayeeListViewModel) -> some View {
         List {
-            if !vm.frequentSectionPayees.isEmpty {
-                Section {
-                    payeeRows(for: vm.frequentSectionPayees)
-                } header: {
-                    VFormSectionHeader(String(localized: "Frequent"))
-                        .foregroundStyle(VColors.textPrimary)
+            Group {
+                if !vm.frequentSectionPayees.isEmpty {
+                    Section {
+                        payeeRows(for: vm.frequentSectionPayees)
+                    } header: {
+                        VFormSectionHeader(String(localized: "Frequent"))
+                            .foregroundStyle(VColors.textPrimary)
+                    }
                 }
-            }
 
-            ForEach(vm.sectionedPayees, id: \.letter) { section in
-                Section {
-                    payeeRows(for: section.payees)
-                } header: {
-                    Text(section.letter)
-                        .foregroundStyle(VColors.textPrimary)
+                ForEach(vm.sectionedPayees, id: \.letter) { section in
+                    Section {
+                        payeeRows(for: section.payees)
+                    } header: {
+                        Text(section.letter)
+                            .foregroundStyle(VColors.textPrimary)
+                    }
                 }
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         #if os(iOS)
         .listStyle(.insetGrouped)
         #else

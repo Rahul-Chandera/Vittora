@@ -186,19 +186,22 @@ struct RecurringListView: View {
                         .frame(maxHeight: .infinity)
                     } else {
                         List {
-                            ForEach(viewModel.grouped, id: \.label) { group in
-                                Section {
-                                    ForEach(group.rules, id: \.id) { rule in
-                                        ruleRow(rule, viewModel: viewModel)
+                            Group {
+                                ForEach(viewModel.grouped, id: \.label) { group in
+                                    Section {
+                                        ForEach(group.rules, id: \.id) { rule in
+                                            ruleRow(rule, viewModel: viewModel)
+                                        }
+                                    } header: {
+                                        Text(group.label)
+                                            .font(VTypography.calloutBold)
+                                            .foregroundStyle(VColors.textPrimary)
                                     }
-                                } header: {
-                                    Text(group.label)
-                                        .font(VTypography.calloutBold)
-                                        .foregroundStyle(VColors.textPrimary)
                                 }
                             }
+                            .vListContentTint()
                         }
-                        .vListRowBackground()
+                        .vListSelectionTint()
                         #if os(iOS)
                         .listStyle(.insetGrouped)
                         #else

@@ -13,18 +13,21 @@ struct HouseholdView: View {
 
     var body: some View {
         Form {
-            if !store.isAvailable {
-                unavailableSection
-            } else if store.role == .none {
-                createSection
-            } else {
-                summarySection
-                budgetsSection
-                membersSection
-                endSection
+            Group {
+                if !store.isAvailable {
+                    unavailableSection
+                } else if store.role == .none {
+                    createSection
+                } else {
+                    summarySection
+                    budgetsSection
+                    membersSection
+                    endSection
+                }
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         .formStyle(.grouped)
         .navigationTitle(store.role == .none ? String(localized: "Household") : store.householdName)
         .toolbar {
@@ -244,58 +247,61 @@ private struct HouseholdBudgetDetailView: View {
 
     var body: some View {
         Form {
-            if let budget = store.ledger.budgets.first(where: { $0.id == budgetID }) {
-                Section {
-                    HouseholdBudgetRow(budget: budget, spent: store.ledger.spent(for: budget))
-                }
-
-                Section {
-                    let totals = store.ledger.memberTotals(for: budget)
-                    if totals.isEmpty {
-                        Text(String(localized: "Nothing spent this month yet."))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
+            Group {
+                if let budget = store.ledger.budgets.first(where: { $0.id == budgetID }) {
+                    Section {
+                        HouseholdBudgetRow(budget: budget, spent: store.ledger.spent(for: budget))
                     }
-                    ForEach(totals) { member in
-                        HStack {
-                            Text(member.name.isEmpty ? String(localized: "Household member") : member.name)
-                            Spacer()
-                            Text(member.total.formatted(currencyCode: budget.currencyCode))
-                                .monospacedDigit()
+
+                    Section {
+                        let totals = store.ledger.memberTotals(for: budget)
+                        if totals.isEmpty {
+                            Text(String(localized: "Nothing spent this month yet."))
+                                .font(VTypography.caption1)
+                                .foregroundStyle(VColors.textSecondary)
                         }
-                        .accessibilityElement(children: .combine)
-                    }
-                } header: {
-                    VFormSectionHeader(String(localized: "By Member This Month"))
-                }
-
-                Section {
-                    ForEach(store.ledger.expenses(for: budget)) { expense in
-                        let who = expense.memberName.isEmpty ? String(localized: "Household member") : expense.memberName
-                        HStack {
-                            VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                                let day = expense.date.formatted(date: .abbreviated, time: .omitted)
-                                Text(expense.note.isEmpty ? who : expense.note)
-                                Text(expense.note.isEmpty ? day : String(localized: "\(who) · \(day)"))
-                                    .font(VTypography.caption1)
-                                    .foregroundStyle(VColors.textSecondary)
+                        ForEach(totals) { member in
+                            HStack {
+                                Text(member.name.isEmpty ? String(localized: "Household member") : member.name)
+                                Spacer()
+                                Text(member.total.formatted(currencyCode: budget.currencyCode))
+                                    .monospacedDigit()
                             }
-                            Spacer()
-                            Text(expense.amount.formatted(currencyCode: budget.currencyCode))
-                                .monospacedDigit()
+                            .accessibilityElement(children: .combine)
                         }
-                        .accessibilityElement(children: .combine)
+                    } header: {
+                        VFormSectionHeader(String(localized: "By Member This Month"))
                     }
-                    .onDelete(perform: store.canEdit ? { offsets in
-                        let items = store.ledger.expenses(for: budget)
-                        offsets.map { items[$0] }.forEach(store.deleteExpense)
-                    } : nil)
-                } header: {
-                    VFormSectionHeader(String(localized: "Expenses This Month"))
+
+                    Section {
+                        ForEach(store.ledger.expenses(for: budget)) { expense in
+                            let who = expense.memberName.isEmpty ? String(localized: "Household member") : expense.memberName
+                            HStack {
+                                VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                                    let day = expense.date.formatted(date: .abbreviated, time: .omitted)
+                                    Text(expense.note.isEmpty ? who : expense.note)
+                                    Text(expense.note.isEmpty ? day : String(localized: "\(who) · \(day)"))
+                                        .font(VTypography.caption1)
+                                        .foregroundStyle(VColors.textSecondary)
+                                }
+                                Spacer()
+                                Text(expense.amount.formatted(currencyCode: budget.currencyCode))
+                                    .monospacedDigit()
+                            }
+                            .accessibilityElement(children: .combine)
+                        }
+                        .onDelete(perform: store.canEdit ? { offsets in
+                            let items = store.ledger.expenses(for: budget)
+                            offsets.map { items[$0] }.forEach(store.deleteExpense)
+                        } : nil)
+                    } header: {
+                        VFormSectionHeader(String(localized: "Expenses This Month"))
+                    }
                 }
             }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         .formStyle(.grouped)
         .navigationTitle(store.ledger.budgets.first { $0.id == budgetID }?.name ?? String(localized: "Household"))
         .toolbar {
@@ -335,15 +341,18 @@ private struct HouseholdBudgetFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField(String(localized: "Name (e.g. Groceries)"), text: $name)
-                    .focused($nameFocused)
-                    .onAppear { nameFocused = true }
-                TextField(String(localized: "Monthly amount"), text: $amountText)
-                    #if os(iOS)
-                    .keyboardType(.decimalPad)
-                    #endif
+                Group {
+                    TextField(String(localized: "Name (e.g. Groceries)"), text: $name)
+                        .focused($nameFocused)
+                        .onAppear { nameFocused = true }
+                    TextField(String(localized: "Monthly amount"), text: $amountText)
+                        #if os(iOS)
+                        .keyboardType(.decimalPad)
+                        #endif
+                }
+                .vListContentTint()
             }
-            .vListRowBackground()
+            .vListSelectionTint()
             .formStyle(.grouped)
             .navigationTitle(String(localized: "New Shared Budget"))
             .toolbar {
@@ -381,15 +390,18 @@ private struct HouseholdExpenseFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField(String(localized: "Amount"), text: $amountText)
-                    #if os(iOS)
-                    .keyboardType(.decimalPad)
-                    #endif
-                    .focused($amountFocused)
-                    .onAppear { amountFocused = true }
-                TextField(String(localized: "Note (optional)"), text: $note)
+                Group {
+                    TextField(String(localized: "Amount"), text: $amountText)
+                        #if os(iOS)
+                        .keyboardType(.decimalPad)
+                        #endif
+                        .focused($amountFocused)
+                        .onAppear { amountFocused = true }
+                    TextField(String(localized: "Note (optional)"), text: $note)
+                }
+                .vListContentTint()
             }
-            .vListRowBackground()
+            .vListSelectionTint()
             .formStyle(.grouped)
             .navigationTitle(budget.name)
             .toolbar {

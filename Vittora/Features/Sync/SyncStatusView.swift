@@ -65,152 +65,155 @@ struct SyncDetailView: View {
 
     var body: some View {
         Form {
-            Section {
-                HStack {
-                    SyncStatusView()
-                    Spacer()
-                    Button(String(localized: "Refresh")) {
-                        Task { await syncService.checkiCloudStatus() }
-                    }
-                    .font(.body)
-                    .foregroundStyle(VColors.textPrimary)
-                    .frame(minWidth: 44, minHeight: 44)
-                }
-
-                HStack {
-                    Text(String(localized: "Last synced"))
-                    Spacer()
-                    Text(syncService.lastSyncFormatted)
-                        .foregroundStyle(VColors.textPrimary)
-                }
-
-                HStack {
-                    Text(String(localized: "iCloud account"))
-                    Spacer()
-                    Text(syncService.iCloudAccountAvailable
-                         ? String(localized: "Connected")
-                         : String(localized: "Not signed in"))
-                        .foregroundStyle(VColors.textPrimary)
-                }
-
-                if !syncService.iCloudAccountAvailable {
-                    Text(String(localized: "Your data stays on this device. Sign in to iCloud in Settings to sync across devices."))
-                        .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textPrimary)
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "Status"))
-            }
-            .headerProminence(.increased)
-
-            if case .error(let msg) = syncService.syncState {
+            Group {
                 Section {
-                    HStack(spacing: VSpacing.sm) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(VColors.expense)
-                        Text(msg)
+                    HStack {
+                        SyncStatusView()
+                        Spacer()
+                        Button(String(localized: "Refresh")) {
+                            Task { await syncService.checkiCloudStatus() }
+                        }
+                        .font(.body)
+                        .foregroundStyle(VColors.textPrimary)
+                        .frame(minWidth: 44, minHeight: 44)
+                    }
+
+                    HStack {
+                        Text(String(localized: "Last synced"))
+                        Spacer()
+                        Text(syncService.lastSyncFormatted)
+                            .foregroundStyle(VColors.textPrimary)
+                    }
+
+                    HStack {
+                        Text(String(localized: "iCloud account"))
+                        Spacer()
+                        Text(syncService.iCloudAccountAvailable
+                             ? String(localized: "Connected")
+                             : String(localized: "Not signed in"))
+                            .foregroundStyle(VColors.textPrimary)
+                    }
+
+                    if !syncService.iCloudAccountAvailable {
+                        Text(String(localized: "Your data stays on this device. Sign in to iCloud in Settings to sync across devices."))
                             .font(VTypography.caption1)
                             .foregroundStyle(VColors.textPrimary)
                     }
                 } header: {
-                    VFormSectionHeader(String(localized: "Error"))
+                    VFormSectionHeader(String(localized: "Status"))
                 }
                 .headerProminence(.increased)
-            }
 
-            Section {
-                VStack(alignment: .leading, spacing: VSpacing.sm) {
-                    Text(String(localized: "CloudKit resolves conflicts automatically"))
-                        .font(VTypography.bodyBold)
-                        .foregroundStyle(VColors.textPrimary)
-                    Text(String(localized: "When iCloud detects a merge conflict it applies its own last-writer-wins strategy. Vittora logs each event here. When modification timestamps are close together or unavailable, the outcome is shown as ambiguous."))
-                        .font(VTypography.body)
-                        .foregroundStyle(VColors.textPrimary)
-                    Text(String(localized: "The conflict log keeps the 20 most recent events. Conflicts within 60 seconds of each other are flagged as ambiguous due to possible clock skew."))
-                        .font(.body)
-                        .foregroundStyle(VColors.textPrimary)
-                }
-                .padding(.vertical, 2)
-            } header: {
-                VFormSectionHeader(String(localized: "Conflict Handling"))
-            }
-            .headerProminence(.increased)
-
-            Section {
-                if syncConflictHandler.recentConflicts.isEmpty {
-                    Label {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(String(localized: "No recent sync conflicts"))
-                                .font(VTypography.bodyBold)
-                                .foregroundStyle(VColors.textPrimary)
-                            Text(String(localized: "Recent iCloud merges have completed without any logged conflicts."))
-                                .font(VTypography.body)
+                if case .error(let msg) = syncService.syncState {
+                    Section {
+                        HStack(spacing: VSpacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(VColors.expense)
+                            Text(msg)
+                                .font(VTypography.caption1)
                                 .foregroundStyle(VColors.textPrimary)
                         }
-                    } icon: {
-                        Image(systemName: "checkmark.shield.fill")
+                    } header: {
+                        VFormSectionHeader(String(localized: "Error"))
+                    }
+                    .headerProminence(.increased)
+                }
+
+                Section {
+                    VStack(alignment: .leading, spacing: VSpacing.sm) {
+                        Text(String(localized: "CloudKit resolves conflicts automatically"))
+                            .font(VTypography.bodyBold)
                             .foregroundStyle(VColors.textPrimary)
-                            .accessibilityHidden(true)
+                        Text(String(localized: "When iCloud detects a merge conflict it applies its own last-writer-wins strategy. Vittora logs each event here. When modification timestamps are close together or unavailable, the outcome is shown as ambiguous."))
+                            .font(VTypography.body)
+                            .foregroundStyle(VColors.textPrimary)
+                        Text(String(localized: "The conflict log keeps the 20 most recent events. Conflicts within 60 seconds of each other are flagged as ambiguous due to possible clock skew."))
+                            .font(.body)
+                            .foregroundStyle(VColors.textPrimary)
                     }
-                    .padding(.vertical, 4)
-                } else {
-                    Text(conflictSummaryText)
-                        .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
+                    .padding(.vertical, 2)
+                } header: {
+                    VFormSectionHeader(String(localized: "Conflict Handling"))
+                }
+                .headerProminence(.increased)
 
-                    ForEach(syncConflictHandler.recentConflicts) { conflict in
-                        SyncConflictReviewRow(conflict: conflict)
-                    }
+                Section {
+                    if syncConflictHandler.recentConflicts.isEmpty {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(String(localized: "No recent sync conflicts"))
+                                    .font(VTypography.bodyBold)
+                                    .foregroundStyle(VColors.textPrimary)
+                                Text(String(localized: "Recent iCloud merges have completed without any logged conflicts."))
+                                    .font(VTypography.body)
+                                    .foregroundStyle(VColors.textPrimary)
+                            }
+                        } icon: {
+                            Image(systemName: "checkmark.shield.fill")
+                                .foregroundStyle(VColors.textPrimary)
+                                .accessibilityHidden(true)
+                        }
+                        .padding(.vertical, 4)
+                    } else {
+                        Text(conflictSummaryText)
+                            .font(VTypography.caption1)
+                            .foregroundStyle(VColors.textSecondary)
 
-                    Button(role: .destructive) {
-                        if reduceMotion {
-                            syncConflictHandler.clearLog()
-                        } else {
-                            withAnimation(.easeInOut(duration: 0.2)) {
+                        ForEach(syncConflictHandler.recentConflicts) { conflict in
+                            SyncConflictReviewRow(conflict: conflict)
+                        }
+
+                        Button(role: .destructive) {
+                            if reduceMotion {
                                 syncConflictHandler.clearLog()
+                            } else {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    syncConflictHandler.clearLog()
+                                }
+                            }
+                        } label: {
+                            Label(String(localized: "Clear Reviewed Conflicts"), systemImage: "trash")
+                        }
+                    }
+                    Text(String(localized: "The current CloudKit integration logs timestamps and outcomes for automatic resolutions. More detailed record snapshots can be added later without changing this review flow."))
+                        .foregroundStyle(VColors.textPrimary)
+                } header: {
+                    VFormSectionHeader(String(localized: "Conflict Review"))
+                }
+                .headerProminence(.increased)
+
+                Section {
+                    Button {
+                        Task { await reconcileBalances() }
+                    } label: {
+                        HStack {
+                            Label(String(localized: "Repair Account Balances"), systemImage: "checkmark.gobackward")
+                                .foregroundStyle(VColors.textPrimary)
+                            Spacer()
+                            if isReconciling {
+                                ProgressView().scaleEffect(0.8)
                             }
                         }
-                    } label: {
-                        Label(String(localized: "Clear Reviewed Conflicts"), systemImage: "trash")
                     }
+                    .disabled(isReconciling)
+                } header: {
+                    VFormSectionHeader(String(localized: "Balance Reconciliation"))
+                } footer: {
+                    Text(String(localized: "Recomputes each account's balance from its opening balance and transaction history, then repairs any drift. Accounts that use transfers are skipped for now."))
+                        .foregroundStyle(VColors.textSecondary)
                 }
-                Text(String(localized: "The current CloudKit integration logs timestamps and outcomes for automatic resolutions. More detailed record snapshots can be added later without changing this review flow."))
-                    .foregroundStyle(VColors.textPrimary)
-            } header: {
-                VFormSectionHeader(String(localized: "Conflict Review"))
-            }
-            .headerProminence(.increased)
 
-            Section {
-                Button {
-                    Task { await reconcileBalances() }
-                } label: {
-                    HStack {
-                        Label(String(localized: "Repair Account Balances"), systemImage: "checkmark.gobackward")
-                            .foregroundStyle(VColors.textPrimary)
-                        Spacer()
-                        if isReconciling {
-                            ProgressView().scaleEffect(0.8)
-                        }
-                    }
+                Section {
+                    Text(String(localized: "Vittora uses CloudKit to automatically sync your data across all your Apple devices signed into the same iCloud account. No manual steps needed."))
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
+                } header: {
+                    VFormSectionHeader(String(localized: "About iCloud Sync"))
                 }
-                .disabled(isReconciling)
-            } header: {
-                VFormSectionHeader(String(localized: "Balance Reconciliation"))
-            } footer: {
-                Text(String(localized: "Recomputes each account's balance from its opening balance and transaction history, then repairs any drift. Accounts that use transfers are skipped for now."))
-                    .foregroundStyle(VColors.textSecondary)
             }
-
-            Section {
-                Text(String(localized: "Vittora uses CloudKit to automatically sync your data across all your Apple devices signed into the same iCloud account. No manual steps needed."))
-                    .font(VTypography.caption1)
-                    .foregroundStyle(VColors.textSecondary)
-            } header: {
-                VFormSectionHeader(String(localized: "About iCloud Sync"))
-            }
+            .vListContentTint()
         }
-        .vListRowBackground()
+        .vListSelectionTint()
         // Clearance for the floating tab bar. safeAreaPadding, not
         // safeAreaInset: an inset paints an opaque view OVER the list, and
         // rows passing behind it are sliced mid-glyph. The Appearance

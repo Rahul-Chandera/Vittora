@@ -21,87 +21,90 @@ struct DebtFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                if let vm = vm {
-                    Section {
-                        Picker(String(localized: "Type"), selection: Bindable(vm).direction) {
-                            ForEach(DebtDirection.allCases, id: \.self) { dir in
-                                Text(dir.displayName).tag(dir)
+                Group {
+                    if let vm = vm {
+                        Section {
+                            Picker(String(localized: "Type"), selection: Bindable(vm).direction) {
+                                ForEach(DebtDirection.allCases, id: \.self) { dir in
+                                    Text(dir.displayName).tag(dir)
+                                }
                             }
+                            .pickerStyle(.menu)
+                        } header: {
+                            sectionHeader(String(localized: "Direction"))
                         }
-                        .pickerStyle(.menu)
-                    } header: {
-                        sectionHeader(String(localized: "Direction"))
-                    }
-                    .headerProminence(.increased)
+                        .headerProminence(.increased)
 
-                    Section {
-                        Picker(selection: Bindable(vm).selectedPayeeID) {
-                            Text(String(localized: "Select…")).tag(UUID?.none)
-                            ForEach(payees) { payee in
-                                Text(payee.name).tag(UUID?(payee.id))
+                        Section {
+                            Picker(selection: Bindable(vm).selectedPayeeID) {
+                                Text(String(localized: "Select…")).tag(UUID?.none)
+                                ForEach(payees) { payee in
+                                    Text(payee.name).tag(UUID?(payee.id))
+                                }
+                                Text(String(localized: "Add New Payee")).tag(UUID?(Self.addPayeeTag))
+                            } label: {
+                                VRequiredFieldLabel(String(localized: "Person / Business"))
                             }
-                            Text(String(localized: "Add New Payee")).tag(UUID?(Self.addPayeeTag))
-                        } label: {
-                            VRequiredFieldLabel(String(localized: "Person / Business"))
-                        }
-                        .onChange(of: vm.selectedPayeeID) { previous, current in
-                            guard current == Self.addPayeeTag else { return }
-                            // Restore first: the sentinel is a command, never a
-                            // value. The guard stops the restore re-entering.
-                            vm.selectedPayeeID = previous
-                            showAddPayee = true
-                        }
+                            .onChange(of: vm.selectedPayeeID) { previous, current in
+                                guard current == Self.addPayeeTag else { return }
+                                // Restore first: the sentinel is a command, never a
+                                // value. The guard stops the restore re-entering.
+                                vm.selectedPayeeID = previous
+                                showAddPayee = true
+                            }
 
-                        HStack {
-                            VRequiredFieldLabel(currencySymbol)
+                            HStack {
+                                VRequiredFieldLabel(currencySymbol)
+                                TextField(
+                                    "",
+                                    text: Bindable(vm).amountString,
+                                    prompt: Text(String(localized: "Amount"))
+                                        .foregroundStyle(VColors.placeholderText)
+                                )
+                                    #if os(iOS)
+                                    .keyboardType(.decimalPad)
+                                    .textContentType(nil)
+                                    #endif
+                                    .accessibilityLabel(String(localized: "Debt amount"))
+                                    .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
+                            }
+                        } header: {
+                            sectionHeader(String(localized: "Details"))
+                        }
+                        .headerProminence(.increased)
+
+                        Section {
+                            Toggle(String(localized: "Set Due Date"), isOn: Bindable(vm).hasDueDate)
+                            if vm.hasDueDate {
+                                DatePicker(
+                                    String(localized: "Due"),
+                                    selection: Bindable(vm).dueDate,
+                                    displayedComponents: [.date]
+                                )
+                            }
+                        } header: {
+                            sectionHeader(String(localized: "Due Date"))
+                        }
+                        .headerProminence(.increased)
+
+                        Section {
                             TextField(
                                 "",
-                                text: Bindable(vm).amountString,
-                                prompt: Text(String(localized: "Amount"))
-                                    .foregroundStyle(VColors.placeholderText)
+                                text: Bindable(vm).note,
+                                prompt: Text(String(localized: "Optional note"))
+                                    .foregroundStyle(VColors.placeholderText),
+                                axis: .vertical
                             )
-                                #if os(iOS)
-                                .keyboardType(.decimalPad)
-                                .textContentType(nil)
-                                #endif
-                                .accessibilityLabel(String(localized: "Debt amount"))
-                                .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
+                                .lineLimit(2...4)
+                        } header: {
+                            sectionHeader(String(localized: "Note"))
                         }
-                    } header: {
-                        sectionHeader(String(localized: "Details"))
+                        .headerProminence(.increased)
                     }
-                    .headerProminence(.increased)
-
-                    Section {
-                        Toggle(String(localized: "Set Due Date"), isOn: Bindable(vm).hasDueDate)
-                        if vm.hasDueDate {
-                            DatePicker(
-                                String(localized: "Due"),
-                                selection: Bindable(vm).dueDate,
-                                displayedComponents: [.date]
-                            )
-                        }
-                    } header: {
-                        sectionHeader(String(localized: "Due Date"))
-                    }
-                    .headerProminence(.increased)
-
-                    Section {
-                        TextField(
-                            "",
-                            text: Bindable(vm).note,
-                            prompt: Text(String(localized: "Optional note"))
-                                .foregroundStyle(VColors.placeholderText),
-                            axis: .vertical
-                        )
-                            .lineLimit(2...4)
-                    } header: {
-                        sectionHeader(String(localized: "Note"))
-                    }
-                    .headerProminence(.increased)
                 }
+                .vListContentTint()
             }
-            .vListRowBackground()
+            .vListSelectionTint()
             .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Add Debt"))
             #if os(iOS)

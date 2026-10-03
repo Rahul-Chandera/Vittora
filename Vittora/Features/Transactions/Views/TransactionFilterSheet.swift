@@ -21,91 +21,94 @@ struct TransactionFilterSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                if !savedPresets.isEmpty {
-                    Section(header: VFormSectionHeader(String(localized: "Saved Filters"))) {
-                        ForEach(savedPresets) { preset in
-                            Button {
-                                localVM.applySnapshot(preset.snapshot)
-                            } label: {
-                                HStack {
-                                    Text(preset.name)
-                                        .foregroundColor(VColors.textPrimary)
-                                    Spacer()
-                                    Image(systemName: "line.3.horizontal.decrease.circle")
-                                        .foregroundColor(VColors.textSecondary)
-                                }
-                            }
-                            .accessibilityIdentifier("saved-filter-\(preset.id.uuidString)")
-                            .swipeActions {
-                                Button(role: .destructive) {
-                                    deletePreset(preset)
+                Group {
+                    if !savedPresets.isEmpty {
+                        Section(header: VFormSectionHeader(String(localized: "Saved Filters"))) {
+                            ForEach(savedPresets) { preset in
+                                Button {
+                                    localVM.applySnapshot(preset.snapshot)
                                 } label: {
-                                    Label(String(localized: "Delete"), systemImage: "trash")
+                                    HStack {
+                                        Text(preset.name)
+                                            .foregroundColor(VColors.textPrimary)
+                                        Spacer()
+                                        Image(systemName: "line.3.horizontal.decrease.circle")
+                                            .foregroundColor(VColors.textSecondary)
+                                    }
                                 }
-                                // role: .destructive alone is not enough — the NavigationStack
-                                // tint in AppTabView.contentStack repaints swipe actions, so
-                                // the red is explicit.
-                                .tint(.red)
+                                .accessibilityIdentifier("saved-filter-\(preset.id.uuidString)")
+                                .swipeActions {
+                                    Button(role: .destructive) {
+                                        deletePreset(preset)
+                                    } label: {
+                                        Label(String(localized: "Delete"), systemImage: "trash")
+                                    }
+                                    // role: .destructive alone is not enough — the NavigationStack
+                                    // tint in AppTabView.contentStack repaints swipe actions, so
+                                    // the red is explicit.
+                                    .tint(.red)
+                                }
                             }
                         }
                     }
-                }
 
-                Section(header: VFormSectionHeader(String(localized: "Date Range"))) {
-                    Picker(String(localized: "Preset"), selection: Bindable(localVM).datePreset) {
-                        ForEach(TransactionFilterViewModel.DatePreset.allCases, id: \.self) { preset in
-                            Text(preset.displayName).tag(preset)
+                    Section(header: VFormSectionHeader(String(localized: "Date Range"))) {
+                        Picker(String(localized: "Preset"), selection: Bindable(localVM).datePreset) {
+                            ForEach(TransactionFilterViewModel.DatePreset.allCases, id: \.self) { preset in
+                                Text(preset.displayName).tag(preset)
+                            }
+                        }
+                        .accessibilityIdentifier("transaction-filter-preset-picker")
+                        .onChange(of: localVM.datePreset) { _, newValue in
+                            localVM.applyDatePreset(newValue)
+                        }
+
+                        if localVM.datePreset == .custom {
+                            DatePicker(
+                                String(localized: "From"),
+                                selection: Binding(
+                                    get: { localVM.startDate ?? Date.now },
+                                    set: { localVM.startDate = $0 }
+                                ),
+                                displayedComponents: [.date]
+                            )
+                            DatePicker(
+                                String(localized: "To"),
+                                selection: Binding(
+                                    get: { localVM.endDate ?? Date.now },
+                                    set: { localVM.endDate = $0 }
+                                ),
+                                displayedComponents: [.date]
+                            )
                         }
                     }
-                    .accessibilityIdentifier("transaction-filter-preset-picker")
-                    .onChange(of: localVM.datePreset) { _, newValue in
-                        localVM.applyDatePreset(newValue)
+
+                    Section(header: VFormSectionHeader(String(localized: "Transaction Type"))) {
+                        ForEach(TransactionType.allCases, id: \.self) { type in
+                            Toggle(type.displayName, isOn: $localVM.selectedTypes.contains(type))
+                                .accessibilityIdentifier("transaction-filter-type-\(type.rawValue)")
+                        }
                     }
 
-                    if localVM.datePreset == .custom {
-                        DatePicker(
-                            String(localized: "From"),
-                            selection: Binding(
-                                get: { localVM.startDate ?? Date.now },
-                                set: { localVM.startDate = $0 }
-                            ),
-                            displayedComponents: [.date]
-                        )
-                        DatePicker(
-                            String(localized: "To"),
-                            selection: Binding(
-                                get: { localVM.endDate ?? Date.now },
-                                set: { localVM.endDate = $0 }
-                            ),
-                            displayedComponents: [.date]
-                        )
+                    Section(header: VFormSectionHeader(String(localized: "Amount Range"))) {
+                        TextField(String(localized: "Min"), text: Bindable(localVM).amountMin)
+                            .accessibilityIdentifier("transaction-filter-min-field")
+                            #if os(iOS)
+                            .keyboardType(.decimalPad)
+                            .textContentType(nil)
+                            #endif
+
+                        TextField(String(localized: "Max"), text: Bindable(localVM).amountMax)
+                            .accessibilityIdentifier("transaction-filter-max-field")
+                            #if os(iOS)
+                            .keyboardType(.decimalPad)
+                            .textContentType(nil)
+                            #endif
                     }
                 }
-
-                Section(header: VFormSectionHeader(String(localized: "Transaction Type"))) {
-                    ForEach(TransactionType.allCases, id: \.self) { type in
-                        Toggle(type.displayName, isOn: $localVM.selectedTypes.contains(type))
-                            .accessibilityIdentifier("transaction-filter-type-\(type.rawValue)")
-                    }
-                }
-
-                Section(header: VFormSectionHeader(String(localized: "Amount Range"))) {
-                    TextField(String(localized: "Min"), text: Bindable(localVM).amountMin)
-                        .accessibilityIdentifier("transaction-filter-min-field")
-                        #if os(iOS)
-                        .keyboardType(.decimalPad)
-                        .textContentType(nil)
-                        #endif
-
-                    TextField(String(localized: "Max"), text: Bindable(localVM).amountMax)
-                        .accessibilityIdentifier("transaction-filter-max-field")
-                        #if os(iOS)
-                        .keyboardType(.decimalPad)
-                        .textContentType(nil)
-                        #endif
-                }
+                .vListContentTint()
             }
-            .vListRowBackground()
+            .vListSelectionTint()
             .accessibilityIdentifier("transaction-filter-sheet")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)

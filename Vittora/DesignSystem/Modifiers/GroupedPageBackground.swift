@@ -25,21 +25,29 @@ extension View {
 }
 
 extension View {
-    /// Explicit row background for a `List` or `Form`.
-    ///
-    /// iPadOS 27 fills a tapped row with the list's tint while the next screen
-    /// slides in. Ours is `.primary` on the lists the accessibility sweep tinted
-    /// (black in light mode) and the AA-dark accent everywhere else, so the row
-    /// flashed black. With the background set explicitly the system keeps its
-    /// light grey tap highlight, as in Apple's own Settings. The colour is the
-    /// one iOS paints by default, so nothing else changes — OLED included.
-    ///
-    /// Apply it to the List or Form itself; on a NavigationStack it does not
-    /// reach the lists inside. A row's own `listRowBackground` still wins.
+    /// iPad fills a List row it treats as selected — the NavigationLink just
+    /// tapped, while its screen pushes in and until it pops — with the List's
+    /// tint. Ours was `.primary` on the lists the accessibility sweep tinted
+    /// and the AA-dark accent everywhere else, so the row went black or dark
+    /// green under black text. Put this on the List itself, straight after its
+    /// closing brace (inside any .toolbar or .sheet, which keep their own
+    /// tint), and wrap the List's content in `vListContentTint` so the rows'
+    /// controls keep the tint they had. A tint on a row does not reach the fill.
     @ViewBuilder
-    func vListRowBackground() -> some View {
+    func vListSelectionTint() -> some View {
         #if os(iOS)
-        listRowBackground(Color(uiColor: .secondarySystemGroupedBackground))
+        tint(VColors.rowSelection)
+        #else
+        self
+        #endif
+    }
+
+    /// The tint a List's rows had before `vListSelectionTint` lightened the
+    /// List's own: apply it to a Group wrapping the List's content.
+    @ViewBuilder
+    func vListContentTint(_ tint: some ShapeStyle = VColors.primaryOnSurface) -> some View {
+        #if os(iOS)
+        self.tint(tint)
         #else
         self
         #endif
