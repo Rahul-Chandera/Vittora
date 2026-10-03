@@ -77,10 +77,30 @@ struct IndiaSectionDeductionEngineTests {
         #expect(result.utilizations.first { $0.sectionKey == "80D" }?.statutoryCap == 50_000)
     }
 
+    // A person attains an age the day before the birthday (CBDT; General
+    // Clauses Act), so born 1 Apr 1966 is 60 on 31 Mar 2026 and a senior for
+    // FY 2025-26. Born 2 Apr is the first date that misses it.
+    @Test("80D senior cap when born 1 April, the day the FY ends at 60")
+    func caps80DSeniorWhenBornFirstApril() {
+        let dob = Calendar.current.date(from: DateComponents(year: 1966, month: 4, day: 1))
+        let deductions = [
+            TaxDeduction(name: "Health", amount: 40_000, section: "80D"),
+        ]
+
+        let result = IndiaSectionDeductionEngine.resolve(
+            deductions: deductions,
+            advancedInputs: TaxAdvancedInputs(),
+            dateOfBirth: dob,
+            financialYearLabel: "2025-26"
+        )
+
+        #expect(result.allowedTotal == 40_000)
+    }
+
     @Test("80D regular cap when taxpayer turns 60 after FY end")
     func caps80DRegularWhenTurning60AfterFY() {
-        // Born 1 Apr 1966 → still 59 on 31 Mar 2026.
-        let dob = Calendar.current.date(from: DateComponents(year: 1966, month: 4, day: 1))
+        // Born 2 Apr 1966 → still 59 on 31 Mar 2026.
+        let dob = Calendar.current.date(from: DateComponents(year: 1966, month: 4, day: 2))
         let deductions = [
             TaxDeduction(name: "Health", amount: 40_000, section: "80D"),
         ]

@@ -84,8 +84,11 @@ struct TaxUseCaseTests {
             #expect(estimate.finalTax == 0)
         }
 
-        @Test("Old regime §87A marginal relief caps tax at the excess above 5 lakh")
-        func oldRegimeMarginalRelief() {
+        // §87A marginal relief exists only in the new regime (Finance Act 2023
+        // amended §87A for §115BAC(1A) alone), so ₹10,000 above ₹5L in the old
+        // regime loses the whole rebate.
+        @Test("Old regime §87A has no marginal relief above 5 lakh")
+        func oldRegimeHasNoMarginalRelief() {
             let calculator = IndiaTaxCalculator()
             let profile = TaxProfile(
                 country: .india,
@@ -96,10 +99,9 @@ struct TaxUseCaseTests {
             )
             let estimate = calculator.calculate(profile: profile)
             // Basic tax on ₹5.1L: 5% × 2.5L = 12,500 + 20% × 10,000 = 2,000 → 14,500
-            // Marginal relief: rebate = min(14500, 12500, 14500 − 10000) = 4500
-            // taxAfterRebate = 14500 − 4500 = 10000 = excess (₹10,000 above threshold)
-            #expect(estimate.rebate == 4_500)
-            #expect(estimate.finalTax == 10_400) // 10000 × 4% cess = 400
+            // Total income exceeds ₹5L → no rebate; cess 4% × 14,500 = 580
+            #expect(estimate.rebate == 0)
+            #expect(estimate.finalTax == 15_080)
         }
     }
 
@@ -190,8 +192,9 @@ struct TaxUseCaseTests {
 
             let estimate = calculator.calculate(profile: profile)
 
-            // Ordinary tax: 4,552. Preferential: 10,000 @0% + 10,000 @15% = 1,500.
-            #expect(estimate.finalTax == 6_052)
+            // Ordinary tax: 4,552. TY2026 single 0% band ends at 49,450 (Rev. Proc. 2025-32):
+            // 9,450 @0% + 10,550 @15% = 1,582.50.
+            #expect(estimate.finalTax == Decimal(string: "6134.50")!)
         }
 
         @Test("Preferential stacking transitions from 15% to 20% at threshold")
@@ -219,8 +222,8 @@ struct TaxUseCaseTests {
             let baseEstimate = calculator.calculate(profile: baseProfile)
             let gainsEstimate = calculator.calculate(profile: gainsProfile)
 
-            // 1,000 @15% + 1,000 @20% + NIIT(2,000 @ 3.8%) = 426 incremental tax.
-            #expect(gainsEstimate.finalTax - baseEstimate.finalTax == 426)
+            // 15% band ends at 545,500: 1,500 @15% + 500 @20% + NIIT(2,000 @ 3.8%) = 401.
+            #expect(gainsEstimate.finalTax - baseEstimate.finalTax == 401)
         }
 
         @Test("Preferential income above upper threshold is taxed at 20%")
@@ -228,7 +231,7 @@ struct TaxUseCaseTests {
             let calculator = USTaxCalculator()
             let baseProfile = TaxProfile(
                 country: .unitedStates,
-                annualIncome: 566_100, // TY2026 single -> ordinary taxable 550,000 (> 545,000 upper)
+                annualIncome: 566_100, // TY2026 single -> ordinary taxable 550,000 (> 545,500 upper)
                 filingStatus: .single,
                 financialYear: "2026"
             )
