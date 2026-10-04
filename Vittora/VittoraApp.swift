@@ -31,6 +31,13 @@ struct VittoraApp: App {
     @State private var spotlightCoordinator: TransactionSpotlightCoordinator?
     @State private var hasCompletedStartup = false
     @Environment(\.scenePhase) private var scenePhase
+    // Household invitations (M3.4.1) only reach the app through a platform
+    // delegate; see HouseholdShareAcceptance.
+    #if os(iOS)
+    @UIApplicationDelegateAdaptor(VittoraAppDelegate.self) private var appDelegate
+    #elseif os(macOS)
+    @NSApplicationDelegateAdaptor(VittoraAppDelegate.self) private var appDelegate
+    #endif
 
     private let modelContainer: ModelContainer?
     private let isUITesting: Bool
@@ -285,14 +292,17 @@ struct VittoraApp: App {
                     #if os(macOS)
                     .frame(minWidth: 960, minHeight: 640)
                     #endif
+                    .householdInvitationSheet()
                     .task {
                         dependencies.purchaseService.start()
+                        HouseholdStore.shared.start()
                         registerQuickAddIntentHandler()
                         #if os(iOS)
                         activateWatchBridgeIfNeeded()
                         #endif
                         registerSpotlightSyncHook()
                         await performStartupTasksIfNeeded()
+                        await drainQuickLogQueue()
                         #if os(iOS)
                         // Seed (and other startup writes) finish after activate; push once more
                         // so the watch gets a post-seed snapshot without waiting for a later edit.
@@ -355,6 +365,25 @@ struct VittoraApp: App {
         }
         #endif
         .onChange(of: scenePhase) { _, newPhase in
+            // Widget taps queue while the app is away, so the ledger catches up the moment
+            // it comes forward rather than waiting for a cold launch.
+            if newPhase == .active {
+                Task { await drainQuickLogQueue() }
+            }
+            #if os(iOS)
+            // M3.7.1: only when the user switched automatic Wallet import on;
+            // otherwise this returns before touching FinanceKit.
+            if newPhase == .active, !isRunningAutomatedTests {
+                Task {
+                    let result = await AppleWalletService.shared.runAutomaticImport(
+                        using: dependencies.makeImportAppleWalletUseCase()
+                    )
+                    if let result, result.importedCount > 0 {
+                        appState.notifyChanged([.transactions, .accounts, .budgets])
+                    }
+                }
+            }
+            #endif
             let shouldShowPrivacyShield = newPhase == .inactive || newPhase == .background
             appState.isPrivacyShieldVisible = !isRunningAutomatedTests && shouldShowPrivacyShield
 
@@ -515,6 +544,18 @@ struct VittoraApp: App {
     }
 
     /// W5: AddExpenseIntent → same `openFromURL` path as widget / `vittora://add` links.
+    /// Commits anything the Quick Log widget captured while the app was closed (M2.7.5).
+    ///
+    /// Failure is swallowed on purpose: entries stay queued when this cannot run, so the
+    /// next foreground tries again. Clearing them on error would lose the expense.
+    @MainActor
+    private func drainQuickLogQueue() async {
+        let committed = (try? await dependencies.drainQuickLogQueueUseCase.execute()) ?? 0
+        if committed > 0 {
+            appState.notifyChanged(.transactions)
+        }
+    }
+
     private func registerQuickAddIntentHandler() {
         QuickAddDeepLink.registerOpenHandler { [appState] destination in
             appState.openFromURL(QuickAddDeepLink.url(for: destination))
@@ -551,11 +592,19 @@ struct VittoraApp: App {
                         String(localized: "No account available for Watch expenses.")
                     )
                 }
+                // Voice entry names a category the watch didn't have; match
+                // it against every expense category here. No match leaves it
+                // uncategorised rather than guessing.
+                var categoryID = expense.categoryID
+                if categoryID == nil, let hint = expense.categoryHint {
+                    let categories = try await categoryRepository.fetchByType(.expense)
+                    categoryID = WatchVoiceExpense.matchCategory(hint, in: categories, name: \.displayName)?.id
+                }
                 _ = try await addUseCase.execute(
                     amount: expense.amount,
                     type: .expense,
                     date: expense.createdAt,
-                    categoryID: expense.categoryID,
+                    categoryID: categoryID,
                     accountID: account.id,
                     payeeID: nil,
                     note: String(localized: "Apple Watch"),

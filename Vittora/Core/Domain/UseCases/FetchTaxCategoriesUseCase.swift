@@ -63,6 +63,33 @@ struct FetchTaxCategoriesUseCase: Sendable {
                 ],
                 iconKeywords: sharedIcons + ["stethoscope"]
             )
+
+        case .unitedKingdom:
+            return (
+                keywords: sharedKeywords + [
+                    "council tax", "gift aid", "isa", "national insurance",
+                    "pension", "sipp", "student loan",
+                ],
+                iconKeywords: sharedIcons + ["banknote"]
+            )
+
+        case .australia:
+            return (
+                keywords: sharedKeywords + [
+                    "hecs", "help", "medicare", "negative gearing",
+                    "private health", "salary sacrifice", "super",
+                ],
+                iconKeywords: sharedIcons + ["banknote"]
+            )
+
+        case .canada:
+            return (
+                keywords: sharedKeywords + [
+                    "cpp", "ei", "fhsa", "provincial tax", "resp",
+                    "rrsp", "tfsa", "union dues",
+                ],
+                iconKeywords: sharedIcons + ["banknote"]
+            )
         }
     }
 }

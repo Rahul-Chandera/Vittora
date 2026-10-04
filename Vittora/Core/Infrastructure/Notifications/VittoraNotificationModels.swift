@@ -9,6 +9,7 @@ enum VittoraNotificationCategory: String, CaseIterable, Sendable {
     case recurring = "vittora.recurring"
     case debt = "vittora.debt"
     case goal = "vittora.goal"
+    case investmentMaturity = "vittora.investment"
 
     var localizedTitle: String {
         switch self {
@@ -22,6 +23,8 @@ enum VittoraNotificationCategory: String, CaseIterable, Sendable {
             String(localized: "Debt Reminders")
         case .goal:
             String(localized: "Savings Goals")
+        case .investmentMaturity:
+            String(localized: "Investment Maturity")
         }
     }
 }
@@ -36,6 +39,7 @@ struct VittoraNotificationDeepLink: Equatable, Sendable {
         case transactions
         case savings
         case recurring
+        case investments
     }
 
     static let destinationKey = "vittora.destination"

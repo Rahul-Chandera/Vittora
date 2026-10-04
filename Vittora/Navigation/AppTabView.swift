@@ -251,22 +251,53 @@ private struct MoreHubView: View {
         }
     }
 
+    @State private var showShoppingMode = false
+
     var body: some View {
         List {
-            ForEach(Self.destinations) { tab in
-                NavigationLink {
-                    destinationView(for: tab)
-                } label: {
-                    Label {
-                        Text(tab.title)
-                    } icon: {
-                        Image(systemName: tab.systemImage)
-                            .foregroundStyle(VColors.iconTint(Self.tint(for: tab)))
+            Group {
+                // Its own section rather than an AppTab case: shopping mode is a
+                // transient session, not a destination, and adding a tab would ripple
+                // through deep links, the sidebar and compact-bar routing for nothing.
+                #if os(iOS)
+                Section {
+                    Button {
+                        showShoppingMode = true
+                    } label: {
+                        Label {
+                            Text(String(localized: "Shopping Mode"))
+                                .foregroundStyle(VColors.textPrimary)
+                        } icon: {
+                            Image(systemName: "cart.fill")
+                                .foregroundStyle(VColors.iconTint(.green))
+                        }
+                    }
+                    .accessibilityIdentifier("more-shopping-mode-row")
+                }
+                #endif
+
+                ForEach(Self.destinations) { tab in
+                    NavigationLink {
+                        destinationView(for: tab)
+                    } label: {
+                        Label {
+                            Text(tab.title)
+                        } icon: {
+                            Image(systemName: tab.systemImage)
+                                .foregroundStyle(VColors.iconTint(Self.tint(for: tab)))
+                        }
                     }
                 }
             }
+            .vListContentTint()
         }
+        .vListSelectionTint()
         .navigationTitle(String(localized: "More"))
+        #if os(iOS)
+        .sheet(isPresented: $showShoppingMode) {
+            ShoppingModeView()
+        }
+        #endif
     }
 
     @ViewBuilder

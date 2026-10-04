@@ -46,7 +46,10 @@ Use this map to pick the fastest meaningful tests after changes.
   - `xcodebuild ... -only-testing:VittoraTests/PluralVariationTests test`
   - `xcodebuild ... -only-testing:VittoraTests/SpanishLocalizationCatalogTests test`
   - `DERIVED=.build-ios:.build-macos Scripts/ci/check-localization-coverage.sh` (needs make build-ios and make build-macos first)
+  - `Scripts/ci/check-placeholder-order.py` (reads the catalogue; no build needed)
 - Counted strings must use .xcstrings plural variations, never a `(s)` suffix, because Hindi and Spanish have real plural rules.
+- Coverage and placeholder order answer different questions. Coverage: is the key there and translated? Order: does the translation's format match the key's? A translation can be complete and still crash — #257 reordered `%lld` ahead of `%@` in Hindi, which type-checks as a pointer read as an integer. Fix a reported `order` with positional specifiers (`%1$@`, `%2$lld`); the check then treats the reordering as equivalent.
+- `check-placeholder-order.py --self-test` asserts the detector still catches #257. Run it if you change the parser — a green catalogue scan alone cannot tell you the detector works.
 
 ## Build confidence checks
 
@@ -90,6 +93,10 @@ What this means in practice:
 - **Buying, restoring and Family Sharing inheritance must be exercised on a device before
   each release**, and the intro-offer *eligible* path needs a sandbox account that has not
   consumed the trial. Nothing in CI covers it.
+- **Last device verification: 2026-09-22 (Rahul).** Purchase, restore, Family Sharing
+  inheritance and the intro-offer *consumed* direction were all confirmed on a real device.
+  That closes them as open questions; it does not close the automation gap, so this line
+  needs renewing each release rather than being read as permanent coverage.
 - Running from Xcode (⌘R) does apply `Vittora.storekit`, so manual verification there is
   the supported path. The scheme's path to that file was broken until #237 — it pointed at
   `../../../Vittora.storekit`, which Xcode resolves against the project directory, so the

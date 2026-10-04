@@ -53,6 +53,83 @@ struct RecurringUseCaseTests {
         #expect(updatedRule?.nextDate == expectedNextDate)
     }
 
+    @Test("An income-category rule generates income and credits the account")
+    func generateRecurringTransactionsIncomeCategoryCreditsAccount() async throws {
+        let ruleRepository = MockRecurringRuleRepository()
+        let transactionRepository = MockTransactionRepository()
+        let accountRepository = MockAccountRepository()
+        let categoryRepository = MockCategoryRepository()
+        let account = AccountEntity(name: "Main Account", type: .bank, balance: 500)
+        try await accountRepository.create(account)
+        let salary = CategoryEntity(name: "Salary", icon: "banknote", type: .income)
+        try await categoryRepository.create(salary)
+
+        let nextDate = makeRecurringDate(year: 2026, month: 1, day: 1)
+        let rule = RecurringRuleEntity(
+            frequency: .monthly,
+            nextDate: nextDate,
+            templateAmount: Decimal(string: "4200.50")!,
+            templateCategoryID: salary.id,
+            templateAccountID: account.id
+        )
+        await ruleRepository.seed(rule)
+
+        let useCase = makeUseCase(
+            ruleRepository: ruleRepository,
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
+            now: nextDate
+        )
+
+        #expect(try await useCase.execute() == 1)
+
+        let transactions = await transactionRepository.transactions
+        #expect(transactions.count == 1)
+        #expect(transactions.first?.type == .income)
+        #expect(transactions.first?.amount == Decimal(string: "4200.50")!)
+        #expect(accountRepository.accounts.first?.balance == Decimal(string: "4700.50")!)
+    }
+
+    @Test(
+        "A rule with no category or an expense category still generates an expense",
+        arguments: [false, true]
+    )
+    func generateRecurringTransactionsNonIncomeCategoryDebitsAccount(hasExpenseCategory: Bool) async throws {
+        let ruleRepository = MockRecurringRuleRepository()
+        let transactionRepository = MockTransactionRepository()
+        let accountRepository = MockAccountRepository()
+        let categoryRepository = MockCategoryRepository()
+        let account = AccountEntity(name: "Main Account", type: .bank, balance: 500)
+        try await accountRepository.create(account)
+        let rent = CategoryEntity(name: "Rent", icon: "house", type: .expense)
+        try await categoryRepository.create(rent)
+
+        let nextDate = makeRecurringDate(year: 2026, month: 1, day: 1)
+        let rule = RecurringRuleEntity(
+            frequency: .monthly,
+            nextDate: nextDate,
+            templateAmount: 120,
+            templateCategoryID: hasExpenseCategory ? rent.id : nil,
+            templateAccountID: account.id
+        )
+        await ruleRepository.seed(rule)
+
+        let useCase = makeUseCase(
+            ruleRepository: ruleRepository,
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
+            now: nextDate
+        )
+
+        #expect(try await useCase.execute() == 1)
+
+        let transactions = await transactionRepository.transactions
+        #expect(transactions.first?.type == .expense)
+        #expect(accountRepository.accounts.first?.balance == 380)
+    }
+
     @Test("Generate recurring transactions skips ended rules and rules without accounts")
     func generateRecurringTransactionsSkipsInvalidRules() async throws {
         let ruleRepository = MockRecurringRuleRepository()
@@ -385,7 +462,7 @@ struct RecurringUseCaseTests {
             templateAmount: 70
         )
 
-        let summary = useCase.execute(rules: [rule])
+        let summary = useCase.execute(rules: [rule], incomeCategoryIDs: [])
 
         #expect(summary.monthlyCost == 300)
         #expect(summary.annualCost == 3_600)
@@ -403,7 +480,7 @@ struct RecurringUseCaseTests {
             templateAmount: 50
         )
 
-        let summary = useCase.execute(rules: [rule])
+        let summary = useCase.execute(rules: [rule], incomeCategoryIDs: [])
 
         #expect(summary.monthlyCost == 100)
         #expect(summary.annualCost == 1_200)
@@ -447,12 +524,14 @@ private func makeUseCase(
     ruleRepository: MockRecurringRuleRepository,
     transactionRepository: MockTransactionRepository,
     accountRepository: MockAccountRepository,
+    categoryRepository: MockCategoryRepository = MockCategoryRepository(),
     now: Date
 ) -> GenerateRecurringTransactionsUseCase {
     GenerateRecurringTransactionsUseCase(
         ruleRepository: ruleRepository,
         transactionRepository: transactionRepository,
         accountRepository: accountRepository,
+        categoryRepository: categoryRepository,
         ledgerWriting: MockLedgerWriting(
             transactionRepository: transactionRepository,
             accountRepository: accountRepository

@@ -27,6 +27,16 @@ public struct WidgetDataProvider: Sendable {
         return CurrencyDefaults.code(userDefaults: suite, groupDefaults: suite)
     }
 
+    /// Expense categories, for configuring a widget preset (M2.7.5).
+    ///
+    /// Expense only: a preset logs an expense, so offering income categories would
+    /// configure a button that books against the wrong side of the ledger.
+    public func expenseCategories() async throws -> [CategoryEntity] {
+        let repository = SwiftDataCategoryRepository(modelContainer: container)
+        return try await repository.fetchByType(.expense)
+            .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+    }
+
     /// Today's expense total, matching Dashboard's definition.
     public func todaySpending() async throws -> (amount: Decimal, currencyCode: String) {
         let snapshot = try await todaySpendingSnapshot()

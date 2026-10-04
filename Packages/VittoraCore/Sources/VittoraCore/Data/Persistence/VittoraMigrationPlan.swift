@@ -166,6 +166,17 @@ public enum VittoraSchemaV8: VersionedSchema {
     }
 }
 
+public enum VittoraSchemaV9: VersionedSchema {
+    public static let versionIdentifier = Schema.Version(9, 0, 0)
+
+    /// Current version. Adds `SDInvestment` and changes nothing else, so V8 may keep
+    /// aliasing the live classes — a new entity does not alter the shape of an existing
+    /// one, which is the only thing the frozen-snapshot rule above guards against.
+    public static var models: [any PersistentModel.Type] {
+        VittoraSchemaV8.models + [SDInvestment.self]
+    }
+}
+
 public enum VittoraMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
         [
@@ -177,6 +188,7 @@ public enum VittoraMigrationPlan: SchemaMigrationPlan {
             VittoraSchemaV6.self,
             VittoraSchemaV7.self,
             VittoraSchemaV8.self,
+            VittoraSchemaV9.self,
         ]
     }
 
@@ -220,6 +232,12 @@ public enum VittoraMigrationPlan: SchemaMigrationPlan {
             .lightweight(
                 fromVersion: VittoraSchemaV7.self,
                 toVersion: VittoraSchemaV8.self
+            ),
+            // Adding an entity is lightweight: no existing row is rewritten, and an
+            // upgraded store simply gains an empty SDInvestment table.
+            .lightweight(
+                fromVersion: VittoraSchemaV8.self,
+                toVersion: VittoraSchemaV9.self
             ),
         ]
     }

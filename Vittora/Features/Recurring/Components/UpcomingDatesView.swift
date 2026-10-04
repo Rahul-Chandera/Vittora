@@ -39,7 +39,10 @@ struct UpcomingDatesView: View {
                                 .font(VTypography.callout)
                                 .foregroundColor(VColors.textPrimary)
 
-                            Text(date.formatted(date: .omitted, time: .standard))
+                            // The weekday, not the time: a rule's time of day is
+                            // whenever it was created ("9:01:49 PM") and means
+                            // nothing; the weekday helps plan around the bill.
+                            Text(date.formatted(.dateTime.weekday(.wide)))
                                 .font(VTypography.caption2)
                                 .foregroundColor(VColors.textSecondary)
                         }

@@ -7,8 +7,7 @@ public actor SwiftDataPayeeRepository: PayeeRepository {
         let descriptor = FetchDescriptor<SDPayee>(
             sortBy: [SortDescriptor(\.name, order: .forward)]
         )
-        let models = try modelContext.fetch(descriptor)
-        return models.map(PayeeMapper.toEntity)
+        return Self.uniqueEntities(try modelContext.fetch(descriptor))
     }
 
     public func fetchByID(_ id: UUID) async throws -> PayeeEntity? {
@@ -41,10 +40,13 @@ public actor SwiftDataPayeeRepository: PayeeRepository {
         let descriptor = FetchDescriptor<SDPayee>(
             predicate: #Predicate { $0.id == id }
         )
-        guard let model = try modelContext.fetch(descriptor).first else {
+        let models = try modelContext.fetch(descriptor)
+        guard !models.isEmpty else {
             throw VittoraError.notFound(String(localized: "Payee not found"))
         }
-        PayeeMapper.updateModel(model, from: entity)
+        for model in models {
+            PayeeMapper.updateModel(model, from: entity)
+        }
         try modelContext.save()
     }
 
@@ -52,10 +54,13 @@ public actor SwiftDataPayeeRepository: PayeeRepository {
         let descriptor = FetchDescriptor<SDPayee>(
             predicate: #Predicate { $0.id == id }
         )
-        guard let model = try modelContext.fetch(descriptor).first else {
+        let models = try modelContext.fetch(descriptor)
+        guard !models.isEmpty else {
             throw VittoraError.notFound(String(localized: "Payee not found"))
         }
-        modelContext.delete(model)
+        for model in models {
+            modelContext.delete(model)
+        }
         try modelContext.save()
     }
 
@@ -67,16 +72,23 @@ public actor SwiftDataPayeeRepository: PayeeRepository {
             },
             sortBy: [SortDescriptor(\.name, order: .forward)]
         )
-        let models = try modelContext.fetch(descriptor)
-        return models.map(PayeeMapper.toEntity)
+        return Self.uniqueEntities(try modelContext.fetch(descriptor))
     }
 
     public func fetchFrequent(limit: Int) async throws -> [PayeeEntity] {
         let descriptor = FetchDescriptor<SDPayee>(
             sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
         )
-        var models = try modelContext.fetch(descriptor)
-        models = Array(models.prefix(limit))
-        return models.map(PayeeMapper.toEntity)
+        return Array(Self.uniqueEntities(try modelContext.fetch(descriptor)).prefix(limit))
+    }
+
+    /// CloudKit mirroring has no unique constraints, so one payee can exist as
+    /// several rows with the same `id` (a store that switches CloudKit
+    /// environment re-imports what it already has). Readers see one entity per
+    /// id; update and delete act on every copy, so a deleted payee cannot come
+    /// back from its twin. Same rule as `SwiftDataCategoryRepository`.
+    private static func uniqueEntities(_ models: [SDPayee]) -> [PayeeEntity] {
+        var seen = Set<UUID>()
+        return models.filter { seen.insert($0.id).inserted }.map(PayeeMapper.toEntity)
     }
 }

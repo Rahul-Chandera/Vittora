@@ -26,7 +26,9 @@ struct ReportsHomeView: View {
             (.netWorth, String(localized: "Net Worth"), String(localized: "See how your total balance changes over time"), "chart.line.uptrend.xyaxis.circle.fill", VColors.savings),
             (.subscriptionAudit, String(localized: "Subscription Audit"), String(localized: "What recurring expenses cost each month"), "arrow.triangle.2.circlepath", VColors.transfer),
             (.fiftyThirtyTwenty, String(localized: "50/30/20"), String(localized: "Compare needs, wants, and savings with the guideline"), "chart.bar.xaxis", VColors.savings),
-            (.emergencyFund, String(localized: "Emergency Fund"), String(localized: "See how many months of essentials you could cover"), "shield.lefthalf.filled", VColors.savings)
+            (.emergencyFund, String(localized: "Emergency Fund"), String(localized: "See how many months of essentials you could cover"), "shield.lefthalf.filled", VColors.savings),
+            (.healthScore, String(localized: "Financial Health"), String(localized: "A monthly score from your budgets, savings and debt"), "heart.text.square.fill", VColors.primaryOnSurface),
+            (.spendingOutlook, String(localized: "Spending Outlook"), String(localized: "Where this month is heading, and what a cutback would be worth"), "chart.line.flattrend.xyaxis", VColors.warning)
         ]
     }
 
@@ -43,6 +45,12 @@ struct ReportsHomeView: View {
                                 .cornerRadius(VSpacing.cornerRadiusCard)
                         } else if vm.error == nil {
                             summaryCard(vm)
+                        }
+
+                        // Above the report list: an insight is about what already
+                        // happened, so it should be read before choosing a report.
+                        SpendingInsightsSection(insights: vm.insights) { insight in
+                            vm.dismiss(insight)
                         }
                     }
 
@@ -94,7 +102,15 @@ struct ReportsHomeView: View {
         // back showed stale figures — and on a fresh launch it showed zeroes.
         .task(id: appState.transactionsRefreshVersion) {
             if vm == nil {
-                vm = ReportsHomeViewModel(transactionRepository: dependencies.transactionRepository)
+                vm = ReportsHomeViewModel(
+                    transactionRepository: dependencies.transactionRepository,
+                    insightsUseCase: EvaluateSpendingInsightsUseCase(
+                        transactionRepository: dependencies.transactionRepository,
+                        categoryRepository: dependencies.categoryRepository,
+                        budgetRepository: dependencies.budgetRepository,
+                        dismissalStore: UserDefaultsSpendingInsightDismissalStore()
+                    )
+                )
             }
             await vm?.load()
         }
@@ -173,13 +189,17 @@ struct ReportsHomeView: View {
             .proGated(
                 type.requiresPro,
                 title: String(localized: "A Vittora Pro report"),
-                message: String(localized: "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free.")
+                message: String(localized: "Cash flow forecast, subscription audit, 50/30/20, the emergency fund tracker, financial health, spending outlook and custom reports are part of Vittora Pro. Your records, your splits, iCloud sync and CSV export stay free.")
             )
     }
 
     @ViewBuilder
     private func reportDestination(for type: ReportType) -> some View {
         switch type {
+        case .healthScore:
+            FinancialHealthScoreReportView()
+        case .spendingOutlook:
+            SpendingOutlookReportView()
         case .fiftyThirtyTwenty:
             FiftyThirtyTwentyReportView()
         case .monthly:

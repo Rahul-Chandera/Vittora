@@ -5,6 +5,10 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
     let ruleRepository: any RecurringRuleRepository
     let transactionRepository: any TransactionRepository
     let accountRepository: any AccountRepository
+    /// Rules carry no transaction type; direction comes from the template
+    /// category (income category = income, anything else = expense), the same
+    /// convention as `RecurrenceDateMath.totalAmount(for:in:incomeCategoryIDs:)`.
+    let categoryRepository: any CategoryRepository
     /// Required atomic write surface — the generated transaction and its balance
     /// effect must land in a single save (DATAINTEGRITY-2). No repository
     /// fallback: a non-atomic create+update reintroduces the corruption path.
@@ -19,6 +23,7 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
         ruleRepository: any RecurringRuleRepository,
         transactionRepository: any TransactionRepository,
         accountRepository: any AccountRepository,
+        categoryRepository: any CategoryRepository,
         ledgerWriting: any LedgerWriting,
         calendar: Calendar = Calendar(identifier: .gregorian),
         nowProvider: @escaping @Sendable () -> Date = { .now }
@@ -26,6 +31,7 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
         self.ruleRepository = ruleRepository
         self.transactionRepository = transactionRepository
         self.accountRepository = accountRepository
+        self.categoryRepository = categoryRepository
         self.ledgerWriting = ledgerWriting
         self.calendar = calendar
         self.nowProvider = nowProvider
@@ -56,6 +62,7 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
             guard rule.isActive else { continue }
             guard let accountID = rule.templateAccountID else { continue }
             guard let account = try await accountRepository.fetchByID(accountID) else { continue }
+            let type = try await transactionType(for: rule)
 
             // Existing occurrences for this rule, keyed by calendar day.
             let existing = try await transactionRepository.fetchForRecurringRule(rule.id)
@@ -71,7 +78,7 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
                         amount: rule.templateAmount,
                         date: occurrence,
                         note: rule.templateNote,
-                        type: .expense,
+                        type: type,
                         paymentMethod: .other,
                         currencyCode: account.currencyCode,
                         tags: [],
@@ -104,6 +111,13 @@ struct GenerateRecurringTransactionsUseCase: Sendable {
         }
 
         return generatedCount
+    }
+
+    /// A missing or deleted category falls back to expense.
+    private func transactionType(for rule: RecurringRuleEntity) async throws -> TransactionType {
+        guard let categoryID = rule.templateCategoryID,
+              let category = try await categoryRepository.fetchByID(categoryID) else { return .expense }
+        return category.type == .income ? .income : .expense
     }
 
     private func withinEndDate(_ occurrence: Date, endDate: Date?) -> Bool {

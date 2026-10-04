@@ -34,7 +34,8 @@ struct FrequencyPickerView: View {
                         Spacer()
                     }
 
-                    TextField(String(localized: "Days"), text: $customDays)
+                    TextField(String(localized: "Days"), text: $customDays, prompt: Text(String(localized: "Days")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
                         .font(VTypography.callout)
                         #if os(iOS)
                         .keyboardType(.numberPad)

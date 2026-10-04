@@ -47,46 +47,50 @@ struct TransactionFormView: View {
         Group {
             if let vm = vm {
                 Form {
-                    Section {
-                        AmountInputView(
-                            amountString: Bindable(vm).amountString,
-                            currencyCode: currencyCode,
-                            type: vm.type,
-                            textFieldAccessibilityIdentifier: "transaction-amount-field",
-                            // New transaction only. Opening the keyboard over an
-                            // existing one, which the user came to read or to
-                            // change some other field on, would be in the way.
-                            autoFocus: transactionID == nil
-                        )
-
-                        TransactionTypePicker(type: Bindable(vm).type)
-                            .accessibilityIdentifier("transaction-type-picker")
-
-                        Toggle("Quick Entry", isOn: Bindable(vm).isQuickEntry)
-                            .accessibilityIdentifier("transaction-quick-entry-toggle")
-                    }
-
-                    if vm.isQuickEntry {
-                        quickEntryContent(vm)
-                    } else {
-                        fullFormContent(vm)
-                    }
-
-                    if !vm.duplicateWarning.isEmpty {
+                    Group {
                         Section {
-                            VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                Label(String(localized: "Duplicate detected"), systemImage: "exclamationmark.triangle.fill")
-                                    .foregroundColor(VColors.warning)
-                                    .font(VTypography.caption1)
+                            AmountInputView(
+                                amountString: Bindable(vm).amountString,
+                                currencyCode: currencyCode,
+                                type: vm.type,
+                                textFieldAccessibilityIdentifier: "transaction-amount-field",
+                                // New transaction only. Opening the keyboard over an
+                                // existing one, which the user came to read or to
+                                // change some other field on, would be in the way.
+                                autoFocus: transactionID == nil
+                            )
 
-                                Text(String(localized: "Similar transaction(s) found. Review before saving."))
-                                    .font(VTypography.caption2)
-                                    .foregroundColor(VColors.textSecondary)
+                            TransactionTypePicker(type: Bindable(vm).type)
+                                .accessibilityIdentifier("transaction-type-picker")
+
+                            Toggle("Quick Entry", isOn: Bindable(vm).isQuickEntry)
+                                .accessibilityIdentifier("transaction-quick-entry-toggle")
+                        }
+
+                        if vm.isQuickEntry {
+                            quickEntryContent(vm)
+                        } else {
+                            fullFormContent(vm)
+                        }
+
+                        if !vm.duplicateWarning.isEmpty {
+                            Section {
+                                VStack(alignment: .leading, spacing: VSpacing.sm) {
+                                    Label(String(localized: "Duplicate detected"), systemImage: "exclamationmark.triangle.fill")
+                                        .foregroundColor(VColors.warning)
+                                        .font(VTypography.caption1)
+
+                                    Text(String(localized: "Similar transaction(s) found. Review before saving."))
+                                        .font(VTypography.caption2)
+                                        .foregroundColor(VColors.textSecondary)
+                                }
+                                .padding(VSpacing.sm)
                             }
-                            .padding(VSpacing.sm)
                         }
                     }
+                    .vListContentTint()
                 }
+                .vListSelectionTint()
                 .headerProminence(.increased)
                 .tint(VColors.textCursor)
                 // Without an explicit title the pushed form inherits the
@@ -109,6 +113,7 @@ struct TransactionFormView: View {
                             .accessibilityIdentifier("transaction-form-cancel-button")
                             .vDialogCancelButton()
                         }
+                        .vDialogToolbarItem()
                     }
 
                     ToolbarItem(placement: .confirmationAction) {
@@ -148,6 +153,7 @@ struct TransactionFormView: View {
                         .accessibilityIdentifier("transaction-form-save-button")
                         .vDialogConfirmButton()
                     }
+                    .vDialogToolbarItem()
                 }
                 .overlay {
                     if vm.isLoading {
@@ -351,7 +357,8 @@ struct TransactionFormView: View {
         }
 
         Section {
-            TextField(String(localized: "Notes"), text: Bindable(vm).note, axis: .vertical)
+            TextField(String(localized: "Notes"), text: Bindable(vm).note, prompt: Text(String(localized: "Notes")).foregroundStyle(VColors.placeholderText), axis: .vertical)
+                .vFormField()
                 .lineLimit(3...5)
                 .accessibilityIdentifier("transaction-note-field")
                 .task(id: vm.note) {

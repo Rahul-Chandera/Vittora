@@ -2,8 +2,8 @@
 
 Completed and pending features, measured against `Docs/Vittora_Final_Plan.md`.
 
-**As of 2026-09-19.** Last shipped release: **1.7.0** (live on the App Store).
-**1.7.1 is not versioned yet** — `MARKETING_VERSION` is still `1.7.0` and no `v1.7.1` tag exists. Its work is merged on `develop` and needs a version bump before submission.
+**As of 2026-09-28** (re-verified against the source tree on `develop`; every line below was read from the code, not recalled). Last shipped release: **1.7.1** (live on the App Store). **`develop` is well ahead of it and unreleased** — M1.6.6, M2.4, M2.5.5, all of M3.2, M3.3, M3.5 and M3.6.4/M3.6.5 below are on `develop` only.
+`MARKETING_VERSION` is `1.7.1`, `CURRENT_PROJECT_VERSION` is `11`, tag `v1.7.1` exists. Site version bump follows Rahul’s deploy.
 
 ## How this was compiled
 
@@ -19,12 +19,13 @@ Each line was checked against the source tree, not recalled. Where a feature is 
 | Version | Status |
 |---|---|
 | 1.4.0 – 1.6.0 | Shipped |
-| **1.7.0** | **Shipped — current App Store release** |
-| 1.7.1 | Merged on `develop`, **not yet versioned or tagged** |
+| 1.7.0 | Shipped |
+| **1.7.1** | **Shipped — current App Store release** |
+| `develop` | Unreleased. Needs the CloudKit schema deployed to Production first (V9 adds `SDInvestment`) — see *Known verification gaps* |
 
-### What 1.7.1 contains
+### What 1.7.1 shipped
 
-A bug-fix and hardening release. No new user-facing features beyond two paywall additions.
+A bug-fix and hardening release (now live). No new user-facing features beyond two paywall additions.
 
 - **Paywall rebuilt** as a custom StoreKit 2 screen (option C), replacing `SubscriptionStoreView`. Fixes plan cards being below the fold on iPhone/iPad/Mac, the "Accept Offer" CTA label, the macOS footer drawing over the plan cards, and the iPad overlap recorded as DEC-026. Lifetime is now a third selectable plan rather than a competing button.
 - **Family Sharing is stated on the paywall** (HIG requirement; Annual and Lifetime are Family Shareable per DEC-013).
@@ -42,63 +43,64 @@ A bug-fix and hardening release. No new user-facing features beyond two paywall 
 | Module | Status | Notes |
 |---|---|---|
 | 1.1 Accounts & Ledger | ✅ | Multi-account, transfers, per-account balances, credit-card due reminders |
-| 1.2 Transaction Management | ⚠️ **2 gaps** | See below |
-| 1.3 Categories | ⚠️ **1 gap** | Presets, custom, category budgets present; **sub-categories (M1.3.4) not implemented** |
+| 1.2 Transaction Management | ✅ | Entry, edit, split, search, bulk actions, saved views/filters |
+| 1.3 Categories | ✅ | Presets, custom, category budgets, sub-categories (one level) |
 | 1.4 Recurring Transactions | ✅ | Frequencies, auto-generation, pre-notification, rule management, subscription tracking |
 | 1.5 Payees / Parties | ✅ | Directory, linking, Contacts import, per-payee analytics, autofill |
-| 1.6 Documents & OCR | ⚠️ **1 gap** | VisionKit scanning, extraction, correction, batch scan, preview all present; **multi-page scanning (M1.6.6) not implemented** |
-| 1.7 Dashboards & Reports | ⚠️ **1 gap** | Dashboard, monthly overview, category breakdown, trends, balance summary, custom ranges present; **net worth tracked over time (M1.7.7) is a point-in-time figure only** |
+| 1.6 Documents & OCR | ✅ | VisionKit scanning, extraction, correction, batch scan, preview, multi-page scanning (M1.6.6, #260) |
+| 1.7 Dashboards & Reports | ✅ | Dashboard, monthly overview, category breakdown, trends, balance summary, custom ranges, net worth history + chart |
 | 1.8 Data Sync & Backup | ✅ | CloudKit sync, offline-first, conflict resolution, sync status, CSV export, encryption |
 | 1.9 Security & Privacy | ✅ | App lock, AES-GCM attachment encryption, Keychain, no third-party analytics |
-| 1.10 Budgets | ⚠️ **1 gap** | Per-category and overall budgets, progress, alerts, rollover present; **budget templates (M1.10.6) not implemented** |
+| 1.10 Budgets | ✅ | Per-category and overall budgets, progress, alerts, rollover. M1.10.6 is a decided **won't do** — see below |
 
 **Phase 1 gaps**
 
 | ID | Feature | Status |
 |---|---|---|
-| M1.2.10 | Saved views / filters | ❌ Not implemented |
-| M1.3.4 | Sub-categories (one level of nesting) | ❌ Not implemented |
-| M1.6.6 | Multi-page scanning | ❌ Not implemented |
-| M1.7.7 | Net worth **over time** | ⚠️ Partial — current net worth exists, no history |
-| M1.10.6 | Budget templates (copy from previous month) | ❌ Not implemented |
+| M1.2.10 | Saved views / filters | ✅ **Shipped** — `SavedTransactionFilterPreset` + `SavedTransactionFilterStore`, CRUD covered by tests. This entry was stale |
+| M1.3.4 | Sub-categories (one level of nesting) | ✅ **Shipped** (#254) — `CategoryHierarchy` holds the nesting rules, the form offers only eligible parents, and the list groups children under parents. The schema half was already in place; this added the surface |
+| M1.6.6 | Multi-page scanning | ✅ **Shipped** (#260) |
+| M1.7.7 | Net worth **over time** | ✅ **Shipped** (#256) — `CalculateNetWorthHistoryUseCase` derives the series from transaction history, so no new model and no migration. Totals stay per-currency; accounts whose past balance cannot be derived are excluded and named in the view |
+| M1.10.6 | Budget templates (copy from previous month) | 🚫 **Won't do — decided 2026-09-22 (Rahul).** Not deferred, not deprioritised: the feature has no work to do in this architecture. Budgets here never expire. `BudgetEntity.currentDateRange` advances the window from the original `startDate` in whole periods ("Budgets roll forward forever instead of expiring one period after they were created"), and `SwiftDataBudgetRepository.fetchActive` filters on `startDate <= now` with no end-date check at all. A ₹5,000 Groceries budget created in January is still the active budget in September, with its spend recomputed against the current window — so there is no month boundary at which a budget lapses and needs copying forward. Kept visible here rather than deleted, so the plan's M1.10.6 does not read as an untracked gap. **If this is ever revisited, the useful adjacent feature is a different one:** setting next period's budget *amounts* from last period's actual spend. That is budgeting-from-actuals, not template-copying, and is not covered by M1.10.6 |
 
 ---
 
 ## Phase 2 — V1: Subscription-Worthy — **largely complete**
+
+**Module 2.4 shipped after 1.7.1.** It is educational and scenario-based per the plan's scope note: Vittora states what is statutory (lock-in, section, backing, maturity taxation, contribution limits) and the user supplies every return assumption. No return figure is shipped, and a test enforces that.
 
 | Module | Status | Notes |
 |---|---|---|
 | 2.1 Expense Splitting | ✅ | Groups, split methods, simplify-debts, running balances, settlement, share links, group reports |
 | 2.2 Debt & Credit Ledger | ✅ | Lending/borrowing, per-party balances, settlement history, aging, due dates, reminders |
 | 2.3 Tax Planning (India + US) | ✅ | India: regime comparison, 80C/80D/80CCD(1B), HRA, standard deduction, liability, progress. US: federal brackets, standard vs itemized, 401(k)/IRA, HSA, state-tax note |
-| 2.4 Smart Investment Planning | ❌ **Not implemented** | Entire module pending |
-| 2.5 Savings Goals | ⚠️ **1 gap** | Goals, account linking, progress, auto-allocation present; **sinking funds (M2.5.5) not implemented** |
-| 2.6 Apple Watch App | ⚠️ **2 gaps** | Quick entry, complications, Smart Stack, recents present; **voice entry (M2.6.2) and haptic budget alerts (M2.6.6) not implemented** |
-| 2.7 Widgets & System Integration | ⚠️ **1 gap** | Home/Lock Screen widgets, StandBy, Siri Shortcuts, Spotlight, Handoff present; **interactive widgets (M2.7.5) not implemented** |
+| 2.4 Smart Investment Planning | ✅ | Tax-saved scenarios, 80C instrument comparison and allocation, US 401(k)/HSA contributions, maturity timeline with reminders |
+| 2.5 Savings Goals | ✅ | Goals, account linking, progress, auto-allocation, sinking funds (M2.5.5, #266) |
+| 2.6 Apple Watch App | ⚠️ **1 gap** | Quick entry, complications, Smart Stack, recents, haptic budget alerts present; **voice entry (M2.6.2) not implemented** |
+| 2.7 Widgets & System Integration | ✅ | Home/Lock Screen widgets, StandBy, Siri Shortcuts, Spotlight, Handoff, interactive widgets |
 | 2.8 Advanced Reports & Export | ✅ | PDF reports, CSV export, CSV import, annual summaries, cash-flow forecast, custom report builder, subscription audit |
 
 **Phase 2 gaps**
 
 | ID | Feature | Status |
 |---|---|---|
-| M2.4.1–M2.4.5 | Smart Investment Planning (80C recommendations, optimal allocation, retirement optimisation, "tax saved" calculator, maturity timeline) | ❌ Whole module pending |
-| M2.5.5 | Sinking funds | ❌ Not implemented |
-| M2.6.2 | Watch voice entry ("Add 500 for groceries") | ❌ Not implemented |
-| M2.6.6 | Watch haptic budget alerts | ❌ Not implemented |
-| M2.7.5 | Interactive widgets (add transaction from widget) | ❌ Not implemented |
+| M2.5.5 | Sinking funds | ✅ **Shipped** (#266) |
+| M2.6.2 | Watch voice entry ("Add 500 for groceries") | ✅ **Built** (M2.6.2) — "Say It" on the watch dashboard (system dictation) and a watch Siri shortcut, "Log an expense in Vittora" → "What did you spend?". Two turns because App Shortcut phrases cannot carry a free-form number. A category the watch doesn't carry (it has only the 8 most-used) is sent as words and matched on the iPhone against every category; no match stays uncategorised rather than guessing |
+| M2.6.6 | Watch haptic budget alerts | ✅ **Already implemented; this entry was stale.** `VittoraWatch/WatchSnapshotStore.swift` plays a haptic on threshold crossing, covered by `VittoraTests/Core/Watch/WatchBudgetHapticWiringTests.swift`. Nothing was built for it on 2026-09-22 — it was found by reading the source |
+| M2.7.5 | Interactive widgets (add transaction from widget) | ✅ **Shipped** (#255) — preset buttons run an App Intent in the widget extension, which queues one UserDefaults key per entry; the host app drains it on next launch |
 
 ---
 
-## Phase 3 — V2: Deepen the Moat — **partially started**
+## Phase 3 — V2: Deepen the Moat — **mostly complete**
 
 | Module | Status | Notes |
 |---|---|---|
 | 3.1 Vision Pro App | ❌ | No visionOS target |
-| 3.2 Advanced ML & Intelligence | ⚠️ **mostly pending** | Rule-based categorisation exists (`CategorizationRule`); no Core ML classifier, predictions, anomaly detection, health score, what-if, Apple Intelligence or predictive entry |
-| 3.3 Live Activities & Dynamic Island | ❌ | No ActivityKit usage |
-| 3.4 Family / Household Sharing | ⚠️ **partial** | `CKShare` used for split-group sharing; **shared household budgets, permission levels not implemented.** StoreKit Family Sharing (M3.4.4) ✅ done |
-| 3.5 Tax Expansion (UK/CA/AU) | ❌ | India and US only |
-| 3.6 Financial Guidelines | ⚠️ **partial** | 50/30/20 ✅, emergency fund ✅, India compliance tips ✅; **anomaly alerts (M3.6.4) and budget optimisation (M3.6.5) pending** |
+| 3.2 Advanced ML & Intelligence | ✅ | On-device classifier over `NLEmbedding` (M3.2.1, #269), spending outlook (M3.2.2) and what-if (M3.2.5, #268), anomaly detection (M3.2.3, via #257), health score (M3.2.4, #267), summarisation with a hallucination guard (M3.2.6) and predictive entry (M3.2.7, #269). All calculations stay rules-based per the scope note. **The V2 exit criterion — categorisation accuracy >90% at 100+ transactions — is not measured by anything yet** |
+| 3.3 Live Activities & Dynamic Island | ✅ | Shopping mode (M3.3.1, #265). Budget tracker (M3.3.2): shopping mode can count against an active budget, and the Lock Screen / Dynamic Island show what is left, red once over. Bill countdown (M3.3.3): started from an expense rule's Recurring Details, offered only in the 12 hours before the due day starts — ActivityKit keeps an activity at most 8 h active + 4 h on the Lock Screen, so an earlier countdown would vanish before zero. "Mark as Paid" ends it, and survives a relaunch |
+| 3.4 Family / Household Sharing | ✅ | **M3.4.1–3 household sharing (#290):** Budgets → 👥 Household. One CloudKit zone per household, shared zone-wide with `CKShare` and synced by `CKSyncEngine` — SwiftData cannot share (DEC-029). Shared monthly budgets with per-member "By Member This Month" tracking; the owner picks Can make changes / View only per person in the system share sheet, enforced server-side. Needs a Production CloudKit deploy of `HouseholdBudget` / `HouseholdExpense` and a two-Apple-ID device test before release. **M3.4.4 StoreKit Family Sharing** ✅ (1.7.1) — annual and lifetime are Family Shareable (DEC-013), `EntitlementStore` accepts `.familyShared`, revocation arrives via `Transaction.updates`. Split groups still share via `ShareLink` + `SplitGroupDeepLink`, not `CKShare` |
+| 3.5 Tax Expansion (UK/CA/AU) | ✅ | All three built. UK #261, Australia #263, Canada this PR — five countries in total with India and US. **Provincial/territorial figures for Canada are unverified; see below** |
+| 3.6 Financial Guidelines | ✅ | 50/30/20, emergency fund, India compliance tips, spending anomaly alerts (M3.6.4), budget optimisation (M3.6.5) |
 | 3.7 Additional Enhancements | ⚠️ **partial** | See below |
 
 **Module 3.7 detail**
@@ -139,21 +141,85 @@ Explicitly out of scope and unchanged: bank aggregation / open banking, brokerag
 
 ## Known verification gaps
 
-These are not missing features — they are things the test suite cannot prove, and they matter before any submission.
+These are not missing features — they are things the test suite cannot prove, and they still matter for the next submission.
 
-1. **The intro-offer *consumed* path is not covered.** The *eligible* direction now is: `IntroOfferEligibilityTests` builds an `SKTestSession` from `Vittora.storekit` and asserts `PurchaseService` resolves `isEligibleForIntroOffer == true`. The opposite direction — an account that has already used the trial — cannot be asserted in-suite, because a process that has already queried StoreKit never sees the purchase. Production defaults to `false` on every failure path, so this is the direction the code already leans towards. Details in `Docs/Testing/TEST_MATRIX.md`.
-2. **Purchase, restore and Family Sharing inheritance are device-only.** `SKTestSession` serves products, but a purchase made through it never reaches `Transaction.currentEntitlements` in the same process. Recorded in `Docs/Testing/TEST_MATRIX.md`.
-3. **The accessibility audit leg is still intermittent.** A real cause was found and fixed in 1.7.1 — the audit sampled pixels before scrolling settled — and it bought three consecutive green-first-time runs (#243, #244, #245). It did not close the problem: #246 failed first time on `testNewReportsAccessibilityAudit` with "Contrast failed", the same test and the same symptom. The settle wait narrowed the window rather than eliminating it.
-4. **1.7.1 is versioned but not tagged.** `MARKETING_VERSION` is `1.7.1`, `CURRENT_PROJECT_VERSION` is `11`; no `v1.7.1` tag exists yet.
+1. **The intro-offer *consumed* path is not covered by the suite, but has been verified on device.** Rahul confirmed it on a real device on 2026-09-22. What remains is an automation gap, not an unknown: `IntroOfferEligibilityTests` builds an `SKTestSession` from `Vittora.storekit` and asserts the *eligible* direction (`isEligibleForIntroOffer == true`), while the opposite direction cannot be asserted in-suite, because a process that has already queried StoreKit never sees the purchase. Production also defaults to `false` on every failure path. Treat this as a manual gate to repeat per release rather than a risk. Details in `Docs/Testing/TEST_MATRIX.md`.
+2. **Purchase, restore and Family Sharing inheritance are device-only, and were verified on device.** Rahul confirmed all three on a real device on 2026-09-22. They stay outside CI because `SKTestSession` serves products but a purchase made through it never reaches `Transaction.currentEntitlements` in the same process — so this is a manual gate to repeat per release, not an open question. Recorded in `Docs/Testing/TEST_MATRIX.md`.
+3. **The accessibility audit leg was intermittent; the cause is now understood.** The settle wait added in #243 never actually waited — it watched `descendants(matching: .staticText).firstMatch`, which resolves to the navigation title and does not move when the content scrolls, so it returned on the first comparison. It bought three green runs (#243, #244, #245) by adding ~150ms, then failed both runners on #247. Two adaptive replacements were correct and unaffordable (a tree query per iteration took the leg to 1835s; screenshot comparison to 1578s, both timing out the OLED audit). #248/#249 settled on a flat wait, raised to 1.5s after 0.8s lost on a slower runner. A fixed wait is a bet against runner speed: if the contrast failure returns, raise the number rather than reaching for a cleverer wait.
+
+   **It returned.** #253 raised the settle to 2.5s. #254 then failed twice more, each with a different signature — first a 15s timeout on `transaction-list-root`, then `testNewReportsAccessibilityAudit` "Contrast failed" again — and passed on a plain re-run with no code change. Two things were learned. First, #252 had raised a timeout at the wrong call site: its comment claimed the site was "the only navigation wait in the file that runs at AccessibilityXL", but that test sets an OLED appearance and never sets AccessibilityXL, while the genuine AccessibilityXL site was left at 15s and later failed. Both now read one `accessibilityXLListTimeout` constant. Second, `Scripts/ci/resolve-ios-simulator-destination.sh` is deterministic *per machine*, not across machines: CI resolves to `iPhone 17 Pro Max`, while a Mac whose newest runtime is iOS 27.0 resolves to `iPhone 17`, because that runtime ships no Pro Max. Reproducing a CI audit failure locally therefore means pinning the model **and** a 26.x runtime by UDID, not running the resolver. The contrast failure could not be reproduced locally on either device.
+
+   The next occurrence should be diagnosed from the run artifact, not re-run. The CI *log* only ever says "Contrast failed" without naming the element, which is what makes re-running tempting — but CI uploads `.build-ci/*.xcresult`, and each issue exports a "Complete Issue Description.txt" plus an **Element Screenshot** of the exact failing view:
+
+   ```bash
+   # Name the artifact: downloading the whole run pulls every leg, ~450MB.
+   gh run download <run-id> -n xcresult-test-ios-ui-audit-<run-id> -D /tmp/art
+
+   # The artifact IS the bundle's contents (Data/ + Info.plist), not a wrapped
+   # .xcresult directory, so xcresulttool rejects the download path until it
+   # carries the extension. This rename is required, not optional.
+   mv /tmp/art /tmp/audit.xcresult
+
+   xcrun xcresulttool export attachments \
+     --test-id "AccessibilityAuditUITests/testNewReportsAccessibilityAudit()" \
+     --path /tmp/audit.xcresult \
+     --output-path /tmp/shots
+   ```
+
+   This has already turned unreproducible contrast failures into five-minute reads (it identified a grey `Section` header behind A2.1's failures, and Swift Charts axis labels behind W1's). It was not used on #254 — that run was diagnosed by re-running, which cost two CI cycles and proved nothing.
+
+   **Read the Element Screenshot first; it decides whether to re-run or to fix.**
+   A real contrast defect shows text against a background. A **blank** element —
+   a flat rectangle with no text — means the audit sampled a node whose content
+   had not rendered, which is the AX-tree-versus-pixels race mid-scroll, and a
+   re-run is then justified rather than hopeful.
+
+   Confirmed on #261 (2026-09-22): the attachments showed the *Emergency Fund*
+   report caught mid-scroll with its last line clipped at the viewport edge, a
+   completely blank Element Screenshot, and an issue description reading only
+   "Contrast failed for SwiftUI.AccessibilityNode" — on a branch that touched
+   only Tax surfaces. That is the first time the mechanism was evidenced rather
+   than inferred.
+4. **The CloudKit Production schema has to be deployed by hand.** Xcode builds sync against
+   *Development*, which creates record types and fields automatically; TestFlight and App
+   Store builds use *Production*, which never does. Until 2026-09-27 Production had not been
+   deployed since 0.1: it lacked `CD_SDDebt`, `CD_SDPayee`, `CD_SDRecurringRule` and six
+   `CD_SDTransaction` fields, so no App Store release could sync debts, payees, recurring
+   rules, or transactions linked to them. It hid because the failure is a `CKError.2`
+   partial failure — the rest of each batch still syncs. Deployed and confirmed working
+   2026-09-27. No local test can catch this; the release checklist now carries the step.
+   **`develop`'s V9 (`SDInvestment`) is the next one due.**
+5. ~~**1.7.1 unversioned/untagged.**~~ Closed — `MARKETING_VERSION` `1.7.1`, build `11`, tag `v1.7.1`, live on the App Store as of 2026-09-21.
 
 ---
 
 ## Suggested next scope
 
-Ordered by user value against effort, not by plan order.
+Ordered by user value against effort. Everything on the previous version of this list
+(M2.5.5, M1.6.6, M3.3, M3.4, M3.5) has been built.
 
-1. **M2.4 Smart Investment Planning** — the only whole module missing from Phase 2, and it sits directly on the tax engine that already exists. The largest single gap in the paid proposition.
-2. **M1.3.4 sub-categories** and **M1.2.10 saved views** — small Phase 1 gaps that users of a mature ledger notice.
-3. **M2.7.5 interactive widgets** — App Intents infrastructure already exists (`AddExpenseIntent`), so this is mostly surface.
-4. **M3.6.4/M3.6.5 anomaly alerts and budget optimisation** — rules-based versions need no ML and complete Module 3.6.
-5. **M1.7.7 net worth over time** — the data is already recorded; this is history plus a chart.
+1. **M3.7.1 FinanceKit.** Built (#293) and dark: `VittoraFinanceKitEnabled` is false until
+   Apple grants the entitlement (requested 2026-09-28). FinanceKit traps without it, so the
+   flag and `Vittora.entitlements` flip together. Stays ❌ until device-tested with real
+   Apple Card / Cash data, per the M3.7.1 handoff.
+2. **M2.6.2 Watch voice entry.** Built (#292) — needs a real upload, since the Watch target has
+   broken submissions before (`release-bundle-gotchas`), and a Siri test on a paired watch.
+3. **M3.1 Vision Pro.** Largest effort, smallest audience for a finance app. Last.
+
+**Not on this list, deliberately:** M1.10.6 budget templates (a decided won't-do — see
+Phase 1), and audit-suite flakiness, which is test infrastructure tracked under Known Gaps.
+
+### Outstanding after M3.5: tax figures awaiting verification
+
+The three new countries shipped with their figures **derived rather than sourced**, and
+they are not uniformly reliable. This is verification debt, not a defect, and it is listed
+here so it is not mistaken for finished work.
+
+| Country | Confident | Needs checking against the revenue authority |
+|---|---|---|
+| **UK** | Everything. Brackets, allowance taper, Scottish bands, NI, dividends, savings, CGT | — (pinned to 2025-26; **2026-27 not held**, and an unsupported year warns rather than extrapolating) |
+| **Australia** | Brackets, LITO, CGT discount, super guarantee, concessional cap | Medicare levy low-income thresholds and the surcharge tiers — both indexed annually |
+| **Canada** | Federal brackets and BPA taper, CPP/CPP2, EI, Quebec abatement | **All 13 provincial and territorial tables.** Each is marked `// VERIFY` in `CATaxRuleTable`, and the running app warns the user that provincial amounts are indicative |
+
+Correcting any of these is a pure data edit — every table is year-keyed, and for Canada
+also province-keyed.

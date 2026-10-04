@@ -123,6 +123,11 @@ struct SavingsGoalListView: View {
                     .cornerRadius(VSpacing.cornerRadiusMD)
                 }
 
+                // Sinking funds (M2.5.5). Above the goals deliberately: an
+                // over-allocated account invalidates the progress shown below
+                // it, so the warning has to be seen first.
+                SinkingFundsSection(allocations: vm.allocations)
+
                 // Active goals
                 if !vm.activeGoals.isEmpty {
                     goalSection(title: String(localized: "Active"), goals: vm.activeGoals, vm: vm)
@@ -135,13 +140,12 @@ struct SavingsGoalListView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .safeAreaInset(edge: .bottom) {
-            // Clearance for the floating tab bar, painted in THIS screen's page
-            // colour — plain background, because this screen is not grouped.
-            VColors.groupedBackground
-                .frame(height: 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar as PADDING, not a painted strip. An
+        // opaque safeAreaInset band sat over the last ~72pt of scrolling content,
+        // slicing rows mid-glyph and hiding them from view — and the accessibility
+        // audit sampled the band under their frames and failed contrast at 1.01:1
+        // (#197's defect, still live here until the audit flake was traced to it).
+        .safeAreaPadding(.bottom, 72)
     }
 
     private func summaryHeader(_ summary: GoalProgressSummary) -> some View {

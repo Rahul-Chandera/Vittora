@@ -84,113 +84,117 @@ struct ExportView: View {
     @ViewBuilder
     private func content(_ vm: ExportViewModel) -> some View {
         Form {
-            // Format
-            Section(header: VFormSectionHeader(String(localized: "Format"))) {
-                ForEach(ExportFormat.allCases, id: \.self) { format in
+            Group {
+                // Format
+                Section(header: VFormSectionHeader(String(localized: "Format"))) {
+                    ForEach(ExportFormat.allCases, id: \.self) { format in
+                        Button {
+                            vm.selectedFormat = format
+                        } label: {
+                            HStack {
+                                Text(format.rawValue)
+                                    .foregroundStyle(VColors.textPrimary)
+                                Spacer()
+                                if vm.selectedFormat == format {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(VColors.primaryOnSurface)
+                                }
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                // Date range
+                Section {
+                    Toggle(String(localized: "Custom date range"), isOn: Bindable(vm).useCustomDateRange)
+
+                    if vm.useCustomDateRange {
+                        DatePicker(
+                            String(localized: "From"),
+                            selection: Bindable(vm).startDate,
+                            in: ...vm.endDate,
+                            displayedComponents: .date
+                        )
+                        DatePicker(
+                            String(localized: "To"),
+                            selection: Bindable(vm).endDate,
+                            in: vm.startDate...,
+                            displayedComponents: .date
+                        )
+                    }
+                } header: {
+                    VFormSectionHeader(String(localized: "Date Range"))
+                } footer: {
+                    Text(vm.useCustomDateRange
+                         ? String(localized: "Only transactions within this range will be exported.")
+                         : String(localized: "All transactions will be exported."))
+                        .foregroundStyle(VColors.textSecondary)
+                }
+
+                if let phase = vm.progressPhase {
+                    Section {
+                        ExportProgressView(phase: phase)
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
+                    }
+                }
+
+                // Export button
+                Section {
                     Button {
-                        vm.selectedFormat = format
+                        Task {
+                            await vm.export()
+                            if let url = vm.exportURL {
+                                // Straight to the share menu; the sheet below is
+                                // only a fallback for when nothing can anchor it.
+                                #if os(macOS)
+                                let shown = MacSharePresenter.present(items: [url]) {
+                                    Task { await vm.cleanupExport() }
+                                }
+                                if !shown { showShareSheet = true }
+                                #else
+                                showShareSheet = true
+                                #endif
+                            }
+                        }
                     } label: {
                         HStack {
-                            Text(format.rawValue)
-                                .foregroundStyle(VColors.textPrimary)
                             Spacer()
-                            if vm.selectedFormat == format {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(VColors.primaryOnSurface)
+                            if vm.isExporting {
+                                ProgressView()
+                                    .tint(VColors.primary)
+                            } else {
+                                Label(String(localized: "Export & Share"), systemImage: "square.and.arrow.up")
                             }
+                            Spacer()
                         }
-                        .contentShape(Rectangle())
                     }
+                    .disabled(vm.isExporting)
+                    // .plain, or macOS renders the label through its own button
+                    // treatment and the accent below never lands: this row's text
+                    // measured #8AC9A7 on #F2F5F3 — about 1.8:1 — so the screen's
+                    // primary action read as disabled while being perfectly usable.
                     .buttonStyle(.plain)
+                    .foregroundStyle(VColors.primaryOnSurface)
                 }
-            }
 
-            // Date range
-            Section {
-                Toggle(String(localized: "Custom date range"), isOn: Bindable(vm).useCustomDateRange)
-
-                if vm.useCustomDateRange {
-                    DatePicker(
-                        String(localized: "From"),
-                        selection: Bindable(vm).startDate,
-                        in: ...vm.endDate,
-                        displayedComponents: .date
-                    )
-                    DatePicker(
-                        String(localized: "To"),
-                        selection: Bindable(vm).endDate,
-                        in: vm.startDate...,
-                        displayedComponents: .date
-                    )
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "Date Range"))
-            } footer: {
-                Text(vm.useCustomDateRange
-                     ? String(localized: "Only transactions within this range will be exported.")
-                     : String(localized: "All transactions will be exported."))
-                    .foregroundStyle(VColors.textSecondary)
-            }
-
-            if let phase = vm.progressPhase {
-                Section {
-                    ExportProgressView(phase: phase)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                }
-            }
-
-            // Export button
-            Section {
-                Button {
-                    Task {
-                        await vm.export()
-                        if let url = vm.exportURL {
-                            // Straight to the share menu; the sheet below is
-                            // only a fallback for when nothing can anchor it.
-                            #if os(macOS)
-                            let shown = MacSharePresenter.present(items: [url]) {
-                                Task { await vm.cleanupExport() }
-                            }
-                            if !shown { showShareSheet = true }
-                            #else
-                            showShareSheet = true
-                            #endif
+                if let error = vm.error {
+                    Section {
+                        HStack(spacing: VSpacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(VColors.expense)
+                            Text(error)
+                                .font(VTypography.caption1)
+                                .foregroundStyle(VColors.textPrimary)
                         }
                     }
-                } label: {
-                    HStack {
-                        Spacer()
-                        if vm.isExporting {
-                            ProgressView()
-                                .tint(VColors.primary)
-                        } else {
-                            Label(String(localized: "Export & Share"), systemImage: "square.and.arrow.up")
-                        }
-                        Spacer()
-                    }
-                }
-                .disabled(vm.isExporting)
-                // .plain, or macOS renders the label through its own button
-                // treatment and the accent below never lands: this row's text
-                // measured #8AC9A7 on #F2F5F3 — about 1.8:1 — so the screen's
-                // primary action read as disabled while being perfectly usable.
-                .buttonStyle(.plain)
-                .foregroundStyle(VColors.primaryOnSurface)
-            }
-
-            if let error = vm.error {
-                Section {
-                    HStack(spacing: VSpacing.sm) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(VColors.expense)
-                        Text(error)
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textPrimary)
-                    }
                 }
             }
+            .vListContentTint()
         }
+        .vListSelectionTint()
         .sheet(isPresented: $showShareSheet, onDismiss: {
             Task { await vm.cleanupExport() }
         }) {

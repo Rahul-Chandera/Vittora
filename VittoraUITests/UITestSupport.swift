@@ -93,6 +93,29 @@ enum UITestSupport {
         tapElementSafely(element)
     }
 
+    /// Taps `element`, and taps once more if `destination` has not appeared.
+    ///
+    /// `--ui-test-seed-demo` seeds asynchronously and then reloads every list,
+    /// so a row tapped just after launch can be rebuilt between touch-down and
+    /// touch-up and the tap is dropped. On a slow CI runner that window is
+    /// seconds wide (PR #299: a 2s synthesized tap on the first transaction row
+    /// left the list on screen). The caller still asserts on `destination`, so a
+    /// row that never navigates fails exactly as before.
+    @MainActor
+    static func tapUntilAppears(
+        _ element: XCUIElement,
+        destination: XCUIElement,
+        timeout: TimeInterval = 10,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        tapWhenReady(element, timeout: timeout, file: file, line: line)
+        if destination.waitForExistence(timeout: 5) { return }
+        if waitForElement(element, timeout: timeout, requireHittable: true) {
+            tapElementSafely(element)
+        }
+    }
+
     @MainActor
     private static func tapElementSafely(_ element: XCUIElement) {
         if hasValidFrame(element) {
@@ -128,8 +151,20 @@ enum UITestSupport {
 
         let tabBarButton = app.tabBars.buttons[title]
         if tabBarButton.waitForExistence(timeout: timeout) {
-            tapWhenReady(tabBarButton, timeout: timeout)
-            return true
+            // Confirm the tab actually became selected, and tap again if not.
+            // At accessibility text sizes a tab-bar press that runs long opens
+            // the Large Content Viewer instead of selecting the tab — on a slow
+            // CI host a synthesized tap can. CI's recording showed exactly that:
+            // the Liquid Glass press lens moved to Transactions, then snapped
+            // back to Dashboard, and the list wait timed out on a tab that was
+            // never opened (testAccessibility3ScreenshotsForCoreFlows, #280/#294).
+            for _ in 0..<3 {
+                tapWhenReady(tabBarButton, timeout: timeout)
+                let selected = NSPredicate(format: "isSelected == true")
+                let wait = XCTNSPredicateExpectation(predicate: selected, object: tabBarButton)
+                if XCTWaiter.wait(for: [wait], timeout: 3) == .completed { return true }
+            }
+            return tabBarButton.isSelected
         }
 
         let navButton = app.buttons[title].firstMatch

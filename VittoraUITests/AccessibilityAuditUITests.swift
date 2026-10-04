@@ -30,6 +30,22 @@ final class AccessibilityAuditUITests: XCTestCase {
         app = nil
     }
 
+    /// How long the transaction list may take to appear after a tab switch, in the tests
+    /// that lay it out at AccessibilityXL. Those rows are several times the height of a
+    /// standard run, and on CI the list has repeatedly needed more than 15s — passing on
+    /// rerun every time, with nothing changed.
+    ///
+    /// This is a harness budget, not an assertion about the app: the audit that follows
+    /// each wait still decides whether the screen is correct.
+    ///
+    /// It is a shared constant because it was not one. #252 raised a single call site and
+    /// left an identical sibling at 15s, which then failed on #254 the same way. Note that
+    /// testOLEDBlackAccessibilityAuditForCoreFlows needs the longer budget even though it
+    /// does not itself pass AccessibilityXL — the a11y3 test runs first alphabetically and
+    /// its content size can carry into the launches that follow, as tearDownWithError
+    /// above describes.
+    private static let accessibilityXLListTimeout: TimeInterval = 20
+
     // MARK: - performAccessibilityAudit
 
     @MainActor
@@ -278,35 +294,6 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     @MainActor
     func testManagedListsFormsAndDocumentsAccessibilityAudit() throws {
-        throw XCTSkip("""
-            Still deferred. Re-measured 2026-08-07 on iPhone 17 Pro Max / \
-            iOS 26.2 — the device the CI resolver picks — with both skips \
-            removed and the full class run in order. The earlier reason \
-            recorded here was wrong in its specifics and is replaced:
-
-            * It claimed 15 mis-sampled contrast elements and 3 genuine \
-              elementDetection findings. Actual counts are now 3 contrast and \
-              ZERO elementDetection. Most of the 15 were the clearance strip \
-              slicing rows mid-glyph, fixed in #197 — an opaque safeAreaInset \
-              painted OVER scrolling content, and the sampler read the \
-              surviving sliver as failing text.
-            * What blocks re-enabling is not a count, it is VARIANCE. Two \
-              runs of near-identical code produced 1 and then 10 contrast \
-              findings in this test. Every exported element image is clean \
-              dark-on-light text — "Monthly", "13 Aug 2026", black on #F2F2F7 \
-              at roughly 18:1. They are false positives, and how many appear \
-              changes run to run.
-            * Un-skipping these two also destabilises the rest of the class: \
-              they add many app launches, and testSettingsSectionsAccessibility\
-              Audit flipped from pass to fail between those same two runs \
-              without any change touching it.
-
-            So these stay skipped because they are not yet reliable GATES, \
-            not because the app has known defects here. Forcing them green \
-            would need an exclusion broad enough to hide real findings. \
-            Re-measure when Apple's sampler stabilises; the diagnostic recipe \
-            is in Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md.
-            """)
         #if os(macOS)
         throw XCTSkip("iOS only")
         #else
@@ -333,8 +320,9 @@ final class AccessibilityAuditUITests: XCTestCase {
 
         launchSeeded(initialTab: "transactions", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
-        UITestSupport.tapWhenReady(firstTransactionRow(), timeout: 15)
-        XCTAssertTrue(app.descendants(matching: .any)["transaction-detail-root"].waitForExistence(timeout: 10))
+        let detailRoot = app.descendants(matching: .any)["transaction-detail-root"]
+        UITestSupport.tapUntilAppears(firstTransactionRow(), destination: detailRoot, timeout: 15)
+        XCTAssertTrue(detailRoot.waitForExistence(timeout: 10))
         let attachments = app.staticTexts["Attachments"]
         UITestSupport.scrollToElement(attachments, in: app)
         XCTAssertTrue(attachments.waitForExistence(timeout: 10))
@@ -509,7 +497,8 @@ final class AccessibilityAuditUITests: XCTestCase {
 
         XCTAssertTrue(UITestSupport.navigateToTab(named: "Transactions", in: app))
         XCTAssertTrue(
-            app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 15)
+            app.descendants(matching: .any)["transaction-list-root"]
+                .waitForExistence(timeout: Self.accessibilityXLListTimeout)
         )
         try performCoreFlowAudit()
 
@@ -584,7 +573,8 @@ final class AccessibilityAuditUITests: XCTestCase {
 
         XCTAssertTrue(UITestSupport.navigateToTab(named: "Transactions", in: app))
         XCTAssertTrue(
-            app.descendants(matching: .any)["transaction-list-root"].waitForExistence(timeout: 15)
+            app.descendants(matching: .any)["transaction-list-root"]
+                .waitForExistence(timeout: Self.accessibilityXLListTimeout)
         )
         try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-transaction-list")
@@ -630,33 +620,16 @@ final class AccessibilityAuditUITests: XCTestCase {
     @MainActor
     func testAccessibility3ScreenshotsForRemainingSurfaces() throws {
         throw XCTSkip("""
-            Still deferred. Re-measured 2026-08-07 on iPhone 17 Pro Max / \
-            iOS 26.2 — the device the CI resolver picks — with both skips \
-            removed and the full class run in order. The earlier reason \
-            recorded here was wrong in its specifics and is replaced:
-
-            * It claimed 15 mis-sampled contrast elements and 3 genuine \
-              elementDetection findings. Actual counts are now 3 contrast and \
-              ZERO elementDetection. Most of the 15 were the clearance strip \
-              slicing rows mid-glyph, fixed in #197 — an opaque safeAreaInset \
-              painted OVER scrolling content, and the sampler read the \
-              surviving sliver as failing text.
-            * What blocks re-enabling is not a count, it is VARIANCE. Two \
-              runs of near-identical code produced 1 and then 10 contrast \
-              findings in this test. Every exported element image is clean \
-              dark-on-light text — "Monthly", "13 Aug 2026", black on #F2F2F7 \
-              at roughly 18:1. They are false positives, and how many appear \
-              changes run to run.
-            * Un-skipping these two also destabilises the rest of the class: \
-              they add many app launches, and testSettingsSectionsAccessibility\
-              Audit flipped from pass to fail between those same two runs \
-              without any change touching it.
-
-            So these stay skipped because they are not yet reliable GATES, \
-            not because the app has known defects here. Forcing them green \
-            would need an exclusion broad enough to hide real findings. \
-            Re-measure when Apple's sampler stabilises; the diagnostic recipe \
-            is in Docs/Agent/tasks-1.4.2/tax-stattile-contrast.md.
+            Still deferred — for a narrower, measured reason (2026-09-30). \
+            Locally on iPhone 17 Pro Max / iOS 26.2 this now passes: its 12 \
+            earlier findings were the Accounts Net Worth card's inner text and \
+            the tab bar's container, both handled. On CI (Xcode 26.3, same \
+            runtime) the AX-XL Debt Ledger still raises one contrast finding \
+            with NO element, frame or element screenshot: the App Screenshot \
+            shows ledger rows ("owes you", the amount) showing through the \
+            Liquid Glass tab bar. Locally that node resolves to the tab bar's \
+            frame and is excused; on CI it has no frame, so nothing narrow can \
+            match it. Re-enable when CI reports the element.
             """)
         #if os(macOS)
         throw XCTSkip("iOS only")
@@ -728,7 +701,29 @@ final class AccessibilityAuditUITests: XCTestCase {
         try performCoreFlowAudit()
         captureFlowScreenshot(named: "a11y3-emergency-fund")
         app.terminate()
+        #endif
+    }
 
+    /// Onboarding's welcome step at AccessibilityXL, split out of the remaining-
+    /// surfaces audit so the rest of that audit can run.
+    ///
+    /// Still skipped, narrowly. Re-measured 2026-09-29 on iPhone 17 Pro Max /
+    /// iOS 26.2 after the other findings in this group were fixed (the Accounts
+    /// Net Worth card's inner text, the tab-bar container): this is the ONLY one
+    /// left, and it arrives as "Contrast failed for SwiftUI.AccessibilityNode"
+    /// with no element, no frame and no element screenshot — so there is nothing
+    /// to fix or to excuse narrowly. At XL the welcome copy fills the screen and
+    /// the next feature row sits clipped at the scroll view's bottom edge, right
+    /// above the pinned CTA; that clipped row is the likely node. The screen
+    /// itself reads correctly (verified in the App Screenshot). Re-enable when the
+    /// audit reports the element.
+    @MainActor
+    func testAccessibility3OnboardingAccessibilityAudit() throws {
+        throw XCTSkip("Onboarding at AccessibilityXL: one elementless contrast finding — see the doc comment.")
+        #if os(macOS)
+        throw XCTSkip("iOS only")
+        #else
+        let accessibility3 = ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXL", "--ui-test-pro"]
         app.launchArguments = [
             "--uitesting", "--ui-test-onboarding", "--ui-test-seed-demo",
             "--ui-test-reset-app-lock", "--ui-test-pro"
@@ -913,15 +908,24 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// form's own colours. Nothing is excused here: the rows are audited, just
     /// once they are actually visible.
     ///
-    /// A decimal pad has no Return key, so focus is resigned by tapping the
-    /// navigation bar, which is inert on these screens.
+    /// Dismissed with the amount field's keyboard Done button, the way a user
+    /// would. The old way — tapping the navigation bar — silently failed at
+    /// accessibility sizes: the keyboard stayed up and the audit sampled the
+    /// system number pad ("4 GHI") as a contrast failure on CI. A keyboard
+    /// that is still up afterwards is a test failure, not something to audit.
     @MainActor
     private func dismissKeyboardIfPresent() {
         guard app.keyboards.element.exists else { return }
-        let bar = app.navigationBars.firstMatch
-        guard bar.exists else { return }
-        bar.tap()
-        _ = app.keyboards.element.waitForNonExistence(timeout: 3)
+        let done = app.buttons["amount-keyboard-done"]
+        if done.exists {
+            done.tap()
+        } else if app.navigationBars.firstMatch.exists {
+            app.navigationBars.firstMatch.tap()
+        }
+        XCTAssertTrue(
+            app.keyboards.element.waitForNonExistence(timeout: 5),
+            "The keyboard must be dismissed before auditing; otherwise the audit samples it."
+        )
     }
 
     /// Waits for rendering to stop moving before the audit samples anything.
@@ -964,16 +968,18 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// - Comparing screenshots is stricter still and measured ~1s per capture on CI: 1578s,
     ///   with the OLED audit timing out again and a navigation assertion failing behind it.
     ///
-    /// 0.8s was not enough. Two runners ran this tree simultaneously and one of them failed
-    /// `testNewReportsAccessibilityAudit` on contrast again, so the number is raised rather
-    /// than the approach changed — which is what the previous version of this comment said
-    /// to do. 1.5s costs about 165s across a leg that runs in 1233-1463s.
+    /// Raised twice now, both times for the same reason and both times on evidence.
+    /// 0.8s lost when two runners ran one tree and only one failed; 1.5s lost on the
+    /// slowest runner yet — `testNewReportsAccessibilityAudit` failed on contrast in a leg
+    /// that took 1646s against a typical 1233-1463s. The pattern is a fixed wait losing to
+    /// a slow machine, not a wrong approach, so the number goes up again. 2.5s costs about
+    /// 275s across the leg.
     ///
-    /// A fixed wait is a bet against runner speed and it can lose again. If it does, the
-    /// next move is still a larger number, not a cleverer wait: the adaptive versions above
-    /// were correct and unaffordable, and each one cost a CI cycle to disprove.
+    /// If it loses a third time, raise it again rather than reaching for a cleverer wait:
+    /// the adaptive versions above were both correct and both unaffordable, and each cost
+    /// a CI cycle to disprove.
     @MainActor
-    private func waitForRenderingToSettle(_ duration: TimeInterval = 1.5) {
+    private func waitForRenderingToSettle(_ duration: TimeInterval = 2.5) {
         RunLoop.current.run(until: Date().addingTimeInterval(duration))
     }
 
@@ -1039,6 +1045,22 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if issue.element?.identifier == "brand-green-filled-card" {
                     return true
                 }
+                // …and its inner text. On iOS 26.2 the audit reports the card's
+                // own Text nodes ("Net Worth", "Assets", the figures) as separate
+                // elements that carry neither the identifier nor a matching
+                // label, so the check above missed them — which is what kept
+                // testManagedListsFormsAndDocumentsAccessibilityAudit and the
+                // AX-XL remaining-surfaces audit skipped since 2026-08: all 12
+                // findings on 2026-09-29 were this card on the Accounts screen.
+                // Anchored to the card's frame, and CONTAINED in it (stricter
+                // than the FAB's intersects below): nothing outside the one
+                // accepted surface is excused.
+                let netWorthCard = self.app.descendants(matching: .any)["brand-green-filled-card"].firstMatch
+                if let elementFrame = issue.element?.frame,
+                   netWorthCard.exists,
+                   netWorthCard.frame.insetBy(dx: -1, dy: -1).contains(elementFrame) {
+                    return true
+                }
                 // On CI's iOS 26.2 the audit flags an inner node of the floating
                 // add button that carries neither the label nor the identifier,
                 // so both checks above miss it and the DEC-012 exemption never
@@ -1078,6 +1100,19 @@ final class AccessibilityAuditUITests: XCTestCase {
                 if systemTabLabels.contains(where: elementLabel.hasPrefix) {
                     // XCTest samples the system liquid-glass highlight instead
                     // of the opaque tab-bar material. These are UIKit-owned tabs.
+                    return true
+                }
+                // The same system bar, reported as its unlabeled container: on
+                // the AX-XL Debt Ledger the flagged node was exactly the tab
+                // bar's frame, {0, 873, 440x83}, with ledger rows scrolling
+                // behind the Liquid Glass. Only an UNLABELED node lying inside
+                // the tab bar is excused — app text under it still has a label
+                // and is still audited.
+                let tabBar = self.app.tabBars.firstMatch
+                if elementLabel.isEmpty,
+                   let elementFrame = issue.element?.frame,
+                   tabBar.exists,
+                   tabBar.frame.insetBy(dx: -1, dy: -1).contains(elementFrame) {
                     return true
                 }
                 let bottomBar = self.app.tabBars.firstMatch

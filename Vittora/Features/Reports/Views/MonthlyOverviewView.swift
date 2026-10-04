@@ -14,6 +14,7 @@ struct MonthlyOverviewView: View {
                     if vm.isLoading {
                         ProgressView().tint(VColors.primary)
                     } else if hasReportData(vm) {
+                        narrativeSummary(vm)
                         summaryRow(vm)
                         chartSection(vm)
                         monthTable(vm)
@@ -183,6 +184,34 @@ struct MonthlyOverviewView: View {
                 vm?.error = newValue
             }
         )
+    }
+
+    /// Optional plain-language summary of the latest month (M3.2.6).
+    ///
+    /// Rendered only when there is text, so a device without Apple Intelligence
+    /// simply sees the report it always saw. The attribution is shown only when
+    /// the model actually produced it — claiming Apple Intelligence wrote the
+    /// deterministic fallback would be untrue.
+    @ViewBuilder
+    private func narrativeSummary(_ vm: MonthlyOverviewViewModel) -> some View {
+        if let summary = vm.summary, !summary.text.isEmpty {
+            VCard {
+                VStack(alignment: .leading, spacing: VSpacing.xs) {
+                    Text(summary.text)
+                        .font(VTypography.body)
+                        .foregroundStyle(VColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if summary.isModelGenerated {
+                        Text(String(localized: "Written by Apple Intelligence from your own figures."))
+                            .font(VTypography.caption2)
+                            .foregroundStyle(VColors.textSecondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("monthly-narrative-summary")
+            }
+        }
     }
 }
 

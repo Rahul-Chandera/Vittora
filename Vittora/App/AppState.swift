@@ -177,6 +177,10 @@ final class AppState {
             selectedTab = .transactions
         case .savings:
             selectedTab = .savings
+        case .investments:
+            // The maturity timeline lives under Tax, which is where an 80C record was
+            // entered in the first place.
+            selectedTab = .tax
         }
     }
 

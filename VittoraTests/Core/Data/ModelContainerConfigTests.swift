@@ -37,8 +37,8 @@ struct ModelContainerConfigTests {
 
     @Test("migration plan declares V1–V8")
     func migrationPlanShape() {
-        #expect(VittoraMigrationPlan.schemas.count == 8)
-        #expect(VittoraMigrationPlan.stages.count == 7)
+        #expect(VittoraMigrationPlan.schemas.count == 9)
+        #expect(VittoraMigrationPlan.stages.count == 8)
         #expect(VittoraSchemaV1.versionIdentifier == Schema.Version(1, 0, 0))
         #expect(VittoraSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
         #expect(VittoraSchemaV3.versionIdentifier == Schema.Version(3, 0, 0))
@@ -47,13 +47,16 @@ struct ModelContainerConfigTests {
         #expect(VittoraSchemaV6.versionIdentifier == Schema.Version(6, 0, 0))
         #expect(VittoraSchemaV7.versionIdentifier == Schema.Version(7, 0, 0))
         #expect(VittoraSchemaV8.versionIdentifier == Schema.Version(8, 0, 0))
+        #expect(VittoraSchemaV9.versionIdentifier == Schema.Version(9, 0, 0))
     }
 
     @Test("schema snapshots differ between V1, V2, V3, V7, and V8")
     func schemaTransactionSnapshotsDifferByVersion() {
         #expect(VittoraSchemaV1.models.contains(where: { $0 == VittoraSchemaV1.SDTransaction.self }))
         #expect(VittoraSchemaV2.models.contains(where: { $0 == VittoraSchemaV2.SDTransaction.self }))
-        // V3–V7 share one frozen shape; only V8 may reference the live class.
+        // V3–V7 share one frozen shape. V8 and V9 both reference the live class, which is
+        // safe while V9 only ADDS an entity: the two differ by SDInvestment, so their
+        // checksums differ even though SDTransaction is the same class in both.
         // Aliasing the live model from an older version is exactly what produces
         // "Duplicate version checksums detected" on a staged migration.
         #expect(VittoraSchemaV3.models.contains(where: { $0 == VittoraSchemaV7.SDTransaction.self }))

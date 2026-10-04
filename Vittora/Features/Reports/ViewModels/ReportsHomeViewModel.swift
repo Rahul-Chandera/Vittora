@@ -9,11 +9,22 @@ final class ReportsHomeViewModel {
     var monthIncome: Decimal = 0
     var isLoading = false
     var error: String?
+    var insights: [SpendingInsight] = []
 
     private let transactionRepository: any TransactionRepository
+    private let insightsUseCase: EvaluateSpendingInsightsUseCase?
 
-    init(transactionRepository: any TransactionRepository) {
+    init(
+        transactionRepository: any TransactionRepository,
+        insightsUseCase: EvaluateSpendingInsightsUseCase? = nil
+    ) {
         self.transactionRepository = transactionRepository
+        self.insightsUseCase = insightsUseCase
+    }
+
+    func dismiss(_ insight: SpendingInsight) {
+        insightsUseCase?.dismiss(insight)
+        insights.removeAll { $0.id == insight.id }
     }
 
     func load() async {
@@ -36,6 +47,9 @@ final class ReportsHomeViewModel {
             monthIncome = transactions
                 .filter { $0.type == .income }
                 .reduce(Decimal(0)) { $0 + $1.amount }
+            // Insights are secondary: a failure here must not take the month summary and
+            // the report list down with it.
+            insights = (try? await insightsUseCase?.execute()) ?? []
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't load report highlights right now.")

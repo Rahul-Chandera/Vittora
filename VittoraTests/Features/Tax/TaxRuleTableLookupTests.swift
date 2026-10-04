@@ -64,13 +64,12 @@ struct TaxRuleTableLookupTests {
     @Test("India resolves financial years by the same floor rule")
     func indiaResolvesByFloor() {
         let years = IndiaTaxRuleTable.financialYears
-        #expect(years == [2024, 2025])
-        // Reproduces the former `>= 2025 -> fy2025, else fy2024` mapping.
+        #expect(years == [2024, 2025, 2026])
         #expect(IndiaTaxRuleTable.resolvedFinancialYear(2023, in: years) == 2024)
         #expect(IndiaTaxRuleTable.resolvedFinancialYear(2024, in: years) == 2024)
         #expect(IndiaTaxRuleTable.resolvedFinancialYear(2025, in: years) == 2025)
-        #expect(IndiaTaxRuleTable.resolvedFinancialYear(2026, in: years) == 2025)
-        #expect(IndiaTaxRuleTable.resolvedFinancialYear(2099, in: years) == 2025)
+        #expect(IndiaTaxRuleTable.resolvedFinancialYear(2026, in: years) == 2026)
+        #expect(IndiaTaxRuleTable.resolvedFinancialYear(2099, in: years) == 2026)
     }
 
     @Test("India gaps resolve downward, never to a future year's rules")

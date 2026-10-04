@@ -19,7 +19,7 @@ REGION="${4:-US}"
 APP_ID="com.enerjiktech.vittora"
 WATCH_APP_ID="com.enerjiktech.vittora.watchkitapp"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUT="$ROOT/Docs/Store/screenshots/$SET_NAME"
+OUT="${OUT_DIR:-$ROOT/Docs/Store/screenshots/$SET_NAME}"
 DERIVED="${DERIVED_DIR:-$ROOT/.build/screenshots}"
 
 mkdir -p "$OUT"
@@ -93,7 +93,9 @@ SIMCTL_CHILD_UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
 sleep "${PHONE_SEED_SETTLE:-30}"
 
 first=1
-for screen in dashboard recent quick-expense; do
+# SCREENS overrides the set; `voice` is M2.6.2's Say It screen, pre-filled
+# because the simulator cannot dictate.
+for screen in ${SCREENS:-dashboard recent quick-expense}; do
   shot="$OUT/watch-$NAME-$screen.png"
   # dashboard and recent render data pushed from the phone; until the WCSession
   # handshake lands they show "Waiting for iPhone…" / "No recent transactions"
@@ -113,7 +115,9 @@ for screen in dashboard recent quick-expense; do
     # new arguments, which is why every screen came out as the dashboard.
     xcrun simctl terminate "$PAIR_WATCH" "$WATCH_APP_ID" 2>/dev/null || true
     sleep 4
-    xcrun simctl launch "$PAIR_WATCH" "$WATCH_APP_ID" "--ui-test-watch-screen=$screen" \
+    voice_arg=""
+    [ "$screen" = voice ] && voice_arg="--ui-test-watch-voice=${WATCH_VOICE_TEXT:-Add 500 for groceries}"
+    xcrun simctl launch "$PAIR_WATCH" "$WATCH_APP_ID" "--ui-test-watch-screen=$screen" "$voice_arg" \
       -AppleLanguages "($LOCALE)" -AppleLocale "$APPLE_LOCALE" >/dev/null
     # The first launch of a run also waits on the initial WCSession handshake,
     # which is slower than the cached-context replay every later launch gets;

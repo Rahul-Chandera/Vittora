@@ -40,6 +40,7 @@ struct TaxBreakdownView: View {
                     Button(String(localized: "Done")) { dismiss() }
                         .vDialogConfirmButton()
                 }
+                .vDialogToolbarItem()
             }
         }
     }
@@ -120,7 +121,7 @@ struct TaxBreakdownView: View {
                     if estimate.rebate > 0 {
                         Divider().padding(.leading, VSpacing.md)
                         BreakdownRow(
-                            label: String(localized: "Rebate (Sec 87A)"),
+                            label: estimate.rebateLabel,
                             value: -estimate.rebate,
                             currencyCode: currencyCode,
                             style: .reduction
@@ -129,7 +130,7 @@ struct TaxBreakdownView: View {
                     if estimate.surcharge > 0 {
                         Divider().padding(.leading, VSpacing.md)
                         BreakdownRow(
-                            label: String(localized: "Surcharge"),
+                            label: estimate.surchargeLabel,
                             value: estimate.surcharge,
                             currencyCode: currencyCode,
                             style: .tax
@@ -138,7 +139,7 @@ struct TaxBreakdownView: View {
                     if estimate.cess > 0 {
                         Divider().padding(.leading, VSpacing.md)
                         BreakdownRow(
-                            label: String(localized: "Health & Education Cess (4%)"),
+                            label: estimate.cessLabel,
                             value: estimate.cess,
                             currencyCode: currencyCode,
                             style: .tax

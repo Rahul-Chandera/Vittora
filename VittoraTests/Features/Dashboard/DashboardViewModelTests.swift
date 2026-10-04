@@ -81,7 +81,8 @@ struct DashboardViewModelTests {
     func loadComputesNetWorth() async {
         let accountRepo = MockAccountRepository()
         let asset = AccountEntity(name: "Savings", type: .bank, balance: 5000)
-        let liability = AccountEntity(name: "Credit", type: .creditCard, balance: 1000)
+        // Negative, as the app stores it — see NetWorthPerCurrencyTests.
+        let liability = AccountEntity(name: "Credit", type: .creditCard, balance: -1000)
         try? await accountRepo.create(asset)
         try? await accountRepo.create(liability)
 

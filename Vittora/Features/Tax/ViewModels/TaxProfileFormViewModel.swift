@@ -26,6 +26,13 @@ final class TaxProfileFormViewModel {
     var us401kContributedString = ""
     var usIRAContributedString = ""
     var usHSAContributedString = ""
+    var ukDividendIncomeString = ""
+    var ukSavingsIncomeString = ""
+    var ukCapitalGainsString = ""
+    var auConcessionalSuperString = ""
+    var auCapitalGainsString = ""
+    var caCapitalGainsString = ""
+    var caRRSPContributionsString = ""
 
     // Live preview
     var liveEstimate: TaxEstimate?
@@ -70,6 +77,9 @@ final class TaxProfileFormViewModel {
         customDeductions = profile.customDeductions
         advancedInputs = profile.advancedInputs
         syncIndiaInputStringsFromAdvancedInputs()
+        syncUKInputStringsFromAdvancedInputs()
+        syncAUInputStringsFromAdvancedInputs()
+        syncCAInputStringsFromAdvancedInputs()
         syncUSInputStringsFromAdvancedInputs()
         recalculateLive()
     }
@@ -176,6 +186,13 @@ final class TaxProfileFormViewModel {
         syncDecimalField(us401kContributedString, into: \.us401kYTDContributed)
         syncDecimalField(usIRAContributedString, into: \.usIRAYTDContributed)
         syncDecimalField(usHSAContributedString, into: \.usHSAYTDContributed)
+        syncDecimalField(ukDividendIncomeString, into: \.ukDividendIncome)
+        syncDecimalField(ukSavingsIncomeString, into: \.ukSavingsIncome)
+        syncDecimalField(ukCapitalGainsString, into: \.ukCapitalGains)
+        syncDecimalField(auConcessionalSuperString, into: \.auConcessionalSuper)
+        syncDecimalField(auCapitalGainsString, into: \.auCapitalGains)
+        syncDecimalField(caCapitalGainsString, into: \.caCapitalGains)
+        syncDecimalField(caRRSPContributionsString, into: \.caRRSPContributions)
     }
 
     private func syncDecimalField(_ string: String, into keyPath: WritableKeyPath<TaxAdvancedInputs, Decimal>) {
@@ -184,6 +201,22 @@ final class TaxProfileFormViewModel {
         } else if string.isEmpty {
             advancedInputs[keyPath: keyPath] = 0
         }
+    }
+
+    private func syncUKInputStringsFromAdvancedInputs() {
+        ukDividendIncomeString = advancedInputs.ukDividendIncome > 0 ? "\(advancedInputs.ukDividendIncome)" : ""
+        ukSavingsIncomeString = advancedInputs.ukSavingsIncome > 0 ? "\(advancedInputs.ukSavingsIncome)" : ""
+        ukCapitalGainsString = advancedInputs.ukCapitalGains > 0 ? "\(advancedInputs.ukCapitalGains)" : ""
+    }
+
+    private func syncAUInputStringsFromAdvancedInputs() {
+        auConcessionalSuperString = advancedInputs.auConcessionalSuper > 0 ? "\(advancedInputs.auConcessionalSuper)" : ""
+        auCapitalGainsString = advancedInputs.auCapitalGains > 0 ? "\(advancedInputs.auCapitalGains)" : ""
+    }
+
+    private func syncCAInputStringsFromAdvancedInputs() {
+        caCapitalGainsString = advancedInputs.caCapitalGains > 0 ? "\(advancedInputs.caCapitalGains)" : ""
+        caRRSPContributionsString = advancedInputs.caRRSPContributions > 0 ? "\(advancedInputs.caRRSPContributions)" : ""
     }
 
     private func syncIndiaInputStringsFromAdvancedInputs() {

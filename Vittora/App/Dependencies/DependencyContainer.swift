@@ -16,6 +16,7 @@ final class DependencyContainer {
     let debtRepository: any DebtRepository
     let splitGroupRepository: any SplitGroupRepository
     let taxProfileRepository: any TaxProfileRepository
+    let investmentRepository: any InvestmentRepository
     let savingsGoalRepository: any SavingsGoalRepository
 
     let ledgerWriteStore: LedgerWriteStore
@@ -37,6 +38,8 @@ final class DependencyContainer {
     let scheduleCreditCardDueRemindersUseCase: ScheduleCreditCardDueRemindersUseCase
     let scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase
     let scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase
+    let scheduleInvestmentMaturityRemindersUseCase: ScheduleInvestmentMaturityRemindersUseCase
+    let drainQuickLogQueueUseCase: DrainQuickLogQueueUseCase
     var conversionEventTracker: any ConversionEventTracking = UserDefaultsConversionEventTracker()
     let entitlementStore = EntitlementStore()
     // Second tracker instance is fine: both read AppUserDefaults.conversion, so OCR counts agree.
@@ -62,6 +65,7 @@ final class DependencyContainer {
         debtRepository: any DebtRepository,
         splitGroupRepository: any SplitGroupRepository,
         taxProfileRepository: any TaxProfileRepository,
+        investmentRepository: any InvestmentRepository,
         savingsGoalRepository: any SavingsGoalRepository,
         ledgerWriteStore: LedgerWriteStore,
         recurringGenerationCoordinator: RecurringGenerationCoordinator,
@@ -77,6 +81,8 @@ final class DependencyContainer {
         scheduleCreditCardDueRemindersUseCase: ScheduleCreditCardDueRemindersUseCase,
         scheduleRecurringPreNotificationsUseCase: ScheduleRecurringPreNotificationsUseCase,
         scheduleSelfDebtDueRemindersUseCase: ScheduleSelfDebtDueRemindersUseCase,
+        scheduleInvestmentMaturityRemindersUseCase: ScheduleInvestmentMaturityRemindersUseCase,
+        drainQuickLogQueueUseCase: DrainQuickLogQueueUseCase,
         conversionEventRecorder: ConversionEventRecorder,
         securityAuditLogService: SecurityAuditLogService,
         dataSeeder: any DataSeederProtocol,
@@ -94,6 +100,7 @@ final class DependencyContainer {
         self.debtRepository = debtRepository
         self.splitGroupRepository = splitGroupRepository
         self.taxProfileRepository = taxProfileRepository
+        self.investmentRepository = investmentRepository
         self.savingsGoalRepository = savingsGoalRepository
         self.ledgerWriteStore = ledgerWriteStore
         self.recurringGenerationCoordinator = recurringGenerationCoordinator
@@ -109,6 +116,8 @@ final class DependencyContainer {
         self.scheduleCreditCardDueRemindersUseCase = scheduleCreditCardDueRemindersUseCase
         self.scheduleRecurringPreNotificationsUseCase = scheduleRecurringPreNotificationsUseCase
         self.scheduleSelfDebtDueRemindersUseCase = scheduleSelfDebtDueRemindersUseCase
+        self.scheduleInvestmentMaturityRemindersUseCase = scheduleInvestmentMaturityRemindersUseCase
+        self.drainQuickLogQueueUseCase = drainQuickLogQueueUseCase
         self.conversionEventRecorder = conversionEventRecorder
         self.securityAuditLogService = securityAuditLogService
         self.dataSeeder = dataSeeder
@@ -134,6 +143,7 @@ final class DependencyContainer {
         let debtRepository = SwiftDataDebtRepository(modelContainer: modelContainer)
         let splitGroupRepository = SwiftDataSplitGroupRepository(modelContainer: modelContainer)
         let taxProfileRepository = SwiftDataTaxProfileRepository(modelContainer: modelContainer)
+        let investmentRepository = SwiftDataInvestmentRepository(modelContainer: modelContainer)
         let savingsGoalRepository = SwiftDataSavingsGoalRepository(modelContainer: modelContainer)
         let ledgerWriteStore = LedgerWriteStore(modelContainer: modelContainer)
         let dataSeeder = DefaultDataSeeder(modelContainer: modelContainer)
@@ -142,6 +152,7 @@ final class DependencyContainer {
             ruleRepository: recurringRuleRepository,
             transactionRepository: transactionRepository,
             accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
             ledgerWriting: ledgerWriteStore
         )
         let recurringGenerationCoordinator = RecurringGenerationCoordinator(useCase: generateUseCase)
@@ -189,6 +200,16 @@ final class DependencyContainer {
             payeeRepository: payeeRepository,
             notificationService: notificationService
         )
+        let scheduleInvestmentMaturityRemindersUseCase = ScheduleInvestmentMaturityRemindersUseCase(
+            investmentRepository: investmentRepository,
+            notificationService: notificationService
+        )
+        let drainQuickLogQueueUseCase = DrainQuickLogQueueUseCase(
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            categoryRepository: categoryRepository,
+            queue: QuickLogQueue() ?? QuickLogQueue(defaults: .standard)
+        )
         let contactsImportService = SystemContactsImportService()
         let exportService = DataExportService(
             transactionRepository: transactionRepository,
@@ -214,6 +235,7 @@ final class DependencyContainer {
             debtRepository: debtRepository,
             splitGroupRepository: splitGroupRepository,
             taxProfileRepository: taxProfileRepository,
+            investmentRepository: investmentRepository,
             savingsGoalRepository: savingsGoalRepository,
             ledgerWriteStore: ledgerWriteStore,
             recurringGenerationCoordinator: recurringGenerationCoordinator,
@@ -229,6 +251,8 @@ final class DependencyContainer {
             scheduleCreditCardDueRemindersUseCase: scheduleCreditCardDueRemindersUseCase,
             scheduleRecurringPreNotificationsUseCase: scheduleRecurringPreNotificationsUseCase,
             scheduleSelfDebtDueRemindersUseCase: scheduleSelfDebtDueRemindersUseCase,
+            scheduleInvestmentMaturityRemindersUseCase: scheduleInvestmentMaturityRemindersUseCase,
+            drainQuickLogQueueUseCase: drainQuickLogQueueUseCase,
             conversionEventRecorder: conversionEventRecorder,
             securityAuditLogService: auditLogService,
             dataSeeder: dataSeeder,

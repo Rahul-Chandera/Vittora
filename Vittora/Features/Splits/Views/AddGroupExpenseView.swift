@@ -23,93 +23,100 @@ struct AddGroupExpenseView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // Basic details
-                Section {
-                    TextField(String(localized: "Expense title"), text: Bindable(vm).title)
-                        .accessibilityLabel(String(localized: "Expense title"))
-
-                    HStack {
-                        TextField(String(localized: "Amount"), text: Bindable(vm).amountString)
-                            #if os(iOS)
-                            .keyboardType(.decimalPad)
-                            .textContentType(nil)
-                            #endif
-                            .accessibilityLabel(String(localized: "Expense amount"))
-                            .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
-                            .onChange(of: vm.amountString) { _, _ in vm.recalculate() }
-                    }
-
-                    DatePicker(String(localized: "Date"), selection: Bindable(vm).date, displayedComponents: [.date])
-                } header: {
-                    sectionHeader(String(localized: "Expense"))
-                }
-                .headerProminence(.increased)
-
-                // Payer
-                Section {
-                    Picker(String(localized: "Who paid?"), selection: Bindable(vm).selectedPayerID) {
-                        Text(String(localized: "Select…")).tag(UUID?.none)
-                        ForEach(vm.group.memberIDs, id: \.self) { id in
-                            Text(vm.memberNames[id] ?? String(localized: "Unknown")).tag(UUID?(id))
-                        }
-                    }
-                } header: {
-                    sectionHeader(String(localized: "Paid By"))
-                }
-                .headerProminence(.increased)
-
-                // Split method
-                Section {
-                    Picker(String(localized: "Method"), selection: Bindable(vm).splitMethod) {
-                        ForEach(SplitMethod.allCases, id: \.self) { method in
-                            Text(method.displayName).tag(method)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .onChange(of: vm.splitMethod) { _, _ in vm.recalculate() }
-                } header: {
-                    sectionHeader(String(localized: "Split Method"))
-                }
-                .headerProminence(.increased)
-
-                // Allocation rows
-                Section {
-                    ForEach($vm.allocations) { $row in
-                        AllocationRow(
-                            row: $row,
-                            method: vm.splitMethod,
-                            onValueChanged: { vm.recalculate() }
-                        )
-                    }
-                } header: {
-                    sectionHeader(String(localized: "Splits"))
-                } footer: {
-                    if vm.splitMethod == .exact {
-                        let total = vm.allocations.reduce(Decimal(0)) { $0 + $1.calculatedAmount }
-                        let diff = abs(total - vm.amount)
-                        if diff > 0.005 && vm.amount > 0 {
-                            Text(String(localized: "Remaining: \((vm.amount - total).formatted(.currency(code: currencyCode)))"))
-                                .foregroundStyle(VColors.expense)
-                        }
-                    }
-                }
-                .headerProminence(.increased)
-
-                // Note
-                Section {
-                    TextField(String(localized: "Optional"), text: Bindable(vm).note, axis: .vertical)
-                        .lineLimit(2...4)
-                } header: {
-                    sectionHeader(String(localized: "Note"))
-                }
-                .headerProminence(.increased)
-
-                if let error = vm.error {
+                Group {
+                    // Basic details
                     Section {
-                        VInlineErrorText(error)
+                        TextField(String(localized: "Expense title"), text: Bindable(vm).title, prompt: Text(String(localized: "Expense title")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
+                            .accessibilityLabel(String(localized: "Expense title"))
+
+                        HStack {
+                            TextField(String(localized: "Amount"), text: Bindable(vm).amountString, prompt: Text(String(localized: "Amount")).foregroundStyle(VColors.placeholderText))
+                                .vFormField()
+                                #if os(iOS)
+                                .keyboardType(.decimalPad)
+                                .textContentType(nil)
+                                #endif
+                                .accessibilityLabel(String(localized: "Expense amount"))
+                                .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
+                                .onChange(of: vm.amountString) { _, _ in vm.recalculate() }
+                        }
+
+                        DatePicker(String(localized: "Date"), selection: Bindable(vm).date, displayedComponents: [.date])
+                    } header: {
+                        sectionHeader(String(localized: "Expense"))
+                    }
+                    .headerProminence(.increased)
+
+                    // Payer
+                    Section {
+                        Picker(String(localized: "Who paid?"), selection: Bindable(vm).selectedPayerID) {
+                            Text(String(localized: "Select…")).tag(UUID?.none)
+                            ForEach(vm.group.memberIDs, id: \.self) { id in
+                                Text(vm.memberNames[id] ?? String(localized: "Unknown")).tag(UUID?(id))
+                            }
+                        }
+                    } header: {
+                        sectionHeader(String(localized: "Paid By"))
+                    }
+                    .headerProminence(.increased)
+
+                    // Split method
+                    Section {
+                        Picker(String(localized: "Method"), selection: Bindable(vm).splitMethod) {
+                            ForEach(SplitMethod.allCases, id: \.self) { method in
+                                Text(method.displayName).tag(method)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .onChange(of: vm.splitMethod) { _, _ in vm.recalculate() }
+                    } header: {
+                        sectionHeader(String(localized: "Split Method"))
+                    }
+                    .headerProminence(.increased)
+
+                    // Allocation rows
+                    Section {
+                        ForEach($vm.allocations) { $row in
+                            AllocationRow(
+                                row: $row,
+                                method: vm.splitMethod,
+                                onValueChanged: { vm.recalculate() }
+                            )
+                        }
+                    } header: {
+                        sectionHeader(String(localized: "Splits"))
+                    } footer: {
+                        if vm.splitMethod == .exact {
+                            let total = vm.allocations.reduce(Decimal(0)) { $0 + $1.calculatedAmount }
+                            let diff = abs(total - vm.amount)
+                            if diff > 0.005 && vm.amount > 0 {
+                                Text(String(localized: "Remaining: \((vm.amount - total).formatted(.currency(code: currencyCode)))"))
+                                    .foregroundStyle(VColors.expense)
+                            }
+                        }
+                    }
+                    .headerProminence(.increased)
+
+                    // Note
+                    Section {
+                        TextField(String(localized: "Optional"), text: Bindable(vm).note, prompt: Text(String(localized: "Optional")).foregroundStyle(VColors.placeholderText), axis: .vertical)
+                            .vFormField()
+                            .lineLimit(2...4)
+                    } header: {
+                        sectionHeader(String(localized: "Note"))
+                    }
+                    .headerProminence(.increased)
+
+                    if let error = vm.error {
+                        Section {
+                            VInlineErrorText(error)
+                        }
                     }
                 }
+                .vListContentTint()
             }
+            .vListSelectionTint()
             .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Add Expense"))
             #if os(iOS)
@@ -120,6 +127,7 @@ struct AddGroupExpenseView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .vDialogToolbarItem()
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
                         guard vm.canSave, !vm.isSaving else { return }
@@ -140,6 +148,7 @@ struct AddGroupExpenseView: View {
                     .accessibilityRespondsToUserInteraction(vm.canSave && !vm.isSaving)
                     .vDialogConfirmButton()
                 }
+                .vDialogToolbarItem()
             }
         }
         .onChange(of: vm.error) { _, newValue in
@@ -186,6 +195,7 @@ private struct AllocationRow: View {
                 HStack(spacing: 4) {
                     if method == .percentage {
                         TextField("", text: $row.inputValue, prompt: Text("0").foregroundStyle(VColors.placeholderText))
+                            .vFormField(inline: true)
                             .accessibilityLabel(String(localized: "Percentage share"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -198,6 +208,7 @@ private struct AllocationRow: View {
                     } else if method == .exact {
                         Text(currencySymbol).foregroundStyle(VColors.textSecondary)
                         TextField("", text: $row.inputValue, prompt: Text("0.00").foregroundStyle(VColors.placeholderText))
+                            .vFormField(inline: true)
                             .accessibilityLabel(String(localized: "Exact amount"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)
@@ -208,6 +219,7 @@ private struct AllocationRow: View {
                             .onChange(of: row.inputValue) { _, _ in onValueChanged() }
                     } else if method == .shares {
                         TextField("", text: $row.inputValue, prompt: Text("1").foregroundStyle(VColors.placeholderText))
+                            .vFormField(inline: true)
                             .accessibilityLabel(String(localized: "Shares"))
                             #if os(iOS)
                             .keyboardType(.decimalPad)

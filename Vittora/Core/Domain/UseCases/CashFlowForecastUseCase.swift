@@ -47,7 +47,13 @@ struct CashFlowForecastUseCase: Sendable {
         let accounts = projectedCurrency.map { code in
             allAccounts.filter { $0.currencyCode == code }
         } ?? allAccounts
-        let startingBalance = netWorth(of: accounts)
+        // Taken from the summary rather than recomputed. The private copy this
+        // replaces repeated `assets - liabilities` over raw balances, and a
+        // liability's balance is negative — so it added card debt to the
+        // starting balance and every projected day inherited the error. The
+        // currency fix above had already been applied twice for the same
+        // reason; one source removes the chance of a third divergence.
+        let startingBalance = summary.byCurrency.first?.netWorth ?? 0
 
         guard let lookbackStart = calendar.date(
             byAdding: .day,
@@ -179,16 +185,4 @@ struct CashFlowForecastUseCase: Sendable {
         return NetWorthSummary.build(from: accounts).byCurrency.first?.currencyCode
     }
 
-    nonisolated private func netWorth(of accounts: [AccountEntity]) -> Decimal {
-        var assets: Decimal = 0
-        var liabilities: Decimal = 0
-        for account in accounts {
-            if account.type.isAsset {
-                assets += account.balance
-            } else {
-                liabilities += account.balance
-            }
-        }
-        return assets - liabilities
-    }
 }

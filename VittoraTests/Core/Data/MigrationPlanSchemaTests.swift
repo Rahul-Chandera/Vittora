@@ -60,6 +60,37 @@ struct MigrationPlanSchemaTests {
         #expect(added(VittoraSchemaV7.self, VittoraSchemaV8.self) == [
             "SDTransaction.categorySuggestionRawValue",
         ])
+        // V9 adds a whole entity rather than columns on an existing one, so every
+        // property of SDInvestment is new.
+        #expect(added(VittoraSchemaV8.self, VittoraSchemaV9.self) == [
+            "SDInvestment.id",
+            "SDInvestment.name",
+            "SDInvestment.instrumentID",
+            "SDInvestment.amount",
+            "SDInvestment.sectionKey",
+            "SDInvestment.startDate",
+            "SDInvestment.maturityDate",
+            "SDInvestment.remindsOnMaturity",
+            "SDInvestment.note",
+            "SDInvestment.createdAt",
+            "SDInvestment.updatedAt",
+        ])
+    }
+
+    /// Adding an entity must leave every existing entity untouched, or the stage is not
+    /// lightweight and an upgrade rewrites rows it has no business rewriting.
+    @Test("V9 changes no existing entity")
+    func v9LeavesExistingEntitiesAlone() {
+        let v8 = Set(Schema(VittoraSchemaV8.models).entities.map(\.name))
+        let v9 = Set(Schema(VittoraSchemaV9.models).entities.map(\.name))
+
+        #expect(v9.subtracting(v8) == ["SDInvestment"])
+        #expect(v8.subtracting(v9).isEmpty)
+
+        let v8Signature = signature(VittoraSchemaV8.self)
+        let v9WithoutInvestment = signature(VittoraSchemaV9.self)
+            .filter { !$0.hasPrefix("SDInvestment.") }
+        #expect(v8Signature == Set(v9WithoutInvestment))
     }
 
     /// CloudKit rejects a new non-optional attribute that has no default: the
@@ -68,7 +99,7 @@ struct MigrationPlanSchemaTests {
     /// carry a default.
     @Test("every attribute in the current schema is CloudKit-safe")
     func currentSchemaIsCloudKitSafe() {
-        for entity in Schema(VittoraSchemaV8.models).entities {
+        for entity in Schema(VittoraSchemaV9.models).entities {
             for attribute in entity.attributes {
                 #expect(
                     attribute.isOptional || attribute.defaultValue != nil,
@@ -91,5 +122,16 @@ struct MigrationPlanSchemaTests {
             "V8 must add SDTransaction.categorySuggestionRawValue"
         )
         #expect(attribute.isOptional)
+    }
+
+    /// The container must register the newest schema, or a store written by the app is a
+    /// version ahead of the plan that is meant to migrate it.
+    @Test("the container ships the newest schema version")
+    func containerShipsNewestSchema() throws {
+        let newest = try #require(VittoraMigrationPlan.schemas.last)
+        #expect(
+            Set(Schema(ModelContainerConfig.allModels).entities.map(\.name))
+                == Set(Schema(newest.models).entities.map(\.name))
+        )
     }
 }

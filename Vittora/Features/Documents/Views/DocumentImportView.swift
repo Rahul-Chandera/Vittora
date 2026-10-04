@@ -58,7 +58,9 @@ struct DocumentImportView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                         .font(.body)
                         .foregroundStyle(VColors.textPrimary)
+                        .vDialogCancelButton()
                 }
+                .vDialogToolbarItem()
             }
             .errorAlert(message: $importError)
         }

@@ -5,11 +5,17 @@ import Foundation
 public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
     case india = "IN"
     case unitedStates = "US"
+    case unitedKingdom = "GB"
+    case australia = "AU"
+    case canada = "CA"
 
     public nonisolated var displayName: String {
         switch self {
         case .india:         return String(localized: "India")
         case .unitedStates:  return String(localized: "United States")
+        case .unitedKingdom: return String(localized: "United Kingdom")
+        case .australia:     return String(localized: "Australia")
+        case .canada:        return String(localized: "Canada")
         }
     }
 
@@ -17,6 +23,9 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
         switch self {
         case .india:        return "INR"
         case .unitedStates: return "USD"
+        case .unitedKingdom: return "GBP"
+        case .australia:     return "AUD"
+        case .canada:        return "CAD"
         }
     }
 
@@ -24,6 +33,9 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
         switch self {
         case .india:        return "₹"
         case .unitedStates: return "$"
+        case .unitedKingdom: return "£"
+        case .australia:     return "$"
+        case .canada:        return "$"
         }
     }
 
@@ -40,6 +52,64 @@ public enum TaxCountry: String, Sendable, Hashable, CaseIterable, Codable {
 
         case .unitedStates:
             return "\(currentYear)"
+
+        case .unitedKingdom:
+            // The UK tax year runs 6 April to 5 April, so the boundary is a day
+            // inside April rather than the start of a month. Comparing only the
+            // month would put 1-5 April in the wrong year.
+            let month = calendar.component(.month, from: .now)
+            let day = calendar.component(.day, from: .now)
+            let startYear = (month > 4 || (month == 4 && day >= 6)) ? currentYear : currentYear - 1
+            let endYearSuffix = (startYear + 1) % 100
+            return "\(startYear)-\(String(format: "%02d", endYearSuffix))"
+
+        case .australia:
+            // The Australian tax year runs 1 July to 30 June.
+            let month = calendar.component(.month, from: .now)
+            let startYear = month >= 7 ? currentYear : currentYear - 1
+            let endYearSuffix = (startYear + 1) % 100
+            return "\(startYear)-\(String(format: "%02d", endYearSuffix))"
+
+        case .canada:
+            // Calendar year, like the US.
+            return "\(currentYear)"
+        }
+    }
+}
+
+/// Canadian provinces and territories. Provincial tax is a second full bracket
+/// table, not a surcharge on the federal one, so the province a user lives in
+/// changes their bill by thousands rather than by a rounding amount.
+public enum CAProvince: String, Sendable, Hashable, CaseIterable, Codable {
+    case alberta = "AB"
+    case britishColumbia = "BC"
+    case manitoba = "MB"
+    case newBrunswick = "NB"
+    case newfoundlandAndLabrador = "NL"
+    case northwestTerritories = "NT"
+    case novaScotia = "NS"
+    case nunavut = "NU"
+    case ontario = "ON"
+    case princeEdwardIsland = "PE"
+    case quebec = "QC"
+    case saskatchewan = "SK"
+    case yukon = "YT"
+
+    public nonisolated var displayName: String {
+        switch self {
+        case .alberta:                 String(localized: "Alberta")
+        case .britishColumbia:         String(localized: "British Columbia")
+        case .manitoba:                String(localized: "Manitoba")
+        case .newBrunswick:            String(localized: "New Brunswick")
+        case .newfoundlandAndLabrador: String(localized: "Newfoundland and Labrador")
+        case .northwestTerritories:    String(localized: "Northwest Territories")
+        case .novaScotia:              String(localized: "Nova Scotia")
+        case .nunavut:                 String(localized: "Nunavut")
+        case .ontario:                 String(localized: "Ontario")
+        case .princeEdwardIsland:      String(localized: "Prince Edward Island")
+        case .quebec:                  String(localized: "Quebec")
+        case .saskatchewan:            String(localized: "Saskatchewan")
+        case .yukon:                   String(localized: "Yukon")
         }
     }
 }
@@ -187,6 +257,42 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
     public nonisolated var usHSAYTDContributed: Decimal = 0
     /// US: when true, HSA statutory limit uses the family tier.
     public nonisolated var usHSAFamilyCoverage: Bool = false
+    /// US: Roth 401(k) deferrals are made after tax, so they must NOT reduce taxable
+    /// income. Defaults to false because traditional is still the more common default on
+    /// US plans — but a Roth saver who left this alone would have their tax understated,
+    /// which is why it is asked rather than assumed.
+    public nonisolated var us401kIsRoth: Bool = false
+    /// UK: Scottish taxpayers pay Scottish rates on non-savings, non-dividend income —
+    /// six bands rather than three, topping out at 48% instead of 45%. Savings and
+    /// dividend income keep UK-wide rates wherever you live, which is why this flag
+    /// only steers one of the three income streams in the calculator.
+    public nonisolated var ukIsScottishTaxpayer: Bool = false
+    /// UK: dividend income. Has its own allowance and its own three rates.
+    public nonisolated var ukDividendIncome: Decimal = 0
+    /// UK: savings interest. Gets the starting rate for savings and the Personal
+    /// Savings Allowance, both of which depend on the other income.
+    public nonisolated var ukSavingsIncome: Decimal = 0
+    /// UK: chargeable capital gains after any reliefs, before the annual exempt amount.
+    public nonisolated var ukCapitalGains: Decimal = 0
+    /// AU: private hospital cover exempts the taxpayer from the Medicare levy
+    /// surcharge. Defaults to false so the surcharge IS charged above the
+    /// threshold — the direction that does not flatter the estimate. It is asked
+    /// rather than assumed, for the same reason as the US Roth flag.
+    public nonisolated var auHasPrivateHospitalCover: Bool = false
+    /// AU: concessional (pre-tax) superannuation contributions for the year.
+    public nonisolated var auConcessionalSuper: Decimal = 0
+    /// AU: gross capital gain before any discount.
+    public nonisolated var auCapitalGains: Decimal = 0
+    /// AU: whether the asset was held more than 12 months, which halves the gain.
+    public nonisolated var auCapitalGainsEligibleForDiscount: Bool = true
+    /// CA: province or territory of residence on 31 December, which is what
+    /// determines provincial tax. Defaults to Ontario as the most populous;
+    /// the form asks rather than leaving it implicit.
+    public nonisolated var caProvince: CAProvince = .ontario
+    /// CA: gross capital gains; half is included in income.
+    public nonisolated var caCapitalGains: Decimal = 0
+    /// CA: RRSP contributions for the year, which are deductible.
+    public nonisolated var caRRSPContributions: Decimal = 0
 
     public nonisolated init(
         usQualifiedDividends: Decimal = 0,
@@ -203,7 +309,19 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         us401kYTDContributed: Decimal = 0,
         usIRAYTDContributed: Decimal = 0,
         usHSAYTDContributed: Decimal = 0,
-        usHSAFamilyCoverage: Bool = false
+        usHSAFamilyCoverage: Bool = false,
+        us401kIsRoth: Bool = false,
+        ukIsScottishTaxpayer: Bool = false,
+        ukDividendIncome: Decimal = 0,
+        ukSavingsIncome: Decimal = 0,
+        ukCapitalGains: Decimal = 0,
+        auHasPrivateHospitalCover: Bool = false,
+        auConcessionalSuper: Decimal = 0,
+        auCapitalGains: Decimal = 0,
+        auCapitalGainsEligibleForDiscount: Bool = true,
+        caProvince: CAProvince = .ontario,
+        caCapitalGains: Decimal = 0,
+        caRRSPContributions: Decimal = 0
     ) {
         self.usQualifiedDividends = usQualifiedDividends
         self.usLongTermCapitalGains = usLongTermCapitalGains
@@ -220,6 +338,18 @@ public struct TaxAdvancedInputs: Sendable, Hashable, Equatable {
         self.usIRAYTDContributed = usIRAYTDContributed
         self.usHSAYTDContributed = usHSAYTDContributed
         self.usHSAFamilyCoverage = usHSAFamilyCoverage
+        self.us401kIsRoth = us401kIsRoth
+        self.ukIsScottishTaxpayer = ukIsScottishTaxpayer
+        self.ukDividendIncome = ukDividendIncome
+        self.ukSavingsIncome = ukSavingsIncome
+        self.ukCapitalGains = ukCapitalGains
+        self.auHasPrivateHospitalCover = auHasPrivateHospitalCover
+        self.auConcessionalSuper = auConcessionalSuper
+        self.auCapitalGains = auCapitalGains
+        self.auCapitalGainsEligibleForDiscount = auCapitalGainsEligibleForDiscount
+        self.caProvince = caProvince
+        self.caCapitalGains = caCapitalGains
+        self.caRRSPContributions = caRRSPContributions
     }
 }
 
@@ -240,6 +370,18 @@ extension TaxAdvancedInputs: Codable {
         case usIRAYTDContributed
         case usHSAYTDContributed
         case usHSAFamilyCoverage
+        case us401kIsRoth
+        case ukIsScottishTaxpayer
+        case ukDividendIncome
+        case ukSavingsIncome
+        case ukCapitalGains
+        case auHasPrivateHospitalCover
+        case auConcessionalSuper
+        case auCapitalGains
+        case auCapitalGainsEligibleForDiscount
+        case caProvince
+        case caCapitalGains
+        case caRRSPContributions
     }
 
     public nonisolated init(from decoder: Decoder) throws {
@@ -259,6 +401,23 @@ extension TaxAdvancedInputs: Codable {
         usIRAYTDContributed = try container.decodeIfPresent(Decimal.self, forKey: .usIRAYTDContributed) ?? 0
         usHSAYTDContributed = try container.decodeIfPresent(Decimal.self, forKey: .usHSAYTDContributed) ?? 0
         usHSAFamilyCoverage = try container.decodeIfPresent(Bool.self, forKey: .usHSAFamilyCoverage) ?? false
+        // decodeIfPresent, like every key here: a profile saved before this field existed
+        // must keep decoding, and a synthesised Codable would throw on the missing key even
+        // with a default on the property.
+        us401kIsRoth = try container.decodeIfPresent(Bool.self, forKey: .us401kIsRoth) ?? false
+        ukIsScottishTaxpayer = try container.decodeIfPresent(Bool.self, forKey: .ukIsScottishTaxpayer) ?? false
+        ukDividendIncome = try container.decodeIfPresent(Decimal.self, forKey: .ukDividendIncome) ?? 0
+        ukSavingsIncome = try container.decodeIfPresent(Decimal.self, forKey: .ukSavingsIncome) ?? 0
+        ukCapitalGains = try container.decodeIfPresent(Decimal.self, forKey: .ukCapitalGains) ?? 0
+        auHasPrivateHospitalCover = try container.decodeIfPresent(Bool.self, forKey: .auHasPrivateHospitalCover) ?? false
+        auConcessionalSuper = try container.decodeIfPresent(Decimal.self, forKey: .auConcessionalSuper) ?? 0
+        auCapitalGains = try container.decodeIfPresent(Decimal.self, forKey: .auCapitalGains) ?? 0
+        // Defaults true: the discount applies to most gains, and a profile saved
+        // before this field existed should keep the common case.
+        auCapitalGainsEligibleForDiscount = try container.decodeIfPresent(Bool.self, forKey: .auCapitalGainsEligibleForDiscount) ?? true
+        caProvince = try container.decodeIfPresent(CAProvince.self, forKey: .caProvince) ?? .ontario
+        caCapitalGains = try container.decodeIfPresent(Decimal.self, forKey: .caCapitalGains) ?? 0
+        caRRSPContributions = try container.decodeIfPresent(Decimal.self, forKey: .caRRSPContributions) ?? 0
     }
 
     public nonisolated func encode(to encoder: Encoder) throws {
@@ -278,6 +437,18 @@ extension TaxAdvancedInputs: Codable {
         try container.encode(usIRAYTDContributed, forKey: .usIRAYTDContributed)
         try container.encode(usHSAYTDContributed, forKey: .usHSAYTDContributed)
         try container.encode(usHSAFamilyCoverage, forKey: .usHSAFamilyCoverage)
+        try container.encode(us401kIsRoth, forKey: .us401kIsRoth)
+        try container.encode(ukIsScottishTaxpayer, forKey: .ukIsScottishTaxpayer)
+        try container.encode(ukDividendIncome, forKey: .ukDividendIncome)
+        try container.encode(ukSavingsIncome, forKey: .ukSavingsIncome)
+        try container.encode(ukCapitalGains, forKey: .ukCapitalGains)
+        try container.encode(auHasPrivateHospitalCover, forKey: .auHasPrivateHospitalCover)
+        try container.encode(auConcessionalSuper, forKey: .auConcessionalSuper)
+        try container.encode(auCapitalGains, forKey: .auCapitalGains)
+        try container.encode(auCapitalGainsEligibleForDiscount, forKey: .auCapitalGainsEligibleForDiscount)
+        try container.encode(caProvince, forKey: .caProvince)
+        try container.encode(caCapitalGains, forKey: .caCapitalGains)
+        try container.encode(caRRSPContributions, forKey: .caRRSPContributions)
     }
 }
 
@@ -336,8 +507,29 @@ public struct TaxEstimate: Sendable {
     /// India: 4% health & education cess; US: 0
     public nonisolated let cess: Decimal
     public nonisolated let finalTax: Decimal
+    /// A FRACTION of income, not a percentage: 0.2958 means 29.58%.
+    ///
+    /// Every display site multiplies by 100. UK, Australia and Canada each
+    /// shipped this as a percentage instead, so their effective rate read 100x
+    /// high on every surface — 2,958.0% for a UK salary of 85,000. Nothing
+    /// caught it because the only assertions were the zero-income cases, which
+    /// hold under either convention.
     public nonisolated let effectiveRate: Decimal
+    /// A percentage, unlike `effectiveRate`: 40 means 40%.
     public nonisolated let marginalRate: Decimal
+
+    /// `rebate`, `surcharge` and `cess` are generic slots, and each country
+    /// fills them with something different. These name what THIS estimate put
+    /// in them, so a screen can label the figure it is showing.
+    ///
+    /// Without them every country borrowed India's vocabulary: a Canadian
+    /// estimate showed its basic personal amount credits as "87A Rebate" — a
+    /// section of the *Indian* Income Tax Act — its provincial tax as
+    /// "Surcharge", and its CPP + EI as "Cess (4%)". An Australian saw the 2%
+    /// Medicare levy labelled "Cess (4%)" too.
+    ///
+    /// Exhaustive with no `default`, so a new country has to decide rather than
+    /// silently inheriting India's wording again.
     public nonisolated let country: TaxCountry
     /// e.g. "New Regime", "Old Regime", "Single"
     public nonisolated let regimeLabel: String
@@ -400,11 +592,25 @@ public struct TaxEstimate: Sendable {
     }
 }
 
+
 // MARK: - Tax Comparison
 
 public enum TaxComparisonKind: Sendable, Hashable {
     case indiaRegimes
     case usDeductionModes
+    /// Scotland versus the rest of the UK. Unlike the other two this is NOT a choice
+    /// the taxpayer makes — it follows where they live — so it is presented as a
+    /// difference, never as a recommendation.
+    case ukRegions
+    /// Australia: holding private hospital cover versus paying the Medicare levy
+    /// surcharge. Unlike ukRegions this IS a choice, so a recommendation is fair —
+    /// though the surcharge saved is not the whole picture, since cover costs a
+    /// premium the estimate cannot know.
+    case auPrivateCover
+    /// Canada: the effect of the RRSP contribution entered, against none. A real
+    /// choice and the largest lever most Canadians have, so a recommendation is
+    /// fair — but it is a deferral rather than a saving, and the view says so.
+    case caRRSPImpact
 }
 
 public enum TaxComparisonWinner: Sendable, Hashable {

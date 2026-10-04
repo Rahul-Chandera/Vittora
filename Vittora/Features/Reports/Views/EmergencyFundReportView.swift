@@ -30,13 +30,12 @@ struct EmergencyFundReportView: View {
             }
             .padding(VSpacing.screenPadding)
         }
-        .safeAreaInset(edge: .bottom) {
-            // Clearance for the floating tab bar, painted in THIS screen's page
-            // colour — plain background, because this screen is not grouped.
-            VColors.groupedBackground
-                .frame(height: dynamicTypeSize.isAccessibilitySize ? 140 : 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar as PADDING, not a painted strip. An
+        // opaque safeAreaInset band sat over the last ~72pt of scrolling content,
+        // slicing rows mid-glyph and hiding them from view — and the accessibility
+        // audit sampled the band under their frames and failed contrast at 1.01:1
+        // (#197's defect, still live here until the audit flake was traced to it).
+        .safeAreaPadding(.bottom, dynamicTypeSize.isAccessibilitySize ? 140 : 72)
         // iOS 26's default SOFT scroll edge effect fades this screen's content into
         // the navigation bar. Measured on iPhone 16 / iOS 26.5: with the page
         // scrolled to "Contributing Accounts", the coverage card's "3-month target"
@@ -46,16 +45,14 @@ struct EmergencyFundReportView: View {
         // PaywallView.subscriptionStore uses for its bottom edge — and the row now
         // renders crisp, clipped at the card boundary.
         //
-        // This is a legibility fix ONLY. It does NOT fix
-        // testNewReportsAccessibilityAudit: that test still reports "Contrast
-        // failed" for this screen with the fade gone, and its own exported element
-        // images show crisp black-on-white text at tight bounds. That failure is a
-        // sampler defect, not paint — do not attribute it to this modifier.
+        // This is a legibility fix only. testNewReportsAccessibilityAudit's
+        // intermittent "Contrast failed" on this screen (Cash / $222.65, blank
+        // element images) was NOT a sampler defect, as this comment used to say:
+        // CI's App Screenshot showed the Contributing Accounts rows under an opaque
+        // safeAreaInset clearance strip. That strip is now padding (above).
         //
-        // `.all` rather than `.top`: the bottom edge is already covered by the
-        // opaque safeAreaInset above, so a hard bottom edge changes nothing visible
-        // there, and pinning both ends means a later layout change cannot
-        // reintroduce the fade at the other edge.
+        // `.all` rather than `.top`: pinning both ends means a later layout change
+        // cannot reintroduce the fade at the other edge.
         .scrollEdgeEffectStyle(.hard, for: .all)
         .background(VColors.groupedBackground)
         .navigationTitle(String(localized: "Emergency Fund"))

@@ -12,6 +12,7 @@ struct MockLedgerWriting: LedgerWriting {
     var debtRepository: (any DebtRepository)? = nil
     var categoryRepository: (any CategoryRepository)? = nil
     var recurringRuleRepository: (any RecurringRuleRepository)? = nil
+    var payeeRepository: (any PayeeRepository)? = nil
 
     func performTransfer(
         sourceAccountID: UUID,
@@ -188,5 +189,17 @@ struct MockLedgerWriting: LedgerWriting {
             throw VittoraError.unknown(String(localized: "Mock recurring rule delete not configured"))
         }
         try await recurringRuleRepository.delete(ruleID)
+    }
+
+    func performDeletePayee(payeeID: UUID) async throws {
+        for var tx in try await transactionRepository.fetchAll(filter: TransactionFilter(payeeIDs: [payeeID])) {
+            tx.payeeID = nil
+            tx.updatedAt = .now
+            try await transactionRepository.update(tx)
+        }
+        guard let payeeRepository else {
+            throw VittoraError.unknown(String(localized: "Mock payee delete not configured"))
+        }
+        try await payeeRepository.delete(payeeID)
     }
 }

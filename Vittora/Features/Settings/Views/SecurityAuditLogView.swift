@@ -46,13 +46,12 @@ struct SecurityAuditLogView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            // Clearance for the floating tab bar, painted in THIS screen's page
-            // colour — plain background, because this screen is not grouped.
-            VColors.groupedBackground
-                .frame(height: 72)
-                .allowsHitTesting(false)
-        }
+        // Clearance for the floating tab bar as PADDING, not a painted strip. An
+        // opaque safeAreaInset band sat over the last ~72pt of scrolling content,
+        // slicing rows mid-glyph and hiding them from view — and the accessibility
+        // audit sampled the band under their frames and failed contrast at 1.01:1
+        // (#197's defect, still live here until the audit flake was traced to it).
+        .safeAreaPadding(.bottom, 72)
         .navigationTitle(String(localized: "Security audit log"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

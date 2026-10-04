@@ -26,7 +26,8 @@ struct VSearchBar: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(VColors.textTertiary)
 
-            TextField(placeholder, text: $text)
+            TextField(placeholder, text: $text, prompt: Text(placeholder).foregroundStyle(VColors.placeholderText))
+                .vFormField()
                 .font(VTypography.body)
                 #if os(iOS)
                 .textInputAutocapitalization(.never)

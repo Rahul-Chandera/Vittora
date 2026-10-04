@@ -103,7 +103,8 @@ struct DashboardUseCaseTests {
         func testNetWorthCalculation() async throws {
             let checking = AccountEntity(name: "Checking", type: .bank, balance: Decimal(10000))
             let savings = AccountEntity(name: "Savings", type: .bank, balance: Decimal(5000))
-            let credit = AccountEntity(name: "Visa", type: .creditCard, balance: Decimal(2000))
+            // Negative, as the app stores it — see NetWorthPerCurrencyTests.
+            let credit = AccountEntity(name: "Visa", type: .creditCard, balance: Decimal(-2000))
 
             let useCase = await makeDashboardUseCase(accounts: [checking, savings, credit])
             let data = try await useCase.execute()

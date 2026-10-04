@@ -99,114 +99,118 @@ struct ContactSupportView: View {
 
     var body: some View {
         Form {
-            Section {
-                Text(String(localized: "Describe your issue in email. A diagnostic summary is included so we can help — you can edit or remove it before sending."))
-                    .font(VTypography.caption1)
-                    .foregroundStyle(VColors.textSecondary)
-                    .accessibilityIdentifier("contact-support-intro")
-            }
+            Group {
+                Section {
+                    Text(String(localized: "Describe your issue in email. A diagnostic summary is included so we can help — you can edit or remove it before sending."))
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
+                        .accessibilityIdentifier("contact-support-intro")
+                }
 
-            Section {
-                if let supportURL = DiagnosticPayload.supportURL {
-                    Link(destination: supportURL) {
+                Section {
+                    if let supportURL = DiagnosticPayload.supportURL {
+                        Link(destination: supportURL) {
+                            SettingsRow(
+                                icon: "questionmark.circle.fill",
+                                iconColor: .blue,
+                                title: String(localized: "FAQ & Troubleshooting"),
+                                value: ""
+                            )
+                        }
+                        .accessibilityIdentifier("contact-support-faq")
+                    }
+                }
+
+                Section {
+                    if isLoading {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .accessibilityLabel(String(localized: "Loading diagnostics"))
+                    } else if let loadError {
+                        VInlineErrorText(loadError)
+                    } else {
+                        Text(String(localized: "This is everything that will be included."))
+                            .font(VTypography.caption1)
+                            .foregroundStyle(VColors.textSecondary)
+                            .accessibilityIdentifier("contact-support-payload-disclaimer")
+
+                        ScrollView {
+                            Text(payloadText)
+                                .font(.body.monospaced())
+                                .textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, VSpacing.sm)
+                        }
+                        .frame(minHeight: 220, maxHeight: 360)
+                        .accessibilityIdentifier("contact-support-payload")
+                        .accessibilityLabel(String(localized: "Diagnostic summary"))
+                        .accessibilityValue(payloadText)
+                    }
+                } header: {
+                    VFormSectionHeader(String(localized: "Diagnostic Summary"))
+                }
+
+                Section {
+                    Button {
+                        sendSupportEmail()
+                    } label: {
                         SettingsRow(
-                            icon: "questionmark.circle.fill",
-                            iconColor: .blue,
-                            title: String(localized: "FAQ & Troubleshooting"),
+                            icon: "envelope.fill",
+                            iconColor: .green,
+                            title: String(localized: "Send Email"),
                             value: ""
                         )
                     }
-                    .accessibilityIdentifier("contact-support-faq")
-                }
-            }
+                    // .plain: the label supplies its own appearance. Without it macOS
+                    // draws the standard AppKit button chrome behind it — a second,
+                    // lighter fill around the custom one (see QuickEntryButton).
+                    .buttonStyle(.plain)
+                    .disabled(isLoading || payloadText.isEmpty)
+                    .accessibilityIdentifier("contact-support-send")
 
-            Section {
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .accessibilityLabel(String(localized: "Loading diagnostics"))
-                } else if let loadError {
-                    VInlineErrorText(loadError)
-                } else {
-                    Text(String(localized: "This is everything that will be included."))
-                        .font(VTypography.caption1)
-                        .foregroundStyle(VColors.textSecondary)
-                        .accessibilityIdentifier("contact-support-payload-disclaimer")
-
-                    ScrollView {
-                        Text(payloadText)
-                            .font(.body.monospaced())
-                            .textSelection(.enabled)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, VSpacing.sm)
+                    Button {
+                        copyPayloadToClipboard()
+                        showCopiedAlert = true
+                    } label: {
+                        SettingsRow(
+                            icon: "doc.on.doc.fill",
+                            iconColor: .blue,
+                            title: String(localized: "Copy Diagnostics"),
+                            value: ""
+                        )
                     }
-                    .frame(minHeight: 220, maxHeight: 360)
-                    .accessibilityIdentifier("contact-support-payload")
-                    .accessibilityLabel(String(localized: "Diagnostic summary"))
-                    .accessibilityValue(payloadText)
+                    // .plain: the label supplies its own appearance. Without it macOS
+                    // draws the standard AppKit button chrome behind it — a second,
+                    // lighter fill around the custom one (see QuickEntryButton).
+                    .buttonStyle(.plain)
+                    .disabled(isLoading || payloadText.isEmpty)
+                    .accessibilityIdentifier("contact-support-copy")
+
+                    Button(role: .destructive) {
+                        RecentErrorLogStore.shared.clear()
+                        Task { await reloadPayload() }
+                        showClearedAlert = true
+                    } label: {
+                        SettingsRow(
+                            icon: "trash.fill",
+                            iconColor: .red,
+                            title: String(localized: "Clear Recent Errors"),
+                            value: ""
+                        )
+                    }
+                    // .plain: the label supplies its own appearance. Without it macOS
+                    // draws the standard AppKit button chrome behind it — a second,
+                    // lighter fill around the custom one (see QuickEntryButton).
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("contact-support-clear-errors")
+                } footer: {
+                    Text(String(localized: "Nothing is sent automatically. Email goes through your own mail app, which you can edit or cancel."))
+                        .foregroundStyle(VColors.textSecondary)
                 }
-            } header: {
-                VFormSectionHeader(String(localized: "Diagnostic Summary"))
             }
-
-            Section {
-                Button {
-                    sendSupportEmail()
-                } label: {
-                    SettingsRow(
-                        icon: "envelope.fill",
-                        iconColor: .green,
-                        title: String(localized: "Send Email"),
-                        value: ""
-                    )
-                }
-                // .plain: the label supplies its own appearance. Without it macOS
-                // draws the standard AppKit button chrome behind it — a second,
-                // lighter fill around the custom one (see QuickEntryButton).
-                .buttonStyle(.plain)
-                .disabled(isLoading || payloadText.isEmpty)
-                .accessibilityIdentifier("contact-support-send")
-
-                Button {
-                    copyPayloadToClipboard()
-                    showCopiedAlert = true
-                } label: {
-                    SettingsRow(
-                        icon: "doc.on.doc.fill",
-                        iconColor: .blue,
-                        title: String(localized: "Copy Diagnostics"),
-                        value: ""
-                    )
-                }
-                // .plain: the label supplies its own appearance. Without it macOS
-                // draws the standard AppKit button chrome behind it — a second,
-                // lighter fill around the custom one (see QuickEntryButton).
-                .buttonStyle(.plain)
-                .disabled(isLoading || payloadText.isEmpty)
-                .accessibilityIdentifier("contact-support-copy")
-
-                Button(role: .destructive) {
-                    RecentErrorLogStore.shared.clear()
-                    Task { await reloadPayload() }
-                    showClearedAlert = true
-                } label: {
-                    SettingsRow(
-                        icon: "trash.fill",
-                        iconColor: .red,
-                        title: String(localized: "Clear Recent Errors"),
-                        value: ""
-                    )
-                }
-                // .plain: the label supplies its own appearance. Without it macOS
-                // draws the standard AppKit button chrome behind it — a second,
-                // lighter fill around the custom one (see QuickEntryButton).
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("contact-support-clear-errors")
-            } footer: {
-                Text(String(localized: "Nothing is sent automatically. Email goes through your own mail app, which you can edit or cancel."))
-                    .foregroundStyle(VColors.textSecondary)
-            }
+            .vListContentTint()
         }
+        .vListSelectionTint()
         .navigationTitle(String(localized: "Contact Support"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

@@ -71,7 +71,8 @@ extension DependencyContainer {
             fetchUseCase: FetchPayeesUseCase(repository: payeeRepository),
             deleteUseCase: DeletePayeeUseCase(
                 repository: payeeRepository,
-                transactionRepository: transactionRepository
+                transactionRepository: transactionRepository,
+                ledgerWriting: ledgerWriteStore
             ),
             importContactsUseCase: ImportContactsUseCase(
                 repository: payeeRepository,
@@ -176,6 +177,19 @@ extension DependencyContainer {
         )
     }
 
+    func makeImportAppleWalletUseCase() -> ImportAppleWalletTransactionsUseCase {
+        ImportAppleWalletTransactionsUseCase(
+            addTransactionUseCase: AddTransactionUseCase(
+                accountRepository: accountRepository,
+                categoryRepository: categoryRepository,
+                ledgerWriting: ledgerWriteStore
+            ),
+            transactionRepository: transactionRepository,
+            accountRepository: accountRepository,
+            payeeRepository: payeeRepository
+        )
+    }
+
     func makeDebtLedgerViewModel() -> DebtLedgerViewModel {
         DebtLedgerViewModel(
             fetchLedgerUseCase: FetchDebtLedgerUseCase(
@@ -201,7 +215,8 @@ extension DependencyContainer {
     func makeSavingsGoalListViewModel() -> SavingsGoalListViewModel {
         SavingsGoalListViewModel(
             fetchUseCase: FetchSavingsGoalsUseCase(savingsGoalRepository: savingsGoalRepository),
-            saveUseCase: SaveSavingsGoalUseCase(savingsGoalRepository: savingsGoalRepository)
+            saveUseCase: SaveSavingsGoalUseCase(savingsGoalRepository: savingsGoalRepository),
+            accountRepository: accountRepository
         )
     }
 

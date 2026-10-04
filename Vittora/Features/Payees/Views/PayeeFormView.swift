@@ -29,6 +29,7 @@ struct PayeeFormView: View {
                 Button(String(localized: "Cancel")) { dismiss() }
                 .vDialogCancelButton()
             }
+            .vDialogToolbarItem()
             ToolbarItem(placement: .confirmationAction) {
                 Button(String(localized: "Save")) {
                     Task { await save() }
@@ -36,6 +37,7 @@ struct PayeeFormView: View {
                 .disabled(viewModel?.canSave != true || isSaving)
                 .vDialogConfirmButton()
             }
+            .vDialogToolbarItem()
         }
         .task {
             setupViewModel()
@@ -63,74 +65,82 @@ struct PayeeFormView: View {
     @ViewBuilder
     private func formContent(vm: PayeeFormViewModel) -> some View {
         Form {
-            Section {
-                // Segmented segments must be a single Text/Image; composite
-                // (HStack of icon + text) content breaks tap selection.
-                Picker(String(localized: "Payee Type"), selection: Bindable(vm).selectedType) {
-                    Text(String(localized: "Business")).tag(PayeeType.business)
-                    Text(String(localized: "Person")).tag(PayeeType.person)
-                }
-                .pickerStyle(.menu)
-            } header: {
-                VFormSectionHeader(String(localized: "Type"))
-            }
-            .headerProminence(.increased)
-
-            Section {
-                TextField(String(localized: "Name"), text: Bindable(vm).name)
-                    #if os(iOS)
-                    .textContentType(.name)
-                    #endif
-            } header: {
-                VFormSectionHeader(String(localized: "Details"))
-            }
-            .headerProminence(.increased)
-
-            Section {
-                HStack {
-                    Image(systemName: "phone.fill")
-                        .foregroundColor(VColors.textPrimary)
-                        .frame(width: 24)
-                        .accessibilityHidden(true)
-                    TextField(String(localized: "Phone"), text: Bindable(vm).phone)
-                        #if os(iOS)
-                        .keyboardType(.phonePad)
-                        .textContentType(.telephoneNumber)
-                        #endif
-                }
-
-                HStack {
-                    Image(systemName: "envelope.fill")
-                        .foregroundColor(VColors.textPrimary)
-                        .frame(width: 24)
-                        .accessibilityHidden(true)
-                    TextField(String(localized: "Email"), text: Bindable(vm).email)
-                        #if os(iOS)
-                        .keyboardType(.emailAddress)
-                        .textContentType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        #endif
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "Contact (Optional)"))
-            }
-            .headerProminence(.increased)
-
-            Section {
-                TextField(String(localized: "Notes (optional)"), text: Bindable(vm).notes, axis: .vertical)
-                    .lineLimit(3...6)
-            } header: {
-                VFormSectionHeader(String(localized: "Notes"))
-            }
-            .headerProminence(.increased)
-
-            if let error = saveError {
+            Group {
                 Section {
-                    VInlineErrorText(error)
+                    // Segmented segments must be a single Text/Image; composite
+                    // (HStack of icon + text) content breaks tap selection.
+                    Picker(String(localized: "Payee Type"), selection: Bindable(vm).selectedType) {
+                        Text(String(localized: "Business")).tag(PayeeType.business)
+                        Text(String(localized: "Person")).tag(PayeeType.person)
+                    }
+                    .pickerStyle(.menu)
+                } header: {
+                    VFormSectionHeader(String(localized: "Type"))
+                }
+                .headerProminence(.increased)
+
+                Section {
+                    TextField(String(localized: "Name"), text: Bindable(vm).name, prompt: Text(String(localized: "Name")).foregroundStyle(VColors.placeholderText))
+                        .vFormField()
+                        #if os(iOS)
+                        .textContentType(.name)
+                        #endif
+                } header: {
+                    VFormSectionHeader(String(localized: "Details"))
+                }
+                .headerProminence(.increased)
+
+                Section {
+                    HStack {
+                        Image(systemName: "phone.fill")
+                            .foregroundColor(VColors.textPrimary)
+                            .frame(width: 24)
+                            .accessibilityHidden(true)
+                        TextField(String(localized: "Phone"), text: Bindable(vm).phone, prompt: Text(String(localized: "Phone")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
+                            #if os(iOS)
+                            .keyboardType(.phonePad)
+                            .textContentType(.telephoneNumber)
+                            #endif
+                    }
+
+                    HStack {
+                        Image(systemName: "envelope.fill")
+                            .foregroundColor(VColors.textPrimary)
+                            .frame(width: 24)
+                            .accessibilityHidden(true)
+                        TextField(String(localized: "Email"), text: Bindable(vm).email, prompt: Text(String(localized: "Email")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
+                            #if os(iOS)
+                            .keyboardType(.emailAddress)
+                            .textContentType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            #endif
+                    }
+                } header: {
+                    VFormSectionHeader(String(localized: "Contact (Optional)"))
+                }
+                .headerProminence(.increased)
+
+                Section {
+                    TextField(String(localized: "Notes (optional)"), text: Bindable(vm).notes, prompt: Text(String(localized: "Notes (optional)")).foregroundStyle(VColors.placeholderText), axis: .vertical)
+                        .vFormField()
+                        .lineLimit(3...6)
+                } header: {
+                    VFormSectionHeader(String(localized: "Notes"))
+                }
+                .headerProminence(.increased)
+
+                if let error = saveError {
+                    Section {
+                        VInlineErrorText(error)
+                    }
                 }
             }
+            .vListContentTint()
         }
+        .vListSelectionTint()
         .tint(VColors.textCursor)
     }
 

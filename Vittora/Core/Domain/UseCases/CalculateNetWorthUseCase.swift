@@ -16,6 +16,11 @@ struct NetWorthSummary: Sendable, Equatable {
     struct CurrencyTotals: Sendable, Equatable, Identifiable {
         let currencyCode: String
         let assets: Decimal
+        /// The amount OWED, as a positive number — not the raw account balance.
+        ///
+        /// A liability account's balance is `opening + Σ transaction effects`,
+        /// and spending on a card decrements it, so the stored balance is
+        /// negative. `build` negates it here; see the note there.
         let liabilities: Decimal
 
         var netWorth: Decimal { assets - liabilities }
@@ -44,7 +49,22 @@ struct NetWorthSummary: Sendable, Equatable {
             if account.type.isAsset {
                 assets[code, default: 0] += account.balance
             } else {
-                liabilities[code, default: 0] += account.balance
+                // Negated, because a liability's balance is NEGATIVE. It is
+                // `opening + Σ transaction effects` and an expense on a card
+                // decrements it, so a card owing 1,266.97 stores -1,266.97 —
+                // SyncIntegrityValidator only flags a negative balance on an
+                // *asset* for exactly this reason.
+                //
+                // Adding it raw made `netWorth` subtract a negative: assets of
+                // 13,124.95 against a card owing 1,266.97 reported 14,391.92
+                // instead of 11,857.98, on the Dashboard, the Accounts screen
+                // and the Net Worth report. The composition bar was wrong the
+                // same way — its asset fraction exceeded 1, so the liability
+                // segment never drew.
+                //
+                // An overpaid card has a positive balance and correctly becomes
+                // a negative liability, i.e. it adds to net worth.
+                liabilities[code, default: 0] -= account.balance
             }
         }
 

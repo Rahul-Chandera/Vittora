@@ -109,138 +109,142 @@ struct DataManagementView: View {
     @ViewBuilder
     private func content(_ vm: DataManagementViewModel) -> some View {
         Form {
-            // Database stats
-            Section(header: VFormSectionHeader(String(localized: "Database"))) {
-                if vm.isLoading {
-                    HStack { Spacer(); ProgressView(); Spacer() }
-                } else if let stats = vm.stats {
-                    statRow(String(localized: "Transactions"), count: stats.transactionCount, icon: "list.bullet.rectangle.fill")
-                    statRow(String(localized: "Accounts"), count: stats.accountCount, icon: "building.columns.fill")
-                    statRow(String(localized: "Categories"), count: stats.categoryCount, icon: "tag.fill")
-                    statRow(String(localized: "Budgets"), count: stats.budgetCount, icon: "target")
-                    statRow(String(localized: "Debts"), count: stats.debtCount, icon: "hand.point.up.left.fill")
-                    statRow(String(localized: "Savings Goals"), count: stats.savingsGoalCount, icon: "star.circle.fill")
-                    statRow(String(localized: "Split Groups"), count: stats.splitGroupCount, icon: "person.3.fill")
-                    statRow(String(localized: "Documents"), count: stats.documentCount, icon: "doc.fill")
-                    let totalLayout = dynamicTypeSize.isAccessibilitySize
-                        ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
-                        : AnyLayout(HStackLayout())
-                    totalLayout {
-                        Text(String(localized: "Total records"))
-                            .font(VTypography.bodyBold)
-                        if !dynamicTypeSize.isAccessibilitySize {
-                            Spacer()
+            Group {
+                // Database stats
+                Section(header: VFormSectionHeader(String(localized: "Database"))) {
+                    if vm.isLoading {
+                        HStack { Spacer(); ProgressView(); Spacer() }
+                    } else if let stats = vm.stats {
+                        statRow(String(localized: "Transactions"), count: stats.transactionCount, icon: "list.bullet.rectangle.fill")
+                        statRow(String(localized: "Accounts"), count: stats.accountCount, icon: "building.columns.fill")
+                        statRow(String(localized: "Categories"), count: stats.categoryCount, icon: "tag.fill")
+                        statRow(String(localized: "Budgets"), count: stats.budgetCount, icon: "target")
+                        statRow(String(localized: "Debts"), count: stats.debtCount, icon: "hand.point.up.left.fill")
+                        statRow(String(localized: "Savings Goals"), count: stats.savingsGoalCount, icon: "star.circle.fill")
+                        statRow(String(localized: "Split Groups"), count: stats.splitGroupCount, icon: "person.3.fill")
+                        statRow(String(localized: "Documents"), count: stats.documentCount, icon: "doc.fill")
+                        let totalLayout = dynamicTypeSize.isAccessibilitySize
+                            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+                            : AnyLayout(HStackLayout())
+                        totalLayout {
+                            Text(String(localized: "Total records"))
+                                .font(VTypography.bodyBold)
+                            if !dynamicTypeSize.isAccessibilitySize {
+                                Spacer()
+                            }
+                            Text("\(stats.totalRecords)")
+                                .font(VTypography.bodyBold)
+                                .foregroundStyle(VColors.textPrimary)
                         }
-                        Text("\(stats.totalRecords)")
-                            .font(VTypography.bodyBold)
-                            .foregroundStyle(VColors.textPrimary)
-                    }
-                } else {
-                    Button(String(localized: "Load Statistics")) {
-                        Task { await vm.loadStats() }
-                    }
-                }
-            }
-            .headerProminence(.increased)
-
-            // Export
-            Section {
-                NavigationLink {
-                    ExportView()
-                } label: {
-                    Label {
-                        Text(String(localized: "Export as CSV"))
-                    } icon: {
-                        // Coloured glyph, label-coloured text. A plain Label
-                        // inherits this Form's .tint(VColors.textCursor) and
-                        // draws the icon black along with the text.
-                        Image(systemName: "square.and.arrow.up")
-                            .foregroundStyle(VColors.primary)
-                    }
-                }
-
-                Picker(String(localized: "Automatic Export"), selection: Binding(
-                    get: { exportSchedule },
-                    set: { exportScheduleRaw = $0.rawValue }
-                )) {
-                    ForEach(SettingsViewModel.ExportSchedule.allCases, id: \.self) { schedule in
-                        Text(schedule.displayName).tag(schedule)
-                    }
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "Export"))
-            } footer: {
-                if exportSchedule != .off {
-                    Text(String(localized: "Vittora will generate and share a CSV export \(exportSchedule.displayName.lowercased())."))
-                        .foregroundStyle(VColors.textSecondary)
-                }
-            }
-            .headerProminence(.increased)
-
-            // Clear data
-            Section {
-                Text(String(localized: "Clear Data"))
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-
-                Picker(String(localized: "Clear"), selection: Bindable(vm).clearScope) {
-                    ForEach(ClearDataScope.allCases.filter { $0 != .all }, id: \.self) { scope in
-                        Text(scope.displayName).tag(scope)
-                    }
-                }
-
-                Button(role: .destructive) {
-                    vm.showClearConfirm = true
-                } label: {
-                    if vm.isClearing {
-                        HStack { ProgressView(); Text(String(localized: "Clearing…")) }
                     } else {
+                        Button(String(localized: "Load Statistics")) {
+                            Task { await vm.loadStats() }
+                        }
+                    }
+                }
+                .headerProminence(.increased)
+
+                // Export
+                Section {
+                    NavigationLink {
+                        ExportView()
+                    } label: {
                         Label {
-                            Text(String(localized: "Clear \(vm.clearScope.displayName)"))
+                            Text(String(localized: "Export as CSV"))
+                        } icon: {
+                            // Coloured glyph, label-coloured text. A plain Label
+                            // inherits this Form's .tint(VColors.textCursor) and
+                            // draws the icon black along with the text.
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundStyle(VColors.primary)
+                        }
+                    }
+
+                    Picker(String(localized: "Automatic Export"), selection: Binding(
+                        get: { exportSchedule },
+                        set: { exportScheduleRaw = $0.rawValue }
+                    )) {
+                        ForEach(SettingsViewModel.ExportSchedule.allCases, id: \.self) { schedule in
+                            Text(schedule.displayName).tag(schedule)
+                        }
+                    }
+                } header: {
+                    VFormSectionHeader(String(localized: "Export"))
+                } footer: {
+                    if exportSchedule != .off {
+                        Text(String(localized: "Vittora will generate and share a CSV export \(exportSchedule.displayName.lowercased())."))
+                            .foregroundStyle(VColors.textSecondary)
+                    }
+                }
+                .headerProminence(.increased)
+
+                // Clear data
+                Section {
+                    Text(String(localized: "Clear Data"))
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+
+                    Picker(String(localized: "Clear"), selection: Bindable(vm).clearScope) {
+                        ForEach(ClearDataScope.allCases.filter { $0 != .all }, id: \.self) { scope in
+                            Text(scope.displayName).tag(scope)
+                        }
+                    }
+
+                    Button(role: .destructive) {
+                        vm.showClearConfirm = true
+                    } label: {
+                        if vm.isClearing {
+                            HStack { ProgressView(); Text(String(localized: "Clearing…")) }
+                        } else {
+                            Label {
+                                Text(String(localized: "Clear \(vm.clearScope.displayName)"))
+                                    .foregroundStyle(VColors.textPrimary)
+                            } icon: {
+                                Image(systemName: "trash")
+                                    .foregroundStyle(VColors.expense)
+                            }
+                        }
+                    }
+                    .disabled(vm.isClearing)
+                } footer: {
+                    Text(String(localized: "Permanently deletes the selected data. This cannot be undone."))
+                        .foregroundStyle(VColors.textPrimary)
+                }
+                .headerProminence(.increased)
+
+                // Factory reset
+                Section {
+                    Button(role: .destructive) {
+                        vm.showFactoryResetConfirm = true
+                    } label: {
+                        Label {
+                            Text(String(localized: "Factory Reset"))
                                 .foregroundStyle(VColors.textPrimary)
                         } icon: {
-                            Image(systemName: "trash")
+                            Image(systemName: "arrow.counterclockwise")
                                 .foregroundStyle(VColors.expense)
                         }
                     }
+                    .disabled(vm.isClearing)
+                } footer: {
+                    Text(String(localized: "Deletes ALL data including accounts and categories, and resets onboarding."))
+                        .foregroundStyle(VColors.textPrimary)
                 }
-                .disabled(vm.isClearing)
-            } footer: {
-                Text(String(localized: "Permanently deletes the selected data. This cannot be undone."))
-                    .foregroundStyle(VColors.textPrimary)
-            }
-            .headerProminence(.increased)
 
-            // Factory reset
-            Section {
-                Button(role: .destructive) {
-                    vm.showFactoryResetConfirm = true
-                } label: {
-                    Label {
-                        Text(String(localized: "Factory Reset"))
-                            .foregroundStyle(VColors.textPrimary)
-                    } icon: {
-                        Image(systemName: "arrow.counterclockwise")
-                            .foregroundStyle(VColors.expense)
-                    }
-                }
-                .disabled(vm.isClearing)
-            } footer: {
-                Text(String(localized: "Deletes ALL data including accounts and categories, and resets onboarding."))
-                    .foregroundStyle(VColors.textPrimary)
-            }
-
-            if let error = vm.error {
-                Section {
-                    HStack(spacing: VSpacing.sm) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(VColors.expense)
-                        Text(error)
-                            .font(VTypography.caption1)
+                if let error = vm.error {
+                    Section {
+                        HStack(spacing: VSpacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(VColors.expense)
+                            Text(error)
+                                .font(VTypography.caption1)
+                        }
                     }
                 }
             }
+            .vListContentTint()
         }
+        .vListSelectionTint()
         // Clearance for the floating tab bar. safeAreaPadding, not
         // safeAreaInset: an inset paints an opaque view OVER the list, and
         // rows passing behind it are sliced mid-glyph. The Appearance

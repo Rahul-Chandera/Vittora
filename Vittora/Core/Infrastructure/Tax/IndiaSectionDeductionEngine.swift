@@ -15,6 +15,9 @@ enum IndiaSectionDeductionEngine {
         case section80CCD1B
         case section80DSelf
         case section80DParents
+        /// §80CCD(2), employer NPS. Not a personal Chapter VI-A claim: capped
+        /// by salary, allowed under BOTH regimes, so it is resolved apart.
+        case section80CCD2
         case hra
         case other
     }
@@ -32,7 +35,10 @@ enum IndiaSectionDeductionEngine {
     }
 
     struct Result: Sendable {
+        /// Old-regime personal deductions and HRA. Excludes `employerNPS`.
         nonisolated let allowedTotal: Decimal
+        /// §80CCD(2) employer NPS allowed at the regime's salary percentage.
+        nonisolated var employerNPS: Decimal = 0
         nonisolated let hraExemption: Decimal
         nonisolated let utilizations: [Utilization]
         nonisolated let warnings: [String]
@@ -43,7 +49,9 @@ enum IndiaSectionDeductionEngine {
         advancedInputs: TaxAdvancedInputs,
         dateOfBirth: Date?,
         financialYearLabel: String,
-        referenceDate: Date = .now
+        referenceDate: Date = .now,
+        incomeSourceType: IncomeSourceType = .salaried,
+        employerNPSRate: Decimal = 0
     ) -> Result {
         var warnings: [String] = []
         var utilizations: [Utilization] = []
@@ -54,6 +62,7 @@ enum IndiaSectionDeductionEngine {
             .section80CCD1B: 0,
             .section80DSelf: 0,
             .section80DParents: 0,
+            .section80CCD2: 0,
             .other: 0,
         ]
 
@@ -137,10 +146,12 @@ enum IndiaSectionDeductionEngine {
         }
         allowedTotal += allowed80DParents
 
-        let hraResult = hraExemption(
-            advancedInputs: advancedInputs,
-            deductions: deductions
-        )
+        // HRA is a salary exemption: business income cannot claim it.
+        let hraResult = incomeSourceType == .salaried
+            ? hraExemption(advancedInputs: advancedInputs, deductions: deductions)
+            : (exemption: Decimal(0), claimedReference: Decimal(0), warnings: hraClaimed(deductions) > 0
+                ? [String(localized: "HRA exemption applies to salary only, so it was not applied to business income.")]
+                : [])
         allowedTotal += hraResult.exemption
         if hraResult.exemption > 0 {
             utilizations.append(
@@ -154,21 +165,67 @@ enum IndiaSectionDeductionEngine {
         }
         warnings.append(contentsOf: hraResult.warnings)
 
+        // Employer NPS: up to the regime's share of basic salary + DA, which is
+        // the only base the statute allows. Without that salary there is no cap
+        // to apply, so nothing is allowed rather than an arbitrary amount.
+        var employerNPS: Decimal = 0
+        let employerClaimed = bucketClaims[.section80CCD2, default: 0]
+        if employerClaimed > 0 {
+            let basic = advancedInputs.indiaBasicSalary
+            if incomeSourceType == .salaried, basic > 0 {
+                let cap = (basic * employerNPSRate).rounded(scale: 2)
+                employerNPS = min(employerClaimed, cap)
+                if employerClaimed > cap {
+                    warnings.append(String(localized: "Employer NPS (80CCD(2)) was capped at its share of basic salary + DA."))
+                }
+            } else {
+                warnings.append(String(localized: "Employer NPS (80CCD(2)) needs salaried income and basic salary + DA, so it was not applied."))
+            }
+        }
+
         let otherClaimed = bucketClaims[.other, default: 0]
         if otherClaimed > 0 {
             warnings.append(
                 String(
-                    localized: "Unsupported or uncapped deduction sections were not applied. Use 80C, 80CCD(1B), 80D, or HRA."
+                    localized: "Unsupported or uncapped deduction sections were not applied. Use 80C, 80CCD(1B), 80CCD(2), 80D, or HRA."
                 )
             )
         }
 
         return Result(
             allowedTotal: allowedTotal,
+            employerNPS: employerNPS,
             hraExemption: hraResult.exemption,
             utilizations: utilizations,
             warnings: warnings
         )
+    }
+
+    nonisolated private static func hraClaimed(_ deductions: [TaxDeduction]) -> Decimal {
+        deductions.filter { bucket(for: $0.section) == .hra }.reduce(Decimal(0)) { $0 + max(0, $1.amount) }
+    }
+
+    /// Headroom left in a section this year.
+    ///
+    /// `resolve` only emits a `Utilization` for a section something was claimed against, so
+    /// a missing entry means "nothing claimed" — the full cap is available. Reading the
+    /// absent entry as zero remaining inverts the answer and tells a user with an empty 80C
+    /// that they have no room left, which is how this was first shipped and caught.
+    nonisolated static func remaining(
+        sectionKey: String,
+        cap: Decimal,
+        in result: Result
+    ) -> Decimal {
+        let allowed = result.utilizations.first { $0.sectionKey == sectionKey }?.allowed ?? 0
+        return max(0, cap - allowed)
+    }
+
+    nonisolated static func remaining80C(in result: Result) -> Decimal {
+        remaining(sectionKey: "80C", cap: cap80C, in: result)
+    }
+
+    nonisolated static func remaining80CCD1B(in result: Result) -> Decimal {
+        remaining(sectionKey: "80CCD(1B)", cap: cap80CCD1B, in: result)
     }
 
     nonisolated static func bucket(for section: String?) -> SectionBucket {
@@ -181,22 +238,25 @@ enum IndiaSectionDeductionEngine {
             .replacingOccurrences(of: ")", with: "")
             .replacingOccurrences(of: "-", with: "")
 
-        if normalized == "HRA" {
+        // Exact statutory identifiers. Prefix matching put 80DD/80DDB under the
+        // 80D cap and employer 80CCD(2) under the 80C cap.
+        switch normalized {
+        case "HRA":
             return .hra
-        }
-        if normalized.contains("80CCD1B") || normalized == "80CCD1B" {
+        case "80CCD1B":
             return .section80CCD1B
-        }
-        if normalized.contains("80DPARENTS") || normalized == "80DP" {
-            return .section80DParents
-        }
-        if normalized.hasPrefix("80D") {
-            return .section80DSelf
-        }
-        if normalized.hasPrefix("80C") {
+        case "80CCD2":
+            return .section80CCD2
+        case "80C", "80CCC", "80CCD1":
+            // 80CCC and 80CCD(1) share the ₹1.5 lakh 80CCE ceiling with 80C.
             return .section80C
+        case "80D", "80DSELF":
+            return .section80DSelf
+        case "80DPARENTS", "80DP":
+            return .section80DParents
+        default:
+            return .other
         }
-        return .other
     }
 
     nonisolated static func hraExemption(
@@ -252,12 +312,8 @@ enum IndiaSectionDeductionEngine {
         financialYearLabel: String,
         referenceDate: Date
     ) -> Bool {
-        guard let dateOfBirth else { return false }
         let fyStartYear = Int(financialYearLabel.prefix(4)) ?? Calendar.current.component(.year, from: referenceDate)
-        // Age for 80D is assessed at FY end (31 March), not FY start.
-        let fyEnd = Calendar.current.date(from: DateComponents(year: fyStartYear + 1, month: 3, day: 31)) ?? referenceDate
-        let age = Calendar.current.dateComponents([.year], from: dateOfBirth, to: fyEnd).year ?? 0
-        return age >= 60
+        return (IndiaTaxAge.attainedAge(dateOfBirth: dateOfBirth, financialYear: fyStartYear) ?? 0) >= 60
     }
 
     nonisolated private static let hraSalaryDeductionRate = Decimal(10) / Decimal(100)
@@ -271,5 +327,22 @@ private extension Decimal {
         var result = Decimal()
         NSDecimalRound(&result, &value, scale, .plain)
         return result
+    }
+}
+
+/// Age for Indian tax purposes: the age attained at any time in the financial
+/// year. A person born on 1 April is treated as attaining that age on the
+/// previous day (CBDT), so the reference is 1 April AFTER the year ends.
+/// Used for both senior slabs and 80D, and always with the REQUESTED year, not
+/// whichever rule table it resolved to.
+enum IndiaTaxAge {
+    nonisolated static func attainedAge(dateOfBirth: Date?, financialYear: Int) -> Int? {
+        guard let dateOfBirth else { return nil }
+        let birth = Calendar.current.dateComponents([.year, .month, .day], from: dateOfBirth)
+        guard let year = birth.year, let month = birth.month, let day = birth.day else { return nil }
+        // Compare calendar dates, not instants, so a time zone cannot move a
+        // birthday across the boundary.
+        let hadBirthdayByApril1 = month < 4 || (month == 4 && day <= 1)
+        return financialYear + 1 - year - (hadBirthdayByApril1 ? 0 : 1)
     }
 }

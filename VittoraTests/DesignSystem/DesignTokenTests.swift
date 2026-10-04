@@ -1,5 +1,8 @@
 import SwiftUI
 import Testing
+#if canImport(AppKit)
+import AppKit
+#endif
 @testable import Vittora
 
 /// Locks the design tokens to their intended values.
@@ -27,11 +30,39 @@ import Testing
 struct DesignTokenTests {
 
     /// sRGB components, so two Colors can be compared by value.
+    ///
+    /// The macOS branch used to return (0,0,0,0) for everything, which made
+    /// every colour compare equal to every other and every contrast ratio
+    /// compute against black. The whole suite therefore FAILED on macOS rather
+    /// than skipping, and nobody saw it because CI only runs the iOS legs
+    /// (`make test` is ci-clean + test-unit + test-ios-ui). Now it resolves
+    /// through NSColor, so these assertions actually mean something on macOS.
     private func rgba(_ color: Color) -> (r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat) {
         #if canImport(UIKit)
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         UIColor(color).getRed(&r, green: &g, blue: &b, alpha: &a)
         return (r, g, b, a)
+        #elseif canImport(AppKit)
+        // Pinned to aqua: these tokens are DYNAMIC colours, so NSColor resolves
+        // them against whatever appearance the test process happens to be in.
+        // Unpinned, the same assertion passes on a light Mac and fails on a dark
+        // one — and the iOS side passes only because the simulator is light.
+        //
+        // usingColorSpace is also required: a dynamic or catalog colour cannot
+        // report components until resolved into a concrete space, and returns
+        // nil rather than throwing.
+        var components: (r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat) = (0, 0, 0, 0)
+        let appearance = NSAppearance(named: .aqua) ?? NSAppearance.currentDrawing()
+        appearance.performAsCurrentDrawingAppearance {
+            guard let resolved = NSColor(color).usingColorSpace(.sRGB) else { return }
+            components = (
+                resolved.redComponent,
+                resolved.greenComponent,
+                resolved.blueComponent,
+                resolved.alphaComponent
+            )
+        }
+        return components
         #else
         return (0, 0, 0, 0)
         #endif

@@ -4,9 +4,7 @@ import VittoraCore
 
 @main
 struct VittoraWatchApp: App {
-    @State private var snapshotStore = WatchSnapshotStore { threshold in
-        WKInterfaceDevice.current().play(threshold.hapticType)
-    }
+    @State private var snapshotStore = WatchStores.snapshot
 
     var body: some Scene {
         WindowGroup {
@@ -25,6 +23,8 @@ struct VittoraWatchApp: App {
                     WatchRecentTransactionsView(store: snapshotStore)
                 case .quickExpense:
                     WatchQuickExpenseView(store: snapshotStore)
+                case .voice:
+                    WatchVoiceExpenseView(store: snapshotStore, spoken: WatchInitialScreen.voiceTextFromLaunchArguments)
                 }
             }
             .overlay {
@@ -52,6 +52,16 @@ struct VittoraWatchApp: App {
         let amountRaw = String(raw.dropFirst(prefix.count))
         guard let amount = Decimal(string: amountRaw), amount > 0 else { return }
         snapshotStore.enqueueExpense(amount: amount, categoryID: nil)
+    }
+}
+
+/// One store per process. The Siri intent (M2.6.2) queues through the same
+/// instance the screens show, so an expense logged by voice appears as
+/// pending on the dashboard straight away.
+@MainActor
+enum WatchStores {
+    static let snapshot = WatchSnapshotStore { threshold in
+        WKInterfaceDevice.current().play(threshold.hapticType)
     }
 }
 

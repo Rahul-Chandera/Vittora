@@ -237,4 +237,28 @@ struct SwiftDataCategoryRepositoryTests {
 
         #expect(results.isEmpty)
     }
+
+    // MARK: - Duplicate rows (CloudKit has no unique constraints)
+
+    @Test("a category synced in twice reads once, and delete removes every copy")
+    func testDuplicateRowsCollapse() async throws {
+        let container = try ModelContainerConfig.makePreviewContainer()
+        let context = ModelContext(container)
+        let id = UUID()
+        for _ in 0..<2 {
+            context.insert(SDCategory(
+                id: id, name: "Groceries", icon: "cart.fill", colorHex: "#FF6B6B",
+                type: .expense, isDefault: true, sortOrder: 0
+            ))
+        }
+        try context.save()
+        let repo = SwiftDataCategoryRepository(modelContainer: container)
+
+        #expect(try await repo.fetchAll().map(\.id) == [id])
+        #expect(try await repo.fetchByType(.expense).map(\.id) == [id])
+        #expect(try await repo.fetchDefaults().map(\.id) == [id])
+
+        try await repo.delete(id)
+        #expect(try await repo.fetchAll().isEmpty)
+    }
 }
