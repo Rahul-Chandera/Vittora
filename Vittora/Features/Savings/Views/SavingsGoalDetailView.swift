@@ -253,6 +253,7 @@ struct SavingsGoalDetailView: View {
                         prompt: Text(String(localized: "Amount"))
                             .foregroundStyle(VColors.placeholderText)
                     )
+                        .vFormField()
                         #if os(iOS)
                         .keyboardType(.decimalPad)
                         .textContentType(nil)

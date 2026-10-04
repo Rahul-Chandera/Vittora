@@ -19,11 +19,11 @@ struct USContributionUtilization: Sendable, Identifiable, Equatable {
 enum USContributionHeadroomEngine {
     nonisolated static func utilizations(profile: TaxProfile, taxYear: Int) -> [USContributionUtilization] {
         let advanced = profile.advancedInputs
-        let age50Plus = ageAtEndOfTaxYear(dateOfBirth: profile.dateOfBirth, taxYear: taxYear).map { $0 >= 50 } ?? false
+        let age = ageAtEndOfTaxYear(dateOfBirth: profile.dateOfBirth, taxYear: taxYear)
 
-        let limit401k = statutory401kLimit(taxYear: taxYear, age50Plus: age50Plus)
-        let limitIRA = statutoryIRALimit(taxYear: taxYear, age50Plus: age50Plus)
-        let limitHSA = statutoryHSALimit(taxYear: taxYear, familyCoverage: advanced.usHSAFamilyCoverage)
+        let limit401k = statutory401kLimit(taxYear: taxYear, age: age)
+        let limitIRA = statutoryIRALimit(taxYear: taxYear, age50Plus: (age ?? 0) >= 50)
+        let limitHSA = statutoryHSALimit(taxYear: taxYear, familyCoverage: advanced.usHSAFamilyCoverage, age: age)
 
         return [
             USContributionUtilization(
@@ -68,6 +68,22 @@ enum USContributionHeadroomEngine {
             : rules.contribution401kBase
     }
 
+    /// Age-aware 401(k) limit: the 50+ catch-up, or the larger SECURE 2.0
+    /// catch-up for ages 60–63 (2025 on).
+    nonisolated static func statutory401kLimit(taxYear: Int, age: Int?) -> Decimal {
+        let rules = USTaxRuleTable.rules(for: taxYear)
+        guard let age, age >= 50 else { return rules.contribution401kBase }
+        let catchUp = (60...63).contains(age) ? rules.contribution401kCatchUpAge60To63 : rules.contribution401kCatchUp
+        return rules.contribution401kBase + catchUp
+    }
+
+    /// HSA limit with the statutory $1,000 catch-up from age 55.
+    nonisolated static func statutoryHSALimit(taxYear: Int, familyCoverage: Bool, age: Int?) -> Decimal {
+        let base = statutoryHSALimit(taxYear: taxYear, familyCoverage: familyCoverage)
+        guard let age, age >= 55 else { return base }
+        return base + USTaxRuleTable.rules(for: taxYear).contributionHSACatchUp
+    }
+
     nonisolated static func statutoryIRALimit(taxYear: Int, age50Plus: Bool) -> Decimal {
         let rules = USTaxRuleTable.rules(for: taxYear)
         return age50Plus
@@ -80,11 +96,14 @@ enum USContributionHeadroomEngine {
         return familyCoverage ? rules.contributionHSAFamily : rules.contributionHSAIndividual
     }
 
-    nonisolated private static func ageAtEndOfTaxYear(dateOfBirth: Date?, taxYear: Int) -> Int? {
-        guard let dob = dateOfBirth else { return nil }
-        guard let end = Calendar.current.date(from: DateComponents(year: taxYear, month: 12, day: 31)) else {
-            return nil
-        }
-        return Calendar.current.dateComponents([.year], from: dob, to: end).year
+    /// Age at the end of the tax year, by the IRS convention that you attain an
+    /// age on the day BEFORE the birthday — so a 1 January birthday counts for
+    /// the year before. Calendar dates are compared, not instants.
+    nonisolated static func ageAtEndOfTaxYear(dateOfBirth: Date?, taxYear: Int) -> Int? {
+        guard let dateOfBirth else { return nil }
+        let birth = Calendar.current.dateComponents([.year, .month, .day], from: dateOfBirth)
+        guard let year = birth.year, let month = birth.month, let day = birth.day else { return nil }
+        let birthdayOnJanuaryFirst = month == 1 && day == 1
+        return taxYear - year + (birthdayOnJanuaryFirst ? 1 : 0)
     }
 }

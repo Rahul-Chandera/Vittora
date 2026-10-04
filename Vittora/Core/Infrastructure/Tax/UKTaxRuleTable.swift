@@ -4,9 +4,10 @@ import VittoraCore
 /// In-binary UK income-tax rule table keyed by tax year (the April-start year).
 /// Adding a future year is a pure data edit here — no calculator logic changes.
 ///
-/// Every figure below is a statutory 2025-26 value. Nothing is projected or
-/// inferred: a year Vittora does not hold is resolved to the nearest year it
-/// does, and the estimate says which rule set produced it.
+/// Every figure below is a statutory value for its year (2025-26, 2026-27).
+/// Nothing is projected: a year Vittora does not hold resolves to the latest
+/// held year not after it (or the earliest, before the table), and the
+/// estimate says so.
 enum UKTaxRuleTable {
 
     /// Bands for non-savings, non-dividend income. Scotland sets its own; the rest
@@ -88,7 +89,8 @@ enum UKTaxRuleTable {
 
     /// Ascending by year.
     nonisolated private static let entries: [Entry] = [
-        Entry(year: 2025, rules: year2025)
+        Entry(year: 2025, rules: year2025),
+        Entry(year: 2026, rules: year2026),
     ]
 
     nonisolated static var supportedYears: [Int] { entries.map(\.year) }
@@ -98,13 +100,11 @@ enum UKTaxRuleTable {
         return entries.first { $0.year == resolved }?.rules ?? entries[0].rules
     }
 
-    /// Clamps to the nearest held year rather than extrapolating. A projected band
-    /// would be indistinguishable from a statutory one in the UI.
+    /// The latest held year not after the request, so a later year's rules are
+    /// never applied to an earlier year; before the table, the earliest. Never
+    /// extrapolated — a projected band would look statutory in the UI.
     nonisolated static func resolvedTaxYear(_ requested: Int, in available: [Int]) -> Int {
-        guard let lowest = available.min(), let highest = available.max() else { return requested }
-        if requested < lowest { return lowest }
-        if requested > highest { return highest }
-        return available.contains(requested) ? requested : highest
+        available.filter { $0 <= requested }.max() ?? available.min() ?? requested
     }
 
     // MARK: - 2025 (tax year 2025-26, 6 April 2025 to 5 April 2026)
@@ -121,8 +121,10 @@ enum UKTaxRuleTable {
         restOfUK: RegionBands(
             bands: [
                 TaxSlab(lower: 0,       upper: 37_700,  ratePercent: 20, label: "Basic rate"),
-                TaxSlab(lower: 37_700,  upper: 112_570, ratePercent: 40, label: "Higher rate"),
-                TaxSlab(lower: 112_570, upper: nil,     ratePercent: 45, label: "Additional rate"),
+                // The additional-rate edge is £125,140 of TAXABLE income: by then
+                // the allowance has tapered to nil, so nothing is subtracted.
+                TaxSlab(lower: 37_700,  upper: 125_140, ratePercent: 40, label: "Higher rate"),
+                TaxSlab(lower: 125_140, upper: nil,     ratePercent: 45, label: "Additional rate"),
             ],
             topRatePercent: 45,
             higherRateThreshold: 50_270,
@@ -138,8 +140,8 @@ enum UKTaxRuleTable {
                 TaxSlab(lower: 2_827,   upper: 14_921,  ratePercent: 20, label: "Basic rate"),
                 TaxSlab(lower: 14_921,  upper: 31_092,  ratePercent: 21, label: "Intermediate rate"),
                 TaxSlab(lower: 31_092,  upper: 62_430,  ratePercent: 42, label: "Higher rate"),
-                TaxSlab(lower: 62_430,  upper: 112_570, ratePercent: 45, label: "Advanced rate"),
-                TaxSlab(lower: 112_570, upper: nil,     ratePercent: 48, label: "Top rate"),
+                TaxSlab(lower: 62_430,  upper: 125_140, ratePercent: 45, label: "Advanced rate"),
+                TaxSlab(lower: 125_140, upper: nil,     ratePercent: 48, label: "Top rate"),
             ],
             topRatePercent: 48,
             higherRateThreshold: 43_662,
@@ -169,6 +171,67 @@ enum UKTaxRuleTable {
             allowanceAdditionalRate: 0
         ),
 
+        capitalGains: CapitalGainsRules(
+            annualExemptAmount: 3_000,
+            basicRate: 18,
+            higherRate: 24
+        )
+    )
+
+    // MARK: - 2026 (tax year 2026-27, 6 April 2026 to 5 April 2027)
+
+    /// Changes from 2025-26 (Finance Act 2026; Scottish Rate Resolution 2026):
+    /// dividend basic and higher rates rise to 10.75% and 35.75%, and Scotland
+    /// widens its starter and basic bands (gross £16,537 / £29,526). The personal
+    /// allowance, rUK bands, NI, savings and CGT figures are unchanged.
+    nonisolated private static let year2026 = YearRules(
+        ruleSetID: "UK_TY2026_27",
+        personalAllowance: 12_570,
+        personalAllowanceTaperThreshold: 100_000,
+        personalAllowanceTaperRatio: 2,
+        restOfUK: RegionBands(
+            bands: [
+                TaxSlab(lower: 0,       upper: 37_700,  ratePercent: 20, label: "Basic rate"),
+                TaxSlab(lower: 37_700,  upper: 125_140, ratePercent: 40, label: "Higher rate"),
+                TaxSlab(lower: 125_140, upper: nil,     ratePercent: 45, label: "Additional rate"),
+            ],
+            topRatePercent: 45,
+            higherRateThreshold: 50_270,
+            topRateThreshold: 125_140
+        ),
+        scotland: RegionBands(
+            bands: [
+                TaxSlab(lower: 0,       upper: 3_967,   ratePercent: 19, label: "Starter rate"),
+                TaxSlab(lower: 3_967,   upper: 16_956,  ratePercent: 20, label: "Basic rate"),
+                TaxSlab(lower: 16_956,  upper: 31_092,  ratePercent: 21, label: "Intermediate rate"),
+                TaxSlab(lower: 31_092,  upper: 62_430,  ratePercent: 42, label: "Higher rate"),
+                TaxSlab(lower: 62_430,  upper: 125_140, ratePercent: 45, label: "Advanced rate"),
+                TaxSlab(lower: 125_140, upper: nil,     ratePercent: 48, label: "Top rate"),
+            ],
+            topRatePercent: 48,
+            higherRateThreshold: 43_662,
+            topRateThreshold: 125_140
+        ),
+        nationalInsurance: NationalInsuranceRules(
+            primaryThreshold: 12_570,
+            upperEarningsLimit: 50_270,
+            mainRate: 8,
+            upperRate: 2,
+            selfEmployedMainRate: 6,
+            selfEmployedUpperRate: 2
+        ),
+        dividends: DividendRules(
+            allowance: 500,
+            basicRate: Decimal(string: "10.75") ?? 0,
+            higherRate: Decimal(string: "35.75") ?? 0,
+            additionalRate: Decimal(string: "39.35") ?? 0
+        ),
+        savings: SavingsRules(
+            startingRateBand: 5_000,
+            allowanceBasicRate: 1_000,
+            allowanceHigherRate: 500,
+            allowanceAdditionalRate: 0
+        ),
         capitalGains: CapitalGainsRules(
             annualExemptAmount: 3_000,
             basicRate: 18,

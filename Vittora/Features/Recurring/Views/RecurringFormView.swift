@@ -39,6 +39,7 @@ struct RecurringFormView: View {
                                         "",
                                         text: Bindable(viewModel).amount
                                     )
+                                        .vFormField()
                                         .font(VTypography.body)
                                         #if os(iOS)
                                         .keyboardType(.decimalPad)
@@ -103,7 +104,8 @@ struct RecurringFormView: View {
                                     )
                                     .datePickerStyle(.compact)
                                     .labelsHidden()
-                                    .frame(maxWidth: .infinity)
+                                    // Leading, like Start Date above.
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(VSpacing.md)
                                     .background(VColors.secondaryGroupedBackground)
                                     .cornerRadius(VSpacing.cornerRadiusMD)
@@ -292,6 +294,7 @@ struct RecurringFormView: View {
                     }
                     .vDialogCancelButton()
                 }
+                .vDialogToolbarItem()
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button(action: save) {
@@ -304,6 +307,7 @@ struct RecurringFormView: View {
                     .vDialogConfirmButton()
                     .disabled(!(viewModel?.canSave ?? false) || isLoading)
                 }
+                .vDialogToolbarItem()
             }
         }
         .onAppear {

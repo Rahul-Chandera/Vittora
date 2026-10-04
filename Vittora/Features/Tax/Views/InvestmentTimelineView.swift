@@ -37,7 +37,9 @@ struct InvestmentTimelineView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Done")) { dismiss() }
                         .accessibilityIdentifier("investment-timeline-done-button")
+                        .vDialogConfirmButton()
                 }
+                .vDialogToolbarItem()
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         isAdding = true
@@ -72,19 +74,23 @@ struct InvestmentTimelineView: View {
 
     private var list: some View {
         List {
-            ForEach(investments) { record in
-                Button {
-                    editing = record
-                } label: {
-                    row(record)
+            Group {
+                ForEach(investments) { record in
+                    Button {
+                        editing = record
+                    } label: {
+                        row(record)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("investment-row-\(record.id.uuidString)")
                 }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("investment-row-\(record.id.uuidString)")
+                .onDelete { offsets in
+                    Task { await delete(at: offsets) }
+                }
             }
-            .onDelete { offsets in
-                Task { await delete(at: offsets) }
-            }
+            .vListContentTint()
         }
+        .vListSelectionTint()
         #if os(iOS)
         .listStyle(.insetGrouped)
         #else

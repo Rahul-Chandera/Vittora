@@ -23,7 +23,8 @@ struct ExtractedFieldRow: View {
                 }
             }
 
-            TextField(label, text: $value)
+            TextField(label, text: $value, prompt: Text(label).foregroundStyle(VColors.placeholderText))
+                .vFormField()
                 .font(VTypography.body)
                 .foregroundColor(VColors.textPrimary)
                 #if os(iOS)

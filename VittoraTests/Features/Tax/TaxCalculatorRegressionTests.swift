@@ -214,12 +214,13 @@ struct TaxCalculatorRegressionTests {
 
         @Test("₹51L – 10% surcharge band marginal relief")
         func fiftyOneLakhMarginalRelief() {
-            // pre-cess at ₹50L = ₹10,57,500; cap = ₹11,57,500 → surcharge ₹70,000 (not 10% of ₹51L tax)
-            // cess = ₹11,57,500 × 4% = ₹46,300 → finalTax = ₹12,03,800 (incometax.gov.in FY2025-26)
+            // The threshold is on total income (taxable ₹50,25,000), not gross salary.
+            // Slab tax ₹10,87,500; at ₹50L it is ₹10,80,000, cap = 10,80,000 + 25,000 excess
+            // → surcharge ₹17,500 (not 10% = ₹1,08,750); cess 4% × 11,05,000 = ₹44,200
             let result = calc.calculate(profile: profile(income: 51_00_000))
-            #expect(result.surcharge == 70_000)
-            #expect(result.cess      == 46_300)
-            #expect(result.finalTax  == 12_03_800)
+            #expect(result.surcharge == 17_500)
+            #expect(result.cess      == 44_200)
+            #expect(result.finalTax  == 11_49_200)
         }
 
         @Test("₹1Cr – 10% surcharge at band ceiling")
@@ -234,11 +235,12 @@ struct TaxCalculatorRegressionTests {
 
         @Test("₹1.01Cr – 15% surcharge band marginal relief")
         func oneCroreOneLakhMarginalRelief() {
-            // cap = ₹29,13,250 → surcharge ₹3,25,750; cess ₹1,16,530 → finalTax ₹30,29,780
+            // taxable ₹1,00,25,000 → slab tax ₹25,87,500; tax + 10% surcharge at ₹1Cr = ₹28,38,000,
+            // cap = 28,38,000 + 25,000 = ₹28,63,000 → surcharge ₹2,75,500; cess ₹1,14,520
             let result = calc.calculate(profile: profile(income: 1_01_00_000))
-            #expect(result.surcharge == 3_25_750)
-            #expect(result.cess      == 1_16_530)
-            #expect(result.finalTax  == 30_29_780)
+            #expect(result.surcharge == 2_75_500)
+            #expect(result.cess      == 1_14_520)
+            #expect(result.finalTax  == 29_77_520)
         }
 
         @Test("₹2Cr – 15% surcharge at band ceiling")
@@ -250,11 +252,12 @@ struct TaxCalculatorRegressionTests {
 
         @Test("₹2.01Cr – 25% surcharge band marginal relief")
         func twoCroreOneLakhMarginalRelief() {
-            // cap = ₹64,91,125 → surcharge ₹9,03,625; cess ₹2,59,645 → finalTax ₹67,50,770
+            // taxable ₹2,00,25,000 → slab tax ₹55,87,500; tax + 15% surcharge at ₹2Cr = ₹64,17,000,
+            // cap = 64,17,000 + 25,000 = ₹64,42,000 → surcharge ₹8,54,500; cess ₹2,57,680
             let result = calc.calculate(profile: profile(income: 2_01_00_000))
-            #expect(result.surcharge == 9_03_625)
-            #expect(result.cess      == 2_59_645)
-            #expect(result.finalTax  == 67_50_770)
+            #expect(result.surcharge == 8_54_500)
+            #expect(result.cess      == 2_57_680)
+            #expect(result.finalTax  == 66_99_680)
         }
 
         @Test("₹5Cr – 25% new-regime surcharge at band ceiling")

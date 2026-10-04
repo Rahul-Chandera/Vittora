@@ -35,6 +35,7 @@ struct AmountInputView: View {
                             .accessibilityHidden(true)
                     }
                     TextField("", text: $amountString)
+                        .vFormField()
                         .font(VTypography.amountLarge)
                         .foregroundColor(transactionColor(for: type))
                         // The caret, not the text. A tint set on the enclosing

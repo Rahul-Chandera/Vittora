@@ -1,34 +1,31 @@
 import Foundation
 import VittoraCore
 
-/// Canadian federal and provincial income tax, CPP/EI and capital gains (M3.5).
+/// Canadian federal and provincial income tax, CPP/QPP/EI and capital gains.
 ///
-/// Canada is the first two-level calculator here: the US one is federal-only, so
-/// there was no existing pattern for sub-national tax. Provincial tax is a second
-/// full bracket table, not a surcharge on the federal one — which is why a
-/// federal-only estimate understates a Canadian's bill by roughly a third and was
-/// rejected as an option.
+/// Order (review 2026-10-03, CA-01..CA-06):
 ///
-/// The order matters and is explicit below:
-///
-/// 1. deductions (RRSP) reduce income;
-/// 2. federal and provincial brackets are applied to the *same* taxable income;
-/// 3. each level's basic personal amount is a **non-refundable credit at that
-///    level's lowest rate**, not a deduction — a credit of 14.5% of the federal
-///    BPA is worth far less than deducting it, and treating it as a deduction
-///    would understate tax at every income above the lowest bracket;
-/// 4. Ontario and PEI charge a surtax on their own tax, after credits;
-/// 5. Quebec reduces basic federal tax by the 16.5% abatement, because Quebec
-///    administers programmes Ottawa funds elsewhere. Missing it overstates a
-///    Quebec bill badly.
+/// 1. CPP or QPP and EI come FIRST, because they change income tax: the
+///    enhanced contribution (1% of the first tier, all of CPP2/QPP2) is a
+///    deduction (line 22215); the base contribution and EI premiums are
+///    non-refundable credits. Self-employed people pay both shares, deduct the
+///    employer-equivalent half (line 22200), and pay no EI unless they opt in.
+/// 2. Net income = income + taxable half of gains − RRSP − other deductions −
+///    those contribution deductions. Taxable income = net income here.
+/// 3. Federal and provincial brackets apply to the same taxable income.
+/// 4. Each level's basic personal amount (reduced with net income where the
+///    jurisdiction does so) and the contribution credits are valued at that
+///    level's lowest rate.
+/// 5. Ontario's surtax is charged on its own tax, after credits.
+/// 6. Quebec reduces basic federal tax by the 16.5% abatement.
 nonisolated struct CATaxCalculator: TaxCalculatorProtocol {
     nonisolated let country: TaxCountry = .canada
 
     nonisolated static let rulesLastUpdated: Date = {
         var components = DateComponents()
-        components.year = 2025
-        components.month = 1
-        components.day = 1
+        components.year = 2026
+        components.month = 10
+        components.day = 3
         return Calendar(identifier: .gregorian).date(from: components) ?? .distantPast
     }()
 
@@ -37,30 +34,39 @@ nonisolated struct CATaxCalculator: TaxCalculatorProtocol {
         let taxYear = Self.supportedTaxYear(for: profile)
         let rules = CATaxRuleTable.rules(for: taxYear)
         let province = adv.caProvince
+        let isQuebec = province == .quebec
+        let isSelfEmployed = profile.incomeSourceType == .selfEmployed
 
-        let employmentIncome = max(0, profile.annualIncome)
+        let earnings = max(0, profile.annualIncome)
 
         // Half of a capital gain is included in income.
         let taxableCapitalGain = (max(0, adv.caCapitalGains)
             * rules.capitalGainsInclusionPercent / 100).rounded(scale: 2)
 
-        let rrsp = max(0, adv.caRRSPContributions)
-        let otherDeductions = profile.customDeductions.reduce(Decimal(0)) { $0 + $1.amount }
-        let deductions = rrsp + otherDeductions
+        // MARK: Contributions (first — they change the tax)
 
-        let taxableIncome = max(0, employmentIncome + taxableCapitalGain - deductions)
+        let plan = isQuebec ? rules.qpp : rules.cpp
+        let pension = Self.pensionContribution(earnings: earnings, plan: plan, selfEmployed: isSelfEmployed)
+        let ei = isSelfEmployed ? 0 : Self.eiPremium(employmentIncome: earnings, province: province, rules: rules)
+
+        let rrsp = max(0, adv.caRRSPContributions)
+        let otherDeductions = profile.customDeductions.reduce(Decimal(0)) { $0 + max(0, $1.amount) }
+        let deductions = rrsp + otherDeductions + pension.deduction
+
+        let taxableIncome = max(0, earnings + taxableCapitalGain - deductions)
+        let netIncome = taxableIncome
 
         // MARK: Federal
 
-        let federalBPA = Self.federalBasicPersonalAmount(taxableIncome: taxableIncome, rules: rules)
+        let federalBPA = Self.federalBasicPersonalAmount(netIncome: netIncome, rules: rules)
         let federalBrackets = rules.federal.brackets.apply(to: taxableIncome)
         let federalGross = federalBrackets.reduce(Decimal(0)) { $0 + $1.taxAmount }
-        let federalCredit = (federalBPA * rules.federal.creditRatePercent / 100).rounded(scale: 2)
-        var federalTax = max(0, federalGross - federalCredit)
+        let federalCreditBase = federalBPA + pension.creditAmount + ei
+        let federalCredit = min(federalGross, (federalCreditBase * rules.federal.creditRatePercent / 100).rounded(scale: 2))
+        var federalTax = federalGross - federalCredit
 
-        // Quebec's abatement applies to basic federal tax.
         var abatement = Decimal(0)
-        if province == .quebec {
+        if isQuebec {
             abatement = (federalTax * rules.quebecAbatementPercent / 100).rounded(scale: 2)
             federalTax = max(0, federalTax - abatement)
         }
@@ -68,21 +74,19 @@ nonisolated struct CATaxCalculator: TaxCalculatorProtocol {
         // MARK: Provincial
 
         let jurisdiction = rules.provinces[province] ?? rules.federal
+        let provincialBPA = Self.provincialBasicPersonalAmount(jurisdiction: jurisdiction, netIncome: netIncome, rules: rules)
         let provincialBrackets = jurisdiction.brackets.apply(to: taxableIncome)
         let provincialGross = provincialBrackets.reduce(Decimal(0)) { $0 + $1.taxAmount }
-        let provincialCredit = (jurisdiction.basicPersonalAmount
-            * jurisdiction.creditRatePercent / 100).rounded(scale: 2)
-        let provincialBeforeSurtax = max(0, provincialGross - provincialCredit)
+        // Outside Quebec the provinces mirror the federal contribution credits;
+        // Quebec's own return treats QPP/EI differently and is not modelled.
+        let provincialCreditBase = provincialBPA + (isQuebec ? 0 : pension.creditAmount + ei)
+        let provincialCredit = min(provincialGross, (provincialCreditBase * jurisdiction.creditRatePercent / 100).rounded(scale: 2))
+        let provincialBeforeSurtax = provincialGross - provincialCredit
         let surtax = Self.surtax(on: provincialBeforeSurtax, jurisdiction: jurisdiction)
         let provincialTax = provincialBeforeSurtax + surtax
 
-        // MARK: Payroll
-
-        let cpp = Self.cppContribution(employmentIncome: employmentIncome, rules: rules)
-        let ei = Self.eiPremium(employmentIncome: employmentIncome, province: province, rules: rules)
-
-        let finalTax = federalTax + provincialTax + cpp + ei
-        let grossIncome = employmentIncome + taxableCapitalGain
+        let finalTax = federalTax + provincialTax + pension.total + ei
+        let grossIncome = earnings + taxableCapitalGain
 
         var supplementary: [TaxSupplementaryLine] = [
             TaxSupplementaryLine(title: String(localized: "Federal tax"), amount: federalTax),
@@ -101,12 +105,12 @@ nonisolated struct CATaxCalculator: TaxCalculatorProtocol {
                 title: String(localized: "Quebec federal abatement"), amount: -abatement
             ))
         }
-        if cpp > 0 {
+        if pension.total > 0 {
             supplementary.append(TaxSupplementaryLine(
-                title: province == .quebec
+                title: isQuebec
                     ? String(localized: "QPP contribution")
                     : String(localized: "CPP contribution"),
-                amount: cpp
+                amount: pension.total
             ))
         }
         if ei > 0 {
@@ -119,7 +123,13 @@ nonisolated struct CATaxCalculator: TaxCalculatorProtocol {
             String(localized: "Tax year is the calendar year."),
             String(localized: "Resident of \(province.displayName) on 31 December."),
             String(localized: "Basic personal amounts are applied as non-refundable credits, not deductions."),
+            String(localized: "Enhanced CPP/QPP contributions are deducted from income; base contributions and EI premiums are claimed as credits."),
         ]
+        if isSelfEmployed {
+            assumptions.append(String(localized: "Annual income treated as net self-employment income: both shares of CPP/QPP are paid and the employer share is deducted. EI is not charged — it is optional for the self-employed."))
+        } else {
+            assumptions.append(String(localized: "CPP/QPP and EI are charged on annual income as employment earnings. Pension income does not pay them."))
+        }
         if taxableCapitalGain > 0 {
             assumptions.append(String(localized: "Half of your capital gains is included in income."))
         }
@@ -130,9 +140,10 @@ nonisolated struct CATaxCalculator: TaxCalculatorProtocol {
             assumptions.append(String(localized: "Federal basic personal amount reduced to \(Self.plain(federalBPA)) because of income level."))
         }
 
-        var warnings: [String] = [
-            String(localized: "Provincial and territorial figures are being verified. Treat provincial amounts as indicative until confirmed."),
-        ]
+        var warnings: [String] = []
+        if rrsp > 0 {
+            warnings.append(String(localized: "RRSP contributions are deducted in full. Your deduction is limited by your RRSP room, which Vittora does not know."))
+        }
         if !CATaxRuleTable.supportedYears.contains(Self.requestedTaxYear(for: profile)) {
             warnings.append(String(localized: "Figures for the year you selected are not held. The nearest year Vittora has was used instead."))
         }
@@ -141,23 +152,34 @@ nonisolated struct CATaxCalculator: TaxCalculatorProtocol {
             String(localized: "Provincial health premiums and levies are not included."),
             String(localized: "Quebec Parental Insurance Plan premiums are not included."),
             String(localized: "Canada Employment Amount and other non-refundable credits are not included."),
+            String(localized: "Provincial low-income tax reductions are not included."),
             String(localized: "GST/HST credit, Canada Child Benefit and other refundable credits are not included."),
             String(localized: "Dividend gross-up and dividend tax credits are not modelled."),
         ]
 
+        // Reconciling bridges (review SH-02): the BPA is a credit, not a
+        // deduction, so it is not shown as one; basic tax is federal tax before
+        // credits, and the credits slot holds federal credits + abatement, so
+        // "basic − credits + provincial + contributions" is the final figure.
         return TaxEstimate(
             grossIncome: grossIncome,
-            standardDeduction: federalBPA,
+            standardDeduction: 0,
             customDeductionsTotal: deductions,
             taxableIncome: taxableIncome,
             bracketResults: federalBrackets,
-            basicTax: federalTax,
-            rebate: federalCredit + provincialCredit,
+            basicTax: federalGross,
+            rebate: federalCredit + abatement,
             surcharge: provincialTax,
-            cess: cpp + ei,
+            cess: pension.total + ei,
             finalTax: finalTax,
             effectiveRate: grossIncome > 0 ? (finalTax / grossIncome).rounded(scale: 4) : 0,
-            marginalRate: Self.marginalRate(taxableIncome: taxableIncome, jurisdiction: jurisdiction, rules: rules),
+            marginalRate: Self.marginalRate(
+                taxableIncome: taxableIncome,
+                provincialTaxBeforeSurtax: provincialBeforeSurtax,
+                jurisdiction: jurisdiction,
+                isQuebec: isQuebec,
+                rules: rules
+            ),
             country: .canada,
             regimeLabel: province.displayName,
             supplementaryLines: supplementary,
@@ -175,20 +197,48 @@ nonisolated struct CATaxCalculator: TaxCalculatorProtocol {
 
 extension CATaxCalculator {
 
-    /// The federal BPA is clawed back across the top two brackets, from its
-    /// maximum down to a floor — not to zero, unlike the UK's allowance.
+    /// The federal BPA is clawed back across the top two brackets on NET income
+    /// (line 23600), from its maximum down to a floor.
     nonisolated static func federalBasicPersonalAmount(
-        taxableIncome: Decimal,
+        netIncome: Decimal,
         rules: CATaxRuleTable.YearRules
     ) -> Decimal {
-        let maximum = rules.federal.basicPersonalAmount
-        let minimum = rules.federalBasicPersonalAmountMinimum
-        if taxableIncome <= rules.federalBPATaperStart { return maximum }
-        if taxableIncome >= rules.federalBPATaperEnd { return minimum }
+        linearBPA(
+            maximum: rules.federal.basicPersonalAmount,
+            minimum: rules.federalBasicPersonalAmountMinimum,
+            start: rules.federalBPATaperStart,
+            end: rules.federalBPATaperEnd,
+            netIncome: netIncome
+        )
+    }
 
-        let span = rules.federalBPATaperEnd - rules.federalBPATaperStart
+    nonisolated static func provincialBasicPersonalAmount(
+        jurisdiction: CATaxRuleTable.Jurisdiction,
+        netIncome: Decimal,
+        rules: CATaxRuleTable.YearRules
+    ) -> Decimal {
+        switch jurisdiction.bpaReduction {
+        case .none:
+            return jurisdiction.basicPersonalAmount
+        case .federal:
+            return federalBasicPersonalAmount(netIncome: netIncome, rules: rules)
+        case let .linear(start, end, minimum):
+            return linearBPA(maximum: jurisdiction.basicPersonalAmount, minimum: minimum, start: start, end: end, netIncome: netIncome)
+        }
+    }
+
+    nonisolated private static func linearBPA(
+        maximum: Decimal,
+        minimum: Decimal,
+        start: Decimal,
+        end: Decimal,
+        netIncome: Decimal
+    ) -> Decimal {
+        if netIncome <= start { return maximum }
+        if netIncome >= end { return minimum }
+        let span = end - start
         guard span > 0 else { return maximum }
-        let progress = (taxableIncome - rules.federalBPATaperStart) / span
+        let progress = (netIncome - start) / span
         return (maximum - (maximum - minimum) * progress).rounded(scale: 2)
     }
 
@@ -204,28 +254,48 @@ extension CATaxCalculator {
         }
     }
 
-    /// Base contribution on earnings between the exemption and the YMPE, plus
-    /// CPP2 on the band from YMPE to YAMPE. Quebec's QPP differs slightly in rate
-    /// but is modelled on the same mechanics; the label says QPP there.
-    nonisolated static func cppContribution(
-        employmentIncome: Decimal,
-        rules: CATaxRuleTable.YearRules
-    ) -> Decimal {
-        let cpp = rules.cpp
-        guard employmentIncome > cpp.basicExemption else { return 0 }
-
-        let pensionable = min(employmentIncome, cpp.maximumPensionableEarnings) - cpp.basicExemption
-        var total = (max(0, pensionable) * cpp.ratePercent / 100).rounded(scale: 2)
-
-        if employmentIncome > cpp.maximumPensionableEarnings {
-            let second = min(employmentIncome, cpp.additionalMaximumPensionableEarnings)
-                - cpp.maximumPensionableEarnings
-            total += (max(0, second) * cpp.additionalRatePercent / 100).rounded(scale: 2)
-        }
-        return total
+    struct PensionContribution: Sendable {
+        /// Paid this year (both shares when self-employed).
+        nonisolated let total: Decimal
+        /// Deducted from income: enhanced part of the employee share, plus the
+        /// employer-equivalent share when self-employed.
+        nonisolated let deduction: Decimal
+        /// Base part of the employee share, claimed as a non-refundable credit.
+        nonisolated let creditAmount: Decimal
     }
 
-    /// Quebec pays a lower EI rate because QPIP covers parental benefits there.
+    /// First tier on earnings between the exemption and the YMPE (base +
+    /// enhanced), second tier between the YMPE and the YAMPE (all enhanced).
+    /// CPP and QPP share these mechanics but not their rates.
+    nonisolated static func pensionContribution(
+        earnings: Decimal,
+        plan: CATaxRuleTable.PensionPlanRules,
+        selfEmployed: Bool
+    ) -> PensionContribution {
+        guard earnings > plan.basicExemption else {
+            return PensionContribution(total: 0, deduction: 0, creditAmount: 0)
+        }
+        let firstTierEarnings = max(0, min(earnings, plan.maximumPensionableEarnings) - plan.basicExemption)
+        let secondTierEarnings = max(0, min(earnings, plan.additionalMaximumPensionableEarnings) - plan.maximumPensionableEarnings)
+
+        let employeeFirst = (firstTierEarnings * plan.ratePercent / 100).rounded(scale: 2)
+        let employeeEnhancedFirst = (firstTierEarnings * plan.enhancedRatePercent / 100).rounded(scale: 2)
+        let employeeSecond = (secondTierEarnings * plan.additionalRatePercent / 100).rounded(scale: 2)
+        let employeeShare = employeeFirst + employeeSecond
+        let employeeEnhanced = employeeEnhancedFirst + employeeSecond
+        let employeeBase = employeeFirst - employeeEnhancedFirst
+
+        if selfEmployed {
+            return PensionContribution(
+                total: employeeShare * 2,
+                deduction: employeeShare + employeeEnhanced,
+                creditAmount: employeeBase
+            )
+        }
+        return PensionContribution(total: employeeShare, deduction: employeeEnhanced, creditAmount: employeeBase)
+    }
+
+    /// Quebec pays a lower EI rate because QPIP covers parental benefits.
     nonisolated static func eiPremium(
         employmentIncome: Decimal,
         province: CAProvince,
@@ -236,18 +306,28 @@ extension CATaxCalculator {
         return (insurable * rate / 100).rounded(scale: 2)
     }
 
-    /// Combined federal plus provincial rate on the next dollar — the number a
-    /// Canadian actually plans against, rather than either level alone.
+    /// Combined federal plus provincial INCOME-TAX rate on the next dollar,
+    /// including the effects that scale it: the Quebec abatement shrinks the
+    /// federal rate, and Ontario's surtax multiplies the provincial one.
+    /// Contributions and BPA-taper effects are not included.
     nonisolated static func marginalRate(
         taxableIncome: Decimal,
+        provincialTaxBeforeSurtax: Decimal,
         jurisdiction: CATaxRuleTable.Jurisdiction,
+        isQuebec: Bool,
         rules: CATaxRuleTable.YearRules
     ) -> Decimal {
-        let federal = rules.federal.brackets.last { taxableIncome > $0.lower }?.ratePercent
+        var federal = rules.federal.brackets.last { taxableIncome > $0.lower }?.ratePercent
             ?? rules.federal.brackets.first?.ratePercent ?? 0
+        if isQuebec {
+            federal = federal * (100 - rules.quebecAbatementPercent) / 100
+        }
         let provincial = jurisdiction.brackets.last { taxableIncome > $0.lower }?.ratePercent
             ?? jurisdiction.brackets.first?.ratePercent ?? 0
-        return federal + provincial
+        let surtaxRate = jurisdiction.surtaxes
+            .filter { provincialTaxBeforeSurtax > $0.threshold }
+            .reduce(Decimal(0)) { $0 + $1.ratePercent }
+        return (federal + provincial * (100 + surtaxRate) / 100).rounded(scale: 4)
     }
 
     // MARK: - Year resolution

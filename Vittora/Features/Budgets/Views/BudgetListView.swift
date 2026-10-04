@@ -33,149 +33,153 @@ struct BudgetListView: View {
                 .background(VColors.groupedBackground)
             } else {
                 List {
-                    if let viewModel = viewModel, let warning = viewModel.duplicateCategoryWarning {
-                        Section {
-                            HStack(spacing: VSpacing.sm) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundStyle(VColors.warning)
-                                    .accessibilityHidden(true)
-                                Text(warning)
-                                    .font(VTypography.caption1)
-                                    .foregroundStyle(VColors.textPrimary)
-                            }
-                            .accessibilityIdentifier("budget-duplicate-warning")
-                            .listRowBackground(VColors.secondaryGroupedBackground)
-                        }
-                    }
-
-                    // Overview card
-                    if let viewModel = viewModel {
-                        Section {
-                            BudgetOverviewCard(
-                                spent: viewModel.overallSpent,
-                                budget: viewModel.overallBudget,
-                                progress: viewModel.overallProgress,
-                                currencyCode: currencyCode
-                            )
-                            .listRowInsets(EdgeInsets())
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                        }
-                    }
-
-                    // Period selector
-                    if let viewModel = viewModel {
-                        Section {
-                            PeriodSelectorView(selectedPeriod: Bindable(viewModel).selectedPeriod)
-                                // Not a card of its own, so it needs the card
-                                // colour explicitly now the list background is
-                                // hidden — otherwise it renders on bare page grey.
+                    Group {
+                        if let viewModel = viewModel, let warning = viewModel.duplicateCategoryWarning {
+                            Section {
+                                HStack(spacing: VSpacing.sm) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundStyle(VColors.warning)
+                                        .accessibilityHidden(true)
+                                    Text(warning)
+                                        .font(VTypography.caption1)
+                                        .foregroundStyle(VColors.textPrimary)
+                                }
+                                .accessibilityIdentifier("budget-duplicate-warning")
                                 .listRowBackground(VColors.secondaryGroupedBackground)
-                                .onChange(of: viewModel.selectedPeriod) { _, _ in
-                                    Task {
-                                        await viewModel.loadBudgets()
+                            }
+                        }
+
+                        // Overview card
+                        if let viewModel = viewModel {
+                            Section {
+                                BudgetOverviewCard(
+                                    spent: viewModel.overallSpent,
+                                    budget: viewModel.overallBudget,
+                                    progress: viewModel.overallProgress,
+                                    currencyCode: currencyCode
+                                )
+                                .listRowInsets(EdgeInsets())
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                            }
+                        }
+
+                        // Period selector
+                        if let viewModel = viewModel {
+                            Section {
+                                PeriodSelectorView(selectedPeriod: Bindable(viewModel).selectedPeriod)
+                                    // Not a card of its own, so it needs the card
+                                    // colour explicitly now the list background is
+                                    // hidden — otherwise it renders on bare page grey.
+                                    .listRowBackground(VColors.secondaryGroupedBackground)
+                                    .onChange(of: viewModel.selectedPeriod) { _, _ in
+                                        Task {
+                                            await viewModel.loadBudgets()
+                                        }
+                                    }
+                            }
+                        }
+
+                        // Budget list
+                        if let viewModel = viewModel {
+                            ForEach(viewModel.budgets) { budget in
+                                // Destination form, not NavigationLink(value:).
+                                // Inside a List on macOS a value-based link only
+                                // selects the row — it never activates, so clicking
+                                // a budget did nothing (verified in the running Mac
+                                // app: the row took a focus ring, and Return did not
+                                // fire it either). The same link outside a List, in
+                                // Reports, pushes fine. Routing still goes through
+                                // NavigationDestinationView so it cannot drift from
+                                // the shared .navigationDestination handler.
+                                NavigationLink {
+                                    NavigationDestinationView(
+                                        destination: .budgetDetail(id: budget.id)
+                                    )
+                                } label: {
+                                    // No `progress:` parameter. BudgetProgress is
+                                    // not Equatable and the view never read it —
+                                    // every figure comes from `budget` — so it only
+                                    // served to muddy SwiftUI's view comparison
+                                    // while this row went stale after a new expense.
+                                    BudgetCardView(
+                                        budget: budget,
+                                        category: budget.categoryID.flatMap { viewModel.categoriesByID[$0] }
+                                    )
+                                }
+                                // Hide the system disclosure chevron. The row's
+                                // label is a full-bleed card, so the chevron
+                                // rendered OUTSIDE it: the card lost width on the
+                                // right, its corner radius sat inboard of the
+                                // chevron, and the whole row read as clipped.
+                                // Same treatment as Settings, Accounts and
+                                // Categories, which are all card-in-a-row lists.
+                                .navigationLinkIndicatorVisibility(.hidden)
+                                // Static, not per-id: the delete test needs to
+                                // reach a row it created without knowing its UUID.
+                                .accessibilityIdentifier("budget-row")
+                                // listRow* belongs on the ROW, not inside the
+                                // NavigationLink's label. Applied to the label it
+                                // styles the wrong node and muddles List's row
+                                // diffing — this row kept rendering a stale
+                                // `spent` after a new expense while the header,
+                                // assigned in the same loadBudgets() call, moved.
+                                // Vertical inset, not listRowSpacing: that reads
+                                // better but is unavailable on macOS. These rows are
+                                // one implicit section and insetGrouped spaces
+                                // sections rather than rows within one, so with zero
+                                // insets consecutive cards butted together and read
+                                // as a single block. Leading/trailing stay 0 so the
+                                // card still runs to the section's own margins.
+                                .listRowInsets(EdgeInsets(
+                                    top: VSpacing.xxs,
+                                    leading: 0,
+                                    bottom: VSpacing.xxs,
+                                    trailing: 0
+                                ))
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                                .contextMenu {
+                                    NavigationLink(value: NavigationDestination.budgetDetail(id: budget.id)) {
+                                        Label(String(localized: "Edit"), systemImage: "pencil")
+                                    }
+                                    Button(role: .destructive) {
+                                        budgetToDelete = budget
+                                    } label: {
+                                        Label(String(localized: "Delete"), systemImage: "trash")
                                     }
                                 }
+                                .swipeActions(edge: .trailing) {
+                                    Button(role: .destructive) {
+                                        budgetToDelete = budget
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                        // role: .destructive alone is not enough — the NavigationStack tint in
+                                        // AppTabView.contentStack repaints swipe actions, so the red is explicit.
+                                        .tint(.red)
+                                }
+                            }
                         }
-                    }
 
-                    // Budget list
-                    if let viewModel = viewModel {
-                        ForEach(viewModel.budgets) { budget in
-                            // Destination form, not NavigationLink(value:).
-                            // Inside a List on macOS a value-based link only
-                            // selects the row — it never activates, so clicking
-                            // a budget did nothing (verified in the running Mac
-                            // app: the row took a focus ring, and Return did not
-                            // fire it either). The same link outside a List, in
-                            // Reports, pushes fine. Routing still goes through
-                            // NavigationDestinationView so it cannot drift from
-                            // the shared .navigationDestination handler.
-                            NavigationLink {
-                                NavigationDestinationView(
-                                    destination: .budgetDetail(id: budget.id)
-                                )
-                            } label: {
-                                // No `progress:` parameter. BudgetProgress is
-                                // not Equatable and the view never read it —
-                                // every figure comes from `budget` — so it only
-                                // served to muddy SwiftUI's view comparison
-                                // while this row went stale after a new expense.
-                                BudgetCardView(
-                                    budget: budget,
-                                    category: budget.categoryID.flatMap { viewModel.categoriesByID[$0] }
-                                )
-                            }
-                            // Hide the system disclosure chevron. The row's
-                            // label is a full-bleed card, so the chevron
-                            // rendered OUTSIDE it: the card lost width on the
-                            // right, its corner radius sat inboard of the
-                            // chevron, and the whole row read as clipped.
-                            // Same treatment as Settings, Accounts and
-                            // Categories, which are all card-in-a-row lists.
-                            .navigationLinkIndicatorVisibility(.hidden)
-                            // Static, not per-id: the delete test needs to
-                            // reach a row it created without knowing its UUID.
-                            .accessibilityIdentifier("budget-row")
-                            // listRow* belongs on the ROW, not inside the
-                            // NavigationLink's label. Applied to the label it
-                            // styles the wrong node and muddles List's row
-                            // diffing — this row kept rendering a stale
-                            // `spent` after a new expense while the header,
-                            // assigned in the same loadBudgets() call, moved.
-                            // Vertical inset, not listRowSpacing: that reads
-                            // better but is unavailable on macOS. These rows are
-                            // one implicit section and insetGrouped spaces
-                            // sections rather than rows within one, so with zero
-                            // insets consecutive cards butted together and read
-                            // as a single block. Leading/trailing stay 0 so the
-                            // card still runs to the section's own margins.
-                            .listRowInsets(EdgeInsets(
-                                top: VSpacing.xxs,
-                                leading: 0,
-                                bottom: VSpacing.xxs,
-                                trailing: 0
-                            ))
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                            .contextMenu {
-                                NavigationLink(value: NavigationDestination.budgetDetail(id: budget.id)) {
-                                    Label(String(localized: "Edit"), systemImage: "pencil")
-                                }
-                                Button(role: .destructive) {
-                                    budgetToDelete = budget
-                                } label: {
-                                    Label(String(localized: "Delete"), systemImage: "trash")
-                                }
-                            }
-                            .swipeActions(edge: .trailing) {
-                                Button(role: .destructive) {
-                                    budgetToDelete = budget
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                                    // role: .destructive alone is not enough — the NavigationStack tint in
-                                    // AppTabView.contentStack repaints swipe actions, so the red is explicit.
-                                    .tint(.red)
+                        // No budgets for the selected period (others exist) — keep the
+                        // selector visible so the user isn't stranded on an empty tab.
+                        if let viewModel = viewModel, viewModel.budgets.isEmpty && !viewModel.isLoading {
+                            Section {
+                                Text(String(localized: "No budgets for this period"))
+                                    .font(VTypography.subheadline)
+                                    .foregroundColor(VColors.textSecondary)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .padding(.vertical, VSpacing.xl)
+                                    .listRowBackground(Color.clear)
+                                    .listRowSeparator(.hidden)
+                                    .accessibilityIdentifier("budget-period-empty-state")
                             }
                         }
                     }
-
-                    // No budgets for the selected period (others exist) — keep the
-                    // selector visible so the user isn't stranded on an empty tab.
-                    if let viewModel = viewModel, viewModel.budgets.isEmpty && !viewModel.isLoading {
-                        Section {
-                            Text(String(localized: "No budgets for this period"))
-                                .font(VTypography.subheadline)
-                                .foregroundColor(VColors.textSecondary)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.vertical, VSpacing.xl)
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-                                .accessibilityIdentifier("budget-period-empty-state")
-                        }
-                    }
+                    .vListContentTint()
                 }
+                .vListSelectionTint()
                 #if os(iOS)
                 .listStyle(.insetGrouped)
                 #else

@@ -12,11 +12,14 @@ import VittoraCore
 ///               190,000 · 45% above          (high confidence, legislated)
 ///   LITO        700 max, 5c taper from 37,500, 1.5c from 45,000, out at 66,667
 ///   CGT         50% discount over 12 months
-///   Medicare    2%, phased in between 27,222 and 34,027   (INDEXED — verify)
+///   Medicare    2%, shading in at 10c per dollar above 28,011 (INDEXED)
 ///   Surcharge   1% / 1.25% / 1.5% at 101,000 / 118,000 / 158,000 (INDEXED — verify)
 ///
 /// The two indexed threshold sets are the lower-confidence figures and are
 /// flagged in the rule table as well.
+///
+/// `basicTax` is gross tax before LITO; LITO sits in `rebate` and is
+/// subtracted once, in `finalTax`.
 @Suite("AUTaxCalculator golden fixtures")
 @MainActor
 struct AUTaxCalculatorTests {
@@ -51,12 +54,13 @@ struct AUTaxCalculatorTests {
     ///   16% on 26,800 = 4,288.00; 30% on 5,000 = 1,500.00 -> 5,788.00
     ///   LITO 700 - (7,500 x 5%) - (5,000 x 1.5%) = 250.00
     ///   Medicare 2% of 50,000 = 1,000.00
+    ///   5,788.00 - 250.00 + 1,000.00 = 6,538.00
     @Test("middle income, with private cover")
     func middleIncome() {
         let estimate = calculator.calculate(profile: profile(income: 50_000))
         #expect(estimate.taxableIncome == 50_000)
         #expect(estimate.rebate == decimal("250.00"))
-        #expect(estimate.basicTax == decimal("5538.00"))
+        #expect(estimate.basicTax == decimal("5788.00"))
         #expect(estimate.cess == decimal("1000.00"))
         #expect(estimate.finalTax == decimal("6538.00"))
         #expect(estimate.marginalRate == 30)
@@ -65,14 +69,14 @@ struct AUTaxCalculatorTests {
 
     /// $30,000: full LITO, and the Medicare levy still inside its phase-in.
     ///   16% on 11,800 = 1,888.00, less LITO 700 = 1,188.00
-    ///   Medicare (30,000 - 27,222) x 10% = 277.80
+    ///   Medicare min(2% x 30,000, (30,000 - 28,011) x 10%) = 198.90
     @Test("low income gets full LITO and a phased-in Medicare levy")
     func lowIncomePhaseIn() {
         let estimate = calculator.calculate(profile: profile(income: 30_000))
         #expect(estimate.rebate == decimal("700.00"))
-        #expect(estimate.basicTax == decimal("1188.00"))
-        #expect(estimate.cess == decimal("277.80"))
-        #expect(estimate.finalTax == decimal("1465.80"))
+        #expect(estimate.basicTax == decimal("1888.00"))
+        #expect(estimate.cess == decimal("198.90"))
+        #expect(estimate.finalTax == decimal("1386.90"))
     }
 
     /// The tax-free threshold really is free, and no levy applies below its own
@@ -90,8 +94,8 @@ struct AUTaxCalculatorTests {
         let estimate = calculator.calculate(profile: profile(income: 20_000))
         // 16% on 1,800 = 288.00, and LITO is capped at that rather than 700.
         #expect(estimate.rebate == decimal("288.00"))
-        #expect(estimate.basicTax == 0)
-        #expect(estimate.finalTax >= 0)
+        #expect(estimate.basicTax == decimal("288.00"))
+        #expect(estimate.finalTax == 0)
     }
 
     @Test("LITO is gone above the cut-out")
@@ -199,7 +203,7 @@ struct AUTaxCalculatorTests {
         var p = profile(income: 50_000)
         p.financialYear = "2031-32"
         let estimate = calculator.calculate(profile: p)
-        #expect(estimate.ruleSetID == "AU_TY2025_26")
+        #expect(estimate.ruleSetID == "AU_TY2026_27")
         #expect(estimate.warnings.contains { $0.contains("not held") })
     }
 

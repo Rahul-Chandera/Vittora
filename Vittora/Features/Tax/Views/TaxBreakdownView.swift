@@ -40,6 +40,7 @@ struct TaxBreakdownView: View {
                     Button(String(localized: "Done")) { dismiss() }
                         .vDialogConfirmButton()
                 }
+                .vDialogToolbarItem()
             }
         }
     }

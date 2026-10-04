@@ -276,7 +276,7 @@ struct UKTaxCalculatorTests {
         var p = profile(income: 30_000)
         p.financialYear = "2031-32"
         let estimate = calculator.calculate(profile: p)
-        #expect(estimate.ruleSetID == "UK_TY2025_26")
+        #expect(estimate.ruleSetID == "UK_TY2026_27")
         #expect(estimate.warnings.contains { $0.contains("not held") })
     }
 

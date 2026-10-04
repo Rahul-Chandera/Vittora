@@ -81,18 +81,22 @@ struct CategorizationRulesView: View {
             emptyState
         } else {
             List {
-                Section {
-                    ForEach(vm.rules) { rule in
-                        ruleRow(rule, vm: vm)
-                    }
-                } footer: {
-                    Text(
-                        String(
-                            localized: "Rules match keywords in payee names, notes, and receipt merchant text. Longer keywords take priority."
+                Group {
+                    Section {
+                        ForEach(vm.rules) { rule in
+                            ruleRow(rule, vm: vm)
+                        }
+                    } footer: {
+                        Text(
+                            String(
+                                localized: "Rules match keywords in payee names, notes, and receipt merchant text. Longer keywords take priority."
+                            )
                         )
-                    )
+                    }
                 }
+                .vListContentTint()
             }
+            .vListSelectionTint()
             #if os(iOS)
             .listStyle(.insetGrouped)
             #else
@@ -195,38 +199,43 @@ struct CategorizationRuleFormView: View {
         Group {
             if let vm = viewModel {
                 Form {
-                    Section {
-                        TextField(String(localized: "Keyword"), text: Bindable(vm).keyword)
-                            #if os(iOS)
-                            .textInputAutocapitalization(.never)
-                            #endif
-                            .autocorrectionDisabled()
-                    } header: {
-                        VFormSectionHeader(String(localized: "Keyword"))
-                    } footer: {
-                        Text(String(localized: "Matches when this word appears in a payee name, note, or receipt merchant text."))
-                    }
-
-                    Section {
-                        Picker(String(localized: "Category"), selection: Bindable(vm).selectedCategoryID) {
-                            Text(String(localized: "Select category")).tag(UUID?.none)
-                            ForEach(categories.filter { $0.type == .expense }) { category in
-                                HStack {
-                                    Image(systemName: category.icon)
-                                        .foregroundStyle(Color(hex: category.colorHex) ?? .blue)
-                                    Text(category.displayName)
-                                }
-                                .tag(UUID?(category.id))
-                            }
+                    Group {
+                        Section {
+                            TextField(String(localized: "Keyword"), text: Bindable(vm).keyword, prompt: Text(String(localized: "Keyword")).foregroundStyle(VColors.placeholderText))
+                                .vFormField()
+                                #if os(iOS)
+                                .textInputAutocapitalization(.never)
+                                #endif
+                                .autocorrectionDisabled()
+                        } header: {
+                            VFormSectionHeader(String(localized: "Keyword"))
+                        } footer: {
+                            Text(String(localized: "Matches when this word appears in a payee name, note, or receipt merchant text."))
                         }
-                    } header: {
-                        VFormSectionHeader(String(localized: "Category"))
-                    }
 
-                    Section {
-                        Toggle(String(localized: "Enabled"), isOn: Bindable(vm).isEnabled)
+                        Section {
+                            Picker(String(localized: "Category"), selection: Bindable(vm).selectedCategoryID) {
+                                Text(String(localized: "Select category")).tag(UUID?.none)
+                                ForEach(categories.filter { $0.type == .expense }) { category in
+                                    HStack {
+                                        Image(systemName: category.icon)
+                                            .foregroundStyle(Color(hex: category.colorHex) ?? .blue)
+                                        Text(category.displayName)
+                                    }
+                                    .tag(UUID?(category.id))
+                                }
+                            }
+                        } header: {
+                            VFormSectionHeader(String(localized: "Category"))
+                        }
+
+                        Section {
+                            Toggle(String(localized: "Enabled"), isOn: Bindable(vm).isEnabled)
+                        }
                     }
+                    .vListContentTint()
                 }
+                .vListSelectionTint()
                 .navigationTitle(
                     existingRule == nil
                         ? String(localized: "New Rule")
@@ -240,6 +249,7 @@ struct CategorizationRuleFormView: View {
                         Button(String(localized: "Cancel")) { dismiss() }
                         .vDialogCancelButton()
                     }
+                    .vDialogToolbarItem()
                     ToolbarItem(placement: .confirmationAction) {
                         Button(String(localized: "Save")) {
                             Task {
@@ -252,6 +262,7 @@ struct CategorizationRuleFormView: View {
                         .disabled(!vm.canSave || vm.isSaving)
                         .vDialogConfirmButton()
                     }
+                    .vDialogToolbarItem()
                 }
                 .errorAlert(message: formErrorBinding)
             } else {

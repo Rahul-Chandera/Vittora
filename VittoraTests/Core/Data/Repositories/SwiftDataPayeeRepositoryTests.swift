@@ -221,4 +221,25 @@ struct SwiftDataPayeeRepositoryTests {
 
         #expect(frequent.count == 1)
     }
+
+    // MARK: - Duplicate rows (CloudKit has no unique constraints)
+
+    @Test("a payee synced in twice reads once, and delete removes every copy")
+    func testDuplicateRowsCollapse() async throws {
+        let container = try ModelContainerConfig.makePreviewContainer()
+        let context = ModelContext(container)
+        let id = UUID()
+        for _ in 0..<2 {
+            context.insert(SDPayee(id: id, name: "DoorDash", type: .business))
+        }
+        try context.save()
+        let repo = SwiftDataPayeeRepository(modelContainer: container)
+
+        #expect(try await repo.fetchAll().map(\.id) == [id])
+        #expect(try await repo.fetchFrequent(limit: 5).map(\.id) == [id])
+        #expect(try await repo.search(query: "Door").map(\.id) == [id])
+
+        try await repo.delete(id)
+        #expect(try await repo.fetchAll().isEmpty)
+    }
 }

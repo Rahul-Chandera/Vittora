@@ -16,7 +16,8 @@ import VittoraCore
 ///
 /// The fixtures below were generated from the calculators **before** the rule
 /// data was moved into `USTaxRuleTable` / `IndiaTaxRuleTable`, so they pin the
-/// pre-refactor behaviour and are never to be regenerated to make a change pass.
+/// pre-refactor behaviour and are never to be regenerated to make a change pass
+/// (see `TaxGoldenFixtures` for the two reviewed re-pins).
 /// Adding a tax year means adding rows, never editing existing ones.
 @Suite("Tax Rule Table Golden Snapshot")
 @MainActor

@@ -179,40 +179,44 @@ struct CategoryListView: View {
     @ViewBuilder
     private func categoryList(vm: CategoryListViewModel) -> some View {
         List {
-            if !vm.filteredExpenseCategories.isEmpty {
-                Section {
-                    ForEach(
-                        CategoryHierarchy.grouped(vm.filteredExpenseCategories),
-                        id: \.parent.id
-                    ) { group in
-                        categoryRow(group.parent, isChild: false)
-                        ForEach(group.children) { child in
-                            categoryRow(child, isChild: true)
+            Group {
+                if !vm.filteredExpenseCategories.isEmpty {
+                    Section {
+                        ForEach(
+                            CategoryHierarchy.grouped(vm.filteredExpenseCategories),
+                            id: \.parent.id
+                        ) { group in
+                            categoryRow(group.parent, isChild: false)
+                            ForEach(group.children) { child in
+                                categoryRow(child, isChild: true)
+                            }
                         }
+                    } header: {
+                        VFormSectionHeader(String(localized: "Expense"))
                     }
-                } header: {
-                    VFormSectionHeader(String(localized: "Expense"))
+                    .headerProminence(.increased)
                 }
-                .headerProminence(.increased)
-            }
 
-            if !vm.filteredIncomeCategories.isEmpty {
-                Section {
-                    ForEach(
-                        CategoryHierarchy.grouped(vm.filteredIncomeCategories),
-                        id: \.parent.id
-                    ) { group in
-                        categoryRow(group.parent, isChild: false)
-                        ForEach(group.children) { child in
-                            categoryRow(child, isChild: true)
+                if !vm.filteredIncomeCategories.isEmpty {
+                    Section {
+                        ForEach(
+                            CategoryHierarchy.grouped(vm.filteredIncomeCategories),
+                            id: \.parent.id
+                        ) { group in
+                            categoryRow(group.parent, isChild: false)
+                            ForEach(group.children) { child in
+                                categoryRow(child, isChild: true)
+                            }
                         }
+                    } header: {
+                        VFormSectionHeader(String(localized: "Income"))
                     }
-                } header: {
-                    VFormSectionHeader(String(localized: "Income"))
+                    .headerProminence(.increased)
                 }
-                .headerProminence(.increased)
             }
+            .vListContentTint(.primary)
         }
+        .vListSelectionTint()
         // Clearance for the floating tab bar. safeAreaPadding, not
         // safeAreaInset: an inset paints an opaque view OVER the list, and
         // rows passing behind it are sliced mid-glyph. The Appearance

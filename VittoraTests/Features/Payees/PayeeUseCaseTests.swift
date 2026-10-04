@@ -164,7 +164,7 @@ struct PayeeUseCaseTests {
             let payee = PayeeEntity(name: "Old Payee", type: .business)
             await payeeRepo.seed(payee)
 
-            let useCase = DeletePayeeUseCase(repository: payeeRepo, transactionRepository: transactionRepo)
+            let useCase = DeletePayeeUseCase(repository: payeeRepo, transactionRepository: transactionRepo, ledgerWriting: MockLedgerWriting(transactionRepository: transactionRepo, accountRepository: MockAccountRepository(), payeeRepository: payeeRepo))
             try await useCase.execute(id: payee.id)
 
             let all = await payeeRepo.payees
@@ -176,7 +176,7 @@ struct PayeeUseCaseTests {
             let payeeRepo = MockPayeeRepository()
             let transactionRepo = MockTransactionRepository()
 
-            let useCase = DeletePayeeUseCase(repository: payeeRepo, transactionRepository: transactionRepo)
+            let useCase = DeletePayeeUseCase(repository: payeeRepo, transactionRepository: transactionRepo, ledgerWriting: MockLedgerWriting(transactionRepository: transactionRepo, accountRepository: MockAccountRepository(), payeeRepository: payeeRepo))
 
             await #expect(throws: (any Error).self) {
                 try await useCase.execute(id: UUID())

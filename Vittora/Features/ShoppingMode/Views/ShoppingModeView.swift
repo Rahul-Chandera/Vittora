@@ -41,21 +41,25 @@ struct ShoppingModeView: View {
     var body: some View {
         NavigationStack {
             Form {
-                if !controller.areActivitiesEnabled {
-                    Section {
-                        Text(String(localized: "Live Activities are switched off for Vittora. Turn them on in Settings to see your running total on the Lock Screen."))
-                            .font(VTypography.caption1)
-                            .foregroundStyle(VColors.textSecondary)
+                Group {
+                    if !controller.areActivitiesEnabled {
+                        Section {
+                            Text(String(localized: "Live Activities are switched off for Vittora. Turn them on in Settings to see your running total on the Lock Screen."))
+                                .font(VTypography.caption1)
+                                .foregroundStyle(VColors.textSecondary)
+                        }
+                    }
+
+                    if isRunning {
+                        runningSection
+                        addItemSection
+                    } else {
+                        startSection
                     }
                 }
-
-                if isRunning {
-                    runningSection
-                    addItemSection
-                } else {
-                    startSection
-                }
+                .vListContentTint()
             }
+            .vListSelectionTint()
             .navigationTitle(String(localized: "Shopping Mode"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -71,7 +75,9 @@ struct ShoppingModeView: View {
                             dismiss()
                         }
                     }
+                    .vDialogConfirmButton()
                 }
+                .vDialogToolbarItem()
             }
             .errorAlert(message: $error)
             .task { await loadBudgets() }
@@ -80,7 +86,8 @@ struct ShoppingModeView: View {
 
     private var startSection: some View {
         Section {
-            TextField(String(localized: "Shop name (optional)"), text: $sessionName)
+            TextField(String(localized: "Shop name (optional)"), text: $sessionName, prompt: Text(String(localized: "Shop name (optional)")).foregroundStyle(VColors.placeholderText))
+                .vFormField()
                 .accessibilityIdentifier("shopping-mode-name-field")
 
             // Only offered when there is a budget to pick — an empty picker is
@@ -159,7 +166,8 @@ struct ShoppingModeView: View {
     private var addItemSection: some View {
         Section {
             HStack {
-                TextField(String(localized: "Amount"), text: $amountText)
+                TextField(String(localized: "Amount"), text: $amountText, prompt: Text(String(localized: "Amount")).foregroundStyle(VColors.placeholderText))
+                    .vFormField()
                     #if os(iOS)
                     .keyboardType(.decimalPad)
                     #endif

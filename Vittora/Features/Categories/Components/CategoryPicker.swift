@@ -24,19 +24,23 @@ struct CategoryPicker: View {
 
     var body: some View {
         List {
-            if !expenseCategories.isEmpty && filterType == nil {
-                Section(header: VFormSectionHeader(String(localized: "Expense"))) {
-                    categoryRows(expenseCategories)
-                }
-                Section(header: VFormSectionHeader(String(localized: "Income"))) {
-                    categoryRows(incomeCategories)
-                }
-            } else {
-                Section {
-                    categoryRows(filteredCategories)
+            Group {
+                if !expenseCategories.isEmpty && filterType == nil {
+                    Section(header: VFormSectionHeader(String(localized: "Expense"))) {
+                        categoryRows(expenseCategories)
+                    }
+                    Section(header: VFormSectionHeader(String(localized: "Income"))) {
+                        categoryRows(incomeCategories)
+                    }
+                } else {
+                    Section {
+                        categoryRows(filteredCategories)
+                    }
                 }
             }
+            .vListContentTint()
         }
+        .vListSelectionTint()
         .navigationTitle(title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

@@ -71,7 +71,8 @@ extension DependencyContainer {
             fetchUseCase: FetchPayeesUseCase(repository: payeeRepository),
             deleteUseCase: DeletePayeeUseCase(
                 repository: payeeRepository,
-                transactionRepository: transactionRepository
+                transactionRepository: transactionRepository,
+                ledgerWriting: ledgerWriteStore
             ),
             importContactsUseCase: ImportContactsUseCase(
                 repository: payeeRepository,

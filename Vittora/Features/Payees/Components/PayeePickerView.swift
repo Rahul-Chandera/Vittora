@@ -74,58 +74,62 @@ struct PayeePickerView: View {
 
     private var payeeList: some View {
         List {
-            // None option
-            Button {
-                selectedPayeeID = nil
-            } label: {
-                HStack {
-                    Text(String(localized: "None"))
-                        .font(VTypography.body)
-                        .foregroundColor(VColors.textSecondary)
-                    Spacer()
-                    if selectedPayeeID == nil {
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(VColors.primaryOnSurface)
-                    }
-                }
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-
-            // With no payees the list was just "None" and a search field, and
-            // no way forward. The toolbar button covers every case; this row
-            // makes the option findable when the list is otherwise bare.
-            if payees.isEmpty {
+            Group {
+                // None option
                 Button {
-                    showAddPayee = true
-                } label: {
-                    Label(String(localized: "Add Payee"), systemImage: "plus.circle.fill")
-                        .foregroundStyle(VColors.primaryOnSurface)
-                        // Sat flush under "None" with nothing between them.
-                        .padding(.top, VSpacing.sm)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("payee-picker-add-inline")
-            }
-
-            ForEach(filteredPayees) { payee in
-                Button {
-                    selectedPayeeID = payee.id
+                    selectedPayeeID = nil
                 } label: {
                     HStack {
-                        PayeeRowView(payee: payee)
-                        if selectedPayeeID == payee.id {
+                        Text(String(localized: "None"))
+                            .font(VTypography.body)
+                            .foregroundColor(VColors.textSecondary)
+                        Spacer()
+                        if selectedPayeeID == nil {
                             Image(systemName: "checkmark")
                                 .foregroundStyle(VColors.primaryOnSurface)
-                                .font(.system(size: 14, weight: .semibold))
                         }
                     }
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+
+                // With no payees the list was just "None" and a search field, and
+                // no way forward. The toolbar button covers every case; this row
+                // makes the option findable when the list is otherwise bare.
+                if payees.isEmpty {
+                    Button {
+                        showAddPayee = true
+                    } label: {
+                        Label(String(localized: "Add Payee"), systemImage: "plus.circle.fill")
+                            .foregroundStyle(VColors.primaryOnSurface)
+                            // Sat flush under "None" with nothing between them.
+                            .padding(.top, VSpacing.sm)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("payee-picker-add-inline")
+                }
+
+                ForEach(filteredPayees) { payee in
+                    Button {
+                        selectedPayeeID = payee.id
+                    } label: {
+                        HStack {
+                            PayeeRowView(payee: payee)
+                            if selectedPayeeID == payee.id {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(VColors.primaryOnSurface)
+                                    .font(.system(size: 14, weight: .semibold))
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
             }
+            .vListContentTint()
         }
+        .vListSelectionTint()
     }
 }
 

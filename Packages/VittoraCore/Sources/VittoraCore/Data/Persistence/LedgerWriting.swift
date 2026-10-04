@@ -74,4 +74,11 @@ public protocol LedgerWriting: Sendable {
     /// generated transaction that references it (A10) — then deletes the rule.
     /// No balance effects; one save.
     func performDeleteRecurringRule(ruleID: UUID) async throws
+
+    /// Delete a payee after clearing `payeeID` on every transaction and
+    /// `templatePayeeID` on every recurring rule that names it: those records
+    /// stay, without a payee. Refused while debts reference the payee — a debt
+    /// is *with* that person and has no meaning without them. Deletes every row
+    /// carrying the id (CloudKit can hold duplicates). No balance effects; one save.
+    func performDeletePayee(payeeID: UUID) async throws
 }

@@ -126,85 +126,89 @@ struct AccountListView: View {
     @ViewBuilder
     private func accountList(vm: AccountListViewModel) -> some View {
         List {
-            // Net Worth card
-            Section {
-                NetWorthCard(summary: vm.netWorthSummary, currencyCode: currencyCode)
-                .listRowInsets(EdgeInsets(
-                    top: VSpacing.sm,
-                    leading: VSpacing.screenPadding,
-                    bottom: VSpacing.sm,
-                    trailing: VSpacing.screenPadding
-                ))
-                .listRowBackground(Color.clear)
-            }
+            Group {
+                // Net Worth card
+                Section {
+                    NetWorthCard(summary: vm.netWorthSummary, currencyCode: currencyCode)
+                    .listRowInsets(EdgeInsets(
+                        top: VSpacing.sm,
+                        leading: VSpacing.screenPadding,
+                        bottom: VSpacing.sm,
+                        trailing: VSpacing.screenPadding
+                    ))
+                    .listRowBackground(Color.clear)
+                }
 
-            // Accounts grouped by type
-            ForEach(AccountType.allCases, id: \.self) { type in
-                let accountsForType = vm.groupedAccounts[type] ?? []
-                if !accountsForType.isEmpty {
-                    Section {
-                        ForEach(accountsForType) { account in
-                            NavigationLink {
-                                AccountDetailView(accountID: account.id)
-                            } label: {
-                                HStack {
-                                    AccountRowView(account: account)
-                                    Image(systemName: "chevron.right")
-                                        .foregroundStyle(.primary)
-                                        .accessibilityHidden(true)
-                                }
-                            }
-                            .accessibilityIdentifier("account-row-\(account.name)")
-                            .navigationLinkIndicatorVisibility(.hidden)
-                            .contextMenu {
+                // Accounts grouped by type
+                ForEach(AccountType.allCases, id: \.self) { type in
+                    let accountsForType = vm.groupedAccounts[type] ?? []
+                    if !accountsForType.isEmpty {
+                        Section {
+                            ForEach(accountsForType) { account in
                                 NavigationLink {
                                     AccountDetailView(accountID: account.id)
                                 } label: {
-                                    Label(String(localized: "Edit"), systemImage: "pencil")
-                                }
-                                Button {
-                                    Task {
-                                        await vm.archiveAccount(id: account.id)
-                                        appState.notifyChanged(.accounts)
+                                    HStack {
+                                        AccountRowView(account: account)
+                                        Image(systemName: "chevron.right")
+                                            .foregroundStyle(.primary)
+                                            .accessibilityHidden(true)
                                     }
-                                } label: {
-                                    Label(String(localized: "Archive"), systemImage: "archivebox")
                                 }
-                                Button(role: .destructive) {
-                                    accountToDelete = account.id
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label(String(localized: "Delete"), systemImage: "trash")
+                                .accessibilityIdentifier("account-row-\(account.name)")
+                                .navigationLinkIndicatorVisibility(.hidden)
+                                .contextMenu {
+                                    NavigationLink {
+                                        AccountDetailView(accountID: account.id)
+                                    } label: {
+                                        Label(String(localized: "Edit"), systemImage: "pencil")
+                                    }
+                                    Button {
+                                        Task {
+                                            await vm.archiveAccount(id: account.id)
+                                            appState.notifyChanged(.accounts)
+                                        }
+                                    } label: {
+                                        Label(String(localized: "Archive"), systemImage: "archivebox")
+                                    }
+                                    Button(role: .destructive) {
+                                        accountToDelete = account.id
+                                        showingDeleteAlert = true
+                                    } label: {
+                                        Label(String(localized: "Delete"), systemImage: "trash")
+                                    }
+                                }
+                                .swipeActions(edge: .trailing) {
+                                    Button(role: .destructive) {
+                                        accountToDelete = account.id
+                                        showingDeleteAlert = true
+                                    } label: {
+                                        Label(String(localized: "Delete"), systemImage: "trash")
+                                    }
+                                        // role: .destructive alone is not enough — the NavigationStack tint in
+                                        // AppTabView.contentStack repaints swipe actions, so the red is explicit.
+                                        .tint(.red)
+                                    Button {
+                                        Task {
+                                            await vm.archiveAccount(id: account.id)
+                                            appState.notifyChanged(.accounts)
+                                        }
+                                    } label: {
+                                        Label(String(localized: "Archive"), systemImage: "archivebox")
+                                    }
+                                    .tint(.orange)
                                 }
                             }
-                            .swipeActions(edge: .trailing) {
-                                Button(role: .destructive) {
-                                    accountToDelete = account.id
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label(String(localized: "Delete"), systemImage: "trash")
-                                }
-                                    // role: .destructive alone is not enough — the NavigationStack tint in
-                                    // AppTabView.contentStack repaints swipe actions, so the red is explicit.
-                                    .tint(.red)
-                                Button {
-                                    Task {
-                                        await vm.archiveAccount(id: account.id)
-                                        appState.notifyChanged(.accounts)
-                                    }
-                                } label: {
-                                    Label(String(localized: "Archive"), systemImage: "archivebox")
-                                }
-                                .tint(.orange)
-                            }
+                        } header: {
+                            VFormSectionHeader(sectionTitle(for: type))
                         }
-                    } header: {
-                        VFormSectionHeader(sectionTitle(for: type))
+                        .headerProminence(.increased)
                     }
-                    .headerProminence(.increased)
                 }
             }
+            .vListContentTint(.primary)
         }
+        .vListSelectionTint()
         // Clearance for the floating tab bar. safeAreaPadding, not
         // safeAreaInset: an inset paints an opaque view OVER the list, and
         // rows passing behind it are sliced mid-glyph. The Appearance

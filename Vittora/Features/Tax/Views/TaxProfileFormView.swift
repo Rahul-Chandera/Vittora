@@ -34,6 +34,7 @@ struct TaxProfileFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .vDialogToolbarItem()
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
                         Task {
@@ -54,6 +55,7 @@ struct TaxProfileFormView: View {
                     .disabled(!(vm?.canSave ?? false) || (vm?.isSaving ?? false))
                     .vDialogConfirmButton()
                 }
+                .vDialogToolbarItem()
             }
         }
         .task {
@@ -81,386 +83,394 @@ struct TaxProfileFormView: View {
     private func formContent(_ vm: TaxProfileFormViewModel) -> some View {
         @Bindable var bindableVM = vm
         Form {
-            // Country
-            Section(header: VFormSectionHeader(String(localized: "Country"))) {
-                Picker(String(localized: "Country"), selection: Bindable(vm).country) {
-                    ForEach(TaxCountry.allCases, id: \.self) { c in
-                        Text(c.displayName).tag(c)
-                    }
-                }
-                .labelsHidden()
-                .pickerStyle(.menu)
-                .accessibilityLabel(String(localized: "Country"))
-                .onChange(of: vm.country) { _, _ in
-                    vm.financialYear = vm.country.defaultFinancialYear
-                    vm.recalculateLive()
-                }
-            }
-
-            // Income
-            Section(header: VFormSectionHeader(String(localized: "Annual Income"))) {
-                HStack {
-                    TextField(String(localized: "0"), text: Bindable(vm).incomeString)
-                        #if os(iOS)
-                        .keyboardType(.numberPad)
-                        .textContentType(nil)
-                        #endif
-                        .accessibilityLabel(String(localized: "Annual income"))
-                        .accessibilityHint(String(localized: "Amount in \(vm.country.currencyCode)"))
-                        .onChange(of: vm.incomeString) { _, _ in vm.recalculateLive() }
-                }
-
-                Text(String(localized: "Financial Year: \(vm.financialYear)"))
-                    .font(VTypography.caption1)
-                    .foregroundStyle(VColors.textSecondary)
-            }
-
-            // Regime / Filing Status
-            if vm.country == .india {
-                Section(header: VFormSectionHeader(String(localized: "Tax Regime"))) {
-                    indiaRegimePicker(vm)
-
-                    Picker(String(localized: "Income Type"), selection: Bindable(vm).incomeSourceType) {
-                        ForEach(IncomeSourceType.allCases, id: \.self) { t in
-                            Text(t.displayName).tag(t)
+            Group {
+                // Country
+                Section(header: VFormSectionHeader(String(localized: "Country"))) {
+                    Picker(String(localized: "Country"), selection: Bindable(vm).country) {
+                        ForEach(TaxCountry.allCases, id: \.self) { c in
+                            Text(c.displayName).tag(c)
                         }
                     }
+                    .labelsHidden()
                     .pickerStyle(.menu)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .onChange(of: vm.incomeSourceType) { _, _ in vm.recalculateLive() }
+                    .accessibilityLabel(String(localized: "Country"))
+                    .onChange(of: vm.country) { _, _ in
+                        vm.financialYear = vm.country.defaultFinancialYear
+                        vm.recalculateLive()
+                    }
                 }
 
-                if vm.indiaRegime == .oldRegime {
+                // Income
+                Section(header: VFormSectionHeader(String(localized: "Annual Income"))) {
+                    HStack {
+                        TextField(String(localized: "0"), text: Bindable(vm).incomeString, prompt: Text(String(localized: "0")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
+                            #if os(iOS)
+                            .keyboardType(.numberPad)
+                            .textContentType(nil)
+                            #endif
+                            .accessibilityLabel(String(localized: "Annual income"))
+                            .accessibilityHint(String(localized: "Amount in \(vm.country.currencyCode)"))
+                            .onChange(of: vm.incomeString) { _, _ in vm.recalculateLive() }
+                    }
+
+                    Text(String(localized: "Financial Year: \(vm.financialYear)"))
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
+                }
+
+                // Regime / Filing Status
+                if vm.country == .india {
+                    Section(header: VFormSectionHeader(String(localized: "Tax Regime"))) {
+                        indiaRegimePicker(vm)
+
+                        Picker(String(localized: "Income Type"), selection: Bindable(vm).incomeSourceType) {
+                            ForEach(IncomeSourceType.allCases, id: \.self) { t in
+                                Text(t.displayName).tag(t)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .onChange(of: vm.incomeSourceType) { _, _ in vm.recalculateLive() }
+                    }
+
+                    if vm.indiaRegime == .oldRegime {
+                        Section {
+                            if let dob = vm.dateOfBirth {
+                                DatePicker(
+                                    String(localized: "Date of Birth"),
+                                    selection: Binding(
+                                        get: { dob },
+                                        set: { vm.dateOfBirth = $0; vm.recalculateLive() }
+                                    ),
+                                    in: ...Date.now,
+                                    displayedComponents: .date
+                                )
+                                Button(String(localized: "Clear Date of Birth"), role: .destructive) {
+                                    vm.dateOfBirth = nil
+                                    vm.recalculateLive()
+                                }
+                            } else {
+                                Button(String(localized: "Set Date of Birth")) {
+                                    vm.dateOfBirth = Calendar.current.date(byAdding: .year, value: -30, to: .now) ?? .now
+                                    vm.recalculateLive()
+                                }
+                            }
+
+                            Toggle(String(localized: "Parents are senior citizens (80D)"), isOn: Binding(
+                                get: { vm.advancedInputs.indiaParentsSeniorCitizen },
+                                set: {
+                                    vm.advancedInputs.indiaParentsSeniorCitizen = $0
+                                    vm.recalculateLive()
+                                }
+                            ))
+                        } header: {
+                            VFormSectionHeader(String(localized: "Age (for senior citizen slabs)"))
+                        } footer: {
+                            Text(String(localized: "Senior citizens (60+) and super-senior citizens (80+) have higher basic exemption limits under the old regime."))
+                        }
+
+                        Section {
+                            HStack {
+                                Text(vm.country.currencySymbol)
+                                    .foregroundStyle(VColors.textSecondary)
+                                TextField(String(localized: "Annual basic salary + DA"), text: Bindable(vm).indiaBasicSalaryString, prompt: Text(String(localized: "Annual basic salary + DA")).foregroundStyle(VColors.placeholderText))
+                                    .vFormField()
+                                    #if os(iOS)
+                                    .keyboardType(.numberPad)
+                                    #endif
+                                    .onChange(of: vm.indiaBasicSalaryString) { _, _ in vm.recalculateLive() }
+                            }
+                            HStack {
+                                Text(vm.country.currencySymbol)
+                                    .foregroundStyle(VColors.textSecondary)
+                                TextField(String(localized: "Annual HRA received"), text: Bindable(vm).indiaHRAPaidString, prompt: Text(String(localized: "Annual HRA received")).foregroundStyle(VColors.placeholderText))
+                                    .vFormField()
+                                    #if os(iOS)
+                                    .keyboardType(.numberPad)
+                                    #endif
+                                    .onChange(of: vm.indiaHRAPaidString) { _, _ in vm.recalculateLive() }
+                            }
+                            HStack {
+                                Text(vm.country.currencySymbol)
+                                    .foregroundStyle(VColors.textSecondary)
+                                TextField(String(localized: "Annual rent paid"), text: Bindable(vm).indiaRentPaidString, prompt: Text(String(localized: "Annual rent paid")).foregroundStyle(VColors.placeholderText))
+                                    .vFormField()
+                                    #if os(iOS)
+                                    .keyboardType(.numberPad)
+                                    #endif
+                                    .onChange(of: vm.indiaRentPaidString) { _, _ in vm.recalculateLive() }
+                            }
+                            Toggle(String(localized: "Metro city"), isOn: Binding(
+                                get: { vm.advancedInputs.indiaMetroCity },
+                                set: {
+                                    vm.advancedInputs.indiaMetroCity = $0
+                                    vm.recalculateLive()
+                                }
+                            ))
+                        } header: {
+                            VFormSectionHeader(String(localized: "HRA Exemption"))
+                        } footer: {
+                            Text(String(localized: "HRA exemption uses the minimum of actual HRA, rent minus 10% of salary, and 50%/40% of salary."))
+                        }
+                    }
+                } else if vm.country == .unitedKingdom {
+                    ukSections(vm)
+                } else if vm.country == .australia {
+                    auSections(vm)
+                } else if vm.country == .canada {
+                    caSections(vm)
+                } else {
                     Section {
-                        if let dob = vm.dateOfBirth {
-                            DatePicker(
-                                String(localized: "Date of Birth"),
-                                selection: Binding(
-                                    get: { dob },
-                                    set: { vm.dateOfBirth = $0; vm.recalculateLive() }
-                                ),
-                                in: ...Date.now,
-                                displayedComponents: .date
+                        Picker(String(localized: "Status"), selection: Bindable(vm).filingStatus) {
+                            ForEach(USFilingStatus.allCases, id: \.self) { s in
+                                Text(s.displayName).tag(s)
+                            }
+                        }
+                        .onChange(of: vm.filingStatus) { _, _ in vm.recalculateLive() }
+                    } header: {
+                        VFormSectionHeader(String(localized: "Filing Status"))
+                    } footer: {
+                        if vm.filingStatus == .qualifyingSurvivingSpouse {
+                            Text(
+                                String(localized: "Use this status only during the two tax years after a spouse's death if you still meet IRS eligibility requirements.")
                             )
-                            Button(String(localized: "Clear Date of Birth"), role: .destructive) {
-                                vm.dateOfBirth = nil
-                                vm.recalculateLive()
-                            }
-                        } else {
-                            Button(String(localized: "Set Date of Birth")) {
-                                vm.dateOfBirth = Calendar.current.date(byAdding: .year, value: -30, to: .now) ?? .now
-                                vm.recalculateLive()
-                            }
                         }
-
-                        Toggle(String(localized: "Parents are senior citizens (80D)"), isOn: Binding(
-                            get: { vm.advancedInputs.indiaParentsSeniorCitizen },
-                            set: {
-                                vm.advancedInputs.indiaParentsSeniorCitizen = $0
-                                vm.recalculateLive()
-                            }
-                        ))
-                    } header: {
-                        VFormSectionHeader(String(localized: "Age (for senior citizen slabs)"))
-                    } footer: {
-                        Text(String(localized: "Senior citizens (60+) and super-senior citizens (80+) have higher basic exemption limits under the old regime."))
                     }
 
                     Section {
+                        contributionAmountField(
+                            vm: vm,
+                            title: String(localized: "401(k) contributed YTD"),
+                            text: Bindable(vm).us401kContributedString,
+                            currencyCode: vm.country.currencyCode
+                        )
+                        // Asked, not assumed: Roth deferrals are made after tax, so treating
+                        // them as pre-tax would understate a Roth saver's bill.
                         HStack {
-                            Text(vm.country.currencySymbol)
-                                .foregroundStyle(VColors.textSecondary)
-                            TextField(String(localized: "Annual basic salary + DA"), text: Bindable(vm).indiaBasicSalaryString)
-                                #if os(iOS)
-                                .keyboardType(.numberPad)
-                                #endif
-                                .onChange(of: vm.indiaBasicSalaryString) { _, _ in vm.recalculateLive() }
+                            Text(String(localized: "401(k) is Roth (after tax)"))
+                                .font(.body)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer()
+                            Toggle("", isOn: Binding(
+                                get: { vm.advancedInputs.us401kIsRoth },
+                                set: {
+                                    vm.advancedInputs.us401kIsRoth = $0
+                                    vm.recalculateLive()
+                                }
+                            ))
+                            .labelsHidden()
+                            .accessibilityIdentifier("tax-401k-is-roth-toggle")
                         }
+                        .accessibilityElement(children: .combine)
+
+                        contributionAmountField(
+                            vm: vm,
+                            title: String(localized: "IRA contributed YTD"),
+                            text: Bindable(vm).usIRAContributedString,
+                            currencyCode: vm.country.currencyCode
+                        )
+                        contributionAmountField(
+                            vm: vm,
+                            title: String(localized: "HSA contributed YTD"),
+                            text: Bindable(vm).usHSAContributedString,
+                            currencyCode: vm.country.currencyCode
+                        )
                         HStack {
-                            Text(vm.country.currencySymbol)
-                                .foregroundStyle(VColors.textSecondary)
-                            TextField(String(localized: "Annual HRA received"), text: Bindable(vm).indiaHRAPaidString)
-                                #if os(iOS)
-                                .keyboardType(.numberPad)
-                                #endif
-                                .onChange(of: vm.indiaHRAPaidString) { _, _ in vm.recalculateLive() }
+                            Text(String(localized: "HSA family coverage"))
+                                .font(.body)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer()
+                            Toggle("", isOn: Binding(
+                                get: { vm.advancedInputs.usHSAFamilyCoverage },
+                                set: {
+                                    vm.advancedInputs.usHSAFamilyCoverage = $0
+                                    vm.recalculateLive()
+                                }
+                            ))
+                            .labelsHidden()
                         }
-                        HStack {
-                            Text(vm.country.currencySymbol)
-                                .foregroundStyle(VColors.textSecondary)
-                            TextField(String(localized: "Annual rent paid"), text: Bindable(vm).indiaRentPaidString)
-                                #if os(iOS)
-                                .keyboardType(.numberPad)
-                                #endif
-                                .onChange(of: vm.indiaRentPaidString) { _, _ in vm.recalculateLive() }
-                        }
-                        Toggle(String(localized: "Metro city"), isOn: Binding(
-                            get: { vm.advancedInputs.indiaMetroCity },
-                            set: {
-                                vm.advancedInputs.indiaMetroCity = $0
-                                vm.recalculateLive()
-                            }
-                        ))
+                        .accessibilityElement(children: .combine)
                     } header: {
-                        VFormSectionHeader(String(localized: "HRA Exemption"))
+                        VFormSectionHeader(String(localized: "Retirement & HSA Contributions"))
                     } footer: {
-                        Text(String(localized: "HRA exemption uses the minimum of actual HRA, rent minus 10% of salary, and 50%/40% of salary."))
+                        Text(String(localized: "Traditional 401(k) and HSA contributions reduce your federal income tax estimate, but not Social Security or Medicare. IRA contributions are tracked for headroom only — their deductibility depends on workplace plan coverage, which Vittora does not know."))
+                            .foregroundStyle(VColors.textSecondary)
+                    }
+
+                    if !vm.usContributionUtilization.isEmpty {
+                        Section(header: VFormSectionHeader(String(localized: "Contribution Headroom"))) {
+                            ForEach(vm.usContributionUtilization) { item in
+                                VStack(alignment: .leading, spacing: VSpacing.sm) {
+                                    HStack {
+                                        Text(item.title)
+                                        Spacer()
+                                        Text(
+                                            "\(item.contributed.formatted(.currency(code: vm.country.currencyCode))) / \(item.statutoryLimit.formatted(.currency(code: vm.country.currencyCode)))"
+                                        )
+                                        .font(VTypography.caption1.bold())
+                                    }
+                                    // Decorative: the amounts above and the
+                                    // "N remaining" line below already carry this
+                                    // value. As its own element it is a 4pt-tall
+                                    // interaction target.
+                                    ProgressView(value: item.utilizationFraction)
+                                        .tint(item.headroom > 0 ? VColors.primary : VColors.warning)
+                                        .accessibilityHidden(true)
+                                    Text(
+                                        String(
+                                            localized: "\(item.headroom.formatted(.currency(code: vm.country.currencyCode))) remaining"
+                                        )
+                                    )
+                                    .font(VTypography.caption2)
+                                    .foregroundStyle(VColors.textSecondary)
+                                }
+                            }
+                        }
                     }
                 }
-            } else if vm.country == .unitedKingdom {
-                ukSections(vm)
-            } else if vm.country == .australia {
-                auSections(vm)
-            } else if vm.country == .canada {
-                caSections(vm)
-            } else {
-                Section {
-                    Picker(String(localized: "Status"), selection: Bindable(vm).filingStatus) {
-                        ForEach(USFilingStatus.allCases, id: \.self) { s in
-                            Text(s.displayName).tag(s)
+
+                // Deductions (old regime India or itemized US)
+                let showDeductions = vm.country == .unitedStates
+                    || vm.country == .unitedKingdom
+                    || vm.country == .australia
+                    || vm.country == .canada
+                    || vm.indiaRegime == .oldRegime
+                if showDeductions {
+                    Section {
+                        ForEach($bindableVM.customDeductions) { $deduction in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(deduction.name)
+                                        .font(VTypography.body)
+                                    if let section = deduction.section {
+                                        Text(section)
+                                            .font(VTypography.caption1)
+                                            .foregroundStyle(VColors.primaryOnSurface)
+                                    }
+                                }
+                                Spacer()
+                                Text(deduction.amount.formatted(.currency(code: vm.country.currencyCode)))
+                                    .font(VTypography.bodyBold)
+                                    .foregroundStyle(VColors.income)
+                            }
+                        }
+                        .onDelete { offsets in vm.removeDeduction(at: offsets) }
+                    } header: {
+                        VFormSectionHeader(String(localized: "Deductions"))
+                    } footer: {
+                        AddDeductionFooter(country: vm.country, onAdd: { name, amount, section in
+                            vm.addDeduction(name: name, amount: amount, section: section)
+                        })
+                    }
+
+                    if let utilization = vm.section80CUtilization {
+                        Section(header: VFormSectionHeader(String(localized: "Section 80C Utilization"))) {
+                            VStack(alignment: .leading, spacing: VSpacing.sm) {
+                                HStack {
+                                    Text(String(localized: "Used"))
+                                    Spacer()
+                                    Text(
+                                        "\(utilization.allowed.formatted(.currency(code: vm.country.currencyCode))) / \(utilization.statutoryCap.formatted(.currency(code: vm.country.currencyCode)))"
+                                    )
+                                    .font(VTypography.bodyBold)
+                                }
+                                // Same as above: the allowed / cap amounts are
+                                // stated in the row directly above this bar.
+                                ProgressView(value: Double(truncating: (utilization.allowed / utilization.statutoryCap) as NSDecimalNumber))
+                                    .tint(VColors.primary)
+                                    .accessibilityHidden(true)
+                                if utilization.claimed > utilization.allowed {
+                                    Text(String(localized: "Claims above ₹1.5 lakh are capped for tax calculation."))
+                                        .font(VTypography.caption1)
+                                        .foregroundStyle(VColors.warning)
+                                }
+                            }
                         }
                     }
-                    .onChange(of: vm.filingStatus) { _, _ in vm.recalculateLive() }
-                } header: {
-                    VFormSectionHeader(String(localized: "Filing Status"))
-                } footer: {
-                    if vm.filingStatus == .qualifyingSurvivingSpouse {
-                        Text(
-                            String(localized: "Use this status only during the two tax years after a spouse's death if you still meet IRS eligibility requirements.")
+
+                    if vm.indiaDeductionUtilization.count > 1 {
+                        Section(header: VFormSectionHeader(String(localized: "Section Caps"))) {
+                            ForEach(vm.indiaDeductionUtilization.filter { $0.sectionKey != "80C" }) { item in
+                                HStack {
+                                    Text(item.sectionKey)
+                                    Spacer()
+                                    Text(
+                                        "\(item.allowed.formatted(.currency(code: vm.country.currencyCode))) / \(item.statutoryCap.formatted(.currency(code: vm.country.currencyCode)))"
+                                    )
+                                    .font(VTypography.caption1)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Live estimate preview
+                if let live = vm.liveEstimate {
+                    Section(header: VFormSectionHeader(String(localized: "Live Estimate"))) {
+                        if vm.country == .unitedStates {
+                            USTaxFederalEstimateLabel()
+                                .listRowInsets(EdgeInsets())
+                                .listRowBackground(Color.clear)
+                        }
+                        let estimateLayout = dynamicTypeSize.isAccessibilitySize
+                            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+                            : AnyLayout(HStackLayout())
+                        estimateLayout {
+                            Text(String(localized: "Estimated Tax"))
+                            if !dynamicTypeSize.isAccessibilitySize {
+                                Spacer()
+                            }
+                            Text(live.finalTax.formatted(.currency(code: vm.country.currencyCode)))
+                                .font(VTypography.bodyBold)
+                                .foregroundStyle(VColors.textPrimary)
+                        }
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(String(localized: "Estimated tax"))
+                        .accessibilityValue(live.finalTax.formatted(.currency(code: vm.country.currencyCode)))
+                        let rateLayout = dynamicTypeSize.isAccessibilitySize
+                            ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
+                            : AnyLayout(HStackLayout())
+                        rateLayout {
+                            Text(String(localized: "Effective Rate"))
+                            if !dynamicTypeSize.isAccessibilitySize {
+                                Spacer()
+                            }
+                            Text((live.effectiveRate * 100).formatted(.number.precision(.fractionLength(1))) + "%")
+                                .font(VTypography.bodyBold)
+                                .foregroundStyle(VColors.textPrimary)
+                        }
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(String(localized: "Effective rate"))
+                        .accessibilityValue(
+                            (live.effectiveRate * 100).formatted(.number.precision(.fractionLength(1))) + "%"
                         )
                     }
                 }
 
-                Section {
-                    contributionAmountField(
-                        vm: vm,
-                        title: String(localized: "401(k) contributed YTD"),
-                        text: Bindable(vm).us401kContributedString,
-                        currencyCode: vm.country.currencyCode
-                    )
-                    // Asked, not assumed: Roth deferrals are made after tax, so treating
-                    // them as pre-tax would understate a Roth saver's bill.
-                    HStack {
-                        Text(String(localized: "401(k) is Roth (after tax)"))
-                            .font(.body)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Spacer()
-                        Toggle("", isOn: Binding(
-                            get: { vm.advancedInputs.us401kIsRoth },
-                            set: {
-                                vm.advancedInputs.us401kIsRoth = $0
-                                vm.recalculateLive()
-                            }
-                        ))
-                        .labelsHidden()
-                        .accessibilityIdentifier("tax-401k-is-roth-toggle")
-                    }
-                    .accessibilityElement(children: .combine)
-
-                    contributionAmountField(
-                        vm: vm,
-                        title: String(localized: "IRA contributed YTD"),
-                        text: Bindable(vm).usIRAContributedString,
-                        currencyCode: vm.country.currencyCode
-                    )
-                    contributionAmountField(
-                        vm: vm,
-                        title: String(localized: "HSA contributed YTD"),
-                        text: Bindable(vm).usHSAContributedString,
-                        currencyCode: vm.country.currencyCode
-                    )
-                    HStack {
-                        Text(String(localized: "HSA family coverage"))
-                            .font(.body)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Spacer()
-                        Toggle("", isOn: Binding(
-                            get: { vm.advancedInputs.usHSAFamilyCoverage },
-                            set: {
-                                vm.advancedInputs.usHSAFamilyCoverage = $0
-                                vm.recalculateLive()
-                            }
-                        ))
-                        .labelsHidden()
-                    }
-                    .accessibilityElement(children: .combine)
-                } header: {
-                    VFormSectionHeader(String(localized: "Retirement & HSA Contributions"))
-                } footer: {
-                    Text(String(localized: "Traditional 401(k) and HSA contributions reduce your federal income tax estimate, but not Social Security or Medicare. IRA contributions are tracked for headroom only — their deductibility depends on workplace plan coverage, which Vittora does not know."))
-                        .foregroundStyle(VColors.textSecondary)
-                }
-
-                if !vm.usContributionUtilization.isEmpty {
-                    Section(header: VFormSectionHeader(String(localized: "Contribution Headroom"))) {
-                        ForEach(vm.usContributionUtilization) { item in
-                            VStack(alignment: .leading, spacing: VSpacing.sm) {
-                                HStack {
-                                    Text(item.title)
-                                    Spacer()
-                                    Text(
-                                        "\(item.contributed.formatted(.currency(code: vm.country.currencyCode))) / \(item.statutoryLimit.formatted(.currency(code: vm.country.currencyCode)))"
-                                    )
-                                    .font(VTypography.caption1.bold())
-                                }
-                                // Decorative: the amounts above and the
-                                // "N remaining" line below already carry this
-                                // value. As its own element it is a 4pt-tall
-                                // interaction target.
-                                ProgressView(value: item.utilizationFraction)
-                                    .tint(item.headroom > 0 ? VColors.primary : VColors.warning)
-                                    .accessibilityHidden(true)
-                                Text(
-                                    String(
-                                        localized: "\(item.headroom.formatted(.currency(code: vm.country.currencyCode))) remaining"
-                                    )
-                                )
-                                .font(VTypography.caption2)
-                                .foregroundStyle(VColors.textSecondary)
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Deductions (old regime India or itemized US)
-            let showDeductions = vm.country == .unitedStates
-                || vm.country == .unitedKingdom
-                || vm.country == .australia
-                || vm.country == .canada
-                || vm.indiaRegime == .oldRegime
-            if showDeductions {
-                Section {
-                    ForEach($bindableVM.customDeductions) { $deduction in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(deduction.name)
-                                    .font(VTypography.body)
-                                if let section = deduction.section {
-                                    Text(section)
-                                        .font(VTypography.caption1)
-                                        .foregroundStyle(VColors.primaryOnSurface)
-                                }
-                            }
-                            Spacer()
-                            Text(deduction.amount.formatted(.currency(code: vm.country.currencyCode)))
-                                .font(VTypography.bodyBold)
-                                .foregroundStyle(VColors.income)
-                        }
-                    }
-                    .onDelete { offsets in vm.removeDeduction(at: offsets) }
-                } header: {
-                    VFormSectionHeader(String(localized: "Deductions"))
-                } footer: {
-                    AddDeductionFooter(country: vm.country, onAdd: { name, amount, section in
-                        vm.addDeduction(name: name, amount: amount, section: section)
-                    })
-                }
-
-                if let utilization = vm.section80CUtilization {
-                    Section(header: VFormSectionHeader(String(localized: "Section 80C Utilization"))) {
-                        VStack(alignment: .leading, spacing: VSpacing.sm) {
-                            HStack {
-                                Text(String(localized: "Used"))
-                                Spacer()
-                                Text(
-                                    "\(utilization.allowed.formatted(.currency(code: vm.country.currencyCode))) / \(utilization.statutoryCap.formatted(.currency(code: vm.country.currencyCode)))"
-                                )
-                                .font(VTypography.bodyBold)
-                            }
-                            // Same as above: the allowed / cap amounts are
-                            // stated in the row directly above this bar.
-                            ProgressView(value: Double(truncating: (utilization.allowed / utilization.statutoryCap) as NSDecimalNumber))
-                                .tint(VColors.primary)
-                                .accessibilityHidden(true)
-                            if utilization.claimed > utilization.allowed {
-                                Text(String(localized: "Claims above ₹1.5 lakh are capped for tax calculation."))
-                                    .font(VTypography.caption1)
-                                    .foregroundStyle(VColors.warning)
-                            }
-                        }
-                    }
-                }
-
-                if vm.indiaDeductionUtilization.count > 1 {
-                    Section(header: VFormSectionHeader(String(localized: "Section Caps"))) {
-                        ForEach(vm.indiaDeductionUtilization.filter { $0.sectionKey != "80C" }) { item in
-                            HStack {
-                                Text(item.sectionKey)
-                                Spacer()
-                                Text(
-                                    "\(item.allowed.formatted(.currency(code: vm.country.currencyCode))) / \(item.statutoryCap.formatted(.currency(code: vm.country.currencyCode)))"
-                                )
-                                .font(VTypography.caption1)
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Live estimate preview
-            if let live = vm.liveEstimate {
-                Section(header: VFormSectionHeader(String(localized: "Live Estimate"))) {
-                    if vm.country == .unitedStates {
-                        USTaxFederalEstimateLabel()
+                if let comparison = vm.liveComparison {
+                    Section(header: VFormSectionHeader(String(localized: "Live Comparison"))) {
+                        TaxComparisonView(comparison: comparison)
                             .listRowInsets(EdgeInsets())
                             .listRowBackground(Color.clear)
                     }
-                    let estimateLayout = dynamicTypeSize.isAccessibilitySize
-                        ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
-                        : AnyLayout(HStackLayout())
-                    estimateLayout {
-                        Text(String(localized: "Estimated Tax"))
-                        if !dynamicTypeSize.isAccessibilitySize {
-                            Spacer()
-                        }
-                        Text(live.finalTax.formatted(.currency(code: vm.country.currencyCode)))
-                            .font(VTypography.bodyBold)
-                            .foregroundStyle(VColors.textPrimary)
-                    }
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(String(localized: "Estimated tax"))
-                    .accessibilityValue(live.finalTax.formatted(.currency(code: vm.country.currencyCode)))
-                    let rateLayout = dynamicTypeSize.isAccessibilitySize
-                        ? AnyLayout(VStackLayout(alignment: .leading, spacing: VSpacing.xs))
-                        : AnyLayout(HStackLayout())
-                    rateLayout {
-                        Text(String(localized: "Effective Rate"))
-                        if !dynamicTypeSize.isAccessibilitySize {
-                            Spacer()
-                        }
-                        Text((live.effectiveRate * 100).formatted(.number.precision(.fractionLength(1))) + "%")
-                            .font(VTypography.bodyBold)
-                            .foregroundStyle(VColors.textPrimary)
-                    }
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(String(localized: "Effective rate"))
-                    .accessibilityValue(
-                        (live.effectiveRate * 100).formatted(.number.precision(.fractionLength(1))) + "%"
-                    )
                 }
-            }
 
-            if let comparison = vm.liveComparison {
-                Section(header: VFormSectionHeader(String(localized: "Live Comparison"))) {
-                    TaxComparisonView(comparison: comparison)
+                if let error = vm.error {
+                    Section {
+                        VInlineErrorText(error)
+                    }
+                }
+
+                Section {
+                    TaxDisclaimerView()
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                 }
             }
-
-            if let error = vm.error {
-                Section {
-                    VInlineErrorText(error)
-                }
-            }
-
-            Section {
-                TaxDisclaimerView()
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-            }
+            .vListContentTint()
         }
+        .vListSelectionTint()
     }
 
     /// Canadian inputs. Province comes first and is the most consequential field on
@@ -549,7 +559,7 @@ struct TaxProfileFormView: View {
         } header: {
             VFormSectionHeader(String(localized: "Super & Gains"))
         } footer: {
-            Text(String(localized: "Concessional contributions reduce assessable income up to the yearly cap. A gain on an asset held more than 12 months is halved before it is taxed."))
+            Text(String(localized: "Enter salary sacrifice and personal deductible contributions, not your employer's Super Guarantee, with annual income before salary sacrifice. They reduce assessable income up to the yearly cap. A gain on an asset held more than 12 months is halved before it is taxed."))
         }
     }
 
@@ -651,6 +661,7 @@ struct TaxProfileFormView: View {
     ) -> some View {
         let amountField = HStack {
             TextField("", text: text, prompt: Text("0").foregroundStyle(VColors.placeholderText))
+                .vFormField(inline: true)
                 #if os(iOS)
                 .keyboardType(.decimalPad)
                 .textContentType(nil)
@@ -722,37 +733,43 @@ private struct AddDeductionSheet: View {
     }
 
     private var indiaSections: [String] {
-        ["80C", "80CCD(1B)", "80D", "80D (Parents)", "HRA"]
+        ["80C", "80CCD(1B)", "80CCD(2)", "80D", "80D (Parents)", "HRA"]
     }
 
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: VFormSectionHeader(String(localized: "Name"), isRequired: true)) {
-                    TextField(String(localized: "e.g. Life Insurance Premium"), text: $name)
-                }
-                if country == .india {
-                    Section(header: VFormSectionHeader(String(localized: "Section"))) {
-                        Picker(String(localized: "Section"), selection: $section) {
-                            Text(String(localized: "None")).tag("")
-                            ForEach(indiaSections, id: \.self) { s in Text(s).tag(s) }
+                Group {
+                    Section(header: VFormSectionHeader(String(localized: "Name"), isRequired: true)) {
+                        TextField(String(localized: "e.g. Life Insurance Premium"), text: $name, prompt: Text(String(localized: "e.g. Life Insurance Premium")).foregroundStyle(VColors.placeholderText))
+                            .vFormField()
+                    }
+                    if country == .india {
+                        Section(header: VFormSectionHeader(String(localized: "Section"))) {
+                            Picker(String(localized: "Section"), selection: $section) {
+                                Text(String(localized: "None")).tag("")
+                                ForEach(indiaSections, id: \.self) { s in Text(s).tag(s) }
+                            }
+                        }
+                    }
+                    Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
+                        HStack {
+                            Text(country.currencySymbol).foregroundStyle(VColors.textSecondary)
+                            TextField("", text: $amountString, prompt: Text("0").foregroundStyle(VColors.placeholderText))
+                                .vFormField()
+                                #if os(iOS)
+                                .keyboardType(.numberPad)
+                                .textContentType(nil)
+                                #endif
+                                // VoiceOver announced this field as "0" — the
+                                // placeholder was doubling as the label.
+                                .accessibilityLabel(String(localized: "Amount"))
                         }
                     }
                 }
-                Section(header: VFormSectionHeader(String(localized: "Amount"), isRequired: true)) {
-                    HStack {
-                        Text(country.currencySymbol).foregroundStyle(VColors.textSecondary)
-                        TextField("", text: $amountString, prompt: Text("0").foregroundStyle(VColors.placeholderText))
-                            #if os(iOS)
-                            .keyboardType(.numberPad)
-                            .textContentType(nil)
-                            #endif
-                            // VoiceOver announced this field as "0" — the
-                            // placeholder was doubling as the label.
-                            .accessibilityLabel(String(localized: "Amount"))
-                    }
-                }
+                .vListContentTint()
             }
+            .vListSelectionTint()
             .navigationTitle(String(localized: "Add Deduction"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -762,6 +779,7 @@ private struct AddDeductionSheet: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .vDialogToolbarItem()
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Add")) {
                         if let parsedAmount {
@@ -771,6 +789,7 @@ private struct AddDeductionSheet: View {
                     .disabled(!canAdd)
                     .vDialogConfirmButton()
                 }
+                .vDialogToolbarItem()
             }
         }
     }

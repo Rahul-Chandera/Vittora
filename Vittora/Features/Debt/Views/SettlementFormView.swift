@@ -23,52 +23,57 @@ struct SettlementFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    HStack {
-                        Text(currencySymbol)
-                            .foregroundColor(VColors.textPrimary)
-                            .accessibilityHidden(true)
-                        TextField(
-                            "",
-                            text: $amountString,
-                            prompt: Text(String(localized: "Amount"))
-                                .foregroundStyle(VColors.placeholderText)
-                        )
-                            #if os(iOS)
-                            .keyboardType(.decimalPad)
-                            .textContentType(nil)
-                            #endif
-                            .accessibilityLabel(String(localized: "Settlement amount"))
-                            .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
+                Group {
+                    Section {
+                        HStack {
+                            Text(currencySymbol)
+                                .foregroundColor(VColors.textPrimary)
+                                .accessibilityHidden(true)
+                            TextField(
+                                "",
+                                text: $amountString,
+                                prompt: Text(String(localized: "Amount"))
+                                    .foregroundStyle(VColors.placeholderText)
+                            )
+                                .vFormField()
+                                #if os(iOS)
+                                .keyboardType(.decimalPad)
+                                .textContentType(nil)
+                                #endif
+                                .accessibilityLabel(String(localized: "Settlement amount"))
+                                .accessibilityHint(String(localized: "Amount in \(currencyCode)"))
+                        }
+                        Button(String(localized: "Settle Full Amount (\(CurrencyFormatter.format(maxAmount, currencyCode: currencyCode)))")) {
+                            amountString = "\(maxAmount)"
+                        }
+                        .font(VTypography.body)
+                        .foregroundColor(VColors.textPrimary)
+                    } header: {
+                        sectionHeader(String(localized: "Settlement Amount"))
                     }
-                    Button(String(localized: "Settle Full Amount (\(CurrencyFormatter.format(maxAmount, currencyCode: currencyCode)))")) {
-                        amountString = "\(maxAmount)"
-                    }
-                    .font(VTypography.body)
-                    .foregroundColor(VColors.textPrimary)
-                } header: {
-                    sectionHeader(String(localized: "Settlement Amount"))
-                }
-                .headerProminence(.increased)
+                    .headerProminence(.increased)
 
-                Section {
-                    Picker(String(localized: "Account"), selection: $selectedAccountID) {
-                        Text(String(localized: "None")).tag(UUID?.none)
-                        ForEach(accounts) { account in
-                            Text(account.name).tag(UUID?(account.id))
+                    Section {
+                        Picker(String(localized: "Account"), selection: $selectedAccountID) {
+                            Text(String(localized: "None")).tag(UUID?.none)
+                            ForEach(accounts) { account in
+                                Text(account.name).tag(UUID?(account.id))
+                            }
+                        }
+                    } header: {
+                        sectionHeader(String(localized: "Record to Account (optional)"))
+                    }
+                    .headerProminence(.increased)
+
+                    if let errorMessage = error {
+                        Section {
+                            VInlineErrorText(errorMessage)
                         }
                     }
-                } header: {
-                    sectionHeader(String(localized: "Record to Account (optional)"))
                 }
-                .headerProminence(.increased)
-
-                if let errorMessage = error {
-                    Section {
-                        VInlineErrorText(errorMessage)
-                    }
-                }
+                .vListContentTint()
             }
+            .vListSelectionTint()
             .tint(VColors.textCursor)
             .navigationTitle(String(localized: "Settle Debt"))
             #if os(iOS)
@@ -79,6 +84,7 @@ struct SettlementFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                             .vDialogCancelButton()
                 }
+                .vDialogToolbarItem()
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Settle")) {
                         guard canSettle, !isLoading else { return }
@@ -87,6 +93,7 @@ struct SettlementFormView: View {
                     .accessibilityRespondsToUserInteraction(canSettle && !isLoading)
                     .vDialogConfirmButton()
                 }
+                .vDialogToolbarItem()
             }
         }
         .task {

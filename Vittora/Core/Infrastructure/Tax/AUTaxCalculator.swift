@@ -7,10 +7,11 @@ import VittoraCore
 /// is the first bracket — and no filing statuses. What it does have, and what is
 /// modelled here:
 ///
-/// - the **Medicare levy**, 2% of taxable income with a phase-in so crossing the
-///   low-income threshold is not a cliff;
+/// - the **Medicare levy**, the lesser of 2% of taxable income and 10% of the
+///   income above the low-income threshold;
 /// - the **Medicare levy surcharge**, charged only to those *without* private
-///   hospital cover, on a three-tier ladder;
+///   hospital cover. The tier is chosen on income for MLS purposes (taxable
+///   income plus reportable super), but the rate is charged on taxable income;
 /// - the **Low Income Tax Offset**, a non-refundable offset which can reduce tax
 ///   to nil but never below it — so it is applied after tax is computed, not as
 ///   a deduction;
@@ -25,9 +26,9 @@ nonisolated struct AUTaxCalculator: TaxCalculatorProtocol {
 
     nonisolated static let rulesLastUpdated: Date = {
         var components = DateComponents()
-        components.year = 2025
-        components.month = 7
-        components.day = 1
+        components.year = 2026
+        components.month = 10
+        components.day = 3
         return Calendar(identifier: .gregorian).date(from: components) ?? .distantPast
     }()
 
@@ -38,10 +39,14 @@ nonisolated struct AUTaxCalculator: TaxCalculatorProtocol {
 
         let income = max(0, profile.annualIncome)
 
-        // Concessional super reduces assessable income, capped at the statutory
-        // limit: a user who typed more than they can legally contribute must not
-        // be shown tax they would not actually save.
+        // The field is salary sacrifice plus personal deductible contributions —
+        // NOT the employer's Super Guarantee, which is never a deduction from
+        // salary. Annual income is before salary sacrifice. Capped at the general
+        // concessional cap; carried-forward cap is not known here.
         let concessional = min(max(0, adv.auConcessionalSuper), rules.superannuation.concessionalCap)
+        let estimatedGuarantee = profile.incomeSourceType == .salaried
+            ? (income * rules.superannuation.guaranteeRatePercent / 100).rounded(scale: 0)
+            : 0
 
         // A discounted gain is added to taxable income rather than taxed apart.
         let grossGains = max(0, adv.auCapitalGains)
@@ -49,7 +54,7 @@ nonisolated struct AUTaxCalculator: TaxCalculatorProtocol {
             ? (grossGains * (100 - rules.capitalGains.discountPercent) / 100).rounded(scale: 2)
             : grossGains
 
-        let deductions = profile.customDeductions.reduce(Decimal(0)) { $0 + $1.amount }
+        let deductions = profile.customDeductions.reduce(Decimal(0)) { $0 + max(0, $1.amount) }
         let taxableIncome = max(0, income - concessional - deductions + discountedGains)
 
         let brackets = rules.brackets.apply(to: taxableIncome)
@@ -60,9 +65,11 @@ nonisolated struct AUTaxCalculator: TaxCalculatorProtocol {
         let taxAfterOffset = max(0, grossTax - lito)
 
         let medicare = Self.medicareLevy(taxableIncome: taxableIncome, rules: rules)
+        // Income for MLS purposes adds reportable super contributions back.
+        let mlsIncome = taxableIncome + concessional
         let surcharge = adv.auHasPrivateHospitalCover
             ? 0
-            : Self.medicareLevySurcharge(taxableIncome: taxableIncome, rules: rules)
+            : Self.medicareLevySurcharge(mlsIncome: mlsIncome, taxableIncome: taxableIncome, rules: rules)
 
         let finalTax = taxAfterOffset + medicare + surcharge
 
@@ -94,6 +101,7 @@ nonisolated struct AUTaxCalculator: TaxCalculatorProtocol {
         ]
         if concessional > 0 {
             assumptions.append(String(localized: "Concessional super of \(Self.plain(concessional)) reduces assessable income."))
+            assumptions.append(String(localized: "Super contributions are taxed at 15% in the fund. The saving shown is personal income tax only."))
         }
         if adv.auCapitalGainsEligibleForDiscount, grossGains > 0 {
             assumptions.append(String(localized: "50% CGT discount applied — assumes the asset was held more than 12 months."))
@@ -108,6 +116,8 @@ nonisolated struct AUTaxCalculator: TaxCalculatorProtocol {
         }
         if adv.auConcessionalSuper > rules.superannuation.concessionalCap {
             warnings.append(String(localized: "Concessional super was capped at \(Self.plain(rules.superannuation.concessionalCap)). Contributions above the cap are taxed at your marginal rate."))
+        } else if concessional > 0, concessional + estimatedGuarantee > rules.superannuation.concessionalCap {
+            warnings.append(String(localized: "Your employer's Super Guarantee (about \(Self.plain(estimatedGuarantee))) also counts toward the \(Self.plain(rules.superannuation.concessionalCap)) cap. Contributions above it are taxed at your marginal rate unless you have unused cap carried forward."))
         }
         if !AUTaxRuleTable.supportedYears.contains(Self.requestedTaxYear(for: profile)) {
             warnings.append(String(localized: "Figures for the year you selected are not held. The nearest year Vittora has was used instead."))
@@ -119,6 +129,8 @@ nonisolated struct AUTaxCalculator: TaxCalculatorProtocol {
             String(localized: "Seniors and Pensioners Tax Offset is not included."),
             String(localized: "Private health insurance rebate is not included."),
             String(localized: "Division 293 tax on high-income super contributions is not modelled."),
+            String(localized: "Family and dependant thresholds for the Medicare levy and surcharge are not applied — this estimate is for a single person."),
+            String(localized: "Capital losses and the conditions for the CGT discount are not checked."),
         ]
 
         return TaxEstimate(
@@ -127,7 +139,9 @@ nonisolated struct AUTaxCalculator: TaxCalculatorProtocol {
             customDeductionsTotal: deductions + concessional,
             taxableIncome: taxableIncome,
             bracketResults: brackets,
-            basicTax: taxAfterOffset,
+            // Gross, so "basic tax − LITO + surcharge + levy" adds up to the
+            // total instead of taking LITO off twice (review SH-02).
+            basicTax: grossTax,
             rebate: lito,
             surcharge: surcharge,
             cess: medicare,
@@ -153,28 +167,27 @@ nonisolated struct AUTaxCalculator: TaxCalculatorProtocol {
 
 extension AUTaxCalculator {
 
-    /// 2% of taxable income, with a phase-in between the thresholds so that the
-    /// levy rises gradually rather than appearing in full at the threshold.
+    /// The lesser of 2% of taxable income and 10% of the excess over the
+    /// low-income threshold — the statutory formula, with no rounding cliff.
     nonisolated static func medicareLevy(
         taxableIncome: Decimal,
         rules: AUTaxRuleTable.YearRules
     ) -> Decimal {
         let levy = rules.medicareLevy
         guard taxableIncome > levy.lowerThreshold else { return 0 }
-        if taxableIncome >= levy.upperThreshold {
-            return (taxableIncome * levy.ratePercent / 100).rounded(scale: 2)
-        }
-        let excess = taxableIncome - levy.lowerThreshold
-        return (excess * levy.shadeInRatePercent / 100).rounded(scale: 2)
+        let full = taxableIncome * levy.ratePercent / 100
+        let shadeIn = (taxableIncome - levy.lowerThreshold) * levy.shadeInRatePercent / 100
+        return min(full, shadeIn).rounded(scale: 2)
     }
 
     /// Charged only without private hospital cover. The applicable tier is the
     /// last one the income exceeds, so adding or splitting a tier stays a data edit.
     nonisolated static func medicareLevySurcharge(
+        mlsIncome: Decimal,
         taxableIncome: Decimal,
         rules: AUTaxRuleTable.YearRules
     ) -> Decimal {
-        guard let tier = rules.surchargeTiers.last(where: { taxableIncome > $0.threshold }) else {
+        guard let tier = rules.surchargeTiers.last(where: { mlsIncome > $0.threshold }) else {
             return 0
         }
         return (taxableIncome * tier.ratePercent / 100).rounded(scale: 2)

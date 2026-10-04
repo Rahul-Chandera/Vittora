@@ -34,66 +34,71 @@ struct SplitGroupFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    TextField(
-                        "",
-                        text: $groupName,
-                        prompt: Text(String(localized: "Group name"))
-                            .foregroundStyle(VColors.placeholderText)
-                    )
-                        .accessibilityLabel(String(localized: "Group name"))
-                } header: {
-                    VFormSectionHeader(String(localized: "Group Name"))
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                }
-                .headerProminence(.increased)
-
-                Section {
-                    ForEach(allPayees) { payee in
-                        Button {
-                            if selectedMemberIDs.contains(payee.id) {
-                                selectedMemberIDs.remove(payee.id)
-                            } else {
-                                selectedMemberIDs.insert(payee.id)
-                            }
-                        } label: {
-                            HStack {
-                                Image(systemName: selectedMemberIDs.contains(payee.id)
-                                      ? "checkmark.circle.fill"
-                                      : "circle")
-                                    .foregroundStyle(VColors.textPrimary)
-                                Text(payee.name)
-                                    .foregroundStyle(VColors.textPrimary)
-                                Spacer()
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    if selectedMemberIDs.count < 2 {
-                        HStack(alignment: .firstTextBaseline, spacing: VSpacing.xs) {
-                            Image(systemName: "exclamationmark.circle.fill")
-                                .accessibilityHidden(true)
-                            Text(String(localized: "Select at least 2 members."))
-                                .font(VTypography.bodyBold)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        .foregroundStyle(.primary)
-                        .accessibilityElement(children: .combine)
-                    }
-                } header: {
-                    VFormSectionHeader(String(localized: "Members (\(selectedMemberIDs.count) selected)"))
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                }
-                .headerProminence(.increased)
-
-                if let error {
+                Group {
                     Section {
-                        VInlineErrorText(error)
+                        TextField(
+                            "",
+                            text: $groupName,
+                            prompt: Text(String(localized: "Group name"))
+                                .foregroundStyle(VColors.placeholderText)
+                        )
+                            .vFormField()
+                            .accessibilityLabel(String(localized: "Group name"))
+                    } header: {
+                        VFormSectionHeader(String(localized: "Group Name"))
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                    }
+                    .headerProminence(.increased)
+
+                    Section {
+                        ForEach(allPayees) { payee in
+                            Button {
+                                if selectedMemberIDs.contains(payee.id) {
+                                    selectedMemberIDs.remove(payee.id)
+                                } else {
+                                    selectedMemberIDs.insert(payee.id)
+                                }
+                            } label: {
+                                HStack {
+                                    Image(systemName: selectedMemberIDs.contains(payee.id)
+                                          ? "checkmark.circle.fill"
+                                          : "circle")
+                                        .foregroundStyle(VColors.textPrimary)
+                                    Text(payee.name)
+                                        .foregroundStyle(VColors.textPrimary)
+                                    Spacer()
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        if selectedMemberIDs.count < 2 {
+                            HStack(alignment: .firstTextBaseline, spacing: VSpacing.xs) {
+                                Image(systemName: "exclamationmark.circle.fill")
+                                    .accessibilityHidden(true)
+                                Text(String(localized: "Select at least 2 members."))
+                                    .font(VTypography.bodyBold)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .foregroundStyle(.primary)
+                            .accessibilityElement(children: .combine)
+                        }
+                    } header: {
+                        VFormSectionHeader(String(localized: "Members (\(selectedMemberIDs.count) selected)"))
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                    }
+                    .headerProminence(.increased)
+
+                    if let error {
+                        Section {
+                            VInlineErrorText(error)
+                        }
                     }
                 }
+                .vListContentTint()
             }
+            .vListSelectionTint()
             .tint(VColors.textCursor)
             .navigationTitle(navigationTitle)
             #if os(iOS)
@@ -104,6 +109,7 @@ struct SplitGroupFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .vDialogToolbarItem()
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
                         guard canSave, !isSaving else { return }
@@ -117,6 +123,7 @@ struct SplitGroupFormView: View {
                     .disabled(!canSave || isSaving)
                     .vDialogConfirmButton()
                 }
+                .vDialogToolbarItem()
             }
         }
         .task {

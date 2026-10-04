@@ -36,6 +36,7 @@ struct CategoryFormView: View {
                     Button(String(localized: "Cancel")) { dismiss() }
                     .vDialogCancelButton()
                 }
+                .vDialogToolbarItem()
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(String(localized: "Save")) {
@@ -44,6 +45,7 @@ struct CategoryFormView: View {
                 .disabled(viewModel?.canSave != true || isSaving)
                 .vDialogConfirmButton()
             }
+            .vDialogToolbarItem()
         }
         .task {
             setupViewModel()
@@ -132,107 +134,112 @@ struct CategoryFormView: View {
     @ViewBuilder
     private func formContent(vm: CategoryFormViewModel) -> some View {
         Form {
-            // Preview
-            Section {
-                HStack(spacing: VSpacing.md) {
-                    let tint = Color(hex: vm.selectedColorHex) ?? .blue
-                    ZStack {
-                        Circle()
-                            .fill(tint)
-                            .opacity(0.15)
-                            .frame(width: 56, height: 56)
-                        Image(systemName: vm.selectedIcon)
-                            .font(.title2.weight(.semibold))
-                            .foregroundColor(VColors.textPrimary)
-                    }
-                    .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: VSpacing.xxs) {
-                        Text(vm.name.isEmpty ? String(localized: "Category Name") : vm.name)
-                            .font(VTypography.bodyBold)
-                            .foregroundColor(VColors.textPrimary)
-                        Text(vm.selectedType == .expense ? String(localized: "Expense") : String(localized: "Income"))
-                            .font(VTypography.caption1)
-                            .foregroundColor(VColors.textPrimary)
-                    }
-                }
-                .padding(.vertical, VSpacing.xs)
-            } header: {
-                VFormSectionHeader(String(localized: "Preview"))
-            }
-            .headerProminence(.increased)
-
-            Section {
-                TextField(String(localized: "Category Name"), text: Bindable(vm).name, axis: .vertical)
-                    .lineLimit(1...2)
-
-                Picker(String(localized: "Type"), selection: Bindable(vm).selectedType) {
-                    Text(String(localized: "Expense")).tag(CategoryType.expense)
-                    Text(String(localized: "Income")).tag(CategoryType.income)
-                }
-                .pickerStyle(.menu)
-
-                if vm.selectedType == .expense {
-                    Picker(
-                        String(localized: "50/30/20 Bucket"),
-                        selection: Bindable(vm).selectedSpendingBucket
-                    ) {
-                        ForEach(SpendingBucket.allCases, id: \.self) { bucket in
-                            Text(bucket.displayName).tag(bucket)
+            Group {
+                // Preview
+                Section {
+                    HStack(spacing: VSpacing.md) {
+                        let tint = Color(hex: vm.selectedColorHex) ?? .blue
+                        ZStack {
+                            Circle()
+                                .fill(tint)
+                                .opacity(0.15)
+                                .frame(width: 56, height: 56)
+                            Image(systemName: vm.selectedIcon)
+                                .font(.title2.weight(.semibold))
+                                .foregroundColor(VColors.textPrimary)
+                        }
+                        .accessibilityHidden(true)
+                        VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                            Text(vm.name.isEmpty ? String(localized: "Category Name") : vm.name)
+                                .font(VTypography.bodyBold)
+                                .foregroundColor(VColors.textPrimary)
+                            Text(vm.selectedType == .expense ? String(localized: "Expense") : String(localized: "Income"))
+                                .font(VTypography.caption1)
+                                .foregroundColor(VColors.textPrimary)
                         }
                     }
-                    Text(
-                        String(
-                            localized: "Choose how this category appears in the 50/30/20 report."
-                        )
-                    )
-                    .font(VTypography.caption1)
-                    .foregroundStyle(VColors.textSecondary)
+                    .padding(.vertical, VSpacing.xs)
+                } header: {
+                    VFormSectionHeader(String(localized: "Preview"))
                 }
-                parentPicker(vm: vm)
-            } header: {
-                VFormSectionHeader(String(localized: "Details"))
-            }
-            .headerProminence(.increased)
+                .headerProminence(.increased)
 
-            Section {
-                let selectedColor = Color(hex: vm.selectedColorHex) ?? .blue
-                NavigationLink(destination: CategoryIconPicker(
-                    selectedIcon: Bindable(vm).selectedIcon,
-                    selectedColor: selectedColor
-                )) {
-                    HStack {
-                        Text(String(localized: "Icon"))
-                        Spacer()
-                        Image(systemName: vm.selectedIcon)
-                            .foregroundColor(VColors.textPrimary)
-                            .accessibilityHidden(true)
-                    }
-                }
-
-                NavigationLink(destination: CategoryColorPicker(selectedColorHex: Bindable(vm).selectedColorHex)) {
-                    HStack {
-                        Text(String(localized: "Color"))
-                        Spacer()
-                        Circle()
-                            .fill(selectedColor)
-                            .frame(width: 24, height: 24)
-                            .overlay {
-                                Circle().stroke(VColors.textPrimary, lineWidth: 2)
-                            }
-                            .accessibilityLabel(String(localized: "Selected category color"))
-                    }
-                }
-            } header: {
-                VFormSectionHeader(String(localized: "Appearance"))
-            }
-            .headerProminence(.increased)
-
-            if let error = saveError {
                 Section {
-                    VInlineErrorText(error)
+                    TextField(String(localized: "Category Name"), text: Bindable(vm).name, prompt: Text(String(localized: "Category Name")).foregroundStyle(VColors.placeholderText), axis: .vertical)
+                        .vFormField()
+                        .lineLimit(1...2)
+
+                    Picker(String(localized: "Type"), selection: Bindable(vm).selectedType) {
+                        Text(String(localized: "Expense")).tag(CategoryType.expense)
+                        Text(String(localized: "Income")).tag(CategoryType.income)
+                    }
+                    .pickerStyle(.menu)
+
+                    if vm.selectedType == .expense {
+                        Picker(
+                            String(localized: "50/30/20 Bucket"),
+                            selection: Bindable(vm).selectedSpendingBucket
+                        ) {
+                            ForEach(SpendingBucket.allCases, id: \.self) { bucket in
+                                Text(bucket.displayName).tag(bucket)
+                            }
+                        }
+                        Text(
+                            String(
+                                localized: "Choose how this category appears in the 50/30/20 report."
+                            )
+                        )
+                        .font(VTypography.caption1)
+                        .foregroundStyle(VColors.textSecondary)
+                    }
+                    parentPicker(vm: vm)
+                } header: {
+                    VFormSectionHeader(String(localized: "Details"))
+                }
+                .headerProminence(.increased)
+
+                Section {
+                    let selectedColor = Color(hex: vm.selectedColorHex) ?? .blue
+                    NavigationLink(destination: CategoryIconPicker(
+                        selectedIcon: Bindable(vm).selectedIcon,
+                        selectedColor: selectedColor
+                    )) {
+                        HStack {
+                            Text(String(localized: "Icon"))
+                            Spacer()
+                            Image(systemName: vm.selectedIcon)
+                                .foregroundColor(VColors.textPrimary)
+                                .accessibilityHidden(true)
+                        }
+                    }
+
+                    NavigationLink(destination: CategoryColorPicker(selectedColorHex: Bindable(vm).selectedColorHex)) {
+                        HStack {
+                            Text(String(localized: "Color"))
+                            Spacer()
+                            Circle()
+                                .fill(selectedColor)
+                                .frame(width: 24, height: 24)
+                                .overlay {
+                                    Circle().stroke(VColors.textPrimary, lineWidth: 2)
+                                }
+                                .accessibilityLabel(String(localized: "Selected category color"))
+                        }
+                    }
+                } header: {
+                    VFormSectionHeader(String(localized: "Appearance"))
+                }
+                .headerProminence(.increased)
+
+                if let error = saveError {
+                    Section {
+                        VInlineErrorText(error)
+                    }
                 }
             }
+            .vListContentTint()
         }
+        .vListSelectionTint()
         .tint(VColors.textCursor)
     }
 
