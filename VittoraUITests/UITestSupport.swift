@@ -93,6 +93,29 @@ enum UITestSupport {
         tapElementSafely(element)
     }
 
+    /// Taps `element`, and taps once more if `destination` has not appeared.
+    ///
+    /// `--ui-test-seed-demo` seeds asynchronously and then reloads every list,
+    /// so a row tapped just after launch can be rebuilt between touch-down and
+    /// touch-up and the tap is dropped. On a slow CI runner that window is
+    /// seconds wide (PR #299: a 2s synthesized tap on the first transaction row
+    /// left the list on screen). The caller still asserts on `destination`, so a
+    /// row that never navigates fails exactly as before.
+    @MainActor
+    static func tapUntilAppears(
+        _ element: XCUIElement,
+        destination: XCUIElement,
+        timeout: TimeInterval = 10,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        tapWhenReady(element, timeout: timeout, file: file, line: line)
+        if destination.waitForExistence(timeout: 5) { return }
+        if waitForElement(element, timeout: timeout, requireHittable: true) {
+            tapElementSafely(element)
+        }
+    }
+
     @MainActor
     private static func tapElementSafely(_ element: XCUIElement) {
         if hasValidFrame(element) {
