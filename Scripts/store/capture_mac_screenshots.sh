@@ -17,7 +17,8 @@ APPLE_LOCALE="${3:-en_US}"
 REGION="${4:-US}"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUT="$ROOT/Docs/Store/screenshots/$SET_NAME"
+STORE_ROOT="${STORE_ROOT:-$(cd "$ROOT/.." && pwd)/Marketing/AppStore}"
+OUT="$STORE_ROOT/raw/$SET_NAME"
 DERIVED="${DERIVED_DIR:-$ROOT/.build/screenshots-mac}"
 APP="$DERIVED/Build/Products/Debug/Vittora.app"
 
@@ -63,23 +64,27 @@ resolve_window_id() {
   swift "$WINDOW_ID_SWIFT" Vittora 2>/dev/null || true
 }
 
+# Same slot names as StoreGalleryUITests, so make_marketing.py frames both with
+# the same headlines. No 04-household on Mac: it is reached by a click, and this
+# script cannot click (UI input needs Accessibility permission). The sidebar
+# makes Tax a plain tab here, so it needs no click.
 SHOTS=(
   "dashboard|-|01-dashboard"
   "transactions|-|02-transactions"
   "budgets|-|03-budgets"
-  # Savings is NOT capturable: AppTabView routes overflow tabs (savings/debt/
-  # splits/tax/settings) to the More hub root by design, so the capture would
-  # show a menu under a "savings goals" headline. 50/30/20 deep-links properly.
-  "reports|vittora://report/fiftyThirtyTwenty|04-fiftythirtytwenty"
-  "reports|-|05-reports"
-  "reports|vittora://report/yearInReview|06-yearinreview"
+  "tax|-|05-tax"
+  "reports|vittora://report/healthScore|06-healthscore"
+  "reports|vittora://report/netWorth|07-networth"
+  "reports|vittora://report/spendingOutlook|08-spendingoutlook"
+  "reports|vittora://report/monthly|09-reports"
+  "reports|vittora://report/yearInReview|10-yearinreview"
 )
 
 echo "==> $SET_NAME on this Mac, locale=$LOCALE region=$REGION"
 
 for entry in "${SHOTS[@]}"; do
   IFS='|' read -r tab url name <<< "$entry"
-  # ONLY=04-fiftythirtytwenty re-shoots a single slot without a full pass.
+  # ONLY=06-healthscore re-shoots a single slot without a full pass.
   if [ -n "${ONLY:-}" ] && [ "$name" != "$ONLY" ]; then continue; fi
 
   route_arg=""
@@ -89,8 +94,8 @@ for entry in "${SHOTS[@]}"; do
   # arguments. Passing -AppleLanguages alongside --ui-test-open-url leaves the
   # app running with no window at all — reproducible, and neither argument does
   # it alone. That is why the Mac set used to be en-US only. Writing the
-  # preference instead sidesteps the conflict, so the deep-linked slots
-  # (50/30/20 and Year in Review) survive a localized run.
+  # preference instead sidesteps the conflict, so the deep-linked report slots
+  # survive a localized run.
   if [ "$LOCALE" != "en" ]; then
     defaults write "$MAC_APP_ID" AppleLanguages -array "$LOCALE" >/dev/null 2>&1 || true
     defaults write "$MAC_APP_ID" AppleLocale -string "$APPLE_LOCALE" >/dev/null 2>&1 || true
@@ -115,7 +120,8 @@ for entry in "${SHOTS[@]}"; do
     --env UITEST_INITIAL_TAB="$tab" \
     --env UITEST_DEMO_REGION="$REGION" \
     --env UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
-    -a "$APP" --args --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" $route_arg $select_arg
+    -a "$APP" --args --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" \
+      --ui-test-pro --ui-test-user-name=Alex $route_arg $select_arg
 
   # Poll for the window rather than guessing a sleep: launch time varies a lot
   # between a plain tab and one that also resolves a deep link, and a fixed wait

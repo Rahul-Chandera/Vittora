@@ -14,8 +14,8 @@ MUTED = (75, 85, 99, 255)        # #4b5563
 GREEN = (63, 207, 164)           # brand #3FCFA4 (DEC-012)
 BLUE = (96, 165, 250)
 
-# One tint per slot, so the gallery reads as a set rather than six copies of the
-# same card. All six are desaturated neighbours of the brand green plus a warm
+# One tint per slot, so the gallery reads as a set rather than ten copies of the
+# same card. All are desaturated neighbours of the brand green plus a warm
 # sand — a finance app wants calm, not carnival. `glow` is the colour of the
 # soft spotlight behind the device; `ink` overrides the headline colour where a
 # darker ground needs it.
@@ -23,9 +23,13 @@ PALETTE = {
     "01-dashboard":         {"top": (233, 248, 242), "bottom": (207, 238, 227), "glow": (63, 207, 164)},
     "02-transactions":      {"top": (238, 245, 251), "bottom": (213, 230, 244), "glow": (96, 165, 250)},
     "03-budgets":           {"top": (248, 245, 236), "bottom": (238, 229, 210), "glow": (214, 178, 106)},
-    "04-fiftythirtytwenty": {"top": (236, 246, 245), "bottom": (206, 232, 230), "glow": (72, 187, 182)},
-    "05-reports":           {"top": (243, 241, 250), "bottom": (223, 217, 241), "glow": (146, 128, 220)},
-    "06-yearinreview":      {"top": (232, 246, 240), "bottom": (198, 232, 219), "glow": (52, 190, 150)},
+    "04-household":         {"top": (250, 241, 238), "bottom": (240, 221, 214), "glow": (222, 140, 116)},
+    "05-tax":               {"top": (236, 246, 245), "bottom": (206, 232, 230), "glow": (72, 187, 182)},
+    "06-healthscore":       {"top": (233, 248, 242), "bottom": (207, 238, 227), "glow": (63, 207, 164)},
+    "07-networth":          {"top": (238, 245, 251), "bottom": (213, 230, 244), "glow": (96, 165, 250)},
+    "08-spendingoutlook":   {"top": (248, 245, 236), "bottom": (238, 229, 210), "glow": (214, 178, 106)},
+    "09-reports":           {"top": (243, 241, 250), "bottom": (223, 217, 241), "glow": (146, 128, 220)},
+    "10-yearinreview":      {"top": (232, 246, 240), "bottom": (198, 232, 219), "glow": (52, 190, 150)},
 }
 DEFAULT_PAL = PALETTE["01-dashboard"]
 
@@ -37,52 +41,76 @@ WATCH_COPY_BY_LOCALE = {
         "dashboard":     ("Today at\na Glance",  "Spend and budget, on your wrist"),
         "recent":        ("Recent\nActivity",    "Your latest transactions"),
         "quick-expense": ("Add in\nSeconds",     "Turn the crown. Done."),
+        "voice":         ("Say It,\nLogged",     "\u201c500 for groceries\u201d \u2014 done"),
     },
     "hi": {
         "dashboard":     ("एक नज़र में\nआज",       "खर्च और बजट, आपकी कलाई पर"),
         "recent":        ("हाल की\nगतिविधि",       "आपके नवीनतम ट्रांज़ैक्शन"),
         "quick-expense": ("सेकंडों में\nजोड़ें",      "क्राउन घुमाएँ। हो गया।"),
+        "voice":         ("बोलें और\nदर्ज करें",     "\u201cकिराने के लिए 500\u201d \u2014 हो गया"),
     },
     "es": {
         "dashboard":     ("Tu día de\nun vistazo", "Gastos y presupuesto en tu muñeca"),
         "recent":        ("Actividad\nreciente",   "Tus últimos movimientos"),
         "quick-expense": ("Añade en\nsegundos",    "Gira la corona. Listo."),
+        "voice":         ("Dilo y\nlisto",        "\u00ab500 para supermercado\u00bb y listo"),
     },
 }
 WATCH_COPY = WATCH_COPY_BY_LOCALE["en"]
 WATCH_PALETTE = {
     "dashboard":     PALETTE["01-dashboard"],
     "recent":        PALETTE["02-transactions"],
-    "quick-expense": PALETTE["06-yearinreview"],
+    "quick-expense": PALETTE["10-yearinreview"],
+    "voice":         PALETTE["04-household"],
 }
 
-RAW = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "Docs", "Store", "screenshots")
-OUT = os.path.join(RAW, "marketing")
+# Raw captures in <STORE_ROOT>/raw/<set>, upload-ready sets in <STORE_ROOT>/<set>.
+# STORE_ROOT defaults to Marketing/AppStore beside the repo (owner's choice, 1.8.0).
+STORE_ROOT = os.environ.get("STORE_ROOT") or os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "Marketing", "AppStore"))
+RAW = os.path.join(STORE_ROOT, "raw")
+OUT = STORE_ROOT
 
+# AI claims are limited to what is AI: category suggestions (on-device NLEmbedding
+# classifier, M3.2.1) and the Monthly Overview summary (Apple Intelligence where the
+# device has it, M3.2.6 — hence "where available"). Health score, outlook and the
+# insight cards are rules-based and must not be labelled AI.
 COPY_BY_LOCALE = {
     "en": {
-        "01-dashboard":    ("Everything at\na Glance",      "Income, spending, budgets, and goals in one place"),
-        "02-transactions": ("Track Every\nTransaction",     "Ten-second capture with instant search and filters"),
-        "03-budgets":      ("Budgets That\nKeep Up",        "Per-category limits with overspend warnings"),
-        "04-fiftythirtytwenty": ("Needs, Wants,\nSavings",     "See your month against the 50/30/20 guideline"),
-        "05-reports":      ("Reports That\nExplain",        "Category breakdowns, trends, and cash flow"),
-        "06-yearinreview": ("Your Year,\nWrapped",          "Total spent, top categories, and your biggest month"),
+        "01-dashboard":       ("Everything at\na Glance",      "Income, spending, budgets, and goals in one place"),
+        "02-transactions":    ("Track Every\nTransaction",     "On-device AI suggests the category for you"),
+        "03-budgets":         ("Budgets That\nKeep Up",        "Per-category limits with overspend warnings"),
+        "04-household":       ("Budget\nTogether",             "Share budgets with your household through iCloud"),
+        "05-tax":             ("Tax for Five\nCountries",      "India, US, UK, Australia and Canada estimates"),
+        "06-healthscore":     ("Your Financial\nHealth",       "One score, and what moves it"),
+        "07-networth":        ("Net Worth,\nOver Time",        "Assets and debts, month by month"),
+        "08-spendingoutlook": ("See Where the\nMonth Lands",   "A spending outlook with what-if scenarios"),
+        "09-reports":         ("Your Month,\nin Plain Words",  "Summaries by Apple Intelligence, where available"),
+        "10-yearinreview":    ("Your Year,\nWrapped",          "Total spent, top categories, and your biggest month"),
     },
     "es": {
-        "01-dashboard":    ("Todo de\nun Vistazo",          "Ingresos, gastos, presupuestos y metas en un lugar"),
-        "02-transactions": ("Registra Cada\nMovimiento",    "Captura en segundos, con búsqueda y filtros"),
-        "03-budgets":      ("Presupuestos\na tu Ritmo",     "Límites por categoría y avisos antes de pasarte"),
-        "04-fiftythirtytwenty": ("Necesidades,\nGustos, Ahorro", "Compara tu mes con la regla 50/30/20"),
-        "05-reports":      ("Reportes que\nte Explican",    "Desglose por categoría, tendencias y flujo"),
-        "06-yearinreview": ("Tu Año\nen Resumen",           "Total gastado, categorías principales y tu mes más alto"),
+        "01-dashboard":       ("Todo de\nun Vistazo",          "Ingresos, gastos, presupuestos y metas en un lugar"),
+        "02-transactions":    ("Registra Cada\nMovimiento",    "La IA de tu dispositivo sugiere la categoría"),
+        "03-budgets":         ("Presupuestos\na tu Ritmo",     "Límites por categoría y avisos antes de pasarte"),
+        "04-household":       ("Presupuestos\ndel Hogar",      "Compártelos con tu hogar a través de iCloud"),
+        "05-tax":             ("Impuestos en\nCinco Países",   "India, EE. UU., Reino Unido, Australia y Canadá"),
+        "06-healthscore":     ("Tu Salud\nFinanciera",         "Una puntuación y lo que la mueve"),
+        "07-networth":        ("Patrimonio Neto\nen el Tiempo", "Activos y deudas, mes a mes"),
+        "08-spendingoutlook": ("Mira Cómo\nCierra el Mes",     "Perspectiva de gastos con escenarios de Qué pasaría si"),
+        "09-reports":         ("Tu Mes, en\nPalabras Claras",  "Resúmenes con Apple Intelligence, donde esté disponible"),
+        "10-yearinreview":    ("Tu Año\nen Resumen",           "Total gastado, categorías principales y tu mes más alto"),
     },
     "hi": {
-        "01-dashboard":    ("एक नज़र में\nसब कुछ",            "आय, खर्च, बजट और लक्ष्य — एक ही जगह"),
-        "02-transactions": ("हर ट्रांज़ैक्शन\nरिकॉर्ड करें",      "सेकंडों में एंट्री, तुरंत सर्च और फ़िल्टर"),
-        "03-budgets":      ("बजट जो\nसाथ चले",              "हर कैटेगरी की सीमा, खर्च बढ़ने से पहले चेतावनी"),
-        "04-fiftythirtytwenty": ("ज़रूरतें, चाहतें,\nबचत",        "50/30/20 नियम के हिसाब से अपना महीना देखें"),
-        "05-reports":      ("रिपोर्ट जो\nसमझाएँ",             "कैटेगरी ब्रेकडाउन, ट्रेंड और कैश फ़्लो"),
-        "06-yearinreview": ("आपका साल,\nएक झलक में",         "कुल खर्च, मुख्य कैटेगरी और सबसे बड़ा महीना"),
+        "01-dashboard":       ("एक नज़र में\nसब कुछ",            "आय, खर्च, बजट और लक्ष्य — एक ही जगह"),
+        "02-transactions":    ("हर ट्रांज़ैक्शन\nरिकॉर्ड करें",      "डिवाइस पर चलने वाला AI श्रेणी सुझाता है"),
+        "03-budgets":         ("बजट जो\nसाथ चले",              "हर कैटेगरी की सीमा, खर्च बढ़ने से पहले चेतावनी"),
+        "04-household":       ("घर के साथ\nबजट",               "iCloud के ज़रिए अपने घर के साथ बजट साझा करें"),
+        "05-tax":             ("पाँच देशों का\nटैक्स",             "भारत, अमेरिका, UK, ऑस्ट्रेलिया और कनाडा के अनुमान"),
+        "06-healthscore":     ("आपका वित्तीय\nस्वास्थ्य",           "एक स्कोर, और उसे क्या बदलता है"),
+        "07-networth":        ("समय के साथ\nनेट वर्थ",           "एसेट्स और देनदारियाँ, महीने दर महीने"),
+        "08-spendingoutlook": ("महीना कहाँ\nपहुँचेगा",             "\u201cक्या हो अगर\u201d परिदृश्यों के साथ खर्च आउटलुक"),
+        "09-reports":         ("आपका महीना,\nआसान शब्दों में",    "Apple Intelligence से सारांश, जहाँ उपलब्ध हो"),
+        "10-yearinreview":    ("आपका साल,\nएक झलक में",         "कुल खर्च, मुख्य कैटेगरी और सबसे बड़ा महीना"),
     },
 }
 COPY = COPY_BY_LOCALE["en"]

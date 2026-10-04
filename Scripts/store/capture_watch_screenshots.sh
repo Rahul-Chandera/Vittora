@@ -19,7 +19,8 @@ REGION="${4:-US}"
 APP_ID="com.enerjiktech.vittora"
 WATCH_APP_ID="com.enerjiktech.vittora.watchkitapp"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUT="${OUT_DIR:-$ROOT/Docs/Store/screenshots/$SET_NAME}"
+STORE_ROOT="${STORE_ROOT:-$(cd "$ROOT/.." && pwd)/Marketing/AppStore}"
+OUT="${OUT_DIR:-$STORE_ROOT/raw/$SET_NAME}"
 DERIVED="${DERIVED_DIR:-$ROOT/.build/screenshots}"
 
 mkdir -p "$OUT"
@@ -95,7 +96,7 @@ sleep "${PHONE_SEED_SETTLE:-30}"
 first=1
 # SCREENS overrides the set; `voice` is M2.6.2's Say It screen, pre-filled
 # because the simulator cannot dictate.
-for screen in ${SCREENS:-dashboard recent quick-expense}; do
+for screen in ${SCREENS:-dashboard recent quick-expense voice}; do
   shot="$OUT/watch-$NAME-$screen.png"
   # dashboard and recent render data pushed from the phone; until the WCSession
   # handshake lands they show "Waiting for iPhone…" / "No recent transactions"
