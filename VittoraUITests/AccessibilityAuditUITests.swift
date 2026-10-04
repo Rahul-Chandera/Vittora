@@ -320,8 +320,9 @@ final class AccessibilityAuditUITests: XCTestCase {
 
         launchSeeded(initialTab: "transactions", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
-        UITestSupport.tapWhenReady(firstTransactionRow(), timeout: 15)
-        XCTAssertTrue(app.descendants(matching: .any)["transaction-detail-root"].waitForExistence(timeout: 10))
+        let detailRoot = app.descendants(matching: .any)["transaction-detail-root"]
+        UITestSupport.tapUntilAppears(firstTransactionRow(), destination: detailRoot, timeout: 15)
+        XCTAssertTrue(detailRoot.waitForExistence(timeout: 10))
         let attachments = app.staticTexts["Attachments"]
         UITestSupport.scrollToElement(attachments, in: app)
         XCTAssertTrue(attachments.waitForExistence(timeout: 10))
