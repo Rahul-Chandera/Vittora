@@ -85,7 +85,7 @@ struct DashboardDataUseCase: Sendable {
         for transaction in recentTransactionsList {
             if let categoryID = transaction.categoryID,
                let category = categoryByID[categoryID] {
-                recentCategoryNames[transaction.id] = category.name
+                recentCategoryNames[transaction.id] = category.displayName
             }
         }
 

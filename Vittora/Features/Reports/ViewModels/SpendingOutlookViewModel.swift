@@ -111,7 +111,9 @@ final class SpendingOutlookViewModel {
             // full of options that produce nothing is worse than a short one.
             categories = allCategories
                 .filter { (monthlyByCategory[$0.id]?.count ?? 0) >= WhatIfScenarioEngine.minimumBaselineMonths }
-                .map { (id: $0.id, name: $0.name) }
+                // displayName, not name: a default category is stored under its
+                // English key ("Dining") and only displayName localizes it.
+                .map { (id: $0.id, name: $0.displayName) }
                 .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
             if selectedCategoryID == nil { selectedCategoryID = categories.first?.id }
         } catch {
