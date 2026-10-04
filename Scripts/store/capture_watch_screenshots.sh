@@ -117,7 +117,14 @@ for screen in ${SCREENS:-dashboard recent quick-expense voice}; do
     xcrun simctl terminate "$PAIR_WATCH" "$WATCH_APP_ID" 2>/dev/null || true
     sleep 4
     voice_arg=""
-    [ "$screen" = voice ] && voice_arg="--ui-test-watch-voice=${WATCH_VOICE_TEXT:-Add 500 for groceries}"
+    # The utterance is the Watch's own hint in the set's language, so the shot
+    # shows the localized category it matches rather than echoing English.
+    case "$LOCALE" in
+      es) default_voice="500 para comestibles" ;;
+      hi) default_voice="किराने के लिए 500" ;;
+      *)  default_voice="Add 500 for groceries" ;;
+    esac
+    [ "$screen" = voice ] && voice_arg="--ui-test-watch-voice=${WATCH_VOICE_TEXT:-$default_voice}"
     xcrun simctl launch "$PAIR_WATCH" "$WATCH_APP_ID" "--ui-test-watch-screen=$screen" "$voice_arg" \
       -AppleLanguages "($LOCALE)" -AppleLocale "$APPLE_LOCALE" >/dev/null
     # The first launch of a run also waits on the initial WCSession handshake,

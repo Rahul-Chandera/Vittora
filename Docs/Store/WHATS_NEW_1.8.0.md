@@ -92,7 +92,7 @@ HOGAR COMPARTIDO
 EN IPHONE Y APPLE WATCH
 • Actividades en Vivo y la Dynamic Island: un total en curso en el Modo compra, que puede contar contra un presupuesto, y una cuenta regresiva para tu próxima factura
 • Un widget interactivo registra un gasto predefinido sin abrir la app
-• En el Apple Watch, di «500 para supermercado» para añadir un gasto
+• En el Apple Watch, di «500 para comestibles» para añadir un gasto
 
 DINERO DEL DÍA A DÍA
 • Fondos de ahorro compartidos: varias metas pueden usar la misma cuenta, y Vittora te avisa cuando suman más de lo que hay en ella
@@ -165,7 +165,7 @@ iPhone और Apple Watch पर
   *वित्तीय स्वास्थ्य*, *खर्च आउटलुक*, *क्या हो अगर*, *शॉपिंग मोड*, *लाइव एक्टिविटी*,
   *उप-श्रेणियाँ*, *जानकारियाँ*, *मासिक अवलोकन*.
 - The Watch phrase matches the Watch app's own localised hint
-  («500 para supermercado», "किराने के लिए 500").
+  («500 para comestibles», "किराने के लिए 500").
 - Tax copy says "estimates" and names no figures: the app's estimates are
   educational, and the review's not-modelled items (Quebec provincial credits,
   typed UK reliefs) are disclosed in the app, not here.

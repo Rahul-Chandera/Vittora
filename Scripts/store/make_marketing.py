@@ -53,7 +53,7 @@ WATCH_COPY_BY_LOCALE = {
         "dashboard":     ("Tu día de\nun vistazo", "Gastos y presupuesto en tu muñeca"),
         "recent":        ("Actividad\nreciente",   "Tus últimos movimientos"),
         "quick-expense": ("Añade en\nsegundos",    "Gira la corona. Listo."),
-        "voice":         ("Dilo y\nlisto",        "\u00ab500 para supermercado\u00bb y listo"),
+        "voice":         ("Dilo y\nlisto",        "\u00ab500 para comestibles\u00bb y listo"),
     },
 }
 WATCH_COPY = WATCH_COPY_BY_LOCALE["en"]
