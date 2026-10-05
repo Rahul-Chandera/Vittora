@@ -108,7 +108,7 @@ struct SpendingOutlookReportView: View {
                         }
 
                         Divider()
-                        ForEach(SpendingProjectionEngine.caveats, id: \.self) { caveat in
+                        ForEach(projection.caveats, id: \.self) { caveat in
                             Text(caveat)
                                 .font(VTypography.caption2)
                                 .foregroundStyle(VColors.textSecondary)
