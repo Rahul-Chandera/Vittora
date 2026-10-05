@@ -92,18 +92,26 @@ final class SpendingOutlookViewModel {
                 months.sorted { $0.key < $1.key }.map(\.value)
             }
 
-            let priorTotals: [Decimal] = Dictionary(
+            let priorMonths = Dictionary(
                 grouping: completed,
                 by: { self.calendar.dateInterval(of: .month, for: $0.date)?.start ?? $0.date }
             )
             .sorted { $0.key < $1.key }
-            .map { $0.value.reduce(Decimal(0)) { $0 + $1.amount } }
+            let priorTotals: [Decimal] = priorMonths.map { $0.value.reduce(Decimal(0)) { $0 + $1.amount } }
+            // What each earlier month cost AFTER today's day of the month. A month
+            // with nothing then still counts, as zero.
+            let priorRemainders: [Decimal] = priorMonths.map { month in
+                month.value
+                    .filter { self.calendar.component(.day, from: $0.date) > elapsed }
+                    .reduce(Decimal(0)) { $0 + $1.amount }
+            }
 
             projection = projectionEngine.project(
                 spentSoFar: spentSoFar,
                 elapsedDays: elapsed,
                 totalDays: totalDays,
-                priorMonthTotals: priorTotals
+                priorMonthTotals: priorTotals,
+                priorMonthRemainders: priorRemainders
             )
 
             let allCategories = try await categoryRepository.fetchAll()
