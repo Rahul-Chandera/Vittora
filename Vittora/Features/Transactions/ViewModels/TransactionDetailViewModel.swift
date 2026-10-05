@@ -51,7 +51,7 @@ import VittoraCore
             // category or account simply hides its row instead of showing a
             // raw UUID or an empty label.
             if let categoryID = found.categoryID {
-                categoryName = try? await categoryRepository.fetchByID(categoryID)?.name
+                categoryName = try? await categoryRepository.fetchByID(categoryID)?.displayName
             } else {
                 categoryName = nil
             }
