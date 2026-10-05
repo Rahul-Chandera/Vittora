@@ -75,7 +75,7 @@ SHOTS=(
   "tax|-|05-tax"
   "reports|vittora://report/healthScore|06-healthscore"
   "reports|vittora://report/netWorth|07-networth"
-  "reports|vittora://report/spendingOutlook|08-spendingoutlook"
+  "reports|vittora://report/cashFlowForecast|08-cashflowforecast"
   "reports|vittora://report/monthly|09-reports"
   "reports|vittora://report/yearInReview|10-yearinreview"
 )
@@ -107,8 +107,12 @@ for entry in "${SHOTS[@]}"; do
   select_arg=""
   [ "$name" = "02-transactions" ] && select_arg="--ui-test-select-first-transaction"
 
-  pkill -x Vittora >/dev/null 2>&1 || true
+  pkill -f "$APP/Contents/MacOS/Vittora" >/dev/null 2>&1 || true
   sleep 2
+
+  # Kill by this build's path, never `pkill -x Vittora`: that name also matches
+  # the Vittora app inside every running iOS simulator, and killed the store
+  # captures running alongside (1.8.0).
 
   # Launch through `open`, not by exec'ing the binary. A directly-exec'd .app
   # binary gets no proper GUI session from this shell and never creates a
@@ -142,6 +146,6 @@ for entry in "${SHOTS[@]}"; do
   echo "    $name.png"
 done
 
-pkill -x Vittora >/dev/null 2>&1 || true
+pkill -f "$APP/Contents/MacOS/Vittora" >/dev/null 2>&1 || true
 rm -f "$WINDOW_ID_SWIFT"
 echo "==> raw captures in $OUT"

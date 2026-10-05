@@ -27,7 +27,7 @@ PALETTE = {
     "05-tax":               {"top": (236, 246, 245), "bottom": (206, 232, 230), "glow": (72, 187, 182)},
     "06-healthscore":       {"top": (233, 248, 242), "bottom": (207, 238, 227), "glow": (63, 207, 164)},
     "07-networth":          {"top": (238, 245, 251), "bottom": (213, 230, 244), "glow": (96, 165, 250)},
-    "08-spendingoutlook":   {"top": (248, 245, 236), "bottom": (238, 229, 210), "glow": (214, 178, 106)},
+    "08-cashflowforecast":  {"top": (248, 245, 236), "bottom": (238, 229, 210), "glow": (214, 178, 106)},
     "09-reports":           {"top": (243, 241, 250), "bottom": (223, 217, 241), "glow": (146, 128, 220)},
     "10-yearinreview":      {"top": (232, 246, 240), "bottom": (198, 232, 219), "glow": (52, 190, 150)},
 }
@@ -74,7 +74,8 @@ OUT = STORE_ROOT
 # AI claims are limited to what is AI: category suggestions (on-device NLEmbedding
 # classifier, M3.2.1) and the Monthly Overview summary (Apple Intelligence where the
 # device has it, M3.2.6 — hence "where available"). Health score, outlook and the
-# insight cards are rules-based and must not be labelled AI.
+# insight cards are rules-based and must not be labelled AI. Spending Outlook is out
+# of the gallery until its run-rate stops extrapolating rent paid on the 1st (1.8.1).
 COPY_BY_LOCALE = {
     "en": {
         "01-dashboard":       ("Everything at\na Glance",      "Income, spending, budgets, and goals in one place"),
@@ -84,7 +85,7 @@ COPY_BY_LOCALE = {
         "05-tax":             ("Tax for Five\nCountries",      "India, US, UK, Australia and Canada estimates"),
         "06-healthscore":     ("Your Financial\nHealth",       "One score, and what moves it"),
         "07-networth":        ("Net Worth,\nOver Time",        "Assets and debts, month by month"),
-        "08-spendingoutlook": ("See Where the\nMonth Lands",   "A spending outlook with what-if scenarios"),
+        "08-cashflowforecast": ("See What's\nAhead",            "A 90-day cash flow forecast from your own records"),
         "09-reports":         ("Your Month,\nin Plain Words",  "Summaries by Apple Intelligence, where available"),
         "10-yearinreview":    ("Your Year,\nWrapped",          "Total spent, top categories, and your biggest month"),
     },
@@ -96,7 +97,7 @@ COPY_BY_LOCALE = {
         "05-tax":             ("Impuestos en\nCinco Países",   "India, EE. UU., Reino Unido, Australia y Canadá"),
         "06-healthscore":     ("Tu Salud\nFinanciera",         "Una puntuación y lo que la mueve"),
         "07-networth":        ("Patrimonio Neto\nen el Tiempo", "Activos y deudas, mes a mes"),
-        "08-spendingoutlook": ("Mira Cómo\nCierra el Mes",     "Perspectiva de gastos con escenarios de Qué pasaría si"),
+        "08-cashflowforecast": ("Mira lo que\nViene",           "Pronóstico de flujo de efectivo a 90 días con tus datos"),
         "09-reports":         ("Tu Mes, en\nPalabras Claras",  "Resúmenes con Apple Intelligence, donde esté disponible"),
         "10-yearinreview":    ("Tu Año\nen Resumen",           "Total gastado, categorías principales y tu mes más alto"),
     },
@@ -108,7 +109,7 @@ COPY_BY_LOCALE = {
         "05-tax":             ("पाँच देशों का\nटैक्स",             "भारत, अमेरिका, UK, ऑस्ट्रेलिया और कनाडा के अनुमान"),
         "06-healthscore":     ("आपका वित्तीय\nस्वास्थ्य",           "एक स्कोर, और उसे क्या बदलता है"),
         "07-networth":        ("समय के साथ\nनेट वर्थ",           "एसेट्स और देनदारियाँ, महीने दर महीने"),
-        "08-spendingoutlook": ("महीना कहाँ\nपहुँचेगा",             "\u201cक्या हो अगर\u201d परिदृश्यों के साथ खर्च आउटलुक"),
+        "08-cashflowforecast": ("देखें आगे\nक्या है",            "आपके अपने रिकॉर्ड से 90 दिनों का कैश फ़्लो पूर्वानुमान"),
         "09-reports":         ("आपका महीना,\nआसान शब्दों में",    "Apple Intelligence से सारांश, जहाँ उपलब्ध हो"),
         "10-yearinreview":    ("आपका साल,\nएक झलक में",         "कुल खर्च, मुख्य कैटेगरी और सबसे बड़ा महीना"),
     },

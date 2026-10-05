@@ -79,7 +79,7 @@ wrong way).
 | `05-tax` | Tax estimate (US sets show US tax, `-hi` shows India) |
 | `06-healthscore` | Financial health score |
 | `07-networth` | Net worth over time |
-| `08-spendingoutlook` | Spending outlook and what-if |
+| `08-cashflowforecast` | Cash Flow Forecast. Spending Outlook was here, but its straight-line run-rate turns rent paid on the 1st into a month 7× too high; back once that is fixed (1.8.1) |
 | `09-reports` | Monthly Overview with the month summary; headline names Apple Intelligence "where available" — the simulator has no model, so the capture shows the plain-sentence fallback |
 | `10-yearinreview` | Year in Review |
 

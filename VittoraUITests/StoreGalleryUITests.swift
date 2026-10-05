@@ -66,7 +66,10 @@ final class StoreGalleryUITests: XCTestCase {
         Shot(name: "05-tax", tab: "tax", step: .tax),
         Shot(name: "06-healthscore", tab: "reports", url: "vittora://report/healthScore"),
         Shot(name: "07-networth", tab: "reports", url: "vittora://report/netWorth"),
-        Shot(name: "08-spendingoutlook", tab: "reports", url: "vittora://report/spendingOutlook"),
+        // Cash Flow Forecast, not Spending Outlook: the outlook's straight-line
+        // run-rate turns rent paid on the 1st into a month 7× too high early in
+        // the month. Back once that is fixed (1.8.1).
+        Shot(name: "08-cashflowforecast", tab: "reports", url: "vittora://report/cashFlowForecast"),
         // Monthly Overview: it carries the month summary (Apple Intelligence where
         // available), which the slot's headline names. Not Reports home, which
         // leads with insight cards that read oddly on the demo data.
@@ -122,8 +125,11 @@ final class StoreGalleryUITests: XCTestCase {
             // Rotate after launch: setting it before means the first layout
             // pass happens in portrait and some cards keep the narrow metrics.
             if isPad { XCUIDevice.shared.orientation = .landscapeLeft }
-            XCTAssertTrue(UITestSupport.waitForContentRoot(in: app, timeout: 20),
-                          "\(shot.name): content root never appeared")
+            guard UITestSupport.waitForContentRoot(in: app, timeout: 20) else {
+                XCTFail("\(shot.name): content root never appeared, not captured")
+                app.terminate()
+                continue
+            }
 
             // Seeding is async (a year of history) and report aggregates reload
             // only after it notifies.
