@@ -90,19 +90,17 @@ for entry in "${SHOTS[@]}"; do
   route_arg=""
   [ "$url" != "-" ] && route_arg="--ui-test-open-url=$url"
 
-  # Locale goes into the app's own defaults domain, NOT into the launch
-  # arguments. Passing -AppleLanguages alongside --ui-test-open-url leaves the
-  # app running with no window at all — reproducible, and neither argument does
-  # it alone. That is why the Mac set used to be en-US only. Writing the
-  # preference instead sidesteps the conflict, so the deep-linked report slots
-  # survive a localized run.
-  if [ "$LOCALE" != "en" ]; then
-    defaults write "$MAC_APP_ID" AppleLanguages -array "$LOCALE" >/dev/null 2>&1 || true
-    defaults write "$MAC_APP_ID" AppleLocale -string "$APPLE_LOCALE" >/dev/null 2>&1 || true
-  else
-    defaults delete "$MAC_APP_ID" AppleLanguages >/dev/null 2>&1 || true
-    defaults delete "$MAC_APP_ID" AppleLocale >/dev/null 2>&1 || true
-  fi
+  # The locale goes FIRST in the launch arguments. macOS reads "-key value"
+  # pairs from argv into the argument defaults domain, pairing from the start,
+  # so any odd number of flags before -AppleLanguages shifts the pairing: the
+  # language is never applied and the app launches with no window. That was
+  # the long-standing "-AppleLanguages + --ui-test-open-url = no window" quirk.
+  # It was worked around by writing the language into the app's defaults, but
+  # the app is sandboxed and macOS now refuses writes into its container
+  # ("Operation not permitted"), so that write failed silently and the first
+  # 1.8.0 hi/es Mac captures came out in English.
+  locale_args=""
+  [ "$LOCALE" != "en" ] && locale_args="-AppleLanguages ($LOCALE) -AppleLocale $APPLE_LOCALE"
 
   # Wide layout is list + detail; with no selection the detail pane is an empty
   # placeholder filling half the window.
@@ -120,7 +118,7 @@ for entry in "${SHOTS[@]}"; do
     --env UITEST_INITIAL_TAB="$tab" \
     --env UITEST_DEMO_REGION="$REGION" \
     --env UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
-    -a "$APP" --args --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" \
+    -a "$APP" --args $locale_args --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" \
       --ui-test-pro --ui-test-user-name=Alex $route_arg $select_arg
 
   # Poll for the window rather than guessing a sleep: launch time varies a lot
@@ -146,6 +144,4 @@ done
 
 pkill -x Vittora >/dev/null 2>&1 || true
 rm -f "$WINDOW_ID_SWIFT"
-defaults delete "$MAC_APP_ID" AppleLanguages >/dev/null 2>&1 || true
-defaults delete "$MAC_APP_ID" AppleLocale >/dev/null 2>&1 || true
 echo "==> raw captures in $OUT"

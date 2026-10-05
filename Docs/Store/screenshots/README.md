@@ -125,11 +125,14 @@ instead.
 The script polls for the window rather than sleeping a fixed time, because a
 deep-linked shot takes noticeably longer to appear than a plain tab.
 
-**Known quirk, avoided rather than root-caused:** passing `--ui-test-open-url`
-*together with* `-AppleLanguages` leaves the app running with no window.
-Reproducible; neither argument does it alone. The script therefore only sets the
-locale arguments when the locale is not `en`, which costs nothing because the Mac
-listing is en-US only — but a localized Mac set would hit this.
+**Locale arguments go first.** macOS reads `-key value` pairs from the launch
+arguments, pairing from the start, so an odd number of flags before
+`-AppleLanguages` shifts the pairing: the language is never applied and the app
+launches with no window. That was the old "`-AppleLanguages` +
+`--ui-test-open-url` = no window" quirk. The script used to dodge it by writing
+the language into the app's defaults, but the app is sandboxed and macOS now
+refuses writes into its container, so that failed silently (the first 1.8.0
+hi/es Mac captures came out in English).
 
 Appearance is pinned with `--ui-test-appearance=light` (override with
 `APPEARANCE=`) so the Mac set matches the iOS sets regardless of how the host
