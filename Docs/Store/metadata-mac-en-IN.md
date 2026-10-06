@@ -1,5 +1,7 @@
 # App Store Metadata — macOS platform tab, en-IN (India storefront)
 
+**Refreshed 2026-10-06 for 1.8.0 (build 13).** Promotional text and Description now cover the 1.8.0 feature set: tax estimates for five countries, household sharing, sinking funds, sub-categories, the financial health score, spending outlook and what-if, net worth over time, the unusual-spending and budget insights, on-device category suggestions and the Apple Intelligence month summary. AI is named only for those last two ("on supported devices"); the health score, outlook and insights are rules-based. Vittora Pro is named only where a feature is Pro, and household sharing is free. Apple Wallet import is not mentioned (ships dark). **Mac:** Live Activities, the interactive widget, Watch voice entry and multi-page scanning are iOS-only and are not claimed; household invitations can only be accepted on iPhone or iPad (`HouseholdShareAcceptance.swift` is `#if os(iOS)`), which the copy says.
+
 The macOS tab for the India storefront. `metadata-mac-en-US.md` is the same tab
 for en-US; `metadata-en-IN.md` is the **iOS/iPadOS** tab for India. All three
 are separate fields in App Store Connect.
@@ -38,13 +40,13 @@ Vittora: Personal Finance
 Budgets, tax & spending on Mac
 ```
 
-## Promotional Text (170 max)
+## Promotional Text (170 max — 157)
 
 ```
-Now with Year in Review and Hindi. Track spending, budgets and tax on your Mac — old vs new regime, cash-limit heads-ups, no bank linking and no ads. Syncs via iCloud.
+New in 1.8: shared household budgets, smarter reports and FY 2026-27 tax rules on your Mac. Old vs new regime, cash-limit heads-ups. No bank linking, no ads.
 ```
 
-## Description (4000 max)
+## Description (4000 max — 3924)
 
 ```
 Vittora is the personal finance app that never asks for your bank password or OTP.
@@ -60,57 +62,56 @@ BUILT FOR THE MAC
 • Import and export CSV, and attach receipts and documents from Finder
 
 TRACK EVERY RUPEE
-• Log expenses, income and transfers in seconds
-• Organise with categories, payees, accounts and payment methods — UPI, card or cash
+• Log expenses, income and transfers in seconds — UPI, card or cash
+• Category suggestions that learn from your own history, on your device
+• Categories with sub-categories, payees and accounts
 • Search and filter your full history instantly
-• Your data is yours — export it any time, in a format you can actually read
 
 INDIA TAX, WORKED OUT FOR YOU
-• Compare the old and new regimes side by side before you choose
-• 80C, 80CCD (NPS), 80D including parents and senior rates, HRA and the standard deduction
-• Cess and surcharge included, so the number you see is the number you pay
-• Heads-ups on the rules that catch people out — Section 269ST cash limits, Section 40A(3), cash-deposit reporting, the GST registration threshold and Section 194-IB TDS on rent
+• Old regime vs new regime, side by side, with FY 2026-27 rules
+• 80C, NPS under 80CCD(1B) and employer NPS under 80CCD(2), 80D including parents and senior rates, HRA, the standard deduction, cess and surcharge with marginal relief
+• Heads-ups on the rules that catch people out — Section 269ST cash limits, Section 40A(3), cash-deposit reporting, the GST registration threshold and Section 194-IB TDS on rent. Informational only; Vittora files nothing and gives no tax advice
+• Also estimates tax for the US, UK, Canada and Australia
 
 BUDGETS THAT KEEP UP
 • Weekly, monthly, quarterly or yearly budgets per category
-• Overall and per-budget progress at a glance
 • Colour-coded warnings before you overspend, not after
+• Household sharing: shared budgets through iCloud, spending by member, and control over who can edit (invitations are accepted on iPhone or iPad)
 
-SAVINGS GOALS
+SAVINGS GOALS AND SINKING FUNDS
 • Set a target, track contributions, watch the progress ring fill
-• Emergency fund, a wedding, a new bike — as many goals as you need
+• Several goals can share one account; Vittora warns when they claim more than it holds
 
 REPORTS THAT EXPLAIN YOUR MONEY
-• Monthly overview of income vs expenses across 12 months
-• Category breakdown with percentages
-• 50/30/20 needs, wants and savings analysis
-• Emergency fund tracker — how many months you could cover
-• Subscription audit — what your recurring charges really cost
-• Cash-flow forecast, net worth, annual summary and custom reports
-• Export monthly and annual reports as PDF
+• Financial health score, and a spending outlook with what-if scenarios
+• Net worth over time, cash flow forecast and an annual summary
+• Monthly overview with a plain-language summary, written by Apple Intelligence on supported Macs
+• Unusual-spending alerts and budget suggestions from your own records
+• Category breakdown, 50/30/20, emergency fund tracker and subscription audit
+• Custom reports, and monthly and annual PDF export
 
 YOUR YEAR IN REVIEW
-• See your whole year: total spent, top categories, biggest month, top merchants, savings and milestones
-• Share it as an image — amounts are left out by default, so you can post it without posting your finances
+• Total spent, top categories, biggest month, top payees and milestones
+• Share it as an image — amounts are left out by default
+
+CONTINUE ANYWHERE
+• Handoff from iPhone, Spotlight search, and Siri for what you've spent or a new expense
 
 SPLIT & SETTLE
-• Track money you've lent or borrowed with a simple debt ledger
-• Split group expenses and see who owes whom
+• Track money lent and borrowed, and split group expenses with friends and flatmates
 
 RECURRING, HANDLED
-• Salary, rent, subscriptions — set them once and Vittora logs them on schedule
-• Upcoming view shows what's about to hit your accounts
-• Choose when reminders arrive, with quiet hours
+• Salary, rent, subscriptions — set once, logged on schedule, with reminders and quiet hours
 
 PRIVATE BY DESIGN
 • Works fully offline; sync is optional and goes only through your personal iCloud
 • No ads, no trackers, no analytics sold to anyone
-• Contact support from inside the app — you see the whole diagnostic summary before anything is sent, and it never includes your amounts, notes or payees
+• In-app support: you see the whole diagnostic summary first, and it never includes your amounts, notes or payees
 • Delete all your data at any time, on your terms
 
-Vittora is free to use, on every device. No ads, no trackers, no account, and nothing about you sold to anyone.
+Vittora is free to use, on every device.
 
-Your records, your splits, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis: full tax planning and regime comparison, custom reports with PDF export, cash-flow forecast, subscription audit, the 50/30/20 report, the emergency fund tracker, and unlimited receipt scanning. Without Pro you get five receipt scans a month, and everything you have already created stays yours.
+Your records, your splits, household sharing, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis: tax estimates and regime comparison, the financial health score, spending outlook, cash flow forecast, subscription audit, the 50/30/20 report, the emergency fund tracker, custom reports with PDF export, and unlimited receipt scanning. Without Pro you get five receipt scans a month, and everything you have already created stays yours.
 
 Vittora Pro is available monthly, yearly with a 7-day free trial, or as a one-time Lifetime purchase.
 
@@ -131,8 +132,7 @@ budget,expense tracker,money manager,spending,savings,personal finance,tax,80c,i
 
 ## What's New
 
-Use the **Mac** block in `WHATS_NEW_1.5.0.md`. It already drops the Watch and
-widget claims and words sharing for the Mac share sheet.
+Use the English section of `WHATS_NEW_1.8.0.md`, without its "ON IPHONE AND APPLE WATCH" section (iPhone-only features).
 
 ---
 
@@ -146,7 +146,4 @@ widget claims and words sharing for the Mac share sheet.
   universal purchase, so a Mac buyer already owns the iOS app.
 - Touch ID wording says "or your password" deliberately: plenty of Macs have no
   Touch ID sensor, and `LocalAuthentication` falls back to the password there.
-- Mac screenshots for this storefront are `Docs/Store/screenshots/marketing/mac-in/`
-  (1440×900, INR amounts). Regenerate with
-  `Scripts/store/capture_mac_screenshots.sh mac-in en en_IN IN`, which needs an
-  unlocked screen and a signed build.
+- **Screenshots** are the 1.8.0 gallery in `Marketing/AppStore/` (beside the repo): mac-in (English, $) or mac-hi (Hindi, ₹). Regenerate with the scripts in `Scripts/store/` — see `Docs/Store/screenshots/README.md`.

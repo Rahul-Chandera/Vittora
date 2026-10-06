@@ -1,12 +1,13 @@
 # App Store Metadata — es-US (Spanish, United States)
 
+**Refreshed 2026-10-06 for 1.8.0 (build 13).** Promotional text and Description now cover the 1.8.0 feature set: tax estimates for five countries, household sharing, sinking funds, sub-categories, the financial health score, spending outlook and what-if, net worth over time, the unusual-spending and budget insights, Live Activities, the interactive widget, Watch voice entry, multi-page scanning, on-device category suggestions and the Apple Intelligence month summary. AI is named only for those last two ("on supported devices"); the health score, outlook and insights are rules-based. Vittora Pro is named only where a feature is Pro, and household sharing is free. Apple Wallet import is not mentioned (ships dark).
+
 For the **Spanish (Mexico)** / `es-MX` localization in App Store Connect, which
 is what serves Spanish-speaking users in the US storefront. Neutral Latin
 American Spanish, matching the in-app translations shipped in 1.5 (L2).
 
-**Written for the current feature set** (1.4.0 shipped + 1.5), not translated
-from `metadata-en-US.md` — that file still describes v1.0.0 and predates the
-Watch app, widgets, Siri, Handoff and Year in Review. See the note at the end.
+Written for the same verified feature set as `metadata-en-US.md`, not
+translated from it, with headings and phrasing that follow the in-app Spanish.
 
 **Binding constraints:** price tier stays Free but the app offers in-app purchases from 1.7.0 (DEC-013/014/015); Vittora Pro may now be described. The "no ads, no trackers, no accounts, no data selling" claims remain true and must be kept.
 
@@ -28,13 +29,13 @@ Vittora: Finanzas Personales
 Gastos y presupuestos privados
 ```
 
-## Promotional Text (170 max — this is ~158)
+## Promotional Text (170 max — 159)
 
 ```
-Tu dinero, en tu dispositivo. Registra gastos, presupuestos y metas de ahorro sin conectar tu banco, sin anuncios y sin vender tus datos. Sincroniza por iCloud.
+Nuevo en 1.8: impuestos para cinco países, presupuestos del hogar compartidos, Actividades en Vivo e informes más útiles. Sin conectar tu banco y sin anuncios.
 ```
 
-## Description (4000 max)
+## Description (4000 max — 3955)
 
 ```
 Vittora es la app de finanzas personales que nunca te pide la contraseña de tu banco.
@@ -43,46 +44,42 @@ Sin conexión bancaria. Sin Plaid. Sin servicios externos leyendo tus estados de
 
 REGISTRA CADA MONTO
 • Anota gastos, ingresos y transferencias en segundos
-• Organiza con categorías, beneficiarios, cuentas y métodos de pago
-• Busca y filtra todo tu historial al instante
-• Importa desde CSV y exporta tus datos cuando quieras: son tuyos
+• Sugerencias de categoría que aprenden de tu propio historial, en tu dispositivo
+• Categorías con subcategorías, beneficiarios, cuentas y métodos de pago
+• Escanea recibos y documentos de varias páginas, e importa o exporta CSV cuando quieras
+
+EN TU MUÑECA, TU PANTALLA Y LA DYNAMIC ISLAND
+• Apple Watch: registra un gasto con la corona digital o simplemente di «500 para comestibles»
+• Un widget interactivo registra un gasto predefinido sin abrir la app
+• Actividades en Vivo: el total mientras compras y la cuenta regresiva para tu próxima factura
+• Widgets en pantalla de inicio, pantalla bloqueada y StandBy; los montos se ocultan con el bloqueo
+• Siri, Spotlight, Handoff y navegación completa con teclado en iPad y Mac
 
 PRESUPUESTOS QUE TE SIGUEN EL PASO
 • Presupuestos semanales, mensuales, trimestrales o anuales por categoría
-• Progreso general y por presupuesto, de un vistazo
-• Avisos por color antes de pasarte, no después
+• Avisos antes de pasarte, no después
+• Hogar compartido: comparte presupuestos con quienes vives a través de iCloud, mira el gasto por miembro y elige quién puede editar
 
-METAS DE AHORRO
-• Define un objetivo, registra aportes y mira avanzar el progreso
-• Fondo de emergencia, vacaciones, un auto nuevo: tantas metas como necesites
+METAS DE AHORRO Y FONDOS COMPARTIDOS
+• Define un objetivo y mira avanzar el progreso
+• Varias metas pueden usar la misma cuenta, y Vittora te avisa cuando suman más de lo que hay en ella
 
-EN TU MUÑECA Y EN TU PANTALLA
-• App para Apple Watch: registra un gasto en segundos con la corona digital
-• Complicaciones y widgets con el gasto de hoy y lo que queda del presupuesto
-• Widgets en pantalla de inicio, pantalla bloqueada y StandBy
-• Los montos se ocultan mientras el dispositivo está bloqueado
-• Pregúntale a Siri cuánto gastaste, o registra un gasto con la voz
-
-CONTINÚA EN OTRO DISPOSITIVO
-• Empieza una transacción en el iPhone y termínala en el iPad o la Mac
-• Encuentra cualquier transacción desde Spotlight
-
-REPORTES QUE EXPLICAN TU DINERO
-• Resumen mensual de ingresos y gastos a 12 meses
-• Desglose por categoría con porcentajes
-• Regla 50/30/20 de necesidades, deseos y ahorro
-• Fondo de emergencia: cuántos meses podrías cubrir
-• Auditoría de suscripciones: lo que realmente cuestan cada mes
-• Proyección de flujo de efectivo, patrimonio neto y reportes personalizados
-• Exporta el resumen mensual y anual en PDF
+INFORMES QUE EXPLICAN TU DINERO
+• Salud financiera y una perspectiva de gastos con escenarios de «qué pasaría si»
+• Patrimonio neto a lo largo del tiempo, pronóstico de flujo de efectivo y resumen anual
+• Resumen mensual con una explicación en palabras sencillas, escrita por Apple Intelligence en los dispositivos compatibles
+• Alertas de gastos inusuales y sugerencias de presupuesto basadas solo en tus registros
+• Desglose por categoría, regla 50/30/20, fondo de emergencia y auditoría de suscripciones
+• Informes personalizados y exportación mensual y anual en PDF
 
 TU AÑO EN RESUMEN
-• Mira tu año completo: total gastado, categorías principales, mes más alto y logros
-• Compártelo como imagen. Los montos se omiten de forma predeterminada, para que puedas publicarlo sin publicar tus finanzas
+• Total gastado, categorías principales, mes más alto y logros
+• Compártelo como imagen; los montos se omiten de forma predeterminada
 
-IMPUESTOS
-• Estimación federal de EE. UU. según tus ingresos y estado civil fiscal
-• Cuánto espacio te queda este año en 401(k) e IRA
+IMPUESTOS PARA CINCO PAÍSES
+• Estados Unidos, Reino Unido, Canadá (todas las provincias y territorios), Australia e India
+• Cuánto espacio te queda este año en 401(k), IRA y HSA
+• Estimaciones educativas, calculadas en tu dispositivo
 
 PRESTA Y DIVIDE
 • Registra lo que prestaste o pediste prestado
@@ -90,7 +87,7 @@ PRESTA Y DIVIDE
 
 RECURRENTES, RESUELTO
 • Sueldo, renta, suscripciones: configúralos una vez y Vittora los registra
-• La vista de próximos muestra lo que está por caer en tus cuentas
+• Vista de próximos y recordatorios con horas de silencio
 
 PRIVADA POR DISEÑO
 • Funciona sin internet; la sincronización es opcional y solo por tu iCloud personal
@@ -100,12 +97,11 @@ PRIVADA POR DISEÑO
 
 ACCESIBILIDAD
 • VoiceOver, texto dinámico y contraste revisados en toda la app
-• Navegación completa con teclado en iPad y Mac
 • Tema negro OLED y colores de acento
 
-Vittora es gratis, en todos tus dispositivos. Sin anuncios, sin rastreadores, sin cuentas y sin vender tus datos a nadie.
+Vittora es gratis, en todos tus dispositivos.
 
-Tus registros, tus gastos compartidos, la sincronización con iCloud y la exportación a CSV siguen siendo gratis, siempre. Vittora Pro es una mejora opcional que desbloquea el análisis de futuro: planificación fiscal completa y comparación de regímenes, informes personalizados con exportación a PDF, previsión de flujo de caja y auditoría de suscripciones, el informe 50/30/20 y el seguimiento del fondo de emergencia, y escaneo de recibos ilimitado. Sin Pro tienes cinco escaneos de recibos al mes, y todo lo que ya creaste sigue siendo tuyo.
+Tus registros, tus gastos compartidos, el hogar compartido, la sincronización con iCloud y la exportación a CSV siguen siendo gratis, siempre. Vittora Pro es una mejora opcional que desbloquea el análisis de futuro: estimaciones fiscales y comparación de regímenes, salud financiera, perspectiva de gastos, pronóstico de flujo de efectivo, auditoría de suscripciones, el informe 50/30/20, el fondo de emergencia, informes personalizados con PDF y escaneo de recibos ilimitado. Sin Pro tienes cinco escaneos al mes, y todo lo que ya creaste sigue siendo tuyo.
 
 Vittora Pro está disponible por mes, por año con 7 días de prueba gratis, o como compra única Lifetime.
 
@@ -126,48 +122,16 @@ Same as en-US — the site is English-only, which is a known gap:
 - Marketing URL: `https://www.vittora.app`
 - Privacy Policy URL: `https://www.vittora.app/privacy`
 
-## What's New — 1.5.0 (Spanish)
+## What's New
 
-```
-TU AÑO EN RESUMEN
-• Mira tu año en un solo lugar: total gastado, categorías principales, mes más alto, comercios frecuentes, ahorro y algunos logros
-• Compártelo como imagen: los montos se omiten de forma predeterminada, para que puedas publicarlo sin publicar tus finanzas
-• Elige cualquier año con registros
-
-ESPAÑOL
-• Vittora ya está disponible por completo en español
-
-ACCESIBILIDAD
-• Encabezados más claros y fáciles de leer en toda la app
-• Mejor contraste en montos y etiquetas
-• Más mejoras de VoiceOver y texto dinámico
-
-Sigue sin cuentas, sin anuncios y sin rastreo: tus datos se quedan en tus dispositivos.
-```
+Use the Spanish section of `WHATS_NEW_1.8.0.md`.
 
 ---
 
 ## Notes for whoever publishes this
 
-**`metadata-en-US.md` is four releases stale.** It was written for v1.0.0 and
-still says so — no Apple Watch app, no widgets, no Siri, no Spotlight, no
-Handoff, no 50/30/20 or emergency fund, no subscription audit, no Year in
-Review, no PDF export. The live listing is therefore selling far less than the
-app does. **Refreshing en-US (and en-IN) is worth more than adding Spanish**,
-because it fixes the listing every US visitor already sees. This Spanish file
-is written against the current feature set, so it can serve as the source when
-updating English.
+- **Screenshots** are the 1.8.0 gallery in `Marketing/AppStore/` (beside the repo): iphone-69-es, iphone-65-es, ipad-13-es, watch-es. Regenerate with the scripts in `Scripts/store/` — see `Docs/Store/screenshots/README.md`.
 
-**Screenshots are still English.** Spanish metadata with English screenshots is
-acceptable and common, but localized captures would land better. The
-`SpanishLocalizationUITests` suite already produces Spanish screenshots as test
-attachments (`es-dashboard`, `es-savings`, `es-tax-dashboard`, and others) — those
-can be pulled from the xcresult and framed with `Scripts/store/make_marketing.py`
-rather than re-shot by hand.
-
-**Two claims to re-check before publishing**, because they are localization
-choices rather than facts:
-- *Estado civil fiscal* for "filing status" — correct and used in the app, but a
-  tax-savvy native speaker should confirm it reads naturally in a US context.
-- The US tax section stays in Spanish while naming US concepts (401(k), IRA).
-  That is intentional — the audience is Spanish-speaking US filers.
+- **The tax section names each country's own concepts** (401(k), IRA, HSA)
+  in Spanish copy on purpose: the audience is Spanish-speaking US filers, and
+  those are the terms they file under.

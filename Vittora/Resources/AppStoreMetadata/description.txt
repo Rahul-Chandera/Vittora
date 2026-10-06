@@ -1,19 +1,70 @@
-Vittora is a private personal finance app for iPhone, iPad, and Mac.
+Vittora is the personal finance app that never asks for your bank password.
 
-Requirements:
-- iPhone or iPad with iOS 26 or later
-- Mac with macOS 26 or later
-- Optional iCloud sync uses your Apple ID and iCloud (enabled in Settings)
+No bank linking. No Plaid. No third-party aggregators reading your statements. You enter what you spend, and everything stays in your private iCloud — encrypted, synced across iPhone, iPad, Apple Watch and Mac, and fully usable offline.
 
-Track spending, income, budgets, recurring payments, savings goals, debt, tax estimates, receipts, and reports. Your data stays on your devices with optional iCloud sync through your Apple account — no analytics SDKs or ad trackers.
+TRACK EVERY DOLLAR
+• Log expenses, income and transfers in seconds
+• Category suggestions that learn from your own history, on your device
+• Categories with sub-categories, payees, accounts and payment methods
+• Scan receipts and multi-page documents, and import or export CSV anytime
 
-Shipped in this release:
-- Accounts, transactions, transfers, and categories
-- Budgets with spending alerts and recurring transaction rules
-- Debt tracking, bill reminders, and local notifications you control
-- Receipt attachments, document storage, and reports
-- Tax estimates for India and the United States (US estimates are federal only — state taxes not included)
-- App Lock with Face ID / Touch ID and encrypted document storage
-- iCloud sync across your Apple devices
+ON YOUR WRIST, HOME SCREEN AND DYNAMIC ISLAND
+• Apple Watch: log an expense with the Digital Crown, or just say "500 for groceries"
+• An interactive widget logs a preset expense without opening the app
+• Live Activities: a running total while you shop, and a countdown to your next bill
+• Home Screen, Lock Screen, StandBy and Smart Stack widgets; amounts hidden while locked
+• Siri, Spotlight, Handoff and full keyboard navigation on iPad and Mac
 
-Vittora is designed to feel calm, fast, and trustworthy so you can focus on your money decisions instead of wrestling with your tools.
+BUDGETS THAT KEEP UP
+• Weekly, monthly, quarterly or yearly budgets per category
+• Warnings before you overspend, not after
+• Household sharing: share budgets with the people you live with through iCloud, see spending by member, and choose who can edit
+
+SAVINGS GOALS AND SINKING FUNDS
+• Set a target and watch the progress ring fill
+• Several goals can share one account, and Vittora tells you when they claim more than it holds
+
+REPORTS THAT EXPLAIN YOUR MONEY
+• Financial health score, and a spending outlook with what-if scenarios
+• Net worth over time, cash-flow forecast and an annual summary
+• Monthly overview with a plain-language summary, written by Apple Intelligence on supported devices
+• Unusual-spending alerts and budget suggestions, based only on your own records
+• Category breakdown, 50/30/20, emergency fund tracker and subscription audit
+• Custom reports, and monthly and annual PDF export
+
+YOUR YEAR IN REVIEW
+• Total spent, top categories, biggest month and milestones
+• Share it as an image; amounts are left out by default
+
+TAX ESTIMATES FOR FIVE COUNTRIES
+• United States, United Kingdom, Canada (all provinces and territories), Australia and India
+• See your 401(k), IRA and HSA headroom for the year
+• Educational estimates, calculated on your device
+
+SPLIT & SETTLE
+• A simple ledger for money you've lent or borrowed
+• Split group expenses and see who owes whom
+
+RECURRING, HANDLED
+• Salary, rent, subscriptions: set them once and Vittora logs them on schedule
+• An Upcoming view, and reminders with quiet hours
+
+YOURS TO SHAPE
+• English, Spanish and Hindi
+• True-black OLED theme and a choice of accent colors
+• Extensive VoiceOver, Dynamic Type and contrast work throughout
+
+PRIVATE BY DESIGN
+• Works fully offline; sync is optional and goes only through your personal iCloud
+• Face ID / Touch ID app lock
+• No ads, no trackers, no analytics sold to anyone
+• Contact support from inside the app; you see the whole diagnostic summary first, and it never includes your amounts, notes or payees
+• Delete all your data at any time
+
+Vittora is free to use, on every device. No ads, no trackers, no account, and nothing about you sold to anyone.
+
+Your records, your splits, household sharing, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis: tax estimates and regime comparison, the financial health score, spending outlook, cash-flow forecast, subscription audit, the 50/30/20 report, the emergency fund tracker, custom reports with PDF export, and unlimited receipt scanning. Without Pro you get five receipt scans a month, and everything you have already created stays yours.
+
+Vittora Pro is available monthly, yearly with a 7-day free trial, or as a one-time Lifetime purchase.
+
+Requires iOS 26, iPadOS 26, or macOS 26.
