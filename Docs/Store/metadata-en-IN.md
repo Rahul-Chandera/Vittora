@@ -1,5 +1,7 @@
 # App Store Metadata — en-IN (India storefront)
 
+**Refreshed 2026-10-06 for 1.8.0 (build 13).** Promotional text and Description now cover the 1.8.0 feature set: tax estimates for five countries, household sharing, sinking funds, sub-categories, the financial health score, spending outlook and what-if, net worth over time, the unusual-spending and budget insights, Live Activities, the interactive widget, Watch voice entry, multi-page scanning, on-device category suggestions and the Apple Intelligence month summary. AI is named only for those last two ("on supported devices"); the health score, outlook and insights are rules-based. Vittora Pro is named only where a feature is Pro, and household sharing is free. Apple Wallet import is not mentioned (ships dark).
+
 Paste-ready per field. India uses **en-GB** as its base English variant, so
 spelling here is en-GB (organise, colour, personalise) — verify the localization
 slot in App Store Connect before pasting.
@@ -34,13 +36,13 @@ Vittora: Personal Finance
 Budgets, tax & daily spending
 ```
 
-## Promotional Text (170 max — 167)
+## Promotional Text (170 max — 162)
 
 ```
-Now in Hindi, with Year in Review and an Apple Watch app. Track spending and budgets, compare old vs new regime, and get cash-limit heads-ups. No bank linking, no ads.
+New in 1.8: shared household budgets, Live Activities, smarter reports and FY 2026-27 tax rules. Old vs new regime, cash-limit heads-ups. No bank linking, no ads.
 ```
 
-## Description (4000 max)
+## Description (4000 max — 3945)
 
 ```
 Vittora is the personal finance app that never asks for your bank password or OTP.
@@ -50,66 +52,63 @@ No bank linking. No account aggregators reading your statements. You enter what 
 अब हिंदी में — Vittora is fully available in Hindi.
 
 TRACK EVERY RUPEE
-• Log expenses, income and transfers in seconds with quick actions
-• Organise with categories, payees, accounts and payment methods — UPI, card or cash
-• Search and filter your full history instantly
-• Scan receipts, attach documents, and import or export CSV any time — it's your data
+• Log expenses, income and transfers in seconds — UPI, card or cash
+• Category suggestions that learn from your own history, on your device
+• Categories with sub-categories, payees and accounts
+• Scan receipts and multi-page documents, and import or export CSV any time
 
-ON YOUR WRIST AND YOUR HOME SCREEN
-• An Apple Watch app, with complications and Smart Stack widgets
+ON YOUR WRIST, HOME SCREEN AND DYNAMIC ISLAND
+• Apple Watch: log an expense with the Digital Crown, or just say "500 for groceries"
+• An interactive widget logs a preset expense without opening the app
+• Live Activities: a running total while you shop, and a countdown to your next bill
 • Home Screen, Lock Screen and StandBy widgets; amounts hidden while locked
-• Siri, voice entry and Spotlight search
 
-INDIA TAX ESTIMATOR
-• Instant income tax estimate from your salary and deductions
-• Old regime vs new regime comparison, so you pick the one that saves more
-• Covers 80C, NPS under 80CCD, 80D health cover including parents, HRA, the standard deduction, cess and surcharge
+INDIA TAX, WORKED OUT FOR YOU
+• Old regime vs new regime, side by side, with FY 2026-27 rules
+• 80C, NPS under 80CCD(1B) and employer NPS under 80CCD(2), 80D including parents and senior rates, HRA, the standard deduction, cess and surcharge with marginal relief
+• Also estimates tax for the US, UK, Canada and Australia
 
 CASH-LIMIT HEADS-UPS
 • A quiet heads-up when an entry crosses a limit worth knowing about — cash receipts under Section 269ST, cash business expenses under 40A(3), large cash deposits that get reported, the GST registration threshold, and TDS on rent under Section 194-IB
-• Informational only, based on what you have entered, and dismissible. Vittora does not file anything and does not give tax advice
+• Informational only and dismissible. Vittora does not file anything and does not give tax advice
 
 BUDGETS THAT KEEP UP
 • Weekly, monthly, quarterly or yearly budgets per category
-• Overall progress plus per-budget spent and remaining, at a glance
 • Colour-coded warnings before you overspend, not after
+• Household sharing: share budgets with family or flatmates through iCloud, by member, and choose who can edit
 
-SAVINGS GOALS
-• Set a target, track contributions, watch the progress ring fill
-• Emergency fund, Goa trip, new bike — as many goals as you need
+SAVINGS GOALS AND SINKING FUNDS
+• Set a target and watch the progress ring fill
+• Several goals can share one account; Vittora warns when they claim more than it holds
 
 REPORTS THAT EXPLAIN YOUR MONEY
-• Monthly overview of income vs expenses across 12 months
-• Category breakdown with percentages
-• 50/30/20 needs, wants and savings analysis
-• Emergency fund tracker — how many months you could cover
-• Subscription audit — what your recurring charges really cost
-• Cash flow forecast, net worth, annual summary and custom reports
-• Export monthly and annual reports as PDF
+• Financial health score, and a spending outlook with what-if scenarios
+• Net worth over time, cash flow forecast and an annual summary
+• A plain-language month summary by Apple Intelligence, on supported devices
+• Unusual-spending alerts and budget suggestions from your own records
+• Category breakdown, 50/30/20, emergency fund tracker and subscription audit
+• Custom reports, and monthly and annual PDF export
 
 YOUR YEAR IN REVIEW
-• See your whole year: total spent, top categories, biggest month, top payees, savings and milestones
-• Share it as an image — amounts are left out by default, so you can post it without posting your finances
+• Total spent, top categories, biggest month, top payees and milestones
+• Share it as an image — amounts are left out by default
 
 SPLIT & SETTLE
-• Track money you've lent or borrowed with a simple debt ledger
-• Split group expenses with friends and flatmates and see who owes whom
+• Track money lent and borrowed, and split group expenses with friends and flatmates
 
 RECURRING, HANDLED
-• Salary, rent, subscriptions — set them once and Vittora logs them on schedule
-• Upcoming view shows what's about to hit your accounts
-• Choose when reminders arrive, with quiet hours
+• Salary, rent, subscriptions — set once, logged on schedule, with reminders and quiet hours
 
 PRIVATE BY DESIGN
 • Works fully offline; sync is optional and goes only through your personal iCloud
 • Face ID / Touch ID app lock
 • No ads, no trackers, no analytics resold to anyone
-• Contact support from inside the app — you see the whole diagnostic summary before anything is sent, and it never includes your amounts, notes or payees
-• Delete all your data at any time, on your terms
+• In-app support: you see the whole diagnostic summary first, and it never includes your amounts, notes or payees
+• Delete all your data at any time
 
-Vittora is free to use, on every device. No ads, no trackers, no account, and nothing about you sold to anyone.
+Vittora is free to use, on every device.
 
-Your records, your splits, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis: full tax planning and regime comparison, custom reports with PDF export, cash-flow forecast, subscription audit, the 50/30/20 report, the emergency fund tracker, and unlimited receipt scanning. Without Pro you get five receipt scans a month, and everything you have already created stays yours.
+Your records, your splits, household sharing, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis: tax estimates and regime comparison, the financial health score, spending outlook, cash flow forecast, subscription audit, the 50/30/20 report, the emergency fund tracker, custom reports with PDF export, and unlimited receipt scanning. Without Pro you get five receipt scans a month; everything you created stays yours.
 
 Vittora Pro is available monthly, yearly with a 7-day free trial, or as a one-time Lifetime purchase.
 
@@ -130,9 +129,7 @@ budget,expense tracker,money manager,spending,savings,tax,regime,80C,UPI,GST,per
 
 ## What's New
 
-Use `WHATS_NEW_1.5.0.md`. Note that the Hindi and compliance-tip work landed in
-**1.4.0**, not 1.5 — it belongs in this persistent Description, not in the 1.5
-release notes.
+Use the English section of `WHATS_NEW_1.8.0.md`.
 
 ## Category / Age Rating (unchanged)
 
@@ -153,14 +150,6 @@ release notes.
   It is a single line so the listing stays readable for English-first users.
   Remove it if App Store Connect flags mixed-script Description content, which it
   has not historically.
-- **Screenshots are captured and current.** Two sets suit this storefront:
-  `screenshots/marketing/iphone-69-hi` (Hindi UI, ₹ amounts) and
-  `iphone-69-in` (English UI, ₹ amounts). The Hindi set is the stronger choice
-  now that Hindi genuinely ships end to end — the earlier mixed-language screens
-  were fixed in the L3 localization work. Regenerate either with
-  `Scripts/store/capture_screenshots.sh` and `make_marketing.py`.
-  Note the demo dataset's payee names and notes are still English ("Lunch Order",
-  "Monthly Staples"); that is user data rather than UI strings, but Hindi ones
-  would read better in a Hindi gallery.
+- **Screenshots** are the 1.8.0 gallery in `Marketing/AppStore/` (beside the repo): iphone-69-in / iphone-65-in / ipad-13-in / watch-in (English, $) or the -hi sets (Hindi, ₹). Regenerate with the scripts in `Scripts/store/` — see `Docs/Store/screenshots/README.md`.
 - "Top payees" replaces en-US's "top merchants" — payee is the term the app uses
   in English throughout, and merchant reads as US retail.

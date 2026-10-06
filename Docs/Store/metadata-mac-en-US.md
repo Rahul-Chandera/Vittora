@@ -1,5 +1,7 @@
 # App Store Metadata — macOS platform tab (en-US)
 
+**Refreshed 2026-10-06 for 1.8.0 (build 13).** Promotional text and Description now cover the 1.8.0 feature set: tax estimates for five countries, household sharing, sinking funds, sub-categories, the financial health score, spending outlook and what-if, net worth over time, the unusual-spending and budget insights, on-device category suggestions and the Apple Intelligence month summary. AI is named only for those last two ("on supported devices"); the health score, outlook and insights are rules-based. Vittora Pro is named only where a feature is Pro, and household sharing is free. Apple Wallet import is not mentioned (ships dark). **Mac:** Live Activities, the interactive widget, Watch voice entry and multi-page scanning are iOS-only and are not claimed; household invitations can only be accepted on iPhone or iPad (`HouseholdShareAcceptance.swift` is `#if os(iOS)`), which the copy says.
+
 Vittora is one App Store record (`id6762046016`) with a **separate metadata tab
 per platform**. This file is the macOS tab. `metadata-en-US.md` is the
 iOS/iPadOS tab. They must differ, because the Mac build genuinely ships less.
@@ -43,13 +45,13 @@ Vittora: Personal Finance
 Private money on your Mac
 ```
 
-## Promotional Text (170 max — 155)
+## Promotional Text (170 max — 151)
 
 ```
-Now with Year in Review and Spanish. Track spending, budgets and savings on your Mac with no bank linking, no ads, and no data ever sold. Syncs through iCloud.
+New in 1.8: tax estimates for five countries, shared household budgets and smarter reports on your Mac. No bank linking, no ads, and no data ever sold.
 ```
 
-## Description (4000 max)
+## Description (4000 max — 3948)
 
 ```
 Vittora is the personal finance app that never asks for your bank password.
@@ -64,9 +66,9 @@ BUILT FOR THE MAC
 
 TRACK EVERY DOLLAR
 • Log expenses, income and transfers in seconds
-• Organize with categories, payees, accounts and payment methods
+• Category suggestions that learn from your own history, on your device
+• Categories with sub-categories, payees, accounts and payment methods
 • Search and filter your full history instantly
-• Your data is yours — export it any time, in a format you can actually read
 
 CONTINUE ANYWHERE
 • Handoff — start a transaction on iPhone and finish it on your Mac
@@ -75,29 +77,29 @@ CONTINUE ANYWHERE
 
 BUDGETS THAT KEEP UP
 • Weekly, monthly, quarterly or yearly budgets per category
-• Overall and per-budget progress at a glance
 • Color-coded warnings before you overspend, not after
+• Household sharing: shared budgets through iCloud, spending by member, and control over who can edit (invitations are accepted on iPhone or iPad)
 
-SAVINGS GOALS
+SAVINGS GOALS AND SINKING FUNDS
 • Set a target, track contributions, watch the progress ring fill
-• Emergency fund, vacation, new car — as many goals as you need
+• Several goals can share one account, and Vittora tells you when they claim more than it holds
 
 REPORTS THAT EXPLAIN YOUR MONEY
-• Monthly overview of income vs expenses across 12 months
-• Category breakdown with percentages
-• 50/30/20 needs, wants and savings analysis
-• Emergency fund tracker — how many months you could cover
-• Subscription audit — what your recurring charges really cost
-• Cash-flow forecast, net worth, annual summary and custom reports
-• Export monthly and annual reports as PDF
+• Financial health score, and a spending outlook with what-if scenarios
+• Net worth over time, cash-flow forecast and an annual summary
+• Monthly overview with a plain-language summary, written by Apple Intelligence on supported Macs
+• Unusual-spending alerts and budget suggestions, based only on your own records
+• Category breakdown, 50/30/20, emergency fund tracker and subscription audit
+• Custom reports, and monthly and annual PDF export
 
 YOUR YEAR IN REVIEW
-• See your whole year: total spent, top categories, biggest month, top merchants, savings and milestones
-• Share it as an image — amounts are left out by default, so you can post it without posting your finances
+• Total spent, top categories, biggest month, top merchants and milestones
+• Share it as an image — amounts are left out by default
 
-US TAX ESTIMATOR
-• Instant federal estimate from your income and filing status
-• See how much 401(k) and IRA headroom you have left this year
+TAX ESTIMATES FOR FIVE COUNTRIES
+• United States, United Kingdom, Canada (all provinces and territories), Australia and India
+• See your 401(k), IRA and HSA headroom for the year
+• Educational estimates, calculated on your Mac
 
 SPLIT & SETTLE
 • Track money you've lent or borrowed with a simple debt ledger
@@ -105,8 +107,7 @@ SPLIT & SETTLE
 
 RECURRING, HANDLED
 • Salary, rent, subscriptions — set them once and Vittora logs them on schedule
-• Upcoming view shows what's about to hit your accounts
-• Choose when reminders arrive, with quiet hours
+• An Upcoming view, and reminders with quiet hours
 
 YOURS TO SHAPE
 • English, Spanish and Hindi
@@ -116,12 +117,12 @@ YOURS TO SHAPE
 PRIVATE BY DESIGN
 • Works fully offline; sync is optional and goes only through your personal iCloud
 • No ads, no trackers, no analytics sold to anyone
-• Contact support from inside the app — you see the whole diagnostic summary before anything is sent, and it never includes your amounts, notes or payees
+• Contact support from inside the app — you see the whole diagnostic summary first, and it never includes your amounts, notes or payees
 • Delete all your data at any time, on your terms
 
 Vittora is free to use, on every device. No ads, no trackers, no account, and nothing about you sold to anyone.
 
-Your records, your splits, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis: full tax planning and regime comparison, custom reports with PDF export, cash-flow forecast, subscription audit, the 50/30/20 report, the emergency fund tracker, and unlimited receipt scanning. Without Pro you get five receipt scans a month, and everything you have already created stays yours.
+Your records, your splits, household sharing, iCloud sync and CSV export stay free, always. Vittora Pro is an optional upgrade that unlocks the forward-looking analysis: tax estimates and regime comparison, the financial health score, spending outlook, cash-flow forecast, subscription audit, the 50/30/20 report, the emergency fund tracker, custom reports with PDF export, and unlimited receipt scanning. Without Pro you get five receipt scans a month, and everything you have already created stays yours.
 
 Vittora Pro is available monthly, yearly with a 7-day free trial, or as a one-time Lifetime purchase.
 
@@ -142,8 +143,7 @@ budget,expense tracker,money manager,spending,savings,personal finance,budget pl
 
 ## What's New
 
-Use the **Mac** block in `WHATS_NEW_1.5.0.md` — it already drops the Watch and
-widget claims and words sharing for the Mac share sheet.
+Use the English section of `WHATS_NEW_1.8.0.md`, without its "ON IPHONE AND APPLE WATCH" section (iPhone-only features).
 
 ---
 
@@ -155,10 +155,6 @@ widget claims and words sharing for the Mac share sheet.
 - **"A real Mac window" is a soft claim** and the only line here not tied to a
   specific code path. It is defensible (this is a native SwiftUI build, not Mac
   Catalyst) but trim it if you want the listing to be purely factual.
-- **Mac screenshots are captured and current** (PR #178): six slots at 1440×900,
-  the real two-column Mac layout. 1440×900 is an ASC-accepted Mac size —
-  1280×800, 2560×1600 and 2880×1800 are the others — so it is valid, just not
-  Retina. Regenerate with `Scripts/store/capture_mac_screenshots.sh`, which needs
-  an unlocked screen and a signed build.
+- **Screenshots** are the 1.8.0 gallery in `Marketing/AppStore/` (beside the repo): mac. Regenerate with the scripts in `Scripts/store/` — see `Docs/Store/screenshots/README.md`.
 - Touch ID wording says "or your password" deliberately: plenty of Macs have no
   Touch ID sensor, and `LocalAuthentication` falls back to the password there.
