@@ -88,6 +88,20 @@ Savings is not in the gallery (a list in a still), and 50/30/20 gave way to the
 with no headline is skipped rather than guessed. The Watch set adds `voice`
 (M2.6.2 Say It).
 
+## Product page header and search results (1.8.0)
+
+`python3 Scripts/store/make_header.py` writes `Marketing/AppStore/header/<locale>.png`
+(en-US, en-IN, es, hi) from the raw gallery captures, so capture first.
+
+Each is one **universal 16:9 asset, 5244 × 2950 PNG, no alpha**: Apple's
+creative-assets spec accepts 16:9 for both the product page header and search
+results, and its best practices recommend a single universal asset. The header
+crops it to 21:9 and search results to 3:2, so the headline and devices stay in
+the 4425 × 2247 region both keep. Apple's rules it follows: one clear idea, a
+short localized phrase, the interface visible, and no prices, URLs, ©, other
+platforms or Apple recognitions. Use the Preview button in App Store Connect to
+check the crops before submitting.
+
 ## Headline text goes through CoreText, not Pillow
 
 `make_marketing.py` renders headlines via `Scripts/store/render_text.swift`.
