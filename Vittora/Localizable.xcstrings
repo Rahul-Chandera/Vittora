@@ -1014,7 +1014,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Di «500 para supermercado»"
+            "value" : "Di «500 para comestibles»"
           }
         },
         "hi" : {
@@ -34851,6 +34851,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "आपके नियोक्ता की सुपर गारंटी (लगभग %@) भी %@ की सीमा में गिनी जाती है। इससे ऊपर के योगदान पर आपकी सीमांत दर से कर लगता है, जब तक आपके पास पिछले वर्षों की बची हुई सीमा न हो।"
+          }
+        }
+      }
+    },
+    "What you have spent so far, plus what the rest of the month has usually cost you." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo que llevas gastado, más lo que el resto del mes suele costarte."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अब तक आपने जितना खर्च किया है, उसमें महीने के बाकी दिनों का आमतौर पर होने वाला खर्च जोड़कर।"
+          }
+        }
+      }
+    },
+    "A large bill already paid, like rent, is counted once rather than spread across the month." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una factura grande ya pagada, como el alquiler, se cuenta una sola vez en lugar de repartirse en todo el mes."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पहले से चुकाया गया कोई बड़ा बिल, जैसे किराया, पूरे महीने में फैलाने के बजाय एक ही बार गिना जाता है।"
           }
         }
       }

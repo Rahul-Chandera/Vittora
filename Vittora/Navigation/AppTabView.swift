@@ -287,6 +287,8 @@ private struct MoreHubView: View {
                                 .foregroundStyle(VColors.iconTint(Self.tint(for: tab)))
                         }
                     }
+                    // Locale-independent handle for UI tests and store captures.
+                    .accessibilityIdentifier("more-\(tab.rawValue)-row")
                 }
             }
             .vListContentTint()

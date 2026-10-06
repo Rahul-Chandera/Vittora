@@ -17,7 +17,8 @@ APPLE_LOCALE="${3:-en_US}"
 REGION="${4:-US}"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUT="$ROOT/Docs/Store/screenshots/$SET_NAME"
+STORE_ROOT="${STORE_ROOT:-$(cd "$ROOT/.." && pwd)/Marketing/AppStore}"
+OUT="$STORE_ROOT/raw/$SET_NAME"
 DERIVED="${DERIVED_DIR:-$ROOT/.build/screenshots-mac}"
 APP="$DERIVED/Build/Products/Debug/Vittora.app"
 
@@ -63,49 +64,55 @@ resolve_window_id() {
   swift "$WINDOW_ID_SWIFT" Vittora 2>/dev/null || true
 }
 
+# Same slot names as StoreGalleryUITests, so make_marketing.py frames both with
+# the same headlines. No 04-household on Mac: it is reached by a click, and this
+# script cannot click (UI input needs Accessibility permission). The sidebar
+# makes Tax a plain tab here, so it needs no click.
 SHOTS=(
   "dashboard|-|01-dashboard"
   "transactions|-|02-transactions"
   "budgets|-|03-budgets"
-  # Savings is NOT capturable: AppTabView routes overflow tabs (savings/debt/
-  # splits/tax/settings) to the More hub root by design, so the capture would
-  # show a menu under a "savings goals" headline. 50/30/20 deep-links properly.
-  "reports|vittora://report/fiftyThirtyTwenty|04-fiftythirtytwenty"
-  "reports|-|05-reports"
-  "reports|vittora://report/yearInReview|06-yearinreview"
+  "tax|-|05-tax"
+  "reports|vittora://report/healthScore|06-healthscore"
+  "reports|vittora://report/netWorth|07-networth"
+  "reports|vittora://report/cashFlowForecast|08-cashflowforecast"
+  "reports|vittora://report/monthly|09-reports"
+  "reports|vittora://report/yearInReview|10-yearinreview"
 )
 
 echo "==> $SET_NAME on this Mac, locale=$LOCALE region=$REGION"
 
 for entry in "${SHOTS[@]}"; do
   IFS='|' read -r tab url name <<< "$entry"
-  # ONLY=04-fiftythirtytwenty re-shoots a single slot without a full pass.
+  # ONLY=06-healthscore re-shoots a single slot without a full pass.
   if [ -n "${ONLY:-}" ] && [ "$name" != "$ONLY" ]; then continue; fi
 
   route_arg=""
   [ "$url" != "-" ] && route_arg="--ui-test-open-url=$url"
 
-  # Locale goes into the app's own defaults domain, NOT into the launch
-  # arguments. Passing -AppleLanguages alongside --ui-test-open-url leaves the
-  # app running with no window at all — reproducible, and neither argument does
-  # it alone. That is why the Mac set used to be en-US only. Writing the
-  # preference instead sidesteps the conflict, so the deep-linked slots
-  # (50/30/20 and Year in Review) survive a localized run.
-  if [ "$LOCALE" != "en" ]; then
-    defaults write "$MAC_APP_ID" AppleLanguages -array "$LOCALE" >/dev/null 2>&1 || true
-    defaults write "$MAC_APP_ID" AppleLocale -string "$APPLE_LOCALE" >/dev/null 2>&1 || true
-  else
-    defaults delete "$MAC_APP_ID" AppleLanguages >/dev/null 2>&1 || true
-    defaults delete "$MAC_APP_ID" AppleLocale >/dev/null 2>&1 || true
-  fi
+  # The locale goes FIRST in the launch arguments. macOS reads "-key value"
+  # pairs from argv into the argument defaults domain, pairing from the start,
+  # so any odd number of flags before -AppleLanguages shifts the pairing: the
+  # language is never applied and the app launches with no window. That was
+  # the long-standing "-AppleLanguages + --ui-test-open-url = no window" quirk.
+  # It was worked around by writing the language into the app's defaults, but
+  # the app is sandboxed and macOS now refuses writes into its container
+  # ("Operation not permitted"), so that write failed silently and the first
+  # 1.8.0 hi/es Mac captures came out in English.
+  locale_args=""
+  [ "$LOCALE" != "en" ] && locale_args="-AppleLanguages ($LOCALE) -AppleLocale $APPLE_LOCALE"
 
   # Wide layout is list + detail; with no selection the detail pane is an empty
   # placeholder filling half the window.
   select_arg=""
   [ "$name" = "02-transactions" ] && select_arg="--ui-test-select-first-transaction"
 
-  pkill -x Vittora >/dev/null 2>&1 || true
+  pkill -f "$APP/Contents/MacOS/Vittora" >/dev/null 2>&1 || true
   sleep 2
+
+  # Kill by this build's path, never `pkill -x Vittora`: that name also matches
+  # the Vittora app inside every running iOS simulator, and killed the store
+  # captures running alongside (1.8.0).
 
   # Launch through `open`, not by exec'ing the binary. A directly-exec'd .app
   # binary gets no proper GUI session from this shell and never creates a
@@ -115,7 +122,8 @@ for entry in "${SHOTS[@]}"; do
     --env UITEST_INITIAL_TAB="$tab" \
     --env UITEST_DEMO_REGION="$REGION" \
     --env UITEST_DEMO_MONTHS="${DEMO_MONTHS:-12}" \
-    -a "$APP" --args --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" $route_arg $select_arg
+    -a "$APP" --args $locale_args --uitesting --ui-test-seed-demo --ui-test-appearance="${APPEARANCE:-light}" \
+      --ui-test-pro --ui-test-user-name=Alex $route_arg $select_arg
 
   # Poll for the window rather than guessing a sleep: launch time varies a lot
   # between a plain tab and one that also resolves a deep link, and a fixed wait
@@ -138,8 +146,6 @@ for entry in "${SHOTS[@]}"; do
   echo "    $name.png"
 done
 
-pkill -x Vittora >/dev/null 2>&1 || true
+pkill -f "$APP/Contents/MacOS/Vittora" >/dev/null 2>&1 || true
 rm -f "$WINDOW_ID_SWIFT"
-defaults delete "$MAC_APP_ID" AppleLanguages >/dev/null 2>&1 || true
-defaults delete "$MAC_APP_ID" AppleLocale >/dev/null 2>&1 || true
 echo "==> raw captures in $OUT"
