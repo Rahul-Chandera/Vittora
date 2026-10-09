@@ -243,6 +243,50 @@ final class MarketingScreenshotsUITests: XCTestCase {
         }
     }
 
+    // MARK: - On-device intelligence, and tax by country (1.8.0)
+
+    /// The two AI features as they appear in use: a category suggested from the
+    /// user's own history in Add Transaction (M3.2.1), and the Monthly Overview
+    /// summary (M3.2.6 — written by Apple Intelligence where the device has it,
+    /// otherwise the plain sentence, which is what the simulator shows).
+    @MainActor
+    func test09IntelligenceAndTaxCountries() throws {
+        launch(tab: "transactions")
+        let add = app.buttons["transaction-add-button"].exists
+            ? app.buttons["transaction-add-button"] : app.buttons["Add Transaction"].firstMatch
+        if add.waitForExistence(timeout: 15) {
+            add.tap()
+            let amount = app.textFields["transaction-amount-field"]
+            if amount.waitForExistence(timeout: 10) {
+                amount.typeText("64.20")
+                dismissKeyboard()
+            }
+            let payee = app.descendants(matching: .any)["transaction-payee-picker"].firstMatch
+            scrollTo(payee)
+            if payee.waitForExistence(timeout: 10) {
+                payee.tap()
+                let wholeFoods = app.buttons["Whole Foods"].firstMatch
+                if wholeFoods.waitForExistence(timeout: 5) { wholeFoods.tap() }
+            }
+            let suggestion = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Suggested category'")).firstMatch
+            shot(80, "intelligence", "category-suggestion-in-add-transaction", when: suggestion, settle: 2)
+        }
+
+        launch(tab: "reports", extra: ["--ui-test-open-url=vittora://report/monthly"])
+        shot(81, "intelligence", "monthly-overview-summary",
+             when: app.navigationBars.matching(NSPredicate(format: "identifier != 'Reports'")).firstMatch, settle: 3)
+
+        // One estimator per supported country, each in its own currency.
+        let countries: [(String, String)] = [
+            ("US", "united-states"), ("GB", "united-kingdom"), ("CA", "canada"),
+            ("AU", "australia"), ("IN", "india"),
+        ]
+        for (offset, country) in countries.enumerated() {
+            openOverflow("Tax", title: "Tax Estimator", environment: ["UITEST_DEMO_TAX_COUNTRY": country.0])
+            shot(82 + offset, "tax", "estimator-\(country.1)", when: app.staticTexts["Bracket Distribution"], settle: 3)
+        }
+    }
+
     // MARK: - Pro and onboarding
 
     @MainActor
@@ -276,13 +320,14 @@ final class MarketingScreenshotsUITests: XCTestCase {
     /// A fresh app per screen group: nothing a previous screen left behind
     /// (a sheet, a scroll position, a focused field) can leak into the next shot.
     @MainActor
-    private func launch(tab: String, pro: Bool = true, extra: [String] = []) {
+    private func launch(tab: String, pro: Bool = true, extra: [String] = [], environment: [String: String] = [:]) {
         app?.terminate()
         app = XCUIApplication()
         app.launchArguments = baseArguments + ["--ui-test-seed-demo"] + (pro ? ["--ui-test-pro"] : []) + extra
         app.launchEnvironment["UITEST_INITIAL_TAB"] = tab
         app.launchEnvironment["UITEST_DEMO_REGION"] = "US"
         app.launchEnvironment["UITEST_DEMO_MONTHS"] = "12"
+        for (key, value) in environment { app.launchEnvironment[key] = value }
         app.launch()
         // iPad in landscape, like the App Store gallery: sidebar and detail side
         // by side, which is what the regular-width layout is for.
@@ -294,17 +339,17 @@ final class MarketingScreenshotsUITests: XCTestCase {
     }
 
     @MainActor
-    private func openOverflow(_ name: String, title: String, pro: Bool = true) {
+    private func openOverflow(_ name: String, title: String, pro: Bool = true, environment: [String: String] = [:]) {
         if platform == "ipad" {
             // Regular width declares every section as a tab, so launch straight
             // into it. iPadOS 26 collapses the sidebar into a top section bar in
             // landscape, so there is no sidebar button to tap, and hunting for
             // one with scrollToElement swiped the content instead.
-            launch(tab: name.lowercased(), pro: pro)
+            launch(tab: name.lowercased(), pro: pro, environment: environment)
             XCTAssertTrue(app.navigationBars[title].waitForExistence(timeout: 15), "\(title) should open")
             return
         }
-        launch(tab: "settings", pro: pro)
+        launch(tab: "settings", pro: pro, environment: environment)
         let destination = app.buttons[name].firstMatch
         scrollTo(destination)
         guard destination.waitForExistence(timeout: 15) else { return XCTFail("No \(name) entry") }
