@@ -1,6 +1,6 @@
 # App Store Metadata — macOS platform tab, en-IN (India storefront)
 
-**Refreshed 2026-10-06 for 1.8.0 (build 13).** Promotional text and Description now cover the 1.8.0 feature set: tax estimates for five countries, household sharing, sinking funds, sub-categories, the financial health score, spending outlook and what-if, net worth over time, the unusual-spending and budget insights, on-device category suggestions and the Apple Intelligence month summary. AI is named only for those last two ("on supported devices"); the health score, outlook and insights are rules-based. Vittora Pro is named only where a feature is Pro, and household sharing is free. Apple Wallet import is not mentioned (ships dark). **Mac:** Live Activities, the interactive widget, Watch voice entry and multi-page scanning are iOS-only and are not claimed; household invitations can only be accepted on iPhone or iPad (`HouseholdShareAcceptance.swift` is `#if os(iOS)`), which the copy says.
+**Refreshed 2026-10-06 for 1.8.0 (build 13).** Promotional text and Description now cover the 1.8.0 feature set: tax estimates for five countries, household sharing, sinking funds, sub-categories, the financial health score, spending outlook and what-if, net worth over time, the unusual-spending and budget insights, on-device category suggestions and the Apple Intelligence month summary. AI is named only for those last two ("on supported devices"); the health score, outlook and insights are rules-based. Vittora Pro is named only where a feature is Pro, and household sharing is free. Apple Wallet import is not mentioned (ships dark). **Mac:** Live Activities, the interactive widget, Watch voice entry and multi-page scanning are iOS-only and are not claimed. **Corrected 2026-10-10:** the copy no longer says household invitations are accepted only on iPhone or iPad. That was wrong: `HouseholdShareAcceptance.swift` has a macOS branch (`NSApplicationDelegate`) since #290, and the Mac build carries `CKSharingSupported` and the CloudKit entitlement.
 
 The macOS tab for the India storefront. `metadata-mac-en-US.md` is the same tab
 for en-US; `metadata-en-IN.md` is the **iOS/iPadOS** tab for India. All three
@@ -76,7 +76,7 @@ INDIA TAX, WORKED OUT FOR YOU
 BUDGETS THAT KEEP UP
 • Weekly, monthly, quarterly or yearly budgets per category
 • Colour-coded warnings before you overspend, not after
-• Household sharing: shared budgets through iCloud, spending by member, and control over who can edit (invitations are accepted on iPhone or iPad)
+• Household sharing: shared budgets through iCloud, spending by member, and control over who can edit
 
 SAVINGS GOALS AND SINKING FUNDS
 • Set a target, track contributions, watch the progress ring fill
