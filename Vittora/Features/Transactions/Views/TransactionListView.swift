@@ -77,6 +77,15 @@ struct TransactionListView: View {
                 navigateDestination = .transactionDetail(id: id)
             }
         }
+        .onChange(of: navigateDestination) { old, new in
+            // A list covered by a pushed detail does not see the width change,
+            // so a fold or rotation can leave the detail pushed over a split view.
+            // Coming back from it, keep that transaction selected rather than
+            // landing on an empty detail pane.
+            if new == nil, prefersSplitDetail, case .transactionDetail(let id)? = old {
+                selectedTransactionID = id
+            }
+        }
         #endif
         .alert(
             {
