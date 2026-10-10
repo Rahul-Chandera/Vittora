@@ -25,7 +25,11 @@ struct AppTabView: View {
     /// The compact bar still shows four primary tabs plus our own More hub, so
     /// we never overflow into the system "More" tab (which nests a second
     /// navigation controller and draws a duplicate back button). The overflow
-    /// tabs are hidden from the tab bar, and the hub is hidden from the sidebar.
+    /// tabs are left out on compact rather than hidden: on iPhone, including the
+    /// iPhone Duo's vertical bar, `defaultVisibility(.hidden, for: .tabBar)` is
+    /// ignored (it applies to the iPad tab bar only), which dropped Reports and
+    /// overflowed into the system More list. The four primary tabs are always
+    /// declared, so their identity, and their navigation, survives a fold.
     private var rootTabView: some View {
         TabView(selection: selection) {
             TabSection {
@@ -37,47 +41,47 @@ struct AppTabView: View {
             TabSection {
                 tab(.transactions) { TransactionListView() }
                 tab(.budgets) { BudgetListView() }
-                tab(.savings) { SavingsGoalListView() }
-                    .defaultVisibility(.hidden, for: .tabBar)
+                if !isCompact {
+                    tab(.savings) { SavingsGoalListView() }
+                }
             } header: {
                 Text(String(localized: "Money"))
             }
 
             TabSection {
                 tab(.reports) { ReportsHomeView() }
-                tab(.tax) { TaxDashboardView() }
-                    .defaultVisibility(.hidden, for: .tabBar)
+                if !isCompact {
+                    tab(.tax) { TaxDashboardView() }
+                }
             } header: {
                 Text(String(localized: "Insights"))
             }
 
-            TabSection {
-                tab(.debt) { DebtLedgerView() }
-                    .defaultVisibility(.hidden, for: .tabBar)
-                tab(.splits) { SplitGroupListView() }
-                    .defaultVisibility(.hidden, for: .tabBar)
-            } header: {
-                Text(String(localized: "Social"))
-            }
+            if isCompact {
+                Tab(String(localized: "More"), systemImage: "ellipsis", value: RootTab.more) {
+                    contentStack {
+                        MoreHubView()
+                            .withNavigationDestinations()
+                    }
+                }
+            } else {
+                TabSection {
+                    tab(.debt) { DebtLedgerView() }
+                    tab(.splits) { SplitGroupListView() }
+                } header: {
+                    Text(String(localized: "Social"))
+                }
 
-            // The header is load-bearing: the sidebarAdaptable style renders a
-            // header-less TabSection as an empty disclosure (no row, no
-            // top-bar item), leaving Settings unreachable on iPad. A bare Tab
-            // works but floats to the top of the sidebar, out of order.
-            TabSection {
-                tab(.settings) { SettingsView() }
-                    .defaultVisibility(.hidden, for: .tabBar)
-            } header: {
-                Text(String(localized: "General"))
-            }
-
-            Tab(String(localized: "More"), systemImage: "ellipsis", value: RootTab.more) {
-                contentStack {
-                    MoreHubView()
-                        .withNavigationDestinations()
+                // The header is load-bearing: the sidebarAdaptable style renders a
+                // header-less TabSection as an empty disclosure (no row, no
+                // top-bar item), leaving Settings unreachable on iPad. A bare Tab
+                // works but floats to the top of the sidebar, out of order.
+                TabSection {
+                    tab(.settings) { SettingsView() }
+                } header: {
+                    Text(String(localized: "General"))
                 }
             }
-            .defaultVisibility(.hidden, for: .sidebar)
         }
         .tabViewStyle(.sidebarAdaptable)
         // Compact only, as before: the selected tab matches the accent swatch the
