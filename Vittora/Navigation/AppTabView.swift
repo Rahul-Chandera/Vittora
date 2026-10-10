@@ -7,7 +7,6 @@ struct AppTabView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @State private var presentedQuickAdd: PresentedQuickAdd?
-    @State private var hasVerticalBar = false
 
     var body: some View {
         rootTabView
@@ -86,7 +85,6 @@ struct AppTabView: View {
             }
         }
         .tabViewStyle(.sidebarAdaptable)
-        .background(VerticalBarProbe(hasVerticalBar: $hasVerticalBar))
         // Compact only, as before: the selected tab matches the accent swatch the
         // user picked (DEC-012), on an opaque grouped-background bar. Tab labels
         // are excluded from the contrast audit — XCTest samples the liquid-glass
@@ -99,14 +97,19 @@ struct AppTabView: View {
 
     /// Four primary tabs plus our More hub, rather than every tab.
     ///
-    /// Compact width (iPhone, the Duo's outer display), compact height (a Pro Max
-    /// in landscape), and anywhere the system puts bars vertically: the Duo's inner
-    /// display in landscape is regular by regular, but its vertical bar holds about
-    /// seven items. Nine tabs overflowed into the system More list there, and
-    /// screens opened from it lost their toolbar items (the Add button on Splits,
-    /// for one). Only iPad and the Duo's inner display in portrait show every tab.
+    /// Always on iPhone. Only iPad turns the adaptive TabView into a sidebar or
+    /// sectioned top bar with room for every tab; on an iPhone it stays a tab bar
+    /// of about seven slots at any size: the bottom bar on the iPhone Duo's inner
+    /// display in portrait, the vertical bar in landscape and on the outer display,
+    /// even though the inner display is regular by regular. Nine tabs overflowed
+    /// into the system More list there, and screens opened from it lost their
+    /// toolbar items (Splits had no Add button). Being per device, this also means
+    /// the tab set never changes when a Duo folds. On iPad, a compact window
+    /// (Split View, Slide Over, a short Stage Manager window) gets the same layout.
     private var isCompact: Bool {
-        horizontalSizeClass == .compact || verticalSizeClass == .compact || hasVerticalBar
+        UIDevice.current.userInterfaceIdiom != .pad
+            || horizontalSizeClass == .compact
+            || verticalSizeClass == .compact
     }
 
     /// A tab for `appTab` whose root is `content`, in its own navigation stack.
@@ -167,58 +170,6 @@ struct AppTabView: View {
                 }
             }
         )
-    }
-}
-
-/// Whether the system places bars vertically here, as on iPhone Duo.
-///
-/// The iOS 27.1 SDK has no SwiftUI environment value for it yet, so this reads
-/// UIKit's `verticalBarEdge` trait from a zero-size view and reports changes.
-/// It is `.unspecified` on hardware without a vertical bar and in poses that do
-/// not use one (the Duo's inner display in portrait).
-private struct VerticalBarProbe: UIViewRepresentable {
-    @Binding var hasVerticalBar: Bool
-
-    func makeUIView(context: Context) -> ProbeView {
-        let view = ProbeView()
-        let binding = $hasVerticalBar
-        view.onChange = { value in
-            if binding.wrappedValue != value { binding.wrappedValue = value }
-        }
-        return view
-    }
-
-    func updateUIView(_ uiView: ProbeView, context: Context) {}
-
-    final class ProbeView: UIView {
-        var onChange: ((Bool) -> Void)?
-
-        override init(frame: CGRect) {
-            super.init(frame: frame)
-            isUserInteractionEnabled = false
-            if #available(iOS 27.1, *) {
-                registerForTraitChanges(UITraitCollection.systemTraitsAffectingVerticalBarEdge) { (view: ProbeView, _) in
-                    view.report()
-                }
-            }
-        }
-
-        required init?(coder: NSCoder) { nil }
-
-        override func didMoveToWindow() {
-            super.didMoveToWindow()
-            report()
-        }
-
-        private func report() {
-            guard window != nil else { return }
-            if #available(iOS 27.1, *) {
-                let vertical = traitCollection.verticalBarEdge != .unspecified
-                // Off the layout pass: changing SwiftUI state from inside UIKit's
-                // trait update would modify state during a view update.
-                Task { @MainActor [onChange] in onChange?(vertical) }
-            }
-        }
     }
 }
 
