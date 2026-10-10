@@ -174,7 +174,7 @@ struct RecurringFormView: View {
                                             Image(systemName: category.icon)
                                                 .foregroundColor(Color(hex: category.colorHex) ?? .blue)
                                                 .accessibilityHidden(true)
-                                            Text(category.name)
+                                            Text(category.displayName)
                                                 .font(VTypography.callout)
                                                 .foregroundColor(VColors.textPrimary)
                                         } else {
@@ -199,7 +199,7 @@ struct RecurringFormView: View {
                                 .buttonStyle(.plain)
                                 .accessibilityIdentifier("recurring-category-picker")
                                 .accessibilityLabel(
-                                    selectedCategory(for: viewModel)?.name ?? String(localized: "Choose Category")
+                                    selectedCategory(for: viewModel)?.displayName ?? String(localized: "Choose Category")
                                 )
                             }
 

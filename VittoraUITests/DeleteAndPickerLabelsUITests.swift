@@ -103,19 +103,13 @@ final class DeleteAndPickerLabelsUITests: XCTestCase {
         ]
         if let title = titleByIdentifier[identifier] {
             let titleElement = app.staticTexts[title].firstMatch
-            let unobscuredBottom = app.frame.maxY - 140
-            var swipes = 0
-            while swipes < 12 {
-                if titleElement.exists {
-                    let frame = titleElement.frame
-                    if frame.height > 1, frame.maxY <= unobscuredBottom {
-                        break
-                    }
-                }
-                app.swipeUp()
-                swipes += 1
-                RunLoop.current.run(until: Date().addingTimeInterval(0.25))
-            }
+            // The shared helper, not a local loop. The local one only checked the
+            // bottom edge, so a fast swipe could carry "Accounts" up under the
+            // navigation bar and still count as visible; the tap then landed on
+            // the bar and Accounts never opened ("The seeded account should be
+            // visible", CI runs 37337842158 and 37478830737). scrollToElement
+            // clears both the navigation bar and the tab bar.
+            UITestSupport.scrollToElement(titleElement, in: app)
             XCTAssertTrue(
                 titleElement.waitForExistence(timeout: 10),
                 "Settings row '\(title)' should be visible."

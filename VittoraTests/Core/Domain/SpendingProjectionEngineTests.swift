@@ -76,6 +76,65 @@ struct SpendingProjectionEngineTests {
         #expect(engine.project(spentSoFar: 900, elapsedDays: 10, totalDays: 0, priorMonthTotals: []) == nil)
     }
 
+    // MARK: Pattern method (1.8.1)
+
+    /// The 1.8.0 gallery case: rent of 1,850 paid on the 1st, 150 more by day 5.
+    /// The straight line made that 12,400 for a 31-day month; the rest of earlier
+    /// months typically cost ~500, so the honest estimate is 2,500.
+    @Test("a large bill paid early is counted once, not spread across the month")
+    func rentOnTheFirstCountedOnce() throws {
+        let p = try #require(engine.project(
+            spentSoFar: 2_000, elapsedDays: 5, totalDays: 31,
+            priorMonthTotals: [2_400, 2_350, 2_420],
+            priorMonthRemainders: [500, 480, 520]
+        ))
+        #expect(p.method == .pattern)
+        #expect(p.projectedTotal == 2_500)
+        #expect(p.typicalMonth == 2_400)
+        #expect(p.caveats == SpendingProjectionEngine.patternCaveats)
+    }
+
+    /// Spent-so-far plus a typical remainder is sensible on day one, which is
+    /// exactly when the straight line is not, so the early guard does not apply.
+    @Test("with enough history it answers from day one")
+    func patternAnswersEarly() throws {
+        let p = try #require(engine.project(
+            spentSoFar: 1_850, elapsedDays: 1, totalDays: 30,
+            priorMonthTotals: [2_400, 2_400, 2_400],
+            priorMonthRemainders: [550, 600, 580]
+        ))
+        #expect(p.method == .pattern)
+        #expect(p.projectedTotal == 2_430)
+    }
+
+    /// One odd month must not set the estimate, so the remainder is a median.
+    @Test("the remainder is the median of earlier months")
+    func remainderIsMedian() throws {
+        let p = try #require(engine.project(
+            spentSoFar: 100, elapsedDays: 10, totalDays: 30,
+            priorMonthTotals: [300, 300, 300, 300],
+            priorMonthRemainders: [200, 210, 5_000, 190]
+        ))
+        #expect(p.projectedTotal == 305)   // 100 + median(190, 200, 210, 5000) = 100 + 205
+    }
+
+    /// Too little history for a pattern: straight line, with its own caveats and
+    /// its early-month guard.
+    @Test("fewer than three earlier months falls back to the straight line")
+    func fallsBackWithoutHistory() throws {
+        let p = try #require(engine.project(
+            spentSoFar: 500, elapsedDays: 10, totalDays: 30,
+            priorMonthTotals: [1_000, 1_000], priorMonthRemainders: [600, 600]
+        ))
+        #expect(p.method == .straightLine)
+        #expect(p.projectedTotal == 1_500)
+        #expect(p.caveats == SpendingProjectionEngine.caveats)
+        #expect(engine.project(
+            spentSoFar: 500, elapsedDays: 2, totalDays: 30,
+            priorMonthTotals: [1_000, 1_000], priorMonthRemainders: [600, 600]
+        ) == nil)
+    }
+
     /// The estimate is stated as an extrapolation, with what it misses.
     @Test("caveats name the method and what it omits")
     func caveatsStated() {

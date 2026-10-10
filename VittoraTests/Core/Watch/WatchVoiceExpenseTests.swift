@@ -98,6 +98,23 @@ struct WatchVoiceExpenseTests {
         #expect(match("") == nil)
     }
 
+    /// Saying the Watch's own localized hint must reach the category the app
+    /// shows under that language: «500 para comestibles» → "Comestibles",
+    /// "किराने के लिए 500" → "किराना" (oblique ending), "बिलों" → "बिल".
+    @Test("the Watch's Spanish and Hindi hints match their categories")
+    func localizedHintsMatch() {
+        let spanish = [Category(name: "Comestibles"), Category(name: "Transporte")]
+        let es = WatchVoiceExpense.parse("500 para comestibles", locale: Locale(identifier: "es_MX"))
+        #expect(WatchVoiceExpense.matchCategory(es.categoryPhrase, in: spanish, name: \.name)?.name == "Comestibles")
+
+        let hindi = [Category(name: "किराना"), Category(name: "बिल"), Category(name: "किराया")]
+        let hi = WatchVoiceExpense.parse("किराने के लिए 500", locale: Locale(identifier: "hi_IN"))
+        #expect(WatchVoiceExpense.matchCategory(hi.categoryPhrase, in: hindi, name: \.name)?.name == "किराना")
+        #expect(WatchVoiceExpense.matchCategory("बिलों", in: hindi, name: \.name)?.name == "बिल")
+        // किराया (rent) must stay distinct from किराना (groceries).
+        #expect(WatchVoiceExpense.matchCategory("किराया", in: hindi, name: \.name)?.name == "किराया")
+    }
+
     @Test("an exact match beats a word match")
     func exactWins() {
         let both = [Category(name: "Coffee Beans"), Category(name: "Coffee")]

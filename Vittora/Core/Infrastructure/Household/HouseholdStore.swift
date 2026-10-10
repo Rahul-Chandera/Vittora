@@ -58,9 +58,12 @@ final class HouseholdStore {
     /// UI tests and screenshots only: an owned household with no engine and no
     /// share, so nothing touches CloudKit (which the simulator build lacks).
     private func seedDemoHousehold() {
+        // Same region switch as the ledger demo seed, so an India (₹) gallery does
+        // not show a dollar household next to rupees everywhere else.
+        let india = ProcessInfo.processInfo.environment["UITEST_DEMO_REGION"] == "IN"
         let groceries = HouseholdBudget(
-            id: "demo-groceries", name: "Groceries", amount: 600,
-            currencyCode: "USD", createdAt: .now
+            id: "demo-groceries", name: "Groceries", amount: india ? 12_000 : 600,
+            currencyCode: india ? "INR" : "USD", createdAt: .now
         )
         role = .owner
         memberID = "demo-me"
@@ -70,9 +73,9 @@ final class HouseholdStore {
             HouseholdMember(id: "demo-jordan", name: "Jordan", isOwner: false, isCurrentUser: false, canEdit: false, hasAccepted: true),
         ]
         ledger = HouseholdLedger(budgets: [groceries], expenses: [
-            HouseholdExpense(id: "demo-1", budgetID: groceries.id, amount: Decimal(string: "84.20") ?? 0,
+            HouseholdExpense(id: "demo-1", budgetID: groceries.id, amount: india ? 2_460 : Decimal(string: "84.20") ?? 0,
                              note: "Weekly shop", date: .now, memberID: "demo-me", memberName: "Alex"),
-            HouseholdExpense(id: "demo-2", budgetID: groceries.id, amount: Decimal(string: "42.75") ?? 0,
+            HouseholdExpense(id: "demo-2", budgetID: groceries.id, amount: india ? 1_180 : Decimal(string: "42.75") ?? 0,
                              note: "Farmers market", date: .now, memberID: "demo-sam", memberName: "Sam"),
         ])
     }

@@ -19,7 +19,8 @@ REGION="${4:-US}"
 APP_ID="com.enerjiktech.vittora"
 WATCH_APP_ID="com.enerjiktech.vittora.watchkitapp"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUT="${OUT_DIR:-$ROOT/Docs/Store/screenshots/$SET_NAME}"
+STORE_ROOT="${STORE_ROOT:-$(cd "$ROOT/.." && pwd)/Marketing/AppStore}"
+OUT="${OUT_DIR:-$STORE_ROOT/raw/$SET_NAME}"
 DERIVED="${DERIVED_DIR:-$ROOT/.build/screenshots}"
 
 mkdir -p "$OUT"
@@ -95,7 +96,7 @@ sleep "${PHONE_SEED_SETTLE:-30}"
 first=1
 # SCREENS overrides the set; `voice` is M2.6.2's Say It screen, pre-filled
 # because the simulator cannot dictate.
-for screen in ${SCREENS:-dashboard recent quick-expense}; do
+for screen in ${SCREENS:-dashboard recent quick-expense voice}; do
   shot="$OUT/watch-$NAME-$screen.png"
   # dashboard and recent render data pushed from the phone; until the WCSession
   # handshake lands they show "Waiting for iPhone…" / "No recent transactions"
@@ -116,7 +117,14 @@ for screen in ${SCREENS:-dashboard recent quick-expense}; do
     xcrun simctl terminate "$PAIR_WATCH" "$WATCH_APP_ID" 2>/dev/null || true
     sleep 4
     voice_arg=""
-    [ "$screen" = voice ] && voice_arg="--ui-test-watch-voice=${WATCH_VOICE_TEXT:-Add 500 for groceries}"
+    # The utterance is the Watch's own hint in the set's language, so the shot
+    # shows the localized category it matches rather than echoing English.
+    case "$LOCALE" in
+      es) default_voice="500 para comestibles" ;;
+      hi) default_voice="किराने के लिए 500" ;;
+      *)  default_voice="Add 500 for groceries" ;;
+    esac
+    [ "$screen" = voice ] && voice_arg="--ui-test-watch-voice=${WATCH_VOICE_TEXT:-$default_voice}"
     xcrun simctl launch "$PAIR_WATCH" "$WATCH_APP_ID" "--ui-test-watch-screen=$screen" "$voice_arg" \
       -AppleLanguages "($LOCALE)" -AppleLocale "$APPLE_LOCALE" >/dev/null
     # The first launch of a run also waits on the initial WCSession handshake,

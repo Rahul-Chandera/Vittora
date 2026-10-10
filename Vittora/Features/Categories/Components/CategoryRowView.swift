@@ -49,7 +49,7 @@ struct CategoryRowView: View {
         .contentShape(Rectangle())
         .vittoraPointerHighlight()
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(category.name)
+        .accessibilityLabel(category.displayName)
         .accessibilityValue(
             category.isDefault
                 ? String(localized: "\(categoryType), default")

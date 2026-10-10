@@ -296,12 +296,22 @@ final class UITestDataSeeder {
             ]
         ))
 
+        // UITEST_DEMO_TAX_COUNTRY (GB, AU, CA, IN, US) swaps in another country's
+        // tax profile, so marketing captures can show each estimator in its own
+        // currency. Incomes are typical salaries that produce a real bill.
+        let taxCountry = ProcessInfo.processInfo.environment["UITEST_DEMO_TAX_COUNTRY"]
+            .flatMap(TaxCountry.init(rawValue:)) ?? (isIndia ? .india : .unitedStates)
+        let taxIncome: Decimal = switch taxCountry {
+        case .india: ProcessInfo.processInfo.environment["UITEST_DEMO_TAX_COUNTRY"] == nil ? 1_200_000 : 1_800_000
+        case .unitedStates: 85_000
+        case .unitedKingdom: 60_000
+        case .australia: 95_000
+        case .canada: 80_000
+        }
         try await taxProfileRepository.save(TaxProfile(
-            country: isIndia ? .india : .unitedStates,
-            annualIncome: isIndia ? 1_200_000 : 85_000,
-            financialYear: isIndia
-                ? TaxCountry.india.defaultFinancialYear
-                : TaxCountry.unitedStates.defaultFinancialYear
+            country: taxCountry,
+            annualIncome: taxIncome,
+            financialYear: taxCountry.defaultFinancialYear
         ))
 
         func daysAhead(_ days: Int) -> Date {

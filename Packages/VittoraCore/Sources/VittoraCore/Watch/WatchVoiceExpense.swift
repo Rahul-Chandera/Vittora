@@ -129,7 +129,21 @@ public struct WatchVoiceExpense: Equatable, Sendable {
 
     /// Crude plural folding — enough for category names, which are short and
     /// mostly regular ("groceries" → "grocery", "bills" → "bill").
+    ///
+    /// Hindi nouns change their ending after a postposition: the Watch's own
+    /// hint says "किराने के लिए 500" while the category is "किराना", and "बिलों"
+    /// is the oblique plural of "बिल". Dropping the final ा / े / ों folds those
+    /// onto one stem. Compared as Unicode scalars: a vowel sign belongs to the
+    /// letter before it, so Character-based hasSuffix would never see it.
+    private static let hindiEndings: [[Unicode.Scalar]] = ["ों", "े", "ा"].map { Array($0.unicodeScalars) }
+
     private static func stem(_ word: String) -> String {
+        let scalars = Array(word.unicodeScalars)
+        for ending in hindiEndings where scalars.count > ending.count + 1 && scalars.suffix(ending.count).elementsEqual(ending) {
+            var view = String.UnicodeScalarView()
+            view.append(contentsOf: scalars.dropLast(ending.count))
+            return String(view)
+        }
         if word.hasSuffix("ies"), word.count > 4 { return String(word.dropLast(3)) + "y" }
         if word.hasSuffix("s"), !word.hasSuffix("ss"), word.count > 3 { return String(word.dropLast()) }
         return word
