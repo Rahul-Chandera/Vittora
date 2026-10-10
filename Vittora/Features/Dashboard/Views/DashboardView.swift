@@ -18,6 +18,26 @@ struct DashboardView: View {
     static let hidesQuickEntryForCapture = ProcessInfo.processInfo.arguments
         .contains("--ui-test-hide-quick-entry")
     @State private var lastScrollOffsetY: CGFloat = 0
+    #if os(iOS)
+    @State private var dashboardWidth: CGFloat = 0
+    private static let twoColumnMinimumWidth: CGFloat = 700
+    /// The iPhone Duo's fold while it divides the display (half open), in the
+    /// scroll view's space. Nil when fully open or closed, and on other devices.
+    @State private var foldFrame: CGRect?
+    #endif
+
+    /// The two-column split: centred on the fold when there is one, so neither
+    /// column's content sits in it; even otherwise.
+    private var columnLayout: (spacing: CGFloat, leadingWidth: CGFloat?) {
+        let spacing = VSpacing.dashboardSectionSpacing
+        #if os(iOS)
+        if let fold = foldFrame {
+            let gap = max(spacing, fold.width)
+            return (gap, max(0, fold.midX - gap / 2 - VSpacing.screenPadding))
+        }
+        #endif
+        return (spacing, nil)
+    }
 
     var body: some View {
         ZStack {
@@ -91,11 +111,27 @@ struct DashboardView: View {
     private func dashboardContent(_ vm: DashboardViewModel) -> some View {
         ScrollView {
             #if os(iOS)
-            iOSLayout(vm)
+            // Two columns once there is room for them (iPad, the iPhone Duo's
+            // inner display in landscape). One column stretched across ~900 pt,
+            // and two equal columns also part cleanly at the Duo's fold.
+            if dashboardWidth >= Self.twoColumnMinimumWidth {
+                macLayout(vm)
+            } else {
+                iOSLayout(vm)
+            }
             #else
             macLayout(vm)
             #endif
         }
+        #if os(iOS)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { dashboardWidth = $0 }
+        .onGeometryChange(for: CGRect?.self) { proxy in
+            if #available(iOS 27.1, *) {
+                return proxy.reservedRegions(kind: .division).first(where: \.isActive)?.frame
+            }
+            return nil
+        } action: { foldFrame = $0 }
+        #endif
         // Clearance for the floating tab bar. safeAreaPadding, not
         // safeAreaInset: an inset paints an opaque view OVER the content.
         //
@@ -221,7 +257,7 @@ struct DashboardView: View {
                 // HStack, not LazyVGrid: a grid vertically centers its two
                 // column-VStacks in the shared row, so the shorter column
                 // floated mid-air next to the taller one.
-                HStack(alignment: .top, spacing: VSpacing.dashboardSectionSpacing) {
+                HStack(alignment: .top, spacing: columnLayout.spacing) {
                     VStack(spacing: VSpacing.dashboardSectionSpacing) {
                         budgetProgressSection(progress: data.monthBudgetProgress)
                         QuickActionGrid { destination, transactionType in
@@ -236,7 +272,7 @@ struct DashboardView: View {
                             onAdd: { navigateDestination = .addAccount }
                         )
                     }
-                    .frame(maxWidth: .infinity)
+                    .frame(minWidth: columnLayout.leadingWidth, maxWidth: columnLayout.leadingWidth ?? .infinity)
 
                     VStack(spacing: VSpacing.dashboardSectionSpacing) {
                         RecentTransactionsList(
