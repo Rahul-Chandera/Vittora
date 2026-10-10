@@ -108,7 +108,7 @@ struct SidebarNavigation: View {
                 SyncStatusView()
             }
         }
-        .quickAddPresentation($presentedQuickAdd, asSheet: true)
+        .quickAddPresentation($presentedQuickAdd)
         .handlesAppCommands(
             appState: appState,
             presentedQuickAdd: $presentedQuickAdd

@@ -7,113 +7,55 @@ struct AppTabView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var presentedQuickAdd: PresentedQuickAdd?
 
-    /// Tabs kept on the compact iPhone bar. Everything else lives in the "More"
-    /// hub so we never overflow into the system "More" tab, which nests a second
-    /// navigation controller and produces a duplicate back button.
-
     var body: some View {
-        Group {
-            if horizontalSizeClass == .compact {
-                compactTabView
-            } else {
-                regularTabView
-            }
-        }
-        // Match the dashboard quick actions: a centered sheet on regular width
-        // (iPad), full-screen cover only on compact (iPhone).
-        .quickAddPresentation(
-            $presentedQuickAdd,
-            asSheet: horizontalSizeClass == .regular
-        )
-        .handlesAppCommands(appState: appState, presentedQuickAdd: $presentedQuickAdd)
+        rootTabView
+            .quickAddPresentation($presentedQuickAdd)
+            .handlesAppCommands(appState: appState, presentedQuickAdd: $presentedQuickAdd)
     }
 
-    // MARK: - Regular width (iPad / macOS Catalyst): full sectioned sidebar
+    // MARK: - One TabView for every width
 
-    private var regularTabView: some View {
-        @Bindable var appState = appState
-
-        return TabView(selection: $appState.selectedTab) {
+    /// One adaptive TabView: a sidebar on regular width, a tab bar on compact.
+    ///
+    /// It used to be two TabViews chosen by size class. On iPhone Duo the size
+    /// class flips every time the device folds or unfolds, and swapping
+    /// TabViews threw away every tab's navigation stack mid-session. One
+    /// TabView keeps each tab's content, and only the chrome adapts.
+    ///
+    /// The compact bar still shows four primary tabs plus our own More hub, so
+    /// we never overflow into the system "More" tab (which nests a second
+    /// navigation controller and draws a duplicate back button). The overflow
+    /// tabs are hidden from the tab bar, and the hub is hidden from the sidebar.
+    private var rootTabView: some View {
+        TabView(selection: selection) {
             TabSection {
-                Tab(AppState.AppTab.dashboard.title,
-                    systemImage: AppState.AppTab.dashboard.systemImage,
-                    value: AppState.AppTab.dashboard) {
-                    contentStack {
-                        DashboardView()
-                            .withNavigationDestinations()
-                    }
-                }
+                tab(.dashboard) { DashboardView() }
             } header: {
                 Text(String(localized: "Overview"))
             }
 
             TabSection {
-                Tab(AppState.AppTab.transactions.title,
-                    systemImage: AppState.AppTab.transactions.systemImage,
-                    value: AppState.AppTab.transactions) {
-                    contentStack {
-                        TransactionListView()
-                            .withNavigationDestinations()
-                    }
-                }
-                Tab(AppState.AppTab.budgets.title,
-                    systemImage: AppState.AppTab.budgets.systemImage,
-                    value: AppState.AppTab.budgets) {
-                    contentStack {
-                        BudgetListView()
-                            .withNavigationDestinations()
-                    }
-                }
-                Tab(AppState.AppTab.savings.title,
-                    systemImage: AppState.AppTab.savings.systemImage,
-                    value: AppState.AppTab.savings) {
-                    contentStack {
-                        SavingsGoalListView()
-                            .withNavigationDestinations()
-                    }
-                }
+                tab(.transactions) { TransactionListView() }
+                tab(.budgets) { BudgetListView() }
+                tab(.savings) { SavingsGoalListView() }
+                    .defaultVisibility(.hidden, for: .tabBar)
             } header: {
                 Text(String(localized: "Money"))
             }
 
             TabSection {
-                Tab(AppState.AppTab.reports.title,
-                    systemImage: AppState.AppTab.reports.systemImage,
-                    value: AppState.AppTab.reports) {
-                    contentStack {
-                        ReportsHomeView()
-                            .withNavigationDestinations()
-                    }
-                }
-                Tab(AppState.AppTab.tax.title,
-                    systemImage: AppState.AppTab.tax.systemImage,
-                    value: AppState.AppTab.tax) {
-                    contentStack {
-                        TaxDashboardView()
-                            .withNavigationDestinations()
-                    }
-                }
+                tab(.reports) { ReportsHomeView() }
+                tab(.tax) { TaxDashboardView() }
+                    .defaultVisibility(.hidden, for: .tabBar)
             } header: {
                 Text(String(localized: "Insights"))
             }
 
             TabSection {
-                Tab(AppState.AppTab.debt.title,
-                    systemImage: AppState.AppTab.debt.systemImage,
-                    value: AppState.AppTab.debt) {
-                    contentStack {
-                        DebtLedgerView()
-                            .withNavigationDestinations()
-                    }
-                }
-                Tab(AppState.AppTab.splits.title,
-                    systemImage: AppState.AppTab.splits.systemImage,
-                    value: AppState.AppTab.splits) {
-                    contentStack {
-                        SplitGroupListView()
-                            .withNavigationDestinations()
-                    }
-                }
+                tab(.debt) { DebtLedgerView() }
+                    .defaultVisibility(.hidden, for: .tabBar)
+                tab(.splits) { SplitGroupListView() }
+                    .defaultVisibility(.hidden, for: .tabBar)
             } header: {
                 Text(String(localized: "Social"))
             }
@@ -123,22 +65,45 @@ struct AppTabView: View {
             // top-bar item), leaving Settings unreachable on iPad. A bare Tab
             // works but floats to the top of the sidebar, out of order.
             TabSection {
-                Tab(AppState.AppTab.settings.title,
-                    systemImage: AppState.AppTab.settings.systemImage,
-                    value: AppState.AppTab.settings) {
-                    contentStack {
-                        SettingsView()
-                            .withNavigationDestinations()
-                    }
-                }
+                tab(.settings) { SettingsView() }
+                    .defaultVisibility(.hidden, for: .tabBar)
             } header: {
                 Text(String(localized: "General"))
             }
+
+            Tab(String(localized: "More"), systemImage: "ellipsis", value: RootTab.more) {
+                contentStack {
+                    MoreHubView()
+                        .withNavigationDestinations()
+                }
+            }
+            .defaultVisibility(.hidden, for: .sidebar)
         }
         .tabViewStyle(.sidebarAdaptable)
+        // Compact only, as before: the selected tab matches the accent swatch the
+        // user picked (DEC-012), on an opaque grouped-background bar. Tab labels
+        // are excluded from the contrast audit — XCTest samples the liquid-glass
+        // highlight rather than the bar material. Values, not conditional
+        // modifiers, so a fold never changes the view's identity.
+        .tint(isCompact ? VColors.primary : nil)
+        .toolbarBackground(VColors.groupedBackground, for: .tabBar)
+        .toolbarBackground(isCompact ? .visible : .automatic, for: .tabBar)
     }
 
-    // MARK: - Compact width (iPhone): 4 primary tabs + a self-owned More hub
+    private var isCompact: Bool { horizontalSizeClass == .compact }
+
+    /// A tab for `appTab` whose root is `content`, in its own navigation stack.
+    private func tab<Content: View>(
+        _ appTab: AppState.AppTab,
+        @ViewBuilder content: () -> Content
+    ) -> some TabContent<RootTab> {
+        Tab(appTab.title, systemImage: appTab.systemImage, value: RootTab.tab(appTab)) {
+            contentStack {
+                content()
+                    .withNavigationDestinations()
+            }
+        }
+    }
 
     /// A tab's root stack, tinted for content.
     ///
@@ -162,73 +127,35 @@ struct AppTabView: View {
         .tint(VColors.primaryOnSurface)
     }
 
-    private var compactTabView: some View {
-        TabView(selection: compactSelection) {
-            Tab(AppState.AppTab.dashboard.title,
-                systemImage: AppState.AppTab.dashboard.systemImage,
-                value: AppState.AppTab.dashboard) {
-                contentStack {
-                    DashboardView()
-                        .withNavigationDestinations()
-                }
-            }
-            Tab(AppState.AppTab.transactions.title,
-                systemImage: AppState.AppTab.transactions.systemImage,
-                value: AppState.AppTab.transactions) {
-                contentStack {
-                    TransactionListView()
-                        .withNavigationDestinations()
-                }
-            }
-            Tab(AppState.AppTab.budgets.title,
-                systemImage: AppState.AppTab.budgets.systemImage,
-                value: AppState.AppTab.budgets) {
-                contentStack {
-                    BudgetListView()
-                        .withNavigationDestinations()
-                }
-            }
-            Tab(AppState.AppTab.reports.title,
-                systemImage: AppState.AppTab.reports.systemImage,
-                value: AppState.AppTab.reports) {
-                contentStack {
-                    ReportsHomeView()
-                        .withNavigationDestinations()
-                }
-            }
-            Tab(String(localized: "More"),
-                systemImage: "ellipsis",
-                value: AppState.AppTab.settings) {
-                contentStack {
-                    MoreHubView()
-                        .withNavigationDestinations()
-                }
-            }
-        }
-        // Selected tab follows the user's accent theme.
-        //
-        // The brand accent itself (DEC-012), so the selected tab matches the
-        // swatch the user picked rather than a darker cousin of it. Tab labels
-        // are already excluded from the contrast audit — XCTest samples the
-        // liquid-glass highlight rather than the bar material.
-        //
-        // Swap to `.tint(.blue)` for the system-default look.
-        .tint(VColors.primary)
-        .toolbarBackground(VColors.groupedBackground, for: .tabBar)
-        .toolbarBackground(.visible, for: .tabBar)
-    }
-
-    /// Selection for the compact bar. Deep-links to overflow destinations
-    /// (debt/splits/savings/tax/settings) resolve to the More tab rather than a
-    /// non-existent tab, so the bar never lands on a blank selection.
-    /// ponytail: overflow deep-links land on the More hub root, not the exact
-    /// screen; add per-destination routing only if that shortcut matters.
-    private var compactSelection: Binding<AppState.AppTab> {
+    /// The TabView's selection. The More hub is a value of its own so it can sit
+    /// beside the Settings tab in one TabView.
+    ///
+    /// Since the iOS 27 SDK a TabView may crash when its selection names a tab
+    /// that is hidden, so this never returns one: on compact, overflow tabs
+    /// (savings, tax, debt, splits, settings) resolve to the More hub, as deep
+    /// links always have; on regular, every tab is visible and the hub is not.
+    private var selection: Binding<RootTab> {
         Binding(
-            get: { AppState.AppTab.compactTabBarSelection(for: appState.selectedTab) },
-            set: { appState.selectedTab = $0 }
+            get: {
+                guard isCompact else { return .tab(appState.selectedTab) }
+                let tab = AppState.AppTab.compactTabBarSelection(for: appState.selectedTab)
+                return tab == .settings ? .more : .tab(tab)
+            },
+            set: { root in
+                switch root {
+                case .tab(let tab): appState.selectedTab = tab
+                // The hub stands for Settings and the overflow destinations, so
+                // unfolding from it lands on Settings, its nearest regular-width tab.
+                case .more: appState.selectedTab = .settings
+                }
+            }
         )
     }
+}
+
+private enum RootTab: Hashable {
+    case tab(AppState.AppTab)
+    case more
 }
 
 // MARK: - More hub

@@ -44,7 +44,7 @@ struct InvestmentTimelineView: View {
                     Button {
                         isAdding = true
                     } label: {
-                        Image(systemName: "plus")
+                        Label(String(localized: "Add investment"), systemImage: "plus")
                     }
                     .accessibilityLabel(String(localized: "Add investment"))
                     .accessibilityIdentifier("investment-add-button")

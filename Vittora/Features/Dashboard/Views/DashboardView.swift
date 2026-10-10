@@ -7,7 +7,6 @@ struct DashboardView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.currencyCode) private var currencyCode
     #if os(iOS)
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
     @State private var vm: DashboardViewModel?
     @State private var navigateDestination: NavigationDestination?
@@ -80,31 +79,13 @@ struct DashboardView: View {
             guard exists else { return }
             navigateDestination = .accountDetail(id: id)
         }
-        #if os(iOS)
-        .if(shouldPresentQuickActionsAsSheet) { view in
-            view
-                .sheet(item: $activeQuickActionModal) { modal in
-                    quickActionModalView(for: modal)
-                }
-        }
-        .if(!shouldPresentQuickActionsAsSheet) { view in
-            view
-                .fullScreenCover(item: $activeQuickActionModal) { modal in
-                    quickActionModalView(for: modal)
-                }
-        }
-        #else
+        // A sheet at every width, for the reason given on quickAddPresentation:
+        // switching presentation on size class lost the form when iPhone Duo folds.
         .sheet(item: $activeQuickActionModal) { modal in
             quickActionModalView(for: modal)
+                .interactiveDismissDisabled()
         }
-        #endif
     }
-
-    #if os(iOS)
-    private var shouldPresentQuickActionsAsSheet: Bool {
-        horizontalSizeClass == .regular
-    }
-    #endif
 
     @ViewBuilder
     private func dashboardContent(_ vm: DashboardViewModel) -> some View {

@@ -36,7 +36,7 @@ struct HouseholdView: View {
                     Button {
                         showAddBudget = true
                     } label: {
-                        Image(systemName: "plus")
+                        Label(String(localized: "Add household budget"), systemImage: "plus")
                     }
                     .accessibilityLabel(String(localized: "Add household budget"))
                     .accessibilityIdentifier("household-add-budget-button")
@@ -311,7 +311,7 @@ private struct HouseholdBudgetDetailView: View {
                     Button {
                         showAddExpense = true
                     } label: {
-                        Image(systemName: "plus")
+                        Label(String(localized: "Add household expense"), systemImage: "plus")
                     }
                     .accessibilityLabel(String(localized: "Add household expense"))
                     .accessibilityIdentifier("household-add-expense-button")

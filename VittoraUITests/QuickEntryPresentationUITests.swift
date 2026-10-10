@@ -31,16 +31,13 @@ final class QuickEntryPresentationUITests: XCTestCase {
             "Quick entry should open from the floating button."
         )
 
-        // On regular width (iPad) quick entry must be a sheet, not a full-screen
-        // cover: the underlying UI stays in the accessibility hierarchy under a
-        // sheet, but is removed by a fullScreenCover.
-        #if os(iOS)
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            XCTAssertTrue(
-                app.buttons["quick-entry-floating-button"].exists,
-                "On iPad, quick entry should present as a sheet (dashboard still in hierarchy)."
-            )
-        }
-        #endif
+        // Quick entry must be a sheet at every width, never a full-screen cover:
+        // on iPhone Duo the size class flips when the device folds, and switching
+        // presentation on it dismissed the form mid-entry. The underlying UI stays
+        // in the accessibility hierarchy under a sheet but is removed by a cover.
+        XCTAssertTrue(
+            app.buttons["quick-entry-floating-button"].exists,
+            "Quick entry should present as a sheet (dashboard still in hierarchy)."
+        )
     }
 }

@@ -289,22 +289,23 @@ struct TransactionListView: View {
                 Button {
                     navigateDestination = .addTransaction
                 } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
+                    Label(String(localized: "Add transaction"), systemImage: "plus.circle.fill")
                 }
                 .accessibilityIdentifier("transaction-add-button")
-                .accessibilityLabel(String(localized: "Add transaction"))
                 .accessibilityHint(String(localized: "Opens the new transaction form"))
 
                 Button {
                     showFilterSheet = true
                 } label: {
-                    Image(systemName: vm.hasActiveFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-                        .font(.title2)
-                        .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
+                    // A title as well as a symbol, so iPhone Duo can place it in a
+                    // vertical bar or the overflow menu. The filled symbol alone
+                    // carries "a filter is on"; the old dimming read as disabled.
+                    Label(
+                        String(localized: "Filter transactions"),
+                        systemImage: vm.hasActiveFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle"
+                    )
                 }
                 .accessibilityIdentifier("transaction-filter-button")
-                .accessibilityLabel(String(localized: "Filter transactions"))
                 .accessibilityHint(String(localized: "Opens transaction filters"))
                 .accessibilityValue(vm.hasActiveFilter ? String(localized: "Filter active") : String(localized: "No filters applied"))
             }
@@ -326,8 +327,7 @@ struct TransactionListView: View {
                     }
                     #endif
                 } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .font(.title2)
+                    Label(String(localized: "More transaction actions"), systemImage: "ellipsis.circle")
                 }
                 .accessibilityIdentifier("transaction-overflow-menu")
                 .accessibilityLabel(String(localized: "More transaction actions"))
@@ -362,20 +362,19 @@ struct TransactionListView: View {
         .if(!vm.selectedTransactionIDs.isEmpty) { view in
             view.toolbar {
                 #if os(iOS)
+                // Separate items, not an HStack in one: the system never moves a
+                // custom view into iPhone Duo's vertical bar.
                 ToolbarItem(placement: .bottomBar) {
-                    HStack {
-                        Button(role: .destructive) {
-                            pendingDelete = .selected(count: vm.selectedTransactionIDs.count)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-
-                        Spacer()
-
-                        Text(String(localized: "\(vm.selectedTransactionIDs.count) selected"))
-                            .font(.caption)
-                            .foregroundColor(VColors.textSecondary)
+                    Button(role: .destructive) {
+                        pendingDelete = .selected(count: vm.selectedTransactionIDs.count)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
                     }
+                }
+                ToolbarItem(placement: .status) {
+                    Text(String(localized: "\(vm.selectedTransactionIDs.count) selected"))
+                        .font(.caption)
+                        .foregroundColor(VColors.textSecondary)
                 }
                 #else
                 ToolbarItem(placement: .automatic) {

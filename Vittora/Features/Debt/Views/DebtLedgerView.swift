@@ -51,7 +51,7 @@ struct DebtLedgerView: View {
                             message: String(localized: "Aging, exposure and settlement analytics are part of Vittora Pro. Your debt ledger and every record in it stay free.")
                         )
                 } label: {
-                    Image(systemName: "chart.bar.xaxis")
+                    Label(String(localized: "Debt analytics"), systemImage: "chart.bar.xaxis")
                 }
                 .accessibilityLabel(String(localized: "Debt analytics"))
                 .accessibilityHint(String(localized: "Opens aging, exposure and settlement analytics"))
@@ -61,7 +61,7 @@ struct DebtLedgerView: View {
                 Button {
                     showAddDebt = true
                 } label: {
-                    Image(systemName: "plus")
+                    Label(String(localized: "Add debt entry"), systemImage: "plus")
                 }
                 .accessibilityLabel(String(localized: "Add debt entry"))
                 .accessibilityHint(String(localized: "Opens the debt entry form"))
