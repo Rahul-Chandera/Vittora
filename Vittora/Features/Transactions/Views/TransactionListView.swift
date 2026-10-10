@@ -13,6 +13,11 @@ struct TransactionListView: View {
     @State private var filterVM: TransactionFilterViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var selectedTransactionID: UUID?
+    /// Both columns, always: the automatic style hid the list behind a sidebar
+    /// button at portrait widths (iPad portrait, the iPhone Duo's inner display),
+    /// so the screen opened on an empty "Select a Transaction".
+    @State private var splitVisibility: NavigationSplitViewVisibility = .all
+    @State private var containerWidth: CGFloat = 0
     /// Staged by every delete path on this screen so they all ask first.
     /// The detail screen's trash was guarded in 91c44b3b; these three — the
     /// row menu, the swipe, and the multi-select bulk delete — were not.
@@ -27,9 +32,17 @@ struct TransactionListView: View {
         #if os(macOS)
         true
         #else
-        horizontalSizeClass == .regular
+        // Regular width alone is not enough room for two columns: the iPhone
+        // Duo's inner display in portrait is regular at 669 pt, where the system
+        // overlays the list on a dimmed detail pane. Below this the list pushes
+        // its detail, as on iPhone.
+        horizontalSizeClass == .regular && containerWidth >= Self.minimumSplitWidth
         #endif
     }
+
+    #if os(iOS)
+    private static let minimumSplitWidth: CGFloat = 700
+    #endif
 
     var body: some View {
         ZStack {
@@ -48,6 +61,23 @@ struct TransactionListView: View {
             }
         }
         .navigationTitle(String(localized: "Transactions"))
+        #if os(iOS)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { containerWidth = $0 }
+        .onChange(of: prefersSplitDetail) { _, split in
+            // iPhone Duo changes width every time it folds. Carry the open
+            // transaction across the list / split-view swap instead of dropping
+            // it: pushed on compact, selected in the split view on regular.
+            if split {
+                if case .transactionDetail(let id)? = navigateDestination {
+                    navigateDestination = nil
+                    selectedTransactionID = id
+                }
+            } else if let id = selectedTransactionID {
+                selectedTransactionID = nil
+                navigateDestination = .transactionDetail(id: id)
+            }
+        }
+        #endif
         .alert(
             {
                 // Multi-select can hold exactly one row, and "Delete 1
@@ -202,12 +232,13 @@ struct TransactionListView: View {
                 .frame(minWidth: 400, maxWidth: .infinity, maxHeight: .infinity)
         }
         #else
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $splitVisibility) {
             transactionList(vm, selection: $selectedTransactionID)
                 .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
         } detail: {
             splitDetailPane
         }
+        .navigationSplitViewStyle(.balanced)
         #endif
     }
 
