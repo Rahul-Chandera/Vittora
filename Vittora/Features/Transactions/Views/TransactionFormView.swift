@@ -67,6 +67,11 @@ struct TransactionFormView: View {
                                 .accessibilityIdentifier("transaction-quick-entry-toggle")
                         }
 
+                        if !vm.isQuickEntry, vm.selectedPayeeID == nil,
+                           let suggestion = vm.entrySuggestion {
+                            entrySuggestionSection(vm, suggestion)
+                        }
+
                         if vm.isQuickEntry {
                             quickEntryContent(vm)
                         } else {
@@ -208,7 +213,66 @@ struct TransactionFormView: View {
                         await loadTransactionData(vm, transactionID: transactionID)
                     }
                     await loadPickerData()
+                    if transactionID == nil {
+                        await vm.loadEntrySuggestion()
+                    }
                 }
+            }
+        }
+    }
+
+    /// Predictive entry (M3.2.7). The whole row applies the suggestion, like the
+    /// category suggestion below it; the reason says why it is being offered
+    /// rather than presenting a guess as fact.
+    @ViewBuilder
+    private func entrySuggestionSection(
+        _ vm: TransactionFormViewModel,
+        _ suggestion: PredictiveEntryEngine.Suggestion
+    ) -> some View {
+        let summary = [
+            payeeName(for: suggestion.payeeID),
+            (categories.expense + categories.income).first { $0.id == suggestion.categoryID }?.displayName,
+            suggestion.amount?.formatted(currencyCode: currencyCode),
+        ]
+        .compactMap { $0 }
+        .joined(separator: " · ")
+
+        Section {
+            HStack(spacing: VSpacing.md) {
+                Button {
+                    vm.applyEntrySuggestion()
+                } label: {
+                    HStack(spacing: VSpacing.md) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .foregroundColor(VColors.primaryOnSurface)
+                            .accessibilityHidden(true)
+                        VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                            Text(summary)
+                                .foregroundColor(VColors.textPrimary)
+                            Text(suggestion.reason)
+                                .font(VTypography.caption1)
+                                .foregroundColor(VColors.textSecondary)
+                        }
+                        Spacer(minLength: 0)
+                        Text(String(localized: "Use"))
+                            .fontWeight(.semibold)
+                            .foregroundColor(VColors.primaryOnSurface)
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String(localized: "Suggested entry: \(summary)"))
+                .accessibilityHint(suggestion.reason)
+                .accessibilityIdentifier("transaction-entry-suggestion")
+
+                Button {
+                    vm.dismissEntrySuggestion()
+                } label: {
+                    Image(systemName: "xmark")
+                        .foregroundColor(VColors.textSecondary)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel(String(localized: "Dismiss suggestion"))
+                .accessibilityIdentifier("transaction-entry-suggestion-dismiss")
             }
         }
     }
