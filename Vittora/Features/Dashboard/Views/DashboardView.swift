@@ -126,9 +126,13 @@ struct DashboardView: View {
         #if os(iOS)
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { dashboardWidth = $0 }
         .onGeometryChange(for: CGRect?.self) { proxy in
+            // ReservedRegion only exists in the iOS 27.1 SDK (SwiftUICore 8.0.85).
+            // CI builds with an older Xcode, which has no fold to read anyway.
+            #if canImport(SwiftUICore, _version: 8.0.85)
             if #available(iOS 27.1, *) {
                 return proxy.reservedRegions(kind: .division).first(where: \.isActive)?.frame
             }
+            #endif
             return nil
         } action: { foldFrame = $0 }
         #endif
