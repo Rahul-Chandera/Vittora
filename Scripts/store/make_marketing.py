@@ -494,6 +494,12 @@ def main():
         # Optional until April 2027, required after for iOS 27.1 SDK builds.
         ("duo-outer",    "duo-outer",    "en", lambda r, o, c: compose_phone(r, o, c, 1398, 2034)),
         ("duo-inner",    "duo-inner",    "en", lambda r, o, c: compose_phone(r, o, c, 2007, 2853)),
+        ("duo-outer-in", "duo-outer-in", "en", lambda r, o, c: compose_phone(r, o, c, 1398, 2034)),
+        ("duo-inner-in", "duo-inner-in", "en", lambda r, o, c: compose_phone(r, o, c, 2007, 2853)),
+        ("duo-outer-hi", "duo-outer-hi", "hi", lambda r, o, c: compose_phone(r, o, c, 1398, 2034)),
+        ("duo-inner-hi", "duo-inner-hi", "hi", lambda r, o, c: compose_phone(r, o, c, 2007, 2853)),
+        ("duo-outer-es", "duo-outer-es", "es", lambda r, o, c: compose_phone(r, o, c, 1398, 2034)),
+        ("duo-inner-es", "duo-inner-es", "es", lambda r, o, c: compose_phone(r, o, c, 2007, 2853)),
         ("ipad-13",      "ipad-13",      "en", compose_pad),
         ("ipad-13-in",   "ipad-13-in",   "en", compose_pad),
         ("ipad-13-hi",   "ipad-13-hi",   "hi", compose_pad),
