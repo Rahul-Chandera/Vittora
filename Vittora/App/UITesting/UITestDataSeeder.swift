@@ -298,11 +298,14 @@ final class UITestDataSeeder {
 
         // UITEST_DEMO_TAX_COUNTRY (GB, AU, CA, IN, US) swaps in another country's
         // tax profile, so marketing captures can show each estimator in its own
-        // currency. Incomes are typical salaries that produce a real bill.
+        // currency. Incomes are typical salaries that produce a real bill. India
+        // was ₹12 L for the store galleries until 1.8.1, which the new regime's
+        // Section 87A rebate brings to ₹0 — a "Tax for five countries" slot
+        // showing no tax. ₹18 L, as the marketing captures already used.
         let taxCountry = ProcessInfo.processInfo.environment["UITEST_DEMO_TAX_COUNTRY"]
             .flatMap(TaxCountry.init(rawValue:)) ?? (isIndia ? .india : .unitedStates)
         let taxIncome: Decimal = switch taxCountry {
-        case .india: ProcessInfo.processInfo.environment["UITEST_DEMO_TAX_COUNTRY"] == nil ? 1_200_000 : 1_800_000
+        case .india: 1_800_000
         case .unitedStates: 85_000
         case .unitedKingdom: 60_000
         case .australia: 95_000
