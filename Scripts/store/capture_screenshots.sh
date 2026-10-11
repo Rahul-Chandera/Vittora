@@ -78,6 +78,10 @@ cat > "$ROOT/.build/store-shot-config.json" <<JSON
 }
 JSON
 
+# Files older than this were captured by an earlier run (an ONLY= re-shoot
+# leaves the rest of the set in place) and must not be post-processed again.
+RUN_STAMP="$(mktemp -t vittora-shot-run)"
+
 # Always builds (incrementally), so the captures match the working tree.
 # ONLY=<slot> re-shoots a single slot.
 xcodebuild test \
@@ -98,12 +102,17 @@ xcrun simctl status_bar "$UDID" clear
 # The iPhone Duo inner display's buffer comes back upside down (rotated 180°)
 # relative to the portrait UI; turn it the right way up.
 case "$SET_NAME" in
-  duo-inner*) python3 - "$OUT" <<'PYEOF'
+  duo-inner*) python3 - "$OUT" "$RUN_STAMP" <<'PYEOF'
 import sys, glob, os
 from PIL import Image
+since = os.path.getmtime(sys.argv[2])
+turned = 0
 for f in sorted(glob.glob(os.path.join(sys.argv[1], "*.png"))):
+    if os.path.getmtime(f) < since:
+        continue  # from an earlier run, already turned
     Image.open(f).transpose(Image.ROTATE_180).save(f, "PNG")
-print("    rotated the inner-display captures 180°")
+    turned += 1
+print(f"    rotated {turned} inner-display capture(s) 180°")
 PYEOF
   ;;
 esac
@@ -124,3 +133,4 @@ PYEOF
 esac
 
 echo "==> raw captures in $OUT — look at every one before framing"
+rm -f "$RUN_STAMP"
