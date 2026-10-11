@@ -12,6 +12,10 @@ struct AppTabView: View {
         rootTabView
             .quickAddPresentation($presentedQuickAdd)
             .handlesAppCommands(appState: appState, presentedQuickAdd: $presentedQuickAdd)
+            .onChange(of: appState.pendingOverflowDestination, initial: true) { _, pending in
+                // Every tab is its own tab here, already selected: nothing to push.
+                if pending != nil, !isCompact { appState.pendingOverflowDestination = nil }
+            }
     }
 
     // MARK: - One TabView for every width
@@ -183,6 +187,10 @@ private enum RootTab: Hashable {
 /// Single-NavigationStack list of the destinations that don't fit the compact
 /// tab bar. One nav bar → one back button on every screen reached from here.
 private struct MoreHubView: View {
+    @Environment(AppState.self) private var appState
+    /// A destination opened by a deep link rather than a tap on its row.
+    @State private var linkedDestination: AppState.AppTab?
+
     private static let destinations: [AppState.AppTab] =
         [.savings, .tax, .debt, .splits, .settings]
 
@@ -242,6 +250,14 @@ private struct MoreHubView: View {
         }
         .vListSelectionTint()
         .navigationTitle(String(localized: "More"))
+        .navigationDestination(item: $linkedDestination) { tab in
+            destinationView(for: tab)
+        }
+        .onChange(of: appState.pendingOverflowDestination, initial: true) { _, pending in
+            guard let pending, Self.destinations.contains(pending) else { return }
+            appState.pendingOverflowDestination = nil
+            linkedDestination = pending
+        }
         #if os(iOS)
         .sheet(isPresented: $showShoppingMode) {
             ShoppingModeView()

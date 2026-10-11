@@ -39,6 +39,10 @@ final class AppState {
     /// Quick-add destination from `vittora://add?type=…` (W4). Survives App Lock —
     /// consumed after unlock when the main UI mounts.
     var pendingQuickAdd: QuickAddDeepLink.Destination?
+    /// A screen behind the iPhone More hub to open, from `vittora://tax`. The hub
+    /// pushes it and clears this; on iPad, where it is its own tab, AppTabView
+    /// clears it instead.
+    var pendingOverflowDestination: AppTab?
     /// Transaction detail from Spotlight / `vittora://transaction/<id>` (P2). Survives
     /// App Lock like W4 — consumed after unlock when Transactions mounts.
     var pendingTransactionDetailID: UUID?
@@ -197,6 +201,13 @@ final class AppState {
             if let destination = QuickAddDeepLink.destination(from: url) {
                 openQuickAdd(destination)
             }
+            return
+        }
+        // `vittora://tax`: custom product page and marketing links land on the tax
+        // estimator rather than the dashboard.
+        if url.scheme?.lowercased() == HandoffDeepLink.scheme, url.host?.lowercased() == "tax" {
+            pendingOverflowDestination = .tax
+            selectedTab = .tax
             return
         }
         if TransactionSpotlightDeepLink.isTransactionURL(url) {
