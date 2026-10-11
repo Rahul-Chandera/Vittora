@@ -26,6 +26,10 @@ final class StoreGalleryUITests: XCTestCase {
         /// through the config file rather than the environment because
         /// xcodebuild does not reliably forward shell env to the test runner.
         let only: String?
+        /// "largest" to capture the largest active screen instead of the main
+        /// one. On iPhone Duo `XCUIScreen.main` is the outer display, which is
+        /// off (black) while the device is open, so the inner-display set needs this.
+        let screen: String?
     }
 
     private enum Step {
@@ -140,13 +144,21 @@ final class StoreGalleryUITests: XCTestCase {
                 continue
             }
 
-            let png = XCUIScreen.main.screenshot().pngRepresentation
+            let png = Self.captureScreen(config.screen).screenshot().pngRepresentation
             try png.write(to: outDir.appendingPathComponent("\(shot.name).png"))
             print("    \(shot.name).png")
             app.terminate()
         }
 
         XCUIDevice.shared.orientation = .portrait
+    }
+
+    private static func captureScreen(_ choice: String?) -> XCUIScreen {
+        guard choice == "largest" else { return .main }
+        return XCUIScreen.screens.max { lhs, rhs in
+            let l = lhs.screenshot().image.size, r = rhs.screenshot().image.size
+            return l.width * l.height < r.width * r.height
+        } ?? .main
     }
 
     /// Returns false (and records a failure) when the screen was not reached,
