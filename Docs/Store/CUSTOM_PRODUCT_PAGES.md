@@ -12,7 +12,7 @@ upload in file order. Regenerate with `Scripts/store/make_cpp.py` after
 1. Create Custom Product Page › Reference Name (below) › **Copy Existing Product
    Page**, so every localization starts filled in.
 2. For each localization listed: replace the screenshots, paste the promotional
-   text and keywords, set the deep link.
+   text, tick the keywords listed, set the deep link.
 3. Remove localizations a page does not list from that page, or leave them on
    the copied default (they then show the default page's content).
 4. Add for Review › Submit. No build needed, but **deep links need 1.8.1**
@@ -20,8 +20,11 @@ upload in file order. Regenerate with `Scripts/store/make_cpp.py` after
 5. Copy each page's URL (`…?ppid=…`) into the table at the bottom.
 
 **Rules these follow:**
-- Keywords never reuse a word already in that localization's default keywords
-  (Docs/Store/metadata-*.md), so a page never competes with the default page.
+- Keywords are **ticked, not typed**: a page can only claim keywords from the
+  version's own keyword field, and each keyword belongs to one page at a time.
+  A ticked keyword shows that page in search instead of the default page. The
+  1.8.1 keyword fields (Docs/Store/metadata-*.md) were revised so every page has
+  one to claim; the boxes appear once 1.8.1's metadata is saved.
 - No competitor names (Mint, YNAB) anywhere: guideline 2.3.7.
 - AI is named nowhere here; suggestions and estimates are described plainly.
 - Tax copy says "estimate" and names no figures beyond what the screenshots show.
@@ -45,20 +48,14 @@ tax calculator.
   ```
   See your income tax under the old and new regime for FY 2026-27, with 80D, NPS and HRA. An educational estimate, calculated on your iPhone. No bank login.
   ```
-- Keywords:
-  ```
-  ITR,Form 16,80D,NPS,HRA,salary,TDS,old vs new,income,calculator,deductions,refund
-  ```
+- Keywords — tick: `tax`, `regime`, `80C`
 
 **hi**
 - Promotional text:
   ```
   FY 2026-27 के लिए पुरानी और नई टैक्स व्यवस्था में अपना इनकम टैक्स देखें, 80D, NPS और HRA के साथ। आपके iPhone पर बना अनुमान। कोई बैंक लॉगिन नहीं।
   ```
-- Keywords:
-  ```
-  ITR,फॉर्म 16,80D,NPS,HRA,सैलरी,इनकम,कैलकुलेटर,नई व्यवस्था,रिफंड,कटौती
-  ```
+- Keywords — tick: `टैक्स`, `80c`, `आयकर`
 
 ---
 
@@ -78,10 +75,7 @@ Australian storefronts fall back to it).
   ```
   Estimate your income tax in the UK, Canada or Australia: National Insurance, provincial tax, the Medicare levy. Educational, calculated on your device.
   ```
-- Keywords:
-  ```
-  income tax calculator,National Insurance,HMRC,PAYE,CRA,RRSP,ATO,superannuation,tax refund
-  ```
+- Keywords — tick: `tax calculator`
 
 ---
 
@@ -100,36 +94,24 @@ Audience: couples, families and flatmates who want one shared budget.
   ```
   Share budgets with the people you live with through iCloud. See who spent what, and choose who can edit. Free, with no accounts and no bank login.
   ```
-- Keywords:
-  ```
-  shared,couples,family,household,joint expenses,roommates,partner,split bills
-  ```
+- Keywords — tick: `shared budget`
 
 **en-IN** — promotional text as en-US.
-- Keywords:
-  ```
-  shared,couples,family,household,joint expenses,flatmates,partner,split bills
-  ```
+- Keywords — tick: `shared budget`
 
 **es**
 - Promotional text:
   ```
   Comparte presupuestos con las personas con las que vives a través de iCloud. Mira quién gastó qué y elige quién puede editar. Gratis y sin conectar tu banco.
   ```
-- Keywords:
-  ```
-  compartido,pareja,familia,hogar,roomies,dividir,convivencia,en común,esposos
-  ```
+- Keywords — tick: `presupuesto compartido`
 
 **hi**
 - Promotional text:
   ```
   जिनके साथ आप रहते हैं, उनसे iCloud के ज़रिए बजट साझा करें। देखें किसने क्या खर्च किया और तय करें कौन बदलाव कर सकता है। मुफ़्त, बिना बैंक लॉगिन।
   ```
-- Keywords:
-  ```
-  साझा,परिवार,घर,पति पत्नी,रूममेट,हिसाब,मिलकर
-  ```
+- Keywords — tick: `साझा बजट`
 
 ---
 
@@ -148,30 +130,21 @@ Audience: people who will not link a bank account to a finance app.
   ```
   Track your money without linking a bank. Everything stays on your devices and in your own iCloud. No account to create, no ads, no tracking.
   ```
-- Keywords:
-  ```
-  no bank login,offline,private,manual,cash,privacy,secure,no sign up,local
-  ```
+- Keywords — tick: `no bank login`
 
 **es**
 - Promotional text:
   ```
   Controla tu dinero sin conectar tu banco. Todo se queda en tus dispositivos y en tu propio iCloud. Sin cuentas que crear, sin anuncios y sin rastreo.
   ```
-- Keywords:
-  ```
-  sin banco,privado,sin conexión,efectivo,privacidad,sin registro,seguro,manual
-  ```
+- Keywords — tick: `sin banco`
 
 **hi**
 - Promotional text:
   ```
   बैंक लिंक किए बिना अपने पैसे का हिसाब रखें। सब कुछ आपके डिवाइस और आपके अपने iCloud में रहता है। कोई अकाउंट नहीं, कोई विज्ञापन नहीं, कोई ट्रैकिंग नहीं।
   ```
-- Keywords:
-  ```
-  बिना बैंक,ऑफलाइन,प्राइवेट,नकद,गोपनीयता,बिना साइन अप,सुरक्षित,हिसाब किताब
-  ```
+- Keywords — tick: `बिना बैंक`
 
 ---
 
