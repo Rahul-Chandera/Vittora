@@ -257,6 +257,30 @@ final class UITestDataSeeder {
             tags: [FiftyThirtyTwentyReportUseCase.savingsContributionTag]
         ))
 
+        // --ui-test-seed-entry-habit (accessibility audits only): the same grocery
+        // run at this hour on this weekday in each of the last three weeks, so the
+        // new-expense form always offers a suggested entry (M3.2.7) and the audit
+        // covers that row on every run. Without it the row appeared only when the
+        // showcase data happened to line up with the clock, which is how its 17 pt
+        // dismiss button reached CI unnoticed by local runs. Not used by the store
+        // galleries, whose totals it would change.
+        if ProcessInfo.processInfo.arguments.contains("--ui-test-seed-entry-habit") {
+            let gregorian = Calendar(identifier: .gregorian)
+            for week in 1...3 {
+                guard let date = gregorian.date(byAdding: .day, value: -7 * week, to: .now) else { continue }
+                try await transactionRepository.create(TransactionEntity(
+                    amount: isIndia ? 1_250 : 42,
+                    date: date,
+                    note: "Weekly shop",
+                    type: .expense,
+                    currencyCode: currency,
+                    categoryID: category("Groceries"),
+                    accountID: card.id,
+                    payeeID: grocer.id
+                ))
+            }
+        }
+
         try await debtRepository.create(DebtEntry(
             payeeID: friend.id,
             amount: isIndia ? 5_000 : 250,
