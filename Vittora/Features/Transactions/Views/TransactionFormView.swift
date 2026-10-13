@@ -269,6 +269,10 @@ struct TransactionFormView: View {
                 } label: {
                     Image(systemName: "xmark")
                         .foregroundColor(VColors.textSecondary)
+                        // The glyph is ~17 pt; the tap target must be 44 pt
+                        // (the accessibility audit flagged "Hit area is too small").
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.borderless)
                 .accessibilityLabel(String(localized: "Dismiss suggestion"))
