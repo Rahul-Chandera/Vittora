@@ -16,6 +16,7 @@ struct TransactionFormView: View {
     @State private var showPayeePicker = false
     @State private var showAddPayee = false
     @State private var showAddAccount = false
+    @State private var autoFocusAmount: Bool
 
     /// Tags for the "Add New…" rows at the foot of the Account and Payee
     /// pickers. Selecting one opens the add sheet rather than changing the
@@ -41,6 +42,10 @@ struct TransactionFormView: View {
         self.transactionID = transactionID
         self.initialType = initialType
         self.showsCancelButton = showsCancelButton
+        // New transaction only. Opening the keyboard over an existing one,
+        // which the user came to read or to change some other field on,
+        // would be in the way.
+        _autoFocusAmount = State(initialValue: transactionID == nil)
     }
 
     var body: some View {
@@ -54,10 +59,7 @@ struct TransactionFormView: View {
                                 currencyCode: currencyCode,
                                 type: vm.type,
                                 textFieldAccessibilityIdentifier: "transaction-amount-field",
-                                // New transaction only. Opening the keyboard over an
-                                // existing one, which the user came to read or to
-                                // change some other field on, would be in the way.
-                                autoFocus: transactionID == nil
+                                autoFocus: $autoFocusAmount
                             )
 
                             TransactionTypePicker(type: Bindable(vm).type)
