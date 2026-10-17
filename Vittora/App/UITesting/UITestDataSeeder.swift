@@ -257,6 +257,30 @@ final class UITestDataSeeder {
             tags: [FiftyThirtyTwentyReportUseCase.savingsContributionTag]
         ))
 
+        // --ui-test-seed-entry-habit (accessibility audits only): the same grocery
+        // run at this hour on this weekday in each of the last three weeks, so the
+        // new-expense form always offers a suggested entry (M3.2.7) and the audit
+        // covers that row on every run. Without it the row appeared only when the
+        // showcase data happened to line up with the clock, which is how its 17 pt
+        // dismiss button reached CI unnoticed by local runs. Not used by the store
+        // galleries, whose totals it would change.
+        if ProcessInfo.processInfo.arguments.contains("--ui-test-seed-entry-habit") {
+            let gregorian = Calendar(identifier: .gregorian)
+            for week in 1...3 {
+                guard let date = gregorian.date(byAdding: .day, value: -7 * week, to: .now) else { continue }
+                try await transactionRepository.create(TransactionEntity(
+                    amount: isIndia ? 1_250 : 42,
+                    date: date,
+                    note: "Weekly shop",
+                    type: .expense,
+                    currencyCode: currency,
+                    categoryID: category("Groceries"),
+                    accountID: card.id,
+                    payeeID: grocer.id
+                ))
+            }
+        }
+
         try await debtRepository.create(DebtEntry(
             payeeID: friend.id,
             amount: isIndia ? 5_000 : 250,
@@ -298,11 +322,14 @@ final class UITestDataSeeder {
 
         // UITEST_DEMO_TAX_COUNTRY (GB, AU, CA, IN, US) swaps in another country's
         // tax profile, so marketing captures can show each estimator in its own
-        // currency. Incomes are typical salaries that produce a real bill.
+        // currency. Incomes are typical salaries that produce a real bill. India
+        // was ₹12 L for the store galleries until 1.8.1, which the new regime's
+        // Section 87A rebate brings to ₹0 — a "Tax for five countries" slot
+        // showing no tax. ₹18 L, as the marketing captures already used.
         let taxCountry = ProcessInfo.processInfo.environment["UITEST_DEMO_TAX_COUNTRY"]
             .flatMap(TaxCountry.init(rawValue:)) ?? (isIndia ? .india : .unitedStates)
         let taxIncome: Decimal = switch taxCountry {
-        case .india: ProcessInfo.processInfo.environment["UITEST_DEMO_TAX_COUNTRY"] == nil ? 1_200_000 : 1_800_000
+        case .india: 1_800_000
         case .unitedStates: 85_000
         case .unitedKingdom: 60_000
         case .australia: 95_000

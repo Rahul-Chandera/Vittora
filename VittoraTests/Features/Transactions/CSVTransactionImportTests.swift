@@ -231,6 +231,68 @@ struct CSVTransactionImportTests {
         )
     }
 
+    // MARK: - Real-export correctness
+
+    private func ynabPreview(_ csv: String, locale: Locale) throws -> CSVImportPreview {
+        try ImportTransactionsFromCSVUseCase(
+            addTransactionUseCase: makeAddUseCase(),
+            duplicateDetectionUseCase: DuplicateDetectionUseCase(transactionRepository: MockTransactionRepository()),
+            payeeRepository: MockPayeeRepository(),
+            categoryRepository: MockCategoryRepository()
+        ).preview(csvData: Data(csv.utf8), profile: .ynab, locale: locale)
+    }
+
+    /// A UK YNAB export: 05/01/2026 is 5 January. One row with a day over 12
+    /// settles the order for the whole file, so the ambiguous rows follow it.
+    @Test("a day-first file reads ambiguous dates day first")
+    func dayFirstFile() throws {
+        let csv = """
+        Date,Payee,Category Group/Category,Memo,Outflow,Inflow
+        05/01/2026,Tesco,Groceries,,42.00,
+        13/01/2026,Tesco,Groceries,,18.00,
+        """
+        let preview = try ynabPreview(csv, locale: locale)
+        #expect(preview.rows.map(\.date) == [date(from: "2026-01-05"), date(from: "2026-01-13")])
+    }
+
+    /// With no unambiguous row, the locale decides: en_GB is day first, en_US month first.
+    @Test("an ambiguous file follows the locale's date order")
+    func ambiguousFileFollowsLocale() throws {
+        let csv = """
+        Date,Payee,Category Group/Category,Memo,Outflow,Inflow
+        05/01/2026,Tesco,Groceries,,42.00,
+        """
+        #expect(try ynabPreview(csv, locale: Locale(identifier: "en_GB")).rows.first?.date == date(from: "2026-01-05"))
+        #expect(try ynabPreview(csv, locale: Locale(identifier: "en_US")).rows.first?.date == date(from: "2026-05-01"))
+    }
+
+    /// YNAB writes each transfer once per account, and a Starting Balance per
+    /// account. Neither is spending or income.
+    @Test("YNAB transfers and starting balances are skipped")
+    func ynabSkipsTransfersAndStartingBalance() throws {
+        let csv = """
+        Date,Payee,Category Group/Category,Memo,Outflow,Inflow
+        01/02/2026,Starting Balance,Inflow: Ready to Assign,,,5000.00
+        01/15/2026,Transfer : Savings,,,500.00,
+        01/15/2026,Transfer : Checking,,,,500.00
+        01/16/2026,Landlord,Bills: Rent,,1200.00,
+        """
+        let preview = try ynabPreview(csv, locale: locale)
+        #expect(preview.rows.map(\.payeeName) == ["Landlord"])
+        #expect(preview.invalidRowCount == 3)
+    }
+
+    @Test("YNAB's Ready to Assign is not imported as a category")
+    func ynabReadyToAssignIsNotACategory() throws {
+        let csv = """
+        Date,Payee,Category Group/Category,Memo,Outflow,Inflow
+        01/16/2026,Employer,Inflow: Ready to Assign,,,3000.00
+        """
+        let preview = try ynabPreview(csv, locale: locale)
+        #expect(preview.rows.first?.type == .income)
+        #expect(preview.rows.first?.categoryName == nil)
+    }
+
     private func date(from string: String) -> Date {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")

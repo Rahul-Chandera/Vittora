@@ -24,7 +24,7 @@ struct PayeePickerView: View {
                 Button {
                     showAddPayee = true
                 } label: {
-                    Image(systemName: "plus")
+                    Label(String(localized: "Add Payee"), systemImage: "plus")
                 }
                 .accessibilityLabel(String(localized: "Add Payee"))
                 .accessibilityIdentifier("payee-picker-add-button")

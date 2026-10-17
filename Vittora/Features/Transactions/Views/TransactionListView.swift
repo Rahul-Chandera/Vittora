@@ -13,6 +13,11 @@ struct TransactionListView: View {
     @State private var filterVM: TransactionFilterViewModel?
     @State private var navigateDestination: NavigationDestination?
     @State private var selectedTransactionID: UUID?
+    /// Both columns, always: the automatic style hid the list behind a sidebar
+    /// button at portrait widths (iPad portrait, the iPhone Duo's inner display),
+    /// so the screen opened on an empty "Select a Transaction".
+    @State private var splitVisibility: NavigationSplitViewVisibility = .all
+    @State private var containerWidth: CGFloat = 0
     /// Staged by every delete path on this screen so they all ask first.
     /// The detail screen's trash was guarded in 91c44b3b; these three — the
     /// row menu, the swipe, and the multi-select bulk delete — were not.
@@ -27,9 +32,17 @@ struct TransactionListView: View {
         #if os(macOS)
         true
         #else
-        horizontalSizeClass == .regular
+        // Regular width alone is not enough room for two columns: the iPhone
+        // Duo's inner display in portrait is regular at 669 pt, where the system
+        // overlays the list on a dimmed detail pane. Below this the list pushes
+        // its detail, as on iPhone.
+        horizontalSizeClass == .regular && containerWidth >= Self.minimumSplitWidth
         #endif
     }
+
+    #if os(iOS)
+    private static let minimumSplitWidth: CGFloat = 700
+    #endif
 
     var body: some View {
         ZStack {
@@ -48,6 +61,32 @@ struct TransactionListView: View {
             }
         }
         .navigationTitle(String(localized: "Transactions"))
+        #if os(iOS)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { containerWidth = $0 }
+        .onChange(of: prefersSplitDetail) { _, split in
+            // iPhone Duo changes width every time it folds. Carry the open
+            // transaction across the list / split-view swap instead of dropping
+            // it: pushed on compact, selected in the split view on regular.
+            if split {
+                if case .transactionDetail(let id)? = navigateDestination {
+                    navigateDestination = nil
+                    selectedTransactionID = id
+                }
+            } else if let id = selectedTransactionID {
+                selectedTransactionID = nil
+                navigateDestination = .transactionDetail(id: id)
+            }
+        }
+        .onChange(of: navigateDestination) { old, new in
+            // A list covered by a pushed detail does not see the width change,
+            // so a fold or rotation can leave the detail pushed over a split view.
+            // Coming back from it, keep that transaction selected rather than
+            // landing on an empty detail pane.
+            if new == nil, prefersSplitDetail, case .transactionDetail(let id)? = old {
+                selectedTransactionID = id
+            }
+        }
+        #endif
         .alert(
             {
                 // Multi-select can hold exactly one row, and "Delete 1
@@ -202,12 +241,13 @@ struct TransactionListView: View {
                 .frame(minWidth: 400, maxWidth: .infinity, maxHeight: .infinity)
         }
         #else
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $splitVisibility) {
             transactionList(vm, selection: $selectedTransactionID)
                 .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
         } detail: {
             splitDetailPane
         }
+        .navigationSplitViewStyle(.balanced)
         #endif
     }
 
@@ -289,22 +329,23 @@ struct TransactionListView: View {
                 Button {
                     navigateDestination = .addTransaction
                 } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
+                    Label(String(localized: "Add transaction"), systemImage: "plus.circle.fill")
                 }
                 .accessibilityIdentifier("transaction-add-button")
-                .accessibilityLabel(String(localized: "Add transaction"))
                 .accessibilityHint(String(localized: "Opens the new transaction form"))
 
                 Button {
                     showFilterSheet = true
                 } label: {
-                    Image(systemName: vm.hasActiveFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-                        .font(.title2)
-                        .opacity(vm.hasActiveFilter ? 1.0 : 0.5)
+                    // A title as well as a symbol, so iPhone Duo can place it in a
+                    // vertical bar or the overflow menu. The filled symbol alone
+                    // carries "a filter is on"; the old dimming read as disabled.
+                    Label(
+                        String(localized: "Filter transactions"),
+                        systemImage: vm.hasActiveFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle"
+                    )
                 }
                 .accessibilityIdentifier("transaction-filter-button")
-                .accessibilityLabel(String(localized: "Filter transactions"))
                 .accessibilityHint(String(localized: "Opens transaction filters"))
                 .accessibilityValue(vm.hasActiveFilter ? String(localized: "Filter active") : String(localized: "No filters applied"))
             }
@@ -326,8 +367,7 @@ struct TransactionListView: View {
                     }
                     #endif
                 } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .font(.title2)
+                    Label(String(localized: "More transaction actions"), systemImage: "ellipsis.circle")
                 }
                 .accessibilityIdentifier("transaction-overflow-menu")
                 .accessibilityLabel(String(localized: "More transaction actions"))
@@ -362,20 +402,19 @@ struct TransactionListView: View {
         .if(!vm.selectedTransactionIDs.isEmpty) { view in
             view.toolbar {
                 #if os(iOS)
+                // Separate items, not an HStack in one: the system never moves a
+                // custom view into iPhone Duo's vertical bar.
                 ToolbarItem(placement: .bottomBar) {
-                    HStack {
-                        Button(role: .destructive) {
-                            pendingDelete = .selected(count: vm.selectedTransactionIDs.count)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-
-                        Spacer()
-
-                        Text(String(localized: "\(vm.selectedTransactionIDs.count) selected"))
-                            .font(.caption)
-                            .foregroundColor(VColors.textSecondary)
+                    Button(role: .destructive) {
+                        pendingDelete = .selected(count: vm.selectedTransactionIDs.count)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
                     }
+                }
+                ToolbarItem(placement: .status) {
+                    Text(String(localized: "\(vm.selectedTransactionIDs.count) selected"))
+                        .font(.caption)
+                        .foregroundColor(VColors.textSecondary)
                 }
                 #else
                 ToolbarItem(placement: .automatic) {

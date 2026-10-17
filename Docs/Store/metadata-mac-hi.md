@@ -1,6 +1,6 @@
 # App Store Metadata — macOS platform tab, hi (Hindi)
 
-**Refreshed 2026-10-06 for 1.8.0 (build 13).** Promotional text and Description now cover the 1.8.0 feature set: tax estimates for five countries, household sharing, sinking funds, sub-categories, the financial health score, spending outlook and what-if, net worth over time, the unusual-spending and budget insights, on-device category suggestions and the Apple Intelligence month summary. AI is named only for those last two ("on supported devices"); the health score, outlook and insights are rules-based. Vittora Pro is named only where a feature is Pro, and household sharing is free. Apple Wallet import is not mentioned (ships dark). **Mac:** Live Activities, the interactive widget, Watch voice entry and multi-page scanning are iOS-only and are not claimed; household invitations can only be accepted on iPhone or iPad (`HouseholdShareAcceptance.swift` is `#if os(iOS)`), which the copy says.
+**Refreshed 2026-10-06 for 1.8.0 (build 13).** Promotional text and Description now cover the 1.8.0 feature set: tax estimates for five countries, household sharing, sinking funds, sub-categories, the financial health score, spending outlook and what-if, net worth over time, the unusual-spending and budget insights, on-device category suggestions and the Apple Intelligence month summary. AI is named only for those last two ("on supported devices"); the health score, outlook and insights are rules-based. Vittora Pro is named only where a feature is Pro, and household sharing is free. Apple Wallet import is not mentioned (ships dark). **Mac:** Live Activities, the interactive widget, Watch voice entry and multi-page scanning are iOS-only and are not claimed. **Corrected 2026-10-10:** the copy no longer says household invitations are accepted only on iPhone or iPad. That was wrong: `HouseholdShareAcceptance.swift` has a macOS branch (`NSApplicationDelegate`) since #290, and the Mac build carries `CKSharingSupported` and the CloudKit entitlement.
 
 The macOS tab for the **Hindi** localization. `metadata-hi.md` is the
 iOS/iPadOS tab in Hindi; `metadata-mac-en-IN.md` is the same macOS tab in
@@ -76,7 +76,7 @@ Mac के लिए बनाई गई
 बजट जो आपके साथ चले
 • हर कैटेगरी के लिए साप्ताहिक, मासिक, तिमाही या सालाना बजट
 • खर्च बढ़ने से पहले रंगों में चेतावनी, बाद में नहीं
-• घर के साथ साझा बजट: iCloud के ज़रिए, हर सदस्य का खर्च, और कौन बदलाव कर सकता है इस पर नियंत्रण (निमंत्रण iPhone या iPad पर स्वीकार किए जाते हैं)
+• घर के साथ साझा बजट: iCloud के ज़रिए, हर सदस्य का खर्च, और कौन बदलाव कर सकता है इस पर नियंत्रण
 
 बचत लक्ष्य और सिंकिंग फ़ंड
 • लक्ष्य तय करें, योगदान ट्रैक करें, प्रगति रिंग भरते देखें

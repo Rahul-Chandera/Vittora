@@ -114,10 +114,12 @@ Vittora Pro मासिक, वार्षिक (7 दिन मुफ़्�
 iOS 26, iPadOS 26 या macOS 26 चाहिए।
 ```
 
-## Keywords (100 max)
+## Keywords (100 max — 63; revised for 1.8.1)
+
+Revised 2026-10-12 so each custom product page has its own keyword to claim (App Store Connect only lets a page pick from this field). Dropped: फाइनेंस and पर्सनल फाइनेंस (both in the app name). Which page takes which keyword: Docs/Store/CUSTOM_PRODUCT_PAGES.md.
 
 ```
-बजट,खर्च,फाइनेंस,बचत,पैसा,टैक्स,80c,आयकर,खर्च ट्रैकर,पर्सनल फाइनेंस
+बजट,खर्च,बचत,पैसा,टैक्स,80c,आयकर,खर्च ट्रैकर,साझा बजट,बिना बैंक
 ```
 
 ## URLs (unchanged)

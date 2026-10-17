@@ -42,7 +42,7 @@ struct SplitGroupListView: View {
                 Button {
                     showAddGroup = true
                 } label: {
-                    Image(systemName: "plus")
+                    Label(String(localized: "Add split group"), systemImage: "plus")
                 }
                 .accessibilityLabel(String(localized: "Add split group"))
                 .accessibilityHint(String(localized: "Opens the split group form"))

@@ -115,10 +115,12 @@ Vittora Pro is available monthly, yearly with a 7-day free trial, or as a one-ti
 Requires iOS 26, iPadOS 26 or macOS 26.
 ```
 
-## Keywords (100 max — 93, deliberately not at the limit)
+## Keywords (100 max — 95; revised for 1.8.1)
+
+Revised 2026-10-12 so each custom product page has its own keyword to claim (App Store Connect only lets a page pick from this field). Dropped: spending (in the subtitle) and personal finance (in the app name). Which page takes which keyword: Docs/Store/CUSTOM_PRODUCT_PAGES.md.
 
 ```
-budget,expense tracker,money manager,spending,savings,tax,regime,80C,UPI,GST,personal finance
+budget,expense tracker,money manager,savings,tax,regime,80C,UPI,GST,shared budget,no bank login
 ```
 
 ## URLs (unchanged)

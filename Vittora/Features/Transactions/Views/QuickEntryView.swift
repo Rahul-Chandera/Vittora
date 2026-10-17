@@ -23,7 +23,7 @@ struct QuickEntryView: View {
                             type: .expense,
                             // Quick entry exists to type an amount fast, so the
                             // keyboard should already be up.
-                            autoFocus: true
+                            autoFocus: .constant(true)
                         )
                         .padding(VSpacing.lg)
 

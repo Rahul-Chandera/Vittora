@@ -1,6 +1,6 @@
 # App Store Metadata — macOS platform tab, es-US (Spanish)
 
-**Refreshed 2026-10-06 for 1.8.0 (build 13).** Promotional text and Description now cover the 1.8.0 feature set: tax estimates for five countries, household sharing, sinking funds, sub-categories, the financial health score, spending outlook and what-if, net worth over time, the unusual-spending and budget insights, on-device category suggestions and the Apple Intelligence month summary. AI is named only for those last two ("on supported devices"); the health score, outlook and insights are rules-based. Vittora Pro is named only where a feature is Pro, and household sharing is free. Apple Wallet import is not mentioned (ships dark). **Mac:** Live Activities, the interactive widget, Watch voice entry and multi-page scanning are iOS-only and are not claimed; household invitations can only be accepted on iPhone or iPad (`HouseholdShareAcceptance.swift` is `#if os(iOS)`), which the copy says.
+**Refreshed 2026-10-06 for 1.8.0 (build 13).** Promotional text and Description now cover the 1.8.0 feature set: tax estimates for five countries, household sharing, sinking funds, sub-categories, the financial health score, spending outlook and what-if, net worth over time, the unusual-spending and budget insights, on-device category suggestions and the Apple Intelligence month summary. AI is named only for those last two ("on supported devices"); the health score, outlook and insights are rules-based. Vittora Pro is named only where a feature is Pro, and household sharing is free. Apple Wallet import is not mentioned (ships dark). **Mac:** Live Activities, the interactive widget, Watch voice entry and multi-page scanning are iOS-only and are not claimed. **Corrected 2026-10-10:** the copy no longer says household invitations are accepted only on iPhone or iPad. That was wrong: `HouseholdShareAcceptance.swift` has a macOS branch (`NSApplicationDelegate`) since #290, and the Mac build carries `CKSharingSupported` and the CloudKit entitlement.
 
 The macOS tab for the **Spanish (Mexico)** / `es-MX` localization, which is what
 serves Spanish-speaking users in the US storefront. `metadata-mac-en-US.md` is
@@ -73,7 +73,7 @@ CONTINÚA EN OTRO DISPOSITIVO
 PRESUPUESTOS QUE TE SIGUEN EL PASO
 • Presupuestos semanales, mensuales, trimestrales o anuales por categoría
 • Avisos por color antes de pasarte, no después
-• Hogar compartido: presupuestos compartidos por iCloud, gasto por miembro y control de quién puede editar (las invitaciones se aceptan en el iPhone o el iPad)
+• Hogar compartido: presupuestos compartidos por iCloud, gasto por miembro y control de quién puede editar
 
 METAS DE AHORRO Y FONDOS COMPARTIDOS
 • Define un objetivo, registra aportes y mira avanzar el progreso

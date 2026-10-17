@@ -41,7 +41,7 @@ struct CategorizationRulesView: View {
                     ruleToEdit = nil
                     showAddRule = true
                 } label: {
-                    Image(systemName: VIcons.Actions.add)
+                    Label(String(localized: "Add rule"), systemImage: VIcons.Actions.add)
                 }
                 .accessibilityLabel(String(localized: "Add rule"))
             }

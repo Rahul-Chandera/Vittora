@@ -44,7 +44,7 @@ struct AccountPickerView: View {
                 Button {
                     showAddAccount = true
                 } label: {
-                    Image(systemName: "plus")
+                    Label(String(localized: "Add Account"), systemImage: "plus")
                 }
                 .accessibilityLabel(String(localized: "Add Account"))
                 .accessibilityIdentifier("account-picker-add-button")

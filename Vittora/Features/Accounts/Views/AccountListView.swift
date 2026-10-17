@@ -24,7 +24,7 @@ struct AccountListView: View {
                 Button {
                     showAddAccount = true
                 } label: {
-                    Image(systemName: VIcons.Actions.add)
+                    Label(String(localized: "Add account"), systemImage: VIcons.Actions.add)
                         .foregroundStyle(.primary)
                 }
                 .accessibilityIdentifier("account-add-button")

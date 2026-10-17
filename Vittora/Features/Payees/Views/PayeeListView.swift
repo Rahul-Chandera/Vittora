@@ -30,7 +30,7 @@ struct PayeeListView: View {
                 Button {
                     showAddPayee = true
                 } label: {
-                    Image(systemName: VIcons.Actions.add)
+                    Label(String(localized: "Add payee"), systemImage: VIcons.Actions.add)
                 }
                 .accessibilityLabel(String(localized: "Add payee"))
                 .accessibilityHint(String(localized: "Opens the payee form"))

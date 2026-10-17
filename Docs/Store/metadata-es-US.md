@@ -108,10 +108,12 @@ Vittora Pro está disponible por mes, por año con 7 días de prueba gratis, o c
 Requiere iOS 26, iPadOS 26 o macOS 26.
 ```
 
-## Keywords (100 max — this is ~86)
+## Keywords (100 max — 91; revised for 1.8.1)
+
+Revised 2026-10-12 so each custom product page has its own keyword to claim (App Store Connect only lets a page pick from this field). Dropped: finanzas personales (in the app name) and cuentas. Which page takes which keyword: Docs/Store/CUSTOM_PRODUCT_PAGES.md.
 
 ```
-presupuesto,gastos,finanzas personales,ahorro,dinero,control de gastos,cuentas,recibos
+presupuesto,gastos,ahorro,dinero,control de gastos,recibos,presupuesto compartido,sin banco
 ```
 
 ## URLs
