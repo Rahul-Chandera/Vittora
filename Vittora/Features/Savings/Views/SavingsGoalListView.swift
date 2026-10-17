@@ -56,7 +56,7 @@ struct SavingsGoalListView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { showAddGoal = true } label: {
-                    Image(systemName: "plus")
+                    Label(String(localized: "Add savings goal"), systemImage: "plus")
                 }
                 .accessibilityLabel(String(localized: "Add savings goal"))
                 .accessibilityHint(String(localized: "Opens the savings goal form"))

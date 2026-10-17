@@ -195,26 +195,25 @@ struct TransactionDetailView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
                 .toolbar {
-                    ToolbarItem(placement: .primaryAction) {
-                        HStack(spacing: VSpacing.md) {
-                            Button {
-                                showEditSheet = true
-                            } label: {
-                                Image(systemName: "pencil")
-                            }
-                            .accessibilityIdentifier("transaction-detail-edit-button")
-                            .accessibilityLabel(String(localized: "Edit transaction"))
-                            .accessibilityHint(String(localized: "Opens the transaction form"))
-
-                            Button(role: .destructive) {
-                                showDeleteConfirm = true
-                            } label: {
-                                Image(systemName: "trash")
-                            }
-                            .accessibilityIdentifier("transaction-detail-delete-button")
-                            .accessibilityLabel(String(localized: "Delete transaction"))
-                            .accessibilityHint(String(localized: "Deletes this transaction"))
+                    // A group of real toolbar items, not an HStack in one item: the
+                    // system treats an HStack as a custom view and never moves it
+                    // into iPhone Duo's vertical bar.
+                    ToolbarItemGroup(placement: .primaryAction) {
+                        Button {
+                            showEditSheet = true
+                        } label: {
+                            Label(String(localized: "Edit transaction"), systemImage: "pencil")
                         }
+                        .accessibilityIdentifier("transaction-detail-edit-button")
+                        .accessibilityHint(String(localized: "Opens the transaction form"))
+
+                        Button(role: .destructive) {
+                            showDeleteConfirm = true
+                        } label: {
+                            Label(String(localized: "Delete transaction"), systemImage: "trash")
+                        }
+                        .accessibilityIdentifier("transaction-detail-delete-button")
+                        .accessibilityHint(String(localized: "Deletes this transaction"))
                     }
                 }
             } else if let vm = vm, vm.isLoading {

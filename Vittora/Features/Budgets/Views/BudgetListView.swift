@@ -224,7 +224,7 @@ struct BudgetListView: View {
                 NavigationLink {
                     HouseholdView()
                 } label: {
-                    Image(systemName: "person.2")
+                    Label(String(localized: "Household"), systemImage: "person.2")
                 }
                 .accessibilityIdentifier("budget-household-button")
                 .accessibilityLabel(String(localized: "Household"))
@@ -232,7 +232,7 @@ struct BudgetListView: View {
             }
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showAddBudget = true }) {
-                    Image(systemName: "plus")
+                    Label(String(localized: "Add budget"), systemImage: "plus")
                 }
                 .accessibilityIdentifier("budget-add-button")
                 .accessibilityLabel(String(localized: "Add budget"))

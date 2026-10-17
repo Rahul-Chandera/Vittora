@@ -68,6 +68,12 @@ final class AccessibilityAuditUITests: XCTestCase {
         launchSeeded(initialTab: "transactions", extraArguments: ["--ui-test-pro"])
         XCTAssertTrue(UITestSupport.waitForContentRoot(in: app))
         openAddTransactionForm()
+        // The audit only covers what is on screen. Fail loudly if the seeded habit
+        // stops producing a suggestion, rather than auditing a form without it.
+        XCTAssertTrue(
+            app.descendants(matching: .any)["transaction-entry-suggestion"].waitForExistence(timeout: 10),
+            "The seeded weekly shop should produce a suggested entry on the new-expense form."
+        )
         try performCoreFlowAudit()
         #endif
     }
@@ -746,7 +752,11 @@ final class AccessibilityAuditUITests: XCTestCase {
         extraArguments: [String] = [],
         extraEnvironment: [String: String] = [:]
     ) {
-        app.launchArguments = ["--uitesting", "--ui-test-seed-demo", "--ui-test-reset-app-lock"] + extraArguments
+        // --ui-test-seed-entry-habit makes the new-expense form always show its
+        // suggested-entry row, so every audit of that form covers it.
+        app.launchArguments = [
+            "--uitesting", "--ui-test-seed-demo", "--ui-test-seed-entry-habit", "--ui-test-reset-app-lock"
+        ] + extraArguments
         // a11y3 screenshot cases pass AccessibilityXL via extraArguments. Without an
         // explicit category here, some simulator hosts retain that XL size across
         // XCTest relaunches and the following audits sample a size they did not opt into.

@@ -256,7 +256,7 @@ struct RecurringListView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showAddSheet = true }) {
-                    Image(systemName: "plus")
+                    Label(String(localized: "Add Recurring Transaction"), systemImage: "plus")
                         .font(.system(size: 16, weight: .semibold))
                 }
                 .accessibilityLabel(String(localized: "Add Recurring Transaction"))

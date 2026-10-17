@@ -16,6 +16,9 @@ import VittoraCore
     var isEditing = false
     var editingID: UUID?
     var suggestedCategoryID: UUID?
+    /// Predictive entry (M3.2.7): the payee, category and amount the user usually
+    /// records at this hour on this weekday. Offered, never applied unasked.
+    private(set) var entrySuggestion: PredictiveEntryEngine.Suggestion?
     /// Whether the last `suggestCategory()` call actually completed against the
     /// current input. Keeps "the categorizer never ran" distinguishable from "it
     /// ran and proposed nothing" — the two are different training signals and
@@ -47,19 +50,26 @@ import VittoraCore
     private let updateUseCase: UpdateTransactionUseCase
     private let smartCategorizeUseCase: SmartCategorizeUseCase
     private let duplicateDetectionUseCase: DuplicateDetectionUseCase
+    private let transactionRepository: (any TransactionRepository)?
     private let currencyCode: String
+
+    /// How far back predictive entry looks: about thirteen of each weekday, enough
+    /// for a weekly habit to clear the engine's three-occurrence bar.
+    static let entrySuggestionLookbackDays = 90
 
     init(
         addUseCase: AddTransactionUseCase,
         updateUseCase: UpdateTransactionUseCase,
         smartCategorizeUseCase: SmartCategorizeUseCase,
         duplicateDetectionUseCase: DuplicateDetectionUseCase,
+        transactionRepository: (any TransactionRepository)? = nil,
         currencyCode: String = CurrencyDefaults.code
     ) {
         self.addUseCase = addUseCase
         self.updateUseCase = updateUseCase
         self.smartCategorizeUseCase = smartCategorizeUseCase
         self.duplicateDetectionUseCase = duplicateDetectionUseCase
+        self.transactionRepository = transactionRepository
         self.currencyCode = currencyCode
     }
 
@@ -159,6 +169,43 @@ import VittoraCore
         let previousError = error
         await suggestCategory()
         error = previousError
+    }
+
+    /// Looks for a habit to offer on a new expense that is still empty. Anything
+    /// the user, a Handoff draft or a deep link has already filled in wins, so
+    /// this never runs over it.
+    ///
+    /// Silent on failure: it is a hint the user did not ask for, and a fetch error
+    /// must not raise an alert over the form they did ask for.
+    func loadEntrySuggestion(now: Date = .now, calendar: Calendar = Calendar(identifier: .gregorian)) async {
+        guard !isEditing, type == .expense, selectedPayeeID == nil, amountString.isEmpty,
+              let transactionRepository else { return }
+        let since = calendar.date(byAdding: .day, value: -Self.entrySuggestionLookbackDays, to: now) ?? now
+        guard since < now,
+              let history = try? await transactionRepository.fetchAll(
+                filter: TransactionFilter(dateRange: since...now, types: [.expense])
+              )
+        else { return }
+        entrySuggestion = PredictiveEntryEngine().suggest(
+            at: now,
+            history: history.map {
+                .init(payeeID: $0.payeeID, categoryID: $0.categoryID, amount: $0.amount, date: $0.date)
+            },
+            calendar: calendar
+        )
+    }
+
+    /// Fills in only the fields that are still empty, then withdraws the offer.
+    func applyEntrySuggestion() {
+        guard let suggestion = entrySuggestion else { return }
+        if selectedPayeeID == nil { selectedPayeeID = suggestion.payeeID }
+        if selectedCategoryID == nil { selectedCategoryID = suggestion.categoryID }
+        if amountString.isEmpty, let amount = suggestion.amount { amountString = "\(amount)" }
+        entrySuggestion = nil
+    }
+
+    func dismissEntrySuggestion() {
+        entrySuggestion = nil
     }
 
     func checkDuplicates() async {

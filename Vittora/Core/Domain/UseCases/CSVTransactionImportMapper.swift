@@ -113,6 +113,10 @@ enum CSVTransactionImportMapper {
 
         var parsed: [ParsedCSVTransactionRow] = []
         var invalidCount = 0
+        let dayFirst = slashDatesAreDayFirst(
+            grid.dropFirst().compactMap { $0.indices.contains(mapping.dateColumn) ? $0[mapping.dateColumn] : nil },
+            locale: locale
+        )
 
         for (offset, columns) in grid.dropFirst().enumerated() {
             let lineNumber = offset + 2
@@ -121,7 +125,8 @@ enum CSVTransactionImportMapper {
                 mapping: mapping,
                 profile: profile,
                 lineNumber: lineNumber,
-                locale: locale
+                locale: locale,
+                dayFirst: dayFirst
             ) else {
                 invalidCount += 1
                 continue
@@ -137,18 +142,27 @@ enum CSVTransactionImportMapper {
         mapping: CSVColumnMapping,
         profile: CSVImportProfile,
         lineNumber: Int,
-        locale: Locale
+        locale: Locale,
+        dayFirst: Bool
     ) -> ParsedCSVTransactionRow? {
         guard columns.indices.contains(mapping.dateColumn) else { return nil }
-        guard let date = parseDate(columns[mapping.dateColumn]) else { return nil }
+        guard let date = parseDate(columns[mapping.dateColumn], dayFirst: dayFirst) else { return nil }
 
         let description = mapping.descriptionColumn.flatMap { columns.indices.contains($0) ? columns[$0] : nil } ?? ""
         let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedDescription.isEmpty else { return nil }
+        if profile == .ynab, isYNABNonSpendingPayee(trimmedDescription) { return nil }
 
         let categoryName = mapping.categoryColumn.flatMap { index in
             columns.indices.contains(index) ? columns[index].trimmingCharacters(in: .whitespacesAndNewlines) : nil
-        }.flatMap { $0.isEmpty ? nil : normalizedCategoryName($0) }
+        }.flatMap { raw -> String? in
+            guard !raw.isEmpty else { return nil }
+            // YNAB files income under "Inflow: Ready to Assign", a budgeting
+            // bucket rather than a category; importing it made a category
+            // called "Ready to Assign".
+            if profile == .ynab, raw.lowercased().hasPrefix("inflow:") { return nil }
+            return normalizedCategoryName(raw)
+        }
 
         let memo = mapping.memoColumn.flatMap { index in
             columns.indices.contains(index) ? columns[index].trimmingCharacters(in: .whitespacesAndNewlines) : nil
@@ -248,16 +262,44 @@ enum CSVTransactionImportMapper {
         return Decimal(string: normalized)
     }
 
-    nonisolated private static func parseDate(_ raw: String) -> Date? {
+    /// Rows YNAB exports that are not spending or income.
+    ///
+    /// YNAB writes a transfer once per account ("Transfer : Savings"), so
+    /// importing both legs counted the same money as an expense on one side and
+    /// income on the other. A CSV import cannot map the second account a Vittora
+    /// transfer needs, so the legs are skipped. "Starting Balance" is an opening
+    /// balance, not income.
+    nonisolated static func isYNABNonSpendingPayee(_ payee: String) -> Bool {
+        let lowered = payee.lowercased()
+        return lowered.hasPrefix("transfer :") || lowered == "starting balance"
+    }
+
+    /// Whether this file writes slash dates day first (05/01/2026 = 5 January).
+    ///
+    /// One unambiguous row, a first number over 12 or a second over 12, settles
+    /// it for the whole file; with none, the user's locale decides. Trying
+    /// month-first on every row on its own turned 05/01/2026 into 1 May in a UK or
+    /// Indian YNAB export, silently.
+    nonisolated static func slashDatesAreDayFirst(_ values: [String], locale: Locale) -> Bool {
+        for raw in values {
+            let parts = raw.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: "/")
+            guard parts.count == 3, parts[2].count == 4,
+                  let first = Int(parts[0]), let second = Int(parts[1]) else { continue }
+            if first > 12 { return true }
+            if second > 12 { return false }
+        }
+        let order = DateFormatter.dateFormat(fromTemplate: "MMdd", options: 0, locale: locale) ?? "MM/dd"
+        return order.hasPrefix("d")
+    }
+
+    nonisolated private static func parseDate(_ raw: String, dayFirst: Bool) -> Date? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
 
-        let formats = [
-            "yyyy-MM-dd",
-            "MM/dd/yyyy",
-            "M/d/yyyy",
-            "dd/MM/yyyy",
-            "d/M/yyyy",
+        let slashFormats = dayFirst
+            ? ["dd/MM/yyyy", "d/M/yyyy"]
+            : ["MM/dd/yyyy", "M/d/yyyy"]
+        let formats = ["yyyy-MM-dd"] + slashFormats + [
             "yyyy/MM/dd",
             "MMM d, yyyy",
             "MMM dd, yyyy",

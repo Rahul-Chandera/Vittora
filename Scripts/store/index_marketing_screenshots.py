@@ -69,6 +69,14 @@ DESCRIPTIONS = {
     "64-settings-notifications": "Notifications settings for bill reminders and budget alerts.",
     "70-pro-paywall": "Vittora Pro: Pro features and yearly (7-day free trial), monthly and lifetime plans.",
     "71-onboarding-welcome": "Welcome screen: Vittora's promise and core features.",
+    # On-device intelligence and tax by country (1.8.0)
+    "80-intelligence-category-suggestion-in-add-transaction": "Add Transaction: after picking a payee, a category suggested from your own history on your device ('Suggested: Groceries').",
+    "81-intelligence-monthly-overview-summary": "Monthly Overview with its plain-language month summary at the top (written by Apple Intelligence on supported devices; the simulator shows the plain-sentence version).",
+    "82-tax-estimator-united-states": "Tax Estimator, United States: federal estimate in USD with brackets, effective and marginal rate.",
+    "83-tax-estimator-united-kingdom": "Tax Estimator, United Kingdom: income tax and National Insurance in GBP (England, Wales & NI).",
+    "84-tax-estimator-canada": "Tax Estimator, Canada: federal plus Ontario tax, credits, and CPP & EI in CAD.",
+    "85-tax-estimator-australia": "Tax Estimator, Australia: resident rates and the Medicare levy in AUD.",
+    "86-tax-estimator-india": "Tax Estimator, India: new-regime estimate in INR with cess, plus the regime comparison.",
     # Apple Watch (always dark — watchOS has no light appearance)
     "01-watch-dashboard-today-and-budget-left": "Apple Watch: today's spending, budget left and recent transactions.",
     "02-watch-recent-transactions": "Apple Watch: recent transactions with categories.",

@@ -124,6 +124,7 @@ extension DependencyContainer {
                 categoryRepository: categoryRepository
             ),
             duplicateDetectionUseCase: DuplicateDetectionUseCase(transactionRepository: transactionRepository),
+            transactionRepository: transactionRepository,
             currencyCode: currencyCode
         )
     }

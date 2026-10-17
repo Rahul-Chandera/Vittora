@@ -26,13 +26,27 @@ Use this checklist before TestFlight/App Store submission.
 ## 3) Data/sync gates
 
 - [ ] CloudKit entitlement values align with bundle identity and target environment.
-- [ ] **CloudKit schema deployed to Production** if this release bumps the SwiftData schema
-      (`VittoraSchemaV*`). Xcode builds sync against *Development*; TestFlight and App Store
-      builds use *Production*, so a new field works locally and is rejected for every real
-      install. CloudKit Console → Deploy Schema Changes. Read the preview first: it deploys
-      *every* Development difference at once, and nothing can be removed or retyped in
-      Production afterwards — so Development must not contain fields from unreleased work.
-      If it does, reset Development and rebuild from the release commit before deploying.
+- [ ] **CloudKit schema deployed to Production** before every release that changes a synced
+      model — a `VittoraSchemaV*` bump, *or* any change to the household record keys
+      (`HouseholdBudget`/`HouseholdExpense` `makeRecord`), which no schema bump flags. Xcode
+      builds sync against *Development*; TestFlight and App Store builds use *Production*, so a
+      new field works locally and is rejected for every real install. In order:
+      1. **Populate Development:** `Scripts/cloudkit/init-development-schema.sh`, on this Mac
+         signed in to iCloud, from the release commit. It must end with both `CKSCHEMA: OK`
+         lines (SwiftData, household). Never deploy from Development as it stands: it only
+         holds what someone happened to save on a signed build. On 2026-10-04 that left
+         Production missing `CD_SDDocument`, `CD_SDSplitGroup` and `CD_SDGroupExpense` (in the
+         schema since V1) and twelve fields that had shipped in 1.7.1.
+      2. **Diff:** CloudKit Console → Development → Deploy Schema Changes. Check every listed
+         record type and field against the SwiftData models (`Packages/VittoraCore/Sources/VittoraCore/Data/Models/`, as `CD_<property>`)
+         and the household record keys. It deploys *every* Development difference at once, and
+         nothing can be removed or retyped in Production afterwards — so a field from unreleased
+         work must not be there. If one is, reset Development, rerun step 1 from the release
+         commit, and diff again.
+      3. **Expect the container's internals:** `CD_moveReceipt` and the `*_ckAsset` fields are
+         NSPersistentCloudKitContainer bookkeeping, not model fields. They must be deployed.
+      4. **Deploy.**
+
       Found 2026-09-27: Production had been deployed once, early, and never again. It lacked
       `CD_SDDebt`, `CD_SDPayee` and `CD_SDRecurringRule` entirely (all present since 0.1) and six
       `CD_SDTransaction` fields including V8's `CD_categorySuggestionRawValue`. Exports carrying

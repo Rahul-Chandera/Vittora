@@ -33,16 +33,14 @@ private struct TallerFormSizing: PresentationSizing {
     }
 }
 
-/// Idiom-scoped rather than applied everywhere: on iPhone the sheet is already full width
-/// and this would be a silent no-op the next reader has to re-derive.
+/// Applied at every width on iOS. On a compact iPhone the sheet is already full
+/// width and this is a no-op; it matters wherever the sheet is form-sized — iPad, and
+/// the iPhone Duo inner display, which is an iPhone (`.phone` idiom) at regular width.
+/// It used to be gated on the iPad idiom, which gave Duo the cramped default form.
 private struct PaywallSheetSizing: ViewModifier {
     func body(content: Content) -> some View {
         #if os(iOS)
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            content.presentationSizing(TallerFormSizing())
-        } else {
-            content
-        }
+        content.presentationSizing(TallerFormSizing())
         #else
         content
         #endif

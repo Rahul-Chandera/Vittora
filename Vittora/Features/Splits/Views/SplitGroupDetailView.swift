@@ -54,7 +54,7 @@ struct SplitGroupDetailView: View {
                 Button {
                     showAddExpense = true
                 } label: {
-                    Image(systemName: "plus")
+                    Label(String(localized: "Add group expense"), systemImage: "plus")
                 }
                 .accessibilityLabel(String(localized: "Add group expense"))
                 .accessibilityHint(String(localized: "Opens the group expense form"))
