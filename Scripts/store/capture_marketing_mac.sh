@@ -81,7 +81,7 @@ for appearance in $APPEARANCES; do
     IFS='|' read -r tab url name extra <<< "$entry"
     if [ -n "${ONLY:-}" ] && [ "$name" != "$ONLY" ]; then continue; fi
     route_arg=""; [ "$url" != "-" ] && route_arg="--ui-test-open-url=$url"
-    pkill -x Vittora >/dev/null 2>&1 || true
+    pkill -f "$APP/Contents/MacOS/Vittora" >/dev/null 2>&1 || true
     sleep 2
     # Through `open`: a directly exec'd binary gets no GUI session and no window.
     open -n \
@@ -105,5 +105,5 @@ for appearance in $APPEARANCES; do
     echo "    mac-$appearance-$name.png"
   done
 done
-pkill -x Vittora >/dev/null 2>&1 || true
+pkill -f "$APP/Contents/MacOS/Vittora" >/dev/null 2>&1 || true
 rm -f "$WINDOW_ID_SWIFT"

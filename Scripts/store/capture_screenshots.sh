@@ -10,6 +10,12 @@
 #   --ui-test-open-url=vittora://…    deep-link into a specific report
 # iPhone sets are portrait, iPad sets landscape (the test rotates iPads).
 #
+# iPhone Duo: set the pose in Device Hub first and pass KEEP_DEVICE=1 (an erase
+# resets the pose). Closed = outer display (default capture); open in portrait =
+# inner display, which needs SCREEN=largest:
+#   KEEP_DEVICE=1 SCREEN=largest capture_screenshots.sh duo-inner "iPhone Duo (Vittora)"
+#   KEEP_DEVICE=1 capture_screenshots.sh duo-outer "iPhone Duo (Vittora)"
+#
 # Usage: capture_screenshots.sh <set-name> <device-name> [locale] [apple-locale] [region]
 #   capture_screenshots.sh iphone-69    "iPhone 17 Pro Max"
 #   capture_screenshots.sh iphone-69-in "iPhone 17 Pro Max" en en_IN US
@@ -67,9 +73,14 @@ cat > "$ROOT/.build/store-shot-config.json" <<JSON
   "appleLocale": "$APPLE_LOCALE",
   "region": "$REGION",
   "demoMonths": "${DEMO_MONTHS:-12}",
-  "only": "${ONLY:-}"
+  "only": "${ONLY:-}",
+  "screen": "${SCREEN:-}"
 }
 JSON
+
+# Files older than this were captured by an earlier run (an ONLY= re-shoot
+# leaves the rest of the set in place) and must not be post-processed again.
+RUN_STAMP="$(mktemp -t vittora-shot-run)"
 
 # Always builds (incrementally), so the captures match the working tree.
 # ONLY=<slot> re-shoots a single slot.
@@ -88,6 +99,24 @@ xcrun simctl status_bar "$UDID" clear
 # correctly landscape, just stored rotated, so turn the pixels to match.
 # ROTATE_90 is counter-clockwise in Pillow, which puts the sidebar back on the
 # left where it renders. iPhone sets stay portrait.
+# The iPhone Duo inner display's buffer comes back upside down (rotated 180°)
+# relative to the portrait UI; turn it the right way up.
+case "$SET_NAME" in
+  duo-inner*) python3 - "$OUT" "$RUN_STAMP" <<'PYEOF'
+import sys, glob, os
+from PIL import Image
+since = os.path.getmtime(sys.argv[2])
+turned = 0
+for f in sorted(glob.glob(os.path.join(sys.argv[1], "*.png"))):
+    if os.path.getmtime(f) < since:
+        continue  # from an earlier run, already turned
+    Image.open(f).transpose(Image.ROTATE_180).save(f, "PNG")
+    turned += 1
+print(f"    rotated {turned} inner-display capture(s) 180°")
+PYEOF
+  ;;
+esac
+
 case "$SET_NAME" in
   ipad*) python3 - "$OUT" <<'PYEOF'
 import sys, glob, os
@@ -104,3 +133,4 @@ PYEOF
 esac
 
 echo "==> raw captures in $OUT — look at every one before framing"
+rm -f "$RUN_STAMP"

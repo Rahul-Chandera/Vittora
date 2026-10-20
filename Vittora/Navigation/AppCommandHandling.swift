@@ -76,27 +76,18 @@ private struct AppCommandHandlingModifier: ViewModifier {
 }
 
 extension View {
-    /// Sheets / full-screen covers for quick-add and typed deep-link destinations.
-    @ViewBuilder
-    func quickAddPresentation(
-        _ item: Binding<PresentedQuickAdd?>,
-        asSheet: Bool
-    ) -> some View {
-        #if os(iOS)
-        if asSheet {
-            sheet(item: item) { presentation in
-                quickAddContent(for: presentation)
-            }
-        } else {
-            fullScreenCover(item: item) { presentation in
-                quickAddContent(for: presentation)
-            }
-        }
-        #else
+    /// The sheet for quick-add and typed deep-link destinations.
+    ///
+    /// A sheet at every width. On iPhone Duo the horizontal size class flips each
+    /// time the device folds or unfolds; choosing a sheet or a full-screen cover
+    /// from it — in an if/else around this whole view — rebuilt the tree and
+    /// dismissed a form someone was halfway through. Swipe-to-dismiss is off for
+    /// the same reason: every form here has a Cancel button.
+    func quickAddPresentation(_ item: Binding<PresentedQuickAdd?>) -> some View {
         sheet(item: item) { presentation in
             quickAddContent(for: presentation)
+                .interactiveDismissDisabled()
         }
-        #endif
     }
 }
 

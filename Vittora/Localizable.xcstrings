@@ -257,6 +257,54 @@
         }
       }
     },
+    "Dismiss suggestion" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descartar sugerencia"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सुझाव हटाएँ"
+          }
+        }
+      }
+    },
+    "Suggested entry: %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrada sugerida: %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सुझाई गई प्रविष्टि: %@"
+          }
+        }
+      }
+    },
+    "Use" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस्तेमाल करें"
+          }
+        }
+      }
+    },
     "and %lld more" : {
       "localizations" : {
         "es" : {

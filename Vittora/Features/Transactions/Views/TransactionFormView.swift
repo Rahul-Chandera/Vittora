@@ -16,6 +16,7 @@ struct TransactionFormView: View {
     @State private var showPayeePicker = false
     @State private var showAddPayee = false
     @State private var showAddAccount = false
+    @State private var autoFocusAmount: Bool
 
     /// Tags for the "Add New…" rows at the foot of the Account and Payee
     /// pickers. Selecting one opens the add sheet rather than changing the
@@ -41,6 +42,10 @@ struct TransactionFormView: View {
         self.transactionID = transactionID
         self.initialType = initialType
         self.showsCancelButton = showsCancelButton
+        // New transaction only. Opening the keyboard over an existing one,
+        // which the user came to read or to change some other field on,
+        // would be in the way.
+        _autoFocusAmount = State(initialValue: transactionID == nil)
     }
 
     var body: some View {
@@ -54,10 +59,7 @@ struct TransactionFormView: View {
                                 currencyCode: currencyCode,
                                 type: vm.type,
                                 textFieldAccessibilityIdentifier: "transaction-amount-field",
-                                // New transaction only. Opening the keyboard over an
-                                // existing one, which the user came to read or to
-                                // change some other field on, would be in the way.
-                                autoFocus: transactionID == nil
+                                autoFocus: $autoFocusAmount
                             )
 
                             TransactionTypePicker(type: Bindable(vm).type)
@@ -65,6 +67,11 @@ struct TransactionFormView: View {
 
                             Toggle("Quick Entry", isOn: Bindable(vm).isQuickEntry)
                                 .accessibilityIdentifier("transaction-quick-entry-toggle")
+                        }
+
+                        if !vm.isQuickEntry, vm.selectedPayeeID == nil,
+                           let suggestion = vm.entrySuggestion {
+                            entrySuggestionSection(vm, suggestion)
                         }
 
                         if vm.isQuickEntry {
@@ -208,7 +215,70 @@ struct TransactionFormView: View {
                         await loadTransactionData(vm, transactionID: transactionID)
                     }
                     await loadPickerData()
+                    if transactionID == nil {
+                        await vm.loadEntrySuggestion()
+                    }
                 }
+            }
+        }
+    }
+
+    /// Predictive entry (M3.2.7). The whole row applies the suggestion, like the
+    /// category suggestion below it; the reason says why it is being offered
+    /// rather than presenting a guess as fact.
+    @ViewBuilder
+    private func entrySuggestionSection(
+        _ vm: TransactionFormViewModel,
+        _ suggestion: PredictiveEntryEngine.Suggestion
+    ) -> some View {
+        let summary = [
+            payeeName(for: suggestion.payeeID),
+            (categories.expense + categories.income).first { $0.id == suggestion.categoryID }?.displayName,
+            suggestion.amount?.formatted(currencyCode: currencyCode),
+        ]
+        .compactMap { $0 }
+        .joined(separator: " · ")
+
+        Section {
+            HStack(spacing: VSpacing.md) {
+                Button {
+                    vm.applyEntrySuggestion()
+                } label: {
+                    HStack(spacing: VSpacing.md) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .foregroundColor(VColors.primaryOnSurface)
+                            .accessibilityHidden(true)
+                        VStack(alignment: .leading, spacing: VSpacing.xxs) {
+                            Text(summary)
+                                .foregroundColor(VColors.textPrimary)
+                            Text(suggestion.reason)
+                                .font(VTypography.caption1)
+                                .foregroundColor(VColors.textSecondary)
+                        }
+                        Spacer(minLength: 0)
+                        Text(String(localized: "Use"))
+                            .fontWeight(.semibold)
+                            .foregroundColor(VColors.primaryOnSurface)
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String(localized: "Suggested entry: \(summary)"))
+                .accessibilityHint(suggestion.reason)
+                .accessibilityIdentifier("transaction-entry-suggestion")
+
+                Button {
+                    vm.dismissEntrySuggestion()
+                } label: {
+                    Image(systemName: "xmark")
+                        .foregroundColor(VColors.textSecondary)
+                        // The glyph is ~17 pt; the tap target must be 44 pt
+                        // (the accessibility audit flagged "Hit area is too small").
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel(String(localized: "Dismiss suggestion"))
+                .accessibilityIdentifier("transaction-entry-suggestion-dismiss")
             }
         }
     }

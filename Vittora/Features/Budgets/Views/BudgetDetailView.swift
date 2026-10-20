@@ -180,7 +180,7 @@ struct BudgetDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showEdit = true }) {
-                    Image(systemName: "pencil")
+                    Label(String(localized: "Edit budget"), systemImage: "pencil")
                 }
                 .accessibilityIdentifier("budget-edit-button")
                 .accessibilityLabel(String(localized: "Edit budget"))

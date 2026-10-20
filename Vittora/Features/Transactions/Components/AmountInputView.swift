@@ -10,7 +10,11 @@ struct AmountInputView: View {
     var textFieldAccessibilityIdentifier: String?
     /// Raise the keyboard as the screen appears. Opt-in: it is right when the
     /// user came here to type an amount, wrong when they came to read one.
-    var autoFocus: Bool = false
+    /// A binding, cleared once the field has focused: inside a Form this view
+    /// is a List row, rebuilt whenever it scrolls back into view, and a plain
+    /// flag raised the keyboard again every time — over the rows the user had
+    /// scrolled down to.
+    var autoFocus: Binding<Bool> = .constant(false)
 
     @FocusState private var isAmountFocused: Bool
 
@@ -105,11 +109,13 @@ struct AmountInputView: View {
 
     @MainActor
     private func focusAmountIfRequested() async {
-        guard autoFocus else { return }
+        guard autoFocus.wrappedValue else { return }
         // A beat after appearing. Focus set while the sheet is still animating
         // in is discarded, and the keyboard never comes up.
         try? await Task.sleep(for: .milliseconds(350))
+        guard !Task.isCancelled else { return }
         isAmountFocused = true
+        autoFocus.wrappedValue = false
     }
 
     private func transactionColor(for type: TransactionType) -> Color {

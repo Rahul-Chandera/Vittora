@@ -42,7 +42,12 @@ struct TaxDashboardView: View {
                 Button {
                     showProfileForm = true
                 } label: {
-                    Image(systemName: vm?.estimate == nil ? "plus" : "pencil")
+                    Label(
+                        vm?.estimate == nil
+                        ? String(localized: "Set up tax profile")
+                        : String(localized: "Edit tax profile"),
+                        systemImage: vm?.estimate == nil ? "plus" : "pencil"
+                    )
                 }
                 .accessibilityLabel(
                     vm?.estimate == nil

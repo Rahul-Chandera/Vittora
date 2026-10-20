@@ -54,6 +54,11 @@ struct VittoraApp: App {
 
     init() {
         let launchArguments = ProcessInfo.processInfo.arguments
+        #if DEBUG
+        if launchArguments.contains(CloudKitSchemaInitializer.launchArgument) {
+            CloudKitSchemaInitializer.runAndExit()
+        }
+        #endif
         isUITesting = launchArguments.contains("--uitesting")
         isRunningAutomatedTests = isUITesting || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         showsOnboardingForUITesting = launchArguments.contains("--ui-test-onboarding")

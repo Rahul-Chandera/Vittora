@@ -23,7 +23,7 @@ struct CategoryListView: View {
                 Button {
                     showAddCategory = true
                 } label: {
-                    Image(systemName: VIcons.Actions.add)
+                    Label(String(localized: "Add category"), systemImage: VIcons.Actions.add)
                         .foregroundStyle(.primary)
                 }
                 .accessibilityLabel(String(localized: "Add category"))
@@ -35,7 +35,7 @@ struct CategoryListView: View {
                 NavigationLink {
                     CategorizationRulesView()
                 } label: {
-                    Image(systemName: "text.magnifyingglass")
+                    Label(String(localized: "Categorization rules"), systemImage: "text.magnifyingglass")
                         .foregroundStyle(.primary)
                 }
                 .accessibilityLabel(String(localized: "Categorization rules"))
