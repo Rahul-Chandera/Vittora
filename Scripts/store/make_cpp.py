@@ -7,6 +7,7 @@ capture or a Marketing/Screenshots capture; the rest of the set reuses the frame
 store gallery for that localization, reordered.
 
 Output: <STORE_ROOT>/cpp/<page>/<locale>/<device>/NN-<name>.png, ready to upload.
+Headers for each page come from make_header.py, into <page>/<locale>/header.png.
 Run make_marketing.py first, so the reused gallery images exist.
 """
 import os
@@ -21,6 +22,11 @@ DEVICES = {
     "iphone-69": ("iphone-69", lambda r, o, c: mm.compose_phone(r, o, c, 1320, 2868)),
     "iphone-65": ("iphone-65", lambda r, o, c: mm.compose_phone(r, o, c, 1284, 2778)),
     "ipad-13":   ("ipad-13",   mm.compose_pad),
+    # The custom page shows an iPhone Duo tab of its own. Lead slides from
+    # Marketing/Screenshots are iPhone captures, framed on the Duo canvas: there
+    # are no Duo captures of the UK, Canada, Australia or English-India estimators.
+    "duo-outer": ("duo-outer", lambda r, o, c: mm.compose_phone(r, o, c, 1398, 2034)),
+    "duo-inner": ("duo-inner", lambda r, o, c: mm.compose_phone(r, o, c, 2007, 2853)),
 }
 # The gallery set for a localization: "" for en-US, "-in", "-hi", "-es".
 SUFFIX = {"en-US": "", "en-IN": "-in", "hi": "-hi", "es": "-es"}
@@ -33,7 +39,7 @@ def marketing(device, number_name):
 
 
 def gallery_raw(device, locale, slot):
-    base = "ipad-13" if device == "ipad-13" else "iphone-69"  # 6.5" reuses 6.9" raws
+    base = "iphone-69" if device == "iphone-65" else device  # 6.5" reuses 6.9" raws
     return os.path.join(mm.RAW, base + SUFFIX[locale], f"{slot}.png")
 
 
