@@ -14,6 +14,8 @@ import os
 import shutil
 import tempfile
 
+from PIL import Image
+
 import make_marketing as mm
 
 SHOTS = os.path.join(os.path.dirname(mm.STORE_ROOT), "Screenshots")
@@ -122,6 +124,15 @@ def main():
                     n += 1
                     shutil.copy(framed, os.path.join(outdir, f"{n:02d}-{slot}.png"))
                 print(f"{page}/{locale}/{device}: {n}")
+            # A custom page's iPhone tab takes only 6.1"/6.3" sizes, not the
+            # 6.9" or 6.5" ones the default page uses. Same aspect ratio as 6.9".
+            src = os.path.join(out_root, page, locale, "iphone-69")
+            dst = os.path.join(out_root, page, locale, "iphone-63")
+            shutil.rmtree(dst, ignore_errors=True)
+            os.makedirs(dst)
+            for name in sorted(os.listdir(src)):
+                Image.open(os.path.join(src, name)).resize((1206, 2622), Image.LANCZOS) \
+                    .save(os.path.join(dst, name), "PNG")
 
 
 if __name__ == "__main__":

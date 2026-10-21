@@ -4,7 +4,7 @@ Four pages, each aimed at one audience: its own lead screenshots, promotional
 text, keywords and deep link. App Store Connect › Growth & Marketing › Custom
 Product Pages. iPhone and iPad only (the Mac listing has no custom pages).
 
-**Screenshots:** `Marketing/AppStore/cpp/<page>/<locale>/{iphone-69,iphone-65,ipad-13,duo-outer,duo-inner}/`,
+**Screenshots:** `Marketing/AppStore/cpp/<page>/<locale>/{iphone-63,ipad-13,duo-outer,duo-inner}/`,
 upload in file order. Regenerate with `Scripts/store/make_cpp.py` after
 `make_marketing.py`. Lead slides from Marketing/Screenshots (the UK, Canada,
 Australia and English-India estimators) are iPhone captures framed on the Duo
@@ -20,9 +20,10 @@ results; regenerate with `Scripts/store/make_header.py`. Optional (iOS/iPadOS
    Page**, so every localization starts filled in.
 2. For each localization listed: replace the screenshots, paste the promotional
    text, tick the keywords listed, set the deep link.
-   - **App Previews and Screenshots** opens on the 6.1"/6.3" slot, which will
-     not take these sizes. Open **View All Sizes in Media Manager** and upload
-     into 6.9", 6.5", iPad 13" and both iPhone Duo displays.
+   - **App Previews and Screenshots**: a custom page's iPhone tab accepts only
+     6.1"/6.3" sizes and rejects 6.9" and 6.5" ("File dimensions are invalid"),
+     so upload `iphone-63` (1206 × 2622) there, then `ipad-13` and the two Duo
+     sets. `iphone-69`/`iphone-65` are kept for Media Manager if wanted.
    - **Header and Search Results** › Header: upload `header.png`, then use the
      same asset for Search Results (offered because it is universal).
 3. Remove localizations a page does not list from that page, or leave them on
