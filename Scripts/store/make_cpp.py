@@ -24,9 +24,7 @@ DEVICES = {
     "iphone-69": ("iphone-69", lambda r, o, c: mm.compose_phone(r, o, c, 1320, 2868)),
     "iphone-65": ("iphone-65", lambda r, o, c: mm.compose_phone(r, o, c, 1284, 2778)),
     "ipad-13":   ("ipad-13",   mm.compose_pad),
-    # The custom page shows an iPhone Duo tab of its own. Lead slides from
-    # Marketing/Screenshots are iPhone captures, framed on the Duo canvas: there
-    # are no Duo captures of the UK, Canada, Australia or English-India estimators.
+    # The custom page shows an iPhone Duo tab of its own.
     "duo-outer": ("duo-outer", lambda r, o, c: mm.compose_phone(r, o, c, 1398, 2034)),
     "duo-inner": ("duo-inner", lambda r, o, c: mm.compose_phone(r, o, c, 2007, 2853)),
 }
@@ -35,7 +33,16 @@ SUFFIX = {"en-US": "", "en-IN": "-in", "hi": "-hi", "es": "-es"}
 COPY_LOCALE = {"en-US": "en", "en-IN": "en", "hi": "hi", "es": "es"}
 
 
+# The Duo has no Marketing/Screenshots captures; its tax leads are the gallery's
+# Tax slot re-shot per country (capture_screenshots.sh TAX_COUNTRY=…, ONLY=05-tax)
+# into raw/<duo set>-tax-<country>.
+DUO_TAX = {"83-tax-estimator-united-kingdom": "GB", "84-tax-estimator-canada": "CA",
+           "85-tax-estimator-australia": "AU", "86-tax-estimator-india": "IN"}
+
+
 def marketing(device, number_name):
+    if device.startswith("duo"):
+        return os.path.join(mm.RAW, f"{device}-tax-{DUO_TAX[number_name]}", "05-tax.png")
     folder = "iPad/Light/ipad" if device == "ipad-13" else "iPhone/Light/iphone"
     return os.path.join(SHOTS, f"{folder}-light-{number_name}.png")
 

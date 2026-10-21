@@ -6,9 +6,8 @@ Product Pages. iPhone and iPad only (the Mac listing has no custom pages).
 
 **Screenshots:** `Marketing/AppStore/cpp/<page>/<locale>/{iphone-63,ipad-13,duo-outer,duo-inner}/`,
 upload in file order. Regenerate with `Scripts/store/make_cpp.py` after
-`make_marketing.py`. Lead slides from Marketing/Screenshots (the UK, Canada,
-Australia and English-India estimators) are iPhone captures framed on the Duo
-canvas; there are no Duo captures of those screens.
+`make_marketing.py`. Duo tax leads are the gallery Tax slot re-shot per country
+on the Duo (`TAX_COUNTRY=` in capture_screenshots.sh, raw sets `duo-*-tax-<CC>`).
 
 **Header:** `Marketing/AppStore/cpp/<page>/<locale>/header.png`, one universal
 16:9 asset (5244 × 2950 PNG) for both the product page header and search
