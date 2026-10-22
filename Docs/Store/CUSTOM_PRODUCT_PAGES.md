@@ -164,9 +164,9 @@ Audience: people who will not link a bank account to a finance app.
 
 | Page | Use it on | URL |
 |---|---|---|
-| Tax – India | vittora.app/tax-planning (India card), Indian posts around filing season | _paste after approval_ |
-| Tax – UK, Canada, Australia | vittora.app/tax-planning (UK/CA/AU cards) | _paste after approval_ |
-| Household budgets | vittora.app/features (Share section) | _paste after approval_ |
+| Tax – India | vittora.app/tax-planning (India card), Indian posts around filing season | https://apps.apple.com/us/app/vittora/id6762046016?ppid=aa333abd-5a6a-45db-9dd7-12b14a4bb952 |
+| Tax – UK, Canada, Australia | vittora.app/tax-planning (UK/CA/AU cards) | https://apps.apple.com/us/app/vittora/id6762046016?ppid=fe2bcb79-1198-4ce9-b7d1-85b9b256c6eb |
+| Household budgets | vittora.app/features (Share section) | https://apps.apple.com/us/app/vittora/id6762046016?ppid=4a4349f2-693b-4b8a-9862-953255476975 |
 | Private – no bank login | vittora.app/security, "no bank login" guides | _paste after approval_ |
 
 Watch App Analytics › Acquisition per page for 2–4 weeks before adding more.
