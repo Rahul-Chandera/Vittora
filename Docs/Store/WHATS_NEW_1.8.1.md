@@ -4,9 +4,12 @@ App Store "What's New in This Version" copy. Users are coming from 1.8.0.
 
 1.8.1 is the iPhone Duo release, plus two features that were waiting on it.
 
-**iOS/iPadOS vs Mac.** "ON IPHONE DUO" describes iPhone only. **Delete that
-section from the Mac listing**; the rest applies to both (the Mac has the same
-transaction form and CSV import).
+**iOS/iPadOS vs Mac.** The Mac listing has its own text, under "Mac" below: no
+iPhone Duo section and no Fixes (both fixes are iPhone/iPad; the keyboard fix
+was not checked on the Mac, so the Mac copy does not claim it). Suggested
+entries and CSV import are the same code on the Mac, so they stay.
+
+**Localizations.** English goes into en-US and en-IN; Spanish into es-MX.
 
 Claim rules, unchanged from 1.8.0:
 - Suggested entries are **rules-based**: matched on your own history by weekday
@@ -42,6 +45,7 @@ IMPORTING FROM OTHER BUDGETING APPS
 
 FIXES
 • On iPad, the transaction list stays visible beside the details in portrait
+• The amount keyboard no longer pops back up after you close it and scroll the form
 
 Still no accounts, no ads, no tracking — your data stays on your devices.
 ```
@@ -65,6 +69,7 @@ IMPORTAR DESDE OTRAS APPS DE PRESUPUESTO
 
 CORRECCIONES
 • En el iPad, la lista de transacciones se mantiene visible junto a los detalles en vertical
+• El teclado del monto ya no vuelve a aparecer después de cerrarlo y desplazarte por el formulario
 
 Sigue sin cuentas, sin anuncios y sin rastreo: tus datos se quedan en tus dispositivos.
 ```
@@ -88,6 +93,52 @@ iPhone Duo पर
 
 सुधार
 • iPad पर खड़े मोड में लेन-देन की सूची विवरण के साथ दिखती रहती है
+• रकम का कीबोर्ड बंद करने के बाद फ़ॉर्म स्क्रॉल करने पर अब दोबारा नहीं खुलता
+
+अब भी कोई अकाउंट नहीं, कोई विज्ञापन नहीं, कोई ट्रैकिंग नहीं — आपका डेटा आपके डिवाइस पर ही रहता है।
+```
+
+---
+
+## Mac
+
+"Tap" becomes "click", and "on your device" becomes "on your Mac".
+
+**English (en-US, en-IN)**
+
+```
+SUGGESTED ENTRIES
+• When you add an expense, Vittora can offer the payee, category and amount you usually record at this time. Click to use it, or ignore it. It comes from your own history on your Mac
+
+IMPORTING FROM OTHER BUDGETING APPS
+• Dates in day-first exports (05/01 for 5 January) are now read the right way round
+• Transfers between your accounts and starting balances are no longer imported as spending or income
+
+Still no accounts, no ads, no tracking — your data stays on your devices.
+```
+
+**Spanish (es-MX)**
+
+```
+ENTRADAS SUGERIDAS
+• Al añadir un gasto, Vittora puede ofrecerte el beneficiario, la categoría y el monto que sueles registrar a esta hora. Haz clic para usarlo o ignóralo. Sale de tu propio historial, en tu Mac
+
+IMPORTAR DESDE OTRAS APPS DE PRESUPUESTO
+• Las fechas de las exportaciones con el día primero (05/01 para el 5 de enero) ahora se leen correctamente
+• Las transferencias entre tus cuentas y los saldos iniciales ya no se importan como gastos ni como ingresos
+
+Sigue sin cuentas, sin anuncios y sin rastreo: tus datos se quedan en tus dispositivos.
+```
+
+**Hindi (hi)**
+
+```
+सुझाई गई प्रविष्टियाँ
+• खर्च जोड़ते समय Vittora वह भुगतान पाने वाला, श्रेणी और रकम सुझा सकता है जो आप आमतौर पर इसी समय दर्ज करते हैं। इस्तेमाल करने के लिए क्लिक करें या छोड़ दें। यह आपके Mac पर आपके अपने इतिहास से आता है
+
+दूसरे बजट ऐप से इम्पोर्ट
+• दिन पहले लिखने वाले एक्सपोर्ट (5 जनवरी के लिए 05/01) की तारीखें अब सही पढ़ी जाती हैं
+• आपके अकाउंट के बीच ट्रांसफ़र और शुरुआती बैलेंस अब खर्च या आय के रूप में इम्पोर्ट नहीं होते
 
 अब भी कोई अकाउंट नहीं, कोई विज्ञापन नहीं, कोई ट्रैकिंग नहीं — आपका डेटा आपके डिवाइस पर ही रहता है।
 ```
@@ -99,7 +150,8 @@ iPhone Duo पर
 - Limit is 4000 characters per locale; all three are far under.
 - Terminology follows the shipped catalogue: *Normalmente registras esto a esta
   hora* / *आप आमतौर पर इसे इसी समय दर्ज करते हैं* is the in-app reason line.
-- Mac: delete "ON IPHONE DUO" / "EN IPHONE DUO" / "iPhone Duo पर".
+- The keyboard fix: the amount field re-focused itself whenever its Form row
+  scrolled back into view. It shipped in 1.8.0; fixed in #310.
 - The Mac listings' household-invitation wording was corrected separately
   (Docs/Store/metadata-mac-*.md, 2026-10-10); description changes ride with
   this submission.
