@@ -7,11 +7,14 @@ capture or a Marketing/Screenshots capture; the rest of the set reuses the frame
 store gallery for that localization, reordered.
 
 Output: <STORE_ROOT>/cpp/<page>/<locale>/<device>/NN-<name>.png, ready to upload.
+Headers for each page come from make_header.py, into <page>/<locale>/header.png.
 Run make_marketing.py first, so the reused gallery images exist.
 """
 import os
 import shutil
 import tempfile
+
+from PIL import Image
 
 import make_marketing as mm
 
@@ -21,19 +24,31 @@ DEVICES = {
     "iphone-69": ("iphone-69", lambda r, o, c: mm.compose_phone(r, o, c, 1320, 2868)),
     "iphone-65": ("iphone-65", lambda r, o, c: mm.compose_phone(r, o, c, 1284, 2778)),
     "ipad-13":   ("ipad-13",   mm.compose_pad),
+    # The custom page shows an iPhone Duo tab of its own.
+    "duo-outer": ("duo-outer", lambda r, o, c: mm.compose_phone(r, o, c, 1398, 2034)),
+    "duo-inner": ("duo-inner", lambda r, o, c: mm.compose_phone(r, o, c, 2007, 2853)),
 }
 # The gallery set for a localization: "" for en-US, "-in", "-hi", "-es".
 SUFFIX = {"en-US": "", "en-IN": "-in", "hi": "-hi", "es": "-es"}
 COPY_LOCALE = {"en-US": "en", "en-IN": "en", "hi": "hi", "es": "es"}
 
 
+# The Duo has no Marketing/Screenshots captures; its tax leads are the gallery's
+# Tax slot re-shot per country (capture_screenshots.sh TAX_COUNTRY=…, ONLY=05-tax)
+# into raw/<duo set>-tax-<country>.
+DUO_TAX = {"83-tax-estimator-united-kingdom": "GB", "84-tax-estimator-canada": "CA",
+           "85-tax-estimator-australia": "AU", "86-tax-estimator-india": "IN"}
+
+
 def marketing(device, number_name):
+    if device.startswith("duo"):
+        return os.path.join(mm.RAW, f"{device}-tax-{DUO_TAX[number_name]}", "05-tax.png")
     folder = "iPad/Light/ipad" if device == "ipad-13" else "iPhone/Light/iphone"
     return os.path.join(SHOTS, f"{folder}-light-{number_name}.png")
 
 
 def gallery_raw(device, locale, slot):
-    base = "ipad-13" if device == "ipad-13" else "iphone-69"  # 6.5" reuses 6.9" raws
+    base = "iphone-69" if device == "iphone-65" else device  # 6.5" reuses 6.9" raws
     return os.path.join(mm.RAW, base + SUFFIX[locale], f"{slot}.png")
 
 
@@ -116,6 +131,15 @@ def main():
                     n += 1
                     shutil.copy(framed, os.path.join(outdir, f"{n:02d}-{slot}.png"))
                 print(f"{page}/{locale}/{device}: {n}")
+            # A custom page's iPhone tab takes only 6.1"/6.3" sizes, not the
+            # 6.9" or 6.5" ones the default page uses. Same aspect ratio as 6.9".
+            src = os.path.join(out_root, page, locale, "iphone-69")
+            dst = os.path.join(out_root, page, locale, "iphone-63")
+            shutil.rmtree(dst, ignore_errors=True)
+            os.makedirs(dst)
+            for name in sorted(os.listdir(src)):
+                Image.open(os.path.join(src, name)).resize((1206, 2622), Image.LANCZOS) \
+                    .save(os.path.join(dst, name), "PNG")
 
 
 if __name__ == "__main__":
