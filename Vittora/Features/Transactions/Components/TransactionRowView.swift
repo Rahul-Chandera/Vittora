@@ -85,6 +85,9 @@ struct TransactionRowView: View {
                     .foregroundColor(VColors.textPrimary)
                     .adaptiveLineLimit(1)
 
+                // One line each: in a split view's list column (iPhone Duo
+                // landscape) this wrapped to "Gro-/ceries" and "12:00 A/M".
+                // The category gives way first; the time stays whole.
                 HStack(spacing: VSpacing.sm) {
                     // Only as a subtitle when the title is the note; otherwise the
                     // title already is the category name — don't repeat it.
@@ -92,26 +95,35 @@ struct TransactionRowView: View {
                         Text(categoryName)
                             .font(VTypography.caption2)
                             .foregroundColor(VColors.textSecondary)
+                            .adaptiveLineLimit(1)
                     }
 
                     Text(formattedTimeText)
                         .font(VTypography.caption2)
                         .foregroundColor(VColors.textTertiary)
+                        .adaptiveLineLimit(1)
+                        .layoutPriority(1)
                 }
             }
+            // Fill instead of a Spacer: a Spacer costs two HStack gaps plus its
+            // own minimum, ~20 pt the title needs in a narrow list column.
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-            Spacer()
-
+            // The title truncates before the amount does: "$200.0/0" and
+            // "Adjust-/ment" wrapped in iPad mini's portrait split view.
             VStack(alignment: .trailing, spacing: VSpacing.xs) {
                 Text(formattedAmount)
                     .font(VTypography.body)
                     .fontWeight(.semibold)
                     .foregroundColor(amountColor)
+                    .adaptiveLineLimit(1)
 
                 Text(typeLabel)
                     .font(VTypography.caption2)
                     .foregroundColor(amountColor)
+                    .adaptiveLineLimit(1)
             }
+            .layoutPriority(1)
         }
         .padding(VSpacing.md)
         .contentShape(Rectangle())

@@ -242,8 +242,13 @@ struct TransactionListView: View {
         }
         #else
         NavigationSplitView(columnVisibility: $splitVisibility) {
+            // The row loses ~140 pt to insets, the icon and the amount, so at
+            // 340 a note got ~90 pt ("Settleme…" on iPhone Duo landscape).
+            // Only the ideal is wider: the system squeezes the column toward
+            // min where the detail needs room, and a min of 320 made iPad mini
+            // portrait (744 pt) give up and overlay the list on a dimmed detail.
             transactionList(vm, selection: $selectedTransactionID)
-                .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
+                .navigationSplitViewColumnWidth(min: 280, ideal: 380, max: 420)
         } detail: {
             splitDetailPane
         }
