@@ -68,6 +68,9 @@ struct TransactionListView: View {
             // transaction across the list / split-view swap instead of dropping
             // it: pushed on compact, selected in the split view on regular.
             if split {
+                // Collapsing to compact wrote .detailOnly here, which would
+                // come back as a split view with the list hidden.
+                splitVisibility = .all
                 if case .transactionDetail(let id)? = navigateDestination {
                     navigateDestination = nil
                     selectedTransactionID = id
@@ -163,6 +166,13 @@ struct TransactionListView: View {
         }
         .navigationDestination(item: $navigateDestination) { dest in
             NavigationDestinationView(destination: dest)
+                #if os(iOS)
+                // The list under a pushed screen gets no geometry updates, so
+                // measure here too. Otherwise iPad portrait (sidebar open, too
+                // narrow to split) pushed the detail, and rotating to landscape
+                // left it pushed with the list column gone.
+                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { containerWidth = $0 }
+                #endif
         }
         .errorAlert(message: transactionListErrorBinding)
     }
