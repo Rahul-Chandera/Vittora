@@ -4,15 +4,27 @@ Four pages, each aimed at one audience: its own lead screenshots, promotional
 text, keywords and deep link. App Store Connect › Growth & Marketing › Custom
 Product Pages. iPhone and iPad only (the Mac listing has no custom pages).
 
-**Screenshots:** `Marketing/AppStore/cpp/<page>/<locale>/{iphone-69,iphone-65,ipad-13}/`,
+**Screenshots:** `Marketing/AppStore/cpp/<page>/<locale>/{iphone-63,ipad-13,duo-outer,duo-inner}/`,
 upload in file order. Regenerate with `Scripts/store/make_cpp.py` after
-`make_marketing.py`.
+`make_marketing.py`. Duo tax leads are the gallery Tax slot re-shot per country
+on the Duo (`TAX_COUNTRY=` in capture_screenshots.sh, raw sets `duo-*-tax-<CC>`).
+
+**Header:** `Marketing/AppStore/cpp/<page>/<locale>/header.png`, one universal
+16:9 asset (5244 × 2950 PNG) for both the product page header and search
+results; regenerate with `Scripts/store/make_header.py`. Optional (iOS/iPadOS
+27 and later only), so a page can be submitted without it.
 
 **Setup, per page:**
 1. Create Custom Product Page › Reference Name (below) › **Copy Existing Product
    Page**, so every localization starts filled in.
 2. For each localization listed: replace the screenshots, paste the promotional
    text, tick the keywords listed, set the deep link.
+   - **App Previews and Screenshots**: a custom page's iPhone tab accepts only
+     6.1"/6.3" sizes and rejects 6.9" and 6.5" ("File dimensions are invalid"),
+     so upload `iphone-63` (1206 × 2622) there, then `ipad-13` and the two Duo
+     sets. `iphone-69`/`iphone-65` are kept for Media Manager if wanted.
+   - **Header and Search Results** › Header: upload `header.png`, then use the
+     same asset for Search Results (offered because it is universal).
 3. Remove localizations a page does not list from that page, or leave them on
    the copied default (they then show the default page's content).
 4. Add for Review › Submit. No build needed, but **deep links need 1.8.1**
@@ -152,9 +164,9 @@ Audience: people who will not link a bank account to a finance app.
 
 | Page | Use it on | URL |
 |---|---|---|
-| Tax – India | vittora.app/tax-planning (India card), Indian posts around filing season | _paste after approval_ |
-| Tax – UK, Canada, Australia | vittora.app/tax-planning (UK/CA/AU cards) | _paste after approval_ |
-| Household budgets | vittora.app/features (Share section) | _paste after approval_ |
-| Private – no bank login | vittora.app/security, "no bank login" guides | _paste after approval_ |
+| Tax – India | vittora.app/tax-planning (India card), Indian posts around filing season | https://apps.apple.com/us/app/vittora/id6762046016?ppid=aa333abd-5a6a-45db-9dd7-12b14a4bb952 |
+| Tax – UK, Canada, Australia | vittora.app/tax-planning (UK/CA/AU cards) | https://apps.apple.com/us/app/vittora/id6762046016?ppid=fe2bcb79-1198-4ce9-b7d1-85b9b256c6eb |
+| Household budgets | vittora.app/features (Share section) | https://apps.apple.com/us/app/vittora/id6762046016?ppid=4a4349f2-693b-4b8a-9862-953255476975 |
+| Private – no bank login | vittora.app/security, "no bank login" guides | https://apps.apple.com/us/app/vittora/id6762046016?ppid=51712ce5-3c9d-4ac6-afab-ed77fd72487d |
 
 Watch App Analytics › Acquisition per page for 2–4 weeks before adding more.

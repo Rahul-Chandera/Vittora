@@ -30,6 +30,9 @@ final class StoreGalleryUITests: XCTestCase {
         /// one. On iPhone Duo `XCUIScreen.main` is the outer display, which is
         /// off (black) while the device is open, so the inner-display set needs this.
         let screen: String?
+        /// Another country's tax profile (GB, CA, AU, IN, US), so the Tax slot
+        /// shows that estimator in its own currency. For the custom product pages.
+        let taxCountry: String?
     }
 
     private enum Step {
@@ -124,6 +127,9 @@ final class StoreGalleryUITests: XCTestCase {
             app.launchEnvironment["UITEST_INITIAL_TAB"] = tab
             app.launchEnvironment["UITEST_DEMO_REGION"] = config.region
             app.launchEnvironment["UITEST_DEMO_MONTHS"] = config.demoMonths
+            if let country = config.taxCountry, !country.isEmpty {
+                app.launchEnvironment["UITEST_DEMO_TAX_COUNTRY"] = country
+            }
             app.launch()
 
             // Rotate after launch: setting it before means the first layout

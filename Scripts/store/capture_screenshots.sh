@@ -16,6 +16,9 @@
 #   KEEP_DEVICE=1 SCREEN=largest capture_screenshots.sh duo-inner "iPhone Duo (Vittora)"
 #   KEEP_DEVICE=1 capture_screenshots.sh duo-outer "iPhone Duo (Vittora)"
 #
+# TAX_COUNTRY=GB|CA|AU|IN|US swaps the Tax slot's estimator (custom product pages):
+#   KEEP_DEVICE=1 ONLY=05-tax TAX_COUNTRY=GB capture_screenshots.sh duo-outer-tax-GB "iPhone Duo (Vittora)"
+#
 # Usage: capture_screenshots.sh <set-name> <device-name> [locale] [apple-locale] [region]
 #   capture_screenshots.sh iphone-69    "iPhone 17 Pro Max"
 #   capture_screenshots.sh iphone-69-in "iPhone 17 Pro Max" en en_IN US
@@ -74,7 +77,8 @@ cat > "$ROOT/.build/store-shot-config.json" <<JSON
   "region": "$REGION",
   "demoMonths": "${DEMO_MONTHS:-12}",
   "only": "${ONLY:-}",
-  "screen": "${SCREEN:-}"
+  "screen": "${SCREEN:-}",
+  "taxCountry": "${TAX_COUNTRY:-}"
 }
 JSON
 
