@@ -68,6 +68,9 @@ struct TransactionListView: View {
             // transaction across the list / split-view swap instead of dropping
             // it: pushed on compact, selected in the split view on regular.
             if split {
+                // Collapsing to compact wrote .detailOnly here, which would
+                // come back as a split view with the list hidden.
+                splitVisibility = .all
                 if case .transactionDetail(let id)? = navigateDestination {
                     navigateDestination = nil
                     selectedTransactionID = id
@@ -163,6 +166,13 @@ struct TransactionListView: View {
         }
         .navigationDestination(item: $navigateDestination) { dest in
             NavigationDestinationView(destination: dest)
+                #if os(iOS)
+                // The list under a pushed screen gets no geometry updates, so
+                // measure here too. Otherwise iPad portrait (sidebar open, too
+                // narrow to split) pushed the detail, and rotating to landscape
+                // left it pushed with the list column gone.
+                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { containerWidth = $0 }
+                #endif
         }
         .errorAlert(message: transactionListErrorBinding)
     }
@@ -242,8 +252,13 @@ struct TransactionListView: View {
         }
         #else
         NavigationSplitView(columnVisibility: $splitVisibility) {
+            // The row loses ~140 pt to insets, the icon and the amount, so at
+            // 340 a note got ~90 pt ("Settleme…" on iPhone Duo landscape).
+            // Only the ideal is wider: the system squeezes the column toward
+            // min where the detail needs room, and a min of 320 made iPad mini
+            // portrait (744 pt) give up and overlay the list on a dimmed detail.
             transactionList(vm, selection: $selectedTransactionID)
-                .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
+                .navigationSplitViewColumnWidth(min: 280, ideal: 380, max: 420)
         } detail: {
             splitDetailPane
         }
