@@ -3,6 +3,9 @@ import VittoraCore
 
 enum CSVImportProfile: String, Sendable, CaseIterable, Identifiable {
     case generic
+    case bankStatement
+    case ofx
+    case qif
     case mint
     case ynab
 
@@ -11,8 +14,21 @@ enum CSVImportProfile: String, Sendable, CaseIterable, Identifiable {
     nonisolated var displayName: String {
         switch self {
         case .generic: String(localized: "Generic CSV")
+        case .bankStatement: String(localized: "Bank statement (CSV)")
+        case .ofx: String(localized: "OFX / QFX")
+        case .qif: String(localized: "QIF")
         case .mint: String(localized: "Mint")
         case .ynab: String(localized: "YNAB")
+        }
+    }
+
+    /// The profile a file's extension settles on its own; nil for CSV, where the
+    /// columns decide.
+    nonisolated static func forFileExtension(_ fileExtension: String) -> CSVImportProfile? {
+        switch fileExtension.lowercased() {
+        case "ofx", "qfx": .ofx
+        case "qif": .qif
+        default: nil
         }
     }
 }
@@ -80,6 +96,30 @@ enum CSVTransactionImportMapper {
                 memoColumn: memo,
                 transactionTypeColumn: nil
             )
+
+        case .bankStatement:
+            // Statement exports from banks (HDFC, ICICI, SBI, Axis and most others) split
+            // money out and money in into two columns. Candidates are in priority order:
+            // ICICI lists "Value Date" before "Transaction Date", and the transaction
+            // date is the one that matters.
+            guard let date = preferredIndex(in: normalized, candidates: ["transactiondate", "txndate", "trandate", "date", "valuedate", "valuedt"]),
+                  let description = preferredIndex(in: normalized, candidates: ["narration", "transactionremarks", "particulars", "description", "remarks", "details"]),
+                  let outflow = preferredIndex(in: normalized, candidates: ["withdrawalamt", "withdrawal", "debitamount", "debit", "=dr", "=dr."]),
+                  let inflow = preferredIndex(in: normalized, candidates: ["depositamt", "deposit", "creditamount", "credit", "=cr", "=cr."])
+            else { return nil }
+            return CSVColumnMapping(
+                dateColumn: date,
+                descriptionColumn: description,
+                amountColumn: nil,
+                outflowColumn: outflow,
+                inflowColumn: inflow,
+                categoryColumn: nil,
+                memoColumn: nil,
+                transactionTypeColumn: nil
+            )
+
+        case .ofx, .qif:
+            return nil
 
         case .generic:
             guard let date = index(in: normalized, matchingAny: ["date", "transactiondate", "posteddate"]),
@@ -149,7 +189,8 @@ enum CSVTransactionImportMapper {
         guard let date = parseDate(columns[mapping.dateColumn], dayFirst: dayFirst) else { return nil }
 
         let description = mapping.descriptionColumn.flatMap { columns.indices.contains($0) ? columns[$0] : nil } ?? ""
-        let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rawDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedDescription = profile == .bankStatement ? cleanedBankNarration(rawDescription) : rawDescription
         guard !trimmedDescription.isEmpty else { return nil }
         if profile == .ynab, isYNABNonSpendingPayee(trimmedDescription) { return nil }
 
@@ -180,7 +221,7 @@ enum CSVTransactionImportMapper {
             let amount = abs(parsedAmount)
             guard let type = parseMintTransactionType(columns[typeIndex]) else { return nil }
             amountType = (amount, type)
-        } else if profile == .ynab,
+        } else if profile == .ynab || profile == .bankStatement,
            let outflowIndex = mapping.outflowColumn,
            let inflowIndex = mapping.inflowColumn,
            columns.indices.contains(outflowIndex),
@@ -213,7 +254,8 @@ enum CSVTransactionImportMapper {
             amount: amount,
             type: type,
             payeeName: trimmedDescription,
-            note: memo,
+            // The full narration stays in the note when the payee is a cleaned-up part of it.
+            note: memo ?? (trimmedDescription == rawDescription ? nil : rawDescription),
             categoryName: categoryName
         )
     }
@@ -282,8 +324,10 @@ enum CSVTransactionImportMapper {
     /// Indian YNAB export, silently.
     nonisolated static func slashDatesAreDayFirst(_ values: [String], locale: Locale) -> Bool {
         for raw in values {
-            let parts = raw.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: "/")
-            guard parts.count == 3, parts[2].count == 4,
+            // Slash or dash, four- or two-digit year (bank statements write 25/10/26).
+            // An ISO date's first part is the year, so it is skipped.
+            let parts = raw.trimmingCharacters(in: .whitespacesAndNewlines).split(whereSeparator: { $0 == "/" || $0 == "-" })
+            guard parts.count == 3, parts[0].count <= 2, parts[2].count == 4 || parts[2].count == 2,
                   let first = Int(parts[0]), let second = Int(parts[1]) else { continue }
             if first > 12 { return true }
             if second > 12 { return false }
@@ -296,20 +340,27 @@ enum CSVTransactionImportMapper {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
 
-        let slashFormats = dayFirst
-            ? ["dd/MM/yyyy", "d/M/yyyy"]
-            : ["MM/dd/yyyy", "M/d/yyyy"]
-        let formats = ["yyyy-MM-dd"] + slashFormats + [
+        // Four-digit years before two-digit ones: "yy" would also accept "2026".
+        let numericFormats = dayFirst
+            ? ["dd/MM/yyyy", "d/M/yyyy", "dd-MM-yyyy", "d-M-yyyy", "dd/MM/yy", "d/M/yy", "dd-MM-yy"]
+            : ["MM/dd/yyyy", "M/d/yyyy", "MM-dd-yyyy", "MM/dd/yy", "M/d/yy"]
+        let formats = ["yyyy-MM-dd"] + numericFormats + [
             "yyyy/MM/dd",
             "MMM d, yyyy",
             "MMM dd, yyyy",
+            "dd-MMM-yyyy",
+            "d-MMM-yyyy",
+            "dd MMM yyyy",
+            "d MMM yyyy",
+            "dd-MMM-yy",
+            "dd MMM yy",
         ]
 
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
 
-        for format in formats {
+        for format in formatsMatchingYearLength(formats, value: trimmed) {
             formatter.dateFormat = format
             if let date = formatter.date(from: trimmed) {
                 return date
@@ -324,6 +375,92 @@ enum CSVTransactionImportMapper {
             .lowercased()
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "_", with: "")
+    }
+
+    /// Keeps only the formats whose year has as many digits as the value's. DateFormatter's
+    /// "yyyy" accepts "26" as the year 0026, and "yy" accepts "2026", so trying both on
+    /// "25/10/26" read it as the 26th of October in year 25.
+    nonisolated static func formatsMatchingYearLength(_ formats: [String], value: String) -> [String] {
+        // An ISO date ends in two digits too (the day), so a leading four-digit year rules it out.
+        let twoDigitYear = value.range(of: #"^\d{4}"#, options: .regularExpression) == nil
+            && value.range(of: #"[/\- ]\d{2}$"#, options: .regularExpression) != nil
+        return formats.filter { format in
+            let fourDigit = format.contains("yyyy")
+            return twoDigitYear ? !fourDigit : (fourDigit || !format.contains("yy"))
+        }
+    }
+
+    /// The header matching the earliest candidate, so candidate order is priority order.
+    /// A candidate starting with "=" must match the whole header: "dr" and "cr" would
+    /// otherwise match inside "description" and "credit".
+    nonisolated private static func preferredIndex(in headers: [String], candidates: [String]) -> Int? {
+        for candidate in candidates {
+            if candidate.hasPrefix("=") {
+                if let match = headers.firstIndex(of: String(candidate.dropFirst())) { return match }
+            } else if let match = headers.firstIndex(where: { $0 == candidate || $0.contains(candidate) }) {
+                return match
+            }
+        }
+        return nil
+    }
+
+    /// The row a bank statement's column headers sit on. Statement exports usually open
+    /// with account details, an address and the statement period before the table.
+    nonisolated static func bankStatementHeaderRow(in grid: [[String]]) -> Int? {
+        grid.prefix(40).firstIndex { detectMapping(headers: $0, profile: .bankStatement) != nil }
+    }
+
+    /// A readable payee from a bank narration, which packs references around the name:
+    /// "UPI-SWIGGY-swiggy@axisbank-UTIB0000100-629812345678-PAYMENT" → "SWIGGY",
+    /// "UPI/629812345678/Payment/swiggy@axis/Axis Bank" → "Swiggy",
+    /// "POS 416021XXXXXX1234 AMAZON PAY INDI" → "AMAZON PAY INDI".
+    /// Falls back to the narration itself when nothing better stands out.
+    nonisolated static func cleanedBankNarration(_ narration: String) -> String {
+        let trimmed = narration.trimmingCharacters(in: .whitespacesAndNewlines)
+        let upper = trimmed.uppercased()
+        let leadingNoise = ["BY TRANSFER", "TO TRANSFER", "POS", "ECOM", "ATW", "NWD", "NEFT DR", "NEFT CR", "IMPS", "NEFT", "RTGS"]
+        let noiseWords: Set<String> = ["UPI", "DR", "CR", "P2M", "P2A", "PAYMENT", "PAY", "TRANSFER", "SENT", "RECEIVED", "UPIINTENT", "BY", "TO"]
+
+        let tokens = trimmed
+            .split(whereSeparator: { $0 == "-" || $0 == "/" })
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+        func isNoise(_ token: String) -> Bool {
+            let value = token.uppercased()
+            if value.isEmpty || noiseWords.contains(value) || leadingNoise.contains(value) { return true }
+            if value.contains("@") { return true }
+            if value.filter(\.isLetter).count < 3 { return true }                       // refs, masked numbers
+            if value.range(of: #"^[A-Z]{4}0[A-Z0-9]{6}$"#, options: .regularExpression) != nil { return true } // IFSC
+            if value.range(of: #"\d{6,}|X{3,}\d"#, options: .regularExpression) != nil, value.contains(" ") == false { return true }
+            return false
+        }
+
+        if upper.hasPrefix("UPI") || upper.contains("/UPI") || upper.contains("-UPI") || upper.contains("NEFT") || upper.contains("IMPS") || upper.contains("RTGS") {
+            // With a UPI handle in the narration, the name comes before it; what follows
+            // is usually the payee's bank ("…/swiggy@axis/Axis Bank").
+            let vpaIndex = tokens.firstIndex { $0.contains("@") }
+            let candidates = vpaIndex.map { Array(tokens[..<$0]) } ?? tokens
+            if let name = candidates.first(where: { !isNoise($0) }) {
+                return stripLeadingNoise(name, noise: leadingNoise)
+            }
+            if let vpaIndex, let handle = tokens[vpaIndex].split(separator: "@").first, handle.count >= 3 {
+                return handle.prefix(1).uppercased() + handle.dropFirst().lowercased()
+            }
+        }
+        for prefix in ["POS ", "ECOM ", "ATW ", "NWD "] where upper.hasPrefix(prefix) {
+            let rest = trimmed.dropFirst(prefix.count)
+                .split(separator: " ")
+                .filter { $0.range(of: #"\d{4,}|X{3,}"#, options: .regularExpression) == nil }
+                .joined(separator: " ")
+            if rest.count >= 3 { return rest }
+        }
+        return trimmed
+    }
+
+    nonisolated private static func stripLeadingNoise(_ value: String, noise: [String]) -> String {
+        for prefix in noise where value.uppercased().hasPrefix(prefix + " ") {
+            return String(value.dropFirst(prefix.count + 1)).trimmingCharacters(in: .whitespaces)
+        }
+        return value
     }
 
     nonisolated private static func index(in headers: [String], matchingAny candidates: [String]) -> Int? {

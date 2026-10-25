@@ -35446,6 +35446,390 @@
           }
         }
       }
+    },
+    "Bank statement (CSV)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado de cuenta bancario (CSV)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बैंक स्टेटमेंट (CSV)"
+          }
+        }
+      }
+    },
+    "OFX / QFX" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OFX / QFX"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OFX / QFX"
+          }
+        }
+      }
+    },
+    "QIF" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QIF"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QIF"
+          }
+        }
+      }
+    },
+    "File" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "फ़ाइल"
+          }
+        }
+      }
+    },
+    "The file is empty." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo está vacío."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "फ़ाइल खाली है।"
+          }
+        }
+      }
+    },
+    "We couldn't read this file with the chosen format. Check the format, or try another export from your bank." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos leer este archivo con el formato elegido. Revisa el formato o prueba otra exportación de tu banco."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "चुने गए फ़ॉर्मैट में यह फ़ाइल पढ़ी नहीं जा सकी। फ़ॉर्मैट जाँचें, या अपने बैंक से दूसरा एक्सपोर्ट आज़माएँ।"
+          }
+        }
+      }
+    },
+    "Import Transactions" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar transacciones"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "लेन-देन इम्पोर्ट करें"
+          }
+        }
+      }
+    },
+    "Log Expense from Message" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar gasto desde mensaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संदेश से खर्च दर्ज करें"
+          }
+        }
+      }
+    },
+    "Payee or Merchant" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beneficiario o comercio"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भुगतान पाने वाला या दुकान"
+          }
+        }
+      }
+    },
+    "Paid With" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagado con"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भुगतान का तरीका"
+          }
+        }
+      }
+    },
+    "Card" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarjeta"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कार्ड"
+          }
+        }
+      }
+    },
+    "Message" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mensaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संदेश"
+          }
+        }
+      }
+    },
+    "That message isn't a payment, so nothing was logged." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ese mensaje no es un pago, así que no se registró nada."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह संदेश भुगतान का नहीं है, इसलिए कुछ दर्ज नहीं हुआ।"
+          }
+        }
+      }
+    },
+    "Enter an amount greater than zero." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresa un monto mayor que cero."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "शून्य से ज़्यादा रकम डालें।"
+          }
+        }
+      }
+    },
+    "Vittora couldn't save that expense. Try again." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora no pudo guardar ese gasto. Inténtalo de nuevo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora यह खर्च सेव नहीं कर पाया। फिर से कोशिश करें।"
+          }
+        }
+      }
+    },
+    "Logged %@ at %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrado: %1$@ en %2$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ पर %1$@ दर्ज किया।"
+          }
+        }
+      }
+    },
+    "Log an expense without opening Vittora. Use it in a Shortcuts automation, for example when you pay with Apple Pay." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra un gasto sin abrir Vittora. Úsalo en una automatización de Atajos, por ejemplo al pagar con Apple Pay."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora खोले बिना खर्च दर्ज करें। इसे शॉर्टकट्स ऑटोमेशन में इस्तेमाल करें, जैसे Apple Pay से भुगतान करते समय।"
+          }
+        }
+      }
+    },
+    "Reads a bank or UPI payment alert on your device and logs the amount spent. Credits, OTPs and upcoming payments are ignored." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lee en tu dispositivo un aviso de pago del banco o de UPI y registra el monto gastado. Se ignoran los abonos, los códigos OTP y los pagos próximos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके डिवाइस पर बैंक या UPI भुगतान का अलर्ट पढ़कर खर्च की गई रकम दर्ज करता है। जमा, OTP और आने वाले भुगतान छोड़ दिए जाते हैं।"
+          }
+        }
+      }
+    },
+    "Log ${amount} at ${payee}" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar ${amount} en ${payee}"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${payee} पर ${amount} दर्ज करें"
+          }
+        }
+      }
+    },
+    "Log the expense in ${message}" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar el gasto de ${message}"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${message} से खर्च दर्ज करें"
+          }
+        }
+      }
+    },
+    "Log from Message" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar desde mensaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संदेश से दर्ज करें"
+          }
+        }
+      }
+    },
+    "Log an expense in \\(.applicationName)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar un gasto en \\(.applicationName)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\\(.applicationName) में खर्च दर्ज करें"
+          }
+        }
+      }
+    },
+    "Log spending in \\(.applicationName)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar gastos en \\(.applicationName)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\\(.applicationName) में खर्च लिखें"
+          }
+        }
+      }
+    },
+    "Log a bank message in \\(.applicationName)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar un mensaje del banco en \\(.applicationName)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\\(.applicationName) में बैंक संदेश दर्ज करें"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

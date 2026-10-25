@@ -369,7 +369,7 @@ struct TransactionListView: View {
                     Button {
                         showCSVImport = true
                     } label: {
-                        Label(String(localized: "Import CSV"), systemImage: "square.and.arrow.down")
+                        Label(String(localized: "Import Transactions"), systemImage: "square.and.arrow.down")
                     }
                     #if os(iOS)
                     if AppleWalletService.isEntryVisible {
