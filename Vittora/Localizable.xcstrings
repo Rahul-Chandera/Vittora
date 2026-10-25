@@ -34935,6 +34935,118 @@
         }
       }
     },
+    "Bank statement (CSV)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado de cuenta bancario (CSV)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बैंक स्टेटमेंट (CSV)"
+          }
+        }
+      }
+    },
+    "OFX / QFX" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OFX / QFX"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OFX / QFX"
+          }
+        }
+      }
+    },
+    "QIF" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QIF"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QIF"
+          }
+        }
+      }
+    },
+    "File" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "फ़ाइल"
+          }
+        }
+      }
+    },
+    "The file is empty." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo está vacío."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "फ़ाइल खाली है।"
+          }
+        }
+      }
+    },
+    "We couldn't read this file with the chosen format. Check the format, or try another export from your bank." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos leer este archivo con el formato elegido. Revisa el formato o prueba otra exportación de tu banco."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "चुने गए फ़ॉर्मैट में यह फ़ाइल पढ़ी नहीं जा सकी। फ़ॉर्मैट जाँचें, या अपने बैंक से दूसरा एक्सपोर्ट आज़माएँ।"
+          }
+        }
+      }
+    },
+    "Import Transactions" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar transacciones"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "लेन-देन इम्पोर्ट करें"
+          }
+        }
+      }
+    },
     "Log Expense from Message" : {
       "localizations" : {
         "es" : {

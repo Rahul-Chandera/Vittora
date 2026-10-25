@@ -32,7 +32,7 @@ final class AppleWalletImportUITests: XCTestCase {
     func testNoEntryPointWithoutEntitlement() throws {
         let app = launch(state: nil)
         UITestSupport.tapWhenReady(app.buttons["transaction-overflow-menu"], timeout: 20)
-        XCTAssertTrue(app.buttons["Import CSV"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Import Transactions"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["transaction-apple-wallet-import"].exists)
     }
 

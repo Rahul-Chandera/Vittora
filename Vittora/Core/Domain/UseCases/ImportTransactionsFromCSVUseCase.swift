@@ -4,7 +4,8 @@ import VittoraCore
 struct CSVImportPreview: Sendable {
     nonisolated let rows: [ParsedCSVTransactionRow]
     nonisolated let invalidRowCount: Int
-    nonisolated let mapping: CSVColumnMapping
+    /// Nil for OFX and QIF, which have no columns to map.
+    nonisolated let mapping: CSVColumnMapping?
 }
 
 struct CSVImportResult: Sendable, Equatable {
@@ -22,9 +23,9 @@ enum CSVImportError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .emptyFile:
-            String(localized: "The CSV file is empty.")
+            String(localized: "The file is empty.")
         case .unsupportedFormat:
-            String(localized: "We couldn't recognize the column headers for this profile.")
+            String(localized: "We couldn't read this file with the chosen format. Check the format, or try another export from your bank.")
         case .missingAccount:
             String(localized: "Choose an account before importing.")
         }
@@ -54,7 +55,30 @@ struct ImportTransactionsFromCSVUseCase: Sendable {
         profile: CSVImportProfile,
         locale: Locale = .current
     ) throws -> CSVImportPreview {
-        let grid = try parseGrid(from: csvData)
+        switch profile {
+        case .ofx, .qif:
+            let text = try decodedText(csvData)
+            let parsed = profile == .ofx
+                ? StatementFileParser.parseOFX(text)
+                : StatementFileParser.parseQIF(text, locale: locale)
+            guard !parsed.rows.isEmpty || parsed.invalidCount > 0 else { throw CSVImportError.unsupportedFormat }
+            return CSVImportPreview(rows: parsed.rows, invalidRowCount: parsed.invalidCount, mapping: nil)
+        case .bankStatement:
+            let grid = try parseGrid(from: csvData)
+            guard let headerRow = CSVTransactionImportMapper.bankStatementHeaderRow(in: grid) else {
+                throw CSVImportError.unsupportedFormat
+            }
+            return try previewGrid(Array(grid.dropFirst(headerRow)), profile: profile, locale: locale)
+        case .generic, .mint, .ynab:
+            return try previewGrid(try parseGrid(from: csvData), profile: profile, locale: locale)
+        }
+    }
+
+    nonisolated private func previewGrid(
+        _ grid: [[String]],
+        profile: CSVImportProfile,
+        locale: Locale
+    ) throws -> CSVImportPreview {
         guard let headers = grid.first else { throw CSVImportError.emptyFile }
         guard let mapping = CSVTransactionImportMapper.detectMapping(headers: headers, profile: profile) else {
             throw CSVImportError.unsupportedFormat
@@ -145,13 +169,19 @@ struct ImportTransactionsFromCSVUseCase: Sendable {
         )
     }
 
-    nonisolated private func parseGrid(from csvData: Data) throws -> [[String]] {
-        guard let text = String(data: csvData, encoding: .utf8)
-            ?? String(data: csvData, encoding: .utf16)
-            ?? String(data: csvData, encoding: .windowsCP1252)
+    nonisolated private func decodedText(_ data: Data) throws -> String {
+        guard let text = String(data: data, encoding: .utf8)
+            ?? String(data: data, encoding: .utf16)
+            ?? String(data: data, encoding: .windowsCP1252),
+            !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         else {
             throw CSVImportError.emptyFile
         }
+        return text
+    }
+
+    nonisolated private func parseGrid(from csvData: Data) throws -> [[String]] {
+        let text = try decodedText(csvData)
         let grid = CSVParser.parse(text)
         guard !grid.isEmpty else { throw CSVImportError.emptyFile }
         return grid
