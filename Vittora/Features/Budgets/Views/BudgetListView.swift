@@ -7,6 +7,7 @@ struct BudgetListView: View {
     @Environment(\.currencyCode) private var currencyCode
     @State private var viewModel: BudgetListViewModel?
     @State private var showAddBudget = false
+    @State private var showAssignMoney = false
     @State private var navigateDestination: NavigationDestination?
     /// Set by either delete path; the confirmation reads it. Deleting a budget
     /// discards its configuration and progress with no undo, and every other
@@ -231,6 +232,13 @@ struct BudgetListView: View {
                 .accessibilityHint(String(localized: "Opens shared household budgets"))
             }
             ToolbarItem(placement: .primaryAction) {
+                Button(action: { showAssignMoney = true }) {
+                    Label(String(localized: "Assign Money"), systemImage: "square.split.2x2")
+                }
+                .accessibilityIdentifier("budget-assign-money-button")
+                .accessibilityHint(String(localized: "Spreads this month's income across categories"))
+            }
+            ToolbarItem(placement: .primaryAction) {
                 Button(action: { showAddBudget = true }) {
                     Label(String(localized: "Add budget"), systemImage: "plus")
                 }
@@ -238,6 +246,11 @@ struct BudgetListView: View {
                 .accessibilityLabel(String(localized: "Add budget"))
                 .accessibilityHint(String(localized: "Opens the budget form"))
             }
+        }
+        .sheet(isPresented: $showAssignMoney, onDismiss: {
+            Task { await viewModel?.loadBudgets() }
+        }) {
+            AssignMoneyView()
         }
         .sheet(isPresented: $showAddBudget, onDismiss: {
             guard let viewModel else { return }
