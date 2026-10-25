@@ -42,6 +42,7 @@ struct AppleWalletImportTests {
         let transactions: SwiftDataTransactionRepository
         let accounts: SwiftDataAccountRepository
         let payees: SwiftDataPayeeRepository
+        let categories: SwiftDataCategoryRepository
     }
 
     private func makeHarness() throws -> Harness {
@@ -49,17 +50,19 @@ struct AppleWalletImportTests {
         let accounts = SwiftDataAccountRepository(modelContainer: container)
         let transactions = SwiftDataTransactionRepository(modelContainer: container)
         let payees = SwiftDataPayeeRepository(modelContainer: container)
+        let categories = SwiftDataCategoryRepository(modelContainer: container)
         let useCase = ImportAppleWalletTransactionsUseCase(
             addTransactionUseCase: AddTransactionUseCase(
                 accountRepository: accounts,
-                categoryRepository: SwiftDataCategoryRepository(modelContainer: container),
+                categoryRepository: categories,
                 ledgerWriting: LedgerWriteStore(modelContainer: container)
             ),
             transactionRepository: transactions,
             accountRepository: accounts,
-            payeeRepository: payees
+            payeeRepository: payees,
+            categoryRepository: categories
         )
-        return Harness(useCase: useCase, transactions: transactions, accounts: accounts, payees: payees)
+        return Harness(useCase: useCase, transactions: transactions, accounts: accounts, payees: payees, categories: categories)
     }
 
     // MARK: Mapping
@@ -128,6 +131,44 @@ struct AppleWalletImportTests {
         #expect(imported.contains { $0.type == .adjustment && $0.payeeID == nil })
         // Card: −12.50 spent, +100 paid.
         #expect(try await harness.accounts.fetchByID(account.id)?.balance == money("87.50"))
+    }
+
+    // MARK: Merchant category codes
+
+    @Test("a first-seen merchant is filed by its card code under the user's own category")
+    func merchantCodeFilesFirstSeenPayee() async throws {
+        let harness = try makeHarness()
+        let groceries = CategoryEntity(name: "Groceries", icon: "cart")
+        try await harness.categories.create(groceries)
+        var shop = record(card, "42", merchant: "Corner Market")
+        shop.merchantCategoryCode = 5411
+        var unknown = record(card, "9", merchant: "Mystery Ltd")
+        unknown.merchantCategoryCode = 9999
+
+        _ = try await harness.useCase.execute([shop, unknown], accounts: [card], links: [:])
+
+        let imported = try await harness.transactions.fetchAll(filter: nil)
+        #expect(imported.first { $0.externalID == shop.externalID }?.categoryID == groceries.id)
+        #expect(imported.first { $0.externalID == unknown.externalID }?.categoryID == nil)
+    }
+
+    @Test("card codes map only to categories the user has, best name first", arguments: [
+        (5411, ["Groceries", "Dining"], "Groceries"),
+        (5812, ["Food", "Dining"], "Dining"),
+        (5541, ["Transport"], "Transport"),
+        (4899, ["Entertainment", "Subscriptions"], "Subscriptions"),
+        (5411, ["Dining"], nil),
+    ] as [(Int, [String], String?)])
+    func merchantCodeMapping(code: Int, names: [String], expected: String?) {
+        let categories = names.map { CategoryEntity(name: $0, icon: "tag") }
+        let id = MerchantCategoryMapper.categoryID(forMCC: code, in: categories)
+        #expect(id.flatMap { found in categories.first { $0.id == found }?.name } == expected)
+    }
+
+    @Test("income categories are never used for a card code")
+    func merchantCodeSkipsIncomeCategories() {
+        let income = CategoryEntity(name: "Groceries", icon: "cart", type: .income)
+        #expect(MerchantCategoryMapper.categoryID(forMCC: 5411, in: [income]) == nil)
     }
 
     /// The acceptance criterion: re-import must not duplicate — including
