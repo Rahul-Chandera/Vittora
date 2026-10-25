@@ -36422,6 +36422,166 @@
           }
         }
       }
+    },
+    "Assign Money" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asignar dinero"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पैसे बाँटें"
+          }
+        }
+      }
+    },
+    "Ready to assign" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listo para asignar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बाँटने के लिए बाकी"
+          }
+        }
+      }
+    },
+    "Income this month %@ · Assigned %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresos este mes %1$@ · Asignado %2$@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस महीने की आय %1$@ · बाँटा गया %2$@"
+          }
+        }
+      }
+    },
+    "You've assigned %@ more than you've received this month." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asignaste %@ más de lo que recibiste este mes."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने इस महीने मिली रकम से %@ ज़्यादा बाँट दिया है।"
+          }
+        }
+      }
+    },
+    "Give every dollar of this month's income a job. Each amount is that category's monthly budget, and anything unspent carries into next month." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dale un destino a cada peso de los ingresos de este mes. Cada monto es el presupuesto mensual de esa categoría, y lo que no gastes pasa al mes siguiente."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस महीने की आय के हर रुपये को काम दें। हर रकम उस कैटेगरी का मासिक बजट है, और जो खर्च नहीं हुआ वह अगले महीने में जुड़ जाता है।"
+          }
+        }
+      }
+    },
+    "Amount for %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monto para %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ के लिए रकम"
+          }
+        }
+      }
+    },
+    "Spent %@ · Available %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gastado %1$@ · Disponible %2$@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "खर्च %1$@ · बचा %2$@"
+          }
+        }
+      }
+    },
+    "Couldn't load your budgets right now." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron cargar tus presupuestos ahora."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी आपके बजट लोड नहीं हो सके।"
+          }
+        }
+      }
+    },
+    "Couldn't save that amount. Try again." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo guardar ese monto. Inténtalo de nuevo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह रकम सेव नहीं हो सकी। फिर से कोशिश करें।"
+          }
+        }
+      }
+    },
+    "Spreads this month's income across categories" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reparte los ingresos de este mes entre categorías"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस महीने की आय को कैटेगरी में बाँटता है"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
