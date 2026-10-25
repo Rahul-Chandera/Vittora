@@ -277,7 +277,8 @@ final class AppleWalletService {
             status: status(of: transaction.status),
             date: transaction.transactionDate,
             merchantName: transaction.merchantName,
-            description: transaction.transactionDescription
+            description: transaction.transactionDescription,
+            merchantCategoryCode: transaction.merchantCategoryCode.map { Int($0.rawValue) }
         )
     }
 
