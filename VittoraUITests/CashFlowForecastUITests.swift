@@ -30,10 +30,9 @@ final class CashFlowForecastUITests: XCTestCase {
 
         // Prefer the stable card identifier over localized label matching.
         let card = app.descendants(matching: .any)["report-card-cashFlowForecast"].firstMatch
-        for _ in 0..<8 where !card.exists || !card.isHittable {
-            app.swipeUp()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
-        }
+        // `isHittable` stays true for a card under the floating tab bar, and the tap
+        // then lands on Budgets; this helper scrolls it clear of both bars.
+        UITestSupport.scrollToElement(card, in: app)
         XCTAssertTrue(card.waitForExistence(timeout: 15), "Cash Flow Forecast card should exist")
         card.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
 

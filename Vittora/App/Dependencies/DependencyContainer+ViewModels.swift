@@ -200,7 +200,8 @@ extension DependencyContainer {
             ),
             transactionRepository: transactionRepository,
             accountRepository: accountRepository,
-            payeeRepository: payeeRepository
+            payeeRepository: payeeRepository,
+            categoryRepository: categoryRepository
         )
     }
 
