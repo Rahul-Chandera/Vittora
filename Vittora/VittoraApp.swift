@@ -293,6 +293,10 @@ struct VittoraApp: App {
                     // not overridden by the container `.tint` that forms set.
                     .vittoraSwitchTint()
                     .paywallSheet(dependencies.paywallPresenter)
+                    // A Shortcuts action queued an expense while the app is open: book it now.
+                    .onReceive(NotificationCenter.default.publisher(for: QuickLogQueue.didEnqueueNotification)) { _ in
+                        Task { await drainQuickLogQueue() }
+                    }
                     .background(VColors.groupedBackground.ignoresSafeArea())
                     #if os(macOS)
                     .frame(minWidth: 960, minHeight: 640)
