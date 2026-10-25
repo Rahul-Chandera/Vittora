@@ -46,7 +46,7 @@ struct CategoryBreakdownView: View {
         .task {
             if vm == nil {
                 let useCase = CategoryBreakdownUseCase(
-                    transactionRepository: dependencies.transactionRepository,
+                    transactionRepository: dependencies.reportingTransactionRepository,
                     categoryRepository: dependencies.categoryRepository
                 )
                 vm = CategoryBreakdownViewModel(useCase: useCase)

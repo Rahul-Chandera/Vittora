@@ -119,9 +119,9 @@ struct ReportsHomeView: View {
         .task(id: appState.transactionsRefreshVersion) {
             if vm == nil {
                 vm = ReportsHomeViewModel(
-                    transactionRepository: dependencies.transactionRepository,
+                    transactionRepository: dependencies.reportingTransactionRepository,
                     insightsUseCase: EvaluateSpendingInsightsUseCase(
-                        transactionRepository: dependencies.transactionRepository,
+                        transactionRepository: dependencies.reportingTransactionRepository,
                         categoryRepository: dependencies.categoryRepository,
                         budgetRepository: dependencies.budgetRepository,
                         dismissalStore: UserDefaultsSpendingInsightDismissalStore()

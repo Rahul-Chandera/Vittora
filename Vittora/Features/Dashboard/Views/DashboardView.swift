@@ -398,6 +398,9 @@ struct DashboardView: View {
                             .amountScaling()
                             .foregroundColor(totals.netWorth >= 0 ? VColors.income : VColors.expense)
                     }
+                    if netWorth.isMultiCurrency {
+                        convertedNetWorthLine(netWorth)
+                    }
                 }
                 Spacer()
             }
@@ -412,6 +415,24 @@ struct DashboardView: View {
                 .map { CurrencyFormatter.format($0.netWorth, currencyCode: $0.currencyCode) }
                 .joined(separator: ", ")
         )
+    }
+
+    /// "About ₹12,34,000 in total", using the exchange rates in Settings. Currencies
+    /// without a rate are named rather than silently left out.
+    @ViewBuilder
+    private func convertedNetWorthLine(_ netWorth: NetWorthSummary) -> some View {
+        let (total, missing) = netWorth.converted(to: currencyCode, using: dependencies.exchangeRateStore.rates)
+        VStack(alignment: .leading, spacing: 2) {
+            Text(String(localized: "About \(CurrencyFormatter.format(total, currencyCode: currencyCode)) in total"))
+                .font(VTypography.subheadline)
+                .foregroundStyle(VColors.textPrimary)
+            if !missing.isEmpty {
+                Text(String(localized: "Not included, no exchange rate: \(missing.formatted(.list(type: .and)))"))
+                    .font(VTypography.caption1)
+                    .foregroundStyle(VColors.textSecondary)
+            }
+        }
+        .accessibilityIdentifier("dashboard-net-worth-converted")
     }
 
     private func progressColor(_ progress: Double) -> Color {

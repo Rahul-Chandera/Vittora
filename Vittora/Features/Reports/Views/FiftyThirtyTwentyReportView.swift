@@ -45,7 +45,7 @@ struct FiftyThirtyTwentyReportView: View {
             guard vm == nil else { return }
             vm = FiftyThirtyTwentyViewModel(
                 useCase: FiftyThirtyTwentyReportUseCase(
-                    transactionRepository: dependencies.transactionRepository,
+                    transactionRepository: dependencies.reportingTransactionRepository,
                     categoryRepository: dependencies.categoryRepository,
                     debtRepository: dependencies.debtRepository
                 )

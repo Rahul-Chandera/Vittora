@@ -36166,6 +36166,262 @@
           }
         }
       }
+    },
+    "This view of the ledger is read-only." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta vista del registro es de solo lectura."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "लेजर का यह व्यू सिर्फ़ पढ़ने के लिए है।"
+          }
+        }
+      }
+    },
+    "About %@ in total" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unos %@ en total"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कुल लगभग %@"
+          }
+        }
+      }
+    },
+    "Not included, no exchange rate: %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No incluido, sin tipo de cambio: %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "शामिल नहीं, विनिमय दर नहीं है: %@"
+          }
+        }
+      }
+    },
+    "Converted with the exchange rates in Settings." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convertido con los tipos de cambio de Configuración."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सेटिंग्स की विनिमय दरों से बदला गया।"
+          }
+        }
+      }
+    },
+    "Exchange Rates" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipos de cambio"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "विनिमय दरें"
+          }
+        }
+      }
+    },
+    "All your accounts and transactions are in %@, so no rates are needed." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas tus cuentas y transacciones están en %@, así que no hacen falta tipos de cambio."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके सभी अकाउंट और लेन-देन %@ में हैं, इसलिए दरों की ज़रूरत नहीं है।"
+          }
+        }
+      }
+    },
+    "Rates in %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipos en %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ में दरें"
+          }
+        }
+      }
+    },
+    "Used to add other currencies into your totals, net worth and reports. Your transactions keep the amount and currency you entered." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se usan para sumar otras monedas a tus totales, patrimonio e informes. Tus transacciones conservan el monto y la moneda que ingresaste."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "दूसरी मुद्राओं को आपके कुल, नेट वर्थ और रिपोर्ट में जोड़ने के लिए। आपके लेन-देन में वही रकम और मुद्रा रहती है जो आपने डाली थी।"
+          }
+        }
+      }
+    },
+    "Update from the European Central Bank" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizar desde el Banco Central Europeo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यूरोपियन सेंट्रल बैंक से अपडेट करें"
+          }
+        }
+      }
+    },
+    "Downloads the ECB's public daily rates, about 30 currencies. Nothing about you or your money is sent. Rates you entered for currencies the ECB doesn't publish are kept." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descarga los tipos diarios públicos del BCE, unas 30 monedas. No se envía nada sobre ti ni tu dinero. Se conservan los tipos que ingresaste para monedas que el BCE no publica."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ECB की सार्वजनिक दैनिक दरें डाउनलोड करता है, लगभग 30 मुद्राएँ। आपके या आपके पैसों के बारे में कुछ नहीं भेजा जाता। जिन मुद्राओं की दर ECB नहीं देता, उनकी आपकी डाली दरें बनी रहती हैं।"
+          }
+        }
+      }
+    },
+    "Rate" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "दर"
+          }
+        }
+      }
+    },
+    "Rate for %@ in %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo de %1$@ en %2$@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ में %1$@ की दर"
+          }
+        }
+      }
+    },
+    "From the ECB, %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Del BCE, %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ECB से, %@"
+          }
+        }
+      }
+    },
+    "Entered by you, %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresado por ti, %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपने डाली, %@"
+          }
+        }
+      }
+    },
+    "No rate yet. %@ amounts are left out of combined totals." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay tipo. Los montos en %@ no se suman a los totales."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी कोई दर नहीं। %@ की रकम कुल में नहीं जोड़ी जाती।"
+          }
+        }
+      }
+    },
+    "Couldn't download the ECB rates. Check your connection and try again." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron descargar los tipos del BCE. Revisa tu conexión e inténtalo de nuevo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ECB की दरें डाउनलोड नहीं हो सकीं। अपना कनेक्शन जाँचें और फिर कोशिश करें।"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

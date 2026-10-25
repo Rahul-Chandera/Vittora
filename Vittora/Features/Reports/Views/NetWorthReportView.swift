@@ -183,6 +183,22 @@ struct NetWorthReportView: View {
                     currencySummaryBlock(totals, showsCode: vm.summary.isMultiCurrency)
                 }
 
+                if vm.summary.isMultiCurrency {
+                    let (total, missing) = vm.summary.converted(to: currencyCode, using: dependencies.exchangeRateStore.rates)
+                    Divider()
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(String(localized: "About \(CurrencyFormatter.format(total, currencyCode: currencyCode)) in total"))
+                            .font(VTypography.title3)
+                            .foregroundStyle(VColors.textPrimary)
+                        Text(missing.isEmpty
+                             ? String(localized: "Converted with the exchange rates in Settings.")
+                             : String(localized: "Not included, no exchange rate: \(missing.formatted(.list(type: .and)))"))
+                            .font(VTypography.caption1)
+                            .foregroundStyle(VColors.textSecondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
                 // Composition bar reads the dominant currency only; mixing
                 // currencies into one bar would be the same category error.
                 if let leading = entries.first, leading.assets > 0 {

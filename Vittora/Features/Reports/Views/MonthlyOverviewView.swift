@@ -56,7 +56,7 @@ struct MonthlyOverviewView: View {
         }
         .task {
             if vm == nil {
-                let useCase = MonthlyOverviewUseCase(transactionRepository: dependencies.transactionRepository)
+                let useCase = MonthlyOverviewUseCase(transactionRepository: dependencies.reportingTransactionRepository)
                 vm = MonthlyOverviewViewModel(useCase: useCase)
                 await vm?.load()
             }

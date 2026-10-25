@@ -28,6 +28,8 @@ struct DashboardDataUseCase: Sendable {
     let categoryRepository: any CategoryRepository
     let budgetRepository: any BudgetRepository
     let recurringRuleRepository: any RecurringRuleRepository
+    /// Converts other currencies for the totals only; recent rows keep their own currency.
+    var exchangeRates: ExchangeRateStore? = nil
 
     func execute() async throws -> DashboardData {
         let now = Date.now
@@ -64,16 +66,35 @@ struct DashboardDataUseCase: Sendable {
         // Net worth, subtotalled per currency rather than summed across them.
         let netWorth = NetWorthSummary.build(from: activeAccounts)
 
+        // Totals in the main currency where a rate exists. The recent list below uses
+        // the untouched rows, so each still shows the currency it was paid in.
+        let totalsSource: [TransactionEntity]
+        if let exchangeRates {
+            let target = exchangeRates.baseCurrency
+            let rates = exchangeRates.rates
+            totalsSource = monthTransactions.map { transaction in
+                guard transaction.currencyCode != target,
+                      let amount = rates.convert(transaction.amount, from: transaction.currencyCode, to: target)
+                else { return transaction }
+                var copy = transaction
+                copy.amount = amount
+                copy.currencyCode = target
+                return copy
+            }
+        } else {
+            totalsSource = monthTransactions
+        }
+
         // Today's spending (subset of this month)
-        let todaySpending = monthTransactions
+        let todaySpending = totalsSource
             .filter { $0.type == .expense && $0.date >= startOfToday }
             .reduce(Decimal(0)) { $0 + $1.amount }
 
         // This month's spending and income
-        let monthSpending = monthTransactions
+        let monthSpending = totalsSource
             .filter { $0.type == .expense }
             .reduce(Decimal(0)) { $0 + $1.amount }
-        let monthIncome = monthTransactions
+        let monthIncome = totalsSource
             .filter { $0.type == .income }
             .reduce(Decimal(0)) { $0 + $1.amount }
 

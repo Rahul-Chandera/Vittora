@@ -47,6 +47,12 @@ final class DependencyContainer {
     var featureGate: FeatureGate
     let purchaseService: PurchaseService
     let paywallPresenter: PaywallPresenter
+    let exchangeRateStore = ExchangeRateStore.shared
+    /// Amounts in the main currency, for code that adds transactions up. Read-only:
+    /// anything that edits uses `transactionRepository`.
+    var reportingTransactionRepository: any TransactionRepository {
+        ConvertingTransactionRepository(base: transactionRepository, store: exchangeRateStore)
+    }
     let reviewPromptPresenter = ReviewPromptPresenter()
     let reviewPrompter: ReviewPrompter
     let conversionEventRecorder: ConversionEventRecorder

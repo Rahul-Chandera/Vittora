@@ -36,11 +36,12 @@ extension DependencyContainer {
             accountRepository: accountRepository,
             categoryRepository: categoryRepository,
             budgetRepository: budgetRepository,
-            recurringRuleRepository: recurringRuleRepository
+            recurringRuleRepository: recurringRuleRepository,
+            exchangeRates: exchangeRateStore
         )
         return DashboardViewModel(
             dashboardDataUseCase: dataUseCase,
-            monthComparisonUseCase: MonthComparisonUseCase(transactionRepository: transactionRepository)
+            monthComparisonUseCase: MonthComparisonUseCase(transactionRepository: reportingTransactionRepository)
         )
     }
 
@@ -163,7 +164,7 @@ extension DependencyContainer {
     func makeAskMoneyViewModel() -> AskMoneyViewModel {
         AskMoneyViewModel(
             engine: MoneyAnswerEngine(
-                transactionRepository: transactionRepository,
+                transactionRepository: reportingTransactionRepository,
                 categoryRepository: categoryRepository,
                 payeeRepository: payeeRepository
             ),
