@@ -31,7 +31,7 @@ struct TransactionCSVImportView: View {
                     ProgressView()
                 }
             }
-            .navigationTitle(String(localized: "Import CSV"))
+            .navigationTitle(String(localized: "Import Transactions"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
