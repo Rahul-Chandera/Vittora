@@ -71,7 +71,9 @@ struct VittoraApp: App {
 
         if isUITesting {
             Self.configureAppearanceForUITesting(arguments: launchArguments)
+            ReviewPromptPolicy.suppressForUITesting()
         }
+        ReviewPromptPolicy().noteLaunch()
 
         if launchArguments.contains("--ui-test-seed-demo") {
             // The currency environment is captured from Settings at first
@@ -293,6 +295,7 @@ struct VittoraApp: App {
                     // not overridden by the container `.tint` that forms set.
                     .vittoraSwitchTint()
                     .paywallSheet(dependencies.paywallPresenter)
+                    .reviewPromptHost(dependencies.reviewPromptPresenter)
                     .background(VColors.groupedBackground.ignoresSafeArea())
                     #if os(macOS)
                     .frame(minWidth: 960, minHeight: 640)

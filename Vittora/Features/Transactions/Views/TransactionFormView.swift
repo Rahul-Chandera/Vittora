@@ -140,6 +140,12 @@ struct TransactionFormView: View {
                                     dependencies.hapticService.success()
                                     dismiss()
                                     dependencies.paywallPresenter.present(paywallEvent)
+                                    if !vm.isEditing {
+                                        await dependencies.reviewPrompter.afterTransactionSaved(
+                                            paywallShowing: dependencies.paywallPresenter.milestone != nil,
+                                            presenter: dependencies.reviewPromptPresenter
+                                        )
+                                    }
                                 } catch {
                                     vm.error = error.userFacingMessage(
                                         fallback: String(localized: "We couldn't save this transaction.")
