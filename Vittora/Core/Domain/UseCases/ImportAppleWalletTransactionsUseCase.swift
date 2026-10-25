@@ -45,6 +45,8 @@ nonisolated struct WalletTransactionRecord: Sendable, Equatable {
     let date: Date
     let merchantName: String?
     let description: String
+    /// The card network's merchant category code (ISO 18245), when FinanceKit has one.
+    var merchantCategoryCode: Int? = nil
 
     var externalID: String { ImportAppleWalletTransactionsUseCase.externalIDPrefix + id.uuidString }
 }
@@ -68,6 +70,8 @@ struct ImportAppleWalletTransactionsUseCase: Sendable {
     let transactionRepository: any TransactionRepository
     let accountRepository: any AccountRepository
     let payeeRepository: any PayeeRepository
+    /// For filing a first-seen merchant by its card code. Nil leaves those uncategorised.
+    var categoryRepository: (any CategoryRepository)? = nil
 
     /// How a Wallet transaction lands in the ledger, or nil to skip it.
     ///
@@ -173,6 +177,7 @@ struct ImportAppleWalletTransactionsUseCase: Sendable {
             uniquingKeysWith: { first, _ in first }
         )
         let categoryByPayee = try await usualCategoryByPayee()
+        let categories = try await categoryRepository?.fetchAll() ?? []
 
         var byAccount: [UUID: [TransactionEntity]] = [:]
         for (record, type) in accepted {
@@ -186,9 +191,12 @@ struct ImportAppleWalletTransactionsUseCase: Sendable {
                 type: type,
                 paymentMethod: .other,
                 currencyCode: record.currencyCode,
-                // Best effort, never blocking: what this payee is usually
-                // filed under. Adjustments carry no category.
-                categoryID: type == .adjustment ? nil : payeeID.flatMap { categoryByPayee[$0] },
+                // Best effort, never blocking: what this payee is usually filed
+                // under, else the user's category for the merchant's card code.
+                // Adjustments carry no category.
+                categoryID: type == .adjustment ? nil
+                    : payeeID.flatMap { categoryByPayee[$0] }
+                    ?? MerchantCategoryMapper.categoryID(forMCC: record.merchantCategoryCode, in: categories),
                 accountID: accountID,
                 payeeID: payeeID,
                 externalID: record.externalID
