@@ -47,6 +47,8 @@ final class DependencyContainer {
     var featureGate: FeatureGate
     let purchaseService: PurchaseService
     let paywallPresenter: PaywallPresenter
+    let reviewPromptPresenter = ReviewPromptPresenter()
+    let reviewPrompter: ReviewPrompter
     let conversionEventRecorder: ConversionEventRecorder
     let securityAuditLogService: SecurityAuditLogService
     let dataSeeder: any DataSeederProtocol
@@ -130,6 +132,10 @@ final class DependencyContainer {
         self.paywallPresenter = PaywallPresenter(
             tracker: UserDefaultsConversionEventTracker(),
             isProUnlocked: { gate.isProUnlocked }
+        )
+        self.reviewPrompter = ReviewPrompter(
+            policy: ReviewPromptPolicy(),
+            transactionRepository: transactionRepository
         )
     }
 
