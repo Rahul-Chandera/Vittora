@@ -210,11 +210,18 @@ final class DependencyContainer {
             investmentRepository: investmentRepository,
             notificationService: notificationService
         )
+        let categorizationRuleStore = UserDefaultsCategorizationRuleStore()
         let drainQuickLogQueueUseCase = DrainQuickLogQueueUseCase(
             transactionRepository: transactionRepository,
             accountRepository: accountRepository,
             categoryRepository: categoryRepository,
-            queue: QuickLogQueue() ?? QuickLogQueue(defaults: .standard)
+            queue: QuickLogQueue() ?? QuickLogQueue(defaults: .standard),
+            payeeRepository: payeeRepository,
+            categorize: SmartCategorizeUseCase(
+                transactionRepository: transactionRepository,
+                ruleStore: categorizationRuleStore,
+                categoryRepository: categoryRepository
+            )
         )
         let contactsImportService = SystemContactsImportService()
         let exportService = DataExportService(
@@ -262,7 +269,7 @@ final class DependencyContainer {
             conversionEventRecorder: conversionEventRecorder,
             securityAuditLogService: auditLogService,
             dataSeeder: dataSeeder,
-            categorizationRuleStore: UserDefaultsCategorizationRuleStore(),
+            categorizationRuleStore: categorizationRuleStore,
             transactionEditHistoryStore: UserDefaultsTransactionEditHistoryStore(),
             savedTransactionFilterStore: UserDefaultsSavedTransactionFilterStore()
         )
