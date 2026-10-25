@@ -78,7 +78,12 @@ struct TaxDashboardView: View {
                         accountRepository: dependencies.accountRepository,
                         categoryRepository: dependencies.categoryRepository
                     ),
-                    exportService: dependencies.exportService
+                    exportService: dependencies.exportService,
+                    filingPackUseCase: IndiaFilingPackUseCase(
+                        transactionRepository: dependencies.transactionRepository,
+                        categoryRepository: dependencies.categoryRepository,
+                        payeeRepository: dependencies.payeeRepository
+                    )
                 )
             }
             await vm?.load()
@@ -162,6 +167,18 @@ struct TaxDashboardView: View {
                     ) {
                         show80CComparison = true
                     }
+
+                    actionButton(
+                        title: String(localized: "Filing Pack for Your CA (PDF)"),
+                        icon: "doc.text",
+                        showsProgress: vm.isExporting
+                    ) {
+                        Task {
+                            await vm.exportIndiaFilingPack()
+                            if let url = vm.exportURL { presentShare(url, vm: vm) }
+                        }
+                    }
+                    .disabled(vm.isExporting)
                 }
 
                 actionButton(
@@ -187,18 +204,7 @@ struct TaxDashboardView: View {
                 ) {
                     Task {
                         await vm.exportReport()
-                        if let url = vm.exportURL {
-                            // Straight to the share menu. The sheet below is
-                            // only a fallback for when nothing can anchor it.
-                            #if os(macOS)
-                            let shown = MacSharePresenter.present(items: [url]) {
-                                Task { await vm.cleanupExport() }
-                            }
-                            if !shown { showExportSheet = true }
-                            #else
-                            showExportSheet = true
-                            #endif
-                        }
+                        if let url = vm.exportURL { presentShare(url, vm: vm) }
                     }
                 }
                 .disabled(vm.isExporting)
@@ -291,6 +297,18 @@ struct TaxDashboardView: View {
         .padding(VSpacing.cardPadding)
         .background(VColors.secondaryGroupedBackground)
         .cornerRadius(VSpacing.cornerRadiusCard)
+    }
+
+    /// Straight to the share menu. The sheet is only a fallback for when nothing can anchor it.
+    private func presentShare(_ url: URL, vm: TaxEstimateViewModel) {
+        #if os(macOS)
+        let shown = MacSharePresenter.present(items: [url]) {
+            Task { await vm.cleanupExport() }
+        }
+        if !shown { showExportSheet = true }
+        #else
+        showExportSheet = true
+        #endif
     }
 
     private func actionButton(

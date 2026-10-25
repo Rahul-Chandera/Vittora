@@ -34935,6 +34935,342 @@
         }
       }
     },
+    "80C: investments and insurance" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80C: inversiones y seguros"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80C: निवेश और बीमा"
+          }
+        }
+      }
+    },
+    "80D: health insurance" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80D: seguro médico"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80D: स्वास्थ्य बीमा"
+          }
+        }
+      }
+    },
+    "80CCD(1B): NPS" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80CCD(1B): NPS"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80CCD(1B): NPS"
+          }
+        }
+      }
+    },
+    "80E: education loan interest" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80E: intereses de préstamo educativo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80E: शिक्षा ऋण का ब्याज"
+          }
+        }
+      }
+    },
+    "80G: donations" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80G: donaciones"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "80G: दान"
+          }
+        }
+      }
+    },
+    "Rent paid (for HRA or 80GG)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alquiler pagado (para HRA u 80GG)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "चुकाया गया किराया (HRA या 80GG के लिए)"
+          }
+        }
+      }
+    },
+    "Income recorded" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresos registrados"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "दर्ज आय"
+          }
+        }
+      }
+    },
+    "No income recorded in this financial year." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay ingresos registrados en este año fiscal."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस वित्त वर्ष में कोई आय दर्ज नहीं है।"
+          }
+        }
+      }
+    },
+    "Regime comparison (estimate)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparación de regímenes (estimación)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स व्यवस्थाओं की तुलना (अनुमान)"
+          }
+        }
+      }
+    },
+    "Deductions declared in Vittora" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deducciones declaradas en Vittora"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora में दर्ज कटौतियाँ"
+          }
+        }
+      }
+    },
+    "None declared in the tax profile." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay ninguna en el perfil fiscal."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैक्स प्रोफ़ाइल में कोई कटौती दर्ज नहीं है।"
+          }
+        }
+      }
+    },
+    "Spending that may support a deduction" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gastos que podrían respaldar una deducción"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "खर्च जो किसी कटौती में काम आ सकता है"
+          }
+        }
+      }
+    },
+    "No matching spending found. Matching looks for words such as PPF, LIC, health insurance, NPS, donation and rent in categories, payees and notes." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encontraron gastos coincidentes. Se buscan palabras como PPF, LIC, seguro médico, NPS, donación y alquiler en categorías, beneficiarios y notas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "मिलता-जुलता कोई खर्च नहीं मिला। कैटेगरी, भुगतान पाने वालों और नोट्स में PPF, LIC, health insurance, NPS, donation और rent जैसे शब्द खोजे जाते हैं।"
+          }
+        }
+      }
+    },
+    "%@ (continued)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (continuación)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (जारी)"
+          }
+        }
+      }
+    },
+    "India filing pack · FY %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paquete de declaración de India · AF %@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इंडिया फ़ाइलिंग पैक · वित्त वर्ष %@"
+          }
+        }
+      }
+    },
+    "From the records in Vittora, %@ to %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De los registros en Vittora, del %1$@ al %2$@"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora के रिकॉर्ड से, %1$@ से %2$@ तक"
+          }
+        }
+      }
+    },
+    "%lld transactions in other currencies are not included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluyen %lld transacciones en otras monedas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "दूसरी मुद्राओं के %lld लेन-देन शामिल नहीं हैं।"
+          }
+        }
+      }
+    },
+    "An educational summary of your own records to discuss with your CA. It is not tax advice and not a return. Section labels are those of the Income-tax Act, 1961; from tax year 2026-27 the Income-tax Act, 2025 renumbered sections." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un resumen educativo de tus propios registros para revisar con tu contador. No es asesoría fiscal ni una declaración. Las secciones son las de la Ley del Impuesto sobre la Renta de 1961; desde el año fiscal 2026-27, la Ley del Impuesto sobre la Renta de 2025 renumeró las secciones."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके अपने रिकॉर्ड का शैक्षिक सारांश, अपने CA से चर्चा के लिए। यह टैक्स सलाह या रिटर्न नहीं है। धाराओं के नाम आयकर अधिनियम, 1961 के हैं; टैक्स वर्ष 2026-27 से आयकर अधिनियम, 2025 ने धाराओं की नई संख्या दी है।"
+          }
+        }
+      }
+    },
+    "Set the financial year in your tax profile first." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Primero define el año fiscal en tu perfil fiscal."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पहले अपनी टैक्स प्रोफ़ाइल में वित्त वर्ष चुनें।"
+          }
+        }
+      }
+    },
+    "We couldn't create the filing pack right now." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos crear el paquete de declaración ahora."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अभी फ़ाइलिंग पैक नहीं बन सका।"
+          }
+        }
+      }
+    },
+    "Filing Pack for Your CA (PDF)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paquete para tu contador (PDF)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके CA के लिए फ़ाइलिंग पैक (PDF)"
+          }
+        }
+      }
+    },
     "today" : {
       "localizations" : {
         "es" : {
