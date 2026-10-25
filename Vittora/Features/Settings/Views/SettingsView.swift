@@ -139,6 +139,14 @@ struct SettingsView: View {
                                     value: vm.selectedCurrencyCode)
                     }
                     NavigationLink {
+                        ExchangeRatesView()
+                    } label: {
+                        SettingsRow(icon: "arrow.left.arrow.right.circle.fill", iconColor: .teal,
+                                    title: String(localized: "Exchange Rates"),
+                                    value: "")
+                    }
+                    .accessibilityIdentifier("settings-exchange-rates")
+                    NavigationLink {
                         AppearanceSettingsView(vm: vm)
                     } label: {
                         SettingsRow(icon: "paintpalette.fill", iconColor: .purple,

@@ -65,7 +65,7 @@ struct EmergencyFundReportView: View {
                 useCase: EmergencyFundUseCase(
                     recurringRuleRepository: dependencies.recurringRuleRepository,
                     categoryRepository: dependencies.categoryRepository,
-                    transactionRepository: dependencies.transactionRepository,
+                    transactionRepository: dependencies.reportingTransactionRepository,
                     accountRepository: dependencies.accountRepository,
                     savingsGoalRepository: dependencies.savingsGoalRepository
                 ),

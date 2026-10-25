@@ -72,7 +72,7 @@ struct YearInReviewView: View {
             guard vm == nil else { return }
             vm = YearInReviewViewModel(
                 useCase: YearInReviewUseCase(
-                    transactionRepository: dependencies.transactionRepository,
+                    transactionRepository: dependencies.reportingTransactionRepository,
                     categoryRepository: dependencies.categoryRepository,
                     payeeRepository: dependencies.payeeRepository,
                     savingsGoalRepository: dependencies.savingsGoalRepository

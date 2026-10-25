@@ -80,7 +80,7 @@ struct TaxDashboardView: View {
                     ),
                     exportService: dependencies.exportService,
                     filingPackUseCase: IndiaFilingPackUseCase(
-                        transactionRepository: dependencies.transactionRepository,
+                        transactionRepository: dependencies.reportingTransactionRepository,
                         categoryRepository: dependencies.categoryRepository,
                         payeeRepository: dependencies.payeeRepository
                     )

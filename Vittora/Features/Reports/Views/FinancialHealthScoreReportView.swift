@@ -51,7 +51,7 @@ struct FinancialHealthScoreReportView: View {
         .task {
             if vm == nil {
                 vm = FinancialHealthScoreViewModel(
-                    transactionRepository: dependencies.transactionRepository,
+                    transactionRepository: dependencies.reportingTransactionRepository,
                     budgetRepository: dependencies.budgetRepository,
                     debtRepository: dependencies.debtRepository
                 )

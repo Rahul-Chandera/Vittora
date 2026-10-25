@@ -53,7 +53,7 @@ struct CustomReportView: View {
         .task {
             if vm == nil {
                 let useCase = CustomReportUseCase(
-                    transactionRepository: dependencies.transactionRepository,
+                    transactionRepository: dependencies.reportingTransactionRepository,
                     categoryRepository: dependencies.categoryRepository,
                     accountRepository: dependencies.accountRepository,
                     payeeRepository: dependencies.payeeRepository

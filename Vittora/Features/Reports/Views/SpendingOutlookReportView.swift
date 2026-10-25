@@ -49,7 +49,7 @@ struct SpendingOutlookReportView: View {
         .task {
             if vm == nil {
                 vm = SpendingOutlookViewModel(
-                    transactionRepository: dependencies.transactionRepository,
+                    transactionRepository: dependencies.reportingTransactionRepository,
                     categoryRepository: dependencies.categoryRepository
                 )
             }

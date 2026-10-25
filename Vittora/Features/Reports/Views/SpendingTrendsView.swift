@@ -44,7 +44,7 @@ struct SpendingTrendsView: View {
         #endif
         .task {
             if vm == nil {
-                let useCase = SpendingTrendsUseCase(transactionRepository: dependencies.transactionRepository)
+                let useCase = SpendingTrendsUseCase(transactionRepository: dependencies.reportingTransactionRepository)
                 vm = SpendingTrendsViewModel(useCase: useCase)
                 await vm?.load()
             }

@@ -36,7 +36,7 @@ struct CashFlowReportView: View {
             guard vm == nil else { return }
             vm = CashFlowReportViewModel(
                 useCase: CashFlowProjectionUseCase(
-                    transactionRepository: dependencies.transactionRepository,
+                    transactionRepository: dependencies.reportingTransactionRepository,
                     recurringRuleRepository: dependencies.recurringRuleRepository,
                     categoryRepository: dependencies.categoryRepository
                 )

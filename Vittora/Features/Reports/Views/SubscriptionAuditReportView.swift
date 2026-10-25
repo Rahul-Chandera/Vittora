@@ -36,7 +36,7 @@ struct SubscriptionAuditReportView: View {
                 useCase: SubscriptionAuditUseCase(
                     recurringRuleRepository: dependencies.recurringRuleRepository,
                     categoryRepository: dependencies.categoryRepository,
-                    transactionRepository: dependencies.transactionRepository
+                    transactionRepository: dependencies.reportingTransactionRepository
                 )
             )
             await vm?.load()
