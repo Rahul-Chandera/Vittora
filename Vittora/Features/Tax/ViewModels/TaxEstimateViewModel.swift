@@ -10,6 +10,7 @@ final class TaxEstimateViewModel {
     private let summaryUseCase: GenerateTaxSummaryUseCase?
     private let complianceTipsUseCase: EvaluateIndiaComplianceTipsUseCase?
     private let exportService: (any DataExportServiceProtocol)?
+    private let filingPackUseCase: IndiaFilingPackUseCase?
 
     var profile: TaxProfile = TaxProfile()
     var estimate: TaxEstimate?
@@ -27,7 +28,8 @@ final class TaxEstimateViewModel {
         saveUseCase: SaveTaxProfileUseCase,
         summaryUseCase: GenerateTaxSummaryUseCase? = nil,
         complianceTipsUseCase: EvaluateIndiaComplianceTipsUseCase? = nil,
-        exportService: (any DataExportServiceProtocol)? = nil
+        exportService: (any DataExportServiceProtocol)? = nil,
+        filingPackUseCase: IndiaFilingPackUseCase? = nil
     ) {
         self.estimateUseCase = estimateUseCase
         self.compareUseCase = compareUseCase
@@ -35,6 +37,7 @@ final class TaxEstimateViewModel {
         self.summaryUseCase = summaryUseCase
         self.complianceTipsUseCase = complianceTipsUseCase
         self.exportService = exportService
+        self.filingPackUseCase = filingPackUseCase
     }
 
     func load() async {
@@ -112,6 +115,26 @@ final class TaxEstimateViewModel {
         } catch {
             self.error = error.userFacingMessage(
                 fallback: String(localized: "We couldn't export this tax report right now.")
+            )
+        }
+    }
+
+    /// The India filing pack as a PDF to share with a CA.
+    func exportIndiaFilingPack() async {
+        guard profile.country == .india, let filingPackUseCase else { return }
+        isExporting = true
+        error = nil
+        exportURL = nil
+        defer { isExporting = false }
+        do {
+            guard let pack = try await filingPackUseCase.execute(profile: profile, comparison: comparison) else {
+                error = String(localized: "Set the financial year in your tax profile first.")
+                return
+            }
+            exportURL = try IndiaFilingPackPDF.export(pack)
+        } catch {
+            self.error = error.userFacingMessage(
+                fallback: String(localized: "We couldn't create the filing pack right now.")
             )
         }
     }
