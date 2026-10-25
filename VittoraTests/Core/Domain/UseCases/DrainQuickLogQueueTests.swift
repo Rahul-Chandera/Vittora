@@ -140,4 +140,78 @@ struct DrainQuickLogQueueTests {
         #expect(await transactions.transactions.map(\.amount) == (1...5).map { Decimal($0) })
         #expect(queue.pending().isEmpty)
     }
+
+    // MARK: - Shortcuts actions
+
+    private func makeShortcutsUseCase(
+        queue: QuickLogQueue,
+        payees: [PayeeEntity] = []
+    ) async throws -> (DrainQuickLogQueueUseCase, MockTransactionRepository) {
+        let transactions = MockTransactionRepository()
+        let accountRepository = MockAccountRepository()
+        try await accountRepository.create(account())
+        let payeeRepository = MockPayeeRepository()
+        await payeeRepository.seedMany(payees)
+        let useCase = DrainQuickLogQueueUseCase(
+            transactionRepository: transactions,
+            accountRepository: accountRepository,
+            categoryRepository: MockCategoryRepository(),
+            queue: queue,
+            payeeRepository: payeeRepository
+        )
+        return (useCase, transactions)
+    }
+
+    @Test("a merchant matching a payee by name books against that payee")
+    func merchantMatchesPayee() async throws {
+        let queue = makeQueue()
+        let starbucks = PayeeEntity(name: "Starbucks")
+        queue.enqueue(QuickLogEntry(amount: 5, payeeName: "  STARBUCKS "))
+        let (useCase, transactions) = try await makeShortcutsUseCase(queue: queue, payees: [starbucks])
+
+        #expect(try await useCase.execute() == 1)
+        let booked = try #require(await transactions.transactions.first)
+        #expect(booked.payeeID == starbucks.id)
+        #expect(booked.note == nil)
+    }
+
+    /// No payees are created from alert text; the merchant stays visible in the note.
+    @Test("an unknown merchant is kept in the note, not turned into a payee")
+    func unknownMerchantGoesToNote() async throws {
+        let queue = makeQueue()
+        queue.enqueue(QuickLogEntry(amount: 9, note: "Lunch", payeeName: "Joe's Diner"))
+        let (useCase, transactions) = try await makeShortcutsUseCase(queue: queue)
+
+        #expect(try await useCase.execute() == 1)
+        let booked = try #require(await transactions.transactions.first)
+        #expect(booked.payeeID == nil)
+        #expect(booked.note == "Joe's Diner · Lunch")
+    }
+
+    @Test("currency and payment method carry through")
+    func currencyAndPaymentMethod() async throws {
+        let queue = makeQueue()
+        queue.enqueue(QuickLogEntry(amount: 250, currencyCode: "INR", paymentMethod: PaymentMethod.upi.rawValue))
+        let (useCase, transactions) = try await makeShortcutsUseCase(queue: queue)
+
+        #expect(try await useCase.execute() == 1)
+        let booked = try #require(await transactions.transactions.first)
+        #expect(booked.currencyCode == "INR")
+        #expect(booked.paymentMethod == .upi)
+    }
+
+    /// Entries a widget queued before the update have none of the new keys.
+    @Test("an entry queued by an older build still decodes and books")
+    func legacyEntryDecodes() async throws {
+        let defaults = try #require(UserDefaults(suiteName: "drain-legacy-\(UUID().uuidString)"))
+        let id = UUID()
+        let legacy = #"{"id":"\#(id.uuidString)","amount":42,"createdAt":700000000}"#
+        defaults.set(Data(legacy.utf8), forKey: QuickLogQueue.keyPrefix + id.uuidString)
+        let queue = QuickLogQueue(defaults: defaults)
+        let (useCase, transactions) = try await makeShortcutsUseCase(queue: queue)
+
+        #expect(try await useCase.execute() == 1)
+        #expect(await transactions.transactions.first?.amount == 42)
+        #expect(await transactions.transactions.first?.paymentMethod == .cash)
+    }
 }

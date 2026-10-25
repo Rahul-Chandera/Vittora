@@ -12,6 +12,23 @@ struct VittoraAppShortcuts: AppShortcutsProvider {
             systemImageName: "dollarsign.circle"
         )
         AppShortcut(
+            intent: LogExpenseIntent(),
+            phrases: [
+                "Log an expense in \(.applicationName)",
+                "Log spending in \(.applicationName)",
+            ],
+            shortTitle: "Log Expense",
+            systemImageName: "square.and.pencil"
+        )
+        AppShortcut(
+            intent: LogExpenseFromMessageIntent(),
+            phrases: [
+                "Log a bank message in \(.applicationName)",
+            ],
+            shortTitle: "Log from Message",
+            systemImageName: "text.bubble"
+        )
+        AppShortcut(
             intent: AddExpenseIntent(),
             phrases: [
                 "Add an expense in \(.applicationName)",

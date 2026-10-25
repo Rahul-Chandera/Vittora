@@ -35270,6 +35270,902 @@
           }
         }
       }
+    },
+    "today" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hoy"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आज"
+          }
+        }
+      }
+    },
+    "this week" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "esta semana"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस हफ़्ते"
+          }
+        }
+      }
+    },
+    "this month" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "este mes"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस महीने"
+          }
+        }
+      }
+    },
+    "last month" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "el mes pasado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पिछले महीने"
+          }
+        }
+      }
+    },
+    "in the last 30 days" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "en los últimos 30 días"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पिछले 30 दिनों में"
+          }
+        }
+      }
+    },
+    "this year" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "este año"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस साल"
+          }
+        }
+      }
+    },
+    "last year" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "el año pasado"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पिछले साल"
+          }
+        }
+      }
+    },
+    "No spending recorded %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay gastos registrados %@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ कोई खर्च दर्ज नहीं है।"
+          }
+        }
+      }
+    },
+    "You spent %@ on %@ %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gastaste %1$@ en %2$@ %3$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%3$@ आपने %2$@ पर %1$@ खर्च किए।"
+          }
+        }
+      }
+    },
+    "You spent %@ at %@ %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gastaste %1$@ en %2$@ %3$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%3$@ आपने %2$@ पर %1$@ खर्च किए।"
+          }
+        }
+      }
+    },
+    "You spent %@ %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gastaste %1$@ %2$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ आपने %1$@ खर्च किए।"
+          }
+        }
+      }
+    },
+    "No income recorded %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay ingresos registrados %@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ कोई आय दर्ज नहीं है।"
+          }
+        }
+      }
+    },
+    "You received %@ in income %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibiste %1$@ de ingresos %2$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ आपको %1$@ की आय हुई।"
+          }
+        }
+      }
+    },
+    "You recorded %lld expenses %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registraste %1$lld gastos %2$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ आपने %1$lld खर्च दर्ज किए।"
+          }
+        }
+      }
+    },
+    "Your biggest expense %@ was %@ at %@, on %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu mayor gasto %1$@ fue de %2$@ en %3$@, el %4$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ आपका सबसे बड़ा खर्च %3$@ पर %2$@ था, %4$@ को।"
+          }
+        }
+      }
+    },
+    "Your biggest expense %@ was %@, on %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu mayor gasto %1$@ fue de %2$@, el %3$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ आपका सबसे बड़ा खर्च %2$@ था, %3$@ को।"
+          }
+        }
+      }
+    },
+    "Your top categories %@: %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus categorías principales %1$@: %2$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ आपकी मुख्य कैटेगरी: %2$@।"
+          }
+        }
+      }
+    },
+    "Transactions in other currencies aren't included." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se incluyen las transacciones en otras monedas."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "दूसरी मुद्राओं के लेन-देन शामिल नहीं हैं।"
+          }
+        }
+      }
+    },
+    "How much did I spend this month?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cuánto gasté este mes?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस महीने मैंने कितना खर्च किया?"
+          }
+        }
+      }
+    },
+    "What were my top categories last month?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cuáles fueron mis categorías principales el mes pasado?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पिछले महीने मेरी मुख्य कैटेगरी कौन-सी थीं?"
+          }
+        }
+      }
+    },
+    "What was my biggest expense this month?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cuál fue mi mayor gasto este mes?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस महीने मेरा सबसे बड़ा खर्च क्या था?"
+          }
+        }
+      }
+    },
+    "How much did I earn this year?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cuánto gané este año?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "इस साल मैंने कितना कमाया?"
+          }
+        }
+      }
+    },
+    "Vittora couldn't answer that right now. Try again." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora no pudo responder ahora. Inténtalo de nuevo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora अभी इसका जवाब नहीं दे पाया। फिर से कोशिश करें।"
+          }
+        }
+      }
+    },
+    "Ask About Your Money" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pregunta sobre tu dinero"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अपने पैसों के बारे में पूछें"
+          }
+        }
+      }
+    },
+    "For example: how much did I spend on dining last month?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por ejemplo: ¿cuánto gasté en restaurantes el mes pasado?"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "उदाहरण: पिछले महीने मैंने खाने-पीने पर कितना खर्च किया?"
+          }
+        }
+      }
+    },
+    "Ask" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preguntar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पूछें"
+          }
+        }
+      }
+    },
+    "Answers come from the transactions on this device. Nothing is sent anywhere." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las respuestas salen de las transacciones de este dispositivo. No se envía nada a ningún lado."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जवाब इसी डिवाइस के लेन-देन से आते हैं। कुछ भी कहीं नहीं भेजा जाता।"
+          }
+        }
+      }
+    },
+    "Answer" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respuesta"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जवाब"
+          }
+        }
+      }
+    },
+    "Apple Intelligence understood the question on this device. Every figure is calculated from your records." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence entendió la pregunta en este dispositivo. Cada cifra se calcula a partir de tus registros."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence ने इसी डिवाइस पर सवाल समझा। हर आँकड़ा आपके रिकॉर्ड से निकाला गया है।"
+          }
+        }
+      }
+    },
+    "Try Asking" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prueba a preguntar"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ये पूछकर देखें"
+          }
+        }
+      }
+    },
+    "Type a question, get an answer from your own records" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe una pregunta y obtén la respuesta de tus propios registros"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "सवाल लिखें, जवाब आपके अपने रिकॉर्ड से मिलेगा"
+          }
+        }
+      }
+    },
+    "Ask questions in your own words and get answers from your records with Vittora Pro." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haz preguntas con tus propias palabras y obtén respuestas de tus registros con Vittora Pro."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro के साथ अपने शब्दों में सवाल पूछें और अपने रिकॉर्ड से जवाब पाएँ।"
+          }
+        }
+      }
+    },
+    "Bank statement (CSV)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado de cuenta bancario (CSV)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बैंक स्टेटमेंट (CSV)"
+          }
+        }
+      }
+    },
+    "OFX / QFX" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OFX / QFX"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OFX / QFX"
+          }
+        }
+      }
+    },
+    "QIF" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QIF"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QIF"
+          }
+        }
+      }
+    },
+    "File" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivo"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "फ़ाइल"
+          }
+        }
+      }
+    },
+    "The file is empty." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo está vacío."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "फ़ाइल खाली है।"
+          }
+        }
+      }
+    },
+    "We couldn't read this file with the chosen format. Check the format, or try another export from your bank." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos leer este archivo con el formato elegido. Revisa el formato o prueba otra exportación de tu banco."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "चुने गए फ़ॉर्मैट में यह फ़ाइल पढ़ी नहीं जा सकी। फ़ॉर्मैट जाँचें, या अपने बैंक से दूसरा एक्सपोर्ट आज़माएँ।"
+          }
+        }
+      }
+    },
+    "Import Transactions" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar transacciones"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "लेन-देन इम्पोर्ट करें"
+          }
+        }
+      }
+    },
+    "Log Expense from Message" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar gasto desde mensaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संदेश से खर्च दर्ज करें"
+          }
+        }
+      }
+    },
+    "Payee or Merchant" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beneficiario o comercio"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भुगतान पाने वाला या दुकान"
+          }
+        }
+      }
+    },
+    "Paid With" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagado con"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "भुगतान का तरीका"
+          }
+        }
+      }
+    },
+    "Card" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarjeta"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कार्ड"
+          }
+        }
+      }
+    },
+    "Message" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mensaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संदेश"
+          }
+        }
+      }
+    },
+    "That message isn't a payment, so nothing was logged." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ese mensaje no es un pago, así que no se registró nada."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "यह संदेश भुगतान का नहीं है, इसलिए कुछ दर्ज नहीं हुआ।"
+          }
+        }
+      }
+    },
+    "Enter an amount greater than zero." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresa un monto mayor que cero."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "शून्य से ज़्यादा रकम डालें।"
+          }
+        }
+      }
+    },
+    "Vittora couldn't save that expense. Try again." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora no pudo guardar ese gasto. Inténtalo de nuevo."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora यह खर्च सेव नहीं कर पाया। फिर से कोशिश करें।"
+          }
+        }
+      }
+    },
+    "Logged %@ at %@." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrado: %1$@ en %2$@."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@ पर %1$@ दर्ज किया।"
+          }
+        }
+      }
+    },
+    "Log an expense without opening Vittora. Use it in a Shortcuts automation, for example when you pay with Apple Pay." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra un gasto sin abrir Vittora. Úsalo en una automatización de Atajos, por ejemplo al pagar con Apple Pay."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora खोले बिना खर्च दर्ज करें। इसे शॉर्टकट्स ऑटोमेशन में इस्तेमाल करें, जैसे Apple Pay से भुगतान करते समय।"
+          }
+        }
+      }
+    },
+    "Reads a bank or UPI payment alert on your device and logs the amount spent. Credits, OTPs and upcoming payments are ignored." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lee en tu dispositivo un aviso de pago del banco o de UPI y registra el monto gastado. Se ignoran los abonos, los códigos OTP y los pagos próximos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके डिवाइस पर बैंक या UPI भुगतान का अलर्ट पढ़कर खर्च की गई रकम दर्ज करता है। जमा, OTP और आने वाले भुगतान छोड़ दिए जाते हैं।"
+          }
+        }
+      }
+    },
+    "Log ${amount} at ${payee}" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar ${amount} en ${payee}"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${payee} पर ${amount} दर्ज करें"
+          }
+        }
+      }
+    },
+    "Log the expense in ${message}" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar el gasto de ${message}"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${message} से खर्च दर्ज करें"
+          }
+        }
+      }
+    },
+    "Log from Message" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar desde mensaje"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संदेश से दर्ज करें"
+          }
+        }
+      }
+    },
+    "Log an expense in \\(.applicationName)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar un gasto en \\(.applicationName)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\\(.applicationName) में खर्च दर्ज करें"
+          }
+        }
+      }
+    },
+    "Log spending in \\(.applicationName)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar gastos en \\(.applicationName)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\\(.applicationName) में खर्च लिखें"
+          }
+        }
+      }
+    },
+    "Log a bank message in \\(.applicationName)" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar un mensaje del banco en \\(.applicationName)"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\\(.applicationName) में बैंक संदेश दर्ज करें"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

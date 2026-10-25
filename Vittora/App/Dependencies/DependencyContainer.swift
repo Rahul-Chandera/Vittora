@@ -47,6 +47,8 @@ final class DependencyContainer {
     var featureGate: FeatureGate
     let purchaseService: PurchaseService
     let paywallPresenter: PaywallPresenter
+    let reviewPromptPresenter = ReviewPromptPresenter()
+    let reviewPrompter: ReviewPrompter
     let conversionEventRecorder: ConversionEventRecorder
     let securityAuditLogService: SecurityAuditLogService
     let dataSeeder: any DataSeederProtocol
@@ -131,6 +133,10 @@ final class DependencyContainer {
             tracker: UserDefaultsConversionEventTracker(),
             isProUnlocked: { gate.isProUnlocked }
         )
+        self.reviewPrompter = ReviewPrompter(
+            policy: ReviewPromptPolicy(),
+            transactionRepository: transactionRepository
+        )
     }
 
     static func createDefault(modelContainer: ModelContainer) -> DependencyContainer {
@@ -204,11 +210,18 @@ final class DependencyContainer {
             investmentRepository: investmentRepository,
             notificationService: notificationService
         )
+        let categorizationRuleStore = UserDefaultsCategorizationRuleStore()
         let drainQuickLogQueueUseCase = DrainQuickLogQueueUseCase(
             transactionRepository: transactionRepository,
             accountRepository: accountRepository,
             categoryRepository: categoryRepository,
-            queue: QuickLogQueue() ?? QuickLogQueue(defaults: .standard)
+            queue: QuickLogQueue() ?? QuickLogQueue(defaults: .standard),
+            payeeRepository: payeeRepository,
+            categorize: SmartCategorizeUseCase(
+                transactionRepository: transactionRepository,
+                ruleStore: categorizationRuleStore,
+                categoryRepository: categoryRepository
+            )
         )
         let contactsImportService = SystemContactsImportService()
         let exportService = DataExportService(
@@ -256,7 +269,7 @@ final class DependencyContainer {
             conversionEventRecorder: conversionEventRecorder,
             securityAuditLogService: auditLogService,
             dataSeeder: dataSeeder,
-            categorizationRuleStore: UserDefaultsCategorizationRuleStore(),
+            categorizationRuleStore: categorizationRuleStore,
             transactionEditHistoryStore: UserDefaultsTransactionEditHistoryStore(),
             savedTransactionFilterStore: UserDefaultsSavedTransactionFilterStore()
         )
