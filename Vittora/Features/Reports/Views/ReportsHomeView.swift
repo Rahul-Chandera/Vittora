@@ -9,6 +9,7 @@ struct ReportsHomeView: View {
     @State private var pendingReportType: ReportType?
     @State private var pendingReportStart: Date?
     @State private var pendingReportEnd: Date?
+    @State private var showAskMoney = false
 
     // Computed, not stored: the accent-derived colours below read the current
     // theme, and a `let` captured them once at init so switching accent left
@@ -47,6 +48,20 @@ struct ReportsHomeView: View {
                             summaryCard(vm)
                         }
 
+                        Button { showAskMoney = true } label: {
+                            ReportCardView(
+                                title: String(localized: "Ask About Your Money"),
+                                subtitle: String(localized: "Type a question, get an answer from your own records"),
+                                icon: "text.bubble.fill",
+                                color: VColors.primaryOnSurface
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel(String(localized: "Ask About Your Money"))
+                        .accessibilityIdentifier("report-card-ask-money")
+
+
                         // Above the report list: an insight is about what already
                         // happened, so it should be read before choosing a report.
                         SpendingInsightsSection(insights: vm.insights) { insight in
@@ -76,6 +91,7 @@ struct ReportsHomeView: View {
             }
             .background(VColors.groupedBackground)
             .navigationTitle(String(localized: "Reports"))
+            .sheet(isPresented: $showAskMoney) { AskMoneyView() }
             .navigationDestination(for: ReportType.self) { type in
                 reportView(for: type)
                     .advertisesHandoff(.reportDetail(type: type.rawValue, start: nil, end: nil))

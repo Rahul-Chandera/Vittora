@@ -80,6 +80,12 @@ struct YearInReviewView: View {
                 preferredCurrencyCode: currencyCode
             )
             await vm?.load()
+            // A year with something in it is a good moment to ask for a rating.
+            if vm?.availableYears.isEmpty == false {
+                await dependencies.reviewPrompter.afterYearInReviewViewed(
+                    presenter: dependencies.reviewPromptPresenter
+                )
+            }
         }
         .task(id: appState.refreshVersion(for: .transactions)) {
             guard vm != nil, appState.refreshVersion(for: .transactions) > 0 else { return }

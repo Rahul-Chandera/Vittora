@@ -1,25 +1,41 @@
 import Foundation
 
-/// One tap on a widget preset, waiting for the app to turn it into a transaction (M2.7.5).
+/// An expense captured outside the app, waiting for the app to turn it into a
+/// transaction: a widget preset tap (M2.7.5), or the Log Expense Shortcuts actions.
+///
+/// The fields after `createdAt` arrived with the Shortcuts actions. They are optional so
+/// entries queued by an older build still decode: a missing key reads as nil.
 public struct QuickLogEntry: Identifiable, Hashable, Sendable, Codable {
     public nonisolated let id: UUID
     public nonisolated let amount: Decimal
     public nonisolated let categoryID: UUID?
     public nonisolated let note: String?
     public nonisolated let createdAt: Date
+    /// A merchant or payee name, matched to an existing payee by name when the app books it.
+    public nonisolated let payeeName: String?
+    /// ISO currency code; nil means the app's default currency.
+    public nonisolated let currencyCode: String?
+    /// `PaymentMethod` raw value; nil means the transaction default.
+    public nonisolated let paymentMethod: String?
 
     public nonisolated init(
         id: UUID = UUID(),
         amount: Decimal,
         categoryID: UUID? = nil,
         note: String? = nil,
-        createdAt: Date = .now
+        createdAt: Date = .now,
+        payeeName: String? = nil,
+        currencyCode: String? = nil,
+        paymentMethod: String? = nil
     ) {
         self.id = id
         self.amount = amount
         self.categoryID = categoryID
         self.note = note
         self.createdAt = createdAt
+        self.payeeName = payeeName
+        self.currencyCode = currencyCode
+        self.paymentMethod = paymentMethod
     }
 }
 
@@ -38,6 +54,10 @@ public struct QuickLogEntry: Identifiable, Hashable, Sendable, Codable {
 /// this feature could have, so appends never touch each other's keys.
 public struct QuickLogQueue: Sendable {
     public nonisolated static let keyPrefix = "vittora.quicklog.entry."
+
+    /// Posted in-process after a Shortcuts action queues an entry, so an app that is
+    /// already in front books it now instead of at its next activation.
+    public nonisolated static let didEnqueueNotification = Notification.Name("vittora.quicklog.didEnqueue")
 
     /// UserDefaults is thread-safe but not Sendable; the same `nonisolated(unsafe)` the
     /// reminder use cases already use for their injected suite.

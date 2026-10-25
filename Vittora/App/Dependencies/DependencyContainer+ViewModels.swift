@@ -160,6 +160,18 @@ extension DependencyContainer {
         ManageSavedTransactionFiltersUseCase(store: savedTransactionFilterStore)
     }
 
+    func makeAskMoneyViewModel() -> AskMoneyViewModel {
+        AskMoneyViewModel(
+            engine: MoneyAnswerEngine(
+                transactionRepository: transactionRepository,
+                categoryRepository: categoryRepository,
+                payeeRepository: payeeRepository
+            ),
+            categoryRepository: categoryRepository,
+            payeeRepository: payeeRepository
+        )
+    }
+
     func makeTransactionCSVImportViewModel() -> TransactionCSVImportViewModel {
         TransactionCSVImportViewModel(
             importUseCase: ImportTransactionsFromCSVUseCase(

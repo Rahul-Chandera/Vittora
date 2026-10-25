@@ -44,6 +44,14 @@ final class TransactionCSVImportViewModel {
     func loadCSV(data: Data, fileName: String) async {
         csvData = data
         self.fileName = fileName
+        // OFX and QIF files say what they are; CSVs keep the chosen profile, but not
+        // one of those two, which cannot read a CSV.
+        let fileExtension = (fileName as NSString).pathExtension
+        if let profile = CSVImportProfile.forFileExtension(fileExtension) {
+            self.profile = profile
+        } else if profile == .ofx || profile == .qif {
+            profile = .generic
+        }
         result = nil
         await refreshPreview()
     }

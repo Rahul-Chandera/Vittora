@@ -6,6 +6,10 @@ import AppKit
 #endif
 
 struct TransactionCSVImportView: View {
+    /// CSV, plus bank statement files: OFX and QFX (most US banks, Quicken) and QIF.
+    static let importableTypes: [UTType] = [.commaSeparatedText, .plainText, .text]
+        + ["ofx", "qfx", "qif"].compactMap { UTType(filenameExtension: $0) }
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dependencies) private var dependencies
     @Environment(\.currencyCode) private var currencyCode
@@ -27,7 +31,7 @@ struct TransactionCSVImportView: View {
                     ProgressView()
                 }
             }
-            .navigationTitle(String(localized: "Import CSV"))
+            .navigationTitle(String(localized: "Import Transactions"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -97,20 +101,20 @@ struct TransactionCSVImportView: View {
                     }
                 }
 
-                Section(header: VFormSectionHeader(String(localized: "CSV File"))) {
+                Section(header: VFormSectionHeader(String(localized: "File"))) {
                     #if os(iOS)
-                    Button(String(localized: "Choose CSV File")) {
+                    Button(String(localized: "Choose File")) {
                         showFilePicker = true
                     }
                     .fileImporter(
                         isPresented: $showFilePicker,
-                        allowedContentTypes: [.commaSeparatedText, .plainText, .text],
+                        allowedContentTypes: Self.importableTypes,
                         allowsMultipleSelection: false
                     ) { result in
                         handleFileImport(result, vm: vm)
                     }
                     #else
-                    Button(String(localized: "Choose CSV File")) {
+                    Button(String(localized: "Choose File")) {
                         openMacFilePicker(vm: vm)
                     }
                     #endif
@@ -204,7 +208,7 @@ struct TransactionCSVImportView: View {
     #if os(macOS)
     private func openMacFilePicker(vm: TransactionCSVImportViewModel) {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.commaSeparatedText, .plainText, .text]
+        panel.allowedContentTypes = Self.importableTypes
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
 

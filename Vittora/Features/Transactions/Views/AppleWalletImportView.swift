@@ -4,7 +4,7 @@ import FinanceKitUI
 import SwiftUI
 import VittoraCore
 
-/// Import from Apple Wallet (M3.7.1). Beside "Import CSV" in the
+/// Import from Apple Wallet (M3.7.1). Beside "Import Transactions" in the
 /// Transactions menu, and free like it.
 ///
 /// Consent first: nothing is read until the user allows access. The first
