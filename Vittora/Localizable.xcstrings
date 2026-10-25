@@ -35430,6 +35430,22 @@
           }
         }
       }
+    },
+    "Ask questions in your own words and get answers from your records with Vittora Pro." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haz preguntas con tus propias palabras y obtén respuestas de tus registros con Vittora Pro."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vittora Pro के साथ अपने शब्दों में सवाल पूछें और अपने रिकॉर्ड से जवाब पाएँ।"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

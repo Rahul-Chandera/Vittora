@@ -18,6 +18,11 @@ struct AskMoneyView: View {
                     ProgressView()
                 }
             }
+            .proGated(
+                true,
+                title: String(localized: "Ask About Your Money"),
+                message: String(localized: "Ask questions in your own words and get answers from your records with Vittora Pro.")
+            )
             .navigationTitle(String(localized: "Ask About Your Money"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
