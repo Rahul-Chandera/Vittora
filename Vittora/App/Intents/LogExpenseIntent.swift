@@ -12,7 +12,7 @@ import VittoraCore
 struct LogExpenseIntent: AppIntent {
     static var title: LocalizedStringResource { "Log Expense" }
     static var description: IntentDescription {
-        IntentDescription("Log an expense without opening Vittora. Use it in a Shortcuts automation, for example when you pay with Apple Pay.")
+        IntentDescription("Log an expense without opening Vittora. Use it in a Shortcuts automation, for example one that runs when you tap to pay.")
     }
     static var openAppWhenRun: Bool { false }
 

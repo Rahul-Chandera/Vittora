@@ -36039,18 +36039,18 @@
         }
       }
     },
-    "Log an expense without opening Vittora. Use it in a Shortcuts automation, for example when you pay with Apple Pay." : {
+    "Log an expense without opening Vittora. Use it in a Shortcuts automation, for example one that runs when you tap to pay." : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Registra un gasto sin abrir Vittora. Úsalo en una automatización de Atajos, por ejemplo al pagar con Apple Pay."
+            "value" : "Registra un gasto sin abrir Vittora. Úsalo en una automatización de Atajos, por ejemplo una que se ejecute al pagar con el teléfono."
           }
         },
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vittora खोले बिना खर्च दर्ज करें। इसे शॉर्टकट्स ऑटोमेशन में इस्तेमाल करें, जैसे Apple Pay से भुगतान करते समय।"
+            "value" : "Vittora खोले बिना खर्च दर्ज करें। इसे शॉर्टकट्स ऑटोमेशन में इस्तेमाल करें, जैसे फ़ोन से भुगतान करते ही चलने वाला ऑटोमेशन।"
           }
         }
       }
