@@ -57,4 +57,23 @@ struct LogExpenseIntentTests {
 
         #expect(try #require(QuickLogQueue()).pendingCount == before)
     }
+
+    /// App Store Connect rejects a build whose intent metadata names Apple
+    /// (ITMS-90626, 1.8.2 build 15: "Apple Pay" in Log Expense's description).
+    @Test("No intent title or description mentions Apple, in any language")
+    func intentMetadataAvoidsApple() {
+        let resources: [LocalizedStringResource] = [
+            LogExpenseIntent.title, LogExpenseIntent.description.descriptionText,
+            LogExpenseFromMessageIntent.title, LogExpenseFromMessageIntent.description.descriptionText,
+            AddExpenseIntent.title, AddExpenseIntent.description.descriptionText,
+            GetTodaySpendingIntent.title, GetTodaySpendingIntent.description.descriptionText,
+        ]
+        for language in ["en", "es", "hi"] {
+            for var resource in resources {
+                resource.locale = Locale(identifier: language)
+                let text = String(localized: resource)
+                #expect(!text.localizedCaseInsensitiveContains("apple"), "\(language): \(text)")
+            }
+        }
+    }
 }
